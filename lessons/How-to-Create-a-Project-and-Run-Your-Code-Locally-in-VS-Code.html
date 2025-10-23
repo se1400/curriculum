@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Creating Projects in VS Code</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: #f5f5f5;
+            color: #333;
+            overflow: hidden;
+        }
+
+        .presentation {
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .slide-container {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+        }
+
+        .slide {
+            display: none;
+            width: 100%;
+            max-width: 1200px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(136, 21, 24, 0.1);
+            padding: 60px;
+            height: calc(100vh - 160px);
+            overflow-y: auto;
+        }
+
+        .slide.active {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            align-items: start;
+        }
+
+        .concept {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .concept h2 {
+            color: #881518;
+            font-size: 2rem;
+            margin-bottom: 10px;
+            border-bottom: 3px solid #881518;
+            padding-bottom: 10px;
+        }
+
+        .concept p {
+            font-size: 1.1rem;
+            line-height: 1.8;
+            color: #555;
+        }
+
+        .concept ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .concept li {
+            font-size: 1.1rem;
+            line-height: 1.8;
+            color: #555;
+            padding-left: 25px;
+            position: relative;
+            margin-bottom: 10px;
+        }
+
+        .concept li::before {
+            content: "▸";
+            color: #881518;
+            position: absolute;
+            left: 0;
+            font-weight: bold;
+        }
+
+        .info-section {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .info-card {
+            background: #f9f9f9;
+            border-left: 4px solid #881518;
+            padding: 20px;
+            border-radius: 6px;
+        }
+
+        .info-card h3 {
+            color: #881518;
+            font-size: 1.3rem;
+            margin-bottom: 10px;
+        }
+
+        .info-card p {
+            font-size: 1rem;
+            line-height: 1.6;
+            color: #666;
+        }
+
+        .info-card ul {
+            list-style: none;
+            padding-left: 0;
+            margin-top: 10px;
+        }
+
+        .info-card li {
+            font-size: 1rem;
+            line-height: 1.6;
+            color: #666;
+            padding-left: 20px;
+            position: relative;
+            margin-bottom: 8px;
+        }
+
+        .info-card li::before {
+            content: "•";
+            color: #881518;
+            position: absolute;
+            left: 0;
+            font-weight: bold;
+        }
+
+        .code-block {
+            background: #1e1e1e;
+            border-radius: 8px;
+            padding: 20px;
+            overflow-x: auto;
+        }
+
+        .code-block pre {
+            margin: 0;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.95rem;
+            line-height: 1.6;
+            color: #d4d4d4;
+        }
+
+        .code-label {
+            font-size: 0.85rem;
+            color: #888;
+            margin-bottom: 8px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .command {
+            color: #4ec9b0;
+        }
+
+        .comment {
+            color: #6a9955;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 40px;
+            background: white;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 15px;
+        }
+
+        button {
+            background: #881518;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 500;
+            transition: background 0.3s ease;
+        }
+
+        button:hover {
+            background: #6b1013;
+        }
+
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        .slide-counter {
+            color: #881518;
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+
+        @media (max-width: 968px) {
+            .slide.active {
+                grid-template-columns: 1fr;
+                gap: 30px;
+            }
+
+            .slide {
+                padding: 40px;
+            }
+
+            .concept h2 {
+                font-size: 1.6rem;
+            }
+
+            .concept p, .concept li {
+                font-size: 1rem;
+            }
+
+            .info-card h3 {
+                font-size: 1.1rem;
+            }
+
+            .slide-container {
+                padding: 20px;
+            }
+
+            .controls {
+                padding: 15px 20px;
+            }
+
+            button {
+                padding: 10px 18px;
+                font-size: 0.9rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .slide {
+                padding: 30px 20px;
+            }
+
+            .concept h2 {
+                font-size: 1.4rem;
+            }
+
+            button {
+                padding: 8px 14px;
+                font-size: 0.85rem;
+            }
+
+            .nav-buttons {
+                gap: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="presentation">
+        <div class="slide-container">
+            <!-- Slide 1 -->
+            <div class="slide active">
+                <div class="concept">
+                    <h2>VS Code Workspaces</h2>
+                    <p>VS Code considers projects to be "workspaces." A workspace is simply the directory (folder) you opened in VS Code.</p>
+                    <p>To create a new project, you'll need to create a new directory for it first.</p>
+                    <p>A <strong>directory</strong> is another name for a folder on your computer.</p>
+                </div>
+                <div class="info-section">
+                    <div class="info-card">
+                        <h3>Understanding Workspaces</h3>
+                        <p>When you open a folder in VS Code, that folder becomes your workspace. All files and subfolders within it are part of your project workspace.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 2 -->
+            <div class="slide">
+                <div class="concept">
+                    <h2>Command Line Interfaces</h2>
+                    <p>Command-line interfaces (CLI) allow you to interact with your operating system through text-based commands.</p>
+                    <p>Different operating systems have different CLI tools available.</p>
+                </div>
+                <div class="info-section">
+                    <div class="info-card">
+                        <h3>CLI Tools by Operating System</h3>
+                        <p><strong>Windows:</strong> Command Prompt or PowerShell</p>
+                        <p style="margin-top: 10px;"><strong>Mac:</strong> Terminal app</p>
+                        <p style="margin-top: 10px;"><strong>Linux:</strong> Terminal</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 3 -->
+            <div class="slide">
+                <div class="concept">
+                    <h2>Creating a New Directory</h2>
+                    <p>Use the command line to create a new directory for your project.</p>
+                    <p>First, navigate to your home directory, then create the new directory using the <code>mkdir</code> command.</p>
+                    <p><code>mkdir</code> stands for "make directory" and is used to create new folders.</p>
+                </div>
+                <div class="info-section">
+                    <div>
+                        <div class="code-label">Navigate to Home Directory</div>
+                        <div class="code-block">
+                            <pre><span class="command">cd ~</span></pre>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="code-label">Create New Directory</div>
+                        <div class="code-block">
+                            <pre><span class="command">mkdir my-project</span></pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 4 -->
+            <div class="slide">
+                <div class="concept">
+                    <h2>Opening Your Project in VS Code</h2>
+                    <p>There are several ways to open your new directory with VS Code.</p>
+                    <p>Choose whichever method feels most comfortable for your workflow.</p>
+                </div>
+                <div class="info-section">
+                    <div class="info-card">
+                        <h3>Methods to Open VS Code</h3>
+                        <ul>
+                            <li>Right-click context menu from your file explorer</li>
+                            <li>Double-click the VS Code application and use File → Open Folder</li>
+                            <li>Use the command line with the <code>code</code> command</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <div class="code-label">Command Line Method</div>
+                        <div class="code-block">
+                            <pre><span class="command">code /path/to/folder</span></pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 5 -->
+            <div class="slide">
+                <div class="concept">
+                    <h2>Creating a New File</h2>
+                    <p>Once your workspace is open in VS Code, you can create new files for your project.</p>
+                    <p>Click on the File menu at the top-left corner and select "New File...", then name your file and save it.</p>
+                    <p>Your new file will appear in the explorer tab on the left side of VS Code.</p>
+                </div>
+                <div class="info-section">
+                    <div class="info-card">
+                        <h3>Creating index.html</h3>
+                        <ul>
+                            <li>Click File menu → New File...</li>
+                            <li>Name your file <code>index.html</code></li>
+                            <li>Click Save</li>
+                            <li>Add HTML content to your file</li>
+                            <li>File appears in explorer tab</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 6 -->
+            <div class="slide">
+                <div class="concept">
+                    <h2>Why Use a Web Server?</h2>
+                    <p>You might be tempted to open the HTML file in your browser directly. While that can work, it can lead to unexpected bugs.</p>
+                    <p>Common issues include CSS not loading properly, JavaScript errors, and other resource loading problems.</p>
+                    <p>Instead, you should put your HTML file behind a proper web server.</p>
+                </div>
+                <div class="info-section">
+                    <div class="info-card">
+                        <h3>Problems with Direct File Opening</h3>
+                        <ul>
+                            <li>CSS may not load properly</li>
+                            <li>JavaScript security restrictions</li>
+                            <li>File paths may not work correctly</li>
+                            <li>CORS errors with external resources</li>
+                        </ul>
+                    </div>
+                    <div class="info-card">
+                        <h3>Benefits of Web Server</h3>
+                        <ul>
+                            <li>Proper HTTP protocol handling</li>
+                            <li>Correct MIME types</li>
+                            <li>No unexpected bugs</li>
+                            <li>Mimics production environment</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 7 -->
+            <div class="slide">
+                <div class="concept">
+                    <h2>Live Server Extension</h2>
+                    <p>The Live Server extension makes it easy to run a local web server right from VS Code.</p>
+                    <p>Click on the extensions tab in the left corner and search for "Live Server" in the marketplace. It's available for free.</p>
+                    <p>Once installed, you'll see a "Go Live" button in your status bar at the bottom of VS Code.</p>
+                </div>
+                <div class="info-section">
+                    <div class="info-card">
+                        <h3>Installing Live Server</h3>
+                        <ul>
+                            <li>Click Extensions tab (left sidebar)</li>
+                            <li>Type "Live Server" in search bar</li>
+                            <li>Click Install on the extension</li>
+                            <li>Look for "Go Live" button in status bar</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 8 -->
+            <div class="slide">
+                <div class="concept">
+                    <h2>Running Your Project</h2>
+                    <p>Make sure you have your HTML file open in VS Code, then click the "Go Live" button in the status bar.</p>
+                    <p>Your page should open automatically in a new browser tab. If it doesn't, you can navigate directly to <code>http://localhost:5500/</code></p>
+                    <p>Congratulations! You've set up your very own project in VS Code and can view your changes with Live Server.</p>
+                </div>
+                <div class="info-section">
+                    <div class="info-card">
+                        <h3>Using Live Server</h3>
+                        <ul>
+                            <li>Open your HTML file in VS Code</li>
+                            <li>Click "Go Live" button</li>
+                            <li>Browser opens automatically</li>
+                            <li>Or visit http://localhost:5500/</li>
+                            <li>Changes update in real-time</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <div class="code-label">Local Server Address</div>
+                        <div class="code-block">
+                            <pre><span class="command">http://localhost:5500/</span></pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="controls">
+            <div class="nav-buttons">
+                <button id="prevBtn">← Previous</button>
+                <button id="nextBtn">Next →</button>
+            </div>
+            <div class="slide-counter">
+                <span id="currentSlide">1</span> / <span id="totalSlides">8</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.slide');
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        const currentSlideSpan = document.getElementById('currentSlide');
+        const totalSlidesSpan = document.getElementById('totalSlides');
+
+        totalSlidesSpan.textContent = slides.length;
+
+        function showSlide(n) {
+            slides[currentSlide].classList.remove('active');
+            currentSlide = (n + slides.length) % slides.length;
+            slides[currentSlide].classList.add('active');
+            currentSlideSpan.textContent = currentSlide + 1;
+            
+            prevBtn.disabled = currentSlide === 0;
+            nextBtn.disabled = currentSlide === slides.length - 1;
+        }
+
+        function nextSlide() {
+            if (currentSlide < slides.length - 1) {
+                showSlide(currentSlide + 1);
+            }
+        }
+
+        function prevSlide() {
+            if (currentSlide > 0) {
+                showSlide(currentSlide - 1);
+            }
+        }
+
+        prevBtn.addEventListener('click', prevSlide);
+        nextBtn.addEventListener('click', nextSlide);
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight') {
+                nextSlide();
+            } else if (e.key === 'ArrowLeft') {
+                prevSlide();
+            }
+        });
+
+        showSlide(0);
+    </script>
+</body>
+</html>
