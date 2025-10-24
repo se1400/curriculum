@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>File and Folder Operations</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: #f5f5f5;
+            color: #333;
+            overflow: hidden;
+        }
+
+        .presentation {
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .slide-container {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+        }
+
+        .slide {
+            display: none;
+            width: 100%;
+            max-width: 1200px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(136, 21, 24, 0.1);
+            padding: 60px;
+            height: calc(100vh - 160px);
+            overflow-y: auto;
+        }
+
+        .slide.active {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            align-items: start;
+        }
+
+        .concept {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .concept h2 {
+            color: #881518;
+            font-size: 2rem;
+            margin-bottom: 10px;
+            border-bottom: 3px solid #881518;
+            padding-bottom: 10px;
+        }
+
+        .concept p {
+            font-size: 1.1rem;
+            line-height: 1.8;
+            color: #555;
+        }
+
+        .info-section {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .step-card {
+            background: #f9f9f9;
+            border-left: 4px solid #881518;
+            padding: 18px;
+            border-radius: 6px;
+        }
+
+        .step-card h3 {
+            color: #881518;
+            font-size: 1.2rem;
+            margin-bottom: 12px;
+        }
+
+        .step-card ol {
+            margin-left: 20px;
+            color: #666;
+        }
+
+        .step-card ol li {
+            margin-bottom: 8px;
+            line-height: 1.6;
+            font-size: 0.98rem;
+        }
+
+        .step-card ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .step-card ul li {
+            padding-left: 20px;
+            position: relative;
+            margin-bottom: 8px;
+            line-height: 1.6;
+            font-size: 0.98rem;
+            color: #666;
+        }
+
+        .step-card ul li::before {
+            content: "▸";
+            color: #881518;
+            position: absolute;
+            left: 0;
+            font-weight: bold;
+        }
+
+        .info-card {
+            background: #fff8e1;
+            border: 2px solid #ffc107;
+            border-radius: 8px;
+            padding: 18px;
+        }
+
+        .info-card h4 {
+            color: #856404;
+            font-size: 1.1rem;
+            margin-bottom: 10px;
+        }
+
+        .info-card p {
+            font-size: 0.95rem;
+            line-height: 1.6;
+            color: #666;
+        }
+
+        .key {
+            background: white;
+            border: 2px solid #ddd;
+            border-radius: 4px;
+            padding: 2px 8px;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #333;
+            display: inline-block;
+            margin: 0 2px;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 40px;
+            background: white;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 15px;
+        }
+
+        button {
+            background: #881518;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 500;
+            transition: background 0.3s ease;
+        }
+
+        button:hover {
+            background: #6b1013;
+        }
+
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        .slide-counter {
+            color: #881518;
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+
+        @media (max-width: 968px) {
+            .slide.active {
+                grid-template-columns: 1fr;
+                gap: 30px;
+            }
+
+            .slide {
+                padding: 40px;
+            }
+
+            .concept h2 {
+                font-size: 1.6rem;
+            }
+
+            .concept p {
+                font-size: 1rem;
+            }
+
+            .slide-container {
+                padding: 20px;
+            }
+
+            .controls {
+                padding: 15px 20px;
+            }
+
+            button {
+                padding: 10px 18px;
+                font-size: 0.9rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .slide {
+                padding: 30px 20px;
+            }
+
+            .concept h2 {
+                font-size: 1.4rem;
+            }
+
+            button {
+                padding: 8px 14px;
+                font-size: 0.85rem;
+            }
+
+            .nav-buttons {
+                gap: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="presentation">
+        <div class="slide-container">
+            <!-- Slide 1 -->
+            <div class="slide active">
+                <div class="concept">
+                    <h2>Creating Files on Windows</h2>
+                    <p>To create a file on Windows using Explorer, you can click on the "New" option at the top right.</p>
+                    <p>This will show you a list of the different types of files that you can create.</p>
+                    <p>You can also create files in their corresponding applications.</p>
+                </div>
+                <div class="info-section">
+                    <div class="step-card">
+                        <h3>Steps to Create a File</h3>
+                        <ol>
+                            <li>Click "New" at the top right of Explorer</li>
+                            <li>Select the file type you want to create</li>
+                            <li>A new file appears with a default name</li>
+                            <li>Rename it if desired</li>
+                        </ol>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 2 -->
+            <div class="slide">
+                <div class="concept">
+                    <h2>Creating Folders on Windows</h2>
+                    <p>The process of creating folders is exactly the same as creating files.</p>
+                    <p>You can use the "New" button at the top right or right-click on an empty spot.</p>
+                </div>
+                <div class="info-section">
+                    <div class="step-card">
+                        <h3>Method 1: New Button</h3>
+                        <ol>
+                            <li>Click the "New" button at the top right</li>
+                            <li>Select the "Folder" option</li>
+                            <li>New empty folder appears</li>
+                        </ol>
+                    </div>
+                    <div class="step-card">
+                        <h3>Method 2: Right-Click</h3>
+                        <ol>
+                            <li>Right-click on an empty spot</li>
+                            <li>Go to "New"</li>
+                            <li>Select the "Folder" option</li>
+                        </ol>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 3 -->
+            <div class="slide">
+                <div class="concept">
+                    <h2>Renaming on Windows</h2>
+                    <p>You can rename files and folders by selecting them and clicking on the "Rename" option at the top.</p>
+                    <p>When the current name is highlighted, you can start writing the new name. Press Enter to confirm the changes.</p>
+                </div>
+                <div class="info-section">
+                    <div class="step-card">
+                        <h3>Three Ways to Rename</h3>
+                        <ul>
+                            <li>Select file/folder and click "Rename" at top</li>
+                            <li>Right-click and select "Rename" option</li>
+                            <li>Use <span class="key">F2</span> keyboard shortcut</li>
+                        </ul>
+                    </div>
+                    <div class="info-card">
+                        <h4>Tip</h4>
+                        <p>After choosing any method, type the new name and press Enter to confirm changes.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 4 -->
+            <div class="slide">
+                <div class="concept">
+                    <h2>Moving Files on Windows</h2>
+                    <p>You can move a file or folder to another folder by dragging and dropping it into the destination folder, if you have it opened as a tab.</p>
+                    <p>Alternatively, you can use the Cut and Paste options.</p>
+                </div>
+                <div class="info-section">
+                    <div class="step-card">
+                        <h3>Method 1: Drag and Drop</h3>
+                        <ul>
+                            <li>Drag file/folder into destination folder tab</li>
+                        </ul>
+                    </div>
+                    <div class="step-card">
+                        <h3>Method 2: Cut and Paste</h3>
+                        <ol>
+                            <li>Select the file or folder</li>
+                            <li>Click "Cut" option at the top</li>
+                            <li>Go to the destination folder</li>
+                            <li>Click "Paste" button at the top</li>
+                        </ol>
+                    </div>
+                    <div class="step-card">
+                        <h3>Method 3: Right-Click Paste</h3>
+                        <ul>
+                            <li>After cutting, right-click on empty spot in destination</li>
+                            <li>Click paste icon</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 5 -->
+            <div class="slide">
+                <div class="concept">
+                    <h2>Deleting on Windows</h2>
+                    <p>To delete a file or folder, click on it and then click on the Trash icon at the top.</p>
+                    <p>You will also find a "Delete" option if you right-click on it.</p>
+                </div>
+                <div class="info-section">
+                    <div class="step-card">
+                        <h3>Two Ways to Delete</h3>
+                        <ul>
+                            <li>Select file/folder and click Trash icon at top</li>
+                            <li>Right-click and select "Delete" option</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 6 -->
+            <div class="slide">
+                <div class="concept">
+                    <h2>Creating Files on macOS</h2>
+                    <p>To create a file on macOS, you need to open an application that lets you create the type of document you need.</p>
+                    <p>Currently, there isn't a built-in way to create a file directly in Finder.</p>
+                    <p>For example, to create a plain text file, open TextEdit and save your file.</p>
+                </div>
+                <div class="info-section">
+                    <div class="step-card">
+                        <h3>Creating a Text File</h3>
+                        <ol>
+                            <li>Go to Launchpad</li>
+                            <li>Search for "TextEdit" (or appropriate app)</li>
+                            <li>Click to open the app</li>
+                            <li>Go to File menu</li>
+                            <li>Select Save (or use <span class="key">Cmd</span> + <span class="key">S</span>)</li>
+                            <li>Choose name and location in dialog</li>
+                        </ol>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 7 -->
+            <div class="slide">
+                <div class="concept">
+                    <h2>Saving Files on macOS</h2>
+                    <p>When you are saving the file for the first time, you should see a dialog window where you can write the name of the file and choose a location.</p>
+                    <p>Usually, the file extension is added by the application automatically, but you can change it before saving the file.</p>
+                    <p>After saving, you can open Finder to see your new file in the folder where you saved it.</p>
+                </div>
+                <div class="info-section">
+                    <div class="info-card">
+                        <h4>Save Dialog</h4>
+                        <p>The save dialog allows you to:</p>
+                        <p style="margin-top: 10px;">• Enter the file name</p>
+                        <p>• Choose the save location</p>
+                        <p>• Modify the file extension if needed</p>
+                    </div>
+                    <div class="info-card">
+                        <h4>Keyboard Shortcut</h4>
+                        <p><span class="key">Cmd</span> + <span class="key">S</span> saves your file</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 8 -->
+            <div class="slide">
+                <div class="concept">
+                    <h2>Creating Folders on macOS</h2>
+                    <p>To create a new folder, you should go to the location where you want to create that new folder and right-click on an empty spot.</p>
+                    <p>You will see a list of options. The first option is "New Folder."</p>
+                </div>
+                <div class="info-section">
+                    <div class="step-card">
+                        <h3>Steps to Create a Folder</h3>
+                        <ol>
+                            <li>Navigate to desired location in Finder</li>
+                            <li>Right-click on an empty spot</li>
+                            <li>Select "New Folder" (first option)</li>
+                            <li>Assign a name to your new folder</li>
+                            <li>Press Enter to confirm</li>
+                        </ol>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 9 -->
+            <div class="slide">
+                <div class="concept">
+                    <h2>Moving Files on macOS</h2>
+                    <p>There are multiple ways to move files and folders in Finder.</p>
+                    <p>If you need to move them to a folder listed in your Finder "Favorites" section, you can just drag and drop it.</p>
+                    <p>For other locations, you have additional options.</p>
+                </div>
+                <div class="info-section">
+                    <div class="step-card">
+                        <h3>Method 1: Drag to Favorites</h3>
+                        <ul>
+                            <li>Drag and drop file/folder to Favorites section</li>
+                        </ul>
+                    </div>
+                    <div class="step-card">
+                        <h3>Method 2: Drag to Tab</h3>
+                        <ul>
+                            <li>Open destination folder as a tab</li>
+                            <li>Drag and drop file/folder into the tab</li>
+                        </ul>
+                    </div>
+                    <div class="step-card">
+                        <h3>Method 3: Keyboard Shortcuts</h3>
+                        <ol>
+                            <li>Copy file with <span class="key">Cmd</span> + <span class="key">C</span></li>
+                            <li>Go to the new folder</li>
+                            <li>Use <span class="key">Cmd</span> + <span class="key">Option</span> + <span class="key">V</span> to paste and remove from original</li>
+                        </ol>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 10 -->
+            <div class="slide">
+                <div class="concept">
+                    <h2>Deleting on macOS</h2>
+                    <p>To delete a file or folder, you can right-click on it and select "Move to trash."</p>
+                    <p>You can also drag and drop them into the trash icon on the Dock.</p>
+                    <p>When items are in the trash, you can right-click to delete immediately or empty the trash to remove all items permanently.</p>
+                </div>
+                <div class="info-section">
+                    <div class="step-card">
+                        <h3>Moving to Trash</h3>
+                        <ul>
+                            <li>Right-click and select "Move to trash"</li>
+                            <li>Or drag and drop into trash icon on Dock</li>
+                        </ul>
+                    </div>
+                    <div class="step-card">
+                        <h3>Permanent Deletion</h3>
+                        <ul>
+                            <li>Right-click on item in trash to delete immediately</li>
+                            <li>Or empty the trash to remove all deleted items permanently</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 11 -->
+            <div class="slide">
+                <div class="concept">
+                    <h2>Importance of These Skills</h2>
+                    <p>Knowing how to create, move, and delete files and folders on Windows and macOS is very important.</p>
+                    <p>By mastering these skills, you can organize your files, locate them quickly, and free up storage on your computer by deleting unnecessary files.</p>
+                </div>
+                <div class="info-section">
+                    <div class="step-card">
+                        <h3>Key Benefits</h3>
+                        <ul>
+                            <li>Organize files efficiently</li>
+                            <li>Locate files quickly when needed</li>
+                            <li>Free up storage space</li>
+                            <li>Maintain a clean workspace</li>
+                            <li>Improve productivity</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="controls">
+            <div class="nav-buttons">
+                <button id="prevBtn">← Previous</button>
+                <button id="nextBtn">Next →</button>
+            </div>
+            <div class="slide-counter">
+                <span id="currentSlide">1</span> / <span id="totalSlides">11</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.slide');
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        const currentSlideSpan = document.getElementById('currentSlide');
+        const totalSlidesSpan = document.getElementById('totalSlides');
+
+        totalSlidesSpan.textContent = slides.length;
+
+        function showSlide(n) {
+            slides[currentSlide].classList.remove('active');
+            currentSlide = (n + slides.length) % slides.length;
+            slides[currentSlide].classList.add('active');
+            currentSlideSpan.textContent = currentSlide + 1;
+            
+            prevBtn.disabled = currentSlide === 0;
+            nextBtn.disabled = currentSlide === slides.length - 1;
+        }
+
+        function nextSlide() {
+            if (currentSlide < slides.length - 1) {
+                showSlide(currentSlide + 1);
+            }
+        }
+
+        function prevSlide() {
+            if (currentSlide > 0) {
+                showSlide(currentSlide - 1);
+            }
+        }
+
+        prevBtn.addEventListener('click', prevSlide);
+        nextBtn.addEventListener('click', nextSlide);
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight') {
+                nextSlide();
+            } else if (e.key === 'ArrowLeft') {
+                prevSlide();
+            }
+        });
+
+        showSlide(0);
+    </script>
+</body>
+</html>

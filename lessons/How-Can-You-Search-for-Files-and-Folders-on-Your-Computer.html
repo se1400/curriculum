@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Searching for Files and Folders</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: #f5f5f5;
+            color: #333;
+            overflow: hidden;
+        }
+
+        .presentation {
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .slide-container {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+        }
+
+        .slide {
+            display: none;
+            width: 100%;
+            max-width: 1200px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(136, 21, 24, 0.1);
+            padding: 60px;
+            height: calc(100vh - 160px);
+            overflow-y: auto;
+        }
+
+        .slide.active {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            align-items: start;
+        }
+
+        .concept {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .concept h2 {
+            color: #881518;
+            font-size: 2rem;
+            margin-bottom: 10px;
+            border-bottom: 3px solid #881518;
+            padding-bottom: 10px;
+        }
+
+        .concept p {
+            font-size: 1.1rem;
+            line-height: 1.8;
+            color: #555;
+        }
+
+        .info-section {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .info-card {
+            background: #f9f9f9;
+            border-left: 4px solid #881518;
+            padding: 20px;
+            border-radius: 6px;
+        }
+
+        .info-card h3 {
+            color: #881518;
+            font-size: 1.3rem;
+            margin-bottom: 10px;
+        }
+
+        .info-card p {
+            font-size: 1rem;
+            line-height: 1.6;
+            color: #666;
+        }
+
+        .info-card ul {
+            list-style: none;
+            padding-left: 0;
+            margin-top: 10px;
+        }
+
+        .info-card li {
+            font-size: 1rem;
+            line-height: 1.6;
+            color: #666;
+            padding-left: 20px;
+            position: relative;
+            margin-bottom: 8px;
+        }
+
+        .info-card li::before {
+            content: "•";
+            color: #881518;
+            position: absolute;
+            left: 0;
+            font-weight: bold;
+        }
+
+        .step-card {
+            background: #f9f9f9;
+            border-left: 4px solid #881518;
+            padding: 18px;
+            border-radius: 6px;
+        }
+
+        .step-card h3 {
+            color: #881518;
+            font-size: 1.2rem;
+            margin-bottom: 12px;
+        }
+
+        .step-card ol {
+            margin-left: 20px;
+            color: #666;
+        }
+
+        .step-card ol li {
+            margin-bottom: 8px;
+            line-height: 1.6;
+            font-size: 0.98rem;
+        }
+
+        .step-card p {
+            font-size: 0.98rem;
+            line-height: 1.6;
+            color: #666;
+        }
+
+        .highlight-box {
+            background: #fff8e1;
+            border: 2px solid #ffc107;
+            border-radius: 8px;
+            padding: 18px;
+        }
+
+        .highlight-box h4 {
+            color: #856404;
+            font-size: 1.1rem;
+            margin-bottom: 10px;
+        }
+
+        .highlight-box p {
+            font-size: 0.95rem;
+            line-height: 1.6;
+            color: #666;
+        }
+
+        .key {
+            background: white;
+            border: 2px solid #ddd;
+            border-radius: 4px;
+            padding: 2px 8px;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #333;
+            display: inline-block;
+            margin: 0 2px;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 40px;
+            background: white;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 15px;
+        }
+
+        button {
+            background: #881518;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 500;
+            transition: background 0.3s ease;
+        }
+
+        button:hover {
+            background: #6b1013;
+        }
+
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        .slide-counter {
+            color: #881518;
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+
+        @media (max-width: 968px) {
+            .slide.active {
+                grid-template-columns: 1fr;
+                gap: 30px;
+            }
+
+            .slide {
+                padding: 40px;
+            }
+
+            .concept h2 {
+                font-size: 1.6rem;
+            }
+
+            .concept p {
+                font-size: 1rem;
+            }
+
+            .slide-container {
+                padding: 20px;
+            }
+
+            .controls {
+                padding: 15px 20px;
+            }
+
+            button {
+                padding: 10px 18px;
+                font-size: 0.9rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .slide {
+                padding: 30px 20px;
+            }
+
+            .concept h2 {
+                font-size: 1.4rem;
+            }
+
+            button {
+                padding: 8px 14px;
+                font-size: 0.85rem;
+            }
+
+            .nav-buttons {
+                gap: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="presentation">
+        <div class="slide-container">
+            <!-- Slide 1 -->
+            <div class="slide active">
+                <div class="concept">
+                    <h2>Searching for Files on Windows</h2>
+                    <p>You can search for files and folders on Windows from two main locations: the Taskbar or File Explorer.</p>
+                    <p>Both methods provide quick access to your files across your PC and OneDrive.</p>
+                </div>
+                <div class="info-section">
+                    <div class="info-card">
+                        <h3>Two Search Locations</h3>
+                        <ul>
+                            <li><strong>Taskbar:</strong> Quick search from bottom of screen</li>
+                            <li><strong>File Explorer:</strong> Search within Explorer window</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 2 -->
+            <div class="slide">
+                <div class="concept">
+                    <h2>Searching from the Taskbar</h2>
+                    <p>To search from the Taskbar, write the name of the file or folder that you are looking for. You can also search for keywords.</p>
+                    <p>You'll see results from across your PC and OneDrive.</p>
+                    <p>If you only want to see documents, you can click on the "Documents" tab. You also have tabs for apps and web results.</p>
+                </div>
+                <div class="info-section">
+                    <div class="step-card">
+                        <h3>How to Search</h3>
+                        <ol>
+                            <li>Click the search box on the Taskbar</li>
+                            <li>Type the file name, folder name, or keywords</li>
+                            <li>View results from PC and OneDrive</li>
+                            <li>Filter by tabs: Documents, Apps, Web</li>
+                        </ol>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 3 -->
+            <div class="slide">
+                <div class="concept">
+                    <h2>Searching from File Explorer</h2>
+                    <p>Another alternative is to use the Search File Explorer.</p>
+                    <p>You will find it at the top right of the Explorer window, where you can see "Search Documents."</p>
+                    <p>This method gives you more control over the scope of your search.</p>
+                </div>
+                <div class="info-section">
+                    <div class="info-card">
+                        <h3>File Explorer Search Location</h3>
+                        <p>Look for the search box at the top right of the Explorer window labeled "Search Documents".</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 4 -->
+            <div class="slide">
+                <div class="concept">
+                    <h2>Search Scope Options</h2>
+                    <p>You have three options to define the scope of the search in File Explorer.</p>
+                    <p>Each option provides different levels of breadth and speed for your search.</p>
+                </div>
+                <div class="info-section">
+                    <div class="info-card">
+                        <h3>Home</h3>
+                        <p>Find files from your PC and from the cloud quickly</p>
+                    </div>
+                    <div class="info-card">
+                        <h3>Folder</h3>
+                        <p>Find files stored inside a specific folder</p>
+                    </div>
+                    <div class="info-card">
+                        <h3>This PC</h3>
+                        <p>Slow but in-depth search across entire computer</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 5 -->
+            <div class="slide">
+                <div class="concept">
+                    <h2>Searching on macOS with Spotlight</h2>
+                    <p>First, you can use <strong>Spotlight</strong>, a tool that helps you find files on your Mac.</p>
+                    <p>To open Spotlight, go to your menu bar at the top right and find the magnifying glass icon.</p>
+                    <p>If you don't see this icon on the menu bar, you can add it in the Control Center settings.</p>
+                </div>
+                <div class="info-section">
+                    <div class="step-card">
+                        <h3>Opening Spotlight</h3>
+                        <ul>
+                            <li>Click magnifying glass icon in menu bar (top right)</li>
+                            <li>Or use keyboard shortcut: <span class="key">Cmd</span> + <span class="key">Spacebar</span></li>
+                        </ul>
+                    </div>
+                    <div class="highlight-box">
+                        <h4>Adding Spotlight to Menu Bar</h4>
+                        <p>Go to Settings → Control Center → Scroll to Spotlight option</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 6 -->
+            <div class="slide">
+                <div class="concept">
+                    <h2>Using Spotlight Search</h2>
+                    <p>When you open Spotlight, you'll see the Spotlight Search where you can search for any file or folder by typing its name.</p>
+                    <p>When you start typing, you'll see the results grouped by category, including suggestions, folders, presentations, photos, documents, and related searches.</p>
+                    <p>You can also expand a specific category by clicking on "Show More."</p>
+                </div>
+                <div class="info-section">
+                    <div class="info-card">
+                        <h3>Search Results Categories</h3>
+                        <ul>
+                            <li>Suggestions</li>
+                            <li>Folders</li>
+                            <li>Presentations</li>
+                            <li>Photos</li>
+                            <li>Documents</li>
+                            <li>Related searches</li>
+                        </ul>
+                        <p style="margin-top: 15px;">Click "Show More" to expand a category</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 7 -->
+            <div class="slide">
+                <div class="concept">
+                    <h2>Finding Recently Opened Files</h2>
+                    <p>Another way to search for files that you have recently opened is to use Finder.</p>
+                    <p>Open Finder by clicking on the Finder icon in the Dock. Then, go to "Recents" in the Finder sidebar.</p>
+                    <p>There, you'll find all the files that you've recently viewed.</p>
+                </div>
+                <div class="info-section">
+                    <div class="step-card">
+                        <h3>Access Recent Files</h3>
+                        <ol>
+                            <li>Click Finder icon in the Dock</li>
+                            <li>Go to "Recents" in the sidebar</li>
+                            <li>View all recently opened files</li>
+                        </ol>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 8 -->
+            <div class="slide">
+                <div class="concept">
+                    <h2>Optimizing Your Workflow</h2>
+                    <p>With these search tools, you can optimize your workflow and find the files and folders you need very quickly.</p>
+                    <p>Understanding both Windows and macOS search capabilities helps you work efficiently on any platform.</p>
+                </div>
+                <div class="info-section">
+                    <div class="info-card">
+                        <h3>Windows Search Tools</h3>
+                        <ul>
+                            <li>Taskbar search for quick access</li>
+                            <li>File Explorer with scope options</li>
+                            <li>Filter by Documents, Apps, Web</li>
+                        </ul>
+                    </div>
+                    <div class="info-card">
+                        <h3>macOS Search Tools</h3>
+                        <ul>
+                            <li>Spotlight for system-wide search</li>
+                            <li>Categorized search results</li>
+                            <li>Finder Recents for recent files</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="controls">
+            <div class="nav-buttons">
+                <button id="prevBtn">← Previous</button>
+                <button id="nextBtn">Next →</button>
+            </div>
+            <div class="slide-counter">
+                <span id="currentSlide">1</span> / <span id="totalSlides">8</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.slide');
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        const currentSlideSpan = document.getElementById('currentSlide');
+        const totalSlidesSpan = document.getElementById('totalSlides');
+
+        totalSlidesSpan.textContent = slides.length;
+
+        function showSlide(n) {
+            slides[currentSlide].classList.remove('active');
+            currentSlide = (n + slides.length) % slides.length;
+            slides[currentSlide].classList.add('active');
+            currentSlideSpan.textContent = currentSlide + 1;
+            
+            prevBtn.disabled = currentSlide === 0;
+            nextBtn.disabled = currentSlide === slides.length - 1;
+        }
+
+        function nextSlide() {
+            if (currentSlide < slides.length - 1) {
+                showSlide(currentSlide + 1);
+            }
+        }
+
+        function prevSlide() {
+            if (currentSlide > 0) {
+                showSlide(currentSlide - 1);
+            }
+        }
+
+        prevBtn.addEventListener('click', prevSlide);
+        nextBtn.addEventListener('click', nextSlide);
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight') {
+                nextSlide();
+            } else if (e.key === 'ArrowLeft') {
+                prevSlide();
+            }
+        });
+
+        showSlide(0);
+    </script>
+</body>
+</html>

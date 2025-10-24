@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>File/Folder Organization</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: #f5f5f5;
+            color: #333;
+            overflow: hidden;
+        }
+
+        .presentation {
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .slide-container {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+        }
+
+        .slide {
+            display: none;
+            width: 100%;
+            max-width: 1200px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(136, 21, 24, 0.1);
+            padding: 60px;
+            height: calc(100vh - 160px);
+            overflow-y: auto;
+        }
+
+        .slide.active {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            align-items: start;
+        }
+
+        .concept {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .concept h2 {
+            color: #881518;
+            font-size: 2rem;
+            margin-bottom: 10px;
+            border-bottom: 3px solid #881518;
+            padding-bottom: 10px;
+        }
+
+        .concept p {
+            font-size: 1.1rem;
+            line-height: 1.8;
+            color: #555;
+        }
+
+        .info-section {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .info-card {
+            background: #f9f9f9;
+            border-left: 4px solid #881518;
+            padding: 20px;
+            border-radius: 6px;
+        }
+
+        .info-card h3 {
+            color: #881518;
+            font-size: 1.3rem;
+            margin-bottom: 10px;
+        }
+
+        .info-card p {
+            font-size: 1rem;
+            line-height: 1.6;
+            color: #666;
+        }
+
+        .info-card ul {
+            list-style: none;
+            padding-left: 0;
+            margin-top: 10px;
+        }
+
+        .info-card li {
+            font-size: 1rem;
+            line-height: 1.6;
+            color: #666;
+            padding-left: 20px;
+            position: relative;
+            margin-bottom: 8px;
+        }
+
+        .info-card li::before {
+            content: "•";
+            color: #881518;
+            position: absolute;
+            left: 0;
+            font-weight: bold;
+        }
+
+        .file-tree {
+            background: #1e1e1e;
+            border-radius: 8px;
+            padding: 20px;
+            overflow-x: auto;
+        }
+
+        .file-tree pre {
+            margin: 0;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.9rem;
+            line-height: 1.8;
+            color: #d4d4d4;
+        }
+
+        .tree-folder {
+            color: #569cd6;
+        }
+
+        .tree-file {
+            color: #9cdcfe;
+        }
+
+        .tree-symbol {
+            color: #808080;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 40px;
+            background: white;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 15px;
+        }
+
+        button {
+            background: #881518;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 500;
+            transition: background 0.3s ease;
+        }
+
+        button:hover {
+            background: #6b1013;
+        }
+
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        .slide-counter {
+            color: #881518;
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+
+        @media (max-width: 968px) {
+            .slide.active {
+                grid-template-columns: 1fr;
+                gap: 30px;
+            }
+
+            .slide {
+                padding: 40px;
+            }
+
+            .concept h2 {
+                font-size: 1.6rem;
+            }
+
+            .concept p {
+                font-size: 1rem;
+            }
+
+            .slide-container {
+                padding: 20px;
+            }
+
+            .controls {
+                padding: 15px 20px;
+            }
+
+            button {
+                padding: 10px 18px;
+                font-size: 0.9rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .slide {
+                padding: 30px 20px;
+            }
+
+            .concept h2 {
+                font-size: 1.4rem;
+            }
+
+            button {
+                padding: 8px 14px;
+                font-size: 0.85rem;
+            }
+
+            .nav-buttons {
+                gap: 10px;
+            }
+
+            .file-tree pre {
+                font-size: 0.75rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="presentation">
+        <div class="slide-container">
+            <!-- Slide 1 -->
+            <div class="slide active">
+                <div class="concept">
+                    <h2>File and Folder Organization</h2>
+                    <p>When building out web applications, it is important to think about the organization of your files and folders.</p>
+                    <p>This will help keep your code organized and easier to maintain.</p>
+                    <p>Good organization makes it simple to find what you need and helps others contribute to your project.</p>
+                </div>
+                <div class="info-section">
+                    <div class="info-card">
+                        <h3>Benefits of Organization</h3>
+                        <ul>
+                            <li>Keeps code organized</li>
+                            <li>Easier to maintain</li>
+                            <li>Quick file location</li>
+                            <li>Enables team collaboration</li>
+                            <li>Professional project structure</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 2 -->
+            <div class="slide">
+                <div class="concept">
+                    <h2>Example Folder Structure</h2>
+                    <p>Let's look at an example folder structure for an HTML and CSS project.</p>
+                    <p>This organized structure separates assets, stylesheets, and HTML files into logical groupings.</p>
+                </div>
+                <div class="info-section">
+                    <div class="file-tree">
+                        <pre><span class="tree-symbol">.</span>
+<span class="tree-symbol">├──</span> <span class="tree-folder">/assets</span>
+<span class="tree-symbol">│   ├──</span> <span class="tree-folder">/images</span>
+<span class="tree-symbol">│   │   ├──</span> <span class="tree-file">logo.png</span>
+<span class="tree-symbol">│   │   ├──</span> <span class="tree-file">banner.jpg</span>
+<span class="tree-symbol">│   │   └──</span> <span class="tree-file">icons.svg</span>
+<span class="tree-symbol">│   ├──</span> <span class="tree-folder">/fonts</span>
+<span class="tree-symbol">│   │   ├──</span> <span class="tree-file">custom-font.woff</span>
+<span class="tree-symbol">│   │   └──</span> <span class="tree-file">custom-font.woff2</span>
+<span class="tree-symbol">├──</span> <span class="tree-folder">/css</span>
+<span class="tree-symbol">│   ├──</span> <span class="tree-file">main.css</span>
+<span class="tree-symbol">│   ├──</span> <span class="tree-file">about.css</span>
+<span class="tree-symbol">│   └──</span> <span class="tree-file">contact.css</span>
+<span class="tree-symbol">├──</span> <span class="tree-file">index.html</span>
+<span class="tree-symbol">├──</span> <span class="tree-file">about.html</span>
+<span class="tree-symbol">├──</span> <span class="tree-file">contact.html</span>
+<span class="tree-symbol">└──</span> <span class="tree-file">README.md</span></pre>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 3 -->
+            <div class="slide">
+                <div class="concept">
+                    <h2>Root Directory</h2>
+                    <p>At the top of the example, there is a single dot (<code>.</code>), which represents the root directory.</p>
+                    <p>The <strong>root directory</strong> is the top-level directory in a file system, serving as the starting point for all file paths and containing all other directories and files.</p>
+                    <p>A directory is another name for a folder.</p>
+                </div>
+                <div class="info-section">
+                    <div class="info-card">
+                        <h3>Root Directory</h3>
+                        <p>The starting point of your project's file structure. All other folders and files are contained within or descend from the root directory.</p>
+                        <p style="margin-top: 15px; font-family: 'Courier New', monospace; color: #881518; font-size: 1.5rem;">.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 4 -->
+            <div class="slide">
+                <div class="concept">
+                    <h2>Assets Directory</h2>
+                    <p>Inside the root directory, the first directory shown is the <strong>assets</strong> directory.</p>
+                    <p>The term assets refers to any files that are used in the project, such as images, fonts, or other resources.</p>
+                    <p>In this example, there are two directories inside the assets directory called <code>images</code> and <code>fonts</code>.</p>
+                </div>
+                <div class="info-section">
+                    <div class="info-card">
+                        <h3>/assets</h3>
+                        <p>Stores project resources:</p>
+                        <ul>
+                            <li><strong>/images</strong> - Logo, banners, icons, photos</li>
+                            <li><strong>/fonts</strong> - Custom font files</li>
+                            <li>Other resources like videos, documents, etc.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 5 -->
+            <div class="slide">
+                <div class="concept">
+                    <h2>CSS Directory</h2>
+                    <p>The next directory would be the <strong>css</strong> directory.</p>
+                    <p>Sometimes this is also referred to as a <strong>stylesheets</strong> directory.</p>
+                    <p>This is where you would store all of your CSS files.</p>
+                </div>
+                <div class="info-section">
+                    <div class="info-card">
+                        <h3>/css</h3>
+                        <p>Contains all stylesheet files:</p>
+                        <ul>
+                            <li><code>main.css</code> - Main styles</li>
+                            <li><code>about.css</code> - About page styles</li>
+                            <li><code>contact.css</code> - Contact page styles</li>
+                        </ul>
+                        <p style="margin-top: 10px;">Can also be named <strong>/stylesheets</strong></p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 6 -->
+            <div class="slide">
+                <div class="concept">
+                    <h2>HTML Files</h2>
+                    <p>Below the css directory are the HTML files.</p>
+                    <p>The <code>index.html</code> file represents the homepage, while <code>about.html</code> and <code>contact.html</code> represent the About and Contact pages, respectively.</p>
+                    <p>HTML files are typically stored in the root directory for easy access.</p>
+                </div>
+                <div class="info-section">
+                    <div class="info-card">
+                        <h3>HTML Page Files</h3>
+                        <ul>
+                            <li><code>index.html</code> - Homepage (main entry point)</li>
+                            <li><code>about.html</code> - About page</li>
+                            <li><code>contact.html</code> - Contact page</li>
+                            <li>Other page files as needed</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 7 -->
+            <div class="slide">
+                <div class="concept">
+                    <h2>README.md File</h2>
+                    <p>Lastly, there is a <code>README.md</code> file.</p>
+                    <p>README files are commonly used to provide useful information about the project, such as what it does, how to use it, and any other relevant details.</p>
+                    <p>The <code>.md</code> extension stands for Markdown, which is a lightweight markup language that is often used to write documentation.</p>
+                </div>
+                <div class="info-section">
+                    <div class="info-card">
+                        <h3>README.md</h3>
+                        <p>Project documentation file that typically includes:</p>
+                        <ul>
+                            <li>Project description</li>
+                            <li>How to use the project</li>
+                            <li>Installation instructions</li>
+                            <li>Features and functionality</li>
+                            <li>Author and license information</li>
+                        </ul>
+                        <p style="margin-top: 10px;">Written in Markdown (.md) format</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 8 -->
+            <div class="slide">
+                <div class="concept">
+                    <h2>Benefits and Flexibility</h2>
+                    <p>By organizing your project into assets, CSS, and HTML files, it makes it easy to find what you are looking for.</p>
+                    <p>This also makes it easy for other developers to contribute to your project.</p>
+                    <p>It is important to note that this is just one example of how you can organize your files and folders. There are many different ways to structure a project.</p>
+                </div>
+                <div class="info-section">
+                    <div class="info-card">
+                        <h3>Key Takeaways</h3>
+                        <ul>
+                            <li>Logical grouping improves findability</li>
+                            <li>Clear structure aids collaboration</li>
+                            <li>Multiple valid organizational approaches exist</li>
+                            <li>Choose what works best for your project</li>
+                            <li>Stay consistent throughout the project</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="controls">
+            <div class="nav-buttons">
+                <button id="prevBtn">← Previous</button>
+                <button id="nextBtn">Next →</button>
+            </div>
+            <div class="slide-counter">
+                <span id="currentSlide">1</span> / <span id="totalSlides">8</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.slide');
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        const currentSlideSpan = document.getElementById('currentSlide');
+        const totalSlidesSpan = document.getElementById('totalSlides');
+
+        totalSlidesSpan.textContent = slides.length;
+
+        function showSlide(n) {
+            slides[currentSlide].classList.remove('active');
+            currentSlide = (n + slides.length) % slides.length;
+            slides[currentSlide].classList.add('active');
+            currentSlideSpan.textContent = currentSlide + 1;
+            
+            prevBtn.disabled = currentSlide === 0;
+            nextBtn.disabled = currentSlide === slides.length - 1;
+        }
+
+        function nextSlide() {
+            if (currentSlide < slides.length - 1) {
+                showSlide(currentSlide + 1);
+            }
+        }
+
+        function prevSlide() {
+            if (currentSlide > 0) {
+                showSlide(currentSlide - 1);
+            }
+        }
+
+        prevBtn.addEventListener('click', prevSlide);
+        nextBtn.addEventListener('click', nextSlide);
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight') {
+                nextSlide();
+            } else if (e.key === 'ArrowLeft') {
+                prevSlide();
+            }
+        });
+
+        showSlide(0);
+    </script>
+</body>
+</html>
