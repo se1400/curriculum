@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SVGs and When to Use Them</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: #f5f5f5;
+            color: #333;
+            overflow: hidden;
+        }
+
+        .presentation {
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .slide-container {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+        }
+
+        .slide {
+            display: none;
+            width: 100%;
+            max-width: 1200px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(136, 21, 24, 0.1);
+            padding: 60px;
+            height: calc(100vh - 160px);
+            overflow-y: auto;
+        }
+
+        .slide.active {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            align-items: start;
+        }
+
+        .concept {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .concept h2 {
+            color: #881518;
+            font-size: 2rem;
+            margin-bottom: 10px;
+            border-bottom: 3px solid #881518;
+            padding-bottom: 10px;
+        }
+
+        .concept p {
+            font-size: 1.1rem;
+            line-height: 1.8;
+            color: #555;
+        }
+
+        .info-section {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .info-card {
+            background: #f9f9f9;
+            border-left: 4px solid #881518;
+            padding: 20px;
+            border-radius: 6px;
+        }
+
+        .info-card h3 {
+            color: #881518;
+            font-size: 1.3rem;
+            margin-bottom: 10px;
+        }
+
+        .info-card p {
+            font-size: 1rem;
+            line-height: 1.6;
+            color: #666;
+        }
+
+        .info-card ul {
+            list-style: none;
+            padding-left: 0;
+            margin-top: 10px;
+        }
+
+        .info-card li {
+            font-size: 1rem;
+            line-height: 1.6;
+            color: #666;
+            padding-left: 20px;
+            position: relative;
+            margin-bottom: 8px;
+        }
+
+        .info-card li::before {
+            content: "•";
+            color: #881518;
+            position: absolute;
+            left: 0;
+            font-weight: bold;
+        }
+
+        .code-block {
+            background: #1e1e1e;
+            border-radius: 8px;
+            padding: 20px;
+            overflow-x: auto;
+        }
+
+        .code-block pre {
+            margin: 0;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.85rem;
+            line-height: 1.6;
+            color: #d4d4d4;
+        }
+
+        .code-label {
+            font-size: 0.85rem;
+            color: #888;
+            margin-bottom: 8px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .tag {
+            color: #569cd6;
+        }
+
+        .attr {
+            color: #9cdcfe;
+        }
+
+        .value {
+            color: #ce9178;
+        }
+
+        .comparison-box {
+            background: #f9f9f9;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            padding: 18px;
+        }
+
+        .comparison-box h4 {
+            color: #881518;
+            font-size: 1.1rem;
+            margin-bottom: 10px;
+        }
+
+        .comparison-item {
+            margin-bottom: 12px;
+        }
+
+        .comparison-item strong {
+            color: #881518;
+        }
+
+        .highlight-box {
+            background: #e3f2fd;
+            border: 2px solid #2196f3;
+            border-radius: 8px;
+            padding: 18px;
+        }
+
+        .highlight-box h4 {
+            color: #1565c0;
+            font-size: 1.1rem;
+            margin-bottom: 10px;
+        }
+
+        .highlight-box p {
+            font-size: 0.95rem;
+            line-height: 1.6;
+            color: #424242;
+        }
+
+        .svg-demo {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            background: #f9f9f9;
+            border-radius: 8px;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 40px;
+            background: white;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 15px;
+        }
+
+        button {
+            background: #881518;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 500;
+            transition: background 0.3s ease;
+        }
+
+        button:hover {
+            background: #6b1013;
+        }
+
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        .slide-counter {
+            color: #881518;
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+
+        @media (max-width: 968px) {
+            .slide.active {
+                grid-template-columns: 1fr;
+                gap: 30px;
+            }
+
+            .slide {
+                padding: 40px;
+            }
+
+            .concept h2 {
+                font-size: 1.6rem;
+            }
+
+            .concept p {
+                font-size: 1rem;
+            }
+
+            .slide-container {
+                padding: 20px;
+            }
+
+            .controls {
+                padding: 15px 20px;
+            }
+
+            button {
+                padding: 10px 18px;
+                font-size: 0.9rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .slide {
+                padding: 30px 20px;
+            }
+
+            .concept h2 {
+                font-size: 1.4rem;
+            }
+
+            button {
+                padding: 8px 14px;
+                font-size: 0.85rem;
+            }
+
+            .nav-buttons {
+                gap: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="presentation">
+        <div class="slide-container">
+            <!-- Slide 1 -->
+            <div class="slide active">
+                <div class="concept">
+                    <h2>Raster Images</h2>
+                    <p>First, you need to understand how images work. Common image formats like PNG and JPG are classified as <strong>raster formats</strong>.</p>
+                    <p>This essentially means that they are pixel-based, with the data tracking the color value in each pixel.</p>
+                </div>
+                <div class="info-section">
+                    <div class="info-card">
+                        <h3>Raster Characteristics</h3>
+                        <ul>
+                            <li>Pixel-based image format</li>
+                            <li>Stores color data for each pixel</li>
+                            <li>Examples: PNG, JPG, GIF</li>
+                            <li>Resolution-dependent</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 2 -->
+            <div class="slide">
+                <div class="concept">
+                    <h2>Raster Image Limitations</h2>
+                    <p>A large downside of raster-based images is that they do not upscale well.</p>
+                    <p>If you've ever tried to make a PNG larger, you may have seen that it becomes pixelated or blurry.</p>
+                    <p>When you enlarge a raster image, the pixels are stretched, resulting in quality loss.</p>
+                </div>
+                <div class="info-section">
+                    <div class="comparison-box">
+                        <h4>Scaling Issues</h4>
+                        <div class="comparison-item">
+                            <strong>Problem:</strong> Enlarging raster images causes pixelation and blur
+                        </div>
+                        <div class="comparison-item">
+                            <strong>Why:</strong> Fixed pixel data cannot adapt to larger sizes
+                        </div>
+                        <div class="comparison-item">
+                            <strong>Result:</strong> Loss of image quality and clarity
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 3 -->
+            <div class="slide">
+                <div class="concept">
+                    <h2>What Are SVGs?</h2>
+                    <p>An SVG is a different kind of image. <strong>SVG</strong> stands for Scalable Vector Graphic.</p>
+                    <p>A vector graphic tracks data based on paths and equations to plot points, lines, and curves.</p>
+                    <p>What this really means is that a vector graphic, like an SVG, can be scaled to any size without impacting the quality.</p>
+                </div>
+                <div class="info-section">
+                    <div class="info-card">
+                        <h3>Vector Characteristics</h3>
+                        <ul>
+                            <li>Path-based, not pixel-based</li>
+                            <li>Uses mathematical equations</li>
+                            <li>Plots points, lines, and curves</li>
+                            <li>Resolution-independent</li>
+                            <li>Scales infinitely without quality loss</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 4 -->
+            <div class="slide">
+                <div class="concept">
+                    <h2>SVG Benefits</h2>
+                    <p>SVGs specifically have the added benefit of storing data in XML.</p>
+                    <p>This means you can use them directly in your code as raw HTML with the <code>&lt;svg&gt;</code> element.</p>
+                    <p>It also means you can programmatically change the color of the image.</p>
+                </div>
+                <div class="info-section">
+                    <div class="info-card">
+                        <h3>Key Advantages</h3>
+                        <ul>
+                            <li>Stores data in XML format</li>
+                            <li>Can be used directly in HTML</li>
+                            <li>Programmatically editable</li>
+                            <li>Colors can be changed with code</li>
+                            <li>Small file sizes</li>
+                            <li>Perfect for icons and logos</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 5 -->
+            <div class="slide">
+                <div class="concept">
+                    <h2>SVG Elements - Container</h2>
+                    <p>The <code>&lt;svg&gt;</code> element is the container for the whole drawing.</p>
+                    <p>It sets up the space where all the shapes appear. Everything you want to draw with SVG, such as circles, lines, or paths, goes inside the svg element.</p>
+                </div>
+                <div class="info-section">
+                    <div>
+                        <div class="code-label">Basic SVG Structure</div>
+                        <div class="code-block">
+                            <pre><span class="tag">&lt;svg</span>
+  <span class="attr">width</span>=<span class="value">"100"</span>
+  <span class="attr">height</span>=<span class="value">"100"</span>
+  <span class="attr">viewBox</span>=<span class="value">"0 0 100 100"</span>
+  <span class="attr">xmlns</span>=<span class="value">"http://www.w3.org/2000/svg"</span>
+<span class="tag">&gt;</span>
+  <span class="comment">&lt;!-- Shapes go here --&gt;</span>
+<span class="tag">&lt;/svg&gt;</span></pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 6 -->
+            <div class="slide">
+                <div class="concept">
+                    <h2>SVG Elements - Shapes</h2>
+                    <p>The <code>&lt;circle&gt;</code> element is used to make circles.</p>
+                    <p>The <code>&lt;path&gt;</code> element is used to draw complex shapes and curved lines.</p>
+                    <p>Each SVG element has attributes that control its appearance and position within the drawing area.</p>
+                </div>
+                <div class="info-section">
+                    <div>
+                        <div class="code-label">Smiley Face Example</div>
+                        <div class="code-block">
+                            <pre><span class="tag">&lt;svg</span> <span class="attr">width</span>=<span class="value">"100"</span> <span class="attr">height</span>=<span class="value">"100"</span> <span class="attr">viewBox</span>=<span class="value">"0 0 100 100"</span><span class="tag">&gt;</span>
+  <span class="comment">&lt;!-- Face --&gt;</span>
+  <span class="tag">&lt;circle</span> <span class="attr">cx</span>=<span class="value">"50"</span> <span class="attr">cy</span>=<span class="value">"50"</span> <span class="attr">r</span>=<span class="value">"45"</span>
+    <span class="attr">fill</span>=<span class="value">"yellow"</span> <span class="tag">/&gt;</span>
+  <span class="comment">&lt;!-- Eyes --&gt;</span>
+  <span class="tag">&lt;circle</span> <span class="attr">cx</span>=<span class="value">"35"</span> <span class="attr">cy</span>=<span class="value">"40"</span> <span class="attr">r</span>=<span class="value">"5"</span>
+    <span class="attr">fill</span>=<span class="value">"black"</span> <span class="tag">/&gt;</span>
+  <span class="tag">&lt;circle</span> <span class="attr">cx</span>=<span class="value">"65"</span> <span class="attr">cy</span>=<span class="value">"40"</span> <span class="attr">r</span>=<span class="value">"5"</span>
+    <span class="attr">fill</span>=<span class="value">"black"</span> <span class="tag">/&gt;</span>
+  <span class="comment">&lt;!-- Smile --&gt;</span>
+  <span class="tag">&lt;path</span> <span class="attr">d</span>=<span class="value">"M35 65 Q50 80 65 65"</span>
+    <span class="attr">stroke</span>=<span class="value">"black"</span> <span class="attr">fill</span>=<span class="value">"transparent"</span> <span class="tag">/&gt;</span>
+<span class="tag">&lt;/svg&gt;</span></pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 7 -->
+            <div class="slide">
+                <div class="concept">
+                    <h2>SVG Icon Examples</h2>
+                    <p>SVGs are perfect for creating icons that look crisp at any size.</p>
+                    <p>To change the color for any of these examples, update the value for the <code>fill</code> attribute to any named color like red, green, blue, yellow, etc.</p>
+                </div>
+                <div class="info-section">
+                    <div class="svg-demo">
+                        <svg width="60" height="60" viewBox="0 0 24 24" fill="gold" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M12 2L14.9 8.6L22 9.3L17 14.1L18.3 21.2L12 17.8L5.7 21.2L7 14.1L2 9.3L9.1 8.6L12 2Z"/>
+                        </svg>
+                        <svg width="60" height="60" viewBox="0 0 24 24" fill="crimson" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M12 21.35L10.55 20.03C5.4 15.36 2 12.28 2 8.5C2 6 4 4 6.5 4C8 4 9.5 4.75 10.5 6C11.5 4.75 13 4 14.5 4C17 4 19 6 19 8.5C19 12.28 15.6 15.36 10.45 20.03L12 21.35Z"/>
+                        </svg>
+                        <svg width="60" height="60" viewBox="0 0 24 24" fill="green" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M20.29 5.71L9 17L3.71 11.71L5.12 10.29L9 14.17L18.88 4.29L20.29 5.71Z"/>
+                        </svg>
+                    </div>
+                    <div class="highlight-box">
+                        <h4>Examples Shown</h4>
+                        <p>Star (gold), Heart (crimson), Checkmark (green)</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 8 -->
+            <div class="slide">
+                <div class="concept">
+                    <h2>SVG Icon Code</h2>
+                    <p>Here are examples of the star, heart, and checkmark icons in code.</p>
+                    <p>Notice how simple the code is and how easy it is to change colors by modifying the <code>fill</code> attribute.</p>
+                </div>
+                <div class="info-section">
+                    <div>
+                        <div class="code-label">Star Icon</div>
+                        <div class="code-block">
+                            <pre><span class="tag">&lt;svg</span> <span class="attr">width</span>=<span class="value">"50"</span> <span class="attr">height</span>=<span class="value">"50"</span>
+  <span class="attr">viewBox</span>=<span class="value">"0 0 24 24"</span> <span class="attr">fill</span>=<span class="value">"gold"</span><span class="tag">&gt;</span>
+  <span class="tag">&lt;path</span> <span class="attr">d</span>=<span class="value">"M12 2L14.9 8.6L22 9.3..."</span> <span class="tag">/&gt;</span>
+<span class="tag">&lt;/svg&gt;</span></pre>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="code-label">Heart Icon</div>
+                        <div class="code-block">
+                            <pre><span class="tag">&lt;svg</span> <span class="attr">width</span>=<span class="value">"50"</span> <span class="attr">height</span>=<span class="value">"50"</span>
+  <span class="attr">viewBox</span>=<span class="value">"0 0 24 24"</span> <span class="attr">fill</span>=<span class="value">"crimson"</span><span class="tag">&gt;</span>
+  <span class="tag">&lt;path</span> <span class="attr">d</span>=<span class="value">"M12 21.35L10.55 20.03..."</span> <span class="tag">/&gt;</span>
+<span class="tag">&lt;/svg&gt;</span></pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 9 -->
+            <div class="slide">
+                <div class="concept">
+                    <h2>When to Use SVGs</h2>
+                    <p>A great use case is for icons. If you want to create custom bullet points, or add icons to your links to represent social media platforms, using SVGs is the best approach.</p>
+                    <p>One of the most popular icon libraries, Font Awesome, uses SVG images for their icons.</p>
+                </div>
+                <div class="info-section">
+                    <div class="info-card">
+                        <h3>Ideal SVG Use Cases</h3>
+                        <ul>
+                            <li>Icons (social media, UI elements)</li>
+                            <li>Logos and branding</li>
+                            <li>Custom bullet points</li>
+                            <li>Illustrations and graphics</li>
+                            <li>Responsive design elements</li>
+                            <li>Animations</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 10 -->
+            <div class="slide">
+                <div class="concept">
+                    <h2>SVGs for Responsive Design</h2>
+                    <p>SVGs are also great for webpage logos, because they scale perfectly.</p>
+                    <p>They allow you to adapt your layout to any responsive design you need.</p>
+                    <p>Next time you have an SVG locally, try opening it with a text editor and playing with the code.</p>
+                </div>
+                <div class="info-section">
+                    <div class="info-card">
+                        <h3>Responsive Benefits</h3>
+                        <ul>
+                            <li>Perfect scaling at any screen size</li>
+                            <li>No quality loss on retina displays</li>
+                            <li>Adapts to responsive layouts</li>
+                            <li>Small file sizes improve performance</li>
+                            <li>Works great for mobile and desktop</li>
+                        </ul>
+                    </div>
+                    <div class="highlight-box">
+                        <h4>Try It Yourself</h4>
+                        <p>Open an SVG file with a text editor to see the code and experiment with changing colors and properties.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="controls">
+            <div class="nav-buttons">
+                <button id="prevBtn">← Previous</button>
+                <button id="nextBtn">Next →</button>
+            </div>
+            <div class="slide-counter">
+                <span id="currentSlide">1</span> / <span id="totalSlides">10</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.slide');
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        const currentSlideSpan = document.getElementById('currentSlide');
+        const totalSlidesSpan = document.getElementById('totalSlides');
+
+        totalSlidesSpan.textContent = slides.length;
+
+        function showSlide(n) {
+            slides[currentSlide].classList.remove('active');
+            currentSlide = (n + slides.length) % slides.length;
+            slides[currentSlide].classList.add('active');
+            currentSlideSpan.textContent = currentSlide + 1;
+            
+            prevBtn.disabled = currentSlide === 0;
+            nextBtn.disabled = currentSlide === slides.length - 1;
+        }
+
+        function nextSlide() {
+            if (currentSlide < slides.length - 1) {
+                showSlide(currentSlide + 1);
+            }
+        }
+
+        function prevSlide() {
+            if (currentSlide > 0) {
+                showSlide(currentSlide - 1);
+            }
+        }
+
+        prevBtn.addEventListener('click', prevSlide);
+        nextBtn.addEventListener('click', nextSlide);
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight') {
+                nextSlide();
+            } else if (e.key === 'ArrowLeft') {
+                prevSlide();
+            }
+        });
+
+        showSlide(0);
+    </script>
+</body>
+</html>
