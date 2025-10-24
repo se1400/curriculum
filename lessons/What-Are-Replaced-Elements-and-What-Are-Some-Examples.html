@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Replaced Elements and iframe</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: #f5f5f5;
+            color: #333;
+            overflow: hidden;
+        }
+
+        .presentation {
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .slide-container {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+        }
+
+        .slide {
+            display: none;
+            width: 100%;
+            max-width: 1200px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(136, 21, 24, 0.1);
+            padding: 60px;
+            height: calc(100vh - 160px);
+            overflow-y: auto;
+        }
+
+        .slide.active {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            align-items: start;
+        }
+
+        .concept {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .concept h2 {
+            color: #881518;
+            font-size: 2rem;
+            margin-bottom: 10px;
+            border-bottom: 3px solid #881518;
+            padding-bottom: 10px;
+        }
+
+        .concept p {
+            font-size: 1.1rem;
+            line-height: 1.8;
+            color: #555;
+        }
+
+        .info-section {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .info-card {
+            background: #f9f9f9;
+            border-left: 4px solid #881518;
+            padding: 20px;
+            border-radius: 6px;
+        }
+
+        .info-card h3 {
+            color: #881518;
+            font-size: 1.3rem;
+            margin-bottom: 10px;
+        }
+
+        .info-card p {
+            font-size: 1rem;
+            line-height: 1.6;
+            color: #666;
+        }
+
+        .info-card ul {
+            list-style: none;
+            padding-left: 0;
+            margin-top: 10px;
+        }
+
+        .info-card li {
+            font-size: 1rem;
+            line-height: 1.6;
+            color: #666;
+            padding-left: 20px;
+            position: relative;
+            margin-bottom: 8px;
+        }
+
+        .info-card li::before {
+            content: "•";
+            color: #881518;
+            position: absolute;
+            left: 0;
+            font-weight: bold;
+        }
+
+        .code-block {
+            background: #1e1e1e;
+            border-radius: 8px;
+            padding: 20px;
+            overflow-x: auto;
+        }
+
+        .code-block pre {
+            margin: 0;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.9rem;
+            line-height: 1.6;
+            color: #d4d4d4;
+        }
+
+        .code-label {
+            font-size: 0.85rem;
+            color: #888;
+            margin-bottom: 8px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .tag {
+            color: #569cd6;
+        }
+
+        .attr {
+            color: #9cdcfe;
+        }
+
+        .value {
+            color: #ce9178;
+        }
+
+        .comparison-box {
+            background: #f9f9f9;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            padding: 18px;
+        }
+
+        .comparison-box h4 {
+            color: #881518;
+            font-size: 1.1rem;
+            margin-bottom: 10px;
+        }
+
+        .comparison-item {
+            margin-bottom: 12px;
+        }
+
+        .comparison-item strong {
+            color: #881518;
+        }
+
+        .highlight-box {
+            background: #e3f2fd;
+            border: 2px solid #2196f3;
+            border-radius: 8px;
+            padding: 18px;
+        }
+
+        .highlight-box h4 {
+            color: #1565c0;
+            font-size: 1.1rem;
+            margin-bottom: 10px;
+        }
+
+        .highlight-box p {
+            font-size: 0.95rem;
+            line-height: 1.6;
+            color: #424242;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 40px;
+            background: white;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 15px;
+        }
+
+        button {
+            background: #881518;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 500;
+            transition: background 0.3s ease;
+        }
+
+        button:hover {
+            background: #6b1013;
+        }
+
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        .slide-counter {
+            color: #881518;
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+
+        @media (max-width: 968px) {
+            .slide.active {
+                grid-template-columns: 1fr;
+                gap: 30px;
+            }
+
+            .slide {
+                padding: 40px;
+            }
+
+            .concept h2 {
+                font-size: 1.6rem;
+            }
+
+            .concept p {
+                font-size: 1rem;
+            }
+
+            .slide-container {
+                padding: 20px;
+            }
+
+            .controls {
+                padding: 15px 20px;
+            }
+
+            button {
+                padding: 10px 18px;
+                font-size: 0.9rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .slide {
+                padding: 30px 20px;
+            }
+
+            .concept h2 {
+                font-size: 1.4rem;
+            }
+
+            button {
+                padding: 8px 14px;
+                font-size: 0.85rem;
+            }
+
+            .nav-buttons {
+                gap: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="presentation">
+        <div class="slide-container">
+            <!-- Slide 1 -->
+            <div class="slide active">
+                <div class="concept">
+                    <h2>What Are Replaced Elements?</h2>
+                    <p>A <strong>replaced element</strong> is an element whose content is determined by an external resource rather than by CSS itself.</p>
+                    <p>CSS (Cascading Stylesheets) is used to add styles to a web page.</p>
+                    <p>Common examples of replaced elements include the image, iframe, and video elements.</p>
+                </div>
+                <div class="info-section">
+                    <div class="info-card">
+                        <h3>Key Characteristic</h3>
+                        <p>The content comes from an external source, not from the HTML or CSS code itself.</p>
+                    </div>
+                    <div class="info-card">
+                        <h3>Common Examples</h3>
+                        <ul>
+                            <li>img (images)</li>
+                            <li>iframe (embedded content)</li>
+                            <li>video (video content)</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 2 -->
+            <div class="slide">
+                <div class="concept">
+                    <h2>CSS Limitations</h2>
+                    <p>With replaced elements, you can control the position or layout of an element.</p>
+                    <p>But your CSS <strong>cannot directly modify the content</strong> of that element.</p>
+                    <p>You can style the container, but not what's inside it.</p>
+                </div>
+                <div class="info-section">
+                    <div class="comparison-box">
+                        <h4>What You CAN Style</h4>
+                        <div class="comparison-item">
+                            <strong>✓</strong> Position and layout
+                        </div>
+                        <div class="comparison-item">
+                            <strong>✓</strong> Size (width/height)
+                        </div>
+                        <div class="comparison-item">
+                            <strong>✓</strong> Borders and margins
+                        </div>
+                        <div class="comparison-item">
+                            <strong>✓</strong> Filters and effects
+                        </div>
+                    </div>
+                    <div class="comparison-box">
+                        <h4>What You CANNOT Style</h4>
+                        <div class="comparison-item">
+                            <strong>✗</strong> The actual content inside
+                        </div>
+                        <div class="comparison-item">
+                            <strong>✗</strong> Elements within the resource
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 3 -->
+            <div class="slide">
+                <div class="concept">
+                    <h2>Image Element Example</h2>
+                    <p>Consider the image element, which embeds an image on your web page.</p>
+                    <p>The element itself is replaced with the external object: the image.</p>
+                    <p>Your CSS can control things like the positioning of the image or apply a filter to it, but you cannot actually modify the image itself.</p>
+                </div>
+                <div class="info-section">
+                    <div>
+                        <div class="code-label">Image Element</div>
+                        <div class="code-block">
+                            <pre><span class="tag">&lt;img</span>
+  <span class="attr">src</span>=<span class="value">"example-img-url"</span>
+  <span class="attr">alt</span>=<span class="value">"Descriptive text goes here"</span>
+<span class="tag">&gt;</span></pre>
+                        </div>
+                    </div>
+                    <div class="info-card">
+                        <h3>What Happens</h3>
+                        <p>The <code>&lt;img&gt;</code> tag is replaced by the actual image from the URL. You can position it, resize it, add borders, but you can't change the pixels of the image itself with CSS.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 4 -->
+            <div class="slide">
+                <div class="concept">
+                    <h2>The iframe Element</h2>
+                    <p>A more robust example might be the <code>&lt;iframe&gt;</code> element, which embeds an external site on your web page.</p>
+                    <p>The iframe allows you to display content from another website within your page.</p>
+                </div>
+                <div class="info-section">
+                    <div class="info-card">
+                        <h3>iframe Purpose</h3>
+                        <p>Embeds external websites, videos, maps, or other content into your web page</p>
+                    </div>
+                    <div class="info-card">
+                        <h3>Common Uses</h3>
+                        <ul>
+                            <li>YouTube videos</li>
+                            <li>Maps (Google Maps, OpenStreetMap)</li>
+                            <li>Social media feeds</li>
+                            <li>External widgets</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 5 -->
+            <div class="slide">
+                <div class="concept">
+                    <h2>iframe Example - YouTube Video</h2>
+                    <p>Here is an example of using the iframe element for a YouTube video.</p>
+                    <p>The <code>src</code> attribute points to the YouTube embed URL.</p>
+                </div>
+                <div class="info-section">
+                    <div>
+                        <div class="code-label">YouTube Video iframe</div>
+                        <div class="code-block">
+                            <pre><span class="tag">&lt;iframe</span>
+  <span class="attr">width</span>=<span class="value">"400"</span>
+  <span class="attr">height</span>=<span class="value">"200"</span>
+  <span class="attr">src</span>=<span class="value">"https://www.youtube.com/
+  embed/VIDEO_ID"</span>
+<span class="tag">&gt;&lt;/iframe&gt;</span></pre>
+                        </div>
+                    </div>
+                    <div class="info-card">
+                        <h3>Attributes</h3>
+                        <ul>
+                            <li><strong>width/height:</strong> Size of the iframe</li>
+                            <li><strong>src:</strong> URL of content to embed</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 6 -->
+            <div class="slide">
+                <div class="concept">
+                    <h2>iframe Example - Embedded Map</h2>
+                    <p>Other common examples of using the iframe element would be to embed maps onto the page.</p>
+                    <p>You can embed interactive maps from services like OpenStreetMap or Google Maps.</p>
+                </div>
+                <div class="info-section">
+                    <div>
+                        <div class="code-label">Map iframe</div>
+                        <div class="code-block">
+                            <pre><span class="tag">&lt;iframe</span>
+  <span class="attr">title</span>=<span class="value">"Map of Location"</span>
+  <span class="attr">width</span>=<span class="value">"300"</span>
+  <span class="attr">height</span>=<span class="value">"200"</span>
+  <span class="attr">src</span>=<span class="value">"https://www.openstreetmap.org/
+  export/embed.html?..."</span>
+<span class="tag">&gt;&lt;/iframe&gt;</span></pre>
+                        </div>
+                    </div>
+                    <div class="highlight-box">
+                        <h4>Interactive Content</h4>
+                        <p>Embedded maps are fully interactive - users can zoom in/out and pan around.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 7 -->
+            <div class="slide">
+                <div class="concept">
+                    <h2>CSS Limitations with iframe</h2>
+                    <p>The element itself is replaced with the external object: the site.</p>
+                    <p>Your CSS can change the positioning of the embedded site, but you cannot modify the site's contents.</p>
+                    <p>To dive a bit further, if the embedded site has an h1 element, your CSS would not be able to style that h1 element. You cannot change the size, font color, and so on.</p>
+                </div>
+                <div class="info-section">
+                    <div class="comparison-box">
+                        <h4>What You Can Do</h4>
+                        <div class="comparison-item">
+                            <strong>✓</strong> Position the iframe
+                        </div>
+                        <div class="comparison-item">
+                            <strong>✓</strong> Resize the iframe
+                        </div>
+                        <div class="comparison-item">
+                            <strong>✓</strong> Add borders to iframe
+                        </div>
+                    </div>
+                    <div class="comparison-box">
+                        <h4>What You Cannot Do</h4>
+                        <div class="comparison-item">
+                            <strong>✗</strong> Style elements inside the iframe
+                        </div>
+                        <div class="comparison-item">
+                            <strong>✗</strong> Change text color in embedded content
+                        </div>
+                        <div class="comparison-item">
+                            <strong>✗</strong> Modify fonts in embedded site
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 8 -->
+            <div class="slide">
+                <div class="concept">
+                    <h2>Other Replaced Elements</h2>
+                    <p>There are some other replaced elements, such as <code>&lt;video&gt;</code> and <code>&lt;embed&gt;</code>.</p>
+                    <p>Some elements behave as replaced elements under specific circumstances.</p>
+                </div>
+                <div class="info-section">
+                    <div class="info-card">
+                        <h3>Always Replaced</h3>
+                        <ul>
+                            <li>img</li>
+                            <li>iframe</li>
+                            <li>video</li>
+                            <li>embed</li>
+                            <li>object</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 9 -->
+            <div class="slide">
+                <div class="concept">
+                    <h2>Conditionally Replaced Elements</h2>
+                    <p>Here's an example of an input element with the <code>type</code> attribute set to image.</p>
+                    <p>This type of input is considered to be a replaced element, but other input types like text or email are <strong>not</strong> replaced elements.</p>
+                </div>
+                <div class="info-section">
+                    <div>
+                        <div class="code-label">Input as Replaced Element</div>
+                        <div class="code-block">
+                            <pre><span class="tag">&lt;input</span>
+  <span class="attr">type</span>=<span class="value">"image"</span>
+  <span class="attr">alt</span>=<span class="value">"Descriptive text goes here"</span>
+  <span class="attr">src</span>=<span class="value">"example-img-url"</span>
+<span class="tag">&gt;</span></pre>
+                        </div>
+                    </div>
+                    <div class="comparison-box">
+                        <h4>Input Types</h4>
+                        <div class="comparison-item">
+                            <strong>Replaced:</strong> <code>type="image"</code>
+                        </div>
+                        <div class="comparison-item">
+                            <strong>Not Replaced:</strong> <code>type="text"</code>, <code>type="email"</code>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 10 -->
+            <div class="slide">
+                <div class="concept">
+                    <h2>Key Takeaways</h2>
+                    <p>Replaced elements are special because their content comes from external sources.</p>
+                    <p>Understanding this distinction helps you know what you can and cannot style with CSS.</p>
+                </div>
+                <div class="info-section">
+                    <div class="info-card">
+                        <h3>Remember</h3>
+                        <ul>
+                            <li>Content is from external resources</li>
+                            <li>You can style the element's box (position, size, borders)</li>
+                            <li>You cannot style the content inside</li>
+                            <li>Common examples: img, iframe, video</li>
+                            <li>Some elements are conditionally replaced</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="controls">
+            <div class="nav-buttons">
+                <button id="prevBtn">← Previous</button>
+                <button id="nextBtn">Next →</button>
+            </div>
+            <div class="slide-counter">
+                <span id="currentSlide">1</span> / <span id="totalSlides">10</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.slide');
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        const currentSlideSpan = document.getElementById('currentSlide');
+        const totalSlidesSpan = document.getElementById('totalSlides');
+
+        totalSlidesSpan.textContent = slides.length;
+
+        function showSlide(n) {
+            slides[currentSlide].classList.remove('active');
+            currentSlide = (n + slides.length) % slides.length;
+            slides[currentSlide].classList.add('active');
+            currentSlideSpan.textContent = currentSlide + 1;
+            
+            prevBtn.disabled = currentSlide === 0;
+            nextBtn.disabled = currentSlide === slides.length - 1;
+        }
+
+        function nextSlide() {
+            if (currentSlide < slides.length - 1) {
+                showSlide(currentSlide + 1);
+            }
+        }
+
+        function prevSlide() {
+            if (currentSlide > 0) {
+                showSlide(currentSlide - 1);
+            }
+        }
+
+        prevBtn.addEventListener('click', prevSlide);
+        nextBtn.addEventListener('click', nextSlide);
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight') {
+                nextSlide();
+            } else if (e.key === 'ArrowLeft') {
+                prevSlide();
+            }
+        });
+
+        showSlide(0);
+    </script>
+</body>
+</html>
