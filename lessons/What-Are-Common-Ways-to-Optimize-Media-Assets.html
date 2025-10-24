@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Optimizing Media Assets</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: #f5f5f5;
+            color: #333;
+            overflow: hidden;
+        }
+
+        .presentation {
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .slide-container {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+        }
+
+        .slide {
+            display: none;
+            width: 100%;
+            max-width: 1200px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(136, 21, 24, 0.1);
+            padding: 60px;
+            height: calc(100vh - 160px);
+            overflow-y: auto;
+        }
+
+        .slide.active {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            align-items: start;
+        }
+
+        .concept {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .concept h2 {
+            color: #881518;
+            font-size: 2rem;
+            margin-bottom: 10px;
+            border-bottom: 3px solid #881518;
+            padding-bottom: 10px;
+        }
+
+        .concept p {
+            font-size: 1.1rem;
+            line-height: 1.8;
+            color: #555;
+        }
+
+        .info-section {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .info-card {
+            background: #f9f9f9;
+            border-left: 4px solid #881518;
+            padding: 20px;
+            border-radius: 6px;
+        }
+
+        .info-card h3 {
+            color: #881518;
+            font-size: 1.3rem;
+            margin-bottom: 10px;
+        }
+
+        .info-card p {
+            font-size: 1rem;
+            line-height: 1.6;
+            color: #666;
+        }
+
+        .info-card ul {
+            list-style: none;
+            padding-left: 0;
+            margin-top: 10px;
+        }
+
+        .info-card li {
+            font-size: 1rem;
+            line-height: 1.6;
+            color: #666;
+            padding-left: 20px;
+            position: relative;
+            margin-bottom: 8px;
+        }
+
+        .info-card li::before {
+            content: "•";
+            color: #881518;
+            position: absolute;
+            left: 0;
+            font-weight: bold;
+        }
+
+        .example-box {
+            background: #e3f2fd;
+            border: 2px solid #2196f3;
+            border-radius: 8px;
+            padding: 18px;
+        }
+
+        .example-box h4 {
+            color: #1565c0;
+            font-size: 1.1rem;
+            margin-bottom: 10px;
+        }
+
+        .example-box p {
+            font-size: 0.95rem;
+            line-height: 1.6;
+            color: #424242;
+        }
+
+        .warning-box {
+            background: #fff3e0;
+            border: 2px solid #ff9800;
+            border-radius: 8px;
+            padding: 18px;
+        }
+
+        .warning-box h4 {
+            color: #e65100;
+            font-size: 1.1rem;
+            margin-bottom: 10px;
+        }
+
+        .warning-box p {
+            font-size: 0.95rem;
+            line-height: 1.6;
+            color: #666;
+        }
+
+        .comparison-box {
+            background: #f9f9f9;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            padding: 18px;
+        }
+
+        .comparison-box h4 {
+            color: #881518;
+            font-size: 1.1rem;
+            margin-bottom: 10px;
+        }
+
+        .comparison-item {
+            margin-bottom: 12px;
+        }
+
+        .comparison-item strong {
+            color: #881518;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 40px;
+            background: white;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 15px;
+        }
+
+        button {
+            background: #881518;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 500;
+            transition: background 0.3s ease;
+        }
+
+        button:hover {
+            background: #6b1013;
+        }
+
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        .slide-counter {
+            color: #881518;
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+
+        @media (max-width: 968px) {
+            .slide.active {
+                grid-template-columns: 1fr;
+                gap: 30px;
+            }
+
+            .slide {
+                padding: 40px;
+            }
+
+            .concept h2 {
+                font-size: 1.6rem;
+            }
+
+            .concept p {
+                font-size: 1rem;
+            }
+
+            .slide-container {
+                padding: 20px;
+            }
+
+            .controls {
+                padding: 15px 20px;
+            }
+
+            button {
+                padding: 10px 18px;
+                font-size: 0.9rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .slide {
+                padding: 30px 20px;
+            }
+
+            .concept h2 {
+                font-size: 1.4rem;
+            }
+
+            button {
+                padding: 8px 14px;
+                font-size: 0.85rem;
+            }
+
+            .nav-buttons {
+                gap: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="presentation">
+        <div class="slide-container">
+            <!-- Slide 1 -->
+            <div class="slide active">
+                <div class="concept">
+                    <h2>Three Tools for Media Optimization</h2>
+                    <p>There are three tools to consider when using media, such as images, on your web pages.</p>
+                    <p>Optimizing your media assets ensures faster page loading and better user experience.</p>
+                </div>
+                <div class="info-section">
+                    <div class="info-card">
+                        <h3>Three Key Factors</h3>
+                        <ul>
+                            <li><strong>Size</strong> - Resolution and dimensions</li>
+                            <li><strong>Format</strong> - File type (PNG, JPG, WEBP, etc.)</li>
+                            <li><strong>Compression</strong> - Reducing file size</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 2 -->
+            <div class="slide">
+                <div class="concept">
+                    <h2>Image Size and Resolution</h2>
+                    <p>When you are building a website, you'll often style images to display in a specific size.</p>
+                    <p>For example, you might have an image display at a 640x480 resolution. 640 represents the width while 480 represents the height in pixels.</p>
+                </div>
+                <div class="info-section">
+                    <div class="example-box">
+                        <h4>Understanding Dimensions</h4>
+                        <p><strong>640 x 480</strong></p>
+                        <p style="margin-top: 8px;">• Width: 640 pixels</p>
+                        <p>• Height: 480 pixels</p>
+                    </div>
+                    <div class="info-card">
+                        <h3>Resolution Basics</h3>
+                        <p>Images are measured in pixels (width x height). The resolution determines how detailed the image appears.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 3 -->
+            <div class="slide">
+                <div class="concept">
+                    <h2>Matching Size to Styling</h2>
+                    <p>When preparing your image, you want to scale it to match the display size (e.g., 640x480) to match that styling.</p>
+                    <p>If you serve an image that is 1920x1080 but you are styling it to be much smaller, you're requiring your users to download unnecessary data.</p>
+                    <p>A smaller resolution results in a smaller file size.</p>
+                </div>
+                <div class="info-section">
+                    <div class="warning-box">
+                        <h4>Don't Oversend Data</h4>
+                        <p><strong>Bad:</strong> Serve 1920x1080 image, display at 640x480</p>
+                        <p style="margin-top: 8px;"><strong>Good:</strong> Serve 640x480 image, display at 640x480</p>
+                    </div>
+                    <div class="info-card">
+                        <h3>Benefits</h3>
+                        <ul>
+                            <li>Faster page load times</li>
+                            <li>Less bandwidth usage</li>
+                            <li>Better user experience</li>
+                            <li>Smaller file sizes</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 4 -->
+            <div class="slide">
+                <div class="concept">
+                    <h2>Traditional File Formats</h2>
+                    <p>Two of the most common file formats are PNG and JPG, but these are no longer the most ideal formats for serving images.</p>
+                    <p>These formats have been the standard for many years and are widely supported.</p>
+                </div>
+                <div class="info-section">
+                    <div class="comparison-box">
+                        <h4>PNG (Portable Network Graphics)</h4>
+                        <div class="comparison-item">
+                            <strong>Pros:</strong> Lossless compression, supports transparency
+                        </div>
+                        <div class="comparison-item">
+                            <strong>Cons:</strong> Larger file sizes
+                        </div>
+                    </div>
+                    <div class="comparison-box">
+                        <h4>JPG (Joint Photographic Experts Group)</h4>
+                        <div class="comparison-item">
+                            <strong>Pros:</strong> Good for photos, smaller file sizes
+                        </div>
+                        <div class="comparison-item">
+                            <strong>Cons:</strong> Lossy compression, no transparency
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 5 -->
+            <div class="slide">
+                <div class="concept">
+                    <h2>Modern File Formats</h2>
+                    <p>Unless you need support for older browsers, you should consider using a more optimized format, like WEBP or AVIF.</p>
+                    <p>These modern formats provide better compression and quality compared to traditional formats.</p>
+                </div>
+                <div class="info-section">
+                    <div class="comparison-box">
+                        <h4>WEBP</h4>
+                        <div class="comparison-item">
+                            <strong>Features:</strong> Superior compression, supports transparency and animation
+                        </div>
+                        <div class="comparison-item">
+                            <strong>File Size:</strong> 25-35% smaller than JPG
+                        </div>
+                    </div>
+                    <div class="comparison-box">
+                        <h4>AVIF</h4>
+                        <div class="comparison-item">
+                            <strong>Features:</strong> Excellent compression, high quality
+                        </div>
+                        <div class="comparison-item">
+                            <strong>File Size:</strong> Even smaller than WEBP
+                        </div>
+                    </div>
+                    <div class="warning-box">
+                        <h4>Browser Support</h4>
+                        <p>Modern browsers support these formats. Check compatibility if supporting older browsers.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 6 -->
+            <div class="slide">
+                <div class="concept">
+                    <h2>Compression Algorithms</h2>
+                    <p>Finally, you can run compression algorithms on your images.</p>
+                    <p>A <strong>compression algorithm</strong> is used to reduce the size for files or data.</p>
+                    <p>There are options like pngcrush to compress your images locally, or you can use online compression tools.</p>
+                </div>
+                <div class="info-section">
+                    <div class="info-card">
+                        <h3>Compression Tools</h3>
+                        <ul>
+                            <li><strong>Local tools:</strong> pngcrush, ImageOptim</li>
+                            <li><strong>Online tools:</strong> TinyPNG, Compressor.io</li>
+                            <li><strong>Build tools:</strong> webpack, gulp plugins</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 7 -->
+            <div class="slide">
+                <div class="concept">
+                    <h2>Lossless vs Lossy Compression</h2>
+                    <p><strong>Lossless</strong> means that the original data can be perfectly reconstructed from the compressed data.</p>
+                    <p>However, it's worth noting that specific file formats, such as JPG, are not lossless.</p>
+                    <p>If you try to compress a JPG image, it will result in degraded quality.</p>
+                </div>
+                <div class="info-section">
+                    <div class="comparison-box">
+                        <h4>Lossless Compression</h4>
+                        <p><strong>Formats:</strong> PNG, WEBP (lossless mode)</p>
+                        <p style="margin-top: 8px;"><strong>Result:</strong> No quality loss, perfect reconstruction</p>
+                        <p style="margin-top: 8px;"><strong>Use for:</strong> Logos, icons, graphics with text</p>
+                    </div>
+                    <div class="comparison-box">
+                        <h4>Lossy Compression</h4>
+                        <p><strong>Formats:</strong> JPG, WEBP (lossy mode)</p>
+                        <p style="margin-top: 8px;"><strong>Result:</strong> Quality degradation, smaller files</p>
+                        <p style="margin-top: 8px;"><strong>Use for:</strong> Photographs where minor quality loss is acceptable</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 8 -->
+            <div class="slide">
+                <div class="concept">
+                    <h2>Compression Best Practices</h2>
+                    <p>You should keep all these things in mind when selecting images for your web pages.</p>
+                    <p>Understanding compression types helps you make informed decisions about image optimization.</p>
+                </div>
+                <div class="info-section">
+                    <div class="warning-box">
+                        <h4>⚠️ Important: Don't Compress JPG</h4>
+                        <p>JPG is already a lossy format. Compressing it further will degrade quality without much file size benefit.</p>
+                    </div>
+                    <div class="info-card">
+                        <h3>Compression Guidelines</h3>
+                        <ul>
+                            <li>Use lossless compression for PNG images</li>
+                            <li>Avoid re-compressing JPG images</li>
+                            <li>Consider converting JPG to WEBP instead</li>
+                            <li>Test quality after compression</li>
+                            <li>Balance file size with visual quality</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 9 -->
+            <div class="slide">
+                <div class="concept">
+                    <h2>Summary: Optimization Checklist</h2>
+                    <p>Effective media optimization involves carefully considering size, format, and compression.</p>
+                    <p>Following these best practices ensures your images load quickly while maintaining quality.</p>
+                </div>
+                <div class="info-section">
+                    <div class="info-card">
+                        <h3>Optimization Steps</h3>
+                        <ul>
+                            <li><strong>Size:</strong> Match image resolution to display size</li>
+                            <li><strong>Format:</strong> Use WEBP or AVIF for modern browsers</li>
+                            <li><strong>Compression:</strong> Use lossless for PNG, avoid re-compressing JPG</li>
+                            <li><strong>Testing:</strong> Verify quality and load times</li>
+                            <li><strong>Fallbacks:</strong> Provide alternatives for older browsers</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="controls">
+            <div class="nav-buttons">
+                <button id="prevBtn">← Previous</button>
+                <button id="nextBtn">Next →</button>
+            </div>
+            <div class="slide-counter">
+                <span id="currentSlide">1</span> / <span id="totalSlides">9</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.slide');
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        const currentSlideSpan = document.getElementById('currentSlide');
+        const totalSlidesSpan = document.getElementById('totalSlides');
+
+        totalSlidesSpan.textContent = slides.length;
+
+        function showSlide(n) {
+            slides[currentSlide].classList.remove('active');
+            currentSlide = (n + slides.length) % slides.length;
+            slides[currentSlide].classList.add('active');
+            currentSlideSpan.textContent = currentSlide + 1;
+            
+            prevBtn.disabled = currentSlide === 0;
+            nextBtn.disabled = currentSlide === slides.length - 1;
+        }
+
+        function nextSlide() {
+            if (currentSlide < slides.length - 1) {
+                showSlide(currentSlide + 1);
+            }
+        }
+
+        function prevSlide() {
+            if (currentSlide > 0) {
+                showSlide(currentSlide - 1);
+            }
+        }
+
+        prevBtn.addEventListener('click', prevSlide);
+        nextBtn.addEventListener('click', nextSlide);
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight') {
+                nextSlide();
+            } else if (e.key === 'ArrowLeft') {
+                prevSlide();
+            }
+        });
+
+        showSlide(0);
+    </script>
+</body>
+</html>

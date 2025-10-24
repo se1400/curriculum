@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HTML Audio and Video Elements</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: #f5f5f5;
+            color: #333;
+            overflow: hidden;
+        }
+
+        .presentation {
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .slide-container {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+        }
+
+        .slide {
+            display: none;
+            width: 100%;
+            max-width: 1200px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(136, 21, 24, 0.1);
+            padding: 60px;
+            height: calc(100vh - 160px);
+            overflow-y: auto;
+        }
+
+        .slide.active {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            align-items: start;
+        }
+
+        .concept {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .concept h2 {
+            color: #881518;
+            font-size: 2rem;
+            margin-bottom: 10px;
+            border-bottom: 3px solid #881518;
+            padding-bottom: 10px;
+        }
+
+        .concept p {
+            font-size: 1.1rem;
+            line-height: 1.8;
+            color: #555;
+        }
+
+        .info-section {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .info-card {
+            background: #f9f9f9;
+            border-left: 4px solid #881518;
+            padding: 20px;
+            border-radius: 6px;
+        }
+
+        .info-card h3 {
+            color: #881518;
+            font-size: 1.3rem;
+            margin-bottom: 10px;
+        }
+
+        .info-card p {
+            font-size: 1rem;
+            line-height: 1.6;
+            color: #666;
+        }
+
+        .info-card ul {
+            list-style: none;
+            padding-left: 0;
+            margin-top: 10px;
+        }
+
+        .info-card li {
+            font-size: 1rem;
+            line-height: 1.6;
+            color: #666;
+            padding-left: 20px;
+            position: relative;
+            margin-bottom: 8px;
+        }
+
+        .info-card li::before {
+            content: "•";
+            color: #881518;
+            position: absolute;
+            left: 0;
+            font-weight: bold;
+        }
+
+        .code-block {
+            background: #1e1e1e;
+            border-radius: 8px;
+            padding: 20px;
+            overflow-x: auto;
+        }
+
+        .code-block pre {
+            margin: 0;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.9rem;
+            line-height: 1.6;
+            color: #d4d4d4;
+        }
+
+        .code-label {
+            font-size: 0.85rem;
+            color: #888;
+            margin-bottom: 8px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .tag {
+            color: #569cd6;
+        }
+
+        .attr {
+            color: #9cdcfe;
+        }
+
+        .value {
+            color: #ce9178;
+        }
+
+        .highlight-box {
+            background: #fff8e1;
+            border: 2px solid #ffc107;
+            border-radius: 8px;
+            padding: 18px;
+        }
+
+        .highlight-box h4 {
+            color: #856404;
+            font-size: 1.1rem;
+            margin-bottom: 10px;
+        }
+
+        .highlight-box p {
+            font-size: 0.95rem;
+            line-height: 1.6;
+            color: #666;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 40px;
+            background: white;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 15px;
+        }
+
+        button {
+            background: #881518;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 500;
+            transition: background 0.3s ease;
+        }
+
+        button:hover {
+            background: #6b1013;
+        }
+
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        .slide-counter {
+            color: #881518;
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+
+        @media (max-width: 968px) {
+            .slide.active {
+                grid-template-columns: 1fr;
+                gap: 30px;
+            }
+
+            .slide {
+                padding: 40px;
+            }
+
+            .concept h2 {
+                font-size: 1.6rem;
+            }
+
+            .concept p {
+                font-size: 1rem;
+            }
+
+            .slide-container {
+                padding: 20px;
+            }
+
+            .controls {
+                padding: 15px 20px;
+            }
+
+            button {
+                padding: 10px 18px;
+                font-size: 0.9rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .slide {
+                padding: 30px 20px;
+            }
+
+            .concept h2 {
+                font-size: 1.4rem;
+            }
+
+            button {
+                padding: 8px 14px;
+                font-size: 0.85rem;
+            }
+
+            .nav-buttons {
+                gap: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="presentation">
+        <div class="slide-container">
+            <!-- Slide 1 -->
+            <div class="slide active">
+                <div class="concept">
+                    <h2>Audio and Video Elements</h2>
+                    <p>The <code>&lt;audio&gt;</code> and <code>&lt;video&gt;</code> elements allow you to add sound and video content to your HTML documents.</p>
+                    <p>These elements provide native support for multimedia without requiring external plugins.</p>
+                </div>
+                <div class="info-section">
+                    <div class="info-card">
+                        <h3>Audio Element</h3>
+                        <p><strong>Supported formats:</strong></p>
+                        <ul>
+                            <li>MP3</li>
+                            <li>WAV</li>
+                            <li>OGG</li>
+                        </ul>
+                    </div>
+                    <div class="info-card">
+                        <h3>Video Element</h3>
+                        <p><strong>Supported formats:</strong></p>
+                        <ul>
+                            <li>MP4</li>
+                            <li>OGG</li>
+                            <li>WebM</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 2 -->
+            <div class="slide">
+                <div class="concept">
+                    <h2>Basic Audio Element</h2>
+                    <p>To include audio content on your web page, you can use the audio element with the <code>src</code> attribute pointing to the location of your audio file.</p>
+                    <p>Without additional attributes, nothing shows up on the page - the audio element is present but invisible.</p>
+                </div>
+                <div class="info-section">
+                    <div>
+                        <div class="code-label">Basic Audio (No Controls)</div>
+                        <div class="code-block">
+                            <pre><span class="tag">&lt;audio</span>
+  <span class="attr">src</span>=<span class="value">"audio-file.mp3"</span>
+<span class="tag">&gt;&lt;/audio&gt;</span></pre>
+                        </div>
+                    </div>
+                    <div class="highlight-box">
+                        <h4>Note</h4>
+                        <p>This audio element exists in the DOM but is not visible or interactive without the controls attribute.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 3 -->
+            <div class="slide">
+                <div class="concept">
+                    <h2>Controls Attribute</h2>
+                    <p>If you want to see the audio player on the page, then you can add the <code>controls</code> attribute.</p>
+                    <p>The controls attribute enables users to manage audio playback, including adjusting volume, and pausing or resuming playback.</p>
+                    <p>The controls attribute is a <strong>boolean attribute</strong> - if omitted, no controls will be shown.</p>
+                </div>
+                <div class="info-section">
+                    <div>
+                        <div class="code-label">Audio with Controls</div>
+                        <div class="code-block">
+                            <pre><span class="tag">&lt;audio</span>
+  <span class="attr">src</span>=<span class="value">"audio-file.mp3"</span>
+  <span class="attr">controls</span>
+<span class="tag">&gt;&lt;/audio&gt;</span></pre>
+                        </div>
+                    </div>
+                    <div class="info-card">
+                        <h3>Control Features</h3>
+                        <ul>
+                            <li>Play/pause button</li>
+                            <li>Volume adjustment</li>
+                            <li>Progress bar</li>
+                            <li>Time display</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 4 -->
+            <div class="slide">
+                <div class="concept">
+                    <h2>Loop Attribute</h2>
+                    <p>The <code>loop</code> attribute is a boolean attribute that makes the audio replay continuously.</p>
+                    <p>When the audio reaches the end, it will automatically restart from the beginning.</p>
+                </div>
+                <div class="info-section">
+                    <div>
+                        <div class="code-label">Audio with Loop</div>
+                        <div class="code-block">
+                            <pre><span class="tag">&lt;audio</span>
+  <span class="attr">src</span>=<span class="value">"audio-file.mp3"</span>
+  <span class="attr">loop</span>
+  <span class="attr">controls</span>
+<span class="tag">&gt;&lt;/audio&gt;</span></pre>
+                        </div>
+                    </div>
+                    <div class="info-card">
+                        <h3>Behavior</h3>
+                        <p>Audio will restart automatically when it reaches the end, playing continuously until stopped by the user.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 5 -->
+            <div class="slide">
+                <div class="concept">
+                    <h2>Muted Attribute</h2>
+                    <p>When present in the audio element, the <code>muted</code> boolean attribute will start the audio in a muted state.</p>
+                    <p>Users can unmute the audio by clicking on the volume icon in the audio player.</p>
+                </div>
+                <div class="info-section">
+                    <div>
+                        <div class="code-label">Audio with Muted</div>
+                        <div class="code-block">
+                            <pre><span class="tag">&lt;audio</span>
+  <span class="attr">src</span>=<span class="value">"audio-file.mp3"</span>
+  <span class="attr">loop</span>
+  <span class="attr">controls</span>
+  <span class="attr">muted</span>
+<span class="tag">&gt;&lt;/audio&gt;</span></pre>
+                        </div>
+                    </div>
+                    <div class="info-card">
+                        <h3>Use Cases</h3>
+                        <ul>
+                            <li>Background music that users can enable</li>
+                            <li>Autoplay requirements (many browsers require muted for autoplay)</li>
+                            <li>User-controlled audio experiences</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 6 -->
+            <div class="slide">
+                <div class="concept">
+                    <h2>Multiple Source Elements</h2>
+                    <p>When it comes to audio file types, there are differences in which browsers support which type.</p>
+                    <p>To accommodate this, you can use <code>&lt;source&gt;</code> elements inside the audio element and the browser will select the first source that it understands.</p>
+                </div>
+                <div class="info-section">
+                    <div>
+                        <div class="code-label">Multiple Sources for Compatibility</div>
+                        <div class="code-block">
+                            <pre><span class="tag">&lt;audio</span> <span class="attr">controls</span><span class="tag">&gt;</span>
+  <span class="tag">&lt;source</span> <span class="attr">src</span>=<span class="value">"audio.ogg"</span> <span class="attr">type</span>=<span class="value">"audio/ogg"</span> <span class="tag">/&gt;</span>
+  <span class="tag">&lt;source</span> <span class="attr">src</span>=<span class="value">"audio.wav"</span> <span class="attr">type</span>=<span class="value">"audio/wav"</span> <span class="tag">/&gt;</span>
+  <span class="tag">&lt;source</span> <span class="attr">src</span>=<span class="value">"audio.mp3"</span> <span class="attr">type</span>=<span class="value">"audio/mpeg"</span> <span class="tag">/&gt;</span>
+<span class="tag">&lt;/audio&gt;</span></pre>
+                        </div>
+                    </div>
+                    <div class="highlight-box">
+                        <h4>How It Works</h4>
+                        <p>The browser starts with the first source type. If it can't play that audio format, it moves down to the next type in the list.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 7 -->
+            <div class="slide">
+                <div class="concept">
+                    <h2>Video Element</h2>
+                    <p>All the attributes we have learned so far are also supported in the video element.</p>
+                    <p>The <code>&lt;video&gt;</code> element works similarly to <code>&lt;audio&gt;</code> but displays video content.</p>
+                </div>
+                <div class="info-section">
+                    <div>
+                        <div class="code-label">Video Element Example</div>
+                        <div class="code-block">
+                            <pre><span class="tag">&lt;video</span>
+  <span class="attr">src</span>=<span class="value">"video.mp4"</span>
+  <span class="attr">loop</span>
+  <span class="attr">controls</span>
+  <span class="attr">muted</span>
+  <span class="attr">width</span>=<span class="value">"400"</span>
+<span class="tag">&gt;&lt;/video&gt;</span></pre>
+                        </div>
+                    </div>
+                    <div class="info-card">
+                        <h3>Shared Attributes</h3>
+                        <ul>
+                            <li>src or source elements</li>
+                            <li>controls</li>
+                            <li>loop</li>
+                            <li>muted</li>
+                            <li>autoplay</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 8 -->
+            <div class="slide">
+                <div class="concept">
+                    <h2>Autoplay Attribute</h2>
+                    <p>The <code>autoplay</code> attribute is a boolean attribute that makes the video (or audio) play automatically when the page loads.</p>
+                    <p>Most browsers require videos to be muted to allow autoplay due to user experience policies.</p>
+                </div>
+                <div class="info-section">
+                    <div>
+                        <div class="code-label">Video with Autoplay</div>
+                        <div class="code-block">
+                            <pre><span class="tag">&lt;video</span>
+  <span class="attr">src</span>=<span class="value">"video.mp4"</span>
+  <span class="attr">autoplay</span>
+  <span class="attr">muted</span>
+  <span class="attr">controls</span>
+<span class="tag">&gt;&lt;/video&gt;</span></pre>
+                        </div>
+                    </div>
+                    <div class="highlight-box">
+                        <h4>Important Note</h4>
+                        <p>Modern browsers often block autoplay with sound. To enable autoplay, include the muted attribute.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 9 -->
+            <div class="slide">
+                <div class="concept">
+                    <h2>Poster Attribute</h2>
+                    <p>If you wanted to display an image while the video is downloading, you can use the <code>poster</code> attribute.</p>
+                    <p>This attribute is <strong>not available for audio elements</strong> and is unique to the video element.</p>
+                    <p>The poster image appears before the video loads or before the user presses play.</p>
+                </div>
+                <div class="info-section">
+                    <div>
+                        <div class="code-label">Video with Poster</div>
+                        <div class="code-block">
+                            <pre><span class="tag">&lt;video</span>
+  <span class="attr">src</span>=<span class="value">"video.mp4"</span>
+  <span class="attr">controls</span>
+  <span class="attr">poster</span>=<span class="value">"thumbnail.jpg"</span>
+  <span class="attr">width</span>=<span class="value">"400"</span>
+<span class="tag">&gt;&lt;/video&gt;</span></pre>
+                        </div>
+                    </div>
+                    <div class="info-card">
+                        <h3>Benefits</h3>
+                        <ul>
+                            <li>Shows a preview image before video loads</li>
+                            <li>Provides visual context</li>
+                            <li>Improves user experience</li>
+                            <li>Can make the page more visually appealing</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="controls">
+            <div class="nav-buttons">
+                <button id="prevBtn">← Previous</button>
+                <button id="nextBtn">Next →</button>
+            </div>
+            <div class="slide-counter">
+                <span id="currentSlide">1</span> / <span id="totalSlides">9</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.slide');
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        const currentSlideSpan = document.getElementById('currentSlide');
+        const totalSlidesSpan = document.getElementById('totalSlides');
+
+        totalSlidesSpan.textContent = slides.length;
+
+        function showSlide(n) {
+            slides[currentSlide].classList.remove('active');
+            currentSlide = (n + slides.length) % slides.length;
+            slides[currentSlide].classList.add('active');
+            currentSlideSpan.textContent = currentSlide + 1;
+            
+            prevBtn.disabled = currentSlide === 0;
+            nextBtn.disabled = currentSlide === slides.length - 1;
+        }
+
+        function nextSlide() {
+            if (currentSlide < slides.length - 1) {
+                showSlide(currentSlide + 1);
+            }
+        }
+
+        function prevSlide() {
+            if (currentSlide > 0) {
+                showSlide(currentSlide - 1);
+            }
+        }
+
+        prevBtn.addEventListener('click', prevSlide);
+        nextBtn.addEventListener('click', nextSlide);
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight') {
+                nextSlide();
+            } else if (e.key === 'ArrowLeft') {
+                prevSlide();
+            }
+        });
+
+        showSlide(0);
+    </script>
+</body>
+</html>
