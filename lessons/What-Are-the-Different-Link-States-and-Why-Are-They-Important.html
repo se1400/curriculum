@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Link States</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: #f5f5f5;
+            color: #333;
+            overflow: hidden;
+        }
+
+        .presentation {
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .slide-container {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+        }
+
+        .slide {
+            display: none;
+            width: 100%;
+            max-width: 1200px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(136, 21, 24, 0.1);
+            padding: 60px;
+            height: calc(100vh - 160px);
+            overflow-y: auto;
+        }
+
+        .slide.active {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            align-items: start;
+        }
+
+        .concept {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .concept h2 {
+            color: #881518;
+            font-size: 2rem;
+            margin-bottom: 10px;
+            border-bottom: 3px solid #881518;
+            padding-bottom: 10px;
+        }
+
+        .concept p {
+            font-size: 1.1rem;
+            line-height: 1.8;
+            color: #555;
+        }
+
+        .concept ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .concept li {
+            font-size: 1.1rem;
+            line-height: 1.8;
+            color: #555;
+            padding-left: 25px;
+            position: relative;
+            margin-bottom: 10px;
+        }
+
+        .concept li::before {
+            content: "▸";
+            color: #881518;
+            position: absolute;
+            left: 0;
+            font-weight: bold;
+        }
+
+        .code-section {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .code-block {
+            background: #1e1e1e;
+            border-radius: 8px;
+            padding: 20px;
+            overflow-x: auto;
+        }
+
+        .code-block pre {
+            margin: 0;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.95rem;
+            line-height: 1.6;
+            color: #d4d4d4;
+        }
+
+        .code-label {
+            font-size: 0.85rem;
+            color: #888;
+            margin-bottom: 8px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .tag {
+            color: #569cd6;
+        }
+
+        .attr {
+            color: #9cdcfe;
+        }
+
+        .value {
+            color: #ce9178;
+        }
+
+        .comment {
+            color: #6a9955;
+        }
+
+        .selector {
+            color: #d7ba7d;
+        }
+
+        .property {
+            color: #9cdcfe;
+        }
+
+        .highlight {
+            background: #2d2d2d;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            color: #ce9178;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 40px;
+            background: white;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 15px;
+        }
+
+        button {
+            background: #881518;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 500;
+            transition: background 0.3s ease;
+        }
+
+        button:hover {
+            background: #6b1013;
+        }
+
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        .slide-counter {
+            color: #881518;
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+
+        @media (max-width: 968px) {
+            .slide.active {
+                grid-template-columns: 1fr;
+                gap: 30px;
+            }
+
+            .slide {
+                padding: 40px;
+            }
+
+            .concept h2 {
+                font-size: 1.6rem;
+            }
+
+            .concept p, .concept li {
+                font-size: 1rem;
+            }
+
+            .code-block pre {
+                font-size: 0.85rem;
+            }
+
+            .slide-container {
+                padding: 20px;
+            }
+
+            .controls {
+                padding: 15px 20px;
+            }
+
+            button {
+                padding: 10px 18px;
+                font-size: 0.9rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .slide {
+                padding: 30px 20px;
+            }
+
+            .concept h2 {
+                font-size: 1.4rem;
+            }
+
+            button {
+                padding: 8px 14px;
+                font-size: 0.85rem;
+            }
+
+            .nav-buttons {
+                gap: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="presentation">
+        <div class="slide-container">
+            <!-- Slide 1 -->
+            <div class="slide active">
+                <div class="concept">
+                    <h2>What Are Link States?</h2>
+                    <p>You may have seen a link on a web page become purple after you click it. This is because the state of the link has changed, so different styling gets applied.</p>
+                    <p>There are five different states a link can be in. Each state represents a different way users interact with links, and you can style each one differently to provide visual feedback.</p>
+                </div>
+                <div class="code-section">
+                    <div>
+                        <div class="code-label">Five Link States</div>
+                        <div class="code-block">
+                            <pre><span class="selector">a:link</span> { }     <span class="comment">/* Default state */</span>
+<span class="selector">a:visited</span> { }  <span class="comment">/* Already visited */</span>
+<span class="selector">a:hover</span> { }    <span class="comment">/* Mouse hovering */</span>
+<span class="selector">a:focus</span> { }    <span class="comment">/* Focused element */</span>
+<span class="selector">a:active</span> { }   <span class="comment">/* Being clicked */</span></pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 2 -->
+            <div class="slide">
+                <div class="concept">
+                    <h2>:link (Default State)</h2>
+                    <p>The <span class="highlight">:link</span> state is the default state. It represents a link which the user has not visited, clicked, or interacted with yet.</p>
+                    <p>You can think of this state as providing the base styles for all links on your page. The other states build on top of it.</p>
+                    <p>By default, links in this state are typically blue.</p>
+                </div>
+                <div class="code-section">
+                    <div>
+                        <div class="code-label">HTML</div>
+                        <div class="code-block">
+                            <pre><span class="tag">&lt;a</span> <span class="attr">href</span>=<span class="value">"https://se1400.github.io"</span>
+   <span class="attr">target</span>=<span class="value">"_blank"</span><span class="tag">&gt;</span>
+  Visit SE1400
+<span class="tag">&lt;/a&gt;</span></pre>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="code-label">CSS for Default State</div>
+                        <div class="code-block">
+                            <pre><span class="selector">a:link</span> {
+  <span class="property">color</span>: blue;
+  <span class="property">text-decoration</span>: underline;
+}</pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 3 -->
+            <div class="slide">
+                <div class="concept">
+                    <h2>:visited State</h2>
+                    <p>The <span class="highlight">:visited</span> state applies when a user has already visited the page being linked to.</p>
+                    <p>By default, this turns the link purple—but you can use CSS to provide a different visual indication to the user.</p>
+                    <p>This is helpful to let someone know they have already read a portion of your documentation, or that the site is one they can trust because they have used it before.</p>
+                </div>
+                <div class="code-section">
+                    <div>
+                        <div class="code-label">CSS for Visited State</div>
+                        <div class="code-block">
+                            <pre><span class="selector">a:visited</span> {
+  <span class="property">color</span>: purple;
+}
+
+<span class="comment">/* Custom visited color */</span>
+<span class="selector">a:visited</span> {
+  <span class="property">color</span>: brown;
+}</pre>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="code-label">Visual Feedback</div>
+                        <div class="code-block">
+                            <pre><span class="comment">/* Before clicking */</span>
+<span class="value" style="color: blue;">Visit SE1400</span>
+
+<span class="comment">/* After clicking and visiting */</span>
+<span class="value" style="color: purple;">Visit SE1400</span></pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 4 -->
+            <div class="slide">
+                <div class="concept">
+                    <h2>:hover State</h2>
+                    <p>The <span class="highlight">:hover</span> state applies when a user is hovering their cursor over a link.</p>
+                    <p>This state is helpful for providing extra attention to a link, to ensure a user actually intends to click it.</p>
+                    <p>Hover effects give immediate visual feedback that an element is interactive.</p>
+                </div>
+                <div class="code-section">
+                    <div>
+                        <div class="code-label">CSS for Hover State</div>
+                        <div class="code-block">
+                            <pre><span class="selector">a:hover</span> {
+  <span class="property">color</span>: red;
+  <span class="property">text-decoration</span>: none;
+}
+
+<span class="comment">/* Other hover effects */</span>
+<span class="selector">a:hover</span> {
+  <span class="property">background-color</span>: yellow;
+  <span class="property">cursor</span>: pointer;
+}</pre>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="code-label">User Experience</div>
+                        <div class="code-block">
+                            <pre><span class="comment">/* When mouse hovers over link */</span>
+<span class="value">The link changes appearance
+to indicate interactivity</span>
+
+<span class="comment">Common hover effects:
+- Color change
+- Underline removal
+- Background highlight
+- Cursor change</span></pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 5 -->
+            <div class="slide">
+                <div class="concept">
+                    <h2>:focus State</h2>
+                    <p>The <span class="highlight">:focus</span> state applies when we focus on a link.</p>
+                    <p>This typically happens when using keyboard navigation (like pressing the Tab key) to move through interactive elements on a page.</p>
+                    <p>The focus state is important for accessibility, especially for users who navigate with keyboards instead of mice.</p>
+                </div>
+                <div class="code-section">
+                    <div>
+                        <div class="code-label">CSS for Focus State</div>
+                        <div class="code-block">
+                            <pre><span class="selector">a:focus</span> {
+  <span class="property">color</span>: green;
+  <span class="property">outline</span>: 2px solid green;
+}
+
+<span class="comment">/* Accessibility-friendly focus */</span>
+<span class="selector">a:focus</span> {
+  <span class="property">background-color</span>: lightyellow;
+  <span class="property">outline</span>: 3px solid orange;
+}</pre>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="code-label">Keyboard Navigation</div>
+                        <div class="code-block">
+                            <pre><span class="comment">/* User presses Tab key */</span>
+<span class="value">→ Focus moves to the link
+→ Link styling changes
+→ Visual indicator appears</span>
+
+<span class="comment">Important for:
+- Keyboard users
+- Screen reader users
+- Accessibility compliance</span></pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 6 -->
+            <div class="slide">
+                <div class="concept">
+                    <h2>:active State</h2>
+                    <p>The <span class="highlight">:active</span> state applies to links that are being activated by the user.</p>
+                    <p>This typically means clicking on the link with the primary mouse button (left clicking in most cases).</p>
+                    <p>This state can be helpful for showing a user that the element they clicked on is interactive. This happens very quickly, so it's a brief visual moment.</p>
+                </div>
+                <div class="code-section">
+                    <div>
+                        <div class="code-label">CSS for Active State</div>
+                        <div class="code-block">
+                            <pre><span class="selector">a:active</span> {
+  <span class="property">color</span>: black;
+}
+
+<span class="comment">/* Other active effects */</span>
+<span class="selector">a:active</span> {
+  <span class="property">transform</span>: scale(0.98);
+  <span class="property">background-color</span>: darkred;
+  <span class="property">color</span>: white;
+}</pre>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="code-label">Click Moment</div>
+                        <div class="code-block">
+                            <pre><span class="comment">/* During the click action */</span>
+<span class="value">Mouse button pressed down
+     ↓
+Link enters :active state
+     ↓
+Visual feedback appears
+     ↓
+Mouse button released
+     ↓
+Navigation begins</span></pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 7 -->
+            <div class="slide">
+                <div class="concept">
+                    <h2>CSS Styling Order</h2>
+                    <p>When you use these states to style your links, there is a specific order you need to write your CSS in:</p>
+                    <p><strong>link → visited → hover → focus → active</strong></p>
+                    <p>This order ensures that styles cascade properly and that each state displays correctly. Writing them in the wrong order can cause some states to not work as expected.</p>
+                    <p>You should now know how to give links on your page your own personal flair, while still providing important information a user needs about the state of each link.</p>
+                </div>
+                <div class="code-section">
+                    <div>
+                        <div class="code-label">Correct Order</div>
+                        <div class="code-block">
+                            <pre><span class="comment">/* 1. Default state */</span>
+<span class="selector">a:link</span> {
+  <span class="property">color</span>: blue;
+}
+
+<span class="comment">/* 2. Visited state */</span>
+<span class="selector">a:visited</span> {
+  <span class="property">color</span>: purple;
+}
+
+<span class="comment">/* 3. Hover state */</span>
+<span class="selector">a:hover</span> {
+  <span class="property">color</span>: red;
+}
+
+<span class="comment">/* 4. Focus state */</span>
+<span class="selector">a:focus</span> {
+  <span class="property">color</span>: green;
+}
+
+<span class="comment">/* 5. Active state */</span>
+<span class="selector">a:active</span> {
+  <span class="property">color</span>: black;
+}</pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="controls">
+            <div class="nav-buttons">
+                <button id="prevBtn">← Previous</button>
+                <button id="nextBtn">Next →</button>
+            </div>
+            <div class="slide-counter">
+                <span id="currentSlide">1</span> / <span id="totalSlides">7</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.slide');
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        const currentSlideSpan = document.getElementById('currentSlide');
+        const totalSlidesSpan = document.getElementById('totalSlides');
+
+        totalSlidesSpan.textContent = slides.length;
+
+        function showSlide(n) {
+            slides[currentSlide].classList.remove('active');
+            currentSlide = (n + slides.length) % slides.length;
+            slides[currentSlide].classList.add('active');
+            currentSlideSpan.textContent = currentSlide + 1;
+            
+            prevBtn.disabled = currentSlide === 0;
+            nextBtn.disabled = currentSlide === slides.length - 1;
+        }
+
+        function nextSlide() {
+            if (currentSlide < slides.length - 1) {
+                showSlide(currentSlide + 1);
+            }
+        }
+
+        function prevSlide() {
+            if (currentSlide > 0) {
+                showSlide(currentSlide - 1);
+            }
+        }
+
+        prevBtn.addEventListener('click', prevSlide);
+        nextBtn.addEventListener('click', nextSlide);
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight') {
+                nextSlide();
+            } else if (e.key === 'ArrowLeft') {
+                prevSlide();
+            }
+        });
+
+        showSlide(0);
+    </script>
+</body>
+</html>

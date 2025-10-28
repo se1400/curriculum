@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Absolute and Relative Paths</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: #f5f5f5;
+            color: #333;
+            overflow: hidden;
+        }
+
+        .presentation {
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .slide-container {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+        }
+
+        .slide {
+            display: none;
+            width: 100%;
+            max-width: 1200px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(136, 21, 24, 0.1);
+            padding: 60px;
+            height: calc(100vh - 160px);
+            overflow-y: auto;
+        }
+
+        .slide.active {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            align-items: start;
+        }
+
+        .concept {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .concept h2 {
+            color: #881518;
+            font-size: 2rem;
+            margin-bottom: 10px;
+            border-bottom: 3px solid #881518;
+            padding-bottom: 10px;
+        }
+
+        .concept p {
+            font-size: 1.1rem;
+            line-height: 1.8;
+            color: #555;
+        }
+
+        .concept ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .concept li {
+            font-size: 1.1rem;
+            line-height: 1.8;
+            color: #555;
+            padding-left: 25px;
+            position: relative;
+            margin-bottom: 10px;
+        }
+
+        .concept li::before {
+            content: "▸";
+            color: #881518;
+            position: absolute;
+            left: 0;
+            font-weight: bold;
+        }
+
+        .code-section {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .code-block {
+            background: #1e1e1e;
+            border-radius: 8px;
+            padding: 20px;
+            overflow-x: auto;
+        }
+
+        .code-block pre {
+            margin: 0;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.95rem;
+            line-height: 1.6;
+            color: #d4d4d4;
+        }
+
+        .code-label {
+            font-size: 0.85rem;
+            color: #888;
+            margin-bottom: 8px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .tag {
+            color: #569cd6;
+        }
+
+        .attr {
+            color: #9cdcfe;
+        }
+
+        .value {
+            color: #ce9178;
+        }
+
+        .comment {
+            color: #6a9955;
+        }
+
+        .highlight {
+            background: #2d2d2d;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            color: #ce9178;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 40px;
+            background: white;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 15px;
+        }
+
+        button {
+            background: #881518;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 500;
+            transition: background 0.3s ease;
+        }
+
+        button:hover {
+            background: #6b1013;
+        }
+
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        .slide-counter {
+            color: #881518;
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+
+        @media (max-width: 968px) {
+            .slide.active {
+                grid-template-columns: 1fr;
+                gap: 30px;
+            }
+
+            .slide {
+                padding: 40px;
+            }
+
+            .concept h2 {
+                font-size: 1.6rem;
+            }
+
+            .concept p, .concept li {
+                font-size: 1rem;
+            }
+
+            .code-block pre {
+                font-size: 0.85rem;
+            }
+
+            .slide-container {
+                padding: 20px;
+            }
+
+            .controls {
+                padding: 15px 20px;
+            }
+
+            button {
+                padding: 10px 18px;
+                font-size: 0.9rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .slide {
+                padding: 30px 20px;
+            }
+
+            .concept h2 {
+                font-size: 1.4rem;
+            }
+
+            button {
+                padding: 8px 14px;
+                font-size: 0.85rem;
+            }
+
+            .nav-buttons {
+                gap: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="presentation">
+        <div class="slide-container">
+            <!-- Slide 1 -->
+            <div class="slide active">
+                <div class="concept">
+                    <h2>What Are Paths?</h2>
+                    <p>A path is a string that specifies the location of a file or directory in a file system.</p>
+                    <p>In web development, paths let developers link to resources like images, stylesheets, scripts, and other web pages.</p>
+                    <p>There are two types of paths: <strong>absolute paths</strong> and <strong>relative paths</strong>. Both are essential when specifying file locations within a file system.</p>
+                </div>
+                <div class="code-section">
+                    <div>
+                        <div class="code-label">Path Examples</div>
+                        <div class="code-block">
+                            <pre><span class="comment">&lt;!-- Absolute path --&gt;</span>
+<span class="tag">&lt;a</span> <span class="attr">href</span>=<span class="value">"https://example.com/image.jpg"</span><span class="tag">&gt;</span>
+
+<span class="comment">&lt;!-- Relative path --&gt;</span>
+<span class="tag">&lt;a</span> <span class="attr">href</span>=<span class="value">"image.jpg"</span><span class="tag">&gt;</span></pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 2 -->
+            <div class="slide">
+                <div class="concept">
+                    <h2>Absolute Paths</h2>
+                    <p>An absolute path is a complete link to a resource. It starts from the root directory, includes every other directory, and finally the filename and extension.</p>
+                    <p>The "root directory" refers to the top-level directory or folder in a hierarchy.</p>
+                    <p>An absolute path includes the protocol (such as <span class="highlight">http</span>, <span class="highlight">https</span>, or <span class="highlight">file</span>) and the domain name if the resource is on the web.</p>
+                </div>
+                <div class="code-section">
+                    <div>
+                        <div class="code-label">Web Resource Example</div>
+                        <div class="code-block">
+                            <pre><span class="tag">&lt;a</span> <span class="attr">href</span>=<span class="value">"https://design-style-guide.
+       freecodecamp.org/img/
+       fcc_secondary_small.svg"</span><span class="tag">&gt;</span>
+  View fCC Logo
+<span class="tag">&lt;/a&gt;</span>
+
+<span class="comment">Protocol: https
+Domain: design-style-guide.freecodecamp.org
+Filename: fcc_secondary_small.svg</span></pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 3 -->
+            <div class="slide">
+                <div class="concept">
+                    <h2>Absolute Paths on Local Machine</h2>
+                    <p>When linking to a resource on your local machine using an absolute path, you start from the root directory and traverse through every folder.</p>
+                    <p>The URL in the browser includes the <span class="highlight">file://</span> protocol, followed by the complete path to the file.</p>
+                </div>
+                <div class="code-section">
+                    <div>
+                        <div class="code-label">Local Absolute Path</div>
+                        <div class="code-block">
+                            <pre><span class="tag">&lt;p&gt;</span>
+  Read more on the
+  <span class="tag">&lt;a</span> <span class="attr">href</span>=<span class="value">"/Users/user/Desktop/fCC/
+            script-code/absolute-vs-
+            relative-paths/pages/
+            about.html"</span><span class="tag">&gt;</span>
+    About Page
+  <span class="tag">&lt;/a&gt;</span>
+<span class="tag">&lt;/p&gt;</span></pre>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="code-label">Browser Address Bar</div>
+                        <div class="code-block">
+                            <pre><span class="value">file:///Users/user/Desktop/fCC/
+script-code/absolute-vs-relative-
+paths/pages/about.html</span>
+
+<span class="comment">Protocol: file://
+Path: /Users/user/Desktop/fCC/...
+Filename: about.html</span></pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 4 -->
+            <div class="slide">
+                <div class="concept">
+                    <h2>Relative Paths</h2>
+                    <p>A relative path specifies the location of a file relative to the directory of the current file.</p>
+                    <p>It does not include the protocol or the domain name, making it shorter and more flexible for internal links within the same website.</p>
+                    <p>If both files are in the same folder, you simply use the filename.</p>
+                </div>
+                <div class="code-section">
+                    <div>
+                        <div class="code-label">Same Folder Example</div>
+                        <div class="code-block">
+                            <pre><span class="comment">&lt;!-- From contact.html to about.html
+     (both in same folder) --&gt;</span>
+<span class="tag">&lt;p&gt;</span>
+  Read more on the
+  <span class="tag">&lt;a</span> <span class="attr">href</span>=<span class="value">"about.html"</span><span class="tag">&gt;</span>About Page<span class="tag">&lt;/a&gt;</span>
+<span class="tag">&lt;/p&gt;</span>
+
+<span class="comment">No protocol, no domain name
+Just the filename!</span></pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 5 -->
+            <div class="slide">
+                <div class="concept">
+                    <h2>When to Use Absolute Paths</h2>
+                    <p>Use absolute paths in the following situations:</p>
+                    <ul>
+                        <li>When linking to a resource hosted on an external website</li>
+                        <li>When you need the link to a page or resource to work consistently regardless of the document location within the site</li>
+                    </ul>
+                </div>
+                <div class="code-section">
+                    <div>
+                        <div class="code-label">External Resource</div>
+                        <div class="code-block">
+                            <pre><span class="comment">&lt;!-- Linking to external site --&gt;</span>
+<span class="tag">&lt;a</span> <span class="attr">href</span>=<span class="value">"https://github.com/user/repo"</span><span class="tag">&gt;</span>
+  View on GitHub
+<span class="tag">&lt;/a&gt;</span></pre>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="code-label">Consistent Link</div>
+                        <div class="code-block">
+                            <pre><span class="comment">&lt;!-- Works from any page location --&gt;</span>
+<span class="tag">&lt;a</span> <span class="attr">href</span>=<span class="value">"https://mysite.com/resources/
+       guide.pdf"</span><span class="tag">&gt;</span>
+  Download Guide
+<span class="tag">&lt;/a&gt;</span></pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 6 -->
+            <div class="slide">
+                <div class="concept">
+                    <h2>When to Use Relative Paths</h2>
+                    <p>Use relative paths in the following situations:</p>
+                    <ul>
+                        <li>When linking to resources within the same website</li>
+                        <li>If you want to keep your code cleaner and easier to maintain during development</li>
+                        <li>During local testing to ensure links work without an internet connection</li>
+                    </ul>
+                </div>
+                <div class="code-section">
+                    <div>
+                        <div class="code-label">Internal Website Links</div>
+                        <div class="code-block">
+                            <pre><span class="comment">&lt;!-- Same folder --&gt;</span>
+<span class="tag">&lt;a</span> <span class="attr">href</span>=<span class="value">"about.html"</span><span class="tag">&gt;</span>About<span class="tag">&lt;/a&gt;</span>
+
+<span class="comment">&lt;!-- Subfolder --&gt;</span>
+<span class="tag">&lt;a</span> <span class="attr">href</span>=<span class="value">"pages/contact.html"</span><span class="tag">&gt;</span>Contact<span class="tag">&lt;/a&gt;</span>
+
+<span class="comment">&lt;!-- Parent folder --&gt;</span>
+<span class="tag">&lt;a</span> <span class="attr">href</span>=<span class="value">"../index.html"</span><span class="tag">&gt;</span>Home<span class="tag">&lt;/a&gt;</span></pre>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="code-label">Benefits</div>
+                        <div class="code-block">
+                            <pre><span class="comment">✓ Shorter and cleaner code
+✓ Works offline during development
+✓ Easier to move or rename folders
+✓ No hardcoded domain names
+✓ Portable across environments</span></pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="controls">
+            <div class="nav-buttons">
+                <button id="prevBtn">← Previous</button>
+                <button id="nextBtn">Next →</button>
+            </div>
+            <div class="slide-counter">
+                <span id="currentSlide">1</span> / <span id="totalSlides">6</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.slide');
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        const currentSlideSpan = document.getElementById('currentSlide');
+        const totalSlidesSpan = document.getElementById('totalSlides');
+
+        totalSlidesSpan.textContent = slides.length;
+
+        function showSlide(n) {
+            slides[currentSlide].classList.remove('active');
+            currentSlide = (n + slides.length) % slides.length;
+            slides[currentSlide].classList.add('active');
+            currentSlideSpan.textContent = currentSlide + 1;
+            
+            prevBtn.disabled = currentSlide === 0;
+            nextBtn.disabled = currentSlide === slides.length - 1;
+        }
+
+        function nextSlide() {
+            if (currentSlide < slides.length - 1) {
+                showSlide(currentSlide + 1);
+            }
+        }
+
+        function prevSlide() {
+            if (currentSlide > 0) {
+                showSlide(currentSlide - 1);
+            }
+        }
+
+        prevBtn.addEventListener('click', prevSlide);
+        nextBtn.addEventListener('click', nextSlide);
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight') {
+                nextSlide();
+            } else if (e.key === 'ArrowLeft') {
+                prevSlide();
+            }
+        });
+
+        showSlide(0);
+    </script>
+</body>
+</html>
