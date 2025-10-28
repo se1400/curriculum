@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Presentational vs Semantic HTML</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: #f5f5f5;
+            color: #333;
+            overflow: hidden;
+        }
+
+        .presentation {
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .slide-container {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+        }
+
+        .slide {
+            display: none;
+            width: 100%;
+            max-width: 1200px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(136, 21, 24, 0.1);
+            padding: 60px;
+            height: calc(100vh - 160px);
+            overflow-y: auto;
+        }
+
+        .slide.active {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            align-items: start;
+        }
+
+        .concept {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .concept h2 {
+            color: #881518;
+            font-size: 2rem;
+            margin-bottom: 10px;
+            border-bottom: 3px solid #881518;
+            padding-bottom: 10px;
+        }
+
+        .concept p {
+            font-size: 1.1rem;
+            line-height: 1.8;
+            color: #555;
+        }
+
+        .concept ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .concept li {
+            font-size: 1.1rem;
+            line-height: 1.8;
+            color: #555;
+            padding-left: 25px;
+            position: relative;
+            margin-bottom: 10px;
+        }
+
+        .concept li::before {
+            content: "▸";
+            color: #881518;
+            position: absolute;
+            left: 0;
+            font-weight: bold;
+        }
+
+        .code-section {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .code-block {
+            background: #1e1e1e;
+            border-radius: 8px;
+            padding: 20px;
+            overflow-x: auto;
+        }
+
+        .code-block pre {
+            margin: 0;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.95rem;
+            line-height: 1.6;
+            color: #d4d4d4;
+        }
+
+        .code-label {
+            font-size: 0.85rem;
+            color: #888;
+            margin-bottom: 8px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .tag {
+            color: #569cd6;
+        }
+
+        .attr {
+            color: #9cdcfe;
+        }
+
+        .value {
+            color: #ce9178;
+        }
+
+        .comment {
+            color: #6a9955;
+        }
+
+        .bad {
+            color: #f48771;
+        }
+
+        .good {
+            color: #4ec9b0;
+        }
+
+        .highlight {
+            background: #2d2d2d;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            color: #ce9178;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 40px;
+            background: white;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 15px;
+        }
+
+        button {
+            background: #881518;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 500;
+            transition: background 0.3s ease;
+        }
+
+        button:hover {
+            background: #6b1013;
+        }
+
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        .slide-counter {
+            color: #881518;
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+
+        @media (max-width: 968px) {
+            .slide.active {
+                grid-template-columns: 1fr;
+                gap: 30px;
+            }
+
+            .slide {
+                padding: 40px;
+            }
+
+            .concept h2 {
+                font-size: 1.6rem;
+            }
+
+            .concept p, .concept li {
+                font-size: 1rem;
+            }
+
+            .code-block pre {
+                font-size: 0.85rem;
+            }
+
+            .slide-container {
+                padding: 20px;
+            }
+
+            .controls {
+                padding: 15px 20px;
+            }
+
+            button {
+                padding: 10px 18px;
+                font-size: 0.9rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .slide {
+                padding: 30px 20px;
+            }
+
+            .concept h2 {
+                font-size: 1.4rem;
+            }
+
+            button {
+                padding: 8px 14px;
+                font-size: 0.85rem;
+            }
+
+            .nav-buttons {
+                gap: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="presentation">
+        <div class="slide-container">
+            <!-- Slide 1 -->
+            <div class="slide active">
+                <div class="concept">
+                    <h2>What is Presentational HTML?</h2>
+                    <p>Presentational HTML focuses on the appearance and style of the content.</p>
+                    <p>In the early days of HTML, developers would use elements like <span class="highlight">center</span>, <span class="highlight">big</span>, and <span class="highlight">font</span> elements.</p>
+                    <p>In modern web development, you shouldn't use these types of elements because of their limitations and negative impact on accessibility and maintainability.</p>
+                </div>
+                <div class="code-section">
+                    <div>
+                        <div class="code-label">Presentational Elements (Deprecated)</div>
+                        <div class="code-block">
+                            <pre><span class="bad tag">&lt;font</span> <span class="bad attr">color</span>=<span class="bad value">"red"</span><span class="bad tag">&gt;</span><span class="bad">Red text</span><span class="bad tag">&lt;/font&gt;</span>
+
+<span class="bad tag">&lt;center&gt;</span><span class="bad">Centered content</span><span class="bad tag">&lt;/center&gt;</span>
+
+<span class="bad tag">&lt;big&gt;</span><span class="bad">Bigger text</span><span class="bad tag">&lt;/big&gt;</span>
+
+<span class="comment">✗ Don't use these anymore!</span></pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 2 -->
+            <div class="slide">
+                <div class="concept">
+                    <h2>Deprecated Elements</h2>
+                    <p>Many presentational HTML elements are <strong>deprecated</strong>, which means that they are outdated and no longer recommended.</p>
+                    <p>There are better ways to get the same results using CSS.</p>
+                    <p>However, it is helpful to know that they exist, so you can recognize them in older code and know to avoid them.</p>
+                </div>
+                <div class="code-section">
+                    <div>
+                        <div class="code-label">What "Deprecated" Means</div>
+                        <div class="code-block">
+                            <pre><span class="comment">Deprecated = Outdated
+
+✗ No longer recommended
+✗ May be removed in future
+✗ Better alternatives exist
+✗ Hurts accessibility
+✗ Harder to maintain
+
+→ Use CSS instead!</span></pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 3 -->
+            <div class="slide">
+                <div class="concept">
+                    <h2>The font Element (Deprecated)</h2>
+                    <p>The <span class="highlight">font</span> element is a deprecated element used to set the font size and color of the text.</p>
+                    <p>The range for the size attribute is from 1 to 7, with 1 being the smallest and 7 being the largest. The default value is 3.</p>
+                    <p>While this element still works, you should not use it because the font size and color should always be set in CSS, not in HTML.</p>
+                </div>
+                <div class="code-section">
+                    <div>
+                        <div class="code-label">Old Way (Don't Use)</div>
+                        <div class="code-block">
+                            <pre><span class="bad tag">&lt;font</span> <span class="bad attr">size</span>=<span class="bad value">"5"</span> <span class="bad attr">color</span>=<span class="bad value">"blue"</span><span class="bad tag">&gt;</span>
+  <span class="bad">This text is blue and large.</span>
+<span class="bad tag">&lt;/font&gt;</span>
+
+<span class="comment">✗ Deprecated presentational HTML</span></pre>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="code-label">Modern Way (Use CSS)</div>
+                        <div class="code-block">
+                            <pre><span class="good tag">&lt;span</span> <span class="good attr">class</span>=<span class="good value">"large-blue"</span><span class="good tag">&gt;</span>
+  <span class="good">This text is blue and large.</span>
+<span class="good tag">&lt;/span&gt;</span>
+
+<span class="comment">/* CSS */</span>
+<span class="value">.large-blue</span> {
+  <span class="attr">color</span>: blue;
+  <span class="attr">font-size</span>: 1.5rem;
+}
+
+<span class="comment">✓ Semantic HTML with CSS styling</span></pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 4 -->
+            <div class="slide">
+                <div class="concept">
+                    <h2>center and big Elements (Deprecated)</h2>
+                    <p>The <span class="highlight">center</span> element is used to center content horizontally within its container.</p>
+                    <p>The <span class="highlight">big</span> element makes the enclosed text one level bigger than its surrounding text.</p>
+                    <p>Remember that positioning and font size should always be set with CSS, so you should not use these elements in modern HTML.</p>
+                </div>
+                <div class="code-section">
+                    <div>
+                        <div class="code-label">Old Way (Don't Use)</div>
+                        <div class="code-block">
+                            <pre><span class="bad tag">&lt;center&gt;</span>
+  <span class="bad">This text is centered.</span>
+  <span class="bad tag">&lt;p&gt;</span><span class="bad">HTML is awesome.</span><span class="bad tag">&lt;/p&gt;</span>
+<span class="bad tag">&lt;/center&gt;</span>
+
+<span class="bad tag">&lt;p&gt;</span>
+  <span class="bad">Normal text.</span>
+  <span class="bad tag">&lt;big&gt;</span><span class="bad">Bigger text.</span><span class="bad tag">&lt;/big&gt;</span>
+<span class="bad tag">&lt;/p&gt;</span>
+
+<span class="comment">✗ Deprecated presentational HTML</span></pre>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="code-label">Modern Way (Use CSS)</div>
+                        <div class="code-block">
+                            <pre><span class="good tag">&lt;div</span> <span class="good attr">class</span>=<span class="good value">"centered"</span><span class="good tag">&gt;</span>
+  <span class="good">This text is centered.</span>
+  <span class="good tag">&lt;p&gt;</span><span class="good">HTML is awesome.</span><span class="good tag">&lt;/p&gt;</span>
+<span class="good tag">&lt;/div&gt;</span>
+
+<span class="good tag">&lt;p&gt;</span>
+  <span class="good">Normal text.</span>
+  <span class="good tag">&lt;span</span> <span class="good attr">class</span>=<span class="good value">"larger"</span><span class="good tag">&gt;</span><span class="good">Bigger text.</span><span class="good tag">&lt;/span&gt;</span>
+<span class="good tag">&lt;/p&gt;</span>
+
+<span class="comment">/* CSS */</span>
+<span class="value">.centered</span> { <span class="attr">text-align</span>: center; }
+<span class="value">.larger</span> { <span class="attr">font-size</span>: 1.2em; }</pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 5 -->
+            <div class="slide">
+                <div class="concept">
+                    <h2>What is Semantic HTML?</h2>
+                    <p>Semantic HTML is now the recommended practice. It describes the content of the elements, so it's much easier to read, understand, and maintain.</p>
+                    <p>Search engines can easily understand your website when you use semantic HTML.</p>
+                    <p>It's also helpful for accessibility purposes, because screen readers need semantic information to describe what's on the web page.</p>
+                </div>
+                <div class="code-section">
+                    <div>
+                        <div class="code-label">Semantic HTML Benefits</div>
+                        <div class="code-block">
+                            <pre><span class="comment">Semantic HTML describes WHAT
+content is, not HOW it looks
+
+✓ Easier to read and understand
+✓ Easier to maintain
+✓ Better for SEO
+✓ Better for accessibility
+✓ Better for screen readers
+
+Use elements that describe
+the meaning of your content!</span></pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 6 -->
+            <div class="slide">
+                <div class="concept">
+                    <h2>Examples of Semantic Elements</h2>
+                    <p>There are many semantic HTML elements available:</p>
+                    <ul>
+                        <li><strong>header</strong> - for defining the header of the document or section</li>
+                        <li><strong>nav</strong> - for sections with navigation links</li>
+                        <li><strong>section</strong> - for grouping related information</li>
+                        <li><strong>figure</strong> - for illustrations and diagrams</li>
+                    </ul>
+                    <p>There are many different semantic HTML elements. You will definitely find one that fits the needs of your project.</p>
+                </div>
+                <div class="code-section">
+                    <div>
+                        <div class="code-label">Semantic Structure Example</div>
+                        <div class="code-block">
+                            <pre><span class="tag">&lt;header&gt;</span>
+  <span class="tag">&lt;nav&gt;</span>
+    <span class="tag">&lt;a</span> <span class="attr">href</span>=<span class="value">"#"</span><span class="tag">&gt;</span>Home<span class="tag">&lt;/a&gt;</span>
+    <span class="tag">&lt;a</span> <span class="attr">href</span>=<span class="value">"#"</span><span class="tag">&gt;</span>About<span class="tag">&lt;/a&gt;</span>
+    <span class="tag">&lt;a</span> <span class="attr">href</span>=<span class="value">"#"</span><span class="tag">&gt;</span>Products<span class="tag">&lt;/a&gt;</span>
+    <span class="tag">&lt;a</span> <span class="attr">href</span>=<span class="value">"#"</span><span class="tag">&gt;</span>Contact<span class="tag">&lt;/a&gt;</span>
+  <span class="tag">&lt;/nav&gt;</span>
+<span class="tag">&lt;/header&gt;</span>
+
+<span class="comment">✓ Clear semantic meaning</span></pre>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="code-label">More Semantic Elements</div>
+                        <div class="code-block">
+                            <pre><span class="tag">&lt;main&gt;</span>      <span class="comment">Main content</span>
+<span class="tag">&lt;article&gt;</span>  <span class="comment">Independent content</span>
+<span class="tag">&lt;aside&gt;</span>    <span class="comment">Side content</span>
+<span class="tag">&lt;footer&gt;</span>   <span class="comment">Footer information</span>
+<span class="tag">&lt;time&gt;</span>     <span class="comment">Date/time</span>
+<span class="tag">&lt;mark&gt;</span>     <span class="comment">Highlighted text</span></pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 7 -->
+            <div class="slide">
+                <div class="concept">
+                    <h2>Summary: Key Differences</h2>
+                    <p><strong>Presentational HTML</strong> focuses on appearance - how content looks. These elements are deprecated and should not be used.</p>
+                    <p><strong>Semantic HTML</strong> describes content - what the content means. This is the modern, recommended practice.</p>
+                    <p>The semantic elements clearly show their purpose within the HTML structure, making your code more accessible, maintainable, and SEO-friendly.</p>
+                </div>
+                <div class="code-section">
+                    <div>
+                        <div class="code-label">Presentational (Avoid)</div>
+                        <div class="code-block">
+                            <pre><span class="comment">/* Focuses on APPEARANCE */</span>
+
+<span class="bad tag">&lt;font&gt;</span>, <span class="bad tag">&lt;center&gt;</span>, <span class="bad tag">&lt;big&gt;</span>
+
+<span class="comment">✗ Deprecated
+✗ Hard to maintain
+✗ Bad for accessibility
+✗ Bad for SEO</span></pre>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="code-label">Semantic (Use This)</div>
+                        <div class="code-block">
+                            <pre><span class="comment">/* Describes CONTENT */</span>
+
+<span class="good tag">&lt;header&gt;</span>, <span class="good tag">&lt;nav&gt;</span>, <span class="good tag">&lt;section&gt;</span>,
+<span class="good tag">&lt;article&gt;</span>, <span class="good tag">&lt;figure&gt;</span>
+
+<span class="comment">✓ Modern standard
+✓ Easy to maintain
+✓ Great for accessibility
+✓ Great for SEO
+
+Use CSS for styling!</span></pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="controls">
+            <div class="nav-buttons">
+                <button id="prevBtn">← Previous</button>
+                <button id="nextBtn">Next →</button>
+            </div>
+            <div class="slide-counter">
+                <span id="currentSlide">1</span> / <span id="totalSlides">7</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.slide');
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        const currentSlideSpan = document.getElementById('currentSlide');
+        const totalSlidesSpan = document.getElementById('totalSlides');
+
+        totalSlidesSpan.textContent = slides.length;
+
+        function showSlide(n) {
+            slides[currentSlide].classList.remove('active');
+            currentSlide = (n + slides.length) % slides.length;
+            slides[currentSlide].classList.add('active');
+            currentSlideSpan.textContent = currentSlide + 1;
+            
+            prevBtn.disabled = currentSlide === 0;
+            nextBtn.disabled = currentSlide === slides.length - 1;
+        }
+
+        function nextSlide() {
+            if (currentSlide < slides.length - 1) {
+                showSlide(currentSlide + 1);
+            }
+        }
+
+        function prevSlide() {
+            if (currentSlide > 0) {
+                showSlide(currentSlide - 1);
+            }
+        }
+
+        prevBtn.addEventListener('click', prevSlide);
+        nextBtn.addEventListener('click', nextSlide);
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight') {
+                nextSlide();
+            } else if (e.key === 'ArrowLeft') {
+                prevSlide();
+            }
+        });
+
+        showSlide(0);
+    </script>
+</body>
+</html>
