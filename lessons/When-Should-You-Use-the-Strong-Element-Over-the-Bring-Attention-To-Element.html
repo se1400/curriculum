@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Strong vs Bring Attention To</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: #f5f5f5;
+            color: #333;
+            overflow: hidden;
+        }
+
+        .presentation {
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .slide-container {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+        }
+
+        .slide {
+            display: none;
+            width: 100%;
+            max-width: 1200px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(136, 21, 24, 0.1);
+            padding: 60px;
+            height: calc(100vh - 160px);
+            overflow-y: auto;
+        }
+
+        .slide.active {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            align-items: start;
+        }
+
+        .concept {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .concept h2 {
+            color: #881518;
+            font-size: 2rem;
+            margin-bottom: 10px;
+            border-bottom: 3px solid #881518;
+            padding-bottom: 10px;
+        }
+
+        .concept p {
+            font-size: 1.1rem;
+            line-height: 1.8;
+            color: #555;
+        }
+
+        .concept ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .concept li {
+            font-size: 1.1rem;
+            line-height: 1.8;
+            color: #555;
+            padding-left: 25px;
+            position: relative;
+            margin-bottom: 10px;
+        }
+
+        .concept li::before {
+            content: "▸";
+            color: #881518;
+            position: absolute;
+            left: 0;
+            font-weight: bold;
+        }
+
+        .code-section {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .code-block {
+            background: #1e1e1e;
+            border-radius: 8px;
+            padding: 20px;
+            overflow-x: auto;
+        }
+
+        .code-block pre {
+            margin: 0;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.95rem;
+            line-height: 1.6;
+            color: #d4d4d4;
+        }
+
+        .code-label {
+            font-size: 0.85rem;
+            color: #888;
+            margin-bottom: 8px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .tag {
+            color: #569cd6;
+        }
+
+        .attr {
+            color: #9cdcfe;
+        }
+
+        .value {
+            color: #ce9178;
+        }
+
+        .comment {
+            color: #6a9955;
+        }
+
+        .highlight {
+            background: #2d2d2d;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            color: #ce9178;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 40px;
+            background: white;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 15px;
+        }
+
+        button {
+            background: #881518;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 500;
+            transition: background 0.3s ease;
+        }
+
+        button:hover {
+            background: #6b1013;
+        }
+
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        .slide-counter {
+            color: #881518;
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+
+        @media (max-width: 968px) {
+            .slide.active {
+                grid-template-columns: 1fr;
+                gap: 30px;
+            }
+
+            .slide {
+                padding: 40px;
+            }
+
+            .concept h2 {
+                font-size: 1.6rem;
+            }
+
+            .concept p, .concept li {
+                font-size: 1rem;
+            }
+
+            .code-block pre {
+                font-size: 0.85rem;
+            }
+
+            .slide-container {
+                padding: 20px;
+            }
+
+            .controls {
+                padding: 15px 20px;
+            }
+
+            button {
+                padding: 10px 18px;
+                font-size: 0.9rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .slide {
+                padding: 30px 20px;
+            }
+
+            .concept h2 {
+                font-size: 1.4rem;
+            }
+
+            button {
+                padding: 8px 14px;
+                font-size: 0.85rem;
+            }
+
+            .nav-buttons {
+                gap: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="presentation">
+        <div class="slide-container">
+            <!-- Slide 1 -->
+            <div class="slide active">
+                <div class="concept">
+                    <h2>The b Element (Bring Attention To)</h2>
+                    <p>The "bring attention to" element (<span class="highlight">b</span>) is commonly used to highlight keywords in summaries, or product names in reviews.</p>
+                    <p>Usually, browsers display this text in boldface. This visual emphasis will draw readers' attention to specific content.</p>
+                    <p>The <span class="highlight">b</span> element draws attention without indicating that the text is more important or urgent.</p>
+                </div>
+                <div class="code-section">
+                    <div>
+                        <div class="code-label">Common Uses for b</div>
+                        <div class="code-block">
+                            <pre><span class="comment">/* Highlighting keywords */</span>
+<span class="tag">&lt;b&gt;</span>keywords<span class="tag">&lt;/b&gt;</span> in summaries
+
+<span class="comment">/* Product names in reviews */</span>
+the <span class="tag">&lt;b&gt;</span>iPhone 15<span class="tag">&lt;/b&gt;</span> performed well
+
+<span class="comment">/* Important terms */</span>
+learn about <span class="tag">&lt;b&gt;</span>accessibility<span class="tag">&lt;/b&gt;</span>
+
+<span class="comment">→ Visual emphasis only
+→ Not more important</span></pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 2 -->
+            <div class="slide">
+                <div class="concept">
+                    <h2>Example: Product Review</h2>
+                    <p>Here's an example using the <span class="highlight">b</span> element to highlight product names in a review.</p>
+                    <p>The browser renders these parts of the text as bold text. This visual emphasis draws readers' attention to the product names without suggesting they are critically important.</p>
+                </div>
+                <div class="code-section">
+                    <div>
+                        <div class="code-label">Product Names Highlighted</div>
+                        <div class="code-block">
+                            <pre><span class="tag">&lt;p&gt;</span>
+  We tested several products, including 
+  the <span class="tag">&lt;b&gt;</span>SuperSound 3000<span class="tag">&lt;/b&gt;</span> for audio 
+  quality, the <span class="tag">&lt;b&gt;</span>QuickCharge Pro<span class="tag">&lt;/b&gt;</span> 
+  for fast charging, and the 
+  <span class="tag">&lt;b&gt;</span>EcoClean Vacuum<span class="tag">&lt;/b&gt;</span> for cleaning. 
+  The first two performed well, but the 
+  <span class="tag">&lt;b&gt;</span>EcoClean Vacuum<span class="tag">&lt;/b&gt;</span> did not meet 
+  expectations.
+<span class="tag">&lt;/p&gt;</span></pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 3 -->
+            <div class="slide">
+                <div class="concept">
+                    <h2>The strong Element</h2>
+                    <p>If you need to emphasize the <strong>importance</strong> of the text, you should use the <span class="highlight">strong</span> element instead of the <span class="highlight">b</span> element.</p>
+                    <p><span class="highlight">strong</span> is a semantic HTML element that emphasizes text that is crucial or urgent.</p>
+                    <p>The strong element communicates a sense of urgency or critical importance to both users and assistive technologies.</p>
+                </div>
+                <div class="code-section">
+                    <div>
+                        <div class="code-label">Use strong for Importance</div>
+                        <div class="code-block">
+                            <pre><span class="comment">/* Critical information */</span>
+<span class="tag">&lt;strong&gt;</span>Warning:<span class="tag">&lt;/strong&gt;</span> Do not mix chemicals
+
+<span class="comment">/* Urgent notices */</span>
+<span class="tag">&lt;strong&gt;</span>Deadline:<span class="tag">&lt;/strong&gt;</span> Submit by Friday
+
+<span class="comment">/* Important instructions */</span>
+<span class="tag">&lt;strong&gt;</span>Required:<span class="tag">&lt;/strong&gt;</span> Complete all fields
+
+<span class="comment">→ Conveys importance/urgency
+→ Semantic meaning</span></pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 4 -->
+            <div class="slide">
+                <div class="concept">
+                    <h2>Example: Important Warning</h2>
+                    <p>This is an example where the <span class="highlight">strong</span> element is used to label a very important warning about potential allergic reactions that customers may have to a product.</p>
+                    <p>The strong element communicates that sense of urgency, making it clear this is critical information that users must pay attention to.</p>
+                </div>
+                <div class="code-section">
+                    <div>
+                        <div class="code-label">Critical Warning</div>
+                        <div class="code-block">
+                            <pre><span class="tag">&lt;p&gt;</span>
+  <span class="tag">&lt;strong&gt;</span>Warning:<span class="tag">&lt;/strong&gt;</span> This product 
+  may cause allergic reactions.
+<span class="tag">&lt;/p&gt;</span>
+
+<span class="comment">/* "Warning" is crucial information
+   Screen readers emphasize it
+   Users understand it's urgent */</span></pre>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="code-label">Other Important Uses</div>
+                        <div class="code-block">
+                            <pre><span class="tag">&lt;p&gt;</span>
+  <span class="tag">&lt;strong&gt;</span>Important:<span class="tag">&lt;/strong&gt;</span> Save your work 
+  frequently to avoid data loss.
+<span class="tag">&lt;/p&gt;</span>
+
+<span class="tag">&lt;p&gt;</span>
+  <span class="tag">&lt;strong&gt;</span>Note:<span class="tag">&lt;/strong&gt;</span> This action cannot 
+  be undone.
+<span class="tag">&lt;/p&gt;</span></pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 5 -->
+            <div class="slide">
+                <div class="concept">
+                    <h2>Visual Similarity, Semantic Difference</h2>
+                    <p>Visually, both are very similar because they are both rendered as bold by default.</p>
+                    <p>But their meanings are quite different. While the "bring attention to" element only draws attention to the text without indicating a higher level of importance, the strong element does more than that. It conveys a sense of importance or urgency.</p>
+                    <p>This is their main difference.</p>
+                </div>
+                <div class="code-section">
+                    <div>
+                        <div class="code-label">Visual Appearance</div>
+                        <div class="code-block">
+                            <pre><span class="comment">/* Both look the same: */</span>
+
+<span class="tag">&lt;b&gt;</span>bold text<span class="tag">&lt;/b&gt;</span>
+<span class="tag">&lt;strong&gt;</span>bold text<span class="tag">&lt;/strong&gt;</span>
+
+<span class="comment">Both display as bold ↑</span></pre>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="code-label">Semantic Meaning</div>
+                        <div class="code-block">
+                            <pre><span class="comment">/* Different meanings: */</span>
+
+<span class="tag">&lt;b&gt;</span>text<span class="tag">&lt;/b&gt;</span>
+<span class="comment">→ Draws attention
+→ Visual emphasis only
+→ Not more important</span>
+
+<span class="tag">&lt;strong&gt;</span>text<span class="tag">&lt;/strong&gt;</span>
+<span class="comment">→ Important or urgent
+→ Semantic emphasis
+→ Screen readers add importance</span></pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 6 -->
+            <div class="slide">
+                <div class="concept">
+                    <h2>Choosing Between b and strong</h2>
+                    <p>To choose between them, consider the purpose of the text and its importance within the surrounding content.</p>
+                    <p><strong>Use <span class="highlight">b</span></strong> to draw attention to text for visual emphasis (keywords, product names) without conveying importance.</p>
+                    <p><strong>Use <span class="highlight">strong</span></strong> to indicate that text is specially important, crucial, or urgent.</p>
+                </div>
+                <div class="code-section">
+                    <div>
+                        <div class="code-label">Decision Guide</div>
+                        <div class="code-block">
+                            <pre><span class="comment">Ask yourself:</span>
+
+"Is this text more important than 
+surrounding text?"
+
+<span class="comment">YES → Use &lt;strong&gt;</span>
+  Warnings, critical info,
+  urgent notices
+
+<span class="comment">NO → Use &lt;b&gt;</span>
+  Product names, keywords,
+  visual highlighting</pre>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="code-label">Examples</div>
+                        <div class="code-block">
+                            <pre><span class="comment">/* Just highlighting (b) */</span>
+The <span class="tag">&lt;b&gt;</span>MacBook Pro<span class="tag">&lt;/b&gt;</span> is fast.
+Key <span class="tag">&lt;b&gt;</span>features<span class="tag">&lt;/b&gt;</span> include...
+
+<span class="comment">/* Important/urgent (strong) */</span>
+<span class="tag">&lt;strong&gt;</span>Caution:<span class="tag">&lt;/strong&gt;</span> Hot surface
+<span class="tag">&lt;strong&gt;</span>Do not<span class="tag">&lt;/strong&gt;</span> share passwords</pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="controls">
+            <div class="nav-buttons">
+                <button id="prevBtn">← Previous</button>
+                <button id="nextBtn">Next →</button>
+            </div>
+            <div class="slide-counter">
+                <span id="currentSlide">1</span> / <span id="totalSlides">6</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.slide');
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        const currentSlideSpan = document.getElementById('currentSlide');
+        const totalSlidesSpan = document.getElementById('totalSlides');
+
+        totalSlidesSpan.textContent = slides.length;
+
+        function showSlide(n) {
+            slides[currentSlide].classList.remove('active');
+            currentSlide = (n + slides.length) % slides.length;
+            slides[currentSlide].classList.add('active');
+            currentSlideSpan.textContent = currentSlide + 1;
+            
+            prevBtn.disabled = currentSlide === 0;
+            nextBtn.disabled = currentSlide === slides.length - 1;
+        }
+
+        function nextSlide() {
+            if (currentSlide < slides.length - 1) {
+                showSlide(currentSlide + 1);
+            }
+        }
+
+        function prevSlide() {
+            if (currentSlide > 0) {
+                showSlide(currentSlide - 1);
+            }
+        }
+
+        prevBtn.addEventListener('click', prevSlide);
+        nextBtn.addEventListener('click', nextSlide);
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight') {
+                nextSlide();
+            } else if (e.key === 'ArrowLeft') {
+                prevSlide();
+            }
+        });
+
+        showSlide(0);
+    </script>
+</body>
+</html>
