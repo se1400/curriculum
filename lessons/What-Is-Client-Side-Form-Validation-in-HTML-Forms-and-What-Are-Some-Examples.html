@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Client-Side Form Validation in HTML</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f5f5;
+            color: #333;
+            overflow: hidden;
+            height: 100vh;
+        }
+
+        .slideshow-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .slide {
+            display: none;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(136, 21, 24, 0.1);
+            padding: 60px;
+            min-height: 500px;
+            animation: fadeIn 0.5s;
+        }
+
+        .slide.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        h2 {
+            color: #881518;
+            font-size: 2.5em;
+            margin-bottom: 30px;
+            border-bottom: 4px solid #881518;
+            padding-bottom: 15px;
+        }
+
+        h3 {
+            color: #881518;
+            font-size: 1.8em;
+            margin-top: 30px;
+            margin-bottom: 20px;
+        }
+
+        .concept {
+            font-size: 1.3em;
+            line-height: 1.8;
+            margin-bottom: 25px;
+            color: #444;
+        }
+
+        .concept strong {
+            color: #881518;
+            font-weight: 600;
+        }
+
+        .concept code {
+            background: #f0f0f0;
+            padding: 3px 8px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+            color: #881518;
+            font-size: 0.95em;
+        }
+
+        .code-example {
+            background: #f8f8f8;
+            border-left: 4px solid #881518;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 1.1em;
+            overflow-x: auto;
+        }
+
+        .code-example code {
+            color: #881518;
+        }
+
+        .output {
+            background: #fff9e6;
+            border-left: 4px solid #ffb800;
+            padding: 20px;
+            margin: 15px 0;
+            border-radius: 4px;
+            font-size: 1.2em;
+        }
+
+        .output-label {
+            font-weight: bold;
+            color: #ffb800;
+            margin-bottom: 12px;
+        }
+
+        .output form {
+            margin-top: 10px;
+        }
+
+        .output input[type="email"] {
+            padding: 8px 12px;
+            font-size: 1em;
+            border: 2px solid #ddd;
+            border-radius: 4px;
+            width: 100%;
+            max-width: 400px;
+            margin-bottom: 12px;
+        }
+
+        .output input[type="email"]:focus {
+            outline: none;
+            border-color: #881518;
+        }
+
+        .output input[type="email"]:invalid {
+            border-color: #e74c3c;
+        }
+
+        .output label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        .output button {
+            padding: 12px 24px;
+            font-size: 1em;
+            border: 2px solid #881518;
+            background: #881518;
+            color: white;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 600;
+        }
+
+        .output button:hover {
+            background: #a51a1d;
+            transform: translateY(-2px);
+        }
+
+        .use-cases {
+            margin-top: 25px;
+        }
+
+        .use-case-item {
+            margin-left: 25px;
+            margin-bottom: 15px;
+            font-size: 1.2em;
+            line-height: 1.6;
+        }
+
+        .use-case-item::before {
+            content: "▸ ";
+            color: #881518;
+            font-weight: bold;
+            margin-right: 8px;
+        }
+
+        .note {
+            background: #fff3f3;
+            border-left: 4px solid #881518;
+            padding: 20px;
+            margin: 25px 0;
+            border-radius: 4px;
+            font-size: 1.15em;
+            line-height: 1.7;
+        }
+
+        .note strong {
+            color: #881518;
+        }
+
+        .warning {
+            background: #fff9e6;
+            border-left: 4px solid #ffb800;
+            padding: 20px;
+            margin: 25px 0;
+            border-radius: 4px;
+            font-size: 1.15em;
+            line-height: 1.7;
+        }
+
+        .warning strong {
+            color: #cc8800;
+        }
+
+        .highlight-box {
+            background: #f0f8ff;
+            border-left: 4px solid #4a90e2;
+            padding: 20px;
+            margin: 25px 0;
+            border-radius: 4px;
+            font-size: 1.15em;
+            line-height: 1.7;
+        }
+
+        .comparison {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin: 25px 0;
+        }
+
+        .comparison-item {
+            background: #f8f8f8;
+            padding: 20px;
+            border-radius: 6px;
+            border-left: 4px solid #881518;
+        }
+
+        .comparison-item h4 {
+            color: #881518;
+            margin-bottom: 12px;
+            font-size: 1.3em;
+        }
+
+        .navigation {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 40px;
+            padding-top: 30px;
+            border-top: 2px solid #e0e0e0;
+        }
+
+        .nav-button {
+            background: #881518;
+            color: white;
+            border: none;
+            padding: 15px 35px;
+            font-size: 1.1em;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 600;
+        }
+
+        .nav-button:hover:not(:disabled) {
+            background: #a51a1d;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(136, 21, 24, 0.3);
+        }
+
+        .nav-button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        .slide-indicator {
+            font-size: 1.1em;
+            color: #666;
+            font-weight: 500;
+        }
+
+        .slide-indicator .current {
+            color: #881518;
+            font-weight: bold;
+            font-size: 1.3em;
+        }
+
+        /* Mobile responsiveness */
+        @media (max-width: 768px) {
+            .slide {
+                padding: 30px 25px;
+                min-height: auto;
+            }
+
+            h2 {
+                font-size: 1.8em;
+                margin-bottom: 20px;
+            }
+
+            h3 {
+                font-size: 1.4em;
+                margin-top: 20px;
+                margin-bottom: 15px;
+            }
+
+            .concept {
+                font-size: 1.1em;
+                margin-bottom: 20px;
+            }
+
+            .code-example {
+                padding: 15px;
+                font-size: 0.95em;
+            }
+
+            .output {
+                padding: 15px;
+                font-size: 1em;
+            }
+
+            .use-case-item {
+                font-size: 1.05em;
+                margin-bottom: 12px;
+            }
+
+            .note, .highlight-box, .warning {
+                padding: 15px;
+                font-size: 1em;
+            }
+
+            .comparison {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+
+            .comparison-item {
+                padding: 15px;
+            }
+
+            .nav-button {
+                padding: 12px 25px;
+                font-size: 1em;
+            }
+
+            .slide-indicator {
+                font-size: 0.95em;
+            }
+
+            .slideshow-container {
+                padding: 15px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .slide {
+                padding: 20px 15px;
+            }
+
+            h2 {
+                font-size: 1.5em;
+            }
+
+            h3 {
+                font-size: 1.2em;
+            }
+
+            .concept {
+                font-size: 1em;
+            }
+
+            .code-example {
+                font-size: 0.85em;
+            }
+
+            .nav-button {
+                padding: 10px 20px;
+                font-size: 0.9em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="slideshow-container">
+        <!-- Slide 1: Introduction to Form Validation -->
+        <div class="slide active">
+            <h2>Client-Side Form Validation</h2>
+            
+            <div class="concept">
+                When a user fills out a form on your website, it is important that they fill out all of the <strong>necessary information in the correct format</strong>.
+            </div>
+
+            <div class="concept">
+                HTML form controls, like inputs, have a lot of <strong>built-in validation</strong> that you can use to check for invalid data. This will help ensure that the user fixes these mistakes before the information is submitted and processed by the server.
+            </div>
+
+            <div class="highlight-box">
+                <strong>Benefits of Client-Side Validation:</strong>
+                <ul style="margin-top: 15px; margin-left: 25px; line-height: 1.8;">
+                    <li>Immediate feedback to users</li>
+                    <li>Reduces server load</li>
+                    <li>Improves user experience</li>
+                    <li>Catches errors before submission</li>
+                </ul>
+            </div>
+
+            <div class="navigation">
+                <button class="nav-button" onclick="previousSlide()" disabled>Previous</button>
+                <div class="slide-indicator">
+                    <span class="current">1</span> / 5
+                </div>
+                <button class="nav-button" onclick="nextSlide()">Next</button>
+            </div>
+        </div>
+
+        <!-- Slide 2: Client-Side vs Server-Side -->
+        <div class="slide">
+            <h2>Client-Side vs Server-Side</h2>
+            
+            <div class="comparison">
+                <div class="comparison-item">
+                    <h4>Client-Side</h4>
+                    <p>Everything that happens on the <strong>user's computer or device</strong>, like the part of a website or app you interact with directly.</p>
+                    <p style="margin-top: 10px;">Includes: layout, design, and interactive features.</p>
+                </div>
+                <div class="comparison-item">
+                    <h4>Server-Side</h4>
+                    <p>Everything that happens on the <strong>server</strong>, the computer or system that hosts the website or app.</p>
+                    <p style="margin-top: 10px;">Includes: processing data, running applications, and handling requests.</p>
+                </div>
+            </div>
+
+            <div class="warning">
+                <strong>Important Security Note:</strong> While client-side validation is important, you also need <strong>server-side validation</strong> for added security. Malicious users can bypass client-side checks, so robust server-side measures are essential.
+            </div>
+
+            <div class="concept">
+                You'll learn more about server-side validation in a later module. For now, let's focus on client-side form validation examples.
+            </div>
+
+            <div class="navigation">
+                <button class="nav-button" onclick="previousSlide()">Previous</button>
+                <div class="slide-indicator">
+                    <span class="current">2</span> / 5
+                </div>
+                <button class="nav-button" onclick="nextSlide()">Next</button>
+            </div>
+        </div>
+
+        <!-- Slide 3: Required Attribute -->
+        <div class="slide">
+            <h2>The Required Attribute</h2>
+            
+            <div class="concept">
+                One common example of built-in form validation is to use the <code>required</code> attribute in inputs. The <strong>required attribute</strong> specifies that the user needs to fill out that portion of the form before it gets submitted.
+            </div>
+
+            <h3>Example: Required Email Input</h3>
+            <div class="code-example">
+                <code>&lt;form action=""&gt;<br>
+                &nbsp;&nbsp;&lt;label for="email"&gt;Email Address (Required field):&lt;/label&gt;<br>
+                &nbsp;&nbsp;&lt;input required type="email" name="email" id="email" /&gt;<br>
+                &nbsp;&nbsp;&lt;button type="submit"&gt;Submit Form&lt;/button&gt;<br>
+                &lt;/form&gt;</code>
+            </div>
+            <div class="output">
+                <div class="output-label">Interactive Output (try submitting without filling it out):</div>
+                <form action="" onsubmit="alert('Form submitted successfully!'); return false;">
+                    <label for="email-required">Email Address (Required field):</label>
+                    <input required type="email" name="email" id="email-required" />
+                    <button type="submit">Submit Form</button>
+                </form>
+            </div>
+
+            <div class="note">
+                <strong>Note:</strong> Each browser will have its own set of styles for showing alert messages when validation fails.
+            </div>
+
+            <div class="navigation">
+                <button class="nav-button" onclick="previousSlide()">Previous</button>
+                <div class="slide-indicator">
+                    <span class="current">3</span> / 5
+                </div>
+                <button class="nav-button" onclick="nextSlide()">Next</button>
+            </div>
+        </div>
+
+        <!-- Slide 4: Email Validation -->
+        <div class="slide">
+            <h2>Email Input Validation</h2>
+            
+            <div class="concept">
+                Another advantage of using the email input is that <strong>email inputs have some basic validation</strong> to ensure correctly formatted email addresses.
+            </div>
+
+            <div class="concept">
+                For example, if you type in random words and click submit, then the browser will show an alert that an <code>@</code> sign is missing.
+            </div>
+
+            <h3>Try It: Email Format Validation</h3>
+            <div class="output">
+                <div class="output-label">Interactive Output (try typing "abc" and submitting):</div>
+                <form action="" onsubmit="alert('Valid email format!'); return false;">
+                    <label for="email-validation">Email Address (Required field):</label>
+                    <input required type="email" name="email" id="email-validation" placeholder="Try typing: abc" />
+                    <button type="submit">Submit Form</button>
+                </form>
+            </div>
+
+            <div class="note">
+                <strong>Important:</strong> Browsers only check for <strong>basic validation</strong> for standard email addresses. It is up to you to add additional layers of validation, which you will learn about in later modules.
+            </div>
+
+            <div class="navigation">
+                <button class="nav-button" onclick="previousSlide()">Previous</button>
+                <div class="slide-indicator">
+                    <span class="current">4</span> / 5
+                </div>
+                <button class="nav-button" onclick="nextSlide()">Next</button>
+            </div>
+        </div>
+
+        <!-- Slide 5: MinLength and MaxLength Attributes -->
+        <div class="slide">
+            <h2>MinLength and MaxLength Attributes</h2>
+            
+            <div class="concept">
+                Other forms of validation for email inputs are to use the <code>minlength</code> and <code>maxlength</code> attributes.
+            </div>
+
+            <h3>Example: Length Validation</h3>
+            <div class="code-example">
+                <code>&lt;form action=""&gt;<br>
+                &nbsp;&nbsp;&lt;label for="email"&gt;Email Address (Required field):&lt;/label&gt;<br>
+                &nbsp;&nbsp;&lt;input<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;required<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;type="email"<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;name="email"<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;id="email"<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;minlength="4"<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;maxlength="64"<br>
+                &nbsp;&nbsp;/&gt;<br>
+                &nbsp;&nbsp;&lt;button type="submit"&gt;Submit Form&lt;/button&gt;<br>
+                &lt;/form&gt;</code>
+            </div>
+            <div class="output">
+                <div class="output-label">Interactive Output (try typing "b@m" and submitting):</div>
+                <form action="" onsubmit="alert('Valid email with correct length!'); return false;">
+                    <label for="email-length">Email Address (Required field):</label>
+                    <input 
+                        required 
+                        type="email" 
+                        name="email" 
+                        id="email-length" 
+                        minlength="4" 
+                        maxlength="64"
+                        placeholder="Min: 4 chars, Max: 64 chars"
+                    />
+                    <button type="submit">Submit Form</button>
+                </form>
+            </div>
+
+            <div class="concept">
+                The <code>minlength</code> and <code>maxlength</code> attributes are used to set the <strong>minimum and maximum length in characters</strong> for the email input. If you don't include the minimum length or exceed the max length of characters, the browser will show an alert message.
+            </div>
+
+            <div class="navigation">
+                <button class="nav-button" onclick="previousSlide()">Previous</button>
+                <div class="slide-indicator">
+                    <span class="current">5</span> / 5
+                </div>
+                <button class="nav-button" onclick="nextSlide()" disabled>Next</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.slide');
+        const totalSlides = slides.length;
+
+        function showSlide(n) {
+            slides.forEach(slide => slide.classList.remove('active'));
+            
+            if (n >= totalSlides) {
+                currentSlide = totalSlides - 1;
+            } else if (n < 0) {
+                currentSlide = 0;
+            } else {
+                currentSlide = n;
+            }
+            
+            slides[currentSlide].classList.add('active');
+            updateNavigation();
+        }
+
+        function nextSlide() {
+            showSlide(currentSlide + 1);
+        }
+
+        function previousSlide() {
+            showSlide(currentSlide - 1);
+        }
+
+        function updateNavigation() {
+            const allNavigations = document.querySelectorAll('.navigation');
+            allNavigations.forEach((nav, index) => {
+                const prevButton = nav.querySelector('button:first-child');
+                const nextButton = nav.querySelector('button:last-child');
+                
+                if (index === currentSlide) {
+                    prevButton.disabled = (currentSlide === 0);
+                    nextButton.disabled = (currentSlide === totalSlides - 1);
+                }
+            });
+        }
+
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+                nextSlide();
+            } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+                previousSlide();
+            }
+        });
+
+        // Touch swipe support for mobile
+        let touchStartX = 0;
+        let touchEndX = 0;
+
+        document.addEventListener('touchstart', (e) => {
+            touchStartX = e.changedTouches[0].screenX;
+        });
+
+        document.addEventListener('touchend', (e) => {
+            touchEndX = e.changedTouches[0].screenX;
+            handleSwipe();
+        });
+
+        function handleSwipe() {
+            const swipeThreshold = 50;
+            if (touchEndX < touchStartX - swipeThreshold) {
+                nextSlide();
+            }
+            if (touchEndX > touchStartX + swipeThreshold) {
+                previousSlide();
+            }
+        }
+
+        // Initialize
+        updateNavigation();
+    </script>
+</body>
+</html>
