@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Representing Computer Code in HTML</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f5f5;
+            color: #333;
+            overflow: hidden;
+            height: 100vh;
+        }
+
+        .slideshow-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .slide {
+            display: none;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(136, 21, 24, 0.1);
+            padding: 60px;
+            min-height: 500px;
+            animation: fadeIn 0.5s;
+        }
+
+        .slide.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        h2 {
+            color: #881518;
+            font-size: 2.5em;
+            margin-bottom: 30px;
+            border-bottom: 4px solid #881518;
+            padding-bottom: 15px;
+        }
+
+        h3 {
+            color: #881518;
+            font-size: 1.8em;
+            margin-top: 30px;
+            margin-bottom: 20px;
+        }
+
+        .concept {
+            font-size: 1.3em;
+            line-height: 1.8;
+            margin-bottom: 25px;
+            color: #444;
+        }
+
+        .concept strong {
+            color: #881518;
+            font-weight: 600;
+        }
+
+        .concept code {
+            background: #f0f0f0;
+            padding: 3px 8px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+            color: #881518;
+            font-size: 0.95em;
+        }
+
+        .code-example {
+            background: #f8f8f8;
+            border-left: 4px solid #881518;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 1.1em;
+            overflow-x: auto;
+        }
+
+        .code-example code {
+            color: #881518;
+        }
+
+        .output {
+            background: #fff9e6;
+            border-left: 4px solid #ffb800;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 4px;
+            font-size: 1.2em;
+        }
+
+        .output-label {
+            font-weight: bold;
+            color: #ffb800;
+            margin-bottom: 8px;
+        }
+
+        .output code {
+            background: #f0f0f0;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: monospace;
+        }
+
+        .output pre {
+            font-family: monospace;
+            background: #f0f0f0;
+            padding: 10px;
+            border-radius: 3px;
+            margin-top: 8px;
+        }
+
+        .use-cases {
+            margin-top: 25px;
+        }
+
+        .use-case-item {
+            margin-left: 25px;
+            margin-bottom: 15px;
+            font-size: 1.2em;
+            line-height: 1.6;
+        }
+
+        .use-case-item::before {
+            content: "▸ ";
+            color: #881518;
+            font-weight: bold;
+            margin-right: 8px;
+        }
+
+        .note {
+            background: #fff3f3;
+            border-left: 4px solid #881518;
+            padding: 20px;
+            margin: 25px 0;
+            border-radius: 4px;
+            font-size: 1.15em;
+            line-height: 1.7;
+        }
+
+        .note strong {
+            color: #881518;
+        }
+
+        .highlight-box {
+            background: #f0f8ff;
+            border-left: 4px solid #4a90e2;
+            padding: 20px;
+            margin: 25px 0;
+            border-radius: 4px;
+            font-size: 1.15em;
+            line-height: 1.7;
+        }
+
+        .navigation {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 40px;
+            padding-top: 30px;
+            border-top: 2px solid #e0e0e0;
+        }
+
+        .nav-button {
+            background: #881518;
+            color: white;
+            border: none;
+            padding: 15px 35px;
+            font-size: 1.1em;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 600;
+        }
+
+        .nav-button:hover:not(:disabled) {
+            background: #a51a1d;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(136, 21, 24, 0.3);
+        }
+
+        .nav-button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        .slide-indicator {
+            font-size: 1.1em;
+            color: #666;
+            font-weight: 500;
+        }
+
+        .slide-indicator .current {
+            color: #881518;
+            font-weight: bold;
+            font-size: 1.3em;
+        }
+
+        /* Mobile responsiveness */
+        @media (max-width: 768px) {
+            .slide {
+                padding: 30px 25px;
+                min-height: auto;
+            }
+
+            h2 {
+                font-size: 1.8em;
+                margin-bottom: 20px;
+            }
+
+            h3 {
+                font-size: 1.4em;
+                margin-top: 20px;
+                margin-bottom: 15px;
+            }
+
+            .concept {
+                font-size: 1.1em;
+                margin-bottom: 20px;
+            }
+
+            .code-example {
+                padding: 15px;
+                font-size: 0.95em;
+            }
+
+            .output {
+                padding: 12px;
+                font-size: 1em;
+            }
+
+            .use-case-item {
+                font-size: 1.05em;
+                margin-bottom: 12px;
+            }
+
+            .note, .highlight-box {
+                padding: 15px;
+                font-size: 1em;
+            }
+
+            .nav-button {
+                padding: 12px 25px;
+                font-size: 1em;
+            }
+
+            .slide-indicator {
+                font-size: 0.95em;
+            }
+
+            .slideshow-container {
+                padding: 15px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .slide {
+                padding: 20px 15px;
+            }
+
+            h2 {
+                font-size: 1.5em;
+            }
+
+            h3 {
+                font-size: 1.2em;
+            }
+
+            .concept {
+                font-size: 1em;
+            }
+
+            .code-example {
+                font-size: 0.85em;
+            }
+
+            .nav-button {
+                padding: 10px 20px;
+                font-size: 0.9em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="slideshow-container">
+        <!-- Slide 1: Introduction to Code Element -->
+        <div class="slide active">
+            <h2>The Inline Code Element</h2>
+            
+            <div class="concept">
+                The <strong>inline code element</strong> (<code>&lt;code&gt;</code>) is used to represent short snippets of code inside text.
+            </div>
+
+            <div class="use-cases">
+                <div class="concept"><strong>Common Use Cases:</strong></div>
+                <div class="use-case-item">Technical articles</div>
+                <div class="use-case-item">Documentation pages</div>
+                <div class="use-case-item">Inline code references within paragraphs</div>
+            </div>
+
+            <h3>Example: CSS Code Snippet</h3>
+            <div class="code-example">
+                <code>&lt;p&gt;<br>
+                &nbsp;&nbsp;To set the text color to blue in CSS, use the following code:<br>
+                &nbsp;&nbsp;&lt;code&gt;color: blue;&lt;/code&gt;<br>
+                &lt;/p&gt;</code>
+            </div>
+            <div class="output">
+                <div class="output-label">Output:</div>
+                To set the text color to blue in CSS, use the following code: <code>color: blue;</code>
+            </div>
+
+            <div class="navigation">
+                <button class="nav-button" onclick="previousSlide()" disabled>Previous</button>
+                <div class="slide-indicator">
+                    <span class="current">1</span> / 5
+                </div>
+                <button class="nav-button" onclick="nextSlide()">Next</button>
+            </div>
+        </div>
+
+        <!-- Slide 2: Code Element Behavior -->
+        <div class="slide">
+            <h2>How the Code Element Works</h2>
+            
+            <div class="concept">
+                By wrapping a code snippet inside <code>&lt;code&gt;</code> tags, it <strong>communicates to the browser</strong> that the text is a piece of inline code.
+            </div>
+
+            <div class="highlight-box">
+                <strong>Default Browser Styling:</strong><br>
+                The browser applies default styles to content inside the code element. The default styling is a <strong>monospaced font</strong>.
+            </div>
+
+            <div class="concept">
+                A monospaced font means each character takes up the same amount of horizontal space, making code easier to read and align.
+            </div>
+
+            <div class="note">
+                <strong>Important:</strong> The code element is meant to represent a <strong>single line of code</strong>. If you want to represent multiple lines of code, you will need to place a code element inside a preformatted text element.
+            </div>
+
+            <div class="navigation">
+                <button class="nav-button" onclick="previousSlide()">Previous</button>
+                <div class="slide-indicator">
+                    <span class="current">2</span> / 5
+                </div>
+                <button class="nav-button" onclick="nextSlide()">Next</button>
+            </div>
+        </div>
+
+        <!-- Slide 3: Preformatted Text Element -->
+        <div class="slide">
+            <h2>The Preformatted Text Element</h2>
+            
+            <div class="concept">
+                The <strong>preformatted text element</strong> (<code>&lt;pre&gt;</code>) is used to represent preformatted text. For multiple lines of code, you need to place a <code>&lt;code&gt;</code> element inside a <code>&lt;pre&gt;</code> element.
+            </div>
+
+            <h3>Example: Multi-line CSS Declaration</h3>
+            <div class="code-example">
+                <code>&lt;pre&gt;<br>
+                &nbsp;&nbsp;&lt;code&gt;<br>
+                &nbsp;&nbsp;body {<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;color: red;<br>
+                &nbsp;&nbsp;}<br>
+                &nbsp;&nbsp;&lt;/code&gt;<br>
+                &lt;/pre&gt;</code>
+            </div>
+            <div class="output">
+                <div class="output-label">Output:</div>
+                <pre><code>body {
+  color: red;
+}</code></pre>
+            </div>
+
+            <div class="navigation">
+                <button class="nav-button" onclick="previousSlide()">Previous</button>
+                <div class="slide-indicator">
+                    <span class="current">3</span> / 5
+                </div>
+                <button class="nav-button" onclick="nextSlide()">Next</button>
+            </div>
+        </div>
+
+        <!-- Slide 4: Spacing Considerations -->
+        <div class="slide">
+            <h2>Spacing with the Pre Element</h2>
+            
+            <div class="note">
+                <strong>Critical:</strong> When using the <code>&lt;pre&gt;</code> element, you need to be mindful of spacing because it will <strong>display exactly as written</strong> inside the HTML document.
+            </div>
+
+            <div class="concept">
+                In the browser, the code will appear with the exact same indentation and spacing that you use in your HTML source code.
+            </div>
+
+            <div class="concept">
+                If you change the indentation in your code example, you will see a corresponding difference in the indentation displayed on the screen.
+            </div>
+
+            <div class="highlight-box">
+                The <code>&lt;pre&gt;</code> element preserves:
+                <ul style="margin-top: 15px; margin-left: 25px; line-height: 1.8;">
+                    <li>Spaces</li>
+                    <li>Line breaks</li>
+                    <li>Indentation</li>
+                    <li>All whitespace characters</li>
+                </ul>
+            </div>
+
+            <div class="navigation">
+                <button class="nav-button" onclick="previousSlide()">Previous</button>
+                <div class="slide-indicator">
+                    <span class="current">4</span> / 5
+                </div>
+                <button class="nav-button" onclick="nextSlide()">Next</button>
+            </div>
+        </div>
+
+        <!-- Slide 5: Best Practices -->
+        <div class="slide">
+            <h2>Best Practices Summary</h2>
+            
+            <div class="concept">
+                When including code examples in your HTML document, choose the appropriate element based on the length and format of your code:
+            </div>
+
+            <div class="use-cases">
+                <h3>Use <code>&lt;code&gt;</code> alone for:</h3>
+                <div class="use-case-item">Short inline code examples</div>
+                <div class="use-case-item">Single-line code snippets within text</div>
+                <div class="use-case-item">Variable names or function names in paragraphs</div>
+            </div>
+
+            <div class="use-cases">
+                <h3>Use <code>&lt;pre&gt;</code> + <code>&lt;code&gt;</code> for:</h3>
+                <div class="use-case-item">Longer code snippets</div>
+                <div class="use-case-item">Multi-line code blocks</div>
+                <div class="use-case-item">Code that requires preserved formatting</div>
+            </div>
+
+            <div class="highlight-box" style="margin-top: 30px;">
+                <strong>Key Takeaway:</strong> The combination of semantic HTML elements (<code>&lt;code&gt;</code> and <code>&lt;pre&gt;</code>) helps create clear, accessible documentation and technical content.
+            </div>
+
+            <div class="navigation">
+                <button class="nav-button" onclick="previousSlide()">Previous</button>
+                <div class="slide-indicator">
+                    <span class="current">5</span> / 5
+                </div>
+                <button class="nav-button" onclick="nextSlide()" disabled>Next</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.slide');
+        const totalSlides = slides.length;
+
+        function showSlide(n) {
+            slides.forEach(slide => slide.classList.remove('active'));
+            
+            if (n >= totalSlides) {
+                currentSlide = totalSlides - 1;
+            } else if (n < 0) {
+                currentSlide = 0;
+            } else {
+                currentSlide = n;
+            }
+            
+            slides[currentSlide].classList.add('active');
+            updateNavigation();
+        }
+
+        function nextSlide() {
+            showSlide(currentSlide + 1);
+        }
+
+        function previousSlide() {
+            showSlide(currentSlide - 1);
+        }
+
+        function updateNavigation() {
+            const allNavigations = document.querySelectorAll('.navigation');
+            allNavigations.forEach((nav, index) => {
+                const prevButton = nav.querySelector('button:first-child');
+                const nextButton = nav.querySelector('button:last-child');
+                
+                if (index === currentSlide) {
+                    prevButton.disabled = (currentSlide === 0);
+                    nextButton.disabled = (currentSlide === totalSlides - 1);
+                }
+            });
+        }
+
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+                nextSlide();
+            } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+                previousSlide();
+            }
+        });
+
+        // Touch swipe support for mobile
+        let touchStartX = 0;
+        let touchEndX = 0;
+
+        document.addEventListener('touchstart', (e) => {
+            touchStartX = e.changedTouches[0].screenX;
+        });
+
+        document.addEventListener('touchend', (e) => {
+            touchEndX = e.changedTouches[0].screenX;
+            handleSwipe();
+        });
+
+        function handleSwipe() {
+            const swipeThreshold = 50;
+            if (touchEndX < touchStartX - swipeThreshold) {
+                nextSlide();
+            }
+            if (touchEndX > touchStartX + swipeThreshold) {
+                previousSlide();
+            }
+        }
+
+        // Initialize
+        updateNavigation();
+    </script>
+</body>
+</html>
