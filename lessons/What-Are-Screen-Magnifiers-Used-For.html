@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Screen Magnifiers</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f5f5;
+            overflow: hidden;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .slideshow-container {
+            width: 90%;
+            max-width: 1000px;
+            height: 80vh;
+            max-height: 700px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(136, 21, 24, 0.15);
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        .slide {
+            display: none;
+            padding: 60px;
+            height: 100%;
+            overflow-y: auto;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        .slide.active {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        h2 {
+            color: #881518;
+            font-size: 2em;
+            margin-bottom: 30px;
+            border-bottom: 3px solid #881518;
+            padding-bottom: 15px;
+        }
+
+        .concept {
+            margin-bottom: 25px;
+        }
+
+        .concept-title {
+            color: #881518;
+            font-size: 1.3em;
+            margin-bottom: 12px;
+            font-weight: 600;
+        }
+
+        .concept-text {
+            font-size: 1.1em;
+            line-height: 1.6;
+            color: #333;
+            margin-bottom: 12px;
+        }
+
+        .highlight-box {
+            background: #fff5f5;
+            border-left: 4px solid #881518;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+
+        .highlight-box strong {
+            color: #881518;
+            display: block;
+            margin-bottom: 10px;
+            font-size: 1.05em;
+        }
+
+        .feature-list {
+            list-style: none;
+            padding: 0;
+            margin: 15px 0;
+        }
+
+        .feature-list li {
+            padding: 12px 0;
+            padding-left: 30px;
+            position: relative;
+            font-size: 1.05em;
+            line-height: 1.5;
+        }
+
+        .feature-list li:before {
+            content: "▸";
+            color: #881518;
+            font-weight: bold;
+            position: absolute;
+            left: 10px;
+        }
+
+        .best-practices {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .practice-item {
+            background: #f9f9f9;
+            padding: 15px 20px;
+            border-radius: 6px;
+            border-left: 4px solid #881518;
+            font-size: 1.05em;
+            line-height: 1.5;
+        }
+
+        .os-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 18px;
+            margin: 20px 0;
+        }
+
+        .os-card {
+            background: #f9f9f9;
+            padding: 20px;
+            border-radius: 6px;
+            border-left: 4px solid #881518;
+        }
+
+        .os-name {
+            color: #881518;
+            font-weight: 600;
+            font-size: 1.15em;
+            margin-bottom: 10px;
+        }
+
+        .os-tool {
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .os-instructions {
+            color: #555;
+            font-size: 0.95em;
+            line-height: 1.5;
+        }
+
+        .tool-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .tool-card {
+            background: #f9f9f9;
+            padding: 18px;
+            border-radius: 6px;
+            border-left: 4px solid #881518;
+            text-align: center;
+        }
+
+        .tool-name {
+            color: #881518;
+            font-weight: 600;
+            font-size: 1.1em;
+            margin-bottom: 5px;
+        }
+
+        .tool-platform {
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 40px;
+            border-top: 1px solid #e0e0e0;
+            background: #fafafa;
+            border-radius: 0 0 12px 12px;
+        }
+
+        .nav-button {
+            background: #881518;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            font-size: 1em;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+        }
+
+        .nav-button:hover {
+            background: #6a1113;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(136, 21, 24, 0.3);
+        }
+
+        .nav-button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .slide-indicator {
+            color: #881518;
+            font-weight: 600;
+            font-size: 1em;
+        }
+
+        @media (max-width: 768px) {
+            .slideshow-container {
+                width: 95%;
+                height: 90vh;
+                max-height: none;
+            }
+
+            .slide {
+                padding: 30px 25px;
+            }
+
+            h2 {
+                font-size: 1.5em;
+                margin-bottom: 20px;
+            }
+
+            .concept-title {
+                font-size: 1.1em;
+            }
+
+            .concept-text {
+                font-size: 1em;
+            }
+
+            .tool-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .controls {
+                padding: 15px 20px;
+            }
+
+            .nav-button {
+                padding: 10px 20px;
+                font-size: 0.9em;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .slide {
+                padding: 20px 15px;
+            }
+
+            h2 {
+                font-size: 1.3em;
+            }
+
+            .concept-title {
+                font-size: 1em;
+            }
+
+            .concept-text {
+                font-size: 0.95em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="slideshow-container">
+        <!-- Slide 1: Introduction -->
+        <div class="slide active">
+            <h2>Screen Magnifiers</h2>
+            <div class="concept">
+                <div class="concept-title">What Are Screen Magnifiers?</div>
+                <div class="concept-text">
+                    Screen magnifiers are tools that help people with low vision and other visual impairments better access digital content and the web.
+                </div>
+            </div>
+            
+            <div class="highlight-box">
+                <strong>Role in Digital Accessibility</strong>
+                <div class="concept-text">
+                    These tools play a crucial role in making digital content accessible to users with visual impairments.
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 2: How They Work -->
+        <div class="slide">
+            <h2>How Screen Magnifiers Work</h2>
+            <div class="concept">
+                <div class="concept-title">Functionality</div>
+                <div class="concept-text">
+                    Screen magnifiers work by enlarging texts, graphics, and other elements on a computer or mobile device screen.
+                </div>
+            </div>
+            
+            <div class="concept">
+                <div class="concept-title">Key Features</div>
+                <ul class="feature-list">
+                    <li>Allow users to enlarge the display by more than 200%</li>
+                    <li>Enable navigation using pointing devices or keyboard</li>
+                    <li>Offer customizable zoom percentages in settings</li>
+                    <li>Provide additional customization features</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Slide 3: Primary Uses -->
+        <div class="slide">
+            <h2>Primary Uses of Screen Magnifiers</h2>
+            <div class="concept">
+                <div class="concept-title">Reading Text</div>
+                <div class="concept-text">
+                    Small fonts in documents or applications can be challenging for people with low vision. By enlarging the text, users can read emails, articles, and other content without straining their eyes.
+                </div>
+            </div>
+            
+            <div class="concept">
+                <div class="concept-title">Web Browsing Assistance</div>
+                <div class="concept-text">
+                    Screen magnifiers help users locate and click on buttons, links, and other interactive elements that might be difficult to see. This improved visibility ensures users can browse websites, fill out forms, and engage in online activities without difficulty.
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 4: Developer Considerations -->
+        <div class="slide">
+            <h2>Making Products Magnifier-Friendly</h2>
+            <div class="concept">
+                <div class="concept-text">
+                    Software developers need to make their digital products accessible to people with low vision. Key considerations include:
+                </div>
+            </div>
+            
+            <div class="best-practices">
+                <div class="practice-item">
+                    Using scalable fonts so users can resize the page without breaking the layout
+                </div>
+                <div class="practice-item">
+                    Ensuring the user interface adapts to different screen sizes through responsive design
+                </div>
+                <div class="practice-item">
+                    Using high-contrast color schemes and customizable colors
+                </div>
+                <div class="practice-item">
+                    Implementing a non-sticky and tiny navbar so users can still see content when using magnifiers
+                </div>
+                <div class="practice-item">
+                    Using regular HTML text instead of images of text
+                </div>
+                <div class="practice-item">
+                    Providing feedback directly next to the element that triggers it
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 5: Built-in OS Magnifiers -->
+        <div class="slide">
+            <h2>Built-in Operating System Magnifiers</h2>
+            <div class="concept-text" style="margin-bottom: 25px;">
+                All major operating systems include at least one magnifier built in by their manufacturers:
+            </div>
+            
+            <div class="os-grid">
+                <div class="os-card">
+                    <div class="os-name">macOS and iOS</div>
+                    <div class="os-tool">Zoom</div>
+                    <div class="os-instructions">
+                        <strong>macOS:</strong> Settings → Accessibility → Zoom → Toggle "Use keyboard shortcuts to zoom"<br>
+                        <strong>iOS:</strong> Settings → Accessibility → Zoom
+                    </div>
+                </div>
+                
+                <div class="os-card">
+                    <div class="os-name">Android</div>
+                    <div class="os-tool">Magnification</div>
+                    <div class="os-instructions">
+                        Settings → Special Function → Accessibility → Magnification (or search "Magnification" on settings homepage)
+                    </div>
+                </div>
+                
+                <div class="os-card">
+                    <div class="os-name">Windows</div>
+                    <div class="os-tool">Magnifier</div>
+                    <div class="os-instructions">
+                        Settings → Ease of Access → Magnifier
+                    </div>
+                </div>
+                
+                <div class="os-card">
+                    <div class="os-name">Linux</div>
+                    <div class="os-tool">Zoom or Magnifier</div>
+                    <div class="os-instructions">
+                        Varies by distribution
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 6: Third-party Magnifiers -->
+        <div class="slide">
+            <h2>Third-Party Screen Magnifiers</h2>
+            <div class="concept-text" style="margin-bottom: 25px;">
+                Beyond built-in options, useful third-party screen magnifiers include:
+            </div>
+            
+            <div class="tool-grid">
+                <div class="tool-card">
+                    <div class="tool-name">ZoomText</div>
+                    <div class="tool-platform">Windows</div>
+                </div>
+                
+                <div class="tool-card">
+                    <div class="tool-name">ClaroView</div>
+                    <div class="tool-platform">macOS & Windows</div>
+                </div>
+                
+                <div class="tool-card">
+                    <div class="tool-name">iZoom</div>
+                    <div class="tool-platform">Windows</div>
+                </div>
+                
+                <div class="tool-card">
+                    <div class="tool-name">Zoomify</div>
+                    <div class="tool-platform">macOS</div>
+                </div>
+                
+                <div class="tool-card">
+                    <div class="tool-name">LunarPluse</div>
+                    <div class="tool-platform">Windows</div>
+                </div>
+                
+                <div class="tool-card">
+                    <div class="tool-name">Loupe</div>
+                    <div class="tool-platform">macOS</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Controls -->
+        <div class="controls">
+            <button class="nav-button" id="prevBtn" onclick="changeSlide(-1)">← Previous</button>
+            <div class="slide-indicator">
+                <span id="currentSlide">1</span> / <span id="totalSlides">6</span>
+            </div>
+            <button class="nav-button" id="nextBtn" onclick="changeSlide(1)">Next →</button>
+        </div>
+    </div>
+
+    <script>
+        let currentSlideIndex = 0;
+        const slides = document.querySelectorAll('.slide');
+        const totalSlides = slides.length;
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        const currentSlideNum = document.getElementById('currentSlide');
+        const totalSlidesNum = document.getElementById('totalSlides');
+
+        totalSlidesNum.textContent = totalSlides;
+
+        function showSlide(index) {
+            slides.forEach(slide => slide.classList.remove('active'));
+            slides[index].classList.add('active');
+            currentSlideNum.textContent = index + 1;
+
+            // Update button states
+            prevBtn.disabled = index === 0;
+            nextBtn.disabled = index === totalSlides - 1;
+        }
+
+        function changeSlide(direction) {
+            currentSlideIndex += direction;
+            
+            if (currentSlideIndex < 0) {
+                currentSlideIndex = 0;
+            } else if (currentSlideIndex >= totalSlides) {
+                currentSlideIndex = totalSlides - 1;
+            }
+            
+            showSlide(currentSlideIndex);
+        }
+
+        // Keyboard navigation
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'ArrowLeft') {
+                changeSlide(-1);
+            } else if (event.key === 'ArrowRight') {
+                changeSlide(1);
+            }
+        });
+
+        // Touch support for mobile
+        let touchStartX = 0;
+        let touchEndX = 0;
+
+        document.addEventListener('touchstart', function(event) {
+            touchStartX = event.changedTouches[0].screenX;
+        });
+
+        document.addEventListener('touchend', function(event) {
+            touchEndX = event.changedTouches[0].screenX;
+            handleSwipe();
+        });
+
+        function handleSwipe() {
+            const swipeThreshold = 50;
+            const diff = touchStartX - touchEndX;
+            
+            if (Math.abs(diff) > swipeThreshold) {
+                if (diff > 0) {
+                    // Swiped left - go to next slide
+                    changeSlide(1);
+                } else {
+                    // Swiped right - go to previous slide
+                    changeSlide(-1);
+                }
+            }
+        }
+
+        // Initialize
+        showSlide(0);
+    </script>
+</body>
+</html>

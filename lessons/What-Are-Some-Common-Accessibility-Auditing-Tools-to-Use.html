@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Accessibility Auditing Tools</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f5f5;
+            overflow: hidden;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .slideshow-container {
+            width: 90%;
+            max-width: 1000px;
+            height: 80vh;
+            max-height: 700px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(136, 21, 24, 0.15);
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        .slide {
+            display: none;
+            padding: 60px;
+            height: 100%;
+            overflow-y: auto;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        .slide.active {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        h2 {
+            color: #881518;
+            font-size: 2em;
+            margin-bottom: 30px;
+            border-bottom: 3px solid #881518;
+            padding-bottom: 15px;
+        }
+
+        .concept {
+            margin-bottom: 25px;
+        }
+
+        .concept-title {
+            color: #881518;
+            font-size: 1.3em;
+            margin-bottom: 12px;
+            font-weight: 600;
+        }
+
+        .concept-text {
+            font-size: 1.1em;
+            line-height: 1.6;
+            color: #333;
+            margin-bottom: 12px;
+        }
+
+        .highlight-box {
+            background: #fff5f5;
+            border-left: 4px solid #881518;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+
+        .highlight-box strong {
+            color: #881518;
+            display: block;
+            margin-bottom: 10px;
+            font-size: 1.05em;
+        }
+
+        .warning-box {
+            background: #fff9e6;
+            border: 2px solid #881518;
+            padding: 20px;
+            border-radius: 6px;
+            margin: 20px 0;
+        }
+
+        .warning-box .warning-title {
+            color: #881518;
+            font-weight: 600;
+            font-size: 1.15em;
+            margin-bottom: 12px;
+        }
+
+        .feature-list {
+            list-style: none;
+            padding: 0;
+            margin: 15px 0;
+        }
+
+        .feature-list li {
+            padding: 12px 0;
+            padding-left: 30px;
+            position: relative;
+            font-size: 1.05em;
+            line-height: 1.5;
+        }
+
+        .feature-list li:before {
+            content: "▸";
+            color: #881518;
+            font-weight: bold;
+            position: absolute;
+            left: 10px;
+        }
+
+        .tool-card {
+            background: #f9f9f9;
+            padding: 25px;
+            border-radius: 6px;
+            border-left: 4px solid #881518;
+            margin: 20px 0;
+        }
+
+        .tool-name {
+            color: #881518;
+            font-weight: 600;
+            font-size: 1.4em;
+            margin-bottom: 15px;
+        }
+
+        .tool-description {
+            font-size: 1.05em;
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+
+        .tool-features {
+            margin-top: 15px;
+        }
+
+        .tool-feature-title {
+            color: #881518;
+            font-weight: 600;
+            margin-bottom: 10px;
+            font-size: 1.05em;
+        }
+
+        .steps-list {
+            background: #f0f0f0;
+            padding: 20px;
+            border-radius: 6px;
+            margin: 15px 0;
+        }
+
+        .steps-list ol {
+            margin-left: 20px;
+        }
+
+        .steps-list li {
+            padding: 8px 0;
+            font-size: 1.05em;
+            line-height: 1.5;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 40px;
+            border-top: 1px solid #e0e0e0;
+            background: #fafafa;
+            border-radius: 0 0 12px 12px;
+        }
+
+        .nav-button {
+            background: #881518;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            font-size: 1em;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+        }
+
+        .nav-button:hover {
+            background: #6a1113;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(136, 21, 24, 0.3);
+        }
+
+        .nav-button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .slide-indicator {
+            color: #881518;
+            font-weight: 600;
+            font-size: 1em;
+        }
+
+        @media (max-width: 768px) {
+            .slideshow-container {
+                width: 95%;
+                height: 90vh;
+                max-height: none;
+            }
+
+            .slide {
+                padding: 30px 25px;
+            }
+
+            h2 {
+                font-size: 1.5em;
+                margin-bottom: 20px;
+            }
+
+            .concept-title {
+                font-size: 1.1em;
+            }
+
+            .concept-text {
+                font-size: 1em;
+            }
+
+            .tool-name {
+                font-size: 1.2em;
+            }
+
+            .controls {
+                padding: 15px 20px;
+            }
+
+            .nav-button {
+                padding: 10px 20px;
+                font-size: 0.9em;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .slide {
+                padding: 20px 15px;
+            }
+
+            h2 {
+                font-size: 1.3em;
+            }
+
+            .concept-title {
+                font-size: 1em;
+            }
+
+            .concept-text {
+                font-size: 0.95em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="slideshow-container">
+        <!-- Slide 1: Introduction -->
+        <div class="slide active">
+            <h2>Accessibility Auditing Tools</h2>
+            <div class="concept">
+                <div class="concept-title">Why Accessibility Matters</div>
+                <div class="concept-text">
+                    Accessibility is a crucial yet often overlooked aspect of digital content. When making digital content accessible, it's important to ensure it meets accessibility standards.
+                </div>
+            </div>
+            
+            <div class="highlight-box">
+                <strong>What Is an Accessibility Auditing Tool?</strong>
+                <div class="concept-text">
+                    An accessibility auditing tool is an application that helps improve the accessibility of digital content by reporting accessibility issues that can be easily found through automated testing.
+                </div>
+                <div class="concept-text">
+                    This content includes websites, web applications, and mobile apps.
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 2: Important Limitations -->
+        <div class="slide">
+            <h2>Critical Limitation of Automated Tools</h2>
+            <div class="warning-box">
+                <div class="warning-title">Important to Note</div>
+                <div class="concept-text">
+                    While automated accessibility tools have a role in improving accessibility, they typically will only find about a third of all possible accessibility issues.
+                </div>
+            </div>
+            
+            <div class="concept">
+                <div class="concept-title">Why Manual Testing Is Essential</div>
+                <div class="concept-text">
+                    It is important not to rely on automated tools entirely to evaluate the accessibility of your content. Manual testing, preferably by people with disabilities, will always be required to ensure that your content is as accessible as possible.
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 3: Google Lighthouse -->
+        <div class="slide">
+            <h2>Google Lighthouse</h2>
+            <div class="tool-card">
+                <div class="tool-name">Google Lighthouse</div>
+                <div class="tool-description">
+                    A popular web metric checker you can use directly within Chrome DevTools or online. This means you can check not only live websites but also locally-developed ones.
+                </div>
+                
+                <div class="tool-features">
+                    <div class="tool-feature-title">Metrics You Can Check:</div>
+                    <ul class="feature-list">
+                        <li>Accessibility</li>
+                        <li>SEO</li>
+                        <li>Best practices</li>
+                        <li>Performance</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="concept">
+                <div class="concept-title">How to Use Lighthouse</div>
+                <div class="steps-list">
+                    <ol>
+                        <li>Open DevTools by pressing F12</li>
+                        <li>Switch to the Lighthouse tab</li>
+                        <li>Select the metrics you want to check</li>
+                        <li>Choose the device you want to test on</li>
+                        <li>Click the "Analyze page load" button</li>
+                    </ol>
+                </div>
+                <div class="concept-text">
+                    An accessibility score will appear after the check is complete, along with a list of any issues that need fixing.
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 4: Lighthouse Web Version -->
+        <div class="slide">
+            <h2>Google Lighthouse Web Version</h2>
+            <div class="concept">
+                <div class="concept-title">More Reliable Metrics</div>
+                <div class="concept-text">
+                    For more reliable metrics, consider using the web version available at pagespeed.web.dev
+                </div>
+            </div>
+            
+            <div class="warning-box">
+                <div class="warning-title">Limitation</div>
+                <div class="concept-text">
+                    The web version doesn't support testing local websites. It can only test live, publicly accessible websites.
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 5: WAVE -->
+        <div class="slide">
+            <h2>WAVE</h2>
+            <div class="tool-card">
+                <div class="tool-name">WAVE</div>
+                <div class="tool-description">
+                    Another reliable accessibility checker you can use as a Chrome extension or on the web.
+                </div>
+                
+                <div class="concept">
+                    <div class="concept-title">How It Works</div>
+                    <div class="concept-text">
+                        Simply enter the URL of your website and a comprehensive accessibility report will be generated for you.
+                    </div>
+                </div>
+                
+                <div class="tool-features">
+                    <div class="tool-feature-title">Report Includes:</div>
+                    <ul class="feature-list">
+                        <li>Accessibility features implemented</li>
+                        <li>ARIA (Accessible Rich Internet Applications)</li>
+                        <li>Contrasts</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 6: IBM Equal Access Checker -->
+        <div class="slide">
+            <h2>IBM Equal Access Accessibility Checker</h2>
+            <div class="tool-card">
+                <div class="tool-name">IBM Equal Access Accessibility Checker</div>
+                <div class="tool-description">
+                    A robust tool for improving digital content accessibility. It allows you to scan websites for accessibility issues and generate detailed reports.
+                </div>
+                
+                <div class="concept-text" style="margin-top: 15px;">
+                    Available as a Chrome extension or Firefox add-on.
+                </div>
+            </div>
+            
+            <div class="concept">
+                <div class="concept-title">How to Use (Chrome Extension)</div>
+                <div class="steps-list">
+                    <ol>
+                        <li>Download it from the Chrome web store</li>
+                        <li>Open DevTools by pressing F12</li>
+                        <li>Select the "Accessibility Checker" tab in the Elements panel</li>
+                        <li>Click the scan button to start the check</li>
+                        <li>Export the report as a spreadsheet or HTML file by clicking "Export XLS"</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 7: Important Reminder -->
+        <div class="slide">
+            <h2>Remember: Tools Are Just the Beginning</h2>
+            <div class="warning-box">
+                <div class="warning-title">Critical Reminder</div>
+                <div class="concept-text">
+                    While these automated tools help you make your content more accessible, a perfect score from any of them does not mean that your content is entirely accessible.
+                </div>
+            </div>
+            
+            <div class="concept">
+                <div class="concept-title">The Reality</div>
+                <div class="concept-text">
+                    The range of issues that these tools test for is limited, and manual testing will always be needed to ensure a more accessible experience for everyone.
+                </div>
+            </div>
+
+            <div class="highlight-box">
+                <strong>Best Practice</strong>
+                <div class="concept-text">
+                    Combine automated tools with manual testing by people with disabilities for the most comprehensive accessibility evaluation.
+                </div>
+            </div>
+        </div>
+
+        <!-- Controls -->
+        <div class="controls">
+            <button class="nav-button" id="prevBtn" onclick="changeSlide(-1)">← Previous</button>
+            <div class="slide-indicator">
+                <span id="currentSlide">1</span> / <span id="totalSlides">7</span>
+            </div>
+            <button class="nav-button" id="nextBtn" onclick="changeSlide(1)">Next →</button>
+        </div>
+    </div>
+
+    <script>
+        let currentSlideIndex = 0;
+        const slides = document.querySelectorAll('.slide');
+        const totalSlides = slides.length;
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        const currentSlideNum = document.getElementById('currentSlide');
+        const totalSlidesNum = document.getElementById('totalSlides');
+
+        totalSlidesNum.textContent = totalSlides;
+
+        function showSlide(index) {
+            slides.forEach(slide => slide.classList.remove('active'));
+            slides[index].classList.add('active');
+            currentSlideNum.textContent = index + 1;
+
+            // Update button states
+            prevBtn.disabled = index === 0;
+            nextBtn.disabled = index === totalSlides - 1;
+        }
+
+        function changeSlide(direction) {
+            currentSlideIndex += direction;
+            
+            if (currentSlideIndex < 0) {
+                currentSlideIndex = 0;
+            } else if (currentSlideIndex >= totalSlides) {
+                currentSlideIndex = totalSlides - 1;
+            }
+            
+            showSlide(currentSlideIndex);
+        }
+
+        // Keyboard navigation
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'ArrowLeft') {
+                changeSlide(-1);
+            } else if (event.key === 'ArrowRight') {
+                changeSlide(1);
+            }
+        });
+
+        // Touch support for mobile
+        let touchStartX = 0;
+        let touchEndX = 0;
+
+        document.addEventListener('touchstart', function(event) {
+            touchStartX = event.changedTouches[0].screenX;
+        });
+
+        document.addEventListener('touchend', function(event) {
+            touchEndX = event.changedTouches[0].screenX;
+            handleSwipe();
+        });
+
+        function handleSwipe() {
+            const swipeThreshold = 50;
+            const diff = touchStartX - touchEndX;
+            
+            if (Math.abs(diff) > swipeThreshold) {
+                if (diff > 0) {
+                    // Swiped left - go to next slide
+                    changeSlide(1);
+                } else {
+                    // Swiped right - go to previous slide
+                    changeSlide(-1);
+                }
+            }
+        }
+
+        // Initialize
+        showSlide(0);
+    </script>
+</body>
+</html>
