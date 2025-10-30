@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ARIA Roles</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f5f5;
+            overflow: hidden;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .slideshow-container {
+            width: 90%;
+            max-width: 1000px;
+            height: 80vh;
+            max-height: 700px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(136, 21, 24, 0.15);
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        .slide {
+            display: none;
+            padding: 60px;
+            height: 100%;
+            overflow-y: auto;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        .slide.active {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        h2 {
+            color: #881518;
+            font-size: 2em;
+            margin-bottom: 30px;
+            border-bottom: 3px solid #881518;
+            padding-bottom: 15px;
+        }
+
+        .concept {
+            margin-bottom: 25px;
+        }
+
+        .concept-title {
+            color: #881518;
+            font-size: 1.3em;
+            margin-bottom: 12px;
+            font-weight: 600;
+        }
+
+        .concept-text {
+            font-size: 1.1em;
+            line-height: 1.6;
+            color: #333;
+            margin-bottom: 12px;
+        }
+
+        .highlight-box {
+            background: #fff5f5;
+            border-left: 4px solid #881518;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+
+        .highlight-box strong {
+            color: #881518;
+            display: block;
+            margin-bottom: 10px;
+            font-size: 1.05em;
+        }
+
+        .info-box {
+            background: #f0f0f0;
+            padding: 20px;
+            border-radius: 6px;
+            margin: 15px 0;
+            border-left: 4px solid #881518;
+        }
+
+        .code-example {
+            background: #f8f8f8;
+            border-left: 4px solid #881518;
+            padding: 20px;
+            margin: 15px 0;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            overflow-x: auto;
+        }
+
+        .code-example code {
+            color: #333;
+            white-space: pre;
+            display: block;
+            line-height: 1.5;
+        }
+
+        .code-label {
+            color: #881518;
+            font-weight: 600;
+            margin-bottom: 10px;
+            font-size: 1.05em;
+        }
+
+        .categories-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin: 20px 0;
+        }
+
+        .category-item {
+            background: #f9f9f9;
+            padding: 15px 20px;
+            border-radius: 6px;
+            border-left: 4px solid #881518;
+            font-size: 1.1em;
+            font-weight: 500;
+        }
+
+        .examples-box {
+            background: #f9f9f9;
+            padding: 18px;
+            border-radius: 6px;
+            margin: 15px 0;
+        }
+
+        .examples-title {
+            color: #881518;
+            font-weight: 600;
+            margin-bottom: 10px;
+            font-size: 1.05em;
+        }
+
+        .examples-text {
+            font-size: 1.05em;
+            line-height: 1.5;
+            color: #333;
+        }
+
+        .warning-box {
+            background: #fff9e6;
+            border: 2px solid #881518;
+            padding: 20px;
+            border-radius: 6px;
+            margin: 20px 0;
+        }
+
+        .warning-box .warning-title {
+            color: #881518;
+            font-weight: 600;
+            font-size: 1.15em;
+            margin-bottom: 12px;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 40px;
+            border-top: 1px solid #e0e0e0;
+            background: #fafafa;
+            border-radius: 0 0 12px 12px;
+        }
+
+        .nav-button {
+            background: #881518;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            font-size: 1em;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+        }
+
+        .nav-button:hover {
+            background: #6a1113;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(136, 21, 24, 0.3);
+        }
+
+        .nav-button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .slide-indicator {
+            color: #881518;
+            font-weight: 600;
+            font-size: 1em;
+        }
+
+        @media (max-width: 768px) {
+            .slideshow-container {
+                width: 95%;
+                height: 90vh;
+                max-height: none;
+            }
+
+            .slide {
+                padding: 30px 25px;
+            }
+
+            h2 {
+                font-size: 1.5em;
+                margin-bottom: 20px;
+            }
+
+            .concept-title {
+                font-size: 1.1em;
+            }
+
+            .concept-text {
+                font-size: 1em;
+            }
+
+            .code-example {
+                padding: 15px;
+                font-size: 0.85em;
+            }
+
+            .controls {
+                padding: 15px 20px;
+            }
+
+            .nav-button {
+                padding: 10px 20px;
+                font-size: 0.9em;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .slide {
+                padding: 20px 15px;
+            }
+
+            h2 {
+                font-size: 1.3em;
+            }
+
+            .concept-title {
+                font-size: 1em;
+            }
+
+            .concept-text {
+                font-size: 0.95em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="slideshow-container">
+        <!-- Slide 1: Introduction -->
+        <div class="slide active">
+            <h2>What Are ARIA Roles?</h2>
+            <div class="concept">
+                <div class="concept-title">ARIA Definition</div>
+                <div class="concept-text">
+                    ARIA stands for Accessible Rich Internet Applications.
+                </div>
+            </div>
+            
+            <div class="highlight-box">
+                <strong>Purpose of ARIA Roles</strong>
+                <div class="concept-text">
+                    ARIA roles specify the semantic meaning of HTML elements. They're essential for making web content accessible to people who use assistive technologies, like screen readers.
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 2: Semantic vs Non-Semantic HTML -->
+        <div class="slide">
+            <h2>Semantic vs Non-Semantic HTML</h2>
+            <div class="concept">
+                <div class="concept-title">HTML Elements and Meaning</div>
+                <div class="concept-text">
+                    HTML has semantic and non-semantic elements, based on whether they convey meaning about their content.
+                </div>
+            </div>
+            
+            <div class="concept">
+                <div class="concept-title">Default Roles</div>
+                <div class="concept-text">
+                    Many semantic HTML elements already have an ARIA role assigned by default. For example, the button element has a default ARIA role of button.
+                </div>
+            </div>
+
+            <div class="concept">
+                <div class="concept-title">Non-Semantic Elements</div>
+                <div class="concept-text">
+                    But non-semantic elements don't have a role. For example, screen readers will not know how to interpret the purpose of a div if you don't specify its role explicitly.
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 3: How to Specify Roles -->
+        <div class="slide">
+            <h2>Specifying ARIA Roles</h2>
+            <div class="concept">
+                <div class="concept-title">Using the Role Attribute</div>
+                <div class="concept-text">
+                    To specify the ARIA role of an element, you just need to add the role attribute, like this:
+                </div>
+            </div>
+            
+            <div class="code-example"><code>role="ARIA role"</code></div>
+
+            <div class="concept-text">
+                Where value is the name of a role in the ARIA specification.
+            </div>
+
+            <div class="warning-box">
+                <div class="warning-title">Critical Limitation</div>
+                <div class="concept-text">
+                    Specifying a role on an element only does one thing: It informs assistive technology of the purpose of the element. It does not add any functionality or behavior to the element.
+                </div>
+                <div class="concept-text" style="margin-top: 12px;">
+                    If people expect a role to behave a certain way, it is up to you, the developer, to add that expected behavior. For example, adding a role of button to a div does not automatically make it clickable with a mouse or usable with a keyboard.
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 4: Six Categories -->
+        <div class="slide">
+            <h2>Six Categories of ARIA Roles</h2>
+            <div class="categories-list">
+                <div class="category-item">Document Structure Roles</div>
+                <div class="category-item">Widget Roles</div>
+                <div class="category-item">Landmark Roles</div>
+                <div class="category-item">Live Region Roles</div>
+                <div class="category-item">Window Roles</div>
+                <div class="category-item">Abstract Roles</div>
+            </div>
+        </div>
+
+        <!-- Slide 5: Document Structure Roles -->
+        <div class="slide">
+            <h2>Document Structure Roles</h2>
+            <div class="concept">
+                <div class="concept-title">Purpose</div>
+                <div class="concept-text">
+                    Document structure roles define the overall structure of the web page. With these roles, assistive technologies can understand the relationships between different sections and help users navigate the content.
+                </div>
+            </div>
+            
+            <div class="info-box">
+                <div class="concept-text">
+                    Most of the document structure roles are not used in modern web development because browsers already support equivalent semantic HTML elements, which should be prioritized whenever possible.
+                </div>
+            </div>
+
+            <div class="examples-box">
+                <div class="examples-title">Commonly Used Roles Without Semantic Equivalents:</div>
+                <div class="examples-text">
+                    toolbar, tooltip, feed, math, presentation, none, note
+                </div>
+            </div>
+
+            <div class="code-label">Example - Math Role:</div>
+            <div class="code-example"><code>&lt;div role="math" aria-label="x squared + y squared = 3"&gt;
+  x&lt;sup&gt;2&lt;/sup&gt; + y&lt;sup&gt;2&lt;/sup&gt; = 3
+&lt;/div&gt;</code></div>
+        </div>
+
+        <!-- Slide 6: Widget Roles -->
+        <div class="slide">
+            <h2>Widget Roles</h2>
+            <div class="concept">
+                <div class="concept-title">Purpose</div>
+                <div class="concept-text">
+                    Widget roles define the purpose and functionality of interactive elements, like scrollbars.
+                </div>
+            </div>
+            
+            <div class="examples-box">
+                <div class="examples-title">Examples of Widget Roles:</div>
+                <div class="examples-text">
+                    scrollbar, searchbox, separator (when focusable), slider, spinbutton, switch, tab, tabpanel, treeitem
+                </div>
+            </div>
+
+            <div class="highlight-box">
+                <strong>Best Practice</strong>
+                <div class="concept-text">
+                    Some of these roles have equivalent semantic elements. You should prioritize the semantic element over the role if there is one. For example, you should favor using the HTML button element over adding a role of button to a div.
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 7: Landmark Roles -->
+        <div class="slide">
+            <h2>Landmark Roles</h2>
+            <div class="concept">
+                <div class="concept-title">Purpose</div>
+                <div class="concept-text">
+                    Landmark roles classify and label the primary sections of a web page. Screen readers use them to provide convenient navigation to important sections of a page.
+                </div>
+            </div>
+            
+            <div class="concept">
+                <div class="concept-text">
+                    You should use them sparingly to keep the overall layout simple and easy to understand.
+                </div>
+            </div>
+
+            <div class="examples-box">
+                <div class="examples-title">Examples:</div>
+                <div class="examples-text">
+                    banner, complementary, contentinfo, form, main, navigation, region, search
+                </div>
+            </div>
+
+            <div class="highlight-box">
+                <strong>Semantic HTML Equivalents</strong>
+                <div class="concept-text">
+                    Each of these roles has a corresponding HTML equivalent, such as header, footer, aside, form, main, nav, section, and search. If you use the proper HTML elements to define the sections of your page then it is not necessary to explicitly add the role attribute to these elements.
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 8: Live Region, Window, and Abstract Roles -->
+        <div class="slide">
+            <h2>Other Role Categories</h2>
+            <div class="concept">
+                <div class="concept-title">Live Region Roles</div>
+                <div class="concept-text">
+                    Define elements with content that will change dynamically. This way, screen readers and other assistive technologies can announce changes to users with visual disabilities.
+                </div>
+                <div class="examples-box">
+                    <div class="examples-title">Examples:</div>
+                    <div class="examples-text">alert, log, marquee, status, timer</div>
+                </div>
+            </div>
+            
+            <div class="concept">
+                <div class="concept-title">Window Roles</div>
+                <div class="concept-text">
+                    Define sub-windows, like pop up modal dialogues.
+                </div>
+                <div class="examples-box">
+                    <div class="examples-title">Examples:</div>
+                    <div class="examples-text">alertdialog, dialog</div>
+                </div>
+                <div class="concept-text">
+                    Note: It is now considered a best practice to use the HTML dialog element and its associated JavaScript methods instead of manually creating a dialog.
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 9: Abstract Roles & Conclusion -->
+        <div class="slide">
+            <h2>Abstract Roles & Conclusion</h2>
+            <div class="concept">
+                <div class="concept-title">Abstract Roles</div>
+                <div class="concept-text">
+                    These roles help organize the document. They're only meant to be used internally by the browser, not by developers.
+                </div>
+            </div>
+            
+            <div class="warning-box">
+                <div class="warning-title">Do Not Use</div>
+                <div class="concept-text">
+                    You should know that they exist but you shouldn't use them on your websites or web applications.
+                </div>
+            </div>
+
+            <div class="highlight-box">
+                <strong>Creating Accessible Experiences</strong>
+                <div class="concept-text">
+                    With ARIA roles, you can create accessible and inclusive websites and web applications. They provide semantic information about the purpose and function of HTML elements.
+                </div>
+                <div class="concept-text" style="margin-top: 12px;">
+                    Screen readers and other assistive technologies use this information to help users understand the content of your page and set expectations for how to use it, which helps ensure that everyone can have a great user experience.
+                </div>
+            </div>
+        </div>
+
+        <!-- Controls -->
+        <div class="controls">
+            <button class="nav-button" id="prevBtn" onclick="changeSlide(-1)">← Previous</button>
+            <div class="slide-indicator">
+                <span id="currentSlide">1</span> / <span id="totalSlides">9</span>
+            </div>
+            <button class="nav-button" id="nextBtn" onclick="changeSlide(1)">Next →</button>
+        </div>
+    </div>
+
+    <script>
+        let currentSlideIndex = 0;
+        const slides = document.querySelectorAll('.slide');
+        const totalSlides = slides.length;
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        const currentSlideNum = document.getElementById('currentSlide');
+        const totalSlidesNum = document.getElementById('totalSlides');
+
+        totalSlidesNum.textContent = totalSlides;
+
+        function showSlide(index) {
+            slides.forEach(slide => slide.classList.remove('active'));
+            slides[index].classList.add('active');
+            currentSlideNum.textContent = index + 1;
+
+            // Update button states
+            prevBtn.disabled = index === 0;
+            nextBtn.disabled = index === totalSlides - 1;
+        }
+
+        function changeSlide(direction) {
+            currentSlideIndex += direction;
+            
+            if (currentSlideIndex < 0) {
+                currentSlideIndex = 0;
+            } else if (currentSlideIndex >= totalSlides) {
+                currentSlideIndex = totalSlides - 1;
+            }
+            
+            showSlide(currentSlideIndex);
+        }
+
+        // Keyboard navigation
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'ArrowLeft') {
+                changeSlide(-1);
+            } else if (event.key === 'ArrowRight') {
+                changeSlide(1);
+            }
+        });
+
+        // Touch support for mobile
+        let touchStartX = 0;
+        let touchEndX = 0;
+
+        document.addEventListener('touchstart', function(event) {
+            touchStartX = event.changedTouches[0].screenX;
+        });
+
+        document.addEventListener('touchend', function(event) {
+            touchEndX = event.changedTouches[0].screenX;
+            handleSwipe();
+        });
+
+        function handleSwipe() {
+            const swipeThreshold = 50;
+            const diff = touchStartX - touchEndX;
+            
+            if (Math.abs(diff) > swipeThreshold) {
+                if (diff > 0) {
+                    // Swiped left - go to next slide
+                    changeSlide(1);
+                } else {
+                    // Swiped right - go to previous slide
+                    changeSlide(-1);
+                }
+            }
+        }
+
+        // Initialize
+        showSlide(0);
+    </script>
+</body>
+</html>
