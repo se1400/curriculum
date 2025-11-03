@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CSS Methods: Inline, Internal, and External</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #f5f5f5;
+            overflow: hidden;
+        }
+
+        .slideshow-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            background: white;
+        }
+
+        .slide {
+            display: none;
+            flex: 1;
+            padding: 3rem;
+            animation: fadeIn 0.5s;
+        }
+
+        .slide.active {
+            display: flex;
+            flex-direction: column;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .slide-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 3rem;
+            flex: 1;
+            align-items: start;
+        }
+
+        .concepts {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .concept-item {
+            padding: 1.5rem;
+            background: #f9f9f9;
+            border-left: 4px solid #881518;
+            border-radius: 4px;
+        }
+
+        .concept-item h2 {
+            color: #881518;
+            font-size: 1.4rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .concept-item p {
+            color: #333;
+            line-height: 1.6;
+            font-size: 1rem;
+        }
+
+        .concept-item ul {
+            margin-top: 0.75rem;
+            margin-left: 1.5rem;
+            color: #555;
+            line-height: 1.8;
+        }
+
+        .concept-item strong {
+            color: #881518;
+        }
+
+        .code-section {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .code-block {
+            background: #2d2d2d;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .code-header {
+            background: #881518;
+            color: white;
+            padding: 0.75rem 1rem;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .code-content {
+            padding: 1.5rem;
+            overflow-x: auto;
+        }
+
+        pre {
+            margin: 0;
+            color: #f8f8f2;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            line-height: 1.6;
+        }
+
+        .tag {
+            color: #ff79c6;
+        }
+
+        .attr {
+            color: #50fa7b;
+        }
+
+        .string {
+            color: #f1fa8c;
+        }
+
+        .output-box {
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 1.5rem;
+        }
+
+        .output-header {
+            background: #881518;
+            color: white;
+            padding: 0.75rem 1rem;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin: -1.5rem -1.5rem 1rem -1.5rem;
+            border-radius: 6px 6px 0 0;
+        }
+
+        .navigation {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.5rem 3rem;
+            background: #881518;
+            color: white;
+        }
+
+        .nav-button {
+            background: white;
+            color: #881518;
+            border: none;
+            padding: 0.75rem 2rem;
+            font-size: 1rem;
+            font-weight: 600;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .nav-button:hover:not(:disabled) {
+            background: #f0f0f0;
+            transform: translateY(-2px);
+        }
+
+        .nav-button:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+
+        .slide-counter {
+            font-size: 1rem;
+            font-weight: 500;
+        }
+
+        .full-width {
+            grid-column: 1 / -1;
+        }
+
+        .file-tabs {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: -1px;
+        }
+
+        .file-tab {
+            background: #1a1a1a;
+            color: #888;
+            padding: 0.5rem 1rem;
+            border-radius: 8px 8px 0 0;
+            font-size: 0.8rem;
+            font-family: 'Courier New', monospace;
+        }
+
+        .file-tab.active {
+            background: #2d2d2d;
+            color: #f8f8f2;
+        }
+
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .comparison-card {
+            background: white;
+            border: 2px solid #881518;
+            border-radius: 8px;
+            padding: 1.25rem;
+        }
+
+        .comparison-card h3 {
+            color: #881518;
+            font-size: 1.1rem;
+            margin-bottom: 0.75rem;
+            text-align: center;
+        }
+
+        .comparison-card ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .comparison-card li {
+            padding: 0.4rem 0;
+            font-size: 0.9rem;
+            line-height: 1.5;
+            color: #555;
+        }
+
+        .comparison-card li:before {
+            content: "✓ ";
+            color: #881518;
+            font-weight: bold;
+            margin-right: 0.5rem;
+        }
+
+        .comparison-card.cons li:before {
+            content: "✗ ";
+        }
+
+        @media (max-width: 968px) {
+            .slide {
+                padding: 2rem;
+            }
+
+            .slide-content {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+            }
+
+            .navigation {
+                padding: 1rem 2rem;
+            }
+
+            .nav-button {
+                padding: 0.6rem 1.5rem;
+                font-size: 0.9rem;
+            }
+
+            .concept-item h2 {
+                font-size: 1.2rem;
+            }
+
+            .concept-item p {
+                font-size: 0.95rem;
+            }
+
+            pre {
+                font-size: 0.8rem;
+            }
+
+            .comparison-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .slide {
+                padding: 1.5rem;
+            }
+
+            .navigation {
+                padding: 1rem;
+                flex-wrap: wrap;
+                gap: 1rem;
+                justify-content: center;
+            }
+
+            .slide-counter {
+                width: 100%;
+                text-align: center;
+                order: -1;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="slideshow-container">
+        <!-- Slide 1 -->
+        <div class="slide active">
+            <div class="slide-content">
+                <div class="concepts full-width">
+                    <div class="concept-item">
+                        <h2>Three Ways to Apply CSS</h2>
+                        <p>CSS can be applied to a webpage in three main ways: inline, internal, or external. Each method has its own use cases, advantages, and limitations.</p>
+                    </div>
+                    <div class="concept-item">
+                        <h2>Why This Matters</h2>
+                        <p>Understanding when to use each type of CSS is essential for writing clean, efficient, and maintainable code. Choosing the right method impacts code organization, reusability, and project scalability.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 2 -->
+        <div class="slide">
+            <div class="slide-content">
+                <div class="concepts">
+                    <div class="concept-item">
+                        <h2>Inline CSS</h2>
+                        <p>Written directly within an HTML element using the <strong>style</strong> attribute. Applies styles to a specific element only.</p>
+                    </div>
+                    <div class="concept-item">
+                        <h2>Use Cases</h2>
+                        <ul>
+                            <li>Quick, one-off styles</li>
+                            <li>Overriding other styles for specific elements</li>
+                            <li>Testing styles during development</li>
+                        </ul>
+                    </div>
+                    <div class="concept-item">
+                        <h2>⚠️ Important Note</h2>
+                        <p>Should be avoided in most cases because it clutters HTML and makes code harder to maintain.</p>
+                    </div>
+                </div>
+                <div class="code-section">
+                    <div class="code-block">
+                        <div class="code-header">HTML with Inline CSS</div>
+                        <div class="code-content">
+<pre><span class="tag">&lt;p</span> <span class="attr">style</span>=<span class="string">"color: green;"</span><span class="tag">&gt;</span>
+  This is an inline-styled paragraph.
+<span class="tag">&lt;/p&gt;</span></pre>
+                        </div>
+                    </div>
+                    <div class="output-box">
+                        <div class="output-header">Browser Output</div>
+                        <p style="color: green; margin: 0;">This is an inline-styled paragraph.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 3 -->
+        <div class="slide">
+            <div class="slide-content">
+                <div class="concepts">
+                    <div class="concept-item">
+                        <h2>Internal CSS</h2>
+                        <p>Written within <strong>&lt;style&gt;</strong> tags inside the <strong>&lt;head&gt;</strong> section. Applies styles to the entire page.</p>
+                    </div>
+                    <div class="concept-item">
+                        <h2>Best For</h2>
+                        <ul>
+                            <li>Styling a single document</li>
+                            <li>Single-page websites</li>
+                            <li>Page-specific styles</li>
+                        </ul>
+                    </div>
+                    <div class="concept-item">
+                        <h2>Limitations</h2>
+                        <ul>
+                            <li>Not reusable across multiple pages</li>
+                            <li>Mixes HTML and CSS</li>
+                            <li>Harder to maintain in larger projects</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="code-section">
+                    <div class="code-block">
+                        <div class="code-header">HTML with Internal CSS</div>
+                        <div class="code-content">
+<pre><span class="tag">&lt;head&gt;</span>
+  <span class="tag">&lt;style&gt;</span>
+    p {
+      color: blue;
+    }
+  <span class="tag">&lt;/style&gt;</span>
+<span class="tag">&lt;/head&gt;</span>
+<span class="tag">&lt;body&gt;</span>
+  <span class="tag">&lt;p&gt;</span>This paragraph is styled using 
+  internal CSS.<span class="tag">&lt;/p&gt;</span>
+<span class="tag">&lt;/body&gt;</span></pre>
+                        </div>
+                    </div>
+                    <div class="output-box">
+                        <div class="output-header">Browser Output</div>
+                        <p style="color: blue; margin: 0;">This paragraph is styled using internal CSS.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 4 -->
+        <div class="slide">
+            <div class="slide-content">
+                <div class="concepts">
+                    <div class="concept-item">
+                        <h2>External CSS</h2>
+                        <p>Written in a separate <strong>.css</strong> file and linked to HTML using the <strong>&lt;link&gt;</strong> element in the head section.</p>
+                    </div>
+                    <div class="concept-item">
+                        <h2>The Link Element</h2>
+                        <ul>
+                            <li><strong>rel</strong> attribute: Specifies the relationship (e.g., "stylesheet")</li>
+                            <li><strong>href</strong> attribute: Specifies the URL of the CSS file</li>
+                        </ul>
+                    </div>
+                    <div class="concept-item">
+                        <h2>✓ Preferred Method</h2>
+                        <p>External CSS is the preferred method in professional web development for maintaining consistent styles across multiple pages.</p>
+                    </div>
+                </div>
+                <div class="code-section">
+                    <div class="file-tabs">
+                        <div class="file-tab active">index.html</div>
+                        <div class="file-tab">styles.css</div>
+                    </div>
+                    <div class="code-block">
+                        <div class="code-header">index.html</div>
+                        <div class="code-content">
+<pre><span class="tag">&lt;head&gt;</span>
+  <span class="tag">&lt;link</span> <span class="attr">rel</span>=<span class="string">"stylesheet"</span> 
+        <span class="attr">href</span>=<span class="string">"styles.css"</span><span class="tag">&gt;</span>
+<span class="tag">&lt;/head&gt;</span>
+<span class="tag">&lt;body&gt;</span>
+  <span class="tag">&lt;p&gt;</span>This paragraph is styled using 
+  external CSS.<span class="tag">&lt;/p&gt;</span>
+<span class="tag">&lt;/body&gt;</span></pre>
+                        </div>
+                    </div>
+                    <div class="code-block">
+                        <div class="code-header">styles.css</div>
+                        <div class="code-content">
+<pre>p {
+  color: purple;
+}</pre>
+                        </div>
+                    </div>
+                    <div class="output-box">
+                        <div class="output-header">Browser Output</div>
+                        <p style="color: purple; margin: 0;">This paragraph is styled using external CSS.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 5 -->
+        <div class="slide">
+            <div class="slide-content">
+                <div class="concepts full-width">
+                    <div class="concept-item">
+                        <h2>Why External CSS is Ideal</h2>
+                        <p>External CSS is best for large projects where you want to maintain consistent styles across multiple pages.</p>
+                    </div>
+                    <div class="concept-item">
+                        <h2>Key Benefits</h2>
+                        <ul>
+                            <li><strong>Separation of Concerns:</strong> HTML handles structure, CSS handles styling</li>
+                            <li><strong>Maintainability:</strong> Changes in one file update all pages</li>
+                            <li><strong>Scalability:</strong> Easy to manage as projects grow</li>
+                            <li><strong>Reusability:</strong> One stylesheet for multiple pages</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 6 -->
+        <div class="slide">
+            <div class="slide-content">
+                <div class="concepts full-width">
+                    <div class="concept-item">
+                        <h2>Comparison: When to Use Each Method</h2>
+                        <div class="comparison-grid">
+                            <div class="comparison-card">
+                                <h3>Inline CSS</h3>
+                                <ul>
+                                    <li>Quick one-off styles</li>
+                                    <li>Overriding specific elements</li>
+                                    <li>Testing during development</li>
+                                </ul>
+                            </div>
+                            <div class="comparison-card">
+                                <h3>Internal CSS</h3>
+                                <ul>
+                                    <li>Single-page websites</li>
+                                    <li>Page-specific styles</li>
+                                    <li>Styling one document</li>
+                                </ul>
+                            </div>
+                            <div class="comparison-card">
+                                <h3>External CSS</h3>
+                                <ul>
+                                    <li>Large projects</li>
+                                    <li>Multiple pages</li>
+                                    <li>Professional development</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 7 -->
+        <div class="slide">
+            <div class="slide-content">
+                <div class="concepts full-width">
+                    <div class="concept-item">
+                        <h2>Best Practice Guidelines</h2>
+                        <p>Understanding when to use each type of CSS is crucial for efficient and effective web development.</p>
+                    </div>
+                    <div class="concept-item">
+                        <h2>The Golden Rule</h2>
+                        <p><strong>In most cases, external CSS should be your go-to approach</strong>, especially for larger and more complex projects.</p>
+                    </div>
+                    <div class="concept-item">
+                        <h2>Key Takeaways</h2>
+                        <ul>
+                            <li>Inline CSS: Use sparingly for quick overrides</li>
+                            <li>Internal CSS: Good for single-page applications</li>
+                            <li>External CSS: Best for maintainability and scalability</li>
+                            <li>Separation of concerns leads to cleaner, more maintainable code</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="navigation">
+            <button class="nav-button" id="prevBtn" onclick="changeSlide(-1)">← Previous</button>
+            <span class="slide-counter">
+                <span id="currentSlide">1</span> / <span id="totalSlides">7</span>
+            </span>
+            <button class="nav-button" id="nextBtn" onclick="changeSlide(1)">Next →</button>
+        </div>
+    </div>
+
+    <script>
+        let currentSlide = 1;
+        const totalSlides = document.querySelectorAll('.slide').length;
+
+        document.getElementById('totalSlides').textContent = totalSlides;
+
+        function showSlide(n) {
+            const slides = document.querySelectorAll('.slide');
+            const prevBtn = document.getElementById('prevBtn');
+            const nextBtn = document.getElementById('nextBtn');
+
+            if (n > totalSlides) {
+                currentSlide = totalSlides;
+            }
+            if (n < 1) {
+                currentSlide = 1;
+            }
+
+            slides.forEach(slide => {
+                slide.classList.remove('active');
+            });
+
+            slides[currentSlide - 1].classList.add('active');
+            document.getElementById('currentSlide').textContent = currentSlide;
+
+            prevBtn.disabled = currentSlide === 1;
+            nextBtn.disabled = currentSlide === totalSlides;
+        }
+
+        function changeSlide(n) {
+            currentSlide += n;
+            showSlide(currentSlide);
+        }
+
+        // Keyboard navigation
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'ArrowLeft') {
+                changeSlide(-1);
+            } else if (event.key === 'ArrowRight') {
+                changeSlide(1);
+            }
+        });
+
+        // Touch swipe support for mobile
+        let touchStartX = 0;
+        let touchEndX = 0;
+
+        document.addEventListener('touchstart', function(event) {
+            touchStartX = event.changedTouches[0].screenX;
+        });
+
+        document.addEventListener('touchend', function(event) {
+            touchEndX = event.changedTouches[0].screenX;
+            handleSwipe();
+        });
+
+        function handleSwipe() {
+            if (touchEndX < touchStartX - 50) {
+                changeSlide(1);
+            }
+            if (touchEndX > touchStartX + 50) {
+                changeSlide(-1);
+            }
+        }
+
+        // Initialize
+        showSlide(currentSlide);
+    </script>
+</body>
+</html>
