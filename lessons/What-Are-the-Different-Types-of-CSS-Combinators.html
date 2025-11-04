@@ -1,0 +1,878 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CSS Combinators</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #f5f5f5;
+            overflow: hidden;
+        }
+
+        .slideshow-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            background: white;
+        }
+
+        .slide {
+            display: none;
+            flex: 1;
+            padding: 3rem;
+            animation: fadeIn 0.5s;
+        }
+
+        .slide.active {
+            display: flex;
+            flex-direction: column;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .slide-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 3rem;
+            flex: 1;
+            align-items: start;
+        }
+
+        .concepts {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .concept-item {
+            padding: 1.5rem;
+            background: #f9f9f9;
+            border-left: 4px solid #881518;
+            border-radius: 4px;
+        }
+
+        .concept-item h2 {
+            color: #881518;
+            font-size: 1.4rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .concept-item p {
+            color: #333;
+            line-height: 1.6;
+            font-size: 1rem;
+        }
+
+        .concept-item ul {
+            margin-top: 0.75rem;
+            margin-left: 1.5rem;
+            color: #555;
+            line-height: 1.8;
+        }
+
+        .concept-item strong {
+            color: #881518;
+        }
+
+        .concept-item code {
+            background: #e8e8e8;
+            padding: 0.2rem 0.4rem;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+            color: #881518;
+            font-size: 0.9em;
+        }
+
+        .code-section {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .code-block {
+            background: #2d2d2d;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .code-header {
+            background: #881518;
+            color: white;
+            padding: 0.75rem 1rem;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .code-content {
+            padding: 1.5rem;
+            overflow-x: auto;
+        }
+
+        pre {
+            margin: 0;
+            color: #f8f8f2;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            line-height: 1.6;
+        }
+
+        .tag {
+            color: #ff79c6;
+        }
+
+        .attr {
+            color: #50fa7b;
+        }
+
+        .string {
+            color: #f1fa8c;
+        }
+
+        .selector {
+            color: #8be9fd;
+        }
+
+        .property {
+            color: #50fa7b;
+        }
+
+        .value {
+            color: #f1fa8c;
+        }
+
+        .output-box {
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 1.5rem;
+        }
+
+        .output-header {
+            background: #881518;
+            color: white;
+            padding: 0.75rem 1rem;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin: -1.5rem -1.5rem 1rem -1.5rem;
+            border-radius: 6px 6px 0 0;
+        }
+
+        .navigation {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.5rem 3rem;
+            background: #881518;
+            color: white;
+        }
+
+        .nav-button {
+            background: white;
+            color: #881518;
+            border: none;
+            padding: 0.75rem 2rem;
+            font-size: 1rem;
+            font-weight: 600;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .nav-button:hover:not(:disabled) {
+            background: #f0f0f0;
+            transform: translateY(-2px);
+        }
+
+        .nav-button:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+
+        .slide-counter {
+            font-size: 1rem;
+            font-weight: 500;
+        }
+
+        .full-width {
+            grid-column: 1 / -1;
+        }
+
+        .tree-diagram {
+            background: white;
+            border: 2px solid #881518;
+            border-radius: 8px;
+            padding: 1.5rem;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+        }
+
+        .tree-node {
+            margin: 0.5rem 0;
+            padding: 0.5rem;
+            position: relative;
+        }
+
+        .tree-node.parent {
+            background: #881518;
+            color: white;
+            font-weight: bold;
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+        }
+
+        .tree-node.child {
+            background: #4CAF50;
+            color: white;
+            font-weight: bold;
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            margin-left: 3rem;
+        }
+
+        .tree-node.descendant {
+            background: #2196F3;
+            color: white;
+            font-weight: bold;
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            margin-left: 6rem;
+        }
+
+        .tree-node.sibling {
+            background: #FF9800;
+            color: white;
+            font-weight: bold;
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+        }
+
+        .combinator-symbol {
+            display: inline-block;
+            background: #881518;
+            color: white;
+            padding: 0.3rem 0.8rem;
+            border-radius: 4px;
+            font-weight: bold;
+            font-size: 1.2rem;
+            margin: 0 0.5rem;
+        }
+
+        .comparison-table {
+            background: white;
+            border: 2px solid #881518;
+            border-radius: 8px;
+            overflow: hidden;
+            margin-top: 1rem;
+        }
+
+        .comparison-table table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .comparison-table th {
+            background: #881518;
+            color: white;
+            padding: 1rem;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        .comparison-table td {
+            padding: 1rem;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .comparison-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .comparison-table code {
+            background: #f9f9f9;
+            padding: 0.3rem 0.6rem;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+            color: #881518;
+            font-weight: bold;
+        }
+
+        .visual-demo {
+            background: #f9f9f9;
+            border: 2px solid #881518;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-top: 1rem;
+        }
+
+        .demo-container {
+            border: 2px dashed #881518;
+            padding: 1rem;
+            margin: 0.5rem 0;
+        }
+
+        .demo-element {
+            padding: 0.75rem;
+            margin: 0.5rem;
+            border-radius: 4px;
+            font-size: 0.9rem;
+        }
+
+        .demo-direct {
+            background: #4CAF50;
+            color: white;
+            font-weight: bold;
+        }
+
+        .demo-nested {
+            background: #E0E0E0;
+            color: #666;
+        }
+
+        .demo-styled {
+            border: 4px solid black;
+        }
+
+        @media (max-width: 968px) {
+            .slide {
+                padding: 2rem;
+            }
+
+            .slide-content {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+            }
+
+            .navigation {
+                padding: 1rem 2rem;
+            }
+
+            .nav-button {
+                padding: 0.6rem 1.5rem;
+                font-size: 0.9rem;
+            }
+
+            .concept-item h2 {
+                font-size: 1.2rem;
+            }
+
+            .concept-item p {
+                font-size: 0.95rem;
+            }
+
+            pre {
+                font-size: 0.8rem;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .slide {
+                padding: 1.5rem;
+            }
+
+            .navigation {
+                padding: 1rem;
+                flex-wrap: wrap;
+                gap: 1rem;
+                justify-content: center;
+            }
+
+            .slide-counter {
+                width: 100%;
+                text-align: center;
+                order: -1;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="slideshow-container">
+        <!-- Slide 1 -->
+        <div class="slide active">
+            <div class="slide-content">
+                <div class="concepts full-width">
+                    <div class="concept-item">
+                        <h2>CSS Combinators</h2>
+                        <p>CSS combinators define the relationship between selectors, helping select elements based on their relationship to other elements.</p>
+                    </div>
+                    <div class="concept-item">
+                        <h2>Purpose</h2>
+                        <p>Combinators allow for more precise and efficient styling by targeting elements based on their structural relationships in the HTML document.</p>
+                    </div>
+                    <div class="concept-item">
+                        <h2>Four Primary Combinators</h2>
+                        <ul>
+                            <li><strong>Descendant (space)</strong> - Nested at any depth</li>
+                            <li><strong>Child (>)</strong> - Direct children only</li>
+                            <li><strong>Next-sibling (+)</strong> - Immediately following sibling</li>
+                            <li><strong>Subsequent-sibling (~)</strong> - All following siblings</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 2 -->
+        <div class="slide">
+            <div class="slide-content">
+                <div class="concepts">
+                    <div class="concept-item">
+                        <h2>Descendant Combinator</h2>
+                        <p>Uses a <strong>space</strong> to target elements nested within an ancestor element, regardless of depth.</p>
+                    </div>
+                    <div class="concept-item">
+                        <h2>Syntax</h2>
+                        <p><code>parent child</code></p>
+                        <p style="margin-top: 0.75rem;">The space between selectors indicates the descendant relationship. An ancestor can be a parent or parent's parent.</p>
+                    </div>
+                    <div class="concept-item">
+                        <h2>Use Case</h2>
+                        <p>Select all elements of a type within a container, regardless of nesting depth.</p>
+                    </div>
+                </div>
+                <div class="code-section">
+                    <div class="code-block">
+                        <div class="code-header">HTML</div>
+                        <div class="code-content">
+<pre><span class="tag">&lt;figure&gt;</span>
+  <span class="tag">&lt;img</span> <span class="attr">src</span>=<span class="string">"cat.jpg"</span> <span class="attr">alt</span>=<span class="string">"cat"</span><span class="tag">&gt;</span>
+  <span class="tag">&lt;figcaption&gt;</span>
+    A relaxing cat with a border
+  <span class="tag">&lt;/figcaption&gt;</span>
+<span class="tag">&lt;/figure&gt;</span></pre>
+                        </div>
+                    </div>
+                    <div class="code-block">
+                        <div class="code-header">CSS</div>
+                        <div class="code-content">
+<pre><span class="selector">figure img</span> {
+  <span class="property">border</span>: <span class="value">4px solid red</span>;
+}</pre>
+                        </div>
+                    </div>
+                    <div class="output-box">
+                        <div class="output-header">Result</div>
+                        <p style="font-size: 0.9rem; color: #666;">All <code>img</code> elements inside <code>figure</code> elements get a red border, no matter how deeply nested.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 3 -->
+        <div class="slide">
+            <div class="slide-content">
+                <div class="concepts full-width">
+                    <div class="concept-item">
+                        <h2>Descendant Combinator Visual</h2>
+                        <div class="tree-diagram">
+                            <div class="tree-node parent">figure</div>
+                            <div class="tree-node child">└── img ✓ Selected</div>
+                            <div class="tree-node child">└── div</div>
+                            <div class="tree-node descendant">    └── img ✓ Selected</div>
+                            <div style="margin-top: 1rem; color: #881518; font-weight: bold;">
+                                Selector: figure img
+                            </div>
+                            <div style="margin-top: 0.5rem; color: #666;">
+                                Selects ALL img elements at ANY depth inside figure
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 4 -->
+        <div class="slide">
+            <div class="slide-content">
+                <div class="concepts">
+                    <div class="concept-item">
+                        <h2>Child Combinator</h2>
+                        <p>Uses <code>&gt;</code> to select only direct children of a parent element.</p>
+                    </div>
+                    <div class="concept-item">
+                        <h2>Syntax</h2>
+                        <p><code>parent &gt; child</code></p>
+                        <p style="margin-top: 0.75rem;">This combinator targets only elements with a specific parent, preventing styling of deeper nested elements.</p>
+                    </div>
+                    <div class="concept-item">
+                        <h2>Key Difference</h2>
+                        <p>Unlike the descendant combinator, the child combinator is more precise and only selects direct children.</p>
+                    </div>
+                </div>
+                <div class="code-section">
+                    <div class="code-block">
+                        <div class="code-header">HTML</div>
+                        <div class="code-content">
+<pre><span class="tag">&lt;div</span> <span class="attr">class</span>=<span class="string">"container"</span><span class="tag">&gt;</span>
+  <span class="tag">&lt;p&gt;</span>First<span class="tag">&lt;/p&gt;</span>
+  <span class="tag">&lt;div&gt;</span>
+    <span class="tag">&lt;p&gt;</span>Second<span class="tag">&lt;/p&gt;</span>
+  <span class="tag">&lt;/div&gt;</span>
+  <span class="tag">&lt;div&gt;</span>
+    <span class="tag">&lt;p&gt;</span>Third<span class="tag">&lt;/p&gt;</span>
+  <span class="tag">&lt;/div&gt;</span>
+<span class="tag">&lt;/div&gt;</span></pre>
+                        </div>
+                    </div>
+                    <div class="code-block">
+                        <div class="code-header">CSS</div>
+                        <div class="code-content">
+<pre><span class="selector">.container &gt; p</span> {
+  <span class="property">color</span>: <span class="value">blue</span>;
+}</pre>
+                        </div>
+                    </div>
+                    <div class="output-box">
+                        <div class="output-header">Result</div>
+                        <p style="color: blue; margin: 0.5rem 0;">First (blue - direct child)</p>
+                        <p style="color: #666; margin: 0.5rem 0;">Second (default - nested)</p>
+                        <p style="color: #666; margin: 0.5rem 0;">Third (default - nested)</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 5 -->
+        <div class="slide">
+            <div class="slide-content">
+                <div class="concepts full-width">
+                    <div class="concept-item">
+                        <h2>Child Combinator Visual</h2>
+                        <div class="tree-diagram">
+                            <div class="tree-node parent">.container</div>
+                            <div class="tree-node child">└── p ✓ Selected (Direct child)</div>
+                            <div class="tree-node child">└── div</div>
+                            <div class="tree-node descendant">    └── p ✗ Not selected (nested)</div>
+                            <div class="tree-node child">└── div</div>
+                            <div class="tree-node descendant">    └── p ✗ Not selected (nested)</div>
+                            <div style="margin-top: 1rem; color: #881518; font-weight: bold;">
+                                Selector: .container > p
+                            </div>
+                            <div style="margin-top: 0.5rem; color: #666;">
+                                Selects ONLY direct child p elements, not deeply nested ones
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 6 -->
+        <div class="slide">
+            <div class="slide-content">
+                <div class="concepts">
+                    <div class="concept-item">
+                        <h2>Next-Sibling Combinator</h2>
+                        <p>Uses <code>+</code> to select an element that immediately follows a specified sibling.</p>
+                    </div>
+                    <div class="concept-item">
+                        <h2>Syntax</h2>
+                        <p><code>element + immediate-sibling</code></p>
+                        <p style="margin-top: 0.75rem;">Targets only the element that directly follows, allowing for precise styling based on position.</p>
+                    </div>
+                    <div class="concept-item">
+                        <h2>Use Case</h2>
+                        <p>Style an element that comes immediately after another specific element.</p>
+                    </div>
+                </div>
+                <div class="code-section">
+                    <div class="code-block">
+                        <div class="code-header">HTML</div>
+                        <div class="code-content">
+<pre><span class="tag">&lt;figure&gt;</span>
+  <span class="tag">&lt;img</span> <span class="attr">src</span>=<span class="string">"cat.jpg"</span> <span class="attr">alt</span>=<span class="string">"cat"</span><span class="tag">&gt;</span>
+  <span class="tag">&lt;figcaption&gt;</span>
+    A cute orange cat
+  <span class="tag">&lt;/figcaption&gt;</span>
+<span class="tag">&lt;/figure&gt;</span></pre>
+                        </div>
+                    </div>
+                    <div class="code-block">
+                        <div class="code-header">CSS</div>
+                        <div class="code-content">
+<pre><span class="selector">img + figcaption</span> {
+  <span class="property">border</span>: <span class="value">4px solid black</span>;
+}</pre>
+                        </div>
+                    </div>
+                    <div class="output-box">
+                        <div class="output-header">Result</div>
+                        <p style="font-size: 0.9rem; color: #666;">The <code>figcaption</code> that immediately follows <code>img</code> gets a black border.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 7 -->
+        <div class="slide">
+            <div class="slide-content">
+                <div class="concepts full-width">
+                    <div class="concept-item">
+                        <h2>Next-Sibling Combinator Visual</h2>
+                        <div class="tree-diagram">
+                            <div class="tree-node parent">figure</div>
+                            <div class="tree-node sibling">├── img</div>
+                            <div class="tree-node sibling">├── figcaption ✓ Selected (immediately after img)</div>
+                            <div class="tree-node sibling">└── p ✗ Not selected (not immediately after img)</div>
+                            <div style="margin-top: 1rem; color: #881518; font-weight: bold;">
+                                Selector: img + figcaption
+                            </div>
+                            <div style="margin-top: 0.5rem; color: #666;">
+                                Selects ONLY the figcaption that immediately follows img
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 8 -->
+        <div class="slide">
+            <div class="slide-content">
+                <div class="concepts">
+                    <div class="concept-item">
+                        <h2>Subsequent-Sibling Combinator</h2>
+                        <p>Uses <code>~</code> to select all siblings that come after a specified element.</p>
+                    </div>
+                    <div class="concept-item">
+                        <h2>Syntax</h2>
+                        <p><code>element ~ following-siblings</code></p>
+                        <p style="margin-top: 0.75rem;">Unlike next-sibling which targets only the immediate sibling, this targets any siblings that follow.</p>
+                    </div>
+                    <div class="concept-item">
+                        <h2>Key Difference</h2>
+                        <p>Offers greater flexibility by targeting multiple elements that follow, not just the immediate one.</p>
+                    </div>
+                </div>
+                <div class="code-section">
+                    <div class="code-block">
+                        <div class="code-header">HTML</div>
+                        <div class="code-content">
+<pre><span class="tag">&lt;div</span> <span class="attr">class</span>=<span class="string">"container"</span><span class="tag">&gt;</span>
+  <span class="tag">&lt;h2&gt;</span>Subheading<span class="tag">&lt;/h2&gt;</span>
+  <span class="tag">&lt;p&gt;</span>First paragraph.<span class="tag">&lt;/p&gt;</span>
+  <span class="tag">&lt;p&gt;</span>Second paragraph.<span class="tag">&lt;/p&gt;</span>
+  <span class="tag">&lt;p&gt;</span>Third paragraph.<span class="tag">&lt;/p&gt;</span>
+  <span class="tag">&lt;p&gt;</span>Another paragraph element<span class="tag">&lt;/p&gt;</span>
+<span class="tag">&lt;/div&gt;</span></pre>
+                        </div>
+                    </div>
+                    <div class="code-block">
+                        <div class="code-header">CSS</div>
+                        <div class="code-content">
+<pre><span class="selector">h2 ~ p</span> {
+  <span class="property">color</span>: <span class="value">green</span>;
+}</pre>
+                        </div>
+                    </div>
+                    <div class="output-box">
+                        <div class="output-header">Result</div>
+                        <p style="margin: 0.5rem 0; color: #666;">Subheading (default)</p>
+                        <p style="margin: 0.5rem 0; color: green;">First paragraph. (green)</p>
+                        <p style="margin: 0.5rem 0; color: green;">Second paragraph. (green)</p>
+                        <p style="margin: 0.5rem 0; color: green;">Third paragraph. (green)</p>
+                        <p style="margin: 0.5rem 0; color: green;">Another paragraph element (green)</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 9 -->
+        <div class="slide">
+            <div class="slide-content">
+                <div class="concepts full-width">
+                    <div class="concept-item">
+                        <h2>Subsequent-Sibling Combinator Visual</h2>
+                        <div class="tree-diagram">
+                            <div class="tree-node parent">.container</div>
+                            <div class="tree-node sibling">├── h2</div>
+                            <div class="tree-node sibling">├── p ✓ Selected (follows h2)</div>
+                            <div class="tree-node sibling">├── p ✓ Selected (follows h2)</div>
+                            <div class="tree-node sibling">├── p ✓ Selected (follows h2)</div>
+                            <div class="tree-node sibling">└── p ✓ Selected (follows h2)</div>
+                            <div style="margin-top: 1rem; color: #881518; font-weight: bold;">
+                                Selector: h2 ~ p
+                            </div>
+                            <div style="margin-top: 0.5rem; color: #666;">
+                                Selects ALL p siblings that appear after h2, not just the immediate one
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 10 -->
+        <div class="slide">
+            <div class="slide-content">
+                <div class="concepts full-width">
+                    <div class="concept-item">
+                        <h2>Combinator Comparison</h2>
+                        <div class="comparison-table">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Combinator</th>
+                                        <th>Symbol</th>
+                                        <th>Selects</th>
+                                        <th>Example</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td><strong>Descendant</strong></td>
+                                        <td><code>space</code></td>
+                                        <td>All nested elements at any depth</td>
+                                        <td><code>div span</code></td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Child</strong></td>
+                                        <td><code>&gt;</code></td>
+                                        <td>Only direct children</td>
+                                        <td><code>ul &gt; li</code></td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Next-sibling</strong></td>
+                                        <td><code>+</code></td>
+                                        <td>Immediately following sibling</td>
+                                        <td><code>h1 + p</code></td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Subsequent-sibling</strong></td>
+                                        <td><code>~</code></td>
+                                        <td>All following siblings</td>
+                                        <td><code>h2 ~ p</code></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 11 -->
+        <div class="slide">
+            <div class="slide-content">
+                <div class="concepts full-width">
+                    <div class="concept-item">
+                        <h2>Key Takeaways</h2>
+                        <ul>
+                            <li>CSS combinators define relationships between selectors</li>
+                            <li>Each combinator serves a specific targeting purpose</li>
+                            <li>Understanding combinators allows for precise styling</li>
+                            <li>They enhance control and flexibility of your designs</li>
+                        </ul>
+                    </div>
+                    <div class="concept-item">
+                        <h2>Benefits</h2>
+                        <p>By mastering these selectors, you can create more sophisticated and targeted styling rules that improve both the appearance and functionality of your web pages.</p>
+                    </div>
+                    <div class="concept-item">
+                        <h2>Best Practices</h2>
+                        <ul>
+                            <li>Use <strong>descendant</strong> for general nested elements</li>
+                            <li>Use <strong>child</strong> to prevent styling deeply nested elements</li>
+                            <li>Use <strong>next-sibling</strong> for immediate following elements</li>
+                            <li>Use <strong>subsequent-sibling</strong> for all following elements</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="navigation">
+            <button class="nav-button" id="prevBtn" onclick="changeSlide(-1)">← Previous</button>
+            <span class="slide-counter">
+                <span id="currentSlide">1</span> / <span id="totalSlides">11</span>
+            </span>
+            <button class="nav-button" id="nextBtn" onclick="changeSlide(1)">Next →</button>
+        </div>
+    </div>
+
+    <script>
+        let currentSlide = 1;
+        const totalSlides = document.querySelectorAll('.slide').length;
+
+        document.getElementById('totalSlides').textContent = totalSlides;
+
+        function showSlide(n) {
+            const slides = document.querySelectorAll('.slide');
+            const prevBtn = document.getElementById('prevBtn');
+            const nextBtn = document.getElementById('nextBtn');
+
+            if (n > totalSlides) {
+                currentSlide = totalSlides;
+            }
+            if (n < 1) {
+                currentSlide = 1;
+            }
+
+            slides.forEach(slide => {
+                slide.classList.remove('active');
+            });
+
+            slides[currentSlide - 1].classList.add('active');
+            document.getElementById('currentSlide').textContent = currentSlide;
+
+            prevBtn.disabled = currentSlide === 1;
+            nextBtn.disabled = currentSlide === totalSlides;
+        }
+
+        function changeSlide(n) {
+            currentSlide += n;
+            showSlide(currentSlide);
+        }
+
+        // Keyboard navigation
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'ArrowLeft') {
+                changeSlide(-1);
+            } else if (event.key === 'ArrowRight') {
+                changeSlide(1);
+            }
+        });
+
+        // Touch swipe support for mobile
+        let touchStartX = 0;
+        let touchEndX = 0;
+
+        document.addEventListener('touchstart', function(event) {
+            touchStartX = event.changedTouches[0].screenX;
+        });
+
+        document.addEventListener('touchend', function(event) {
+            touchEndX = event.changedTouches[0].screenX;
+            handleSwipe();
+        });
+
+        function handleSwipe() {
+            if (touchEndX < touchStartX - 50) {
+                changeSlide(1);
+            }
+            if (touchEndX > touchStartX + 50) {
+                changeSlide(-1);
+            }
+        }
+
+        // Initialize
+        showSlide(currentSlide);
+    </script>
+</body>
+</html>
