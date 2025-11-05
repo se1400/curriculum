@@ -1,0 +1,842 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Universal Selector</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #f5f5f5;
+            overflow: hidden;
+        }
+
+        .slideshow-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            background: white;
+        }
+
+        .slide {
+            display: none;
+            flex: 1;
+            padding: 3rem;
+            animation: fadeIn 0.5s;
+        }
+
+        .slide.active {
+            display: flex;
+            flex-direction: column;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .slide-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 3rem;
+            flex: 1;
+            align-items: start;
+        }
+
+        .concepts {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .concept-item {
+            padding: 1.5rem;
+            background: #f9f9f9;
+            border-left: 4px solid #881518;
+            border-radius: 4px;
+        }
+
+        .concept-item h2 {
+            color: #881518;
+            font-size: 1.4rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .concept-item p {
+            color: #333;
+            line-height: 1.6;
+            font-size: 1rem;
+        }
+
+        .concept-item ul {
+            margin-top: 0.75rem;
+            margin-left: 1.5rem;
+            color: #555;
+            line-height: 1.8;
+        }
+
+        .concept-item strong {
+            color: #881518;
+        }
+
+        .concept-item code {
+            background: #e8e8e8;
+            padding: 0.2rem 0.4rem;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+            color: #881518;
+            font-size: 0.9em;
+        }
+
+        .code-section {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .code-block {
+            background: #2d2d2d;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .code-header {
+            background: #881518;
+            color: white;
+            padding: 0.75rem 1rem;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .code-content {
+            padding: 1.5rem;
+            overflow-x: auto;
+        }
+
+        pre {
+            margin: 0;
+            color: #f8f8f2;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            line-height: 1.6;
+        }
+
+        .tag {
+            color: #ff79c6;
+        }
+
+        .attr {
+            color: #50fa7b;
+        }
+
+        .string {
+            color: #f1fa8c;
+        }
+
+        .selector {
+            color: #8be9fd;
+        }
+
+        .property {
+            color: #50fa7b;
+        }
+
+        .value {
+            color: #f1fa8c;
+        }
+
+        .output-box {
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 1.5rem;
+        }
+
+        .output-header {
+            background: #881518;
+            color: white;
+            padding: 0.75rem 1rem;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin: -1.5rem -1.5rem 1rem -1.5rem;
+            border-radius: 6px 6px 0 0;
+        }
+
+        .navigation {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.5rem 3rem;
+            background: #881518;
+            color: white;
+        }
+
+        .nav-button {
+            background: white;
+            color: #881518;
+            border: none;
+            padding: 0.75rem 2rem;
+            font-size: 1rem;
+            font-weight: 600;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .nav-button:hover:not(:disabled) {
+            background: #f0f0f0;
+            transform: translateY(-2px);
+        }
+
+        .nav-button:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+
+        .slide-counter {
+            font-size: 1rem;
+            font-weight: 500;
+        }
+
+        .full-width {
+            grid-column: 1 / -1;
+        }
+
+        .specificity-bar {
+            background: white;
+            border: 3px solid #881518;
+            border-radius: 8px;
+            padding: 2rem;
+            margin-top: 1rem;
+        }
+
+        .bar-item {
+            display: flex;
+            align-items: center;
+            margin: 1rem 0;
+        }
+
+        .bar-label {
+            min-width: 150px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .bar-visual {
+            flex: 1;
+            height: 40px;
+            background: linear-gradient(to right, #881518, #C62828);
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            padding: 0 1rem;
+            color: white;
+            font-weight: bold;
+        }
+
+        .bar-universal {
+            width: 5%;
+            background: #9E9E9E;
+        }
+
+        .bar-type {
+            width: 25%;
+            background: #FBC02D;
+            color: #333;
+        }
+
+        .bar-class {
+            width: 50%;
+            background: #F57C00;
+        }
+
+        .bar-id {
+            width: 75%;
+            background: #E64A19;
+        }
+
+        .bar-inline {
+            width: 100%;
+            background: #D32F2F;
+        }
+
+        .cascade-demo {
+            background: white;
+            border: 2px solid #881518;
+            border-radius: 8px;
+            padding: 2rem;
+            margin-top: 1rem;
+        }
+
+        .cascade-layer {
+            padding: 1rem;
+            margin: 0.75rem 0;
+            border-radius: 4px;
+            border-left: 4px solid;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .layer-universal {
+            background: #F5F5F5;
+            border-color: #9E9E9E;
+            opacity: 0.5;
+        }
+
+        .layer-type {
+            background: #FFF9C4;
+            border-color: #FBC02D;
+            opacity: 0.6;
+        }
+
+        .layer-class {
+            background: #FFE0B2;
+            border-color: #F57C00;
+            opacity: 0.7;
+        }
+
+        .layer-id {
+            background: #FFCCBC;
+            border-color: #E64A19;
+            opacity: 0.8;
+        }
+
+        .layer-winner {
+            background: #E8F5E9;
+            border-color: #4CAF50;
+            opacity: 1;
+            font-weight: bold;
+        }
+
+        .winner-badge {
+            background: #4CAF50;
+            color: white;
+            padding: 0.3rem 0.8rem;
+            border-radius: 4px;
+            font-weight: bold;
+            font-size: 0.85rem;
+        }
+
+        .override-badge {
+            background: #F44336;
+            color: white;
+            padding: 0.3rem 0.8rem;
+            border-radius: 4px;
+            font-weight: bold;
+            font-size: 0.85rem;
+        }
+
+        .reset-example {
+            background: #f9f9f9;
+            border: 2px solid #881518;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-top: 1rem;
+        }
+
+        .before-after {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .demo-box {
+            padding: 1rem;
+            border: 2px solid #881518;
+            border-radius: 4px;
+            text-align: center;
+        }
+
+        .demo-box h4 {
+            color: #881518;
+            margin-bottom: 0.75rem;
+        }
+
+        .with-spacing {
+            margin: 20px;
+            padding: 20px;
+            background: #E3F2FD;
+        }
+
+        .without-spacing {
+            margin: 0;
+            padding: 0;
+            background: #E3F2FD;
+        }
+
+        @media (max-width: 968px) {
+            .slide {
+                padding: 2rem;
+            }
+
+            .slide-content {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+            }
+
+            .navigation {
+                padding: 1rem 2rem;
+            }
+
+            .nav-button {
+                padding: 0.6rem 1.5rem;
+                font-size: 0.9rem;
+            }
+
+            .concept-item h2 {
+                font-size: 1.2rem;
+            }
+
+            .concept-item p {
+                font-size: 0.95rem;
+            }
+
+            pre {
+                font-size: 0.8rem;
+            }
+
+            .before-after {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .slide {
+                padding: 1.5rem;
+            }
+
+            .navigation {
+                padding: 1rem;
+                flex-wrap: wrap;
+                gap: 1rem;
+                justify-content: center;
+            }
+
+            .slide-counter {
+                width: 100%;
+                text-align: center;
+                order: -1;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="slideshow-container">
+        <!-- Slide 1 -->
+        <div class="slide active">
+            <div class="slide-content">
+                <div class="concepts full-width">
+                    <div class="concept-item">
+                        <h2>The Universal Selector</h2>
+                        <p>The universal selector <code>*</code> is a special type of CSS selector that matches <strong>any element</strong> in the document.</p>
+                    </div>
+                    <div class="concept-item">
+                        <h2>Common Use Cases</h2>
+                        <ul>
+                            <li>Applying styles to all elements on the page</li>
+                            <li>Resetting or normalizing styles across different browsers</li>
+                            <li>Selecting all elements within a specific context</li>
+                            <li>Creating global baseline styles</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 2 -->
+        <div class="slide">
+            <div class="slide-content">
+                <div class="concepts">
+                    <div class="concept-item">
+                        <h2>Syntax</h2>
+                        <p>The universal selector is represented by an asterisk: <code>*</code></p>
+                    </div>
+                    <div class="concept-item">
+                        <h2>What It Does</h2>
+                        <p>It can be used to select all elements globally across the entire document or within a specific context.</p>
+                    </div>
+                </div>
+                <div class="code-section">
+                    <div class="code-block">
+                        <div class="code-header">CSS - Universal Selector</div>
+                        <div class="code-content">
+<pre><span class="selector">*</span> {
+  <span class="property">margin</span>: <span class="value">0</span>;
+  <span class="property">padding</span>: <span class="value">0</span>;
+  <span class="property">box-sizing</span>: <span class="value">border-box</span>;
+}</pre>
+                        </div>
+                    </div>
+                    <div class="output-box">
+                        <div class="output-header">What This Does</div>
+                        <p style="margin: 0; line-height: 1.8;">
+                            This applies the specified styles to <strong>every single element</strong> in the HTML document. It's commonly used to reset default browser styles.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 3 -->
+        <div class="slide">
+            <div class="slide-content">
+                <div class="concepts">
+                    <div class="concept-item">
+                        <h2>CSS Reset Example</h2>
+                        <p>A common technique is using the universal selector to reset margin and padding to zero for all elements.</p>
+                    </div>
+                    <div class="concept-item">
+                        <h2>Why Reset?</h2>
+                        <p>Different browsers apply different default styles. Resetting creates a consistent baseline across all browsers.</p>
+                    </div>
+                </div>
+                <div class="code-section">
+                    <div class="code-block">
+                        <div class="code-header">CSS</div>
+                        <div class="code-content">
+<pre><span class="selector">*</span> {
+  <span class="property">margin</span>: <span class="value">0</span>;
+  <span class="property">padding</span>: <span class="value">0</span>;
+}</pre>
+                        </div>
+                    </div>
+                    <div class="reset-example">
+                        <h3 style="color: #881518; margin-bottom: 1rem;">Visual Comparison</h3>
+                        <div class="before-after">
+                            <div class="demo-box">
+                                <h4>Without Reset</h4>
+                                <div class="with-spacing">
+                                    Element with default spacing
+                                </div>
+                            </div>
+                            <div class="demo-box">
+                                <h4>With Reset</h4>
+                                <div class="without-spacing">
+                                    Element with no spacing
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 4 -->
+        <div class="slide">
+            <div class="slide-content">
+                <div class="concepts full-width">
+                    <div class="concept-item">
+                        <h2>Specificity of Universal Selector</h2>
+                        <p>The universal selector has the <strong>lowest specificity value</strong> of any selector.</p>
+                        <p style="margin-top: 1rem; font-size: 1.3rem; color: #881518; font-weight: bold; text-align: center;">
+                            Specificity: <code>(0, 0, 0, 0)</code>
+                        </p>
+                    </div>
+                    <div class="concept-item">
+                        <h2>What This Means</h2>
+                        <p>It contributes <strong>0</strong> to all parts of the specificity value. Any other selector will override the styles set by the universal selector.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 5 -->
+        <div class="slide">
+            <div class="slide-content">
+                <div class="concepts full-width">
+                    <div class="concept-item">
+                        <h2>Specificity Comparison</h2>
+                        <p>The universal selector has the lowest specificity compared to all other selectors:</p>
+                        <div class="specificity-bar">
+                            <div class="bar-item">
+                                <span class="bar-label">Inline styles</span>
+                                <div class="bar-visual bar-inline">(1, 0, 0, 0)</div>
+                            </div>
+                            <div class="bar-item">
+                                <span class="bar-label">ID selectors</span>
+                                <div class="bar-visual bar-id">(0, 1, 0, 0)</div>
+                            </div>
+                            <div class="bar-item">
+                                <span class="bar-label">Class selectors</span>
+                                <div class="bar-visual bar-class">(0, 0, 1, 0)</div>
+                            </div>
+                            <div class="bar-item">
+                                <span class="bar-label">Type selectors</span>
+                                <div class="bar-visual bar-type">(0, 0, 0, 1)</div>
+                            </div>
+                            <div class="bar-item">
+                                <span class="bar-label">Universal (*)</span>
+                                <div class="bar-visual bar-universal">(0, 0, 0, 0)</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 6 -->
+        <div class="slide">
+            <div class="slide-content">
+                <div class="concepts">
+                    <div class="concept-item">
+                        <h2>Override Behavior</h2>
+                        <p>Any other selector will override the universal selector's styles:</p>
+                        <ul>
+                            <li>Type selectors (p, div, h1)</li>
+                            <li>Class selectors (.class)</li>
+                            <li>ID selectors (#id)</li>
+                            <li>Inline styles</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="code-section">
+                    <div class="code-block">
+                        <div class="code-header">CSS</div>
+                        <div class="code-content">
+<pre><span class="selector">*</span> {
+  <span class="property">color</span>: <span class="value">blue</span>;
+}
+
+<span class="selector">p</span> {
+  <span class="property">color</span>: <span class="value">red</span>;
+}</pre>
+                        </div>
+                    </div>
+                    <div class="output-box">
+                        <div class="output-header">Result</div>
+                        <p style="color: red; margin: 0.5rem 0;">
+                            This paragraph is red <span class="winner-badge">Type selector wins</span>
+                        </p>
+                        <p style="margin-top: 1rem; font-size: 0.85rem; color: #666;">
+                            The type selector (p) overrides the universal selector (*) because it has higher specificity
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 7 -->
+        <div class="slide">
+            <div class="slide-content">
+                <div class="concepts full-width">
+                    <div class="concept-item">
+                        <h2>Complete Cascade Example</h2>
+                        <p>Let's see how the universal selector interacts with all selector types:</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 8 -->
+        <div class="slide">
+            <div class="slide-content">
+                <div class="concepts">
+                    <div class="concept-item">
+                        <h2>The CSS Rules</h2>
+                        <p>Multiple selectors targeting the same element with different colors.</p>
+                    </div>
+                </div>
+                <div class="code-section">
+                    <div class="code-block">
+                        <div class="code-header">CSS</div>
+                        <div class="code-content">
+<pre><span class="selector">*</span> {
+  <span class="property">color</span>: <span class="value">blue</span>;
+}
+
+<span class="selector">p</span> {
+  <span class="property">color</span>: <span class="value">red</span>;
+}
+
+<span class="selector">.highlight</span> {
+  <span class="property">color</span>: <span class="value">green</span>;
+}
+
+<span class="selector">#unique</span> {
+  <span class="property">color</span>: <span class="value">purple</span>;
+}</pre>
+                        </div>
+                    </div>
+                    <div class="code-block">
+                        <div class="code-header">HTML</div>
+                        <div class="code-content">
+<pre><span class="tag">&lt;p</span> <span class="attr">id</span>=<span class="string">"unique"</span> <span class="attr">class</span>=<span class="string">"highlight"</span><span class="tag">&gt;</span>
+  This text has multiple styles applied.
+<span class="tag">&lt;/p&gt;</span></pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 9 -->
+        <div class="slide">
+            <div class="slide-content">
+                <div class="concepts full-width">
+                    <div class="concept-item">
+                        <h2>Which Style Wins?</h2>
+                        <div class="cascade-demo">
+                            <div class="cascade-layer layer-universal">
+                                <span>* { color: blue; } <code>(0,0,0,0)</code></span>
+                                <span class="override-badge">OVERRIDDEN</span>
+                            </div>
+                            <div class="cascade-layer layer-type">
+                                <span>p { color: red; } <code>(0,0,0,1)</code></span>
+                                <span class="override-badge">OVERRIDDEN</span>
+                            </div>
+                            <div class="cascade-layer layer-class">
+                                <span>.highlight { color: green; } <code>(0,0,1,0)</code></span>
+                                <span class="override-badge">OVERRIDDEN</span>
+                            </div>
+                            <div class="cascade-layer layer-id layer-winner">
+                                <span>#unique { color: purple; } <code>(0,1,0,0)</code></span>
+                                <span class="winner-badge">WINS!</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 10 -->
+        <div class="slide">
+            <div class="slide-content">
+                <div class="concepts">
+                    <div class="concept-item">
+                        <h2>The Result</h2>
+                        <p>The ID selector has the highest specificity, so it wins the cascade.</p>
+                    </div>
+                </div>
+                <div class="code-section">
+                    <div class="output-box">
+                        <div class="output-header">Final Result</div>
+                        <p style="color: purple; font-size: 1.2rem; font-weight: bold; margin: 1rem 0; text-align: center;">
+                            This text has multiple styles applied.
+                        </p>
+                        <div style="margin-top: 1.5rem; padding: 1rem; background: #f9f9f9; border-radius: 4px;">
+                            <h4 style="color: #881518; margin-bottom: 0.75rem;">Why Purple?</h4>
+                            <ol style="margin-left: 1.5rem; line-height: 1.8; color: #555;">
+                                <li>Universal selector sets blue <code>(0,0,0,0)</code></li>
+                                <li>Type selector overrides to red <code>(0,0,0,1)</code></li>
+                                <li>Class selector overrides to green <code>(0,0,1,0)</code></li>
+                                <li>ID selector overrides to purple <code>(0,1,0,0)</code> ✓</li>
+                            </ol>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 11 -->
+        <div class="slide">
+            <div class="slide-content">
+                <div class="concepts full-width">
+                    <div class="concept-item">
+                        <h2>Key Takeaways</h2>
+                        <ul>
+                            <li>The universal selector <code>*</code> matches any element in the document</li>
+                            <li>Commonly used for CSS resets to normalize browser default styles</li>
+                            <li>Has the lowest specificity value: <code>(0, 0, 0, 0)</code></li>
+                            <li>Any other selector will override universal selector styles</li>
+                            <li>Perfect for setting baseline styles that can be easily overridden</li>
+                        </ul>
+                    </div>
+                    <div class="concept-item">
+                        <h2>Remember</h2>
+                        <p style="text-align: center; font-size: 1.2rem; color: #881518; font-weight: bold; margin-top: 1rem;">
+                            Universal selector = Lowest specificity = Easily overridden
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="navigation">
+            <button class="nav-button" id="prevBtn" onclick="changeSlide(-1)">← Previous</button>
+            <span class="slide-counter">
+                <span id="currentSlide">1</span> / <span id="totalSlides">11</span>
+            </span>
+            <button class="nav-button" id="nextBtn" onclick="changeSlide(1)">Next →</button>
+        </div>
+    </div>
+
+    <script>
+        let currentSlide = 1;
+        const totalSlides = document.querySelectorAll('.slide').length;
+
+        document.getElementById('totalSlides').textContent = totalSlides;
+
+        function showSlide(n) {
+            const slides = document.querySelectorAll('.slide');
+            const prevBtn = document.getElementById('prevBtn');
+            const nextBtn = document.getElementById('nextBtn');
+
+            if (n > totalSlides) {
+                currentSlide = totalSlides;
+            }
+            if (n < 1) {
+                currentSlide = 1;
+            }
+
+            slides.forEach(slide => {
+                slide.classList.remove('active');
+            });
+
+            slides[currentSlide - 1].classList.add('active');
+            document.getElementById('currentSlide').textContent = currentSlide;
+
+            prevBtn.disabled = currentSlide === 1;
+            nextBtn.disabled = currentSlide === totalSlides;
+        }
+
+        function changeSlide(n) {
+            currentSlide += n;
+            showSlide(currentSlide);
+        }
+
+        // Keyboard navigation
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'ArrowLeft') {
+                changeSlide(-1);
+            } else if (event.key === 'ArrowRight') {
+                changeSlide(1);
+            }
+        });
+
+        // Touch swipe support for mobile
+        let touchStartX = 0;
+        let touchEndX = 0;
+
+        document.addEventListener('touchstart', function(event) {
+            touchStartX = event.changedTouches[0].screenX;
+        });
+
+        document.addEventListener('touchend', function(event) {
+            touchEndX = event.changedTouches[0].screenX;
+            handleSwipe();
+        });
+
+        function handleSwipe() {
+            if (touchEndX < touchStartX - 50) {
+                changeSlide(1);
+            }
+            if (touchEndX > touchStartX + 50) {
+                changeSlide(-1);
+            }
+        }
+
+        // Initialize
+        showSlide(currentSlide);
+    </script>
+</body>
+</html>

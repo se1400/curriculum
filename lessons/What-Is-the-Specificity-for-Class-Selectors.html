@@ -1,0 +1,968 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Class Selectors Specificity</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #f5f5f5;
+            overflow: hidden;
+        }
+
+        .slideshow-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            background: white;
+        }
+
+        .slide {
+            display: none;
+            flex: 1;
+            padding: 3rem;
+            animation: fadeIn 0.5s;
+        }
+
+        .slide.active {
+            display: flex;
+            flex-direction: column;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .slide-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 3rem;
+            flex: 1;
+            align-items: start;
+        }
+
+        .concepts {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .concept-item {
+            padding: 1.5rem;
+            background: #f9f9f9;
+            border-left: 4px solid #881518;
+            border-radius: 4px;
+        }
+
+        .concept-item h2 {
+            color: #881518;
+            font-size: 1.4rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .concept-item p {
+            color: #333;
+            line-height: 1.6;
+            font-size: 1rem;
+        }
+
+        .concept-item ul {
+            margin-top: 0.75rem;
+            margin-left: 1.5rem;
+            color: #555;
+            line-height: 1.8;
+        }
+
+        .concept-item strong {
+            color: #881518;
+        }
+
+        .concept-item code {
+            background: #e8e8e8;
+            padding: 0.2rem 0.4rem;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+            color: #881518;
+            font-size: 0.9em;
+        }
+
+        .code-section {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .code-block {
+            background: #2d2d2d;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .code-header {
+            background: #881518;
+            color: white;
+            padding: 0.75rem 1rem;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .code-content {
+            padding: 1.5rem;
+            overflow-x: auto;
+        }
+
+        pre {
+            margin: 0;
+            color: #f8f8f2;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            line-height: 1.6;
+        }
+
+        .tag {
+            color: #ff79c6;
+        }
+
+        .attr {
+            color: #50fa7b;
+        }
+
+        .string {
+            color: #f1fa8c;
+        }
+
+        .selector {
+            color: #8be9fd;
+        }
+
+        .property {
+            color: #50fa7b;
+        }
+
+        .value {
+            color: #f1fa8c;
+        }
+
+        .output-box {
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 1.5rem;
+        }
+
+        .output-header {
+            background: #881518;
+            color: white;
+            padding: 0.75rem 1rem;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin: -1.5rem -1.5rem 1rem -1.5rem;
+            border-radius: 6px 6px 0 0;
+        }
+
+        .navigation {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.5rem 3rem;
+            background: #881518;
+            color: white;
+        }
+
+        .nav-button {
+            background: white;
+            color: #881518;
+            border: none;
+            padding: 0.75rem 2rem;
+            font-size: 1rem;
+            font-weight: 600;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .nav-button:hover:not(:disabled) {
+            background: #f0f0f0;
+            transform: translateY(-2px);
+        }
+
+        .nav-button:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+
+        .slide-counter {
+            font-size: 1rem;
+            font-weight: 500;
+        }
+
+        .full-width {
+            grid-column: 1 / -1;
+        }
+
+        .specificity-ladder {
+            background: white;
+            border: 3px solid #881518;
+            border-radius: 8px;
+            padding: 2rem;
+            margin-top: 1rem;
+        }
+
+        .ladder-step {
+            padding: 1.5rem;
+            margin: 0.5rem auto;
+            text-align: center;
+            font-weight: bold;
+            color: white;
+            border-radius: 4px;
+            position: relative;
+        }
+
+        .step-inline {
+            background: #D32F2F;
+            width: 100%;
+        }
+
+        .step-id {
+            background: #E64A19;
+            width: 80%;
+        }
+
+        .step-class {
+            background: #F57C00;
+            width: 60%;
+            border: 3px solid #881518;
+        }
+
+        .step-type {
+            background: #FBC02D;
+            width: 40%;
+            color: #333;
+        }
+
+        .step-universal {
+            background: #9E9E9E;
+            width: 20%;
+        }
+
+        .spec-value {
+            display: inline-block;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 0.3rem 0.6rem;
+            border-radius: 4px;
+            margin-left: 1rem;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+        }
+
+        .winner-badge {
+            display: inline-block;
+            background: #4CAF50;
+            color: white;
+            padding: 0.3rem 0.8rem;
+            border-radius: 4px;
+            font-weight: bold;
+            font-size: 0.85rem;
+            margin-left: 0.5rem;
+        }
+
+        .override-badge {
+            display: inline-block;
+            background: #F44336;
+            color: white;
+            padding: 0.3rem 0.8rem;
+            border-radius: 4px;
+            font-weight: bold;
+            font-size: 0.85rem;
+            margin-left: 0.5rem;
+        }
+
+        .comparison-table {
+            background: white;
+            border: 2px solid #881518;
+            border-radius: 8px;
+            overflow: hidden;
+            margin-top: 1rem;
+        }
+
+        .comparison-table table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .comparison-table th {
+            background: #881518;
+            color: white;
+            padding: 1rem;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        .comparison-table td {
+            padding: 1rem;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .comparison-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .comparison-table code {
+            background: #f9f9f9;
+            padding: 0.3rem 0.6rem;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+            color: #881518;
+            font-weight: bold;
+        }
+
+        .cascade-demo {
+            background: white;
+            border: 2px solid #881518;
+            border-radius: 8px;
+            padding: 2rem;
+            margin-top: 1rem;
+        }
+
+        .cascade-layer {
+            padding: 1.5rem;
+            margin: 0.75rem 0;
+            border-radius: 4px;
+            border-left: 4px solid;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 500;
+        }
+
+        .layer-type {
+            background: #FFF9C4;
+            border-color: #FBC02D;
+        }
+
+        .layer-class {
+            background: #FFE0B2;
+            border-color: #F57C00;
+        }
+
+        .layer-combined {
+            background: #FFCCBC;
+            border-color: #E64A19;
+        }
+
+        .versatility-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .versatility-card {
+            background: #f9f9f9;
+            border: 2px solid #881518;
+            border-radius: 8px;
+            padding: 1.5rem;
+        }
+
+        .versatility-card h3 {
+            color: #881518;
+            margin-bottom: 0.75rem;
+            font-size: 1.1rem;
+        }
+
+        .versatility-card ul {
+            margin-left: 1.5rem;
+            line-height: 1.8;
+            color: #555;
+        }
+
+        @media (max-width: 968px) {
+            .slide {
+                padding: 2rem;
+            }
+
+            .slide-content {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+            }
+
+            .navigation {
+                padding: 1rem 2rem;
+            }
+
+            .nav-button {
+                padding: 0.6rem 1.5rem;
+                font-size: 0.9rem;
+            }
+
+            .concept-item h2 {
+                font-size: 1.2rem;
+            }
+
+            .concept-item p {
+                font-size: 0.95rem;
+            }
+
+            pre {
+                font-size: 0.8rem;
+            }
+
+            .versatility-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .slide {
+                padding: 1.5rem;
+            }
+
+            .navigation {
+                padding: 1rem;
+                flex-wrap: wrap;
+                gap: 1rem;
+                justify-content: center;
+            }
+
+            .slide-counter {
+                width: 100%;
+                text-align: center;
+                order: -1;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="slideshow-container">
+        <!-- Slide 1 -->
+        <div class="slide active">
+            <div class="slide-content">
+                <div class="concepts full-width">
+                    <div class="concept-item">
+                        <h2>Class Selectors</h2>
+                        <p>Class selectors are a <strong>key part of CSS</strong>, allowing developers to target multiple elements with the same class attribute and apply consistent styling.</p>
+                    </div>
+                    <div class="concept-item">
+                        <h2>Why They're Important</h2>
+                        <ul>
+                            <li>Highly versatile and efficient</li>
+                            <li>Can be applied to any element</li>
+                            <li>Allow consistent styling across a website</li>
+                            <li>Reusable across multiple elements</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 2 -->
+        <div class="slide">
+            <div class="slide-content">
+                <div class="concepts">
+                    <div class="concept-item">
+                        <h2>Syntax</h2>
+                        <p>Class selectors are defined by a <strong>period (.)</strong> followed by the class name.</p>
+                        <p style="margin-top: 1rem; font-size: 1.2rem; color: #881518; font-weight: bold;">
+                            <code>.className</code>
+                        </p>
+                    </div>
+                    <div class="concept-item">
+                        <h2>How to Use</h2>
+                        <ul>
+                            <li>Can be applied to any HTML element</li>
+                            <li>Multiple elements can share the same class</li>
+                            <li>An element can have multiple classes</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="code-section">
+                    <div class="code-block">
+                        <div class="code-header">CSS - Class Selector</div>
+                        <div class="code-content">
+<pre><span class="selector">.highlight</span> {
+  <span class="property">color</span>: <span class="value">green</span>;
+}</pre>
+                        </div>
+                    </div>
+                    <div class="output-box">
+                        <div class="output-header">What This Does</div>
+                        <p style="margin: 0; line-height: 1.8;">
+                            Any element with <code>class="highlight"</code> will have green text color.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 3 -->
+        <div class="slide">
+            <div class="slide-content">
+                <div class="concepts">
+                    <div class="concept-item">
+                        <h2>Basic Example</h2>
+                        <p>Using a class selector to style an element.</p>
+                    </div>
+                </div>
+                <div class="code-section">
+                    <div class="code-block">
+                        <div class="code-header">HTML</div>
+                        <div class="code-content">
+<pre><span class="tag">&lt;p</span> <span class="attr">class</span>=<span class="string">"highlight"</span><span class="tag">&gt;</span>Example paragraph<span class="tag">&lt;/p&gt;</span></pre>
+                        </div>
+                    </div>
+                    <div class="code-block">
+                        <div class="code-header">CSS</div>
+                        <div class="code-content">
+<pre><span class="selector">.highlight</span> {
+  <span class="property">color</span>: <span class="value">green</span>;
+}</pre>
+                        </div>
+                    </div>
+                    <div class="output-box">
+                        <div class="output-header">Result</div>
+                        <p style="color: green; margin: 0;">Example paragraph</p>
+                        <p style="margin-top: 1rem; font-size: 0.85rem; color: #666;">
+                            The paragraph has green text because it has the "highlight" class
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 4 -->
+        <div class="slide">
+            <div class="slide-content">
+                <div class="concepts full-width">
+                    <div class="concept-item">
+                        <h2>Class Selector Specificity</h2>
+                        <p>Class selectors have <strong>higher specificity than type selectors</strong> but <strong>lower than ID selectors</strong> and inline styles.</p>
+                        <p style="margin-top: 1rem; font-size: 1.3rem; color: #881518; font-weight: bold; text-align: center;">
+                            Specificity Value: <code>(0, 0, 1, 0)</code>
+                        </p>
+                    </div>
+                    <div class="concept-item">
+                        <h2>What This Means</h2>
+                        <ul>
+                            <li>Class selectors <strong>can override</strong> type selectors</li>
+                            <li>Class selectors <strong>are overridden by</strong> ID selectors</li>
+                            <li>Class selectors <strong>are overridden by</strong> inline styles</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 5 -->
+        <div class="slide">
+            <div class="slide-content">
+                <div class="concepts full-width">
+                    <div class="concept-item">
+                        <h2>Specificity Hierarchy</h2>
+                        <p>Where class selectors fit in the specificity ladder:</p>
+                        <div class="specificity-ladder">
+                            <div class="ladder-step step-inline">
+                                Inline Styles
+                                <span class="spec-value">(1, 0, 0, 0)</span>
+                            </div>
+                            <div class="ladder-step step-id">
+                                ID Selectors
+                                <span class="spec-value">(0, 1, 0, 0)</span>
+                            </div>
+                            <div class="ladder-step step-class">
+                                Class Selectors ← You are here
+                                <span class="spec-value">(0, 0, 1, 0)</span>
+                            </div>
+                            <div class="ladder-step step-type">
+                                Type Selectors
+                                <span class="spec-value">(0, 0, 0, 1)</span>
+                            </div>
+                            <div class="ladder-step step-universal">
+                                Universal (*)
+                                <span class="spec-value">(0, 0, 0, 0)</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 6 -->
+        <div class="slide">
+            <div class="slide-content">
+                <div class="concepts full-width">
+                    <div class="concept-item">
+                        <h2>Override Relationships</h2>
+                        <div class="comparison-table">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Selector Type</th>
+                                        <th>Specificity</th>
+                                        <th>Relationship to Class</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td><strong>Inline styles</strong></td>
+                                        <td><code>(1, 0, 0, 0)</code></td>
+                                        <td style="color: #F44336; font-weight: bold;">Overrides class</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>ID selectors</strong></td>
+                                        <td><code>(0, 1, 0, 0)</code></td>
+                                        <td style="color: #F44336; font-weight: bold;">Overrides class</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Class selectors</strong></td>
+                                        <td><code>(0, 0, 1, 0)</code></td>
+                                        <td style="color: #666;">Current level</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Type selectors</strong></td>
+                                        <td><code>(0, 0, 0, 1)</code></td>
+                                        <td style="color: #4CAF50; font-weight: bold;">Overridden by class</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Universal (*)</strong></td>
+                                        <td><code>(0, 0, 0, 0)</code></td>
+                                        <td style="color: #4CAF50; font-weight: bold;">Overridden by class</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 7 -->
+        <div class="slide">
+            <div class="slide-content">
+                <div class="concepts">
+                    <div class="concept-item">
+                        <h2>Class vs Type Selector</h2>
+                        <p>Class selectors override type selectors because they have higher specificity.</p>
+                    </div>
+                </div>
+                <div class="code-section">
+                    <div class="code-block">
+                        <div class="code-header">HTML</div>
+                        <div class="code-content">
+<pre><span class="tag">&lt;p</span> <span class="attr">class</span>=<span class="string">"bold-text"</span><span class="tag">&gt;</span>Example paragraph<span class="tag">&lt;/p&gt;</span>
+<span class="tag">&lt;p</span> <span class="attr">class</span>=<span class="string">"bold-text"</span><span class="tag">&gt;</span>Example paragraph<span class="tag">&lt;/p&gt;</span>
+<span class="tag">&lt;p&gt;</span>Another paragraph<span class="tag">&lt;/p&gt;</span>
+<span class="tag">&lt;p&gt;</span>Yet another paragraph<span class="tag">&lt;/p&gt;</span></pre>
+                        </div>
+                    </div>
+                    <div class="code-block">
+                        <div class="code-header">CSS</div>
+                        <div class="code-content">
+<pre><span class="selector">p</span> {
+  <span class="property">color</span>: <span class="value">blue</span>;
+}
+
+<span class="selector">.bold-text</span> {
+  <span class="property">font-weight</span>: <span class="value">bold</span>;
+  <span class="property">color</span>: <span class="value">red</span>;
+}</pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 8 -->
+        <div class="slide">
+            <div class="slide-content">
+                <div class="concepts">
+                    <div class="concept-item">
+                        <h2>Which Style Wins?</h2>
+                        <p>Class selector has higher specificity than type selector.</p>
+                    </div>
+                </div>
+                <div class="code-section">
+                    <div class="cascade-demo">
+                        <h3 style="color: #881518; margin-bottom: 1rem;">Cascade Resolution</h3>
+                        <div class="cascade-layer layer-type">
+                            <span>p { color: blue; } <code>(0, 0, 0, 1)</code></span>
+                            <span class="override-badge">OVERRIDDEN</span>
+                        </div>
+                        <div class="cascade-layer layer-class" style="opacity: 1; font-weight: bold;">
+                            <span>.bold-text { color: red; } <code>(0, 0, 1, 0)</code></span>
+                            <span class="winner-badge">WINS!</span>
+                        </div>
+                    </div>
+                    <div class="output-box">
+                        <div class="output-header">Result</div>
+                        <p style="color: red; font-weight: bold; margin: 0.5rem 0;">Example paragraph</p>
+                        <p style="color: red; font-weight: bold; margin: 0.5rem 0;">Example paragraph</p>
+                        <p style="color: blue; margin: 0.5rem 0;">Another paragraph</p>
+                        <p style="color: blue; margin: 0.5rem 0;">Yet another paragraph</p>
+                        <p style="margin-top: 1rem; font-size: 0.85rem; color: #666;">
+                            Elements with class="bold-text" are red and bold (class wins)
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 9 -->
+        <div class="slide">
+            <div class="slide-content">
+                <div class="concepts">
+                    <div class="concept-item">
+                        <h2>Combining Selectors</h2>
+                        <p>Class selectors can be combined with other selectors to create <strong>more specific rules</strong>.</p>
+                    </div>
+                    <div class="concept-item">
+                        <h2>Example: Type + Class</h2>
+                        <p><code>p.bold-text</code> targets only <code>&lt;p&gt;</code> elements that also have the <code>bold-text</code> class.</p>
+                    </div>
+                </div>
+                <div class="code-section">
+                    <div class="code-block">
+                        <div class="code-header">CSS</div>
+                        <div class="code-content">
+<pre><span class="selector">p.bold-text</span> {
+  <span class="property">font-weight</span>: <span class="value">bold</span>;
+}</pre>
+                        </div>
+                    </div>
+                    <div class="output-box">
+                        <div class="output-header">What This Does</div>
+                        <p style="margin: 0; line-height: 1.8;">
+                            This rule applies <strong>only</strong> to <code>&lt;p&gt;</code> elements that also have the <code>bold-text</code> class, making their text bold.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 10 -->
+        <div class="slide">
+            <div class="slide-content">
+                <div class="concepts">
+                    <div class="concept-item">
+                        <h2>Combined Specificity</h2>
+                        <p>When combining selectors, specificity values add up.</p>
+                    </div>
+                </div>
+                <div class="code-section">
+                    <div class="code-block">
+                        <div class="code-header">CSS</div>
+                        <div class="code-content">
+<pre><span class="selector">.highlight</span> {
+  <span class="property">color</span>: <span class="value">green</span>;
+}
+
+<span class="selector">p</span> {
+  <span class="property">color</span>: <span class="value">blue</span>;
+}
+
+<span class="selector">p.highlight</span> {
+  <span class="property">color</span>: <span class="value">red</span>;
+}</pre>
+                        </div>
+                    </div>
+                    <div class="cascade-demo">
+                        <h3 style="color: #881518; margin-bottom: 1rem;">Specificity Calculation</h3>
+                        <div class="cascade-layer layer-class">
+                            <span>.highlight { color: green; } <code>(0, 0, 1, 0)</code></span>
+                            <span class="override-badge">OVERRIDDEN</span>
+                        </div>
+                        <div class="cascade-layer layer-type">
+                            <span>p { color: blue; } <code>(0, 0, 0, 1)</code></span>
+                            <span class="override-badge">OVERRIDDEN</span>
+                        </div>
+                        <div class="cascade-layer layer-combined" style="opacity: 1; font-weight: bold;">
+                            <span>p.highlight { color: red; } <code>(0, 0, 1, 1)</code></span>
+                            <span class="winner-badge">WINS!</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 11 -->
+        <div class="slide">
+            <div class="slide-content">
+                <div class="concepts">
+                    <div class="concept-item">
+                        <h2>Combined Result</h2>
+                        <p>The combined selector <code>p.highlight</code> has the highest specificity.</p>
+                    </div>
+                </div>
+                <div class="code-section">
+                    <div class="code-block">
+                        <div class="code-header">HTML</div>
+                        <div class="code-content">
+<pre><span class="tag">&lt;p</span> <span class="attr">class</span>=<span class="string">"highlight"</span><span class="tag">&gt;</span>This text<span class="tag">&lt;/p&gt;</span></pre>
+                        </div>
+                    </div>
+                    <div class="output-box">
+                        <div class="output-header">Result</div>
+                        <p style="color: red; font-size: 1.2rem; font-weight: bold; margin: 1rem 0; text-align: center;">
+                            This text
+                        </p>
+                        <div style="margin-top: 1.5rem; padding: 1rem; background: #f9f9f9; border-radius: 4px;">
+                            <h4 style="color: #881518; margin-bottom: 0.75rem;">Why Red?</h4>
+                            <ul style="margin-left: 1.5rem; line-height: 1.8; color: #555;">
+                                <li>.highlight sets green <code>(0,0,1,0)</code></li>
+                                <li>p sets blue <code>(0,0,0,1)</code></li>
+                                <li>p.highlight sets red <code>(0,0,1,1)</code> ✓</li>
+                            </ul>
+                            <p style="margin-top: 0.75rem; color: #666; font-size: 0.9rem;">
+                                Combined: <code>(0,0,1,0) + (0,0,0,1) = (0,0,1,1)</code>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 12 -->
+        <div class="slide">
+            <div class="slide-content">
+                <div class="concepts full-width">
+                    <div class="concept-item">
+                        <h2>Class Selector Versatility</h2>
+                        <div class="versatility-grid">
+                            <div class="versatility-card">
+                                <h3>Advantages</h3>
+                                <ul>
+                                    <li>Reusable across multiple elements</li>
+                                    <li>More specific than type selectors</li>
+                                    <li>Can be combined for higher specificity</li>
+                                    <li>Consistent styling across site</li>
+                                </ul>
+                            </div>
+                            <div class="versatility-card">
+                                <h3>Best Practices</h3>
+                                <ul>
+                                    <li>Use for styling groups of elements</li>
+                                    <li>Keep class names semantic</li>
+                                    <li>Prefer classes over IDs for styling</li>
+                                    <li>Combine with type selectors when needed</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 13 -->
+        <div class="slide">
+            <div class="slide-content">
+                <div class="concepts full-width">
+                    <div class="concept-item">
+                        <h2>Key Takeaways</h2>
+                        <ul>
+                            <li>Class selectors are defined with a period: <code>.className</code></li>
+                            <li>Specificity value: <code>(0, 0, 1, 0)</code></li>
+                            <li>Higher specificity than type selectors, lower than ID selectors</li>
+                            <li>Can override type selectors and universal selector</li>
+                            <li>Overridden by ID selectors and inline styles</li>
+                            <li>Can be combined with other selectors for increased specificity</li>
+                            <li>Highly versatile and efficient for consistent styling</li>
+                        </ul>
+                    </div>
+                    <div class="concept-item">
+                        <h2>Remember</h2>
+                        <p style="text-align: center; font-size: 1.2rem; color: #881518; font-weight: bold; margin-top: 1rem;">
+                            Class selectors: The sweet spot for reusable, specific styling
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="navigation">
+            <button class="nav-button" id="prevBtn" onclick="changeSlide(-1)">← Previous</button>
+            <span class="slide-counter">
+                <span id="currentSlide">1</span> / <span id="totalSlides">13</span>
+            </span>
+            <button class="nav-button" id="nextBtn" onclick="changeSlide(1)">Next →</button>
+        </div>
+    </div>
+
+    <script>
+        let currentSlide = 1;
+        const totalSlides = document.querySelectorAll('.slide').length;
+
+        document.getElementById('totalSlides').textContent = totalSlides;
+
+        function showSlide(n) {
+            const slides = document.querySelectorAll('.slide');
+            const prevBtn = document.getElementById('prevBtn');
+            const nextBtn = document.getElementById('nextBtn');
+
+            if (n > totalSlides) {
+                currentSlide = totalSlides;
+            }
+            if (n < 1) {
+                currentSlide = 1;
+            }
+
+            slides.forEach(slide => {
+                slide.classList.remove('active');
+            });
+
+            slides[currentSlide - 1].classList.add('active');
+            document.getElementById('currentSlide').textContent = currentSlide;
+
+            prevBtn.disabled = currentSlide === 1;
+            nextBtn.disabled = currentSlide === totalSlides;
+        }
+
+        function changeSlide(n) {
+            currentSlide += n;
+            showSlide(currentSlide);
+        }
+
+        // Keyboard navigation
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'ArrowLeft') {
+                changeSlide(-1);
+            } else if (event.key === 'ArrowRight') {
+                changeSlide(1);
+            }
+        });
+
+        // Touch swipe support for mobile
+        let touchStartX = 0;
+        let touchEndX = 0;
+
+        document.addEventListener('touchstart', function(event) {
+            touchStartX = event.changedTouches[0].screenX;
+        });
+
+        document.addEventListener('touchend', function(event) {
+            touchEndX = event.changedTouches[0].screenX;
+            handleSwipe();
+        });
+
+        function handleSwipe() {
+            if (touchEndX < touchStartX - 50) {
+                changeSlide(1);
+            }
+            if (touchEndX > touchStartX + 50) {
+                changeSlide(-1);
+            }
+        }
+
+        // Initialize
+        showSlide(currentSlide);
+    </script>
+</body>
+</html>
