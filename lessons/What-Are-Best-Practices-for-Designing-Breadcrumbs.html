@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Breadcrumb Best Practices</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #ffffff;
+            color: #333333;
+            overflow: hidden;
+        }
+
+        .slideshow-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 2rem;
+        }
+
+        .slide {
+            display: none;
+            animation: fadeIn 0.5s;
+        }
+
+        .slide.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        h1 {
+            color: #881518;
+            font-size: 2.5rem;
+            margin-bottom: 2rem;
+            border-bottom: 3px solid #881518;
+            padding-bottom: 1rem;
+        }
+
+        h2 {
+            color: #881518;
+            font-size: 2rem;
+            margin-bottom: 1.5rem;
+        }
+
+        h3 {
+            color: #a81d21;
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        p, ul {
+            font-size: 1.2rem;
+            line-height: 1.8;
+            margin-bottom: 1rem;
+        }
+
+        ul {
+            padding-left: 2rem;
+        }
+
+        li {
+            margin-bottom: 0.8rem;
+        }
+
+        .content-box {
+            background: #f5f5f5;
+            padding: 1.5rem;
+            border-radius: 8px;
+            border-left: 4px solid #881518;
+            margin-bottom: 1rem;
+        }
+
+        .content-box h3 {
+            margin-top: 0;
+        }
+
+        .navigation {
+            position: fixed;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+            z-index: 100;
+        }
+
+        button {
+            background: #881518;
+            color: white;
+            border: none;
+            padding: 0.8rem 1.5rem;
+            font-size: 1rem;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: background 0.3s;
+        }
+
+        button:hover:not(:disabled) {
+            background: #a81d21;
+        }
+
+        button:disabled {
+            background: #cccccc;
+            cursor: not-allowed;
+            opacity: 0.5;
+        }
+
+        .slide-counter {
+            color: #666666;
+            font-size: 1rem;
+            padding: 0.5rem 1rem;
+        }
+
+        .emphasis {
+            color: #881518;
+            font-weight: bold;
+        }
+
+        /* Code Example Styling */
+        .code-example {
+            background: #2a2a2a;
+            color: #e0e0e0;
+            padding: 1.5rem;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            overflow-x: auto;
+            margin: 1rem 0;
+            line-height: 1.6;
+        }
+
+        .code-example .tag {
+            color: #e06c75;
+        }
+
+        .code-example .attr {
+            color: #d19a66;
+        }
+
+        .code-example .string {
+            color: #98c379;
+        }
+
+        /* Breadcrumb Demo Styles */
+        .demo-container {
+            background: white;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            padding: 2rem;
+            margin: 2rem 0;
+        }
+
+        .breadcrumbs {
+            padding: 1rem;
+            background: #f9f9f9;
+            border-radius: 4px;
+            font-size: 0.95rem;
+            display: inline-block;
+            margin-bottom: 1rem;
+        }
+
+        .breadcrumbs a {
+            color: #881518;
+            text-decoration: none;
+        }
+
+        .breadcrumbs a:hover {
+            text-decoration: underline;
+        }
+
+        .breadcrumbs .current {
+            color: #666;
+        }
+
+        /* Separator Comparison */
+        .separator-examples {
+            display: grid;
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .separator-box {
+            background: #f9f9f9;
+            padding: 1.5rem;
+            border-radius: 8px;
+            border: 2px solid #ddd;
+        }
+
+        .separator-label {
+            font-weight: bold;
+            color: #881518;
+            margin-bottom: 1rem;
+        }
+
+        /* Placement Demo */
+        .placement-demo {
+            background: white;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+        }
+
+        .main-nav {
+            background: #881518;
+            padding: 1rem;
+            border-radius: 4px;
+            margin-bottom: 1rem;
+            display: flex;
+            gap: 1.5rem;
+        }
+
+        .main-nav a {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .main-nav a:hover {
+            text-decoration: underline;
+        }
+
+        .page-content {
+            padding: 1rem;
+            color: #666;
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        /* Size Comparison */
+        .size-comparison {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .size-box {
+            background: #f5f5f5;
+            padding: 1.5rem;
+            border-radius: 8px;
+            border: 2px solid #ddd;
+        }
+
+        .size-label {
+            font-weight: bold;
+            color: #881518;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+
+        .breadcrumbs-large {
+            font-size: 1.3rem;
+            padding: 1.2rem;
+        }
+
+        .breadcrumbs-small {
+            font-size: 0.75rem;
+            padding: 0.6rem;
+        }
+
+        .breadcrumbs-good {
+            font-size: 0.95rem;
+            padding: 0.9rem;
+        }
+
+        /* Hierarchy Visualization */
+        .hierarchy-visual {
+            background: #f9f9f9;
+            padding: 2rem;
+            border-radius: 8px;
+            margin: 2rem 0;
+            text-align: center;
+        }
+
+        .hierarchy-level {
+            margin: 1rem 0;
+        }
+
+        .hierarchy-item {
+            display: inline-block;
+            background: #881518;
+            color: white;
+            padding: 0.8rem 1.5rem;
+            border-radius: 4px;
+            margin: 0.5rem;
+            position: relative;
+        }
+
+        .hierarchy-arrow {
+            color: #881518;
+            font-size: 1.5rem;
+            margin: 0 0.5rem;
+        }
+
+        @media (max-width: 768px) {
+            .slideshow-container {
+                padding: 1rem;
+            }
+
+            h1 {
+                font-size: 1.8rem;
+            }
+
+            h2 {
+                font-size: 1.5rem;
+            }
+
+            h3 {
+                font-size: 1.2rem;
+            }
+
+            p, ul {
+                font-size: 1rem;
+            }
+
+            .size-comparison {
+                grid-template-columns: 1fr;
+            }
+
+            .navigation {
+                bottom: 1rem;
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+
+            button {
+                padding: 0.6rem 1.2rem;
+                font-size: 0.9rem;
+            }
+
+            .demo-container {
+                padding: 1rem;
+            }
+
+            .main-nav {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="slideshow-container">
+        <!-- Slide 1: Navigation Aids Introduction -->
+        <div class="slide active">
+            <h1>Breadcrumbs</h1>
+            <p>Web design includes many types of <span class="emphasis">navigational aids</span>.</p>
+            <div class="content-box">
+                <h3>Common Navigation Types</h3>
+                <ul>
+                    <li>Top navigation bars</li>
+                    <li>Sidebars</li>
+                    <li>Footers</li>
+                    <li><span class="emphasis">Breadcrumbs</span> - For complex sites with deeper navigation levels</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Slide 2: What Are Breadcrumbs -->
+        <div class="slide">
+            <h2>What Are Breadcrumbs?</h2>
+            <div class="content-box">
+                <p>A navigation aid that shows users <span class="emphasis">where they are</span> in the site's hierarchy.</p>
+            </div>
+            <div class="demo-container">
+                <div class="breadcrumbs">
+                    <a href="#">Home</a> / <a href="#">Electronics</a> / <a href="#">Phones</a> / <span class="current">Smartphone XYZ</span>
+                </div>
+            </div>
+            <p style="text-align: center;">Example from a mock electronics website</p>
+        </div>
+
+        <!-- Slide 3: How Breadcrumbs Show Path -->
+        <div class="slide">
+            <h2>Understanding the Path</h2>
+            <div class="content-box">
+                <p>Breadcrumbs are displayed at the <span class="emphasis">top of the page</span>, showing the path users took to reach the current page.</p>
+            </div>
+            <div class="hierarchy-visual">
+                <div class="hierarchy-level">
+                    <span class="hierarchy-item">Homepage</span>
+                    <span class="hierarchy-arrow">→</span>
+                    <span class="hierarchy-item">Electronics</span>
+                    <span class="hierarchy-arrow">→</span>
+                    <span class="hierarchy-item">Phones</span>
+                    <span class="hierarchy-arrow">→</span>
+                    <span class="hierarchy-item">Smartphone XYZ</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 4: Why Use Breadcrumbs -->
+        <div class="slide">
+            <h2>Benefits of Breadcrumbs</h2>
+            <div class="content-box">
+                <p>Help users understand <span class="emphasis">where they are</span> in the site's hierarchy and <span class="emphasis">how to navigate back</span> to previous pages.</p>
+                <h3>Especially Useful When:</h3>
+                <ul>
+                    <li>User arrives from a <span class="emphasis">search result</span></li>
+                    <li>User comes from an <span class="emphasis">external link</span></li>
+                    <li>User needs to understand the <span class="emphasis">context</span> of the current page</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Slide 5: Consideration - Separators -->
+        <div class="slide">
+            <h2>Design Consideration: Separators</h2>
+            <div class="content-box">
+                <p>The <span class="emphasis">separator</span> is the character that separates different levels of the hierarchy.</p>
+            </div>
+            <div class="separator-examples">
+                <div class="separator-box">
+                    <div class="separator-label">Greater than sign (&gt;)</div>
+                    <div class="breadcrumbs">Home &gt; Electronics &gt; Phones &gt; Smartphone XYZ</div>
+                </div>
+                <div class="separator-box">
+                    <div class="separator-label">Right angle quotation marks (»)</div>
+                    <div class="breadcrumbs">Home » Electronics » Phones » Smartphone XYZ</div>
+                </div>
+                <div class="separator-box">
+                    <div class="separator-label">Forward slash (/)</div>
+                    <div class="breadcrumbs">Home / Electronics / Phones / Smartphone XYZ</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 6: Code Example for Separators -->
+        <div class="slide">
+            <h2>HTML for Separators</h2>
+            <div class="code-example">
+<span class="comment"><!-- Using forward slash --></span>
+<span class="tag">&lt;div</span> <span class="attr">class=</span><span class="string">"breadcrumbs"</span><span class="tag">&gt;</span>
+  Home / Electronics / Phones / Smartphone XYZ
+<span class="tag">&lt;/div&gt;</span>
+
+<span class="comment"><!-- Using greater than sign --></span>
+<span class="tag">&lt;div</span> <span class="attr">class=</span><span class="string">"breadcrumbs"</span><span class="tag">&gt;</span>
+  Home &amp;gt; Electronics &amp;gt; Phones &amp;gt; Smartphone XYZ
+<span class="tag">&lt;/div&gt;</span>
+            </div>
+        </div>
+
+        <!-- Slide 7: Consideration - Placement -->
+        <div class="slide">
+            <h2>Design Consideration: Placement</h2>
+            <div class="content-box">
+                <p>Breadcrumbs are typically placed at the <span class="emphasis">top of the page</span>, either above or below the main navigation bar.</p>
+                <h3>Important</h3>
+                <p>Users shouldn't have to struggle to find breadcrumbs — make them <span class="emphasis">visible and easy to locate</span>.</p>
+            </div>
+        </div>
+
+        <!-- Slide 8: Placement Example -->
+        <div class="slide">
+            <h2>Placement Example</h2>
+            <div class="placement-demo">
+                <nav class="main-nav">
+                    <a href="#">Home</a>
+                    <a href="#">Electronics</a>
+                    <a href="#">Phones</a>
+                </nav>
+                <div class="breadcrumbs">
+                    Home &gt; Electronics &gt; Phones &gt; Smartphone XYZ
+                </div>
+                <div class="page-content">
+                    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua...
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 9: Consideration - Size -->
+        <div class="slide">
+            <h2>Design Consideration: Size</h2>
+            <div class="content-box">
+                <p>Breadcrumbs should be <span class="emphasis">large enough to be easily read</span>, but <span class="emphasis">not so large</span> they take up too much space.</p>
+                <h3>Remember</h3>
+                <p>Breadcrumbs are a <span class="emphasis">secondary navigational aid</span>, not a primary navigation tool.</p>
+            </div>
+        </div>
+
+        <!-- Slide 10: Size Comparison -->
+        <div class="slide">
+            <h2>Size Comparison</h2>
+            <div class="size-comparison">
+                <div class="size-box">
+                    <div class="size-label">❌ Too Large</div>
+                    <div class="breadcrumbs breadcrumbs-large">Home &gt; Electronics</div>
+                    <p style="font-size: 0.9rem; margin-top: 1rem; text-align: center;">Takes up excessive space</p>
+                </div>
+                <div class="size-box">
+                    <div class="size-label">❌ Too Small</div>
+                    <div class="breadcrumbs breadcrumbs-small">Home &gt; Electronics</div>
+                    <p style="font-size: 0.9rem; margin-top: 1rem; text-align: center;">Difficult to read</p>
+                </div>
+            </div>
+            <div style="text-align: center; margin-top: 2rem;">
+                <div class="size-box" style="display: inline-block; max-width: 500px;">
+                    <div class="size-label">✓ Just Right</div>
+                    <div class="breadcrumbs breadcrumbs-good">Home &gt; Electronics &gt; Phones</div>
+                    <p style="font-size: 0.9rem; margin-top: 1rem;">Readable and proportional</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 11: When to Use Breadcrumbs -->
+        <div class="slide">
+            <h2>When Should You Use Breadcrumbs?</h2>
+            <div class="content-box">
+                <h3>✓ Use Breadcrumbs For:</h3>
+                <p>Sites with a <span class="emphasis">deep hierarchy</span></p>
+                <ul>
+                    <li>E-commerce sites</li>
+                    <li>News sites</li>
+                    <li>Technical documentation sites</li>
+                </ul>
+            </div>
+            <div class="content-box">
+                <h3>✗ Skip Breadcrumbs For:</h3>
+                <p>Sites with a <span class="emphasis">shallow hierarchy</span> (only a few levels)</p>
+                <p>Breadcrumbs might not add much value in simple sites.</p>
+            </div>
+        </div>
+
+        <!-- Slide 12: Key Takeaways -->
+        <div class="slide">
+            <h2>Best Practices Summary</h2>
+            <div class="content-box">
+                <ul>
+                    <li><span class="emphasis">Choose a separator</span> - Use &gt;, », or / consistently</li>
+                    <li><span class="emphasis">Place at the top</span> - Above or below main navigation, easy to find</li>
+                    <li><span class="emphasis">Size appropriately</span> - Readable but not oversized</li>
+                    <li><span class="emphasis">Use for deep hierarchies</span> - E-commerce, news, documentation sites</li>
+                    <li><span class="emphasis">Secondary aid</span> - Complement, don't replace primary navigation</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="navigation">
+        <button id="prevBtn" onclick="changeSlide(-1)">Previous</button>
+        <span class="slide-counter">
+            <span id="currentSlide">1</span> / <span id="totalSlides">12</span>
+        </span>
+        <button id="nextBtn" onclick="changeSlide(1)">Next</button>
+    </div>
+
+    <script>
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.slide');
+        const totalSlides = slides.length;
+        
+        document.getElementById('totalSlides').textContent = totalSlides;
+        
+        function showSlide(n) {
+            slides[currentSlide].classList.remove('active');
+            
+            if (n >= totalSlides) {
+                currentSlide = totalSlides - 1;
+            } else if (n < 0) {
+                currentSlide = 0;
+            } else {
+                currentSlide = n;
+            }
+            
+            slides[currentSlide].classList.add('active');
+            document.getElementById('currentSlide').textContent = currentSlide + 1;
+            
+            // Update button states
+            document.getElementById('prevBtn').disabled = currentSlide === 0;
+            document.getElementById('nextBtn').disabled = currentSlide === totalSlides - 1;
+        }
+        
+        function changeSlide(direction) {
+            showSlide(currentSlide + direction);
+        }
+        
+        // Keyboard navigation
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'ArrowLeft') {
+                changeSlide(-1);
+            } else if (event.key === 'ArrowRight') {
+                changeSlide(1);
+            }
+        });
+        
+        // Initialize button states
+        showSlide(0);
+    </script>
+</body>
+</html>

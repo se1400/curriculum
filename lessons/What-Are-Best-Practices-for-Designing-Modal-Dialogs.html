@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modal Dialog Best Practices</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #ffffff;
+            color: #333333;
+            overflow: hidden;
+        }
+
+        .slideshow-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 2rem;
+        }
+
+        .slide {
+            display: none;
+            animation: fadeIn 0.5s;
+        }
+
+        .slide.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        h1 {
+            color: #881518;
+            font-size: 2.5rem;
+            margin-bottom: 2rem;
+            border-bottom: 3px solid #881518;
+            padding-bottom: 1rem;
+        }
+
+        h2 {
+            color: #881518;
+            font-size: 2rem;
+            margin-bottom: 1.5rem;
+        }
+
+        h3 {
+            color: #a81d21;
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        p, ul {
+            font-size: 1.2rem;
+            line-height: 1.8;
+            margin-bottom: 1rem;
+        }
+
+        ul {
+            padding-left: 2rem;
+        }
+
+        li {
+            margin-bottom: 0.8rem;
+        }
+
+        .content-box {
+            background: #f5f5f5;
+            padding: 1.5rem;
+            border-radius: 8px;
+            border-left: 4px solid #881518;
+            margin-bottom: 1rem;
+        }
+
+        .content-box h3 {
+            margin-top: 0;
+        }
+
+        .navigation {
+            position: fixed;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+            z-index: 100;
+        }
+
+        button {
+            background: #881518;
+            color: white;
+            border: none;
+            padding: 0.8rem 1.5rem;
+            font-size: 1rem;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: background 0.3s;
+        }
+
+        button:hover:not(:disabled) {
+            background: #a81d21;
+        }
+
+        button:disabled {
+            background: #cccccc;
+            cursor: not-allowed;
+            opacity: 0.5;
+        }
+
+        .slide-counter {
+            color: #666666;
+            font-size: 1rem;
+            padding: 0.5rem 1rem;
+        }
+
+        .emphasis {
+            color: #881518;
+            font-weight: bold;
+        }
+
+        /* Code Example Styling */
+        .code-example {
+            background: #2a2a2a;
+            color: #e0e0e0;
+            padding: 1.5rem;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.95rem;
+            overflow-x: auto;
+            margin: 1rem 0;
+        }
+
+        .code-example .tag {
+            color: #e06c75;
+        }
+
+        .code-example .attr {
+            color: #d19a66;
+        }
+
+        .code-example .string {
+            color: #98c379;
+        }
+
+        /* Modal Demo Styles */
+        .modal-demo-container {
+            position: relative;
+            background: #f0f0f0;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            padding: 2rem;
+            margin: 2rem 0;
+            min-height: 300px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .demo-content {
+            text-align: center;
+            color: #666;
+        }
+
+        .demo-button {
+            background: #881518;
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            font-size: 1.1rem;
+            cursor: pointer;
+            border-radius: 5px;
+            margin-top: 1rem;
+        }
+
+        .demo-button:hover {
+            background: #a81d21;
+        }
+
+        .modal-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal-dialog {
+            background: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            max-width: 400px;
+            width: 90%;
+            position: relative;
+        }
+
+        .modal-dialog h3 {
+            color: #881518;
+            margin-top: 0;
+            margin-bottom: 1rem;
+        }
+
+        .modal-dialog p {
+            font-size: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+        }
+
+        .modal-buttons button {
+            padding: 0.7rem 1.5rem;
+            font-size: 0.95rem;
+        }
+
+        .close-button {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: transparent;
+            color: #666;
+            font-size: 1.5rem;
+            width: 30px;
+            height: 30px;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+        }
+
+        .close-button:hover {
+            background: #f0f0f0;
+            color: #333;
+        }
+
+        .cta-button {
+            background: #881518;
+        }
+
+        .cta-button:hover {
+            background: #a81d21;
+        }
+
+        .cancel-button {
+            background: #666;
+        }
+
+        .cancel-button:hover {
+            background: #777;
+        }
+
+        /* Comparison Examples */
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .comparison-box {
+            background: #f5f5f5;
+            padding: 1.5rem;
+            border-radius: 8px;
+            border: 2px solid #ddd;
+        }
+
+        .comparison-label {
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: #881518;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+
+        @media (max-width: 768px) {
+            .slideshow-container {
+                padding: 1rem;
+            }
+
+            h1 {
+                font-size: 1.8rem;
+            }
+
+            h2 {
+                font-size: 1.5rem;
+            }
+
+            h3 {
+                font-size: 1.2rem;
+            }
+
+            p, ul {
+                font-size: 1rem;
+            }
+
+            .comparison-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .navigation {
+                bottom: 1rem;
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+
+            button {
+                padding: 0.6rem 1.2rem;
+                font-size: 0.9rem;
+            }
+
+            .modal-demo-container {
+                min-height: 250px;
+                padding: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="slideshow-container">
+        <!-- Slide 1: What is a Modal -->
+        <div class="slide active">
+            <h1>Modal Dialogs</h1>
+            <p>A type of <span class="emphasis">pop-up</span> that appears on top of website content.</p>
+            <div class="content-box">
+                <h3>HTML Implementation</h3>
+                <p>HTML provides a <span class="emphasis">&lt;dialog&gt;</span> element to create modals.</p>
+            </div>
+            <div class="code-example">
+<span class="tag">&lt;dialog&gt;</span>
+  <span class="tag">&lt;h2&gt;</span>Subscribe to our Newsletter!<span class="tag">&lt;/h2&gt;</span>
+  <span class="tag">&lt;p&gt;</span>Get the latest updates and offers.<span class="tag">&lt;/p&gt;</span>
+  <span class="tag">&lt;button&gt;</span>Subscribe<span class="tag">&lt;/button&gt;</span>
+  <span class="tag">&lt;button&gt;</span>Close<span class="tag">&lt;/button&gt;</span>
+<span class="tag">&lt;/dialog&gt;</span>
+            </div>
+        </div>
+
+        <!-- Slide 2: Dimmed Background -->
+        <div class="slide">
+            <h2>Dimmed Background Content</h2>
+            <div class="content-box">
+                <p>The content behind a modal is usually <span class="emphasis">dimmed</span>.</p>
+                <h3>Purpose</h3>
+                <p>Helps users <span class="emphasis">visually focus</span> on the area you want them to interact with — the modal.</p>
+            </div>
+        </div>
+
+        <!-- Slide 3: Dimmed Background Demo -->
+        <div class="slide">
+            <h2>Dimmed Background Example</h2>
+            <div class="modal-demo-container">
+                <div class="demo-content">
+                    <p>This is the main page content</p>
+                    <button class="demo-button" onclick="openDemoModal1()">Open Modal</button>
+                </div>
+                <div class="modal-overlay" id="demoModal1">
+                    <div class="modal-dialog">
+                        <h3>Subscribe to Newsletter</h3>
+                        <p>Notice how the background is dimmed to focus your attention here.</p>
+                        <div class="modal-buttons">
+                            <button onclick="closeDemoModal1()">Close</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 4: Click Outside to Close -->
+        <div class="slide">
+            <h2>Click Outside to Close</h2>
+            <div class="content-box">
+                <p>It's always a good idea to allow users to <span class="emphasis">click outside the modal</span> to close it.</p>
+                <h3>User Experience</h3>
+                <p>Provides an intuitive way to dismiss the modal without hunting for a close button.</p>
+            </div>
+        </div>
+
+        <!-- Slide 5: Click Outside Demo -->
+        <div class="slide">
+            <h2>Click Outside Example</h2>
+            <p style="text-align: center; margin-bottom: 1rem;">Try clicking outside the modal to close it</p>
+            <div class="modal-demo-container">
+                <div class="demo-content">
+                    <p>Click the button, then click outside the modal</p>
+                    <button class="demo-button" onclick="openDemoModal2()">Open Modal</button>
+                </div>
+                <div class="modal-overlay" id="demoModal2" onclick="closeDemoModal2()">
+                    <div class="modal-dialog" onclick="event.stopPropagation()">
+                        <h3>Click Outside to Close</h3>
+                        <p>Click anywhere outside this dialog to dismiss it.</p>
+                        <div class="modal-buttons">
+                            <button onclick="closeDemoModal2()">Close</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 6: CTAs (Call-to-Action) -->
+        <div class="slide">
+            <h2>Call-to-Action (CTA) Buttons</h2>
+            <div class="content-box">
+                <p>Very <span class="emphasis">prominent buttons</span> on modals designed to prompt specific actions.</p>
+                <h3>Purpose</h3>
+                <p>Should be <span class="emphasis">easily identifiable</span> since you're interrupting the user's flow to prompt a specific action.</p>
+            </div>
+            <div class="code-example">
+<span class="tag">&lt;dialog&gt;</span>
+  <span class="tag">&lt;h2&gt;</span>Subscribe to our Newsletter!<span class="tag">&lt;/h2&gt;</span>
+  <span class="tag">&lt;p&gt;</span>Get the latest updates and offers.<span class="tag">&lt;/p&gt;</span>
+  <span class="tag">&lt;button</span> <span class="attr">class=</span><span class="string">"cta"</span><span class="tag">&gt;</span>Subscribe<span class="tag">&lt;/button&gt;</span>
+  <span class="tag">&lt;button</span> <span class="attr">class=</span><span class="string">"close"</span><span class="tag">&gt;</span>Close<span class="tag">&lt;/button&gt;</span>
+<span class="tag">&lt;/dialog&gt;</span>
+            </div>
+        </div>
+
+        <!-- Slide 7: CTA Demo -->
+        <div class="slide">
+            <h2>Prominent CTA Example</h2>
+            <div class="modal-demo-container">
+                <div class="demo-content">
+                    <button class="demo-button" onclick="openDemoModal3()">Open Modal</button>
+                </div>
+                <div class="modal-overlay" id="demoModal3" onclick="closeDemoModal3()">
+                    <div class="modal-dialog" onclick="event.stopPropagation()">
+                        <h3>Special Offer!</h3>
+                        <p>Get 20% off your first purchase. Subscribe now!</p>
+                        <div class="modal-buttons">
+                            <button class="cancel-button" onclick="closeDemoModal3()">Maybe Later</button>
+                            <button class="cta-button" onclick="closeDemoModal3()">Subscribe Now</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <p style="text-align: center; margin-top: 1rem;">Notice the <span class="emphasis">prominent CTA button</span> draws your attention</p>
+        </div>
+
+        <!-- Slide 8: Close Button -->
+        <div class="slide">
+            <h2>Close Button</h2>
+            <div class="content-box">
+                <p>Modals should always have a <span class="emphasis">close button</span>.</p>
+                <h3>User Choice</h3>
+                <p>While you want users to click your CTAs, it's important to give them an <span class="emphasis">option to back out</span> and resume what they were doing.</p>
+            </div>
+        </div>
+
+        <!-- Slide 9: Close Button Demo -->
+        <div class="slide">
+            <h2>Close Button Example</h2>
+            <div class="modal-demo-container">
+                <div class="demo-content">
+                    <button class="demo-button" onclick="openDemoModal4()">Open Modal</button>
+                </div>
+                <div class="modal-overlay" id="demoModal4" onclick="closeDemoModal4()">
+                    <div class="modal-dialog" onclick="event.stopPropagation()">
+                        <button class="close-button" onclick="closeDemoModal4()">×</button>
+                        <h3>Newsletter Subscription</h3>
+                        <p>Stay updated with our latest news and offers.</p>
+                        <div class="modal-buttons">
+                            <button class="cancel-button" onclick="closeDemoModal4()">Cancel</button>
+                            <button class="cta-button" onclick="closeDemoModal4()">Subscribe</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <p style="text-align: center; margin-top: 1rem;">Multiple ways to close: <span class="emphasis">X button, Cancel, or click outside</span></p>
+        </div>
+
+        <!-- Slide 10: Accessibility Foundation -->
+        <div class="slide">
+            <h2>Building a Solid Foundation</h2>
+            <div class="content-box">
+                <p>Modals have <span class="emphasis">accessibility concerns</span>, such as correctly managing focus on elements.</p>
+                <h3>Best Practices Summary</h3>
+                <ul>
+                    <li><span class="emphasis">Dim background</span> - Focus user attention</li>
+                    <li><span class="emphasis">Click outside to close</span> - Intuitive dismissal</li>
+                    <li><span class="emphasis">Prominent CTAs</span> - Clear action prompts</li>
+                    <li><span class="emphasis">Close button</span> - Always provide an exit</li>
+                </ul>
+                <p>These practices provide a solid foundation to build accessible modals.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="navigation">
+        <button id="prevBtn" onclick="changeSlide(-1)">Previous</button>
+        <span class="slide-counter">
+            <span id="currentSlide">1</span> / <span id="totalSlides">10</span>
+        </span>
+        <button id="nextBtn" onclick="changeSlide(1)">Next</button>
+    </div>
+
+    <script>
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.slide');
+        const totalSlides = slides.length;
+        
+        document.getElementById('totalSlides').textContent = totalSlides;
+        
+        function showSlide(n) {
+            slides[currentSlide].classList.remove('active');
+            
+            if (n >= totalSlides) {
+                currentSlide = totalSlides - 1;
+            } else if (n < 0) {
+                currentSlide = 0;
+            } else {
+                currentSlide = n;
+            }
+            
+            slides[currentSlide].classList.add('active');
+            document.getElementById('currentSlide').textContent = currentSlide + 1;
+            
+            // Update button states
+            document.getElementById('prevBtn').disabled = currentSlide === 0;
+            document.getElementById('nextBtn').disabled = currentSlide === totalSlides - 1;
+        }
+        
+        function changeSlide(direction) {
+            showSlide(currentSlide + direction);
+        }
+        
+        // Keyboard navigation
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'ArrowLeft') {
+                changeSlide(-1);
+            } else if (event.key === 'ArrowRight') {
+                changeSlide(1);
+            }
+        });
+        
+        // Modal demo functions
+        function openDemoModal1() {
+            document.getElementById('demoModal1').classList.add('active');
+        }
+        
+        function closeDemoModal1() {
+            document.getElementById('demoModal1').classList.remove('active');
+        }
+        
+        function openDemoModal2() {
+            document.getElementById('demoModal2').classList.add('active');
+        }
+        
+        function closeDemoModal2() {
+            document.getElementById('demoModal2').classList.remove('active');
+        }
+        
+        function openDemoModal3() {
+            document.getElementById('demoModal3').classList.add('active');
+        }
+        
+        function closeDemoModal3() {
+            document.getElementById('demoModal3').classList.remove('active');
+        }
+        
+        function openDemoModal4() {
+            document.getElementById('demoModal4').classList.add('active');
+        }
+        
+        function closeDemoModal4() {
+            document.getElementById('demoModal4').classList.remove('active');
+        }
+        
+        // Initialize button states
+        showSlide(0);
+    </script>
+</body>
+</html>
