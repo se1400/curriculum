@@ -1,0 +1,689 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Progressive Disclosure</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #ffffff;
+            color: #333333;
+            overflow: hidden;
+        }
+
+        .slideshow-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 2rem;
+        }
+
+        .slide {
+            display: none;
+            animation: fadeIn 0.5s;
+        }
+
+        .slide.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        h1 {
+            color: #881518;
+            font-size: 2.5rem;
+            margin-bottom: 2rem;
+            border-bottom: 3px solid #881518;
+            padding-bottom: 1rem;
+        }
+
+        h2 {
+            color: #881518;
+            font-size: 2rem;
+            margin-bottom: 1.5rem;
+        }
+
+        h3 {
+            color: #a81d21;
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        p, ul {
+            font-size: 1.2rem;
+            line-height: 1.8;
+            margin-bottom: 1rem;
+        }
+
+        ul {
+            padding-left: 2rem;
+        }
+
+        li {
+            margin-bottom: 0.8rem;
+        }
+
+        .content-box {
+            background: #f5f5f5;
+            padding: 1.5rem;
+            border-radius: 8px;
+            border-left: 4px solid #881518;
+            margin-bottom: 1rem;
+        }
+
+        .content-box h3 {
+            margin-top: 0;
+        }
+
+        .navigation {
+            position: fixed;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+            z-index: 100;
+        }
+
+        button {
+            background: #881518;
+            color: white;
+            border: none;
+            padding: 0.8rem 1.5rem;
+            font-size: 1rem;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: background 0.3s;
+        }
+
+        button:hover:not(:disabled) {
+            background: #a81d21;
+        }
+
+        button:disabled {
+            background: #cccccc;
+            cursor: not-allowed;
+            opacity: 0.5;
+        }
+
+        .slide-counter {
+            color: #666666;
+            font-size: 1rem;
+            padding: 0.5rem 1rem;
+        }
+
+        .emphasis {
+            color: #881518;
+            font-weight: bold;
+        }
+
+        /* Demo Container */
+        .demo-container {
+            background: white;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            padding: 2rem;
+            margin: 2rem 0;
+        }
+
+        /* Progressive Disclosure Demo */
+        .disclosure-demo {
+            text-align: center;
+        }
+
+        .show-details-btn {
+            background: #881518;
+            color: white;
+            padding: 0.8rem 2rem;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .show-details-btn:hover {
+            background: #a81d21;
+        }
+
+        .extra-content {
+            background: #f9f9f9;
+            padding: 1.5rem;
+            border-radius: 8px;
+            border: 2px solid #881518;
+            margin-top: 1rem;
+            display: none;
+        }
+
+        .extra-content.visible {
+            display: block;
+            animation: slideDown 0.3s ease-out;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Google Search Demo */
+        .search-demo {
+            background: white;
+            padding: 2rem;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .search-box {
+            width: 100%;
+            max-width: 500px;
+            padding: 1rem;
+            border: 1px solid #ddd;
+            border-radius: 24px;
+            font-size: 1rem;
+            margin: 0 auto 1rem;
+            display: block;
+        }
+
+        .advanced-search-link {
+            color: #881518;
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+
+        .advanced-search-link:hover {
+            text-decoration: underline;
+        }
+
+        .advanced-options {
+            background: #f9f9f9;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-top: 1rem;
+            display: none;
+            text-align: left;
+        }
+
+        .advanced-options.visible {
+            display: block;
+            animation: slideDown 0.3s ease-out;
+        }
+
+        .advanced-options label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+
+        .advanced-options input,
+        .advanced-options select {
+            width: 100%;
+            padding: 0.5rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            margin-bottom: 1rem;
+        }
+
+        /* Product Demo */
+        .product-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .product-card {
+            background: #f9f9f9;
+            padding: 1rem;
+            border-radius: 8px;
+            border: 2px solid #ddd;
+            text-align: center;
+        }
+
+        .product-image {
+            width: 120px;
+            height: 120px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            margin: 0 auto 1rem;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+
+        .product-name {
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+            color: #333;
+        }
+
+        .product-price {
+            color: #881518;
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+
+        .more-info-btn {
+            background: #881518;
+            color: white;
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+        }
+
+        .more-info-btn:hover {
+            background: #a81d21;
+        }
+
+        .product-details {
+            background: white;
+            padding: 1rem;
+            border-radius: 4px;
+            margin-top: 1rem;
+            text-align: left;
+            display: none;
+        }
+
+        .product-details.visible {
+            display: block;
+            animation: slideDown 0.3s ease-out;
+        }
+
+        .product-details ul {
+            font-size: 0.9rem;
+            padding-left: 1.5rem;
+        }
+
+        .product-details li {
+            margin-bottom: 0.5rem;
+        }
+
+        /* Comparison Grid */
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .comparison-box {
+            background: #f5f5f5;
+            padding: 1.5rem;
+            border-radius: 8px;
+            border: 2px solid #ddd;
+        }
+
+        .comparison-label {
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: #881518;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+
+        @media (max-width: 768px) {
+            .slideshow-container {
+                padding: 1rem;
+            }
+
+            h1 {
+                font-size: 1.8rem;
+            }
+
+            h2 {
+                font-size: 1.5rem;
+            }
+
+            h3 {
+                font-size: 1.2rem;
+            }
+
+            p, ul {
+                font-size: 1rem;
+            }
+
+            .product-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .comparison-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .navigation {
+                bottom: 1rem;
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+
+            button {
+                padding: 0.6rem 1.2rem;
+                font-size: 0.9rem;
+            }
+
+            .demo-container {
+                padding: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="slideshow-container">
+        <!-- Slide 1: Definition -->
+        <div class="slide active">
+            <h1>Progressive Disclosure</h1>
+            <p>A design pattern that <span class="emphasis">shows users only relevant content</span> based on their current activity and hides the rest.</p>
+            <div class="content-box">
+                <h3>Purpose</h3>
+                <ul>
+                    <li><span class="emphasis">Reduce cognitive load</span></li>
+                    <li>Make the user experience more <span class="emphasis">intuitive</span></li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Slide 2: Basic Example Demo -->
+        <div class="slide">
+            <h2>Basic Example</h2>
+            <div class="demo-container">
+                <div class="disclosure-demo">
+                    <p>Click the button to reveal additional information</p>
+                    <button class="show-details-btn" onclick="toggleDetails('demo1')">Show More Details</button>
+                    <div class="extra-content" id="demo1">
+                        <p>Here are additional details that are revealed only when you want to see them. This keeps the interface clean and reduces cognitive load.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 3: Google Search Example -->
+        <div class="slide">
+            <h2>Example: Google Search</h2>
+            <div class="content-box">
+                <p>Most searches are <span class="emphasis">simple</span>, so Google provides a simple interface with very few options.</p>
+                <h3>Advanced Search</h3>
+                <p>For times when you need more features, Google provides an <span class="emphasis">advanced search option</span> that reveals more options.</p>
+                <p>Found in: Settings menu or <span class="emphasis">google.com/advanced_search</span></p>
+            </div>
+        </div>
+
+        <!-- Slide 4: Google Search Demo -->
+        <div class="slide">
+            <h2>Google Search Interface</h2>
+            <div class="demo-container">
+                <div class="search-demo">
+                    <input type="text" class="search-box" placeholder="Search Google...">
+                    <a href="#" class="advanced-search-link" onclick="toggleAdvanced(event)">Advanced Search</a>
+                    <div class="advanced-options" id="advancedSearch">
+                        <h3 style="margin-top: 0;">Advanced Search Options</h3>
+                        <label>All these words:</label>
+                        <input type="text">
+                        <label>Exact phrase:</label>
+                        <input type="text">
+                        <label>Language:</label>
+                        <select>
+                            <option>Any language</option>
+                            <option>English</option>
+                            <option>Spanish</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 5: E-Commerce Example -->
+        <div class="slide">
+            <h2>Example: E-Commerce Products</h2>
+            <div class="content-box">
+                <p>E-commerce sites like Amazon show a <span class="emphasis">list of product images</span> in different categories.</p>
+                <h3>Benefits</h3>
+                <ul>
+                    <li>Users can <span class="emphasis">shop with ease</span></li>
+                    <li>Not overwhelmed by too much information</li>
+                </ul>
+                <h3>Progressive Disclosure</h3>
+                <p>If interested, users <span class="emphasis">click on the product</span> to reveal more details.</p>
+            </div>
+        </div>
+
+        <!-- Slide 6: Product Demo -->
+        <div class="slide">
+            <h2>Product Listing Example</h2>
+            <p style="text-align: center; margin-bottom: 1rem;">Click "More Info" to see product details</p>
+            <div class="product-grid">
+                <div class="product-card">
+                    <div class="product-image">IMG</div>
+                    <div class="product-name">Product 1</div>
+                    <div class="product-price">$49.99</div>
+                    <button class="more-info-btn" onclick="toggleProductDetails('product1')">More Info</button>
+                    <div class="product-details" id="product1">
+                        <p><strong>Details:</strong></p>
+                        <ul>
+                            <li>Feature A</li>
+                            <li>Feature B</li>
+                            <li>Free shipping</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="product-card">
+                    <div class="product-image">IMG</div>
+                    <div class="product-name">Product 2</div>
+                    <div class="product-price">$39.99</div>
+                    <button class="more-info-btn" onclick="toggleProductDetails('product2')">More Info</button>
+                    <div class="product-details" id="product2">
+                        <p><strong>Details:</strong></p>
+                        <ul>
+                            <li>Feature X</li>
+                            <li>Feature Y</li>
+                            <li>2-year warranty</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 7: Best Practice - Important Info Visible -->
+        <div class="slide">
+            <h2>Best Practice: Keep Important Info Visible</h2>
+            <div class="content-box">
+                <p>All <span class="emphasis">important information</span> should be visible at all times.</p>
+                <h3>Avoid</h3>
+                <p>Users should <span class="emphasis">not have to struggle</span> to find key information because it's hidden by extra advanced features.</p>
+            </div>
+        </div>
+
+        <!-- Slide 8: Visibility Comparison -->
+        <div class="slide">
+            <h2>Visibility Comparison</h2>
+            <div class="comparison-grid">
+                <div class="comparison-box">
+                    <div class="comparison-label">❌ Bad Practice</div>
+                    <p style="font-size: 1rem;">Essential information like price, product name, or "Add to Cart" hidden behind a button</p>
+                </div>
+                <div class="comparison-box">
+                    <div class="comparison-label">✓ Good Practice</div>
+                    <p style="font-size: 1rem;">Essential information always visible. Extra details (specs, reviews) behind "More Info"</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 9: Best Practice - Single Access Point -->
+        <div class="slide">
+            <h2>Best Practice: Single Access Point</h2>
+            <div class="content-box">
+                <p>Provide a <span class="emphasis">single access point</span> for users to access additional features or information.</p>
+                <h3>Implementation</h3>
+                <p>Use a <span class="emphasis">button or link</span> that is always visible on the page.</p>
+                <h3>Avoid</h3>
+                <p><span class="emphasis">Multiple access points</span> can be confusing and lead to a poor user experience.</p>
+            </div>
+        </div>
+
+        <!-- Slide 10: Access Point Comparison -->
+        <div class="slide">
+            <h2>Access Point Comparison</h2>
+            <div class="comparison-grid">
+                <div class="comparison-box">
+                    <div class="comparison-label">❌ Multiple Access Points</div>
+                    <div style="margin-top: 1rem;">
+                        <button style="font-size: 0.8rem; padding: 0.5rem 1rem; margin: 0.3rem;">Details</button>
+                        <button style="font-size: 0.8rem; padding: 0.5rem 1rem; margin: 0.3rem;">More Info</button>
+                        <button style="font-size: 0.8rem; padding: 0.5rem 1rem; margin: 0.3rem;">Show All</button>
+                        <button style="font-size: 0.8rem; padding: 0.5rem 1rem; margin: 0.3rem;">Expand</button>
+                    </div>
+                    <p style="font-size: 0.9rem; margin-top: 1rem;">Confusing - which one reveals what?</p>
+                </div>
+                <div class="comparison-box">
+                    <div class="comparison-label">✓ Single Access Point</div>
+                    <div style="margin-top: 1rem;">
+                        <button style="font-size: 0.9rem; padding: 0.6rem 1.5rem;">Show More Details</button>
+                    </div>
+                    <p style="font-size: 0.9rem; margin-top: 1rem;">Clear - one obvious action</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 11: User Experience Impact -->
+        <div class="slide">
+            <h2>Impact on User Experience</h2>
+            <div class="content-box">
+                <p>Think about the <span class="emphasis">overall user experience</span> and how progressive disclosure can make it easier for users to find information.</p>
+                <h3>When Done Correctly</h3>
+                <p>Progressive disclosure can make a <span class="emphasis">big difference</span> to the overall user experience.</p>
+            </div>
+        </div>
+
+        <!-- Slide 12: Key Takeaways -->
+        <div class="slide">
+            <h2>Best Practices Summary</h2>
+            <div class="content-box">
+                <ul>
+                    <li><span class="emphasis">Purpose</span> - Show only relevant content, reduce cognitive load</li>
+                    <li><span class="emphasis">Simple by default</span> - Start with minimal options, reveal more when needed</li>
+                    <li><span class="emphasis">Keep essentials visible</span> - Important info always shown, not hidden</li>
+                    <li><span class="emphasis">Single access point</span> - One clear button/link to reveal more</li>
+                    <li><span class="emphasis">Examples</span> - Google advanced search, e-commerce "More Info" buttons</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="navigation">
+        <button id="prevBtn" onclick="changeSlide(-1)">Previous</button>
+        <span class="slide-counter">
+            <span id="currentSlide">1</span> / <span id="totalSlides">12</span>
+        </span>
+        <button id="nextBtn" onclick="changeSlide(1)">Next</button>
+    </div>
+
+    <script>
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.slide');
+        const totalSlides = slides.length;
+        
+        document.getElementById('totalSlides').textContent = totalSlides;
+        
+        function showSlide(n) {
+            slides[currentSlide].classList.remove('active');
+            
+            if (n >= totalSlides) {
+                currentSlide = totalSlides - 1;
+            } else if (n < 0) {
+                currentSlide = 0;
+            } else {
+                currentSlide = n;
+            }
+            
+            slides[currentSlide].classList.add('active');
+            document.getElementById('currentSlide').textContent = currentSlide + 1;
+            
+            // Update button states
+            document.getElementById('prevBtn').disabled = currentSlide === 0;
+            document.getElementById('nextBtn').disabled = currentSlide === totalSlides - 1;
+        }
+        
+        function changeSlide(direction) {
+            showSlide(currentSlide + direction);
+        }
+        
+        // Keyboard navigation
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'ArrowLeft') {
+                changeSlide(-1);
+            } else if (event.key === 'ArrowRight') {
+                changeSlide(1);
+            }
+        });
+        
+        // Progressive disclosure functions
+        function toggleDetails(id) {
+            const element = document.getElementById(id);
+            const button = event.target;
+            
+            if (element.classList.contains('visible')) {
+                element.classList.remove('visible');
+                button.textContent = 'Show More Details';
+            } else {
+                element.classList.add('visible');
+                button.textContent = 'Hide Details';
+            }
+        }
+        
+        function toggleAdvanced(event) {
+            event.preventDefault();
+            const element = document.getElementById('advancedSearch');
+            const link = event.target;
+            
+            if (element.classList.contains('visible')) {
+                element.classList.remove('visible');
+                link.textContent = 'Advanced Search';
+            } else {
+                element.classList.add('visible');
+                link.textContent = 'Hide Advanced Search';
+            }
+        }
+        
+        function toggleProductDetails(id) {
+            const element = document.getElementById(id);
+            const button = event.target;
+            
+            if (element.classList.contains('visible')) {
+                element.classList.remove('visible');
+                button.textContent = 'More Info';
+            } else {
+                element.classList.add('visible');
+                button.textContent = 'Hide Info';
+            }
+        }
+        
+        // Initialize button states
+        showSlide(0);
+    </script>
+</body>
+</html>

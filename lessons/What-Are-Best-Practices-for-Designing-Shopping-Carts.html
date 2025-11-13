@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shopping Cart Best Practices</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #ffffff;
+            color: #333333;
+            overflow: hidden;
+        }
+
+        .slideshow-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 2rem;
+        }
+
+        .slide {
+            display: none;
+            animation: fadeIn 0.5s;
+        }
+
+        .slide.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        h1 {
+            color: #881518;
+            font-size: 2.5rem;
+            margin-bottom: 2rem;
+            border-bottom: 3px solid #881518;
+            padding-bottom: 1rem;
+        }
+
+        h2 {
+            color: #881518;
+            font-size: 2rem;
+            margin-bottom: 1.5rem;
+        }
+
+        h3 {
+            color: #a81d21;
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        p, ul {
+            font-size: 1.2rem;
+            line-height: 1.8;
+            margin-bottom: 1rem;
+        }
+
+        ul {
+            padding-left: 2rem;
+        }
+
+        li {
+            margin-bottom: 0.8rem;
+        }
+
+        .content-box {
+            background: #f5f5f5;
+            padding: 1.5rem;
+            border-radius: 8px;
+            border-left: 4px solid #881518;
+            margin-bottom: 1rem;
+        }
+
+        .content-box h3 {
+            margin-top: 0;
+        }
+
+        .navigation {
+            position: fixed;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+            z-index: 100;
+        }
+
+        button {
+            background: #881518;
+            color: white;
+            border: none;
+            padding: 0.8rem 1.5rem;
+            font-size: 1rem;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: background 0.3s;
+        }
+
+        button:hover:not(:disabled) {
+            background: #a81d21;
+        }
+
+        button:disabled {
+            background: #cccccc;
+            cursor: not-allowed;
+            opacity: 0.5;
+        }
+
+        .slide-counter {
+            color: #666666;
+            font-size: 1rem;
+            padding: 0.5rem 1rem;
+        }
+
+        .emphasis {
+            color: #881518;
+            font-weight: bold;
+        }
+
+        /* Demo Container */
+        .demo-container {
+            background: white;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            padding: 2rem;
+            margin: 2rem 0;
+        }
+
+        /* Cart Icon Demo */
+        .header-demo {
+            background: #f9f9f9;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #881518;
+        }
+
+        .cart-icon-wrapper {
+            position: relative;
+            cursor: pointer;
+            padding: 0.5rem;
+        }
+
+        .cart-icon-wrapper:hover {
+            background: #f0f0f0;
+            border-radius: 4px;
+        }
+
+        .cart-icon {
+            width: 32px;
+            height: 32px;
+            stroke: #333;
+        }
+
+        .cart-badge {
+            position: absolute;
+            top: 0;
+            right: 0;
+            background: #881518;
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            font-weight: bold;
+        }
+
+        /* Cart Items Demo */
+        .cart-items {
+            list-style: none;
+            padding: 0;
+        }
+
+        .cart-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem;
+            background: #f9f9f9;
+            border-radius: 4px;
+            margin-bottom: 1rem;
+        }
+
+        .item-name {
+            flex: 1;
+            font-weight: 500;
+        }
+
+        .quantity-input {
+            width: 60px;
+            padding: 0.5rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            text-align: center;
+            font-size: 1rem;
+        }
+
+        .remove-btn {
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+
+        .remove-btn:hover {
+            background: #c82333;
+        }
+
+        /* Icon Comparison */
+        .icon-comparison {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+
+        .icon-box {
+            background: #f9f9f9;
+            padding: 2rem;
+            border-radius: 8px;
+            text-align: center;
+            border: 2px solid #ddd;
+        }
+
+        .icon-label {
+            font-weight: bold;
+            color: #881518;
+            margin-top: 1rem;
+        }
+
+        .demo-icon {
+            width: 64px;
+            height: 64px;
+            margin: 0 auto;
+        }
+
+        /* Total Display */
+        .cart-summary {
+            background: #f9f9f9;
+            padding: 1.5rem;
+            border-radius: 8px;
+            border: 2px solid #881518;
+            margin-top: 1.5rem;
+        }
+
+        .cart-summary-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+            font-size: 1rem;
+        }
+
+        .cart-total {
+            display: flex;
+            justify-content: space-between;
+            font-size: 1.4rem;
+            font-weight: bold;
+            color: #881518;
+            padding-top: 1rem;
+            border-top: 2px solid #ddd;
+            margin-top: 1rem;
+        }
+
+        /* CTA Button Demo */
+        .cta-demo {
+            text-align: center;
+            margin: 2rem 0;
+        }
+
+        .checkout-btn {
+            background: #881518;
+            color: white;
+            border: none;
+            padding: 1rem 3rem;
+            font-size: 1.2rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            box-shadow: 0 4px 8px rgba(136, 21, 24, 0.3);
+            transition: all 0.3s;
+        }
+
+        .checkout-btn:hover {
+            background: #a81d21;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(136, 21, 24, 0.4);
+        }
+
+        /* Complete Cart Example */
+        .complete-cart {
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        .cart-header {
+            font-size: 1.5rem;
+            color: #881518;
+            margin-bottom: 1.5rem;
+            font-weight: bold;
+        }
+
+        /* Comparison Grid */
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .comparison-box {
+            background: #f5f5f5;
+            padding: 1.5rem;
+            border-radius: 8px;
+            border: 2px solid #ddd;
+        }
+
+        .comparison-label {
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: #881518;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+
+        @media (max-width: 768px) {
+            .slideshow-container {
+                padding: 1rem;
+            }
+
+            h1 {
+                font-size: 1.8rem;
+            }
+
+            h2 {
+                font-size: 1.5rem;
+            }
+
+            h3 {
+                font-size: 1.2rem;
+            }
+
+            p, ul {
+                font-size: 1rem;
+            }
+
+            .icon-comparison {
+                grid-template-columns: 1fr;
+            }
+
+            .comparison-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .navigation {
+                bottom: 1rem;
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+
+            button {
+                padding: 0.6rem 1.2rem;
+                font-size: 0.9rem;
+            }
+
+            .demo-container {
+                padding: 1rem;
+            }
+
+            .header-demo {
+                flex-direction: column;
+                gap: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="slideshow-container">
+        <!-- Slide 1: Importance of Shopping Carts -->
+        <div class="slide active">
+            <h1>Shopping Cart Design</h1>
+            <p>The shopping cart is a <span class="emphasis">crucial part</span> of the e-commerce experience.</p>
+            <div class="content-box">
+                <h3>Impact of Design</h3>
+                <p><span class="emphasis">Good design:</span> Makes shopping more enjoyable and increases sales</p>
+                <p><span class="emphasis">Poor design:</span> Leads to abandoned carts and lost sales</p>
+            </div>
+        </div>
+
+        <!-- Slide 2: Visibility - Always Visible -->
+        <div class="slide">
+            <h2>Best Practice: Always Visible</h2>
+            <div class="content-box">
+                <p>Shopping cart should be <span class="emphasis">visible at all times</span>.</p>
+                <h3>Standard Placement</h3>
+                <p>Most designs display the cart in the <span class="emphasis">upper right-hand corner</span> of the page.</p>
+            </div>
+        </div>
+
+        <!-- Slide 3: Cart Icon Demo -->
+        <div class="slide">
+            <h2>Cart Visibility Example</h2>
+            <div class="header-demo">
+                <div class="logo">Store Name</div>
+                <div class="cart-icon-wrapper">
+                    <svg class="cart-icon" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <circle cx="9" cy="21" r="1"></circle>
+                        <circle cx="20" cy="21" r="1"></circle>
+                        <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+                    </svg>
+                    <span class="cart-badge">3</span>
+                </div>
+            </div>
+            <p style="text-align: center; margin-top: 1rem;">Users see the <span class="emphasis">number of items</span> and can <span class="emphasis">click to view details</span></p>
+        </div>
+
+        <!-- Slide 4: Update Quantity -->
+        <div class="slide">
+            <h2>Best Practice: Update Quantity</h2>
+            <div class="content-box">
+                <p>Provide a clear way for users to <span class="emphasis">update item quantities</span>.</p>
+                <h3>Implementation</h3>
+                <p>Include a <span class="emphasis">quantity input field</span> next to each item in the cart.</p>
+                <p>Users can easily update by changing the number in the field.</p>
+            </div>
+        </div>
+
+        <!-- Slide 5: Quantity Input Demo -->
+        <div class="slide">
+            <h2>Quantity Update Example</h2>
+            <div class="demo-container">
+                <h3 class="cart-header">Your Cart</h3>
+                <ul class="cart-items">
+                    <li class="cart-item">
+                        <span class="item-name">T-Shirt</span>
+                        <input type="number" min="1" value="2" class="quantity-input">
+                        <button class="remove-btn">Remove</button>
+                    </li>
+                    <li class="cart-item">
+                        <span class="item-name">Hat</span>
+                        <input type="number" min="1" value="1" class="quantity-input">
+                        <button class="remove-btn">Remove</button>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Slide 6: Remove Items -->
+        <div class="slide">
+            <h2>Best Practice: Easy Removal</h2>
+            <div class="content-box">
+                <p>Provide a <span class="emphasis">"Remove" button</span> next to each item in the cart.</p>
+                <h3>Importance</h3>
+                <p>Allows users to <span class="emphasis">easily remove items</span> from their cart.</p>
+                <p><span class="emphasis">Problem:</span> Making it difficult to remove items leads to frustration and abandoned carts.</p>
+            </div>
+        </div>
+
+        <!-- Slide 7: Recognizable Icon -->
+        <div class="slide">
+            <h2>Best Practice: Recognizable Icon</h2>
+            <div class="content-box">
+                <p>The icon should be <span class="emphasis">easily recognizable</span> for all users.</p>
+                <h3>Avoid</h3>
+                <p>Icons that are too <span class="emphasis">abstract or difficult to understand</span>.</p>
+            </div>
+        </div>
+
+        <!-- Slide 8: Icon Examples -->
+        <div class="slide">
+            <h2>Common Cart Icons</h2>
+            <div class="icon-comparison">
+                <div class="icon-box">
+                    <svg class="demo-icon" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="#881518" stroke-width="2" viewBox="0 0 24 24">
+                        <circle cx="9" cy="21" r="1"></circle>
+                        <circle cx="20" cy="21" r="1"></circle>
+                        <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+                    </svg>
+                    <div class="icon-label">Shopping Cart</div>
+                </div>
+                <div class="icon-box">
+                    <svg class="demo-icon" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="#881518" stroke-width="2" viewBox="0 0 24 24">
+                        <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
+                        <line x1="3" y1="6" x2="21" y2="6"></line>
+                        <path d="M16 10a4 4 0 0 1-8 0"></path>
+                    </svg>
+                    <div class="icon-label">Shopping Bag</div>
+                </div>
+                <div class="icon-box">
+                    <svg class="demo-icon" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="#881518" stroke-width="2" viewBox="0 0 24 24">
+                        <path d="M2 12h4l3-9 4 18 3-9h4"></path>
+                    </svg>
+                    <div class="icon-label">❌ Too Abstract</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 9: Display Total -->
+        <div class="slide">
+            <h2>Best Practice: Prominent Total</h2>
+            <div class="content-box">
+                <p>Users should <span class="emphasis">easily find the total cost</span> of all items in the cart.</p>
+                <h3>Implementation</h3>
+                <p>Display the total <span class="emphasis">prominently</span> on the page — users shouldn't have to search for it.</p>
+            </div>
+        </div>
+
+        <!-- Slide 10: Total Display Example -->
+        <div class="slide">
+            <h2>Total Display Example</h2>
+            <div class="demo-container">
+                <div class="complete-cart">
+                    <ul class="cart-items">
+                        <li class="cart-item">
+                            <span class="item-name">T-Shirt</span>
+                            <span>$20.00</span>
+                        </li>
+                        <li class="cart-item">
+                            <span class="item-name">Hat</span>
+                            <span>$15.00</span>
+                        </li>
+                    </ul>
+                    <div class="cart-summary">
+                        <div class="cart-summary-item">
+                            <span>Subtotal:</span>
+                            <span>$35.00</span>
+                        </div>
+                        <div class="cart-summary-item">
+                            <span>Shipping:</span>
+                            <span>$5.00</span>
+                        </div>
+                        <div class="cart-total">
+                            <span>Total:</span>
+                            <span>$40.00</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 11: Clear CTA Button -->
+        <div class="slide">
+            <h2>Best Practice: Clear Call-to-Action</h2>
+            <div class="content-box">
+                <p>Provide a clear <span class="emphasis">call-to-action button</span> to proceed to checkout.</p>
+                <h3>Button Design</h3>
+                <ul>
+                    <li><span class="emphasis">Prominently displayed</span> — easy to find</li>
+                    <li><span class="emphasis">Most prominent button</span> on the page</li>
+                    <li>Use the brand's <span class="emphasis">primary color</span> to stand out</li>
+                    <li><span class="emphasis">Avoid too many buttons</span> — prevents confusion</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Slide 12: CTA Button Example -->
+        <div class="slide">
+            <h2>Checkout Button Example</h2>
+            <div class="demo-container">
+                <div class="complete-cart">
+                    <div class="cart-summary">
+                        <div class="cart-total">
+                            <span>Total:</span>
+                            <span>$40.00</span>
+                        </div>
+                    </div>
+                    <div class="cta-demo">
+                        <button class="checkout-btn">Proceed to Checkout</button>
+                    </div>
+                </div>
+            </div>
+            <p style="text-align: center; margin-top: 1rem;">The checkout button is the <span class="emphasis">most prominent</span> element</p>
+        </div>
+
+        <!-- Slide 13: Key Takeaways -->
+        <div class="slide">
+            <h2>Best Practices Summary</h2>
+            <div class="content-box">
+                <ul>
+                    <li><span class="emphasis">Always visible</span> - Cart in upper right corner with item count</li>
+                    <li><span class="emphasis">Update quantity</span> - Input field next to each item</li>
+                    <li><span class="emphasis">Easy removal</span> - "Remove" button for each item</li>
+                    <li><span class="emphasis">Recognizable icon</span> - Use familiar cart/bag symbols</li>
+                    <li><span class="emphasis">Prominent total</span> - Display cost clearly and prominently</li>
+                    <li><span class="emphasis">Clear CTA</span> - Checkout button in brand color, easy to find</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="navigation">
+        <button id="prevBtn" onclick="changeSlide(-1)">Previous</button>
+        <span class="slide-counter">
+            <span id="currentSlide">1</span> / <span id="totalSlides">13</span>
+        </span>
+        <button id="nextBtn" onclick="changeSlide(1)">Next</button>
+    </div>
+
+    <script>
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.slide');
+        const totalSlides = slides.length;
+        
+        document.getElementById('totalSlides').textContent = totalSlides;
+        
+        function showSlide(n) {
+            slides[currentSlide].classList.remove('active');
+            
+            if (n >= totalSlides) {
+                currentSlide = totalSlides - 1;
+            } else if (n < 0) {
+                currentSlide = 0;
+            } else {
+                currentSlide = n;
+            }
+            
+            slides[currentSlide].classList.add('active');
+            document.getElementById('currentSlide').textContent = currentSlide + 1;
+            
+            // Update button states
+            document.getElementById('prevBtn').disabled = currentSlide === 0;
+            document.getElementById('nextBtn').disabled = currentSlide === totalSlides - 1;
+        }
+        
+        function changeSlide(direction) {
+            showSlide(currentSlide + direction);
+        }
+        
+        // Keyboard navigation
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'ArrowLeft') {
+                changeSlide(-1);
+            } else if (event.key === 'ArrowRight') {
+                changeSlide(1);
+            }
+        });
+        
+        // Initialize button states
+        showSlide(0);
+    </script>
+</body>
+</html>

@@ -1,0 +1,669 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lazy Registration</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #ffffff;
+            color: #333333;
+            overflow-x: hidden;
+        }
+
+        .slideshow-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            min-height: 100vh;
+            padding: 2rem 2rem 8rem 2rem;
+        }
+
+        .slide {
+            display: none;
+            animation: fadeIn 0.5s;
+            padding-bottom: 2rem;
+        }
+
+        .slide.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        h1 {
+            color: #881518;
+            font-size: 2.5rem;
+            margin-bottom: 2rem;
+            border-bottom: 3px solid #881518;
+            padding-bottom: 1rem;
+        }
+
+        h2 {
+            color: #881518;
+            font-size: 2rem;
+            margin-bottom: 1.5rem;
+        }
+
+        h3 {
+            color: #a81d21;
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        p, ul {
+            font-size: 1.2rem;
+            line-height: 1.8;
+            margin-bottom: 1rem;
+        }
+
+        ul {
+            padding-left: 2rem;
+        }
+
+        li {
+            margin-bottom: 0.8rem;
+        }
+
+        .content-box {
+            background: #f5f5f5;
+            padding: 1.5rem;
+            border-radius: 8px;
+            border-left: 4px solid #881518;
+            margin-bottom: 1rem;
+        }
+
+        .content-box h3 {
+            margin-top: 0;
+        }
+
+        .navigation {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            border-top: 2px solid #ddd;
+            padding: 1rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 1rem;
+            z-index: 1000;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+        }
+
+        button {
+            background: #881518;
+            color: white;
+            border: none;
+            padding: 0.8rem 1.5rem;
+            font-size: 1rem;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: background 0.3s;
+        }
+
+        button:hover:not(:disabled) {
+            background: #a81d21;
+        }
+
+        button:disabled {
+            background: #cccccc;
+            cursor: not-allowed;
+            opacity: 0.5;
+        }
+
+        .slide-counter {
+            color: #666666;
+            font-size: 1rem;
+            padding: 0.5rem 1rem;
+        }
+
+        .emphasis {
+            color: #881518;
+            font-weight: bold;
+        }
+
+        /* Demo Container */
+        .demo-container {
+            background: white;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            padding: 2rem;
+            margin: 2rem 0;
+        }
+
+        /* E-commerce Flow Demo */
+        .flow-diagram {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .flow-step {
+            background: #f9f9f9;
+            padding: 1.5rem;
+            border-radius: 8px;
+            border-left: 4px solid #881518;
+            position: relative;
+        }
+
+        .flow-step-number {
+            position: absolute;
+            top: -10px;
+            left: 1rem;
+            background: #881518;
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+
+        .flow-step-title {
+            font-weight: bold;
+            color: #881518;
+            margin-bottom: 0.5rem;
+            font-size: 1.1rem;
+            margin-left: 2rem;
+        }
+
+        .flow-step-desc {
+            font-size: 1rem;
+            color: #666;
+            margin-left: 2rem;
+        }
+
+        .flow-arrow {
+            text-align: center;
+            color: #881518;
+            font-size: 2rem;
+            margin: -0.5rem 0;
+        }
+
+        /* Product Card Demo */
+        .product-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .product-card {
+            background: #f9f9f9;
+            padding: 1rem;
+            border-radius: 8px;
+            border: 2px solid #ddd;
+            text-align: center;
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+
+        .product-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .product-image {
+            width: 120px;
+            height: 120px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            margin: 0 auto 1rem;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+
+        .product-name {
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+            color: #333;
+        }
+
+        .product-price {
+            color: #881518;
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+
+        .add-to-cart-btn {
+            background: #881518;
+            color: white;
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-top: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .add-to-cart-btn:hover {
+            background: #a81d21;
+        }
+
+        .cart-indicator {
+            background: #4CAF50;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            text-align: center;
+            margin-top: 1rem;
+            font-weight: bold;
+        }
+
+        /* YouTube Demo */
+        .video-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .video-card {
+            background: #f9f9f9;
+            border-radius: 8px;
+            overflow: hidden;
+            border: 2px solid #ddd;
+        }
+
+        .video-thumbnail {
+            width: 100%;
+            height: 150px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 3rem;
+        }
+
+        .video-info {
+            padding: 1rem;
+        }
+
+        .video-title {
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+            color: #333;
+        }
+
+        .video-actions {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+
+        .video-action-btn {
+            background: #e0e0e0;
+            color: #666;
+            padding: 0.4rem 0.8rem;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.85rem;
+        }
+
+        .video-action-btn:hover {
+            background: #d0d0d0;
+        }
+
+        .login-prompt {
+            background: #fff3cd;
+            border: 2px solid #ffc107;
+            padding: 1rem;
+            border-radius: 4px;
+            margin-top: 1rem;
+            text-align: center;
+        }
+
+        /* Comparison Grid */
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .comparison-box {
+            background: #f5f5f5;
+            padding: 1.5rem;
+            border-radius: 8px;
+            border: 2px solid #ddd;
+        }
+
+        .comparison-label {
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: #881518;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+
+        @media (max-width: 768px) {
+            .slideshow-container {
+                padding: 1rem 1rem 8rem 1rem;
+            }
+
+            h1 {
+                font-size: 1.8rem;
+            }
+
+            h2 {
+                font-size: 1.5rem;
+            }
+
+            h3 {
+                font-size: 1.2rem;
+            }
+
+            p, ul {
+                font-size: 1rem;
+            }
+
+            .product-grid,
+            .video-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .comparison-grid {
+                grid-template-columns: 1fr;
+            }
+
+            button {
+                padding: 0.6rem 1.2rem;
+                font-size: 0.9rem;
+            }
+
+            .demo-container {
+                padding: 1rem;
+            }
+
+            .navigation {
+                padding: 0.8rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="slideshow-container">
+        <!-- Slide 1: Definition -->
+        <div class="slide active">
+            <h1>Lazy Registration</h1>
+            <p>A UI design pattern that allows users to <span class="emphasis">browse and interact</span> with your application <span class="emphasis">without having to register</span>.</p>
+        </div>
+
+        <!-- Slide 2: E-Commerce Example -->
+        <div class="slide">
+            <h2>Example: E-Commerce Site</h2>
+            <div class="content-box">
+                <p>Users should be able to:</p>
+                <ul>
+                    <li><span class="emphasis">Browse through products</span></li>
+                    <li><span class="emphasis">Add items to their cart</span></li>
+                </ul>
+                <h3>Registration Required</h3>
+                <p>Only when they're interested in <span class="emphasis">purchasing</span>.</p>
+            </div>
+        </div>
+
+        <!-- Slide 3: E-Commerce Flow -->
+        <div class="slide">
+            <h2>E-Commerce User Flow</h2>
+            <div class="flow-diagram">
+                <div class="flow-step">
+                    <div class="flow-step-number">1</div>
+                    <div class="flow-step-title">Browse Products</div>
+                    <div class="flow-step-desc">User explores catalog without registration</div>
+                </div>
+                <div class="flow-arrow">↓</div>
+                <div class="flow-step">
+                    <div class="flow-step-number">2</div>
+                    <div class="flow-step-title">Add to Cart</div>
+                    <div class="flow-step-desc">User selects items they want</div>
+                </div>
+                <div class="flow-arrow">↓</div>
+                <div class="flow-step">
+                    <div class="flow-step-number">3</div>
+                    <div class="flow-step-title">Register to Purchase</div>
+                    <div class="flow-step-desc">Registration required only at checkout</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 4: E-Commerce Demo -->
+        <div class="slide">
+            <h2>Shopping Without Registration</h2>
+            <div class="demo-container">
+                <div class="product-grid">
+                    <div class="product-card">
+                        <div class="product-image">IMG</div>
+                        <div class="product-name">Product 1</div>
+                        <div class="product-price">$49.99</div>
+                        <button class="add-to-cart-btn">Add to Cart</button>
+                    </div>
+                    <div class="product-card">
+                        <div class="product-image">IMG</div>
+                        <div class="product-name">Product 2</div>
+                        <div class="product-price">$39.99</div>
+                        <button class="add-to-cart-btn">Add to Cart</button>
+                    </div>
+                    <div class="product-card">
+                        <div class="product-image">IMG</div>
+                        <div class="product-name">Product 3</div>
+                        <div class="product-price">$59.99</div>
+                        <button class="add-to-cart-btn">Add to Cart</button>
+                    </div>
+                </div>
+                <div class="cart-indicator">
+                    ✓ Items added to cart - Register at checkout to complete purchase
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 5: Why Lazy Registration Works -->
+        <div class="slide">
+            <h2>The Reason Behind Lazy Registration</h2>
+            <div class="content-box">
+                <p>Users need to <span class="emphasis">see the value your site offers</span> before they're willing to provide their information and register.</p>
+                <h3>User Expectations</h3>
+                <p>When designing applications, users should be able to:</p>
+                <ul>
+                    <li><span class="emphasis">See the value</span> the application offers</li>
+                    <li>Feel the application is <span class="emphasis">safe</span> to provide their information</li>
+                </ul>
+                <p><span class="emphasis">Otherwise:</span> They will not register, and you'll lose potential customers.</p>
+            </div>
+        </div>
+
+        <!-- Slide 6: Security Communication -->
+        <div class="slide">
+            <h2>Communicating Security</h2>
+            <div class="content-box">
+                <p>You need to communicate that the user's <span class="emphasis">sensitive data will be protected and secure</span>.</p>
+                <h3>Future Learning</h3>
+                <p>In later modules, we'll discuss how to:</p>
+                <ul>
+                    <li>Secure your application</li>
+                    <li>Protect your user's data</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Slide 7: YouTube Example -->
+        <div class="slide">
+            <h2>Example: YouTube</h2>
+            <div class="content-box">
+                <p>A video sharing platform with <span class="emphasis">millions of videos</span> on everything from tech, pop culture, and gaming.</p>
+                <h3>Without Registration</h3>
+                <p>Users can <span class="emphasis">watch as many videos</span> as they like without signing in or registering.</p>
+                <h3>Registration Required For</h3>
+                <ul>
+                    <li>Like videos</li>
+                    <li>Comment</li>
+                    <li>Subscribe to channels</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Slide 8: YouTube Demo -->
+        <div class="slide">
+            <h2>YouTube Interaction Flow</h2>
+            <div class="demo-container">
+                <div class="video-grid">
+                    <div class="video-card">
+                        <div class="video-thumbnail">▶</div>
+                        <div class="video-info">
+                            <div class="video-title">Tech Tutorial Video</div>
+                            <div class="video-actions">
+                                <button class="video-action-btn">👍 Like</button>
+                                <button class="video-action-btn">💬 Comment</button>
+                                <button class="video-action-btn">🔔 Subscribe</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="video-card">
+                        <div class="video-thumbnail">▶</div>
+                        <div class="video-info">
+                            <div class="video-title">Gaming Stream</div>
+                            <div class="video-actions">
+                                <button class="video-action-btn">👍 Like</button>
+                                <button class="video-action-btn">💬 Comment</button>
+                                <button class="video-action-btn">🔔 Subscribe</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="login-prompt">
+                    Want to like, comment, or subscribe? Sign in to interact with content!
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 9: Value-Driven Registration -->
+        <div class="slide">
+            <h2>Value-Driven Registration</h2>
+            <div class="content-box">
+                <p>If users <span class="emphasis">like the content</span> they're watching or want to <span class="emphasis">participate in conversations</span>, they will be more willing to register.</p>
+                <h3>Key Principle</h3>
+                <p>Lazy registration allows users to <span class="emphasis">see the value</span> of your application before they provide their information.</p>
+            </div>
+        </div>
+
+        <!-- Slide 10: Benefits Comparison -->
+        <div class="slide">
+            <h2>Registration Approaches</h2>
+            <div class="comparison-grid">
+                <div class="comparison-box">
+                    <div class="comparison-label">❌ Immediate Registration</div>
+                    <p style="font-size: 1rem;">Forces users to register before seeing any value</p>
+                    <p style="font-size: 1rem; margin-top: 1rem;"><strong>Result:</strong> High abandonment rate, lost customers</p>
+                </div>
+                <div class="comparison-box">
+                    <div class="comparison-label">✓ Lazy Registration</div>
+                    <p style="font-size: 1rem;">Users explore and see value first, then register when ready</p>
+                    <p style="font-size: 1rem; margin-top: 1rem;"><strong>Result:</strong> Higher engagement and conversion</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 11: Design Consideration -->
+        <div class="slide">
+            <h2>Design Consideration</h2>
+            <div class="content-box">
+                <p>The next time you're designing an application, consider using <span class="emphasis">lazy registration</span> to increase:</p>
+                <ul>
+                    <li><span class="emphasis">User engagement</span></li>
+                    <li><span class="emphasis">User retention</span></li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Slide 12: Key Takeaways -->
+        <div class="slide">
+            <h2>Key Takeaways</h2>
+            <div class="content-box">
+                <ul>
+                    <li><span class="emphasis">Definition</span> - Browse and interact without registration</li>
+                    <li><span class="emphasis">E-commerce example</span> - Browse and add to cart before registering</li>
+                    <li><span class="emphasis">YouTube example</span> - Watch freely, register to interact</li>
+                    <li><span class="emphasis">Core principle</span> - Show value before asking for information</li>
+                    <li><span class="emphasis">Security</span> - Communicate data protection clearly</li>
+                    <li><span class="emphasis">Benefits</span> - Increases engagement and retention</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="navigation">
+        <button id="prevBtn" onclick="changeSlide(-1)">Previous</button>
+        <span class="slide-counter">
+            <span id="currentSlide">1</span> / <span id="totalSlides">12</span>
+        </span>
+        <button id="nextBtn" onclick="changeSlide(1)">Next</button>
+    </div>
+
+    <script>
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.slide');
+        const totalSlides = slides.length;
+        
+        document.getElementById('totalSlides').textContent = totalSlides;
+        
+        function showSlide(n) {
+            // Scroll to top when changing slides
+            window.scrollTo(0, 0);
+            
+            slides[currentSlide].classList.remove('active');
+            
+            if (n >= totalSlides) {
+                currentSlide = totalSlides - 1;
+            } else if (n < 0) {
+                currentSlide = 0;
+            } else {
+                currentSlide = n;
+            }
+            
+            slides[currentSlide].classList.add('active');
+            document.getElementById('currentSlide').textContent = currentSlide + 1;
+            
+            // Update button states
+            document.getElementById('prevBtn').disabled = currentSlide === 0;
+            document.getElementById('nextBtn').disabled = currentSlide === totalSlides - 1;
+        }
+        
+        function changeSlide(direction) {
+            showSlide(currentSlide + direction);
+        }
+        
+        // Keyboard navigation
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'ArrowLeft') {
+                changeSlide(-1);
+            } else if (event.key === 'ArrowRight') {
+                changeSlide(1);
+            }
+        });
+        
+        // Initialize button states
+        showSlide(0);
+    </script>
+</body>
+</html>
