@@ -1,0 +1,848 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Attribute Selectors</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f5f5;
+            overflow-x: hidden;
+        }
+
+        .slideshow-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            padding-bottom: 100px;
+            min-height: 100vh;
+        }
+
+        .slide {
+            display: none;
+            background: white;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            min-height: 70vh;
+            animation: fadeIn 0.5s;
+        }
+
+        .slide.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        h2 {
+            color: #881518;
+            margin-bottom: 30px;
+            font-size: 2em;
+            border-bottom: 3px solid #881518;
+            padding-bottom: 10px;
+        }
+
+        h3 {
+            color: #881518;
+            margin-top: 25px;
+            margin-bottom: 15px;
+            font-size: 1.4em;
+        }
+
+        p {
+            line-height: 1.8;
+            margin-bottom: 20px;
+            font-size: 1.1em;
+            color: #333;
+        }
+
+        .example-box {
+            background: #f9f9f9;
+            border-left: 4px solid #881518;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+
+        .example-box h4 {
+            color: #881518;
+            margin-bottom: 10px;
+        }
+
+        .highlight-box {
+            background: #881518;
+            color: white;
+            padding: 25px;
+            margin: 25px 0;
+            border-radius: 4px;
+            font-size: 1.2em;
+            text-align: center;
+        }
+
+        .code-block {
+            background: #2d2d2d;
+            color: #f8f8f2;
+            padding: 20px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.95em;
+            line-height: 1.6;
+            margin: 20px 0;
+            overflow-x: auto;
+        }
+
+        .code-selector {
+            color: #d7ba7d;
+        }
+
+        .code-property {
+            color: #9cdcfe;
+        }
+
+        .code-value {
+            color: #ce9178;
+        }
+
+        .code-pseudo {
+            color: #dcdcaa;
+        }
+
+        .code-tag {
+            color: #569cd6;
+        }
+
+        .code-attribute {
+            color: #9cdcfe;
+        }
+
+        ul {
+            margin-left: 30px;
+            margin-bottom: 20px;
+        }
+
+        li {
+            margin-bottom: 10px;
+            line-height: 1.6;
+        }
+
+        .demo-box {
+            background: #fff;
+            padding: 30px;
+            border: 2px solid #881518;
+            border-radius: 4px;
+            margin: 30px 0;
+        }
+
+        .demo-links {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .demo-links a {
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 4px;
+            text-decoration: none;
+            color: #333;
+            transition: all 0.3s;
+        }
+
+        /* Demo 1: [href] selector */
+        .demo-href a[href] {
+            color: blue;
+            text-decoration: underline;
+        }
+
+        /* Demo 2: [title] selector */
+        .demo-title a[title] {
+            font-weight: bold;
+            text-decoration: none;
+            color: #881518;
+        }
+
+        /* Demo 3: [href][title] combined */
+        .demo-combined a[href][title] {
+            color: green;
+            font-weight: bold;
+        }
+
+        /* Demo 4: [class~="primary"] */
+        .demo-spacesep a[class~="primary"] {
+            background-color: #881518;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 4px;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        /* Demo 5: [href^="https://"] */
+        .demo-prefix a[href^="https://"] {
+            color: green;
+            font-weight: bold;
+        }
+
+        .demo-prefix a[href^="https://"]::before {
+            content: '🔒 ';
+        }
+
+        /* Demo 6: [href$=".com"] */
+        .demo-suffix a[href$=".com"] {
+            color: #881518;
+            font-weight: bold;
+        }
+
+        .demo-suffix a[href$=".com"]::after {
+            content: ' (.com)';
+            font-size: 0.8em;
+            color: #666;
+        }
+
+        .syntax-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+
+        .syntax-table th,
+        .syntax-table td {
+            padding: 15px;
+            border: 1px solid #ddd;
+            text-align: left;
+        }
+
+        .syntax-table th {
+            background: #881518;
+            color: white;
+        }
+
+        .syntax-table tr:nth-child(even) {
+            background: #f9f9f9;
+        }
+
+        .syntax-table code {
+            background: #2d2d2d;
+            color: #f8f8f2;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+        }
+
+        .info-box {
+            margin: 20px 0;
+            padding: 20px;
+            background: #e3f2fd;
+            border-radius: 4px;
+            border: 2px solid #2196f3;
+        }
+
+        .info-box h4 {
+            color: #1565c0;
+            margin-bottom: 10px;
+        }
+
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin: 30px 0;
+        }
+
+        .comparison-box {
+            padding: 25px;
+            border-radius: 4px;
+            border: 2px solid #881518;
+        }
+
+        .comparison-box h4 {
+            color: #881518;
+            margin-bottom: 15px;
+        }
+
+        .navigation {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: #881518;
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 -4px 6px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+        }
+
+        .nav-button {
+            background: white;
+            color: #881518;
+            border: none;
+            padding: 15px 30px;
+            font-size: 1em;
+            font-weight: bold;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .nav-button:hover {
+            background: #f5f5f5;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .nav-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .slide-counter {
+            color: white;
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+
+        @media (max-width: 768px) {
+            .slideshow-container {
+                padding: 15px;
+                padding-bottom: 100px;
+            }
+
+            .slide {
+                padding: 25px;
+            }
+
+            h2 {
+                font-size: 1.5em;
+            }
+
+            h3 {
+                font-size: 1.2em;
+            }
+
+            p {
+                font-size: 1em;
+            }
+
+            .code-block {
+                font-size: 0.85em;
+                padding: 15px;
+            }
+
+            .comparison-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .nav-button {
+                padding: 12px 20px;
+                font-size: 0.9em;
+            }
+
+            .navigation {
+                padding: 15px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .slide {
+                padding: 20px;
+            }
+
+            h2 {
+                font-size: 1.3em;
+            }
+
+            .code-block {
+                font-size: 0.8em;
+            }
+
+            .nav-button {
+                padding: 10px 15px;
+                font-size: 0.85em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="slideshow-container">
+        <!-- Slide 1 -->
+        <div class="slide active">
+            <h2>What Is the Attribute Selector?</h2>
+            <p>The <strong>attribute selector</strong> in CSS is a powerful tool that allows you to target HTML elements based on their attributes.</p>
+
+            <div class="example-box">
+                <h4>What You Can Do:</h4>
+                <ul style="margin-bottom: 0;">
+                    <li>Target elements with specific attributes</li>
+                    <li>Target elements with certain attribute values</li>
+                    <li>Style elements dynamically</li>
+                    <li>Go beyond class names for specificity</li>
+                </ul>
+            </div>
+
+            <div class="highlight-box">
+                Attribute selectors enhance styling and improve accessibility by making interactive elements more distinguishable
+            </div>
+        </div>
+
+        <!-- Slide 2 -->
+        <div class="slide">
+            <h2>Why Use Attribute Selectors?</h2>
+            <p>Attribute selectors are particularly useful when class names alone don't provide enough specificity.</p>
+
+            <div class="example-box">
+                <h4>Common Use Cases:</h4>
+                <ul style="margin-bottom: 0;">
+                    <li>Style all links with href attributes</li>
+                    <li>Differentiate secure (HTTPS) vs insecure links</li>
+                    <li>Style links with additional information (title attribute)</li>
+                    <li>Target external vs internal links</li>
+                    <li>Style file type links differently (.pdf, .doc, etc.)</li>
+                </ul>
+            </div>
+
+            <div class="info-box">
+                <h4>Benefit:</h4>
+                <p style="margin: 0;">Apply uniform styles without manually adding classes to every element</p>
+            </div>
+        </div>
+
+        <!-- Slide 3 -->
+        <div class="slide">
+            <h2>Basic Syntax: [attribute]</h2>
+            <p>The simplest attribute selector targets elements that have a specific attribute, regardless of value.</p>
+
+            <h3>Syntax:</h3>
+            <div class="code-block">
+<span class="code-selector">element</span>[<span class="code-attribute">attribute</span>] {<br>
+&nbsp;&nbsp;<span class="code-property">property</span>: <span class="code-value">value</span>;<br>
+}
+            </div>
+
+            <h3>Example: Target all links with href</h3>
+            <div class="code-block">
+<span class="code-selector">a</span>[<span class="code-attribute">href</span>] {<br>
+&nbsp;&nbsp;<span class="code-property">color</span>: <span class="code-value">blue</span>;<br>
+&nbsp;&nbsp;<span class="code-property">text-decoration</span>: <span class="code-value">underline</span>;<br>
+}
+            </div>
+
+            <div class="info-box">
+                <h4>What It Targets:</h4>
+                <p style="margin: 0;">Any anchor element that has an href attribute, regardless of the href value</p>
+            </div>
+        </div>
+
+        <!-- Slide 4 -->
+        <div class="slide">
+            <h2>Visual Example: [href]</h2>
+            <p>Styling links that have an <code>href</code> attribute:</p>
+
+            <div class="demo-box demo-href">
+                <div class="demo-links">
+                    <a href="https://example.com">Link with href attribute</a>
+                    <a>Link without href attribute</a>
+                </div>
+            </div>
+
+            <div class="example-box">
+                <h4>What's Happening:</h4>
+                <ul style="margin-bottom: 0;">
+                    <li><strong>First link:</strong> Has href → styled with blue color and underline</li>
+                    <li><strong>Second link:</strong> No href → no special styling applied</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Slide 5 -->
+        <div class="slide">
+            <h2>Targeting Specific Attributes: [title]</h2>
+            <p>You can target elements with other attributes, like the <code>title</code> attribute.</p>
+
+            <h3>Purpose of title Attribute:</h3>
+            <div class="example-box">
+                <p style="margin: 0;">The <code>title</code> attribute provides additional information about a link. You might want to style these links differently to indicate extra information is available.</p>
+            </div>
+
+            <h3>CSS Example:</h3>
+            <div class="code-block">
+<span class="code-selector">a</span>[<span class="code-attribute">title</span>] {<br>
+&nbsp;&nbsp;<span class="code-property">font-weight</span>: <span class="code-value">bold</span>;<br>
+&nbsp;&nbsp;<span class="code-property">text-decoration</span>: <span class="code-value">none</span>;<br>
+&nbsp;&nbsp;<span class="code-property">color</span>: <span class="code-value">#881518</span>;<br>
+}
+            </div>
+        </div>
+
+        <!-- Slide 6 -->
+        <div class="slide">
+            <h2>Visual Example: [title]</h2>
+            <p>Styling links that have a <code>title</code> attribute:</p>
+
+            <div class="demo-box demo-title">
+                <div class="demo-links">
+                    <a href="https://example.com" title="Extra information here">Link with title attribute</a>
+                    <a href="https://example.com">Link without title attribute</a>
+                </div>
+            </div>
+
+            <div class="example-box">
+                <h4>What's Happening:</h4>
+                <ul style="margin-bottom: 0;">
+                    <li><strong>First link:</strong> Has title → bold, no underline, burgundy color</li>
+                    <li><strong>Second link:</strong> No title → default link styling</li>
+                </ul>
+            </div>
+
+            <div class="info-box">
+                <h4>Try It:</h4>
+                <p style="margin: 0;">Hover over the first link to see the title tooltip!</p>
+            </div>
+        </div>
+
+        <!-- Slide 7 -->
+        <div class="slide">
+            <h2>Combining Attributes: [attr1][attr2]</h2>
+            <p>You can combine multiple attribute selectors for more precision.</p>
+
+            <h3>CSS Example:</h3>
+            <div class="code-block">
+<span class="code-selector">a</span>[<span class="code-attribute">href</span>][<span class="code-attribute">title</span>] {<br>
+&nbsp;&nbsp;<span class="code-property">color</span>: <span class="code-value">green</span>;<br>
+&nbsp;&nbsp;<span class="code-property">font-weight</span>: <span class="code-value">bold</span>;<br>
+}
+            </div>
+
+            <div class="example-box">
+                <h4>What It Targets:</h4>
+                <p style="margin: 0;">Only links that have <strong>both</strong> an href attribute <strong>and</strong> a title attribute</p>
+            </div>
+
+            <div class="highlight-box">
+                This level of control is what makes attribute selectors so powerful in CSS
+            </div>
+        </div>
+
+        <!-- Slide 8 -->
+        <div class="slide">
+            <h2>Visual Example: [href][title]</h2>
+            <p>Styling links that have <strong>both</strong> href and title attributes:</p>
+
+            <div class="demo-box demo-combined">
+                <div class="demo-links">
+                    <a href="https://example.com" title="Has both attributes">Link with both href and title</a>
+                    <a href="https://example.com">Link with only href</a>
+                    <a title="Has only title">Link with only title</a>
+                </div>
+            </div>
+
+            <div class="example-box">
+                <h4>What's Happening:</h4>
+                <ul style="margin-bottom: 0;">
+                    <li><strong>First link:</strong> Has both → green color, bold</li>
+                    <li><strong>Second link:</strong> Has only href → no special styling</li>
+                    <li><strong>Third link:</strong> Has only title → no special styling</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Slide 9 -->
+        <div class="slide">
+            <h2>Space-Separated Values: [attr~=value]</h2>
+            <p>The <code>[attr~=value]</code> syntax matches a single value within a space-separated list.</p>
+
+            <h3>HTML Example:</h3>
+            <div class="code-block">
+<span class="code-tag">&lt;a</span> <span class="code-attribute">href</span>=<span class="code-value">"https://example.com"</span><br>
+&nbsp;&nbsp;&nbsp;<span class="code-attribute">class</span>=<span class="code-value">"btn primary large"</span><span class="code-tag">&gt;</span><br>
+&nbsp;&nbsp;Visit Example Site<br>
+<span class="code-tag">&lt;/a&gt;</span>
+            </div>
+
+            <h3>CSS Example:</h3>
+            <div class="code-block">
+<span class="code-selector">a</span>[<span class="code-attribute">class</span>~=<span class="code-value">"primary"</span>] {<br>
+&nbsp;&nbsp;<span class="code-property">background-color</span>: <span class="code-value">#881518</span>;<br>
+&nbsp;&nbsp;<span class="code-property">color</span>: <span class="code-value">white</span>;<br>
+}
+            </div>
+
+            <div class="info-box">
+                <h4>What It Targets:</h4>
+                <p style="margin: 0;">Targets elements where the class attribute contains the word "primary" (even if there are other classes)</p>
+            </div>
+        </div>
+
+        <!-- Slide 10 -->
+        <div class="slide">
+            <h2>Visual Example: [class~="primary"]</h2>
+            <p>Styling links where class contains "primary":</p>
+
+            <div class="demo-box demo-spacesep">
+                <div class="demo-links">
+                    <a href="https://example.com" class="btn primary large">Link with "primary" class</a>
+                    <a href="https://example.com" class="btn secondary large">Link without "primary" class</a>
+                </div>
+            </div>
+
+            <div class="example-box">
+                <h4>What's Happening:</h4>
+                <ul style="margin-bottom: 0;">
+                    <li><strong>First link:</strong> Class list includes "primary" → styled as button</li>
+                    <li><strong>Second link:</strong> Class list has "secondary" instead → no special styling</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Slide 11 -->
+        <div class="slide">
+            <h2>Prefix Matching: [attr^=value]</h2>
+            <p>The <code>[attr^=value]</code> syntax targets elements where the attribute value <strong>starts with</strong> a specific string.</p>
+
+            <h3>CSS Example:</h3>
+            <div class="code-block">
+<span class="code-selector">a</span>[<span class="code-attribute">href</span>^=<span class="code-value">"https://"</span>] {<br>
+&nbsp;&nbsp;<span class="code-property">color</span>: <span class="code-value">green</span>;<br>
+&nbsp;&nbsp;<span class="code-property">font-weight</span>: <span class="code-value">bold</span>;<br>
+}<br>
+<br>
+<span class="code-selector">a</span>[<span class="code-attribute">href</span>^=<span class="code-value">"https://"</span>]<span class="code-pseudo">::before</span> {<br>
+&nbsp;&nbsp;<span class="code-property">content</span>: <span class="code-value">'🔒 '</span>;<br>
+}
+            </div>
+
+            <div class="example-box">
+                <h4>Common Uses:</h4>
+                <ul style="margin-bottom: 0;">
+                    <li>Style secure (HTTPS) links differently</li>
+                    <li>Differentiate external vs internal links</li>
+                    <li>Add icons to specific protocols (mailto:, tel:, etc.)</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Slide 12 -->
+        <div class="slide">
+            <h2>Visual Example: [href^="https://"]</h2>
+            <p>Styling links that start with "https://":</p>
+
+            <div class="demo-box demo-prefix">
+                <div class="demo-links">
+                    <a href="https://example.com">Secure HTTPS link</a>
+                    <a href="http://example.com">Insecure HTTP link</a>
+                    <a href="/about">Relative link</a>
+                </div>
+            </div>
+
+            <div class="example-box">
+                <h4>What's Happening:</h4>
+                <ul style="margin-bottom: 0;">
+                    <li><strong>First link:</strong> Starts with "https://" → green, bold, lock icon</li>
+                    <li><strong>Second link:</strong> Starts with "http://" → no special styling</li>
+                    <li><strong>Third link:</strong> Relative URL → no special styling</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Slide 13 -->
+        <div class="slide">
+            <h2>Suffix Matching: [attr$=value]</h2>
+            <p>The <code>[attr$=value]</code> syntax targets elements where the attribute value <strong>ends with</strong> a specific string.</p>
+
+            <h3>CSS Example:</h3>
+            <div class="code-block">
+<span class="code-selector">a</span>[<span class="code-attribute">href</span>$=<span class="code-value">".com"</span>] {<br>
+&nbsp;&nbsp;<span class="code-property">color</span>: <span class="code-value">#881518</span>;<br>
+&nbsp;&nbsp;<span class="code-property">font-weight</span>: <span class="code-value">bold</span>;<br>
+}<br>
+<br>
+<span class="code-selector">a</span>[<span class="code-attribute">href</span>$=<span class="code-value">".com"</span>]<span class="code-pseudo">::after</span> {<br>
+&nbsp;&nbsp;<span class="code-property">content</span>: <span class="code-value">' (.com)'</span>;<br>
+}
+            </div>
+
+            <div class="example-box">
+                <h4>Common Uses:</h4>
+                <ul style="margin-bottom: 0;">
+                    <li>Style different file types (.pdf, .doc, .zip)</li>
+                    <li>Differentiate domain extensions (.com, .org, .edu)</li>
+                    <li>Add indicators for file downloads</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Slide 14 -->
+        <div class="slide">
+            <h2>Visual Example: [href$=".com"]</h2>
+            <p>Styling links that end with ".com":</p>
+
+            <div class="demo-box demo-suffix">
+                <div class="demo-links">
+                    <a href="https://example.com">Link to .com domain</a>
+                    <a href="https://example.org">Link to .org domain</a>
+                    <a href="https://example.edu">Link to .edu domain</a>
+                </div>
+            </div>
+
+            <div class="example-box">
+                <h4>What's Happening:</h4>
+                <ul style="margin-bottom: 0;">
+                    <li><strong>First link:</strong> Ends with ".com" → burgundy, bold, label added</li>
+                    <li><strong>Second link:</strong> Ends with ".org" → no special styling</li>
+                    <li><strong>Third link:</strong> Ends with ".edu" → no special styling</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Slide 15 -->
+        <div class="slide">
+            <h2>Attribute Selector Syntax Summary</h2>
+
+            <table class="syntax-table">
+                <tr>
+                    <th>Syntax</th>
+                    <th>Description</th>
+                    <th>Example</th>
+                </tr>
+                <tr>
+                    <td><code>[attr]</code></td>
+                    <td>Has the attribute</td>
+                    <td><code>a[href]</code></td>
+                </tr>
+                <tr>
+                    <td><code>[attr=value]</code></td>
+                    <td>Exact value match</td>
+                    <td><code>a[target="_blank"]</code></td>
+                </tr>
+                <tr>
+                    <td><code>[attr~=value]</code></td>
+                    <td>Contains value in space-separated list</td>
+                    <td><code>a[class~="primary"]</code></td>
+                </tr>
+                <tr>
+                    <td><code>[attr^=value]</code></td>
+                    <td>Starts with value</td>
+                    <td><code>a[href^="https"]</code></td>
+                </tr>
+                <tr>
+                    <td><code>[attr$=value]</code></td>
+                    <td>Ends with value</td>
+                    <td><code>a[href$=".pdf"]</code></td>
+                </tr>
+                <tr>
+                    <td><code>[attr*=value]</code></td>
+                    <td>Contains value anywhere</td>
+                    <td><code>a[href*="example"]</code></td>
+                </tr>
+            </table>
+        </div>
+
+        <!-- Slide 16 -->
+        <div class="slide">
+            <h2>Attribute Selectors Summary</h2>
+
+            <div class="example-box">
+                <h4>Key Takeaways:</h4>
+                <ul>
+                    <li><strong>Attribute selectors</strong> target elements based on attributes</li>
+                    <li><strong>[attr]</strong> - Targets elements with that attribute</li>
+                    <li><strong>[attr=value]</strong> - Exact value match</li>
+                    <li><strong>[attr~=value]</strong> - Value in space-separated list</li>
+                    <li><strong>[attr^=value]</strong> - Starts with value (prefix)</li>
+                    <li><strong>[attr$=value]</strong> - Ends with value (suffix)</li>
+                    <li><strong>[attr*=value]</strong> - Contains value anywhere</li>
+                    <li><strong>Combine selectors</strong> for precision: <code>[href][title]</code></li>
+                    <li><strong>Enhances accessibility</strong> and styling flexibility</li>
+                </ul>
+            </div>
+
+            <div class="highlight-box">
+                Attribute selectors provide powerful, dynamic styling without requiring additional classes in your HTML
+            </div>
+        </div>
+    </div>
+
+    <div class="navigation">
+        <button class="nav-button" id="prevBtn" onclick="changeSlide(-1)">← Previous</button>
+        <span class="slide-counter">
+            <span id="currentSlide">1</span> / <span id="totalSlides">16</span>
+        </span>
+        <button class="nav-button" id="nextBtn" onclick="changeSlide(1)">Next →</button>
+    </div>
+
+    <script>
+        let currentSlide = 1;
+        const totalSlides = document.querySelectorAll('.slide').length;
+
+        document.getElementById('totalSlides').textContent = totalSlides;
+
+        function showSlide(n) {
+            const slides = document.querySelectorAll('.slide');
+            
+            if (n > totalSlides) {
+                currentSlide = totalSlides;
+            }
+            if (n < 1) {
+                currentSlide = 1;
+            }
+            
+            slides.forEach(slide => slide.classList.remove('active'));
+            slides[currentSlide - 1].classList.add('active');
+            
+            document.getElementById('currentSlide').textContent = currentSlide;
+            
+            document.getElementById('prevBtn').disabled = currentSlide === 1;
+            document.getElementById('nextBtn').disabled = currentSlide === totalSlides;
+
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function changeSlide(n) {
+            currentSlide += n;
+            showSlide(currentSlide);
+        }
+
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'ArrowLeft') {
+                changeSlide(-1);
+            } else if (event.key === 'ArrowRight') {
+                changeSlide(1);
+            }
+        });
+
+        showSlide(currentSlide);
+
+        let touchStartX = 0;
+        let touchEndX = 0;
+
+        document.addEventListener('touchstart', function(event) {
+            touchStartX = event.changedTouches[0].screenX;
+        });
+
+        document.addEventListener('touchend', function(event) {
+            touchEndX = event.changedTouches[0].screenX;
+            handleSwipe();
+        });
+
+        function handleSwipe() {
+            if (touchEndX < touchStartX - 50) {
+                changeSlide(1);
+            }
+            if (touchEndX > touchStartX + 50) {
+                changeSlide(-1);
+            }
+        }
+    </script>
+</body>
+</html>
