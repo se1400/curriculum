@@ -1,0 +1,1104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Color Contrast Checking Tools</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #f5f5f5;
+            color: #333;
+            overflow-x: hidden;
+        }
+
+        .slide-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px 120px;
+            min-height: 100vh;
+        }
+
+        .slide {
+            display: none;
+            animation: fadeIn 0.5s;
+        }
+
+        .slide.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        h2 {
+            color: #881518;
+            font-size: 2rem;
+            margin-bottom: 1.5rem;
+            border-bottom: 3px solid #881518;
+            padding-bottom: 0.5rem;
+        }
+
+        h3 {
+            color: #881518;
+            font-size: 1.5rem;
+            margin-top: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        p {
+            font-size: 1.1rem;
+            line-height: 1.8;
+            margin-bottom: 1rem;
+        }
+
+        ul {
+            margin: 1.5rem 0;
+            padding-left: 2rem;
+        }
+
+        li {
+            font-size: 1.1rem;
+            line-height: 1.8;
+            margin-bottom: 0.8rem;
+        }
+
+        .content-box {
+            background: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+        }
+
+        .highlight {
+            background: #fff3cd;
+            padding: 1.5rem;
+            border-left: 4px solid #881518;
+            margin: 1.5rem 0;
+            border-radius: 4px;
+        }
+
+        .code-example {
+            background: #2d2d2d;
+            color: #f8f8f2;
+            padding: 1.5rem;
+            border-radius: 4px;
+            margin: 1.5rem 0;
+            overflow-x: auto;
+        }
+
+        .code-example code {
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        .code-label {
+            color: #881518;
+            font-weight: 600;
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .contrast-demo {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+
+        .demo-box {
+            text-align: center;
+        }
+
+        .demo-title {
+            font-weight: 700;
+            color: #881518;
+            margin-bottom: 1rem;
+            font-size: 1.2rem;
+        }
+
+        .demo-sample {
+            padding: 3rem 2rem;
+            border-radius: 8px;
+            font-size: 1.3rem;
+            font-weight: 600;
+            min-height: 200px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .demo-status {
+            margin-top: 1rem;
+            padding: 0.8rem;
+            border-radius: 4px;
+            font-weight: 600;
+        }
+
+        .pass {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .fail {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .contrast-checker {
+            background: white;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            padding: 2rem;
+            margin: 2rem 0;
+        }
+
+        .checker-controls {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .color-input-group {
+            text-align: center;
+        }
+
+        .color-label {
+            font-weight: 700;
+            color: #881518;
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+        }
+
+        .color-inputs {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1rem;
+        }
+
+        input[type="color"] {
+            width: 80px;
+            height: 80px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        input[type="text"] {
+            flex: 1;
+            padding: 0.8rem;
+            font-size: 1rem;
+            border: 2px solid #ddd;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            max-width: 150px;
+        }
+
+        .checker-preview {
+            margin: 2rem 0;
+            padding: 3rem 2rem;
+            border-radius: 8px;
+            text-align: center;
+            font-size: 1.5rem;
+            font-weight: 700;
+            min-height: 200px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        }
+
+        .checker-results {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .result-card {
+            background: white;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            padding: 1.5rem;
+            text-align: center;
+        }
+
+        .result-title {
+            font-weight: 700;
+            color: #881518;
+            margin-bottom: 0.5rem;
+        }
+
+        .result-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #333;
+            margin: 1rem 0;
+        }
+
+        .result-status {
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            font-weight: 600;
+            display: inline-block;
+        }
+
+        .wcag-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 2rem 0;
+        }
+
+        .wcag-table th,
+        .wcag-table td {
+            padding: 1rem;
+            text-align: left;
+            border: 1px solid #ddd;
+        }
+
+        .wcag-table th {
+            background: #881518;
+            color: white;
+            font-weight: 700;
+        }
+
+        .wcag-table tr:nth-child(even) {
+            background: #f9f9f9;
+        }
+
+        .tool-card {
+            background: white;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            padding: 2rem;
+            margin: 1.5rem 0;
+        }
+
+        .tool-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .tool-icon {
+            width: 60px;
+            height: 60px;
+            background: #881518;
+            color: white;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            font-weight: 700;
+        }
+
+        .tool-name {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #881518;
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            margin: 1.5rem 0;
+        }
+
+        .feature-item {
+            background: #f9f9f9;
+            padding: 1rem;
+            border-radius: 4px;
+            border-left: 3px solid #881518;
+        }
+
+        .feature-icon {
+            display: inline-block;
+            color: #881518;
+            font-weight: 700;
+            margin-right: 0.5rem;
+        }
+
+        .vision-demo {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .vision-card {
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .vision-sample {
+            padding: 2rem 1rem;
+            text-align: center;
+            font-weight: 700;
+            min-height: 120px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .vision-label {
+            background: white;
+            padding: 0.8rem;
+            text-align: center;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .nav-controls {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: #881518;
+            padding: 1rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 2rem;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.2);
+            z-index: 1000;
+        }
+
+        button {
+            background: white;
+            color: #881518;
+            border: none;
+            padding: 12px 30px;
+            font-size: 1rem;
+            font-weight: 600;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        button:hover:not(:disabled) {
+            background: #f0f0f0;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .slide-counter {
+            color: white;
+            font-weight: 600;
+            font-size: 1rem;
+        }
+
+        @media (max-width: 768px) {
+            h2 {
+                font-size: 1.5rem;
+            }
+
+            h3 {
+                font-size: 1.3rem;
+            }
+
+            p, li {
+                font-size: 1rem;
+            }
+
+            .slide-container {
+                padding: 20px 15px 120px;
+            }
+
+            .content-box {
+                padding: 1.5rem;
+            }
+
+            .nav-controls {
+                gap: 1rem;
+                padding: 0.8rem;
+            }
+
+            button {
+                padding: 10px 20px;
+                font-size: 0.9rem;
+            }
+
+            .contrast-demo,
+            .checker-controls {
+                grid-template-columns: 1fr;
+            }
+
+            .code-example {
+                padding: 1rem;
+            }
+
+            .code-example code {
+                font-size: 0.85rem;
+            }
+
+            .vision-demo {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="slide-container">
+        <!-- Slide 1 -->
+        <div class="slide active">
+            <div class="content-box">
+                <h2>Why Color Contrast Matters</h2>
+                <p>When designing websites, ensuring good color contrast is crucial for:</p>
+                <ul>
+                    <li><strong>Accessibility</strong> - Making content usable for people with visual impairments</li>
+                    <li><strong>Readability</strong> - Ensuring text is easy to read for all users</li>
+                    <li><strong>User Experience</strong> - Creating comfortable viewing experiences</li>
+                    <li><strong>Legal Compliance</strong> - Meeting accessibility standards and regulations</li>
+                </ul>
+                <div class="highlight">
+                    <p>Several tools are available to help developers and designers check and maintain appropriate color contrast ratios on their sites.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 2 -->
+        <div class="slide">
+            <div class="content-box">
+                <h2>Good vs Poor Contrast</h2>
+                <div class="contrast-demo">
+                    <div class="demo-box">
+                        <div class="demo-title">❌ Poor Contrast</div>
+                        <div class="demo-sample" style="background: #ffff00; color: #ffffff;">
+                            This text is hard to read
+                        </div>
+                        <div class="demo-status fail">
+                            FAIL - Insufficient contrast
+                        </div>
+                    </div>
+                    <div class="demo-box">
+                        <div class="demo-title">✓ Good Contrast</div>
+                        <div class="demo-sample" style="background: #ffffff; color: #333333;">
+                            This text is easy to read
+                        </div>
+                        <div class="demo-status pass">
+                            PASS - Sufficient contrast
+                        </div>
+                    </div>
+                </div>
+                <p style="margin-top: 2rem;">Good contrast ensures that text is legible against its background, which is essential for all users but particularly important for those with visual impairments.</p>
+            </div>
+        </div>
+
+        <!-- Slide 3 -->
+        <div class="slide">
+            <div class="content-box">
+                <h2>Understanding WCAG Standards</h2>
+                <p>The Web Content Accessibility Guidelines (WCAG) define minimum contrast ratios for accessibility:</p>
+                <table class="wcag-table">
+                    <thead>
+                        <tr>
+                            <th>Level</th>
+                            <th>Normal Text</th>
+                            <th>Large Text</th>
+                            <th>Description</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>AA</strong></td>
+                            <td>4.5:1</td>
+                            <td>3:1</td>
+                            <td>Minimum standard for compliance</td>
+                        </tr>
+                        <tr>
+                            <td><strong>AAA</strong></td>
+                            <td>7:1</td>
+                            <td>4.5:1</td>
+                            <td>Enhanced standard for better accessibility</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div class="highlight">
+                    <p><strong>Large text</strong> is defined as 18pt (24px) or larger, or 14pt (18.66px) or larger when bold.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 4 -->
+        <div class="slide">
+            <div class="content-box">
+                <h2>WebAIM's Color Contrast Checker</h2>
+                <p>One popular tool is WebAIM's Color Contrast Checker.</p>
+                <div class="tool-card">
+                    <div class="tool-header">
+                        <div class="tool-icon">🌐</div>
+                        <div class="tool-name">WebAIM Color Contrast Checker</div>
+                    </div>
+                    <div class="feature-grid">
+                        <div class="feature-item">
+                            <span class="feature-icon">✓</span>
+                            Online tool (no installation needed)
+                        </div>
+                        <div class="feature-item">
+                            <span class="feature-icon">✓</span>
+                            Input foreground and background colors
+                        </div>
+                        <div class="feature-item">
+                            <span class="feature-icon">✓</span>
+                            Instant WCAG compliance feedback
+                        </div>
+                        <div class="feature-item">
+                            <span class="feature-icon">✓</span>
+                            User-friendly interface
+                        </div>
+                        <div class="feature-item">
+                            <span class="feature-icon">✓</span>
+                            Shows exact contrast ratios
+                        </div>
+                        <div class="feature-item">
+                            <span class="feature-icon">✓</span>
+                            Pass/fail indicators for AA and AAA
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 5 -->
+        <div class="slide">
+            <div class="content-box">
+                <h2>How to Use WebAIM's Tool</h2>
+                <p>To use WebAIM's Color Contrast Checker:</p>
+                <ol style="margin: 1.5rem 0; padding-left: 2rem;">
+                    <li style="margin-bottom: 1rem;">Visit the WebAIM website</li>
+                    <li style="margin-bottom: 1rem;">Enter the hexadecimal codes for your foreground and background colors</li>
+                    <li style="margin-bottom: 1rem;">The tool calculates the contrast ratio</li>
+                    <li style="margin-bottom: 1rem;">See if it meets WCAG 2.0 level AA or AAA standards</li>
+                </ol>
+                <div class="code-label">CSS Example</div>
+                <div class="code-example">
+                    <code>p {<br>
+&nbsp;&nbsp;background-color: #FFFFFF; /* White */<br>
+&nbsp;&nbsp;color: #333333; /* Dark gray */<br>
+}</code>
+                </div>
+                <div style="background: #FFFFFF; color: #333333; padding: 2rem; border: 2px solid #ddd; border-radius: 8px; margin-top: 1rem; text-align: center; font-size: 1.2rem;">
+                    <strong>Hello, World!</strong>
+                </div>
+                <p style="margin-top: 1rem;">In this example, we've set a white background (#FFFFFF) and dark gray text (#333333).</p>
+            </div>
+        </div>
+
+        <!-- Slide 6 -->
+        <div class="slide">
+            <div class="content-box">
+                <h2>Interactive Contrast Checker</h2>
+                <p>Try checking color contrast yourself:</p>
+                <div class="contrast-checker">
+                    <div class="checker-controls">
+                        <div class="color-input-group">
+                            <div class="color-label">Background Color</div>
+                            <div class="color-inputs">
+                                <input type="color" id="bgColor" value="#FFFFFF">
+                                <input type="text" id="bgHex" value="#FFFFFF" maxlength="7">
+                            </div>
+                        </div>
+                        <div class="color-input-group">
+                            <div class="color-label">Foreground Color (Text)</div>
+                            <div class="color-inputs">
+                                <input type="color" id="fgColor" value="#333333">
+                                <input type="text" id="fgHex" value="#333333" maxlength="7">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="checker-preview" id="contrastPreview" style="background: #FFFFFF; color: #333333;">
+                        Sample Text Preview
+                    </div>
+                    <div class="checker-results">
+                        <div class="result-card">
+                            <div class="result-title">Contrast Ratio</div>
+                            <div class="result-value" id="contrastRatio">12.6:1</div>
+                        </div>
+                        <div class="result-card">
+                            <div class="result-title">WCAG AA (Normal)</div>
+                            <div class="result-status pass" id="aaResult">PASS</div>
+                            <p style="margin-top: 0.5rem; font-size: 0.9rem; color: #666;">Needs 4.5:1</p>
+                        </div>
+                        <div class="result-card">
+                            <div class="result-title">WCAG AAA (Normal)</div>
+                            <div class="result-status pass" id="aaaResult">PASS</div>
+                            <p style="margin-top: 0.5rem; font-size: 0.9rem; color: #666;">Needs 7:1</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 7 -->
+        <div class="slide">
+            <div class="content-box">
+                <h2>TPGi Colour Contrast Analyzer</h2>
+                <p>Another valuable tool is the TPGi Colour Contrast Analyzer.</p>
+                <div class="tool-card">
+                    <div class="tool-header">
+                        <div class="tool-icon">💻</div>
+                        <div class="tool-name">TPGi Colour Contrast Analyzer</div>
+                    </div>
+                    <p style="margin-bottom: 1.5rem;">This desktop application offers more advanced features compared to online tools.</p>
+                    <div class="feature-grid">
+                        <div class="feature-item">
+                            <span class="feature-icon">✓</span>
+                            Desktop application
+                        </div>
+                        <div class="feature-item">
+                            <span class="feature-icon">✓</span>
+                            Analyze entire web pages
+                        </div>
+                        <div class="feature-item">
+                            <span class="feature-icon">✓</span>
+                            Color picker for screen colors
+                        </div>
+                        <div class="feature-item">
+                            <span class="feature-icon">✓</span>
+                            Check existing designs easily
+                        </div>
+                        <div class="feature-item">
+                            <span class="feature-icon">✓</span>
+                            Color vision deficiency simulations
+                        </div>
+                        <div class="feature-item">
+                            <span class="feature-icon">✓</span>
+                            Works with live websites
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 8 -->
+        <div class="slide">
+            <div class="content-box">
+                <h2>Key Advantage: Screen Color Picker</h2>
+                <p>The TPGi Colour Contrast Analyzer includes an eyedropper tool to select colors directly from your screen.</p>
+                <div class="highlight">
+                    <h3>How It Works:</h3>
+                    <ol style="margin: 1rem 0; padding-left: 2rem;">
+                        <li style="margin-bottom: 0.8rem;">Download and install the application on your computer</li>
+                        <li style="margin-bottom: 0.8rem;">Open the tool</li>
+                        <li style="margin-bottom: 0.8rem;">Use the eyedropper to select colors from your screen</li>
+                        <li style="margin-bottom: 0.8rem;">Instantly see the contrast ratio</li>
+                    </ol>
+                </div>
+                <p>This is particularly useful when working with complex designs or checking contrast on live websites.</p>
+            </div>
+        </div>
+
+        <!-- Slide 9 -->
+        <div class="slide">
+            <div class="content-box">
+                <h2>Color Vision Deficiency Simulations</h2>
+                <p>The TPGi Colour Contrast Analyzer provides simulations for different types of color vision deficiencies, helping you ensure your design is accessible to users with various forms of color blindness.</p>
+                <div class="vision-demo">
+                    <div class="vision-card">
+                        <div class="vision-sample" style="background: #4CAF50; color: white;">
+                            Normal Vision
+                        </div>
+                        <div class="vision-label">Normal Vision</div>
+                    </div>
+                    <div class="vision-card">
+                        <div class="vision-sample" style="background: #7A8A50; color: white;">
+                            Protanopia
+                        </div>
+                        <div class="vision-label">Protanopia (Red-blind)</div>
+                    </div>
+                    <div class="vision-card">
+                        <div class="vision-sample" style="background: #4C8A8A; color: white;">
+                            Deuteranopia
+                        </div>
+                        <div class="vision-label">Deuteranopia (Green-blind)</div>
+                    </div>
+                    <div class="vision-card">
+                        <div class="vision-sample" style="background: #4CAF7A; color: white;">
+                            Tritanopia
+                        </div>
+                        <div class="vision-label">Tritanopia (Blue-blind)</div>
+                    </div>
+                </div>
+                <p style="margin-top: 1.5rem;"><em>Note: These are approximate simulations to demonstrate how colors may appear differently.</em></p>
+            </div>
+        </div>
+
+        <!-- Slide 10 -->
+        <div class="slide">
+            <div class="content-box">
+                <h2>Tool Comparison</h2>
+                <table class="wcag-table">
+                    <thead>
+                        <tr>
+                            <th>Feature</th>
+                            <th>WebAIM</th>
+                            <th>TPGi Analyzer</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Platform</strong></td>
+                            <td>Online (browser-based)</td>
+                            <td>Desktop application</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Installation</strong></td>
+                            <td>None required</td>
+                            <td>Download and install</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Color Input</strong></td>
+                            <td>Manual hex codes</td>
+                            <td>Eyedropper + hex codes</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Scope</strong></td>
+                            <td>Individual color pairs</td>
+                            <td>Entire web pages</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Color Blindness Sim</strong></td>
+                            <td>No</td>
+                            <td>Yes</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Best For</strong></td>
+                            <td>Quick checks, design phase</td>
+                            <td>Complex sites, live testing</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Slide 11 -->
+        <div class="slide">
+            <div class="content-box">
+                <h2>Best Practices</h2>
+                <div class="highlight">
+                    <h3>Using Contrast Checking Tools Effectively:</h3>
+                    <ul>
+                        <li><strong>Check early and often</strong> - Test contrast during the design phase</li>
+                        <li><strong>Test all text</strong> - Don't forget buttons, links, and form labels</li>
+                        <li><strong>Consider context</strong> - Some situations may need higher contrast</li>
+                        <li><strong>Use both tools</strong> - Combine automated tools with manual testing</li>
+                        <li><strong>Get user feedback</strong> - Real users provide invaluable insights</li>
+                        <li><strong>Test on actual devices</strong> - Screen brightness and settings vary</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 12 -->
+        <div class="slide">
+            <div class="content-box">
+                <h2>Beyond Automated Tools</h2>
+                <p>While these tools are extremely helpful, they should be used in conjunction with manual testing and user feedback.</p>
+                <div class="highlight" style="background: #e8f4f8; border-left-color: #0066cc;">
+                    <h3>Important Considerations:</h3>
+                    <ul>
+                        <li>Different contexts and user needs may require adjustments beyond what automated tools suggest</li>
+                        <li>Some color combinations may technically pass but still feel uncomfortable</li>
+                        <li>Environmental factors (screen glare, lighting) affect real-world readability</li>
+                        <li>User preferences and individual needs vary</li>
+                    </ul>
+                </div>
+                <p>Automated tools provide a foundation, but human judgment and testing remain essential.</p>
+            </div>
+        </div>
+
+        <!-- Slide 13 -->
+        <div class="slide">
+            <div class="content-box">
+                <h2>Real-World Examples</h2>
+                <div class="contrast-demo">
+                    <div class="demo-box">
+                        <div class="demo-title">Primary Button</div>
+                        <div class="demo-sample" style="background: #007BFF; color: #FFFFFF;">
+                            Click Here
+                        </div>
+                        <div class="demo-status pass">
+                            Ratio: 8.6:1 - AAA Pass
+                        </div>
+                    </div>
+                    <div class="demo-box">
+                        <div class="demo-title">Error Message</div>
+                        <div class="demo-sample" style="background: #F8D7DA; color: #721C24;">
+                            Error: Please try again
+                        </div>
+                        <div class="demo-status pass">
+                            Ratio: 8.9:1 - AAA Pass
+                        </div>
+                    </div>
+                </div>
+                <div class="contrast-demo" style="margin-top: 2rem;">
+                    <div class="demo-box">
+                        <div class="demo-title">Success Message</div>
+                        <div class="demo-sample" style="background: #D4EDDA; color: #155724;">
+                            Success! Changes saved
+                        </div>
+                        <div class="demo-status pass">
+                            Ratio: 7.4:1 - AAA Pass
+                        </div>
+                    </div>
+                    <div class="demo-box">
+                        <div class="demo-title">Link Text</div>
+                        <div class="demo-sample" style="background: #FFFFFF; color: #0066CC;">
+                            Learn more about this topic
+                        </div>
+                        <div class="demo-status pass">
+                            Ratio: 7.0:1 - AAA Pass
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 14 -->
+        <div class="slide">
+            <div class="content-box">
+                <h2>Benefits of Regular Testing</h2>
+                <p>By regularly using tools like WebAIM's Color Contrast Checker and the TPGi Colour Contrast Analyzer, you can:</p>
+                <div class="feature-grid" style="margin-top: 2rem;">
+                    <div class="feature-item">
+                        <span class="feature-icon">✓</span>
+                        Create visually appealing designs
+                    </div>
+                    <div class="feature-item">
+                        <span class="feature-icon">✓</span>
+                        Ensure inclusivity and accessibility
+                    </div>
+                    <div class="feature-item">
+                        <span class="feature-icon">✓</span>
+                        Reach a wider audience
+                    </div>
+                    <div class="feature-item">
+                        <span class="feature-icon">✓</span>
+                        Meet legal requirements
+                    </div>
+                    <div class="feature-item">
+                        <span class="feature-icon">✓</span>
+                        Improve user experience for everyone
+                    </div>
+                    <div class="feature-item">
+                        <span class="feature-icon">✓</span>
+                        Build better products from the start
+                    </div>
+                </div>
+                <div class="highlight" style="margin-top: 2rem;">
+                    <p><strong>This attention to detail in color contrast can significantly improve the user experience of your website for all visitors.</strong></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 15 -->
+        <div class="slide">
+            <div class="content-box">
+                <h2>Key Takeaways</h2>
+                <div class="highlight">
+                    <h3>Color Contrast Tools:</h3>
+                    <ul>
+                        <li><strong>WebAIM Color Contrast Checker</strong> - Online tool for quick checks, ideal for design phase</li>
+                        <li><strong>TPGi Colour Contrast Analyzer</strong> - Desktop app with advanced features like screen color picker and color blindness simulations</li>
+                    </ul>
+                </div>
+                <div class="highlight" style="margin-top: 1rem;">
+                    <h3>WCAG Standards:</h3>
+                    <ul>
+                        <li><strong>AA Level:</strong> 4.5:1 for normal text, 3:1 for large text</li>
+                        <li><strong>AAA Level:</strong> 7:1 for normal text, 4.5:1 for large text</li>
+                    </ul>
+                </div>
+                <div class="highlight" style="margin-top: 1rem;">
+                    <h3>Remember:</h3>
+                    <ul>
+                        <li>Use tools early and often in the design process</li>
+                        <li>Combine automated tools with manual testing and user feedback</li>
+                        <li>Consider color blindness and visual impairments</li>
+                        <li>Good contrast benefits everyone, not just users with disabilities</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="nav-controls">
+        <button id="prevBtn" onclick="changeSlide(-1)">← Previous</button>
+        <span class="slide-counter">
+            <span id="currentSlide">1</span> / <span id="totalSlides">15</span>
+        </span>
+        <button id="nextBtn" onclick="changeSlide(1)">Next →</button>
+    </div>
+
+    <script>
+        let currentSlide = 1;
+        const totalSlides = document.querySelectorAll('.slide').length;
+        
+        document.getElementById('totalSlides').textContent = totalSlides;
+
+        function showSlide(n) {
+            const slides = document.querySelectorAll('.slide');
+            const prevBtn = document.getElementById('prevBtn');
+            const nextBtn = document.getElementById('nextBtn');
+            
+            if (n > totalSlides) {
+                currentSlide = totalSlides;
+            }
+            if (n < 1) {
+                currentSlide = 1;
+            }
+            
+            slides.forEach(slide => {
+                slide.classList.remove('active');
+            });
+            
+            slides[currentSlide - 1].classList.add('active');
+            document.getElementById('currentSlide').textContent = currentSlide;
+            
+            // Disable/enable buttons
+            prevBtn.disabled = currentSlide === 1;
+            nextBtn.disabled = currentSlide === totalSlides;
+            
+            // Scroll to top when changing slides
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function changeSlide(n) {
+            currentSlide += n;
+            showSlide(currentSlide);
+        }
+
+        // Contrast Checker
+        const bgColor = document.getElementById('bgColor');
+        const bgHex = document.getElementById('bgHex');
+        const fgColor = document.getElementById('fgColor');
+        const fgHex = document.getElementById('fgHex');
+        const contrastPreview = document.getElementById('contrastPreview');
+        const contrastRatio = document.getElementById('contrastRatio');
+        const aaResult = document.getElementById('aaResult');
+        const aaaResult = document.getElementById('aaaResult');
+
+        function hexToRgb(hex) {
+            const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+            return result ? {
+                r: parseInt(result[1], 16),
+                g: parseInt(result[2], 16),
+                b: parseInt(result[3], 16)
+            } : null;
+        }
+
+        function getLuminance(r, g, b) {
+            const a = [r, g, b].map(v => {
+                v /= 255;
+                return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4);
+            });
+            return a[0] * 0.2126 + a[1] * 0.7152 + a[2] * 0.0722;
+        }
+
+        function getContrastRatio(hex1, hex2) {
+            const rgb1 = hexToRgb(hex1);
+            const rgb2 = hexToRgb(hex2);
+            
+            if (!rgb1 || !rgb2) return 1;
+            
+            const lum1 = getLuminance(rgb1.r, rgb1.g, rgb1.b);
+            const lum2 = getLuminance(rgb2.r, rgb2.g, rgb2.b);
+            
+            const brightest = Math.max(lum1, lum2);
+            const darkest = Math.min(lum1, lum2);
+            
+            return (brightest + 0.05) / (darkest + 0.05);
+        }
+
+        function updateContrast() {
+            const bg = bgHex.value;
+            const fg = fgHex.value;
+            
+            contrastPreview.style.background = bg;
+            contrastPreview.style.color = fg;
+            
+            const ratio = getContrastRatio(bg, fg);
+            contrastRatio.textContent = ratio.toFixed(1) + ':1';
+            
+            // Check AA compliance (4.5:1)
+            if (ratio >= 4.5) {
+                aaResult.textContent = 'PASS';
+                aaResult.className = 'result-status pass';
+            } else {
+                aaResult.textContent = 'FAIL';
+                aaResult.className = 'result-status fail';
+            }
+            
+            // Check AAA compliance (7:1)
+            if (ratio >= 7) {
+                aaaResult.textContent = 'PASS';
+                aaaResult.className = 'result-status pass';
+            } else {
+                aaaResult.textContent = 'FAIL';
+                aaaResult.className = 'result-status fail';
+            }
+        }
+
+        bgColor.addEventListener('input', function() {
+            bgHex.value = this.value.toUpperCase();
+            updateContrast();
+        });
+
+        bgHex.addEventListener('input', function() {
+            if (/^#[0-9A-F]{6}$/i.test(this.value)) {
+                bgColor.value = this.value;
+                updateContrast();
+            }
+        });
+
+        fgColor.addEventListener('input', function() {
+            fgHex.value = this.value.toUpperCase();
+            updateContrast();
+        });
+
+        fgHex.addEventListener('input', function() {
+            if (/^#[0-9A-F]{6}$/i.test(this.value)) {
+                fgColor.value = this.value;
+                updateContrast();
+            }
+        });
+
+        // Keyboard navigation
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'ArrowLeft') {
+                if (currentSlide > 1) changeSlide(-1);
+            } else if (event.key === 'ArrowRight') {
+                if (currentSlide < totalSlides) changeSlide(1);
+            }
+        });
+
+        // Initialize
+        showSlide(currentSlide);
+        updateContrast();
+    </script>
+</body>
+</html>

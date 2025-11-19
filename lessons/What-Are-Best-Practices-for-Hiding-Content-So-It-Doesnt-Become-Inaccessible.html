@@ -1,0 +1,1046 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hiding Content Accessibly</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #f5f5f5;
+            color: #333;
+            overflow-x: hidden;
+        }
+
+        .slide-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px 120px;
+            min-height: 100vh;
+        }
+
+        .slide {
+            display: none;
+            animation: fadeIn 0.5s;
+        }
+
+        .slide.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        h2 {
+            color: #881518;
+            font-size: 2rem;
+            margin-bottom: 1.5rem;
+            border-bottom: 3px solid #881518;
+            padding-bottom: 0.5rem;
+        }
+
+        h3 {
+            color: #881518;
+            font-size: 1.5rem;
+            margin-top: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        p {
+            font-size: 1.1rem;
+            line-height: 1.8;
+            margin-bottom: 1rem;
+        }
+
+        ul {
+            margin: 1.5rem 0;
+            padding-left: 2rem;
+        }
+
+        li {
+            font-size: 1.1rem;
+            line-height: 1.8;
+            margin-bottom: 0.8rem;
+        }
+
+        .content-box {
+            background: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+        }
+
+        .highlight {
+            background: #fff3cd;
+            padding: 1.5rem;
+            border-left: 4px solid #881518;
+            margin: 1.5rem 0;
+            border-radius: 4px;
+        }
+
+        .warning-box {
+            background: #ffe6e6;
+            padding: 1.5rem;
+            border-left: 4px solid #dc3545;
+            margin: 1.5rem 0;
+            border-radius: 4px;
+        }
+
+        .success-box {
+            background: #d4edda;
+            padding: 1.5rem;
+            border-left: 4px solid #28a745;
+            margin: 1.5rem 0;
+            border-radius: 4px;
+        }
+
+        .code-example {
+            background: #2d2d2d;
+            color: #f8f8f2;
+            padding: 1.5rem;
+            border-radius: 4px;
+            margin: 1.5rem 0;
+            overflow-x: auto;
+        }
+
+        .code-example code {
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        .code-label {
+            color: #881518;
+            font-weight: 600;
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .demo-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+
+        .demo-card {
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            overflow: hidden;
+            background: white;
+        }
+
+        .demo-header {
+            background: #881518;
+            color: white;
+            padding: 1rem;
+            font-weight: 700;
+            text-align: center;
+        }
+
+        .demo-content {
+            padding: 2rem;
+            min-height: 200px;
+            position: relative;
+            background: #f9f9f9;
+        }
+
+        .demo-box {
+            padding: 1rem;
+            background: #e3f2fd;
+            border: 2px solid #2196f3;
+            border-radius: 4px;
+            margin: 1rem 0;
+            font-weight: 600;
+        }
+
+        .demo-description {
+            padding: 1rem;
+            background: white;
+            border-top: 2px solid #ddd;
+            font-size: 0.95rem;
+        }
+
+        .accessibility-tree {
+            background: white;
+            border: 2px solid #881518;
+            border-radius: 8px;
+            padding: 2rem;
+            margin: 2rem 0;
+        }
+
+        .tree-node {
+            margin-left: 2rem;
+            padding: 0.5rem;
+            border-left: 2px solid #ddd;
+            margin-top: 0.5rem;
+        }
+
+        .tree-icon {
+            display: inline-block;
+            width: 24px;
+            height: 24px;
+            background: #881518;
+            color: white;
+            text-align: center;
+            line-height: 24px;
+            border-radius: 4px;
+            margin-right: 0.5rem;
+            font-size: 0.8rem;
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 2rem 0;
+        }
+
+        .comparison-table th,
+        .comparison-table td {
+            padding: 1rem;
+            text-align: left;
+            border: 1px solid #ddd;
+        }
+
+        .comparison-table th {
+            background: #881518;
+            color: white;
+            font-weight: 700;
+        }
+
+        .comparison-table tr:nth-child(even) {
+            background: #f9f9f9;
+        }
+
+        .yes {
+            color: #28a745;
+            font-weight: 700;
+        }
+
+        .no {
+            color: #dc3545;
+            font-weight: 700;
+        }
+
+        .interactive-demo {
+            background: white;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            padding: 2rem;
+            margin: 2rem 0;
+        }
+
+        .demo-controls {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .demo-button {
+            padding: 0.8rem 1.5rem;
+            background: #881518;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 1rem;
+            transition: all 0.3s;
+        }
+
+        .demo-button:hover {
+            background: #6d1013;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+
+        .demo-button.active {
+            background: #333;
+        }
+
+        .demo-output {
+            background: #f9f9f9;
+            border: 2px solid #ddd;
+            border-radius: 4px;
+            padding: 2rem;
+            min-height: 150px;
+            position: relative;
+        }
+
+        .demo-element {
+            padding: 1rem;
+            background: #4CAF50;
+            color: white;
+            border-radius: 4px;
+            font-weight: 600;
+            text-align: center;
+            margin: 1rem 0;
+        }
+
+        .status-indicator {
+            display: inline-block;
+            padding: 0.3rem 0.8rem;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            margin-left: 0.5rem;
+        }
+
+        .status-visible {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-hidden {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .status-sr-only {
+            background: #cce5ff;
+            color: #004085;
+        }
+
+        .nav-controls {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: #881518;
+            padding: 1rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 2rem;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.2);
+            z-index: 1000;
+        }
+
+        button {
+            background: white;
+            color: #881518;
+            border: none;
+            padding: 12px 30px;
+            font-size: 1rem;
+            font-weight: 600;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        button:hover:not(:disabled):not(.demo-button) {
+            background: #f0f0f0;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .slide-counter {
+            color: white;
+            font-weight: 600;
+            font-size: 1rem;
+        }
+
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border-width: 0;
+        }
+
+        @media (max-width: 768px) {
+            h2 {
+                font-size: 1.5rem;
+            }
+
+            h3 {
+                font-size: 1.3rem;
+            }
+
+            p, li {
+                font-size: 1rem;
+            }
+
+            .slide-container {
+                padding: 20px 15px 120px;
+            }
+
+            .content-box {
+                padding: 1.5rem;
+            }
+
+            .nav-controls {
+                gap: 1rem;
+                padding: 0.8rem;
+            }
+
+            button {
+                padding: 10px 20px;
+                font-size: 0.9rem;
+            }
+
+            .demo-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .code-example {
+                padding: 1rem;
+            }
+
+            .code-example code {
+                font-size: 0.85rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="slide-container">
+        <!-- Slide 1 -->
+        <div class="slide active">
+            <div class="content-box">
+                <h2>Hiding Content Accessibly</h2>
+                <p>Hiding content on a webpage is a common practice in web development, but it's crucial to do it in a way that doesn't compromise accessibility.</p>
+                <div class="highlight">
+                    <h3>Key Consideration:</h3>
+                    <p>Different hiding techniques can have varying impacts on how assistive technologies interpret and present the content to users.</p>
+                </div>
+                <p>Let's explore some best practices for hiding content while maintaining accessibility.</p>
+            </div>
+        </div>
+
+        <!-- Slide 2 -->
+        <div class="slide">
+            <div class="content-box">
+                <h2>The Accessibility Tree</h2>
+                <p>Before we learn about hiding techniques, it's important to understand the <strong>accessibility tree</strong>.</p>
+                <div class="highlight">
+                    <h3>What is the Accessibility Tree?</h3>
+                    <p>The accessibility tree is a structure used by assistive technologies, such as screen readers, to interpret and interact with the content on a web page.</p>
+                </div>
+                <div class="accessibility-tree">
+                    <h3 style="color: #881518; margin-top: 0;">Example Structure:</h3>
+                    <div>
+                        <div class="tree-icon">📄</div><strong>Document</strong>
+                        <div class="tree-node">
+                            <div class="tree-icon">📦</div><strong>Header</strong>
+                            <div class="tree-node">
+                                <div class="tree-icon">📝</div>Heading: "Welcome"
+                            </div>
+                        </div>
+                        <div class="tree-node">
+                            <div class="tree-icon">📦</div><strong>Main</strong>
+                            <div class="tree-node">
+                                <div class="tree-icon">📝</div>Paragraph: "Content here..."
+                            </div>
+                            <div class="tree-node">
+                                <div class="tree-icon">🔘</div>Button: "Click me"
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <p>The accessibility tree represents content and its semantic meaning in a way that assistive technology can understand and present to the user.</p>
+            </div>
+        </div>
+
+        <!-- Slide 3 -->
+        <div class="slide">
+            <div class="content-box">
+                <h2>Method 1: display: none</h2>
+                <p>One common method to hide content is using <code style="background: #f0f0f0; padding: 2px 6px; border-radius: 3px;">display: none</code>.</p>
+                <div class="code-label">HTML</div>
+                <div class="code-example">
+                    <code>&lt;p class="hidden"&gt;Hidden text&lt;/p&gt;<br>
+&lt;p&gt;Visible text&lt;/p&gt;</code>
+                </div>
+                <div class="code-label">CSS</div>
+                <div class="code-example">
+                    <code>.hidden {<br>
+&nbsp;&nbsp;display: none;<br>
+}</code>
+                </div>
+                <div class="demo-card">
+                    <div class="demo-header">Visual Result</div>
+                    <div class="demo-content">
+                        <p style="font-weight: 600;">Visible text</p>
+                        <p style="font-size: 0.9rem; color: #666; margin-top: 1rem;"><em>The "Hidden text" is not displayed</em></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 4 -->
+        <div class="slide">
+            <div class="content-box">
+                <h2>display: none - Impact</h2>
+                <div class="warning-box">
+                    <h3>⚠️ Accessibility Impact:</h3>
+                    <p>While this effectively hides the content visually, it also <strong>removes it from the accessibility tree</strong>.</p>
+                </div>
+                <div class="highlight">
+                    <h3>What This Means:</h3>
+                    <ul>
+                        <li><span class="no">✗</span> Content is <strong>NOT visible</strong> on screen</li>
+                        <li><span class="no">✗</span> Content is <strong>NOT in accessibility tree</strong></li>
+                        <li><span class="no">✗</span> Screen readers <strong>CANNOT access</strong> the content</li>
+                        <li><span class="yes">✓</span> Takes <strong>NO space</strong> in layout</li>
+                    </ul>
+                </div>
+                <div class="warning-box">
+                    <p><strong>Use display: none only when you want to completely remove content from both visual presentation and accessibility.</strong></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 5 -->
+        <div class="slide">
+            <div class="content-box">
+                <h2>Method 2: visibility: hidden</h2>
+                <p>Another approach to hiding content is using <code style="background: #f0f0f0; padding: 2px 6px; border-radius: 3px;">visibility: hidden</code>.</p>
+                <div class="code-label">HTML</div>
+                <div class="code-example">
+                    <code>&lt;p class="hidden"&gt;Hidden text&lt;/p&gt;<br>
+&lt;p&gt;Visible text&lt;/p&gt;</code>
+                </div>
+                <div class="code-label">CSS</div>
+                <div class="code-example">
+                    <code>.hidden {<br>
+&nbsp;&nbsp;visibility: hidden;<br>
+}</code>
+                </div>
+                <div class="demo-card">
+                    <div class="demo-header">Visual Result</div>
+                    <div class="demo-content">
+                        <p style="visibility: hidden; font-weight: 600;">Hidden text</p>
+                        <p style="font-weight: 600;">Visible text</p>
+                        <p style="font-size: 0.9rem; color: #666; margin-top: 1rem;"><em>Notice the space where "Hidden text" would be</em></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 6 -->
+        <div class="slide">
+            <div class="content-box">
+                <h2>visibility: hidden - Impact</h2>
+                <div class="highlight">
+                    <p><code style="background: #f0f0f0; padding: 2px 6px; border-radius: 3px;">visibility: hidden</code> hides the content visually but keeps it in the document flow, meaning it still <strong>occupies space</strong> on the page.</p>
+                </div>
+                <div class="warning-box">
+                    <h3>⚠️ Accessibility Impact:</h3>
+                    <p>Like <code style="background: #f0f0f0; padding: 2px 6px; border-radius: 3px;">display: none</code>, <code style="background: #f0f0f0; padding: 2px 6px; border-radius: 3px;">visibility: hidden</code> also removes content from the accessibility tree.</p>
+                </div>
+                <div class="highlight">
+                    <h3>What This Means:</h3>
+                    <ul>
+                        <li><span class="no">✗</span> Content is <strong>NOT visible</strong> on screen</li>
+                        <li><span class="no">✗</span> Content is <strong>NOT in accessibility tree</strong></li>
+                        <li><span class="no">✗</span> Screen readers <strong>CANNOT access</strong> the content</li>
+                        <li><span class="yes">✓</span> Still <strong>occupies space</strong> in layout</li>
+                    </ul>
+                </div>
+                <div class="warning-box">
+                    <p><strong>Only use visibility: hidden when you want to hide content from everyone, including people who use assistive technology.</strong></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 7 -->
+        <div class="slide">
+            <div class="content-box">
+                <h2>Comparison: display vs visibility</h2>
+                <table class="comparison-table">
+                    <thead>
+                        <tr>
+                            <th>Property</th>
+                            <th>display: none</th>
+                            <th>visibility: hidden</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Visually Hidden?</strong></td>
+                            <td class="yes">Yes</td>
+                            <td class="yes">Yes</td>
+                        </tr>
+                        <tr>
+                            <td><strong>In Accessibility Tree?</strong></td>
+                            <td class="no">No</td>
+                            <td class="no">No</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Screen Readers Can Access?</strong></td>
+                            <td class="no">No</td>
+                            <td class="no">No</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Takes Up Space?</strong></td>
+                            <td class="no">No</td>
+                            <td class="yes">Yes</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Use When</strong></td>
+                            <td>Remove from everyone</td>
+                            <td>Hide but maintain layout space</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Slide 8 -->
+        <div class="slide">
+            <div class="content-box">
+                <h2>Method 3: Screen Reader Only (.sr-only)</h2>
+                <p>For content that should be <strong>hidden visually</strong> but remain <strong>accessible to screen readers</strong>, you can use the "visually hidden" or "screen reader only" technique.</p>
+                <div class="code-label">HTML</div>
+                <div class="code-example">
+                    <code>&lt;p class="sr-only"&gt;Hidden text&lt;/p&gt;<br>
+&lt;p&gt;Visible text&lt;/p&gt;</code>
+                </div>
+                <div class="code-label">CSS</div>
+                <div class="code-example">
+                    <code>.sr-only {<br>
+&nbsp;&nbsp;position: absolute;<br>
+&nbsp;&nbsp;width: 1px;<br>
+&nbsp;&nbsp;height: 1px;<br>
+&nbsp;&nbsp;padding: 0;<br>
+&nbsp;&nbsp;margin: -1px;<br>
+&nbsp;&nbsp;overflow: hidden;<br>
+&nbsp;&nbsp;clip: rect(0, 0, 0, 0);<br>
+&nbsp;&nbsp;white-space: nowrap;<br>
+&nbsp;&nbsp;border-width: 0;<br>
+}</code>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 9 -->
+        <div class="slide">
+            <div class="content-box">
+                <h2>.sr-only - Impact</h2>
+                <div class="success-box">
+                    <h3>✓ Accessibility Benefit:</h3>
+                    <p>This CSS rule effectively hides the content visually while <strong>keeping it accessible to screen readers</strong>.</p>
+                </div>
+                <div class="highlight">
+                    <h3>What This Means:</h3>
+                    <ul>
+                        <li><span class="no">✗</span> Content is <strong>NOT visible</strong> on screen</li>
+                        <li><span class="yes">✓</span> Content <strong>IS in accessibility tree</strong></li>
+                        <li><span class="yes">✓</span> Screen readers <strong>CAN access</strong> the content</li>
+                        <li><span class="yes">✓</span> Takes <strong>minimal space</strong> (1px)</li>
+                    </ul>
+                </div>
+                <div class="success-box">
+                    <p><strong>Use Case:</strong> This is useful for providing additional context to screen reader users without affecting the visual layout.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 10 -->
+        <div class="slide">
+            <div class="content-box">
+                <h2>.sr-only Examples</h2>
+                <p>Common use cases for screen reader only content:</p>
+                <div class="demo-grid">
+                    <div class="demo-card">
+                        <div class="demo-header">Skip Navigation Link</div>
+                        <div class="demo-content">
+                            <div class="code-example" style="margin: 0;">
+                                <code>&lt;a href="#main" class="sr-only"&gt;<br>
+&nbsp;&nbsp;Skip to main content<br>
+&lt;/a&gt;</code>
+                            </div>
+                        </div>
+                        <div class="demo-description">
+                            Allows keyboard users to skip repetitive navigation
+                        </div>
+                    </div>
+                    <div class="demo-card">
+                        <div class="demo-header">Icon Button Label</div>
+                        <div class="demo-content">
+                            <div class="code-example" style="margin: 0;">
+                                <code>&lt;button&gt;<br>
+&nbsp;&nbsp;❤️<br>
+&nbsp;&nbsp;&lt;span class="sr-only"&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;Like this post<br>
+&nbsp;&nbsp;&lt;/span&gt;<br>
+&lt;/button&gt;</code>
+                            </div>
+                        </div>
+                        <div class="demo-description">
+                            Provides text description for icon-only buttons
+                        </div>
+                    </div>
+                    <div class="demo-card">
+                        <div class="demo-header">Additional Context</div>
+                        <div class="demo-content">
+                            <div class="code-example" style="margin: 0;">
+                                <code>&lt;a href="/article"&gt;<br>
+&nbsp;&nbsp;Read more<br>
+&nbsp;&nbsp;&lt;span class="sr-only"&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;about color theory<br>
+&nbsp;&nbsp;&lt;/span&gt;<br>
+&lt;/a&gt;</code>
+                            </div>
+                        </div>
+                        <div class="demo-description">
+                            Adds context that sighted users get from surrounding content
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 11 -->
+        <div class="slide">
+            <div class="content-box">
+                <h2>Method 4: The hidden Attribute</h2>
+                <p>For toggling content visibility, consider using the <code style="background: #f0f0f0; padding: 2px 6px; border-radius: 3px;">hidden</code> attribute.</p>
+                <div class="code-label">HTML</div>
+                <div class="code-example">
+                    <code>&lt;p hidden&gt;This content is hidden&lt;/p&gt;<br>
+&lt;p&gt;This content is visible&lt;/p&gt;</code>
+                </div>
+                <div class="demo-card">
+                    <div class="demo-header">Visual Result</div>
+                    <div class="demo-content">
+                        <p style="font-weight: 600;">This content is visible</p>
+                        <p style="font-size: 0.9rem; color: #666; margin-top: 1rem;"><em>The hidden content is not displayed</em></p>
+                    </div>
+                </div>
+                <div class="highlight" style="margin-top: 1.5rem;">
+                    <h3>Key Features:</h3>
+                    <ul>
+                        <li>Supported by most modern browsers</li>
+                        <li>Hides content both visually and from accessibility tree</li>
+                        <li>Can be easily toggled with JavaScript</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 12 -->
+        <div class="slide">
+            <div class="content-box">
+                <h2>hidden Attribute with JavaScript</h2>
+                <p>The <code style="background: #f0f0f0; padding: 2px 6px; border-radius: 3px;">hidden</code> attribute is particularly useful for dynamic content:</p>
+                <div class="code-label">HTML</div>
+                <div class="code-example">
+                    <code>&lt;button onclick="toggleContent()"&gt;<br>
+&nbsp;&nbsp;Toggle Content<br>
+&lt;/button&gt;<br>
+&lt;p id="content" hidden&gt;<br>
+&nbsp;&nbsp;This can be shown or hidden<br>
+&lt;/p&gt;</code>
+                </div>
+                <div class="code-label">JavaScript</div>
+                <div class="code-example">
+                    <code>function toggleContent() {<br>
+&nbsp;&nbsp;const element = document.getElementById('content');<br>
+&nbsp;&nbsp;element.hidden = !element.hidden;<br>
+}</code>
+                </div>
+                <p style="margin-top: 1.5rem;">This makes it easy to show and hide content dynamically while maintaining proper accessibility.</p>
+            </div>
+        </div>
+
+        <!-- Slide 13 -->
+        <div class="slide">
+            <div class="content-box">
+                <h2>Interactive Demo: Hiding Methods</h2>
+                <p>See how different hiding methods work:</p>
+                <div class="interactive-demo">
+                    <div class="demo-controls">
+                        <button class="demo-button active" onclick="showMethod('visible')">Visible</button>
+                        <button class="demo-button" onclick="showMethod('display')">display: none</button>
+                        <button class="demo-button" onclick="showMethod('visibility')">visibility: hidden</button>
+                        <button class="demo-button" onclick="showMethod('sronly')">SR-Only</button>
+                        <button class="demo-button" onclick="showMethod('hidden')">hidden Attribute</button>
+                    </div>
+                    <div class="demo-output">
+                        <div class="demo-element" id="demoElement">
+                            I am content!
+                        </div>
+                        <div style="margin-top: 2rem; padding: 1rem; background: white; border: 2px solid #ddd; border-radius: 4px;">
+                            <h4 style="color: #881518; margin-bottom: 0.5rem;">Status:</h4>
+                            <p style="margin: 0.5rem 0;">
+                                <strong>Visual:</strong> <span class="status-indicator status-visible" id="visualStatus">Visible</span>
+                            </p>
+                            <p style="margin: 0.5rem 0;">
+                                <strong>Screen Readers:</strong> <span class="status-indicator status-visible" id="srStatus">Accessible</span>
+                            </p>
+                            <p style="margin: 0.5rem 0;">
+                                <strong>Space:</strong> <span id="spaceStatus">Takes normal space</span>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 14 -->
+        <div class="slide">
+            <div class="content-box">
+                <h2>Complete Comparison</h2>
+                <table class="comparison-table">
+                    <thead>
+                        <tr>
+                            <th>Method</th>
+                            <th>Visually Hidden?</th>
+                            <th>Accessible?</th>
+                            <th>Takes Space?</th>
+                            <th>Best Use</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>display: none</strong></td>
+                            <td class="yes">Yes</td>
+                            <td class="no">No</td>
+                            <td class="no">No</td>
+                            <td>Hide from everyone</td>
+                        </tr>
+                        <tr>
+                            <td><strong>visibility: hidden</strong></td>
+                            <td class="yes">Yes</td>
+                            <td class="no">No</td>
+                            <td class="yes">Yes</td>
+                            <td>Maintain layout space</td>
+                        </tr>
+                        <tr>
+                            <td><strong>.sr-only</strong></td>
+                            <td class="yes">Yes</td>
+                            <td class="yes">Yes</td>
+                            <td class="no">No</td>
+                            <td>Screen readers only</td>
+                        </tr>
+                        <tr>
+                            <td><strong>hidden attribute</strong></td>
+                            <td class="yes">Yes</td>
+                            <td class="no">No</td>
+                            <td class="no">No</td>
+                            <td>Easy JS toggling</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Slide 15 -->
+        <div class="slide">
+            <div class="content-box">
+                <h2>When to Hide Content</h2>
+                <div class="warning-box">
+                    <h3>⚠️ Caution:</h3>
+                    <p>Be cautious about hiding important content. If information is crucial for understanding or using the website, it should be visible and accessible to all users.</p>
+                </div>
+                <div class="highlight">
+                    <h3>Hide Content When:</h3>
+                    <ul>
+                        <li>It genuinely <strong>enhances the user experience</strong></li>
+                        <li>The content is <strong>redundant</strong> for visual users but helpful for screen readers</li>
+                        <li>You're creating <strong>progressive disclosure</strong> patterns (show/hide on user action)</li>
+                        <li>Managing <strong>responsive layouts</strong> where different content shows at different breakpoints</li>
+                    </ul>
+                </div>
+                <div class="warning-box">
+                    <h3>Don't Hide Content When:</h3>
+                    <ul>
+                        <li>The information is <strong>essential</strong> for understanding</li>
+                        <li>It's required for <strong>completing tasks</strong></li>
+                        <li>Users <strong>need access</strong> to it</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 16 -->
+        <div class="slide">
+            <div class="content-box">
+                <h2>Best Practices Summary</h2>
+                <div class="success-box">
+                    <h3>✓ Follow These Guidelines:</h3>
+                    <ol style="margin: 1rem 0; padding-left: 2rem;">
+                        <li style="margin-bottom: 1rem;"><strong>Choose the right method:</strong> Select the hiding technique that matches your accessibility goals</li>
+                        <li style="margin-bottom: 1rem;"><strong>Use .sr-only for helpful context:</strong> Add information that screen reader users need but sighted users get visually</li>
+                        <li style="margin-bottom: 1rem;"><strong>Test with screen readers:</strong> Verify that hidden content works as intended</li>
+                        <li style="margin-bottom: 1rem;"><strong>Consider all users:</strong> Think about how hiding affects everyone</li>
+                        <li style="margin-bottom: 1rem;"><strong>Document your choices:</strong> Comment your code to explain why content is hidden</li>
+                    </ol>
+                </div>
+                <p style="margin-top: 1.5rem;">By following these best practices, you can ensure that your content remains accessible to all users, regardless of how they interact with your website.</p>
+            </div>
+        </div>
+
+        <!-- Slide 17 -->
+        <div class="slide">
+            <div class="content-box">
+                <h2>Key Takeaways</h2>
+                <div class="highlight">
+                    <h3>Hiding Methods:</h3>
+                    <ul>
+                        <li><code style="background: #f0f0f0; padding: 2px 6px; border-radius: 3px;">display: none</code> - Hides from everyone (visual + screen readers)</li>
+                        <li><code style="background: #f0f0f0; padding: 2px 6px; border-radius: 3px;">visibility: hidden</code> - Hides from everyone but keeps space</li>
+                        <li><code style="background: #f0f0f0; padding: 2px 6px; border-radius: 3px;">.sr-only</code> - Hides visually but accessible to screen readers</li>
+                        <li><code style="background: #f0f0f0; padding: 2px 6px; border-radius: 3px;">hidden</code> attribute - Hides from everyone, easy to toggle</li>
+                    </ul>
+                </div>
+                <div class="success-box" style="margin-top: 1.5rem;">
+                    <h3>Remember:</h3>
+                    <ul>
+                        <li>The <strong>accessibility tree</strong> determines what screen readers can access</li>
+                        <li>Use <strong>.sr-only</strong> to provide context without visual clutter</li>
+                        <li>Only hide content when it <strong>genuinely enhances user experience</strong></li>
+                        <li><strong>Test your hiding techniques</strong> with actual screen readers</li>
+                        <li>Consider <strong>all users</strong> when deciding what to hide</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="nav-controls">
+        <button id="prevBtn" onclick="changeSlide(-1)">← Previous</button>
+        <span class="slide-counter">
+            <span id="currentSlide">1</span> / <span id="totalSlides">17</span>
+        </span>
+        <button id="nextBtn" onclick="changeSlide(1)">Next →</button>
+    </div>
+
+    <script>
+        let currentSlide = 1;
+        const totalSlides = document.querySelectorAll('.slide').length;
+        
+        document.getElementById('totalSlides').textContent = totalSlides;
+
+        function showSlide(n) {
+            const slides = document.querySelectorAll('.slide');
+            const prevBtn = document.getElementById('prevBtn');
+            const nextBtn = document.getElementById('nextBtn');
+            
+            if (n > totalSlides) {
+                currentSlide = totalSlides;
+            }
+            if (n < 1) {
+                currentSlide = 1;
+            }
+            
+            slides.forEach(slide => {
+                slide.classList.remove('active');
+            });
+            
+            slides[currentSlide - 1].classList.add('active');
+            document.getElementById('currentSlide').textContent = currentSlide;
+            
+            // Disable/enable buttons
+            prevBtn.disabled = currentSlide === 1;
+            nextBtn.disabled = currentSlide === totalSlides;
+            
+            // Scroll to top when changing slides
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function changeSlide(n) {
+            currentSlide += n;
+            showSlide(currentSlide);
+        }
+
+        // Interactive Demo
+        function showMethod(method) {
+            const element = document.getElementById('demoElement');
+            const visualStatus = document.getElementById('visualStatus');
+            const srStatus = document.getElementById('srStatus');
+            const spaceStatus = document.getElementById('spaceStatus');
+            const buttons = document.querySelectorAll('.demo-button');
+            
+            // Reset styles
+            element.style.display = '';
+            element.style.visibility = '';
+            element.className = 'demo-element';
+            element.removeAttribute('hidden');
+            
+            // Update button states
+            buttons.forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            switch(method) {
+                case 'visible':
+                    visualStatus.textContent = 'Visible';
+                    visualStatus.className = 'status-indicator status-visible';
+                    srStatus.textContent = 'Accessible';
+                    srStatus.className = 'status-indicator status-visible';
+                    spaceStatus.textContent = 'Takes normal space';
+                    break;
+                    
+                case 'display':
+                    element.style.display = 'none';
+                    visualStatus.textContent = 'Hidden';
+                    visualStatus.className = 'status-indicator status-hidden';
+                    srStatus.textContent = 'Not Accessible';
+                    srStatus.className = 'status-indicator status-hidden';
+                    spaceStatus.textContent = 'Takes no space';
+                    break;
+                    
+                case 'visibility':
+                    element.style.visibility = 'hidden';
+                    visualStatus.textContent = 'Hidden';
+                    visualStatus.className = 'status-indicator status-hidden';
+                    srStatus.textContent = 'Not Accessible';
+                    srStatus.className = 'status-indicator status-hidden';
+                    spaceStatus.textContent = 'Still takes space';
+                    break;
+                    
+                case 'sronly':
+                    element.className = 'demo-element sr-only';
+                    visualStatus.textContent = 'Hidden';
+                    visualStatus.className = 'status-indicator status-hidden';
+                    srStatus.textContent = 'Accessible';
+                    srStatus.className = 'status-indicator status-sr-only';
+                    spaceStatus.textContent = 'Takes minimal space (1px)';
+                    break;
+                    
+                case 'hidden':
+                    element.setAttribute('hidden', '');
+                    visualStatus.textContent = 'Hidden';
+                    visualStatus.className = 'status-indicator status-hidden';
+                    srStatus.textContent = 'Not Accessible';
+                    srStatus.className = 'status-indicator status-hidden';
+                    spaceStatus.textContent = 'Takes no space';
+                    break;
+            }
+        }
+
+        // Keyboard navigation
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'ArrowLeft') {
+                if (currentSlide > 1) changeSlide(-1);
+            } else if (event.key === 'ArrowRight') {
+                if (currentSlide < totalSlides) changeSlide(1);
+            }
+        });
+
+        // Initialize
+        showSlide(currentSlide);
+    </script>
+</body>
+</html>
