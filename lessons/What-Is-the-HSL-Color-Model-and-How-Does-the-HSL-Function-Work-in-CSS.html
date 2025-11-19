@@ -1,0 +1,905 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HSL Color Model in CSS</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #f5f5f5;
+            color: #333;
+            overflow-x: hidden;
+        }
+
+        .slide-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px 120px;
+            min-height: 100vh;
+        }
+
+        .slide {
+            display: none;
+            animation: fadeIn 0.5s;
+        }
+
+        .slide.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        h2 {
+            color: #881518;
+            font-size: 2rem;
+            margin-bottom: 1.5rem;
+            border-bottom: 3px solid #881518;
+            padding-bottom: 0.5rem;
+        }
+
+        h3 {
+            color: #881518;
+            font-size: 1.5rem;
+            margin-top: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        p {
+            font-size: 1.1rem;
+            line-height: 1.8;
+            margin-bottom: 1rem;
+        }
+
+        ul {
+            margin: 1.5rem 0;
+            padding-left: 2rem;
+        }
+
+        li {
+            font-size: 1.1rem;
+            line-height: 1.8;
+            margin-bottom: 0.8rem;
+        }
+
+        .content-box {
+            background: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+        }
+
+        .highlight {
+            background: #fff3cd;
+            padding: 1.5rem;
+            border-left: 4px solid #881518;
+            margin: 1.5rem 0;
+            border-radius: 4px;
+        }
+
+        .code-example {
+            background: #2d2d2d;
+            color: #f8f8f2;
+            padding: 1.5rem;
+            border-radius: 4px;
+            margin: 1.5rem 0;
+            overflow-x: auto;
+        }
+
+        .code-example code {
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        .code-label {
+            color: #881518;
+            font-weight: 600;
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .example-output {
+            background: white;
+            border: 2px solid #ddd;
+            border-radius: 4px;
+            padding: 2rem;
+            margin: 1.5rem 0;
+        }
+
+        .color-wheel-container {
+            text-align: center;
+            margin: 2rem 0;
+        }
+
+        .color-wheel {
+            width: 100%;
+            max-width: 400px;
+            height: 400px;
+            margin: 0 auto 1rem;
+            border-radius: 50%;
+            background: conic-gradient(
+                from 0deg,
+                hsl(0, 100%, 50%),
+                hsl(30, 100%, 50%),
+                hsl(60, 100%, 50%),
+                hsl(90, 100%, 50%),
+                hsl(120, 100%, 50%),
+                hsl(150, 100%, 50%),
+                hsl(180, 100%, 50%),
+                hsl(210, 100%, 50%),
+                hsl(240, 100%, 50%),
+                hsl(270, 100%, 50%),
+                hsl(300, 100%, 50%),
+                hsl(330, 100%, 50%),
+                hsl(360, 100%, 50%)
+            );
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            position: relative;
+        }
+
+        .wheel-marker {
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            background: white;
+            border: 3px solid #881518;
+            border-radius: 50%;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 0.8rem;
+            color: #881518;
+        }
+
+        .saturation-demo {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+
+        .sat-box {
+            height: 100px;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            color: white;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .lightness-demo {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+
+        .light-box {
+            height: 100px;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .hsl-mixer {
+            background: white;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            padding: 2rem;
+            margin: 2rem 0;
+        }
+
+        .slider-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .slider-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+
+        input[type="range"] {
+            width: 100%;
+            height: 8px;
+            border-radius: 4px;
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #881518;
+            cursor: pointer;
+        }
+
+        input[type="range"]::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #881518;
+            cursor: pointer;
+            border: none;
+        }
+
+        .color-result {
+            margin-top: 2rem;
+            text-align: center;
+        }
+
+        .result-box {
+            width: 100%;
+            height: 150px;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        }
+
+        .result-text {
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #881518;
+        }
+
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .comparison-box {
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            background: white;
+        }
+
+        .comparison-color {
+            height: 150px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 1.2rem;
+        }
+
+        .comparison-info {
+            padding: 1rem;
+            text-align: center;
+        }
+
+        .comparison-label {
+            font-weight: 600;
+            color: #881518;
+            margin-bottom: 0.5rem;
+        }
+
+        .comparison-value {
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .transparency-demo {
+            position: relative;
+            height: 200px;
+            background: 
+                repeating-conic-gradient(#ddd 0% 25%, white 0% 50%) 
+                50% / 20px 20px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 2rem 0;
+        }
+
+        .transparency-box {
+            padding: 2rem 3rem;
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: white;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+        }
+
+        .nav-controls {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: #881518;
+            padding: 1rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 2rem;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.2);
+            z-index: 1000;
+        }
+
+        button {
+            background: white;
+            color: #881518;
+            border: none;
+            padding: 12px 30px;
+            font-size: 1rem;
+            font-weight: 600;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        button:hover:not(:disabled) {
+            background: #f0f0f0;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .slide-counter {
+            color: white;
+            font-weight: 600;
+            font-size: 1rem;
+        }
+
+        @media (max-width: 768px) {
+            h2 {
+                font-size: 1.5rem;
+            }
+
+            h3 {
+                font-size: 1.3rem;
+            }
+
+            p, li {
+                font-size: 1rem;
+            }
+
+            .slide-container {
+                padding: 20px 15px 120px;
+            }
+
+            .content-box {
+                padding: 1.5rem;
+            }
+
+            .nav-controls {
+                gap: 1rem;
+                padding: 0.8rem;
+            }
+
+            button {
+                padding: 10px 20px;
+                font-size: 0.9rem;
+            }
+
+            .code-example {
+                padding: 1rem;
+            }
+
+            .code-example code {
+                font-size: 0.85rem;
+            }
+
+            .color-wheel {
+                max-width: 300px;
+                height: 300px;
+            }
+
+            .saturation-demo,
+            .lightness-demo {
+                grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+            }
+
+            .comparison-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="slide-container">
+        <!-- Slide 1 -->
+        <div class="slide active">
+            <div class="content-box">
+                <h2>What is HSL?</h2>
+                <p>When styling websites, one of the most versatile and intuitive ways to work with color is by using the HSL color model.</p>
+                <div class="highlight">
+                    <h3>HSL stands for:</h3>
+                    <ul>
+                        <li><strong>Hue</strong> - The color type</li>
+                        <li><strong>Saturation</strong> - The intensity or purity of the color</li>
+                        <li><strong>Lightness</strong> - How light or dark the color is</li>
+                    </ul>
+                </div>
+                <p>These are the three key components that define a color in the HSL model.</p>
+            </div>
+        </div>
+
+        <!-- Slide 2 -->
+        <div class="slide">
+            <div class="content-box">
+                <h2>Human-Friendly Color Model</h2>
+                <p>The HSL color model represents colors in a way that is more in line with how humans perceive color.</p>
+                <div class="highlight">
+                    <h3>Why HSL is Intuitive:</h3>
+                    <ul>
+                        <li>Separates <strong>color type</strong> (hue) from <strong>intensity</strong> (saturation) and <strong>brightness</strong> (lightness)</li>
+                        <li>Easier to <strong>visualize</strong> and <strong>adjust</strong> colors</li>
+                        <li>More <strong>natural</strong> for creating color variations</li>
+                    </ul>
+                </div>
+                <p>This makes HSL particularly useful for designers and developers when creating color schemes and adjusting colors.</p>
+            </div>
+        </div>
+
+        <!-- Slide 3 -->
+        <div class="slide">
+            <div class="content-box">
+                <h2>Hue: The Color Type</h2>
+                <p>Hue is the color type, represented as an angle on the color wheel, which ranges from <strong>0 to 360 degrees</strong>.</p>
+                <div class="color-wheel-container">
+                    <div class="color-wheel" style="position: relative;">
+                        <div class="wheel-marker" style="position: absolute; top: 0; left: 50%; transform: translate(-50%, -50%);">0°<br>Red</div>
+                        <div class="wheel-marker" style="position: absolute; bottom: 0; left: 25%; transform: translate(-50%, 50%);">120°<br>Green</div>
+                        <div class="wheel-marker" style="position: absolute; top: 50%; right: 0; transform: translate(50%, -50%);">240°<br>Blue</div>
+                    </div>
+                    <p style="font-style: italic; color: #666;">HSL Color Wheel showing hue angles</p>
+                </div>
+                <div class="highlight">
+                    <h3>Key Hue Values:</h3>
+                    <ul>
+                        <li><strong>0° (360°)</strong> = Red</li>
+                        <li><strong>120°</strong> = Green</li>
+                        <li><strong>240°</strong> = Blue</li>
+                    </ul>
+                    <p style="margin-top: 1rem;">By adjusting the hue, you shift through different colors on the spectrum.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 4 -->
+        <div class="slide">
+            <div class="content-box">
+                <h2>Saturation: Color Intensity</h2>
+                <p>Saturation refers to the intensity or purity of the color. It is measured as a percentage from <strong>0% to 100%</strong>.</p>
+                <div class="saturation-demo">
+                    <div class="sat-box" style="background: hsl(240, 0%, 50%); color: #333;">0%</div>
+                    <div class="sat-box" style="background: hsl(240, 25%, 50%);">25%</div>
+                    <div class="sat-box" style="background: hsl(240, 50%, 50%);">50%</div>
+                    <div class="sat-box" style="background: hsl(240, 75%, 50%);">75%</div>
+                    <div class="sat-box" style="background: hsl(240, 100%, 50%);">100%</div>
+                </div>
+                <div class="highlight">
+                    <ul>
+                        <li><strong>0%</strong> = Completely desaturated (grayscale)</li>
+                        <li><strong>100%</strong> = Most vibrant form of that color</li>
+                    </ul>
+                    <p style="margin-top: 1rem;">A color with 100% saturation is fully vivid, while a color with 0% saturation appears as a shade of gray.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 5 -->
+        <div class="slide">
+            <div class="content-box">
+                <h2>Lightness: Brightness Level</h2>
+                <p>Lightness determines how light or dark the color is, measured as a percentage from <strong>0% to 100%</strong>.</p>
+                <div class="lightness-demo">
+                    <div class="light-box" style="background: hsl(240, 100%, 0%); color: white;">0%</div>
+                    <div class="light-box" style="background: hsl(240, 100%, 25%); color: white;">25%</div>
+                    <div class="light-box" style="background: hsl(240, 100%, 50%); color: white;">50%</div>
+                    <div class="light-box" style="background: hsl(240, 100%, 75%); color: #333;">75%</div>
+                    <div class="light-box" style="background: hsl(240, 100%, 100%); color: #333; border: 2px solid #ddd;">100%</div>
+                </div>
+                <div class="highlight">
+                    <ul>
+                        <li><strong>0%</strong> = Black</li>
+                        <li><strong>50%</strong> = Normal tone of the hue</li>
+                        <li><strong>100%</strong> = White</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 6 -->
+        <div class="slide">
+            <div class="content-box">
+                <h2>The CSS hsl() Function</h2>
+                <p>In CSS, the <code style="background: #f0f0f0; padding: 2px 6px; border-radius: 3px;">hsl()</code> function is used to define colors using the HSL color model.</p>
+                <div class="highlight">
+                    <h3>Basic Syntax:</h3>
+                    <div class="code-example">
+                        <code>element {<br>
+&nbsp;&nbsp;color: hsl(hue, saturation, lightness);<br>
+}</code>
+                    </div>
+                </div>
+                <ul>
+                    <li><strong>hue</strong> = Angle from 0 to 360 degrees</li>
+                    <li><strong>saturation</strong> = Percentage from 0% to 100%</li>
+                    <li><strong>lightness</strong> = Percentage from 0% to 100%</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Slide 7 -->
+        <div class="slide">
+            <div class="content-box">
+                <h2>Example: Using hsl() in CSS</h2>
+                <div class="code-label">HTML</div>
+                <div class="code-example">
+                    <code>&lt;p&gt;This is a paragraph.&lt;/p&gt;</code>
+                </div>
+                <div class="code-label">CSS</div>
+                <div class="code-example">
+                    <code>p {<br>
+&nbsp;&nbsp;color: hsl(120, 100%, 50%);<br>
+}</code>
+                </div>
+                <div class="example-output">
+                    <p style="color: hsl(120, 100%, 50%); margin: 0; font-size: 1.3rem; font-weight: 600;">This is a paragraph.</p>
+                </div>
+                <div class="highlight">
+                    <h3>Breaking it down:</h3>
+                    <ul>
+                        <li><strong>Hue: 120°</strong> = Green</li>
+                        <li><strong>Saturation: 100%</strong> = Fully vivid</li>
+                        <li><strong>Lightness: 50%</strong> = Normal tone</li>
+                    </ul>
+                    <p style="margin-top: 1rem;">Result: A bright green text color.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 8 -->
+        <div class="slide">
+            <div class="content-box">
+                <h2>Advantage: Intuitive Adjustments</h2>
+                <p>One of the main advantages of the HSL color model is its intuitive nature.</p>
+                <div class="highlight">
+                    <p>It makes it easy to adjust a color's vibrancy or lightness by tweaking the saturation and lightness values <strong>without having to alter the core color (hue)</strong>.</p>
+                </div>
+                <p>For instance, if you want to create different shades or tints of the same color, you can simply adjust the lightness value.</p>
+            </div>
+        </div>
+
+        <!-- Slide 9 -->
+        <div class="slide">
+            <div class="content-box">
+                <h2>Creating Shades and Tints</h2>
+                <div class="code-label">HTML</div>
+                <div class="code-example">
+                    <code>&lt;div class="light"&gt;This is a light blue div.&lt;/div&gt;<br>
+&lt;div class="dark"&gt;This is a dark blue div.&lt;/div&gt;</code>
+                </div>
+                <div class="code-label">CSS</div>
+                <div class="code-example">
+                    <code>.light {<br>
+&nbsp;&nbsp;background-color: hsl(240, 100%, 80%);<br>
+&nbsp;&nbsp;color: black;<br>
+}<br>
+<br>
+.dark {<br>
+&nbsp;&nbsp;background-color: hsl(240, 100%, 20%);<br>
+&nbsp;&nbsp;color: white;<br>
+}</code>
+                </div>
+                <div class="comparison-grid">
+                    <div class="comparison-box">
+                        <div class="comparison-color" style="background: hsl(240, 100%, 80%); color: black;">Light Blue</div>
+                        <div class="comparison-info">
+                            <div class="comparison-label">Lighter Shade</div>
+                            <div class="comparison-value">hsl(240, 100%, 80%)</div>
+                        </div>
+                    </div>
+                    <div class="comparison-box">
+                        <div class="comparison-color" style="background: hsl(240, 100%, 20%); color: white;">Dark Blue</div>
+                        <div class="comparison-info">
+                            <div class="comparison-label">Darker Shade</div>
+                            <div class="comparison-value">hsl(240, 100%, 20%)</div>
+                        </div>
+                    </div>
+                </div>
+                <p style="margin-top: 1rem;">Both divs use the same hue (240°, blue), but different lightness values create lighter and darker shades.</p>
+            </div>
+        </div>
+
+        <!-- Slide 10 -->
+        <div class="slide">
+            <div class="content-box">
+                <h2>The hsla() Function</h2>
+                <p>Just like RGB has rgba(), the HSL model has <code style="background: #f0f0f0; padding: 2px 6px; border-radius: 3px;">hsla()</code> for transparency.</p>
+                <div class="highlight">
+                    <h3>Basic Syntax:</h3>
+                    <div class="code-example">
+                        <code>element {<br>
+&nbsp;&nbsp;background-color: hsla(hue, saturation, lightness, alpha);<br>
+}</code>
+                    </div>
+                </div>
+                <p>The fourth parameter represents the <strong>alpha value</strong>, which controls the opacity of the color.</p>
+                <ul>
+                    <li><strong>0</strong> = Completely transparent</li>
+                    <li><strong>1</strong> = Completely opaque</li>
+                    <li><strong>0.5</strong> = 50% opacity</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Slide 11 -->
+        <div class="slide">
+            <div class="content-box">
+                <h2>Example: Semi-Transparent Color</h2>
+                <div class="code-label">HTML</div>
+                <div class="code-example">
+                    <code>&lt;div&gt;This is a div.&lt;/div&gt;</code>
+                </div>
+                <div class="code-label">CSS</div>
+                <div class="code-example">
+                    <code>div {<br>
+&nbsp;&nbsp;background-color: hsla(0, 100%, 50%, 0.5);<br>
+&nbsp;&nbsp;padding: 2rem;<br>
+&nbsp;&nbsp;color: white;<br>
+}</code>
+                </div>
+                <div class="transparency-demo">
+                    <div class="transparency-box" style="background-color: hsla(0, 100%, 50%, 0.5);">
+                        This is a div.
+                    </div>
+                </div>
+                <div class="highlight">
+                    <h3>Breaking it down:</h3>
+                    <ul>
+                        <li><strong>Hue: 0°</strong> = Red</li>
+                        <li><strong>Saturation: 100%</strong> = Fully vivid</li>
+                        <li><strong>Lightness: 50%</strong> = Normal tone</li>
+                        <li><strong>Alpha: 0.5</strong> = 50% opacity</li>
+                    </ul>
+                    <p style="margin-top: 1rem;">Result: A semi-transparent red background.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 12 -->
+        <div class="slide">
+            <div class="content-box">
+                <h2>Interactive HSL Color Mixer</h2>
+                <p>Experiment with HSL values to see how they create colors:</p>
+                <div class="hsl-mixer">
+                    <div class="slider-group">
+                        <div class="slider-label">
+                            <span>Hue (0-360°)</span>
+                            <span id="hueValue">180</span>°
+                        </div>
+                        <input type="range" id="hueSlider" min="0" max="360" value="180"
+                               style="background: linear-gradient(to right, 
+                                   hsl(0, 100%, 50%),
+                                   hsl(60, 100%, 50%),
+                                   hsl(120, 100%, 50%),
+                                   hsl(180, 100%, 50%),
+                                   hsl(240, 100%, 50%),
+                                   hsl(300, 100%, 50%),
+                                   hsl(360, 100%, 50%));">
+                    </div>
+                    <div class="slider-group">
+                        <div class="slider-label">
+                            <span>Saturation (0-100%)</span>
+                            <span id="satValue">100</span>%
+                        </div>
+                        <input type="range" id="satSlider" min="0" max="100" value="100">
+                    </div>
+                    <div class="slider-group">
+                        <div class="slider-label">
+                            <span>Lightness (0-100%)</span>
+                            <span id="lightValue">50</span>%
+                        </div>
+                        <input type="range" id="lightSlider" min="0" max="100" value="50">
+                    </div>
+                    <div class="color-result">
+                        <div class="result-box" id="hslResultBox" style="background: hsl(180, 100%, 50%);"></div>
+                        <div class="result-text" id="hslResultText">hsl(180, 100%, 50%)</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 13 -->
+        <div class="slide">
+            <div class="content-box">
+                <h2>Use Cases for HSL</h2>
+                <p>The HSL color model is particularly useful when you need to create color schemes and adjust shades or tints easily.</p>
+                <div class="highlight">
+                    <h3>HSL Excels At:</h3>
+                    <ul>
+                        <li><strong>Creating color schemes</strong> - Keep consistent hue, vary lightness and saturation</li>
+                        <li><strong>Shadows and highlights</strong> - Adjust lightness while keeping the same color theme</li>
+                        <li><strong>Color variations</strong> - Easy to generate tints and shades</li>
+                        <li><strong>Dynamic theming</strong> - Programmatically adjust colors</li>
+                    </ul>
+                </div>
+                <p>Because HSL separates the hue from saturation and lightness, you can keep a consistent color theme while tweaking lightness for different design needs.</p>
+            </div>
+        </div>
+
+        <!-- Slide 14 -->
+        <div class="slide">
+            <div class="content-box">
+                <h2>Readability Advantage</h2>
+                <p>HSL makes color values more readable and understandable when compared to other methods like hex codes or RGB.</p>
+                <div class="comparison-grid">
+                    <div class="comparison-box">
+                        <div class="comparison-color" style="background: hsl(210, 100%, 50%); color: white;">
+                            <div style="padding: 2rem;">
+                                <strong>HSL</strong>
+                            </div>
+                        </div>
+                        <div class="comparison-info">
+                            <div class="comparison-value">hsl(210, 100%, 50%)</div>
+                            <p style="font-size: 0.9rem; color: #28a745; margin-top: 0.5rem;">✓ Easy to understand</p>
+                        </div>
+                    </div>
+                    <div class="comparison-box">
+                        <div class="comparison-color" style="background: #0080ff; color: white;">
+                            <div style="padding: 2rem;">
+                                <strong>Hex</strong>
+                            </div>
+                        </div>
+                        <div class="comparison-info">
+                            <div class="comparison-value">#0080ff</div>
+                            <p style="font-size: 0.9rem; color: #666; margin-top: 0.5rem;">Less intuitive</p>
+                        </div>
+                    </div>
+                    <div class="comparison-box">
+                        <div class="comparison-color" style="background: rgb(0, 128, 255); color: white;">
+                            <div style="padding: 2rem;">
+                                <strong>RGB</strong>
+                            </div>
+                        </div>
+                        <div class="comparison-info">
+                            <div class="comparison-value">rgb(0, 128, 255)</div>
+                            <p style="font-size: 0.9rem; color: #666; margin-top: 0.5rem;">Hard to visualize</p>
+                        </div>
+                    </div>
+                </div>
+                <p style="margin-top: 1rem;">You can more clearly see the intent behind the color and adjust accordingly, especially when experimenting with different designs.</p>
+            </div>
+        </div>
+
+        <!-- Slide 15 -->
+        <div class="slide">
+            <div class="content-box">
+                <h2>Key Takeaways</h2>
+                <div class="highlight">
+                    <p><strong>With the HSL color model, you gain more flexibility in controlling color tones, saturation, and lightness:</strong></p>
+                    <ul>
+                        <li><strong>Hue (0-360°)</strong> determines the color type on the color wheel</li>
+                        <li><strong>Saturation (0-100%)</strong> controls the intensity and vibrancy</li>
+                        <li><strong>Lightness (0-100%)</strong> adjusts how light or dark the color appears</li>
+                        <li>Use <strong>hsla()</strong> to add transparency with the alpha channel</li>
+                        <li><strong>More intuitive</strong> than RGB or hex for creating color variations</li>
+                        <li><strong>Perfect for</strong> consistent color schemes and dynamic designs</li>
+                    </ul>
+                </div>
+                <p style="margin-top: 1.5rem;">HSL makes it a powerful tool for creating rich and dynamic designs in CSS.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="nav-controls">
+        <button id="prevBtn" onclick="changeSlide(-1)">← Previous</button>
+        <span class="slide-counter">
+            <span id="currentSlide">1</span> / <span id="totalSlides">15</span>
+        </span>
+        <button id="nextBtn" onclick="changeSlide(1)">Next →</button>
+    </div>
+
+    <script>
+        let currentSlide = 1;
+        const totalSlides = document.querySelectorAll('.slide').length;
+        
+        document.getElementById('totalSlides').textContent = totalSlides;
+
+        function showSlide(n) {
+            const slides = document.querySelectorAll('.slide');
+            const prevBtn = document.getElementById('prevBtn');
+            const nextBtn = document.getElementById('nextBtn');
+            
+            if (n > totalSlides) {
+                currentSlide = totalSlides;
+            }
+            if (n < 1) {
+                currentSlide = 1;
+            }
+            
+            slides.forEach(slide => {
+                slide.classList.remove('active');
+            });
+            
+            slides[currentSlide - 1].classList.add('active');
+            document.getElementById('currentSlide').textContent = currentSlide;
+            
+            // Disable/enable buttons
+            prevBtn.disabled = currentSlide === 1;
+            nextBtn.disabled = currentSlide === totalSlides;
+            
+            // Scroll to top when changing slides
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function changeSlide(n) {
+            currentSlide += n;
+            showSlide(currentSlide);
+        }
+
+        // HSL Color Mixer
+        const hueSlider = document.getElementById('hueSlider');
+        const satSlider = document.getElementById('satSlider');
+        const lightSlider = document.getElementById('lightSlider');
+        const hueValue = document.getElementById('hueValue');
+        const satValue = document.getElementById('satValue');
+        const lightValue = document.getElementById('lightValue');
+        const hslResultBox = document.getElementById('hslResultBox');
+        const hslResultText = document.getElementById('hslResultText');
+
+        function updateHSLColor() {
+            const h = hueSlider.value;
+            const s = satSlider.value;
+            const l = lightSlider.value;
+            
+            hueValue.textContent = h;
+            satValue.textContent = s;
+            lightValue.textContent = l;
+            
+            const color = `hsl(${h}, ${s}%, ${l}%)`;
+            hslResultBox.style.background = color;
+            hslResultText.textContent = color;
+        }
+
+        hueSlider.addEventListener('input', updateHSLColor);
+        satSlider.addEventListener('input', updateHSLColor);
+        lightSlider.addEventListener('input', updateHSLColor);
+
+        // Keyboard navigation
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'ArrowLeft') {
+                if (currentSlide > 1) changeSlide(-1);
+            } else if (event.key === 'ArrowRight') {
+                if (currentSlide < totalSlides) changeSlide(1);
+            }
+        });
+
+        // Initialize
+        showSlide(currentSlide);
+    </script>
+</body>
+</html>

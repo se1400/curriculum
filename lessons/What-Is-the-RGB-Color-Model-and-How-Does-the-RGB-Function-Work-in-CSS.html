@@ -1,0 +1,873 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RGB Color Model in CSS</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #f5f5f5;
+            color: #333;
+            overflow-x: hidden;
+        }
+
+        .slide-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px 120px;
+            min-height: 100vh;
+        }
+
+        .slide {
+            display: none;
+            animation: fadeIn 0.5s;
+        }
+
+        .slide.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        h2 {
+            color: #881518;
+            font-size: 2rem;
+            margin-bottom: 1.5rem;
+            border-bottom: 3px solid #881518;
+            padding-bottom: 0.5rem;
+        }
+
+        h3 {
+            color: #881518;
+            font-size: 1.5rem;
+            margin-top: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        p {
+            font-size: 1.1rem;
+            line-height: 1.8;
+            margin-bottom: 1rem;
+        }
+
+        ul {
+            margin: 1.5rem 0;
+            padding-left: 2rem;
+        }
+
+        li {
+            font-size: 1.1rem;
+            line-height: 1.8;
+            margin-bottom: 0.8rem;
+        }
+
+        .content-box {
+            background: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+        }
+
+        .highlight {
+            background: #fff3cd;
+            padding: 1.5rem;
+            border-left: 4px solid #881518;
+            margin: 1.5rem 0;
+            border-radius: 4px;
+        }
+
+        .code-example {
+            background: #2d2d2d;
+            color: #f8f8f2;
+            padding: 1.5rem;
+            border-radius: 4px;
+            margin: 1.5rem 0;
+            overflow-x: auto;
+        }
+
+        .code-example code {
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        .code-label {
+            color: #881518;
+            font-weight: 600;
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .color-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .color-box {
+            text-align: center;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            background: white;
+        }
+
+        .color-swatch {
+            width: 100%;
+            height: 120px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+
+        .color-info {
+            padding: 1rem;
+            background: white;
+        }
+
+        .color-name {
+            font-weight: 600;
+            color: #881518;
+            margin-bottom: 0.3rem;
+        }
+
+        .rgb-value {
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .example-output {
+            background: white;
+            border: 2px solid #ddd;
+            border-radius: 4px;
+            padding: 2rem;
+            margin: 1.5rem 0;
+        }
+
+        .two-column {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+
+        .rgb-mixer {
+            background: white;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            padding: 2rem;
+            margin: 2rem 0;
+        }
+
+        .slider-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .slider-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+
+        .slider-label.red { color: #ff0000; }
+        .slider-label.green { color: #00aa00; }
+        .slider-label.blue { color: #0000ff; }
+
+        input[type="range"] {
+            width: 100%;
+            height: 8px;
+            border-radius: 4px;
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #881518;
+            cursor: pointer;
+        }
+
+        input[type="range"]::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #881518;
+            cursor: pointer;
+            border: none;
+        }
+
+        .color-result {
+            margin-top: 2rem;
+            text-align: center;
+        }
+
+        .result-box {
+            width: 100%;
+            height: 150px;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        }
+
+        .result-text {
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #881518;
+        }
+
+        .transparency-demo {
+            position: relative;
+            height: 200px;
+            background: 
+                repeating-conic-gradient(#ddd 0% 25%, white 0% 50%) 
+                50% / 20px 20px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 2rem 0;
+        }
+
+        .transparency-box {
+            padding: 2rem 3rem;
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: white;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+        }
+
+        .pixel-demo {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+
+        .pixel-box {
+            aspect-ratio: 1;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 1.2rem;
+            color: white;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        }
+
+        .nav-controls {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: #881518;
+            padding: 1rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 2rem;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.2);
+            z-index: 1000;
+        }
+
+        button {
+            background: white;
+            color: #881518;
+            border: none;
+            padding: 12px 30px;
+            font-size: 1rem;
+            font-weight: 600;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        button:hover:not(:disabled) {
+            background: #f0f0f0;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .slide-counter {
+            color: white;
+            font-weight: 600;
+            font-size: 1rem;
+        }
+
+        .additive-diagram {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 2rem 0;
+            min-height: 300px;
+        }
+
+        .light-circle {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            position: absolute;
+            opacity: 0.7;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            color: white;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+        }
+
+        @media (max-width: 768px) {
+            h2 {
+                font-size: 1.5rem;
+            }
+
+            h3 {
+                font-size: 1.3rem;
+            }
+
+            p, li {
+                font-size: 1rem;
+            }
+
+            .slide-container {
+                padding: 20px 15px 120px;
+            }
+
+            .content-box {
+                padding: 1.5rem;
+            }
+
+            .nav-controls {
+                gap: 1rem;
+                padding: 0.8rem;
+            }
+
+            button {
+                padding: 10px 20px;
+                font-size: 0.9rem;
+            }
+
+            .color-grid {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+
+            .two-column {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+
+            .code-example {
+                padding: 1rem;
+            }
+
+            .code-example code {
+                font-size: 0.85rem;
+            }
+
+            .pixel-demo {
+                grid-template-columns: 1fr;
+            }
+
+            .light-circle {
+                width: 100px;
+                height: 100px;
+                font-size: 0.9rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="slide-container">
+        <!-- Slide 1 -->
+        <div class="slide active">
+            <div class="content-box">
+                <h2>What is RGB?</h2>
+                <p>When working with colors in CSS, understanding the RGB color model is essential.</p>
+                <div class="highlight">
+                    <h3>RGB stands for:</h3>
+                    <ul>
+                        <li><strong style="color: #ff0000;">Red</strong></li>
+                        <li><strong style="color: #00aa00;">Green</strong></li>
+                        <li><strong style="color: #0000ff;">Blue</strong></li>
+                    </ul>
+                    <p style="margin-top: 1rem;">These are the <strong>primary colors of light</strong>.</p>
+                </div>
+                <p>These three colors are combined in different intensities to create a wide range of colors.</p>
+            </div>
+        </div>
+
+        <!-- Slide 2 -->
+        <div class="slide">
+            <div class="content-box">
+                <h2>Additive Color Model</h2>
+                <p>The RGB color model is an <strong>additive color model</strong>, which means colors are created by combining light at varying intensities.</p>
+                <div style="position: relative; height: 350px; margin: 2rem 0;">
+                    <svg viewBox="0 0 400 300" style="width: 100%; max-width: 500px; margin: 0 auto; display: block;">
+                        <!-- Red circle -->
+                        <circle cx="150" cy="130" r="80" fill="red" opacity="0.6"/>
+                        <!-- Green circle -->
+                        <circle cx="250" cy="130" r="80" fill="lime" opacity="0.6"/>
+                        <!-- Blue circle -->
+                        <circle cx="200" cy="210" r="80" fill="blue" opacity="0.6"/>
+                        <!-- Labels -->
+                        <text x="150" y="100" text-anchor="middle" fill="white" font-weight="bold" font-size="16">Red</text>
+                        <text x="250" y="100" text-anchor="middle" fill="white" font-weight="bold" font-size="16">Green</text>
+                        <text x="200" y="250" text-anchor="middle" fill="white" font-weight="bold" font-size="16">Blue</text>
+                        <!-- Overlap labels -->
+                        <text x="200" y="120" text-anchor="middle" fill="black" font-size="12" font-weight="bold">Yellow</text>
+                        <text x="170" y="175" text-anchor="middle" fill="white" font-size="12" font-weight="bold">Magenta</text>
+                        <text x="230" y="175" text-anchor="middle" fill="black" font-size="12" font-weight="bold">Cyan</text>
+                        <text x="200" y="160" text-anchor="middle" fill="black" font-size="12" font-weight="bold">White</text>
+                    </svg>
+                </div>
+                <div class="highlight">
+                    <p>When you combine all three colors at full intensity, you get <strong>white light</strong>.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 3 -->
+        <div class="slide">
+            <div class="content-box">
+                <h2>Intensity Ranges: 0 to 255</h2>
+                <p>The intensity of each color can range from <strong>0</strong> to <strong>255</strong>:</p>
+                <ul>
+                    <li><strong>0</strong> = No light (color is absent)</li>
+                    <li><strong>255</strong> = Full light (maximum intensity)</li>
+                </ul>
+                <div class="color-grid">
+                    <div class="color-box">
+                        <div class="color-swatch" style="background: rgb(0,0,0); color: white;">0</div>
+                        <div class="color-info">
+                            <div class="color-name">No Light</div>
+                            <div class="rgb-value">Minimum Intensity</div>
+                        </div>
+                    </div>
+                    <div class="color-box">
+                        <div class="color-swatch" style="background: rgb(127,127,127); color: white;">127</div>
+                        <div class="color-info">
+                            <div class="color-name">Half Light</div>
+                            <div class="rgb-value">50% Intensity</div>
+                        </div>
+                    </div>
+                    <div class="color-box">
+                        <div class="color-swatch" style="background: rgb(255,255,255); color: black;">255</div>
+                        <div class="color-info">
+                            <div class="color-name">Full Light</div>
+                            <div class="rgb-value">Maximum Intensity</div>
+                        </div>
+                    </div>
+                </div>
+                <p>By mixing different levels of red, green, and blue, you can produce any color you see on your screen.</p>
+            </div>
+        </div>
+
+        <!-- Slide 4 -->
+        <div class="slide">
+            <div class="content-box">
+                <h2>Common RGB Color Examples</h2>
+                <div class="color-grid">
+                    <div class="color-box">
+                        <div class="color-swatch" style="background: rgb(0,0,0); color: white;">Black</div>
+                        <div class="color-info">
+                            <div class="color-name">Black</div>
+                            <div class="rgb-value">rgb(0, 0, 0)</div>
+                            <p style="font-size: 0.85rem; color: #666; margin-top: 0.5rem;">No light for any color</p>
+                        </div>
+                    </div>
+                    <div class="color-box">
+                        <div class="color-swatch" style="background: rgb(255,255,255); color: black;">White</div>
+                        <div class="color-info">
+                            <div class="color-name">White</div>
+                            <div class="rgb-value">rgb(255, 255, 255)</div>
+                            <p style="font-size: 0.85rem; color: #666; margin-top: 0.5rem;">Full intensity for all colors</p>
+                        </div>
+                    </div>
+                    <div class="color-box">
+                        <div class="color-swatch" style="background: rgb(255,0,0); color: white;">Red</div>
+                        <div class="color-info">
+                            <div class="color-name">Red</div>
+                            <div class="rgb-value">rgb(255, 0, 0)</div>
+                            <p style="font-size: 0.85rem; color: #666; margin-top: 0.5rem;">Full red, no green or blue</p>
+                        </div>
+                    </div>
+                    <div class="color-box">
+                        <div class="color-swatch" style="background: rgb(0,255,0); color: black;">Green</div>
+                        <div class="color-info">
+                            <div class="color-name">Green</div>
+                            <div class="rgb-value">rgb(0, 255, 0)</div>
+                            <p style="font-size: 0.85rem; color: #666; margin-top: 0.5rem;">Full green, no red or blue</p>
+                        </div>
+                    </div>
+                    <div class="color-box">
+                        <div class="color-swatch" style="background: rgb(0,0,255); color: white;">Blue</div>
+                        <div class="color-info">
+                            <div class="color-name">Blue</div>
+                            <div class="rgb-value">rgb(0, 0, 255)</div>
+                            <p style="font-size: 0.85rem; color: #666; margin-top: 0.5rem;">Full blue, no red or green</p>
+                        </div>
+                    </div>
+                    <div class="color-box">
+                        <div class="color-swatch" style="background: rgb(255,255,0); color: black;">Yellow</div>
+                        <div class="color-info">
+                            <div class="color-name">Yellow</div>
+                            <div class="rgb-value">rgb(255, 255, 0)</div>
+                            <p style="font-size: 0.85rem; color: #666; margin-top: 0.5rem;">Red + Green</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 5 -->
+        <div class="slide">
+            <div class="content-box">
+                <h2>The CSS rgb() Function</h2>
+                <p>In CSS, the <code style="background: #f0f0f0; padding: 2px 6px; border-radius: 3px;">rgb()</code> function allows you to define colors using the RGB color model.</p>
+                <div class="highlight">
+                    <h3>Basic Syntax:</h3>
+                    <div class="code-example">
+                        <code>element {<br>
+&nbsp;&nbsp;color: rgb(red, green, blue);<br>
+}</code>
+                    </div>
+                </div>
+                <p>The function takes three values, each representing the intensity of red, green, and blue light, respectively.</p>
+                <p><strong>Values range from 0 to 255</strong>, where:</p>
+                <ul>
+                    <li><strong>0</strong> = Absence of that color</li>
+                    <li><strong>255</strong> = Full saturation</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Slide 6 -->
+        <div class="slide">
+            <div class="content-box">
+                <h2>Example: Using rgb() in CSS</h2>
+                <div class="code-label">HTML</div>
+                <div class="code-example">
+                    <code>&lt;p&gt;This is a paragraph.&lt;/p&gt;</code>
+                </div>
+                <div class="code-label">CSS</div>
+                <div class="code-example">
+                    <code>p {<br>
+&nbsp;&nbsp;color: rgb(255, 0, 0);<br>
+}</code>
+                </div>
+                <div class="example-output">
+                    <p style="color: rgb(255, 0, 0); margin: 0; font-size: 1.3rem;">This is a paragraph.</p>
+                </div>
+                <div class="highlight">
+                    <p>This code changes the text color to <strong>red</strong> because:</p>
+                    <ul>
+                        <li>Red value = <strong>255</strong> (full intensity)</li>
+                        <li>Green value = <strong>0</strong> (none)</li>
+                        <li>Blue value = <strong>0</strong> (none)</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 7 -->
+        <div class="slide">
+            <div class="content-box">
+                <h2>The rgba() Function</h2>
+                <p>CSS also provides the <code style="background: #f0f0f0; padding: 2px 6px; border-radius: 3px;">rgba()</code> function, which adds a fourth value — <strong>alpha</strong> — that controls the transparency of the color.</p>
+                <div class="highlight">
+                    <h3>Alpha Value:</h3>
+                    <ul>
+                        <li><strong>0</strong> = Completely transparent</li>
+                        <li><strong>1</strong> = Completely opaque</li>
+                        <li><strong>0.5</strong> = 50% transparent</li>
+                    </ul>
+                </div>
+                <div class="code-example">
+                    <code>element {<br>
+&nbsp;&nbsp;color: rgba(red, green, blue, alpha);<br>
+}</code>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 8 -->
+        <div class="slide">
+            <div class="content-box">
+                <h2>Example: Using rgba() for Transparency</h2>
+                <div class="code-label">HTML</div>
+                <div class="code-example">
+                    <code>&lt;div&gt;This is a div.&lt;/div&gt;</code>
+                </div>
+                <div class="code-label">CSS</div>
+                <div class="code-example">
+                    <code>div {<br>
+&nbsp;&nbsp;background-color: rgba(0, 0, 255, 0.5);<br>
+&nbsp;&nbsp;padding: 2rem;<br>
+&nbsp;&nbsp;color: white;<br>
+}</code>
+                </div>
+                <div class="transparency-demo">
+                    <div class="transparency-box" style="background-color: rgba(0, 0, 255, 0.5);">
+                        This is a div.
+                    </div>
+                </div>
+                <div class="highlight">
+                    <p>This applies a <strong>semi-transparent blue</strong> background because:</p>
+                    <ul>
+                        <li>Red = <strong>0</strong>, Green = <strong>0</strong>, Blue = <strong>255</strong></li>
+                        <li>Alpha = <strong>0.5</strong> (50% transparency)</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 9 -->
+        <div class="slide">
+            <div class="content-box">
+                <h2>Transparency Comparison</h2>
+                <div class="color-grid">
+                    <div class="color-box">
+                        <div class="transparency-demo" style="height: 120px; margin: 0;">
+                            <div class="transparency-box" style="background-color: rgba(255, 0, 0, 1); padding: 1rem; font-size: 1rem;">
+                                Alpha: 1.0
+                            </div>
+                        </div>
+                        <div class="color-info">
+                            <div class="rgb-value">rgba(255, 0, 0, 1)</div>
+                            <p style="font-size: 0.85rem; color: #666; margin-top: 0.5rem;">Fully opaque</p>
+                        </div>
+                    </div>
+                    <div class="color-box">
+                        <div class="transparency-demo" style="height: 120px; margin: 0;">
+                            <div class="transparency-box" style="background-color: rgba(255, 0, 0, 0.5); padding: 1rem; font-size: 1rem;">
+                                Alpha: 0.5
+                            </div>
+                        </div>
+                        <div class="color-info">
+                            <div class="rgb-value">rgba(255, 0, 0, 0.5)</div>
+                            <p style="font-size: 0.85rem; color: #666; margin-top: 0.5rem;">50% transparent</p>
+                        </div>
+                    </div>
+                    <div class="color-box">
+                        <div class="transparency-demo" style="height: 120px; margin: 0;">
+                            <div class="transparency-box" style="background-color: rgba(255, 0, 0, 0.1); padding: 1rem; font-size: 1rem; text-shadow: none; color: #333;">
+                                Alpha: 0.1
+                            </div>
+                        </div>
+                        <div class="color-info">
+                            <div class="rgb-value">rgba(255, 0, 0, 0.1)</div>
+                            <p style="font-size: 0.85rem; color: #666; margin-top: 0.5rem;">90% transparent</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 10 -->
+        <div class="slide">
+            <div class="content-box">
+                <h2>Why RGB for Digital Media?</h2>
+                <p>The RGB color model is especially useful for digital media because it directly corresponds to how screens display colors.</p>
+                <div class="highlight">
+                    <h3>How Screens Work:</h3>
+                    <p>Monitors and displays use tiny red, green, and blue pixels to create the colors you see.</p>
+                </div>
+                <div class="pixel-demo">
+                    <div class="pixel-box" style="background: rgb(255, 0, 0);">Red Pixel</div>
+                    <div class="pixel-box" style="background: rgb(0, 255, 0);">Green Pixel</div>
+                    <div class="pixel-box" style="background: rgb(0, 0, 255);">Blue Pixel</div>
+                </div>
+                <p>By controlling the intensity of these pixels through RGB values, you can achieve a wide range of colors for your web design.</p>
+            </div>
+        </div>
+
+        <!-- Slide 11 -->
+        <div class="slide">
+            <div class="content-box">
+                <h2>RGB for Dynamic Designs</h2>
+                <p>The RGB model is ideal when working with dynamic designs.</p>
+                <div class="highlight">
+                    <h3>Use Cases:</h3>
+                    <ul>
+                        <li><strong>Animations</strong> - Smooth color transitions over time</li>
+                        <li><strong>Color effects</strong> - Real-time color changes</li>
+                        <li><strong>Interactive designs</strong> - User-triggered color modifications</li>
+                        <li><strong>Programmatic control</strong> - Adjust colors via JavaScript</li>
+                    </ul>
+                </div>
+                <p>The flexibility of the RGB function allows you to modify colors programmatically, making it perfect for creating dynamic visual effects.</p>
+            </div>
+        </div>
+
+        <!-- Slide 12 -->
+        <div class="slide">
+            <div class="content-box">
+                <h2>Interactive RGB Color Mixer</h2>
+                <p>Experiment with RGB values to see how they combine to create colors:</p>
+                <div class="rgb-mixer">
+                    <div class="slider-group">
+                        <div class="slider-label red">
+                            <span>Red</span>
+                            <span id="redValue">255</span>
+                        </div>
+                        <input type="range" id="redSlider" min="0" max="255" value="255" 
+                               style="background: linear-gradient(to right, #000, #ff0000);">
+                    </div>
+                    <div class="slider-group">
+                        <div class="slider-label green">
+                            <span>Green</span>
+                            <span id="greenValue">165</span>
+                        </div>
+                        <input type="range" id="greenSlider" min="0" max="255" value="165"
+                               style="background: linear-gradient(to right, #000, #00ff00);">
+                    </div>
+                    <div class="slider-group">
+                        <div class="slider-label blue">
+                            <span>Blue</span>
+                            <span id="blueValue">0</span>
+                        </div>
+                        <input type="range" id="blueSlider" min="0" max="255" value="0"
+                               style="background: linear-gradient(to right, #000, #0000ff);">
+                    </div>
+                    <div class="color-result">
+                        <div class="result-box" id="resultBox" style="background: rgb(255, 165, 0);"></div>
+                        <div class="result-text" id="resultText">rgb(255, 165, 0)</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 13 -->
+        <div class="slide">
+            <div class="content-box">
+                <h2>Key Takeaways</h2>
+                <div class="highlight">
+                    <p><strong>By understanding the RGB color model and how to use the rgb() and rgba() functions in CSS:</strong></p>
+                    <ul>
+                        <li>You'll have <strong>greater control</strong> over how colors are displayed on your web pages</li>
+                        <li>You can create <strong>vibrant designs</strong> with precise color values</li>
+                        <li>You can implement <strong>transparency</strong> effects using rgba()</li>
+                        <li>You can <strong>programmatically adjust colors</strong> for dynamic effects</li>
+                    </ul>
+                </div>
+                <p style="margin-top: 1.5rem;">RGB values range from <strong>0 to 255</strong>, and the alpha channel ranges from <strong>0 to 1</strong> for transparency control.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="nav-controls">
+        <button id="prevBtn" onclick="changeSlide(-1)">← Previous</button>
+        <span class="slide-counter">
+            <span id="currentSlide">1</span> / <span id="totalSlides">13</span>
+        </span>
+        <button id="nextBtn" onclick="changeSlide(1)">Next →</button>
+    </div>
+
+    <script>
+        let currentSlide = 1;
+        const totalSlides = document.querySelectorAll('.slide').length;
+        
+        document.getElementById('totalSlides').textContent = totalSlides;
+
+        function showSlide(n) {
+            const slides = document.querySelectorAll('.slide');
+            const prevBtn = document.getElementById('prevBtn');
+            const nextBtn = document.getElementById('nextBtn');
+            
+            if (n > totalSlides) {
+                currentSlide = totalSlides;
+            }
+            if (n < 1) {
+                currentSlide = 1;
+            }
+            
+            slides.forEach(slide => {
+                slide.classList.remove('active');
+            });
+            
+            slides[currentSlide - 1].classList.add('active');
+            document.getElementById('currentSlide').textContent = currentSlide;
+            
+            // Disable/enable buttons
+            prevBtn.disabled = currentSlide === 1;
+            nextBtn.disabled = currentSlide === totalSlides;
+            
+            // Scroll to top when changing slides
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function changeSlide(n) {
+            currentSlide += n;
+            showSlide(currentSlide);
+        }
+
+        // RGB Color Mixer
+        const redSlider = document.getElementById('redSlider');
+        const greenSlider = document.getElementById('greenSlider');
+        const blueSlider = document.getElementById('blueSlider');
+        const redValue = document.getElementById('redValue');
+        const greenValue = document.getElementById('greenValue');
+        const blueValue = document.getElementById('blueValue');
+        const resultBox = document.getElementById('resultBox');
+        const resultText = document.getElementById('resultText');
+
+        function updateColor() {
+            const r = redSlider.value;
+            const g = greenSlider.value;
+            const b = blueSlider.value;
+            
+            redValue.textContent = r;
+            greenValue.textContent = g;
+            blueValue.textContent = b;
+            
+            const color = `rgb(${r}, ${g}, ${b})`;
+            resultBox.style.background = color;
+            resultText.textContent = color;
+        }
+
+        redSlider.addEventListener('input', updateColor);
+        greenSlider.addEventListener('input', updateColor);
+        blueSlider.addEventListener('input', updateColor);
+
+        // Keyboard navigation
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'ArrowLeft') {
+                if (currentSlide > 1) changeSlide(-1);
+            } else if (event.key === 'ArrowRight') {
+                if (currentSlide < totalSlides) changeSlide(1);
+            }
+        });
+
+        // Initialize
+        showSlide(currentSlide);
+    </script>
+</body>
+</html>
