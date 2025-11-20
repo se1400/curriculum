@@ -1,0 +1,938 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CSS Margin Collapsing</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #f5f5f5;
+            color: #333;
+            overflow-x: hidden;
+        }
+
+        .slide-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px 120px;
+            min-height: 100vh;
+        }
+
+        .slide {
+            display: none;
+            animation: fadeIn 0.5s;
+        }
+
+        .slide.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        h2 {
+            color: #881518;
+            font-size: 2rem;
+            margin-bottom: 1.5rem;
+            border-bottom: 3px solid #881518;
+            padding-bottom: 0.5rem;
+        }
+
+        h3 {
+            color: #881518;
+            font-size: 1.5rem;
+            margin-top: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        p {
+            font-size: 1.1rem;
+            line-height: 1.8;
+            margin-bottom: 1rem;
+        }
+
+        ul {
+            margin: 1.5rem 0;
+            padding-left: 2rem;
+        }
+
+        li {
+            font-size: 1.1rem;
+            line-height: 1.8;
+            margin-bottom: 0.8rem;
+        }
+
+        .content-box {
+            background: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+        }
+
+        .highlight {
+            background: #fff3cd;
+            padding: 1.5rem;
+            border-left: 4px solid #881518;
+            margin: 1.5rem 0;
+            border-radius: 4px;
+        }
+
+        .warning-box {
+            background: #ffe6e6;
+            padding: 1.5rem;
+            border-left: 4px solid #dc3545;
+            margin: 1.5rem 0;
+            border-radius: 4px;
+        }
+
+        .success-box {
+            background: #d4edda;
+            padding: 1.5rem;
+            border-left: 4px solid #28a745;
+            margin: 1.5rem 0;
+            border-radius: 4px;
+        }
+
+        .info-box {
+            background: #e8f4f8;
+            padding: 1.5rem;
+            border-left: 4px solid #0066cc;
+            margin: 1.5rem 0;
+            border-radius: 4px;
+        }
+
+        .code-example {
+            background: #2d2d2d;
+            color: #f8f8f2;
+            padding: 1.5rem;
+            border-radius: 4px;
+            margin: 1.5rem 0;
+            overflow-x: auto;
+        }
+
+        .code-example code {
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        .code-label {
+            color: #881518;
+            font-weight: 600;
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .comparison-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+
+        .comparison-side {
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .comparison-header {
+            padding: 1rem;
+            font-weight: 700;
+            text-align: center;
+            font-size: 1.1rem;
+        }
+
+        .expected-header {
+            background: #ffcccc;
+            color: #c00;
+        }
+
+        .actual-header {
+            background: #ccffcc;
+            color: #0a0;
+        }
+
+        .comparison-content {
+            padding: 2rem;
+            background: #f9f9f9;
+            min-height: 250px;
+        }
+
+        .demo-box {
+            padding: 1.5rem;
+            text-align: center;
+            font-weight: 700;
+            border-radius: 4px;
+        }
+
+        .box1 {
+            background: lightblue;
+            margin-bottom: 20px;
+        }
+
+        .box2 {
+            background: lightgreen;
+            margin-top: 30px;
+        }
+
+        .margin-indicator {
+            background: repeating-linear-gradient(
+                45deg,
+                #ffa500,
+                #ffa500 10px,
+                #ffb52e 10px,
+                #ffb52e 20px
+            );
+            text-align: center;
+            font-weight: 700;
+            color: white;
+            padding: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .visual-demo {
+            background: white;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            padding: 2rem;
+            margin: 2rem 0;
+        }
+
+        .parent-box {
+            background: lightyellow;
+            border: 2px dashed #881518;
+            padding: 1rem;
+            margin-top: 40px;
+        }
+
+        .child-box {
+            background: lightpink;
+            padding: 1.5rem;
+            margin-top: 30px;
+            text-align: center;
+            font-weight: 700;
+        }
+
+        .empty-block {
+            border: 2px dashed #ccc;
+            height: 0;
+            margin-top: 20px;
+            margin-bottom: 10px;
+            position: relative;
+        }
+
+        .empty-label {
+            position: absolute;
+            top: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: white;
+            padding: 0.3rem 0.6rem;
+            font-size: 0.8rem;
+            color: #666;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+        }
+
+        .direction-demo {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+
+        .direction-card {
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            padding: 2rem;
+            text-align: center;
+        }
+
+        .direction-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        .direction-title {
+            font-weight: 700;
+            color: #881518;
+            margin-bottom: 1rem;
+            font-size: 1.2rem;
+        }
+
+        .yes-collapse {
+            background: #d4edda;
+        }
+
+        .no-collapse {
+            background: #ffe6e6;
+        }
+
+        .prevention-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .prevention-card {
+            background: white;
+            border: 2px solid #28a745;
+            border-radius: 8px;
+            padding: 1.5rem;
+            text-align: center;
+        }
+
+        .prevention-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .prevention-title {
+            font-weight: 700;
+            color: #28a745;
+            margin-bottom: 0.8rem;
+        }
+
+        .scenario-box {
+            background: white;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            padding: 2rem;
+            margin: 2rem 0;
+        }
+
+        .nav-controls {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: #881518;
+            padding: 1rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 2rem;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.2);
+            z-index: 1000;
+        }
+
+        button {
+            background: white;
+            color: #881518;
+            border: none;
+            padding: 12px 30px;
+            font-size: 1rem;
+            font-weight: 600;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        button:hover:not(:disabled) {
+            background: #f0f0f0;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .slide-counter {
+            color: white;
+            font-weight: 600;
+            font-size: 1rem;
+        }
+
+        @media (max-width: 768px) {
+            h2 {
+                font-size: 1.5rem;
+            }
+
+            h3 {
+                font-size: 1.3rem;
+            }
+
+            p, li {
+                font-size: 1rem;
+            }
+
+            .slide-container {
+                padding: 20px 15px 120px;
+            }
+
+            .content-box {
+                padding: 1.5rem;
+            }
+
+            .nav-controls {
+                gap: 1rem;
+                padding: 0.8rem;
+            }
+
+            button {
+                padding: 10px 20px;
+                font-size: 0.9rem;
+            }
+
+            .comparison-container,
+            .direction-demo {
+                grid-template-columns: 1fr;
+            }
+
+            .code-example {
+                padding: 1rem;
+            }
+
+            .code-example code {
+                font-size: 0.85rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="slide-container">
+        <!-- Slide 1 -->
+        <div class="slide active">
+            <div class="content-box">
+                <h2>What Is Margin Collapsing?</h2>
+                <p><strong>Margin collapsing</strong> is a fundamental concept in CSS that often confuses newcomers to web development.</p>
+                <div class="highlight">
+                    <h3>Definition:</h3>
+                    <p>This behavior occurs when the <strong>vertical margins of adjacent elements overlap</strong>, resulting in a single margin equal to the larger of the two.</p>
+                </div>
+                <div class="info-box">
+                    <p>Understanding margin collapsing is important for <strong>precise control over spacing and layout</strong> in web design.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 2 -->
+        <div class="slide">
+            <div class="content-box">
+                <h2>How Margin Collapsing Works</h2>
+                <p>In CSS, when two vertical margins come into contact with each other, they'll <strong>collapse</strong>.</p>
+                <div class="highlight">
+                    <h3>The Rule:</h3>
+                    <p>Instead of adding together, the <strong>larger margin wins</strong> and determines the space between the elements.</p>
+                </div>
+                <div class="warning-box">
+                    <h3>⚠️ Important:</h3>
+                    <p>This behavior applies <strong>only to vertical margins</strong> (top and bottom) and <strong>NOT to horizontal margins</strong> (left and right).</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 3 -->
+        <div class="slide">
+            <div class="content-box">
+                <h2>Vertical vs Horizontal</h2>
+                <div class="direction-demo">
+                    <div class="direction-card yes-collapse">
+                        <div class="direction-icon">↕️</div>
+                        <div class="direction-title">Vertical Margins</div>
+                        <p><strong>✓ COLLAPSE</strong></p>
+                        <p style="margin-top: 1rem; font-size: 0.95rem;">Top and bottom margins collapse when they meet</p>
+                    </div>
+                    <div class="direction-card no-collapse">
+                        <div class="direction-icon">↔️</div>
+                        <div class="direction-title">Horizontal Margins</div>
+                        <p><strong>❌ NO COLLAPSE</strong></p>
+                        <p style="margin-top: 1rem; font-size: 0.95rem;">Left and right margins always add together</p>
+                    </div>
+                </div>
+                <div class="info-box">
+                    <p><strong>Remember:</strong> Only <code style="background: #f0f0f0; padding: 2px 6px; border-radius: 3px;">margin-top</code> and <code style="background: #f0f0f0; padding: 2px 6px; border-radius: 3px;">margin-bottom</code> collapse. <code style="background: #f0f0f0; padding: 2px 6px; border-radius: 3px;">margin-left</code> and <code style="background: #f0f0f0; padding: 2px 6px; border-radius: 3px;">margin-right</code> never collapse.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 4 -->
+        <div class="slide">
+            <div class="content-box">
+                <h2>Basic Example</h2>
+                <p>Let's look at a simple example of margin collapsing:</p>
+                <div class="code-label">CSS</div>
+                <div class="code-example">
+                    <code>.box1 {<br>
+&nbsp;&nbsp;margin-bottom: 20px;<br>
+&nbsp;&nbsp;background-color: lightblue;<br>
+}<br>
+<br>
+.box2 {<br>
+&nbsp;&nbsp;margin-top: 30px;<br>
+&nbsp;&nbsp;background-color: lightgreen;<br>
+}</code>
+                </div>
+                <div class="code-label">HTML</div>
+                <div class="code-example">
+                    <code>&lt;div class="box1"&gt;Box 1&lt;/div&gt;<br>
+&lt;div class="box2"&gt;Box 2&lt;/div&gt;</code>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 5 -->
+        <div class="slide">
+            <div class="content-box">
+                <h2>What You Might Expect vs Reality</h2>
+                <div class="comparison-container">
+                    <div class="comparison-side">
+                        <div class="comparison-header expected-header">❌ Expected (Wrong)</div>
+                        <div class="comparison-content">
+                            <div class="demo-box box1">Box 1<br><small>margin-bottom: 20px</small></div>
+                            <div class="margin-indicator">20px</div>
+                            <div class="margin-indicator">30px</div>
+                            <div class="demo-box box2" style="margin-top: 0;">Box 2<br><small>margin-top: 30px</small></div>
+                            <p style="text-align: center; margin-top: 1rem; font-weight: 700; color: #c00;">Total: 50px (20 + 30)</p>
+                        </div>
+                    </div>
+                    <div class="comparison-side">
+                        <div class="comparison-header actual-header">✓ Actual (Correct)</div>
+                        <div class="comparison-content">
+                            <div class="demo-box box1" style="margin-bottom: 0;">Box 1<br><small>margin-bottom: 20px</small></div>
+                            <div class="margin-indicator">30px (larger wins!)</div>
+                            <div class="demo-box box2" style="margin-top: 0;">Box 2<br><small>margin-top: 30px</small></div>
+                            <p style="text-align: center; margin-top: 1rem; font-weight: 700; color: #0a0;">Total: 30px (collapsed)</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="warning-box">
+                    <p>You might expect the total space to be <strong>50 pixels</strong> (20px + 30px). However, due to margin collapsing, the actual space will be <strong>30 pixels</strong> - the larger of the two margins.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 6 -->
+        <div class="slide">
+            <div class="content-box">
+                <h2>Visual Demonstration</h2>
+                <p>Here's how margin collapsing actually looks:</p>
+                <div class="visual-demo">
+                    <div class="demo-box box1">Box 1<br><small>margin-bottom: 20px</small></div>
+                    <div class="demo-box box2">Box 2<br><small>margin-top: 30px</small></div>
+                </div>
+                <div class="success-box">
+                    <p><strong>Result:</strong> The space between the boxes is 30px, not 50px, because the margins collapsed and the larger margin (30px) wins.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 7 -->
+        <div class="slide">
+            <div class="content-box">
+                <h2>Common Scenarios: Adjacent Siblings</h2>
+                <p>As we saw in the previous examples, <strong>margins of adjacent sibling elements will collapse</strong>.</p>
+                <div class="info-box">
+                    <h3>This is the most straightforward case of margin collapsing.</h3>
+                </div>
+                <div class="scenario-box">
+                    <h3>Scenario: Adjacent Siblings</h3>
+                    <div style="background: #f9f9f9; padding: 1.5rem; border-radius: 4px; margin-top: 1rem;">
+                        <div style="background: #87ceeb; padding: 1rem; text-align: center; font-weight: 700;">
+                            Element 1
+                            <div style="font-size: 0.9rem; margin-top: 0.5rem;">margin-bottom: 25px</div>
+                        </div>
+                        <div style="text-align: center; padding: 0.5rem; color: #881518; font-weight: 700;">
+                            ⬇️ Collapsed to 40px ⬇️
+                        </div>
+                        <div style="background: #90ee90; padding: 1rem; text-align: center; font-weight: 700;">
+                            Element 2
+                            <div style="font-size: 0.9rem; margin-top: 0.5rem;">margin-top: 40px</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 8 -->
+        <div class="slide">
+            <div class="content-box">
+                <h2>Common Scenarios: Parent and Child</h2>
+                <p>Margins can also collapse between a <strong>parent element and its first or last child</strong>.</p>
+                <div class="highlight">
+                    <h3>Condition:</h3>
+                    <p>If there's <strong>no border, padding, inline content, or clearance</strong> to separate the parent's margin from the child's, they will collapse.</p>
+                </div>
+                <div class="code-label">CSS</div>
+                <div class="code-example">
+                    <code>.parent {<br>
+&nbsp;&nbsp;margin-top: 40px;<br>
+&nbsp;&nbsp;background-color: lightyellow;<br>
+}<br>
+<br>
+.child {<br>
+&nbsp;&nbsp;margin-top: 30px;<br>
+&nbsp;&nbsp;background-color: lightpink;<br>
+}</code>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 9 -->
+        <div class="slide">
+            <div class="content-box">
+                <h2>Parent-Child: Expected vs Actual</h2>
+                <div class="comparison-container">
+                    <div class="comparison-side">
+                        <div class="comparison-header expected-header">❌ Expected (Wrong)</div>
+                        <div class="comparison-content">
+                            <div style="height: 40px; background: repeating-linear-gradient(45deg, #ffa500, #ffa500 10px, #ffb52e 10px, #ffb52e 20px); display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 0.9rem;">Parent: 40px</div>
+                            <div class="parent-box" style="margin-top: 0;">
+                                Parent
+                                <div style="height: 30px; background: repeating-linear-gradient(45deg, #ff6b6b, #ff6b6b 10px, #ff8787 10px, #ff8787 20px); display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 0.9rem; margin-bottom: 10px;">Child: 30px</div>
+                                <div class="child-box" style="margin-top: 0;">Child</div>
+                            </div>
+                            <p style="text-align: center; margin-top: 1rem; font-weight: 700; color: #c00;">Total: 70px (40 + 30)</p>
+                        </div>
+                    </div>
+                    <div class="comparison-side">
+                        <div class="comparison-header actual-header">✓ Actual (Correct)</div>
+                        <div class="comparison-content">
+                            <div style="height: 40px; background: repeating-linear-gradient(45deg, #ffa500, #ffa500 10px, #ffb52e 10px, #ffb52e 20px); display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 0.9rem;">Collapsed: 40px (larger wins!)</div>
+                            <div class="parent-box" style="margin-top: 0;">
+                                Parent
+                                <div class="child-box" style="margin-top: 0;">Child</div>
+                            </div>
+                            <p style="text-align: center; margin-top: 1rem; font-weight: 700; color: #0a0;">Total: 40px (collapsed)</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="warning-box">
+                    <p>You might expect the child to be <strong>70 pixels from the top</strong> (40px + 30px). However, the margins collapse and the larger margin (<strong>40 pixels</strong>) is used.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 10 -->
+        <div class="slide">
+            <div class="content-box">
+                <h2>Parent-Child Visual Example</h2>
+                <div class="visual-demo">
+                    <div class="parent-box">
+                        <div style="text-align: center; font-weight: 700; margin-bottom: 1rem;">Parent (margin-top: 40px)</div>
+                        <div class="child-box">Child (margin-top: 30px)</div>
+                    </div>
+                </div>
+                <div class="info-box">
+                    <p>The child's top margin "escapes" the parent and collapses with the parent's top margin. The result is a single 40px margin at the top.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 11 -->
+        <div class="slide">
+            <div class="content-box">
+                <h2>Common Scenarios: Empty Blocks</h2>
+                <p>If an element has <strong>no content, padding, or border</strong>, its top and bottom margins can collapse into a single margin.</p>
+                <div class="code-label">CSS</div>
+                <div class="code-example">
+                    <code>.empty-block {<br>
+&nbsp;&nbsp;margin-top: 20px;<br>
+&nbsp;&nbsp;margin-bottom: 10px;<br>
+&nbsp;&nbsp;height: 0;<br>
+}<br>
+<br>
+.next-block {<br>
+&nbsp;&nbsp;background-color: lightgray;<br>
+}</code>
+                </div>
+                <div class="code-label">HTML</div>
+                <div class="code-example">
+                    <code>&lt;div class="empty-block"&gt;&lt;/div&gt;<br>
+&lt;div class="next-block"&gt;Next block&lt;/div&gt;</code>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 12 -->
+        <div class="slide">
+            <div class="content-box">
+                <h2>Empty Block Visual Example</h2>
+                <div class="visual-demo">
+                    <div class="empty-block">
+                        <span class="empty-label">Empty Block (0 height)</span>
+                    </div>
+                    <div class="demo-box" style="background: lightgray; margin-top: 0;">Next Block</div>
+                </div>
+                <div class="warning-box">
+                    <p>The empty block's top margin (<strong>20px</strong>) and bottom margin (<strong>10px</strong>) collapse into a single <strong>20px margin</strong> (the larger of the two).</p>
+                </div>
+                <div class="info-box">
+                    <p>The empty element essentially contributes only 20px of space, not 30px (20 + 10).</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 13 -->
+        <div class="slide">
+            <div class="content-box">
+                <h2>Preventing Margin Collapse</h2>
+                <p>Sometimes you want to <strong>prevent margin collapsing</strong>. Here are several ways to do it:</p>
+                <div class="prevention-grid">
+                    <div class="prevention-card">
+                        <div class="prevention-icon">🔲</div>
+                        <div class="prevention-title">Add Border</div>
+                        <p>Add a border to the parent element</p>
+                        <code style="background: #f0f0f0; padding: 0.3rem; border-radius: 3px; font-size: 0.9rem;">border: 1px solid;</code>
+                    </div>
+                    <div class="prevention-card">
+                        <div class="prevention-icon">📦</div>
+                        <div class="prevention-title">Add Padding</div>
+                        <p>Add padding to the parent</p>
+                        <code style="background: #f0f0f0; padding: 0.3rem; border-radius: 3px; font-size: 0.9rem;">padding-top: 1px;</code>
+                    </div>
+                    <div class="prevention-card">
+                        <div class="prevention-icon">📝</div>
+                        <div class="prevention-title">Inline Content</div>
+                        <p>Add content between margins</p>
+                        <code style="background: #f0f0f0; padding: 0.3rem; border-radius: 3px; font-size: 0.9rem;">text or ::before</code>
+                    </div>
+                    <div class="prevention-card">
+                        <div class="prevention-icon">🎯</div>
+                        <div class="prevention-title">Display Property</div>
+                        <p>Change display type</p>
+                        <code style="background: #f0f0f0; padding: 0.3rem; border-radius: 3px; font-size: 0.9rem;">inline-block</code>
+                    </div>
+                    <div class="prevention-card">
+                        <div class="prevention-icon">🌊</div>
+                        <div class="prevention-title">Overflow</div>
+                        <p>Set overflow property</p>
+                        <code style="background: #f0f0f0; padding: 0.3rem; border-radius: 3px; font-size: 0.9rem;">overflow: auto;</code>
+                    </div>
+                    <div class="prevention-card">
+                        <div class="prevention-icon">📐</div>
+                        <div class="prevention-title">Position</div>
+                        <p>Use absolute/fixed positioning</p>
+                        <code style="background: #f0f0f0; padding: 0.3rem; border-radius: 3px; font-size: 0.9rem;">position: absolute;</code>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 14 -->
+        <div class="slide">
+            <div class="content-box">
+                <h2>Example: Preventing with Padding</h2>
+                <p>Here's an example of preventing collapse using padding:</p>
+                <div class="code-label">CSS</div>
+                <div class="code-example">
+                    <code>.parent {<br>
+&nbsp;&nbsp;margin-top: 40px;<br>
+&nbsp;&nbsp;padding-top: 1px; /* Prevents collapse! */<br>
+&nbsp;&nbsp;background-color: lightyellow;<br>
+}<br>
+<br>
+.child {<br>
+&nbsp;&nbsp;margin-top: 30px;<br>
+&nbsp;&nbsp;background-color: lightpink;<br>
+}</code>
+                </div>
+                <div class="success-box">
+                    <p>In this case, the <strong>1px padding on the parent</strong> prevents the margins from collapsing, resulting in a total space of <strong>71 pixels</strong> from the top of the page to the top of the child content.</p>
+                    <p style="margin-top: 0.8rem;">40px (parent margin) + 1px (padding) + 30px (child margin) = 71px</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 15 -->
+        <div class="slide">
+            <div class="content-box">
+                <h2>Before vs After: Adding Padding</h2>
+                <div class="comparison-container">
+                    <div class="comparison-side">
+                        <div class="comparison-header" style="background: #ffcccc; color: #c00;">Without Padding (Collapsed)</div>
+                        <div class="comparison-content">
+                            <div class="parent-box" style="padding-top: 1rem;">
+                                <div style="text-align: center; font-weight: 700; margin-bottom: 1rem;">Parent</div>
+                                <div class="child-box">Child</div>
+                            </div>
+                            <p style="text-align: center; margin-top: 1rem; font-weight: 700;">Margins collapse: 40px total</p>
+                        </div>
+                    </div>
+                    <div class="comparison-side">
+                        <div class="comparison-header" style="background: #ccffcc; color: #0a0;">With Padding (No Collapse)</div>
+                        <div class="comparison-content">
+                            <div class="parent-box" style="padding-top: 1px;">
+                                <div style="text-align: center; font-weight: 700; margin-bottom: 1rem;">Parent (padding-top: 1px)</div>
+                                <div class="child-box">Child</div>
+                            </div>
+                            <p style="text-align: center; margin-top: 1rem; font-weight: 700;">No collapse: 71px total (40 + 1 + 30)</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 16 -->
+        <div class="slide">
+            <div class="content-box">
+                <h2>What DOESN'T Prevent Collapse</h2>
+                <div class="warning-box">
+                    <h3>⚠️ Common Misconception:</h3>
+                    <p>Setting <code style="background: #f0f0f0; padding: 2px 6px; border-radius: 3px;">margin-top: 0;</code> on the child does NOT prevent collapse - it just means one of the margins is 0.</p>
+                </div>
+                <div class="code-example">
+                    <code>.parent {<br>
+&nbsp;&nbsp;margin-top: 40px;<br>
+}<br>
+<br>
+.child {<br>
+&nbsp;&nbsp;margin-top: 0; /* This doesn't prevent collapse */<br>
+}</code>
+                </div>
+                <div class="info-box">
+                    <p><strong>Result:</strong> The margins still collapse, but since one is 0, the final margin is 40px (the larger of 40px and 0px).</p>
+                    <p style="margin-top: 0.8rem;">To truly prevent collapse, you need to add a <strong>separator</strong> like border, padding, or change the display/positioning.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 17 -->
+        <div class="slide">
+            <div class="content-box">
+                <h2>Why Margin Collapsing Exists</h2>
+                <p>Understanding margin collapsing is important, but why does CSS behave this way?</p>
+                <div class="highlight">
+                    <h3>Design Purpose:</h3>
+                    <p>It's a feature designed to create <strong>more aesthetic and consistent spacing</strong> in documents.</p>
+                </div>
+                <div class="success-box">
+                    <h3>Benefits:</h3>
+                    <ul>
+                        <li><strong>Natural spacing:</strong> Prevents double spacing between elements</li>
+                        <li><strong>Consistent typography:</strong> Works well with paragraphs and headings</li>
+                        <li><strong>Simpler authoring:</strong> Don't need to worry about adjacent margins adding up</li>
+                        <li><strong>Better defaults:</strong> Elements "just work" with sensible spacing</li>
+                    </ul>
+                </div>
+                <div class="info-box">
+                    <p>Margin collapsing comes from CSS's roots in document formatting, where it makes sense for spacing between paragraphs and headings to not accumulate.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 18 -->
+        <div class="slide">
+            <div class="content-box">
+                <h2>Summary: When Does It Happen?</h2>
+                <div class="scenario-box">
+                    <h3>Margin Collapsing Occurs When:</h3>
+                    <ul style="font-size: 1.1rem; line-height: 1.8;">
+                        <li>✓ <strong>Adjacent siblings</strong> have vertical margins that touch</li>
+                        <li>✓ <strong>Parent and first/last child</strong> have no separator (border, padding, content)</li>
+                        <li>✓ An <strong>empty block</strong> has no content, padding, or border</li>
+                        <li>✓ Margins are <strong>vertical</strong> (top and bottom)</li>
+                        <li>✓ Elements are in <strong>normal flow</strong> (not floated, positioned, or flex/grid items)</li>
+                    </ul>
+                </div>
+                <div class="scenario-box" style="margin-top: 2rem;">
+                    <h3>Margin Collapsing Does NOT Occur When:</h3>
+                    <ul style="font-size: 1.1rem; line-height: 1.8;">
+                        <li>❌ Margins are <strong>horizontal</strong> (left and right)</li>
+                        <li>❌ There's a <strong>border or padding</strong> separating margins</li>
+                        <li>❌ Elements use <strong>float or position</strong> (absolute/fixed)</li>
+                        <li>❌ Elements are <strong>flex or grid</strong> items</li>
+                        <li>❌ Element has <strong>overflow</strong> other than visible</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 19 -->
+        <div class="slide">
+            <div class="content-box">
+                <h2>Key Takeaways</h2>
+                <div class="highlight">
+                    <h3>Essential Concepts:</h3>
+                    <ul>
+                        <li><strong>Larger margin wins:</strong> When margins collapse, the larger value is used</li>
+                        <li><strong>Vertical only:</strong> Only top and bottom margins collapse</li>
+                        <li><strong>Three main scenarios:</strong> Adjacent siblings, parent-child, empty blocks</li>
+                    </ul>
+                </div>
+                <div class="success-box" style="margin-top: 1.5rem;">
+                    <h3>Practical Application:</h3>
+                    <ul>
+                        <li>Know when collapsing happens to predict spacing</li>
+                        <li>Use border, padding, or display properties to prevent it</li>
+                        <li>Embrace it for natural document spacing</li>
+                        <li>Test layouts to ensure spacing behaves as expected</li>
+                    </ul>
+                </div>
+                <div class="info-box" style="margin-top: 1.5rem;">
+                    <p><strong>Final Thought:</strong> While margin collapsing can sometimes lead to unexpected results, by knowing when it occurs and how to prevent it when necessary, you can create more <strong>predictable and maintainable layouts</strong> in your web designs.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="nav-controls">
+        <button id="prevBtn" onclick="changeSlide(-1)">← Previous</button>
+        <span class="slide-counter">
+            <span id="currentSlide">1</span> / <span id="totalSlides">19</span>
+        </span>
+        <button id="nextBtn" onclick="changeSlide(1)">Next →</button>
+    </div>
+
+    <script>
+        let currentSlide = 1;
+        const totalSlides = document.querySelectorAll('.slide').length;
+        
+        document.getElementById('totalSlides').textContent = totalSlides;
+
+        function showSlide(n) {
+            const slides = document.querySelectorAll('.slide');
+            const prevBtn = document.getElementById('prevBtn');
+            const nextBtn = document.getElementById('nextBtn');
+            
+            if (n > totalSlides) {
+                currentSlide = totalSlides;
+            }
+            if (n < 1) {
+                currentSlide = 1;
+            }
+            
+            slides.forEach(slide => {
+                slide.classList.remove('active');
+            });
+            
+            slides[currentSlide - 1].classList.add('active');
+            document.getElementById('currentSlide').textContent = currentSlide;
+            
+            prevBtn.disabled = currentSlide === 1;
+            nextBtn.disabled = currentSlide === totalSlides;
+            
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function changeSlide(n) {
+            currentSlide += n;
+            showSlide(currentSlide);
+        }
+
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'ArrowLeft') {
+                if (currentSlide > 1) changeSlide(-1);
+            } else if (event.key === 'ArrowRight') {
+                if (currentSlide < totalSlides) changeSlide(1);
+            }
+        });
+
+        showSlide(currentSlide);
+    </script>
+</body>
+</html>

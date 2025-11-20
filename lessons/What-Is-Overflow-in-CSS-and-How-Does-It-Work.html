@@ -1,0 +1,901 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CSS Overflow - How It Works</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #f5f5f5;
+            color: #333;
+            overflow-x: hidden;
+        }
+
+        .slide-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px 120px;
+            min-height: 100vh;
+        }
+
+        .slide {
+            display: none;
+            animation: fadeIn 0.5s;
+        }
+
+        .slide.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        h2 {
+            color: #881518;
+            font-size: 2rem;
+            margin-bottom: 1.5rem;
+            border-bottom: 3px solid #881518;
+            padding-bottom: 0.5rem;
+        }
+
+        h3 {
+            color: #881518;
+            font-size: 1.5rem;
+            margin-top: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        p {
+            font-size: 1.1rem;
+            line-height: 1.8;
+            margin-bottom: 1rem;
+        }
+
+        ul {
+            margin: 1.5rem 0;
+            padding-left: 2rem;
+        }
+
+        li {
+            font-size: 1.1rem;
+            line-height: 1.8;
+            margin-bottom: 0.8rem;
+        }
+
+        .content-box {
+            background: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+        }
+
+        .highlight {
+            background: #fff3cd;
+            padding: 1.5rem;
+            border-left: 4px solid #881518;
+            margin: 1.5rem 0;
+            border-radius: 4px;
+        }
+
+        .warning-box {
+            background: #ffe6e6;
+            padding: 1.5rem;
+            border-left: 4px solid #dc3545;
+            margin: 1.5rem 0;
+            border-radius: 4px;
+        }
+
+        .success-box {
+            background: #d4edda;
+            padding: 1.5rem;
+            border-left: 4px solid #28a745;
+            margin: 1.5rem 0;
+            border-radius: 4px;
+        }
+
+        .info-box {
+            background: #e8f4f8;
+            padding: 1.5rem;
+            border-left: 4px solid #0066cc;
+            margin: 1.5rem 0;
+            border-radius: 4px;
+        }
+
+        .code-example {
+            background: #2d2d2d;
+            color: #f8f8f2;
+            padding: 1.5rem;
+            border-radius: 4px;
+            margin: 1.5rem 0;
+            overflow-x: auto;
+        }
+
+        .code-example code {
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        .code-label {
+            color: #881518;
+            font-weight: 600;
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .demo-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+
+        .demo-card {
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            overflow: hidden;
+            background: white;
+        }
+
+        .demo-header {
+            background: #881518;
+            color: white;
+            padding: 1rem;
+            font-weight: 700;
+            text-align: center;
+        }
+
+        .demo-container {
+            padding: 1.5rem;
+            background: #f9f9f9;
+        }
+
+        .overflow-box {
+            width: 100%;
+            height: 150px;
+            border: 3px solid #881518;
+            background: white;
+            padding: 1rem;
+            font-size: 0.9rem;
+            line-height: 1.4;
+        }
+
+        .overflow-visible {
+            overflow: visible;
+        }
+
+        .overflow-hidden {
+            overflow: hidden;
+        }
+
+        .overflow-scroll {
+            overflow: scroll;
+        }
+
+        .overflow-auto {
+            overflow: auto;
+        }
+
+        .overflow-y-scroll {
+            overflow-y: scroll;
+        }
+
+        .overflow-x-scroll {
+            overflow-x: scroll;
+        }
+
+        .axis-demo {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+
+        .axis-card {
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            padding: 1.5rem;
+            background: white;
+            text-align: center;
+        }
+
+        .axis-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+        }
+
+        .axis-title {
+            font-weight: 700;
+            color: #881518;
+            margin-bottom: 0.5rem;
+            font-size: 1.2rem;
+        }
+
+        .interactive-demo {
+            background: white;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            padding: 2rem;
+            margin: 2rem 0;
+        }
+
+        .control-buttons {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .control-btn {
+            background: #881518;
+            color: white;
+            border: none;
+            padding: 0.8rem 1.5rem;
+            font-size: 1rem;
+            font-weight: 600;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .control-btn:hover {
+            background: #6d1013;
+            transform: translateY(-2px);
+        }
+
+        .control-btn.active {
+            background: #333;
+        }
+
+        .comparison-split {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+
+        .nav-controls {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: #881518;
+            padding: 1rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 2rem;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.2);
+            z-index: 1000;
+        }
+
+        button.nav-btn {
+            background: white;
+            color: #881518;
+            border: none;
+            padding: 12px 30px;
+            font-size: 1rem;
+            font-weight: 600;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        button.nav-btn:hover:not(:disabled) {
+            background: #f0f0f0;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+
+        button.nav-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .slide-counter {
+            color: white;
+            font-weight: 600;
+            font-size: 1rem;
+        }
+
+        @media (max-width: 768px) {
+            h2 {
+                font-size: 1.5rem;
+            }
+
+            h3 {
+                font-size: 1.3rem;
+            }
+
+            p, li {
+                font-size: 1rem;
+            }
+
+            .slide-container {
+                padding: 20px 15px 120px;
+            }
+
+            .content-box {
+                padding: 1.5rem;
+            }
+
+            .nav-controls {
+                gap: 1rem;
+                padding: 0.8rem;
+            }
+
+            button.nav-btn {
+                padding: 10px 20px;
+                font-size: 0.9rem;
+            }
+
+            .demo-grid,
+            .axis-demo,
+            .comparison-split {
+                grid-template-columns: 1fr;
+            }
+
+            .code-example {
+                padding: 1rem;
+            }
+
+            .code-example code {
+                font-size: 0.85rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="slide-container">
+        <!-- Slide 1 -->
+        <div class="slide active">
+            <div class="content-box">
+                <h2>What Is CSS Overflow?</h2>
+                <p><strong>Overflow</strong> refers to the way elements handle content that exceeds or overflows the size of the containing element.</p>
+                <div class="highlight">
+                    <h3>Common Example:</h3>
+                    <p>The text content of a <code style="background: #f0f0f0; padding: 2px 6px; border-radius: 3px;">div</code> element can overflow out of its borders when there's too much content to fit inside.</p>
+                </div>
+                <div class="demo-card">
+                    <div class="demo-header">Example: Overflow Problem</div>
+                    <div class="demo-container">
+                        <div class="overflow-box overflow-visible">
+                            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident.
+                        </div>
+                    </div>
+                </div>
+                <p style="text-align: center; color: #666; margin-top: 1rem;"><em>Notice how the text overflows beyond the container's borders</em></p>
+            </div>
+        </div>
+
+        <!-- Slide 2 -->
+        <div class="slide">
+            <div class="content-box">
+                <h2>Overflow Is Two-Dimensional</h2>
+                <p>Overflow is <strong>two-dimensional</strong>, meaning it can happen in two directions:</p>
+                <div class="axis-demo">
+                    <div class="axis-card">
+                        <div class="axis-icon">↔️</div>
+                        <div class="axis-title">X-Axis (Horizontal)</div>
+                        <p>Controls <strong>horizontal overflow</strong></p>
+                        <p style="margin-top: 0.5rem; color: #666; font-size: 0.95rem;">Left-to-right overflow</p>
+                    </div>
+                    <div class="axis-card">
+                        <div class="axis-icon">↕️</div>
+                        <div class="axis-title">Y-Axis (Vertical)</div>
+                        <p>Controls <strong>vertical overflow</strong></p>
+                        <p style="margin-top: 0.5rem; color: #666; font-size: 0.95rem;">Top-to-bottom overflow</p>
+                    </div>
+                </div>
+                <div class="info-box">
+                    <h3>Key Properties:</h3>
+                    <ul>
+                        <li><code style="background: #f0f0f0; padding: 2px 6px; border-radius: 3px;">overflow</code> - Controls both axes</li>
+                        <li><code style="background: #f0f0f0; padding: 2px 6px; border-radius: 3px;">overflow-x</code> - Controls horizontal overflow only</li>
+                        <li><code style="background: #f0f0f0; padding: 2px 6px; border-radius: 3px;">overflow-y</code> - Controls vertical overflow only</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 3 -->
+        <div class="slide">
+            <div class="content-box">
+                <h2>Overflow Values</h2>
+                <p>CSS provides several values to control how overflow is handled:</p>
+                <div class="highlight">
+                    <ul>
+                        <li><strong>visible</strong> (default) - Content is not clipped and may overflow</li>
+                        <li><strong>hidden</strong> - Overflow content is hidden and not accessible</li>
+                        <li><strong>scroll</strong> - Always shows scrollbars, content is scrollable</li>
+                        <li><strong>auto</strong> - Browser adds scrollbars only when needed</li>
+                    </ul>
+                </div>
+                <div class="info-box">
+                    <p>Let's explore each of these values with live examples!</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 4 -->
+        <div class="slide">
+            <div class="content-box">
+                <h2>Value: visible (Default)</h2>
+                <p>The default behavior - content overflows the container and remains visible:</p>
+                <div class="code-label">CSS</div>
+                <div class="code-example">
+                    <code>div {<br>
+&nbsp;&nbsp;overflow: visible; /* Default */<br>
+}</code>
+                </div>
+                <div class="demo-card">
+                    <div class="demo-header">overflow: visible</div>
+                    <div class="demo-container">
+                        <div class="overflow-box overflow-visible">
+                            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident.
+                        </div>
+                    </div>
+                </div>
+                <div class="warning-box">
+                    <p><strong>Problem:</strong> Content spills outside the container, potentially breaking your layout or overlapping other elements.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 5 -->
+        <div class="slide">
+            <div class="content-box">
+                <h2>Value: hidden</h2>
+                <p>Hides the overflowing content completely:</p>
+                <div class="code-label">CSS</div>
+                <div class="code-example">
+                    <code>div {<br>
+&nbsp;&nbsp;overflow: hidden;<br>
+}</code>
+                </div>
+                <div class="demo-card">
+                    <div class="demo-header">overflow: hidden</div>
+                    <div class="demo-container">
+                        <div class="overflow-box overflow-hidden">
+                            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident.
+                        </div>
+                    </div>
+                </div>
+                <div class="warning-box">
+                    <p><strong>Problem:</strong> This resolves the overflow problem but now the extra content becomes <strong>completely unreachable</strong>. Users cannot see or access the hidden content.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 6 -->
+        <div class="slide">
+            <div class="content-box">
+                <h2>Value: scroll</h2>
+                <p>Forces the element to become scrollable with visible scrollbars:</p>
+                <div class="code-label">CSS</div>
+                <div class="code-example">
+                    <code>div {<br>
+&nbsp;&nbsp;overflow: scroll;<br>
+}</code>
+                </div>
+                <div class="demo-card">
+                    <div class="demo-header">overflow: scroll</div>
+                    <div class="demo-container">
+                        <div class="overflow-box overflow-scroll">
+                            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident.
+                        </div>
+                    </div>
+                </div>
+                <div class="success-box">
+                    <p><strong>Solution:</strong> This turns the container into a scrollable element, allowing all the content to be viewed by scrolling the element independently of the page scroll.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 7 -->
+        <div class="slide">
+            <div class="content-box">
+                <h2>Value: auto</h2>
+                <p>Let the browser decide - scrollbars appear only when needed:</p>
+                <div class="code-label">CSS</div>
+                <div class="code-example">
+                    <code>div {<br>
+&nbsp;&nbsp;overflow: auto;<br>
+}</code>
+                </div>
+                <div class="demo-card">
+                    <div class="demo-header">overflow: auto</div>
+                    <div class="demo-container">
+                        <div class="overflow-box overflow-auto">
+                            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident.
+                        </div>
+                    </div>
+                </div>
+                <div class="success-box">
+                    <p><strong>Best Practice:</strong> <code style="background: #f0f0f0; padding: 2px 6px; border-radius: 3px;">auto</code> is often the best choice - scrollbars only appear when content overflows, keeping the interface clean when they're not needed.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 8 -->
+        <div class="slide">
+            <div class="content-box">
+                <h2>Compare All Values</h2>
+                <p>Here's a side-by-side comparison of all overflow values:</p>
+                <div class="demo-grid">
+                    <div class="demo-card">
+                        <div class="demo-header">visible</div>
+                        <div class="demo-container">
+                            <div class="overflow-box overflow-visible" style="height: 120px;">
+                                Content overflows and is visible outside the container. This can break layouts.
+                            </div>
+                        </div>
+                    </div>
+                    <div class="demo-card">
+                        <div class="demo-header">hidden</div>
+                        <div class="demo-container">
+                            <div class="overflow-box overflow-hidden" style="height: 120px;">
+                                Content is clipped and hidden. Users cannot access the overflow content at all.
+                            </div>
+                        </div>
+                    </div>
+                    <div class="demo-card">
+                        <div class="demo-header">scroll</div>
+                        <div class="demo-container">
+                            <div class="overflow-box overflow-scroll" style="height: 120px;">
+                                Scrollbars always visible. Content is accessible by scrolling within this container.
+                            </div>
+                        </div>
+                    </div>
+                    <div class="demo-card">
+                        <div class="demo-header">auto</div>
+                        <div class="demo-container">
+                            <div class="overflow-box overflow-auto" style="height: 120px;">
+                                Scrollbars appear only when needed. Clean interface when content fits.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 9 -->
+        <div class="slide">
+            <div class="content-box">
+                <h2>Controlling Vertical Overflow</h2>
+                <p>Use <code style="background: #f0f0f0; padding: 2px 6px; border-radius: 3px;">overflow-y</code> to control vertical overflow specifically:</p>
+                <div class="code-label">CSS</div>
+                <div class="code-example">
+                    <code>div {<br>
+&nbsp;&nbsp;overflow-y: scroll; /* Vertical scrolling only */<br>
+}</code>
+                </div>
+                <div class="demo-card">
+                    <div class="demo-header">overflow-y: scroll</div>
+                    <div class="demo-container">
+                        <div class="overflow-box overflow-y-scroll">
+                            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident.
+                        </div>
+                    </div>
+                </div>
+                <div class="success-box">
+                    <p><strong>Result:</strong> Only vertical scrolling is enabled. Horizontal overflow (if any) is handled separately.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 10 -->
+        <div class="slide">
+            <div class="content-box">
+                <h2>Controlling Horizontal Overflow</h2>
+                <p>Use <code style="background: #f0f0f0; padding: 2px 6px; border-radius: 3px;">overflow-x</code> to control horizontal overflow specifically:</p>
+                <div class="code-label">CSS</div>
+                <div class="code-example">
+                    <code>div {<br>
+&nbsp;&nbsp;overflow-x: scroll; /* Horizontal scrolling only */<br>
+}</code>
+                </div>
+                <div class="demo-card">
+                    <div class="demo-header">overflow-x: scroll</div>
+                    <div class="demo-container">
+                        <div class="overflow-box overflow-x-scroll">
+                            <div style="width: 500px;">
+                                This content is wider than the container and requires horizontal scrolling to view completely.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="warning-box">
+                    <p><strong>Design Note:</strong> Horizontal scrolling is generally not a common design decision and should be used carefully.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 11 -->
+        <div class="slide">
+            <div class="content-box">
+                <h2>Interactive Demo</h2>
+                <p>Try different overflow values by clicking the buttons below:</p>
+                <div class="interactive-demo">
+                    <div class="control-buttons">
+                        <button class="control-btn active" onclick="setOverflow('visible')">visible</button>
+                        <button class="control-btn" onclick="setOverflow('hidden')">hidden</button>
+                        <button class="control-btn" onclick="setOverflow('scroll')">scroll</button>
+                        <button class="control-btn" onclick="setOverflow('auto')">auto</button>
+                    </div>
+                    <div class="demo-card">
+                        <div class="demo-header">Current: <span id="currentValue">visible</span></div>
+                        <div class="demo-container">
+                            <div id="interactiveBox" class="overflow-box overflow-visible">
+                                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 12 -->
+        <div class="slide">
+            <div class="content-box">
+                <h2>Vertical vs Horizontal Scrolling</h2>
+                <div class="comparison-split">
+                    <div class="demo-card">
+                        <div class="demo-header" style="background: #28a745;">✓ Vertical Scrolling</div>
+                        <div class="demo-container">
+                            <div class="success-box" style="margin: 0;">
+                                <h3 style="margin-top: 0;">Generally Acceptable</h3>
+                                <p>Vertical scrolling is a natural and expected behavior on the web.</p>
+                                <ul>
+                                    <li>Users are familiar with it</li>
+                                    <li>Common design pattern</li>
+                                    <li>Works well on all devices</li>
+                                    <li>Expected for long content</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="demo-card">
+                        <div class="demo-header" style="background: #dc3545;">⚠️ Horizontal Scrolling</div>
+                        <div class="demo-container">
+                            <div class="warning-box" style="margin: 0;">
+                                <h3 style="margin-top: 0;">Generally Questioned</h3>
+                                <p>Horizontal scrolling can be confusing and is less common.</p>
+                                <ul>
+                                    <li>Unexpected behavior</li>
+                                    <li>Harder to discover</li>
+                                    <li>Poor mobile experience</li>
+                                    <li>Often indicates design issues</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="info-box">
+                    <p><strong>It's worth noting</strong> that vertical scrolling is generally considered okay while horizontal scrolling might be questioned as it's generally not a common design decision.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 13 -->
+        <div class="slide">
+            <div class="content-box">
+                <h2>Combining X and Y Overflow</h2>
+                <p>You can control horizontal and vertical overflow independently:</p>
+                <div class="code-label">CSS</div>
+                <div class="code-example">
+                    <code>div {<br>
+&nbsp;&nbsp;overflow-x: hidden; /* Hide horizontal overflow */<br>
+&nbsp;&nbsp;overflow-y: auto;   /* Auto vertical scrolling */<br>
+}</code>
+                </div>
+                <div class="demo-card">
+                    <div class="demo-header">overflow-x: hidden, overflow-y: auto</div>
+                    <div class="demo-container">
+                        <div class="overflow-box" style="overflow-x: hidden; overflow-y: auto;">
+                            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident.
+                        </div>
+                    </div>
+                </div>
+                <div class="success-box">
+                    <p><strong>Common Pattern:</strong> This combination prevents horizontal scrolling while allowing vertical scrolling when needed.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 14 -->
+        <div class="slide">
+            <div class="content-box">
+                <h2>Common Use Cases</h2>
+                <div class="highlight">
+                    <h3>When to Use Each Value:</h3>
+                    <ul>
+                        <li><strong>visible:</strong> When you want content to naturally extend beyond container (rare)</li>
+                        <li><strong>hidden:</strong> When you want to clip content intentionally (like cropping images)</li>
+                        <li><strong>scroll:</strong> When you always want scrollbars visible (like code editors)</li>
+                        <li><strong>auto:</strong> For most scrollable content areas (most common choice)</li>
+                    </ul>
+                </div>
+                <div class="success-box">
+                    <h3>Real-World Examples:</h3>
+                    <ul>
+                        <li><strong>Chat windows:</strong> overflow-y: auto</li>
+                        <li><strong>Dropdown menus:</strong> overflow: auto</li>
+                        <li><strong>Modal content:</strong> overflow-y: auto</li>
+                        <li><strong>Image containers:</strong> overflow: hidden</li>
+                        <li><strong>Code blocks:</strong> overflow: auto</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 15 -->
+        <div class="slide">
+            <div class="content-box">
+                <h2>Best Practices</h2>
+                <div class="success-box">
+                    <h3>✓ Do These:</h3>
+                    <ul>
+                        <li>Use <code style="background: #f0f0f0; padding: 2px 6px; border-radius: 3px;">overflow: auto</code> for most scrollable containers</li>
+                        <li>Test your overflow behavior on different screen sizes</li>
+                        <li>Ensure content is accessible when using overflow</li>
+                        <li>Use <code style="background: #f0f0f0; padding: 2px 6px; border-radius: 3px;">overflow-y</code> and <code style="background: #f0f0f0; padding: 2px 6px; border-radius: 3px;">overflow-x</code> separately when needed</li>
+                        <li>Consider mobile users - scrolling should be intuitive</li>
+                        <li>Add visual indicators when content is scrollable</li>
+                    </ul>
+                </div>
+                <div class="warning-box" style="margin-top: 1.5rem;">
+                    <h3>❌ Avoid These:</h3>
+                    <ul>
+                        <li>Using <code style="background: #f0f0f0; padding: 2px 6px; border-radius: 3px;">overflow: hidden</code> if users need to see all content</li>
+                        <li>Horizontal scrolling for main content areas</li>
+                        <li>Nested scrolling containers (confusing UX)</li>
+                        <li>Forgetting to test overflow on mobile devices</li>
+                        <li>Making containers too small, causing unnecessary scrolling</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 16 -->
+        <div class="slide">
+            <div class="content-box">
+                <h2>Overflow and Layout Control</h2>
+                <p>With this knowledge, you can now control how your content overflows, giving you <strong>more power over the layout of your pages</strong>.</p>
+                <div class="highlight">
+                    <h3>Benefits of Proper Overflow Management:</h3>
+                    <ul>
+                        <li><strong>Prevent layout breaks:</strong> Content stays within bounds</li>
+                        <li><strong>Improve user experience:</strong> Content is accessible and scrollable</li>
+                        <li><strong>Create better designs:</strong> Clean, professional layouts</li>
+                        <li><strong>Handle dynamic content:</strong> Adapt to varying content sizes</li>
+                        <li><strong>Mobile-friendly:</strong> Works well on all screen sizes</li>
+                    </ul>
+                </div>
+                <div class="info-box">
+                    <p>Understanding overflow is fundamental to creating robust, responsive web layouts that work well in all situations.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 17 -->
+        <div class="slide">
+            <div class="content-box">
+                <h2>Key Takeaways</h2>
+                <div class="highlight">
+                    <h3>Essential Concepts:</h3>
+                    <ul>
+                        <li><strong>Overflow:</strong> How elements handle content exceeding their size</li>
+                        <li><strong>Two-dimensional:</strong> X-axis (horizontal) and Y-axis (vertical)</li>
+                        <li><strong>Four main values:</strong> visible, hidden, scroll, auto</li>
+                    </ul>
+                </div>
+                <div class="info-box" style="margin-top: 1.5rem;">
+                    <h3>Properties:</h3>
+                    <ul>
+                        <li><code style="background: #f0f0f0; padding: 2px 6px; border-radius: 3px;">overflow</code> - Controls both axes</li>
+                        <li><code style="background: #f0f0f0; padding: 2px 6px; border-radius: 3px;">overflow-x</code> - Controls horizontal overflow</li>
+                        <li><code style="background: #f0f0f0; padding: 2px 6px; border-radius: 3px;">overflow-y</code> - Controls vertical overflow</li>
+                    </ul>
+                </div>
+                <div class="success-box" style="margin-top: 1.5rem;">
+                    <h3>Remember:</h3>
+                    <ul>
+                        <li><strong>auto</strong> is usually the best choice</li>
+                        <li>Vertical scrolling is generally acceptable</li>
+                        <li>Avoid horizontal scrolling in most cases</li>
+                        <li>Test overflow behavior on all devices</li>
+                        <li>Ensure all content remains accessible</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="nav-controls">
+        <button class="nav-btn" id="prevBtn" onclick="changeSlide(-1)">← Previous</button>
+        <span class="slide-counter">
+            <span id="currentSlide">1</span> / <span id="totalSlides">17</span>
+        </span>
+        <button class="nav-btn" id="nextBtn" onclick="changeSlide(1)">Next →</button>
+    </div>
+
+    <script>
+        let currentSlide = 1;
+        const totalSlides = document.querySelectorAll('.slide').length;
+        
+        document.getElementById('totalSlides').textContent = totalSlides;
+
+        function showSlide(n) {
+            const slides = document.querySelectorAll('.slide');
+            const prevBtn = document.getElementById('prevBtn');
+            const nextBtn = document.getElementById('nextBtn');
+            
+            if (n > totalSlides) {
+                currentSlide = totalSlides;
+            }
+            if (n < 1) {
+                currentSlide = 1;
+            }
+            
+            slides.forEach(slide => {
+                slide.classList.remove('active');
+            });
+            
+            slides[currentSlide - 1].classList.add('active');
+            document.getElementById('currentSlide').textContent = currentSlide;
+            
+            prevBtn.disabled = currentSlide === 1;
+            nextBtn.disabled = currentSlide === totalSlides;
+            
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function changeSlide(n) {
+            currentSlide += n;
+            showSlide(currentSlide);
+        }
+
+        // Interactive overflow demo
+        function setOverflow(value) {
+            const box = document.getElementById('interactiveBox');
+            const currentValueSpan = document.getElementById('currentValue');
+            const buttons = document.querySelectorAll('.control-btn');
+            
+            // Remove all overflow classes
+            box.className = 'overflow-box';
+            
+            // Add new overflow class
+            box.classList.add('overflow-' + value);
+            
+            // Update current value display
+            currentValueSpan.textContent = value;
+            
+            // Update button states
+            buttons.forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+        }
+
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'ArrowLeft') {
+                if (currentSlide > 1) changeSlide(-1);
+            } else if (event.key === 'ArrowRight') {
+                if (currentSlide < totalSlides) changeSlide(1);
+            }
+        });
+
+        showSlide(currentSlide);
+    </script>
+</body>
+</html>

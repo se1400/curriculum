@@ -1,0 +1,1065 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Static vs Relative Positioning</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #f5f5f5;
+            color: #333;
+            overflow-x: hidden;
+        }
+
+        .slide-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px 120px;
+            min-height: 100vh;
+        }
+
+        .slide {
+            display: none;
+            animation: fadeIn 0.5s;
+        }
+
+        .slide.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        h2 {
+            color: #881518;
+            font-size: 2rem;
+            margin-bottom: 1.5rem;
+            border-bottom: 3px solid #881518;
+            padding-bottom: 0.5rem;
+        }
+
+        h3 {
+            color: #881518;
+            font-size: 1.5rem;
+            margin-top: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        p {
+            font-size: 1.1rem;
+            line-height: 1.8;
+            margin-bottom: 1rem;
+        }
+
+        ul {
+            margin: 1.5rem 0;
+            padding-left: 2rem;
+        }
+
+        li {
+            font-size: 1.1rem;
+            line-height: 1.8;
+            margin-bottom: 0.8rem;
+        }
+
+        .content-box {
+            background: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+        }
+
+        .highlight {
+            background: #fff3cd;
+            padding: 1.5rem;
+            border-left: 4px solid #881518;
+            margin: 1.5rem 0;
+            border-radius: 4px;
+        }
+
+        .warning-box {
+            background: #ffe6e6;
+            padding: 1.5rem;
+            border-left: 4px solid #dc3545;
+            margin: 1.5rem 0;
+            border-radius: 4px;
+        }
+
+        .success-box {
+            background: #d4edda;
+            padding: 1.5rem;
+            border-left: 4px solid #28a745;
+            margin: 1.5rem 0;
+            border-radius: 4px;
+        }
+
+        .info-box {
+            background: #e8f4f8;
+            padding: 1.5rem;
+            border-left: 4px solid #0066cc;
+            margin: 1.5rem 0;
+            border-radius: 4px;
+        }
+
+        .code-example {
+            background: #2d2d2d;
+            color: #f8f8f2;
+            padding: 1.5rem;
+            border-radius: 4px;
+            margin: 1.5rem 0;
+            overflow-x: auto;
+        }
+
+        .code-example code {
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        .code-label {
+            color: #881518;
+            font-weight: 600;
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .comparison-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+
+        .comparison-side {
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .comparison-header {
+            padding: 1rem;
+            font-weight: 700;
+            text-align: center;
+            font-size: 1.1rem;
+            color: white;
+        }
+
+        .static-header {
+            background: #0066cc;
+        }
+
+        .relative-header {
+            background: #881518;
+        }
+
+        .comparison-content {
+            padding: 2rem;
+            background: white;
+            min-height: 300px;
+        }
+
+        .demo-area {
+            background: #f9f9f9;
+            border: 2px dashed #ddd;
+            padding: 2rem;
+            margin: 2rem 0;
+            position: relative;
+            min-height: 300px;
+        }
+
+        .demo-box {
+            padding: 1.5rem;
+            background: #667eea;
+            color: white;
+            font-weight: 700;
+            text-align: center;
+            border-radius: 4px;
+            display: inline-block;
+        }
+
+        .static-demo {
+            position: static;
+        }
+
+        .relative-demo {
+            position: relative;
+            top: 30px;
+            left: 30px;
+        }
+
+        .original-space {
+            border: 2px dashed #dc3545;
+            background: rgba(220, 53, 69, 0.1);
+            position: absolute;
+            pointer-events: none;
+        }
+
+        .coordinate-system {
+            position: relative;
+            background: #f9f9f9;
+            border: 2px solid #ddd;
+            padding: 3rem;
+            margin: 2rem 0;
+            min-height: 400px;
+        }
+
+        .axis {
+            position: absolute;
+            background: #881518;
+        }
+
+        .axis-x {
+            height: 2px;
+            width: 100%;
+            top: 50%;
+            left: 0;
+        }
+
+        .axis-y {
+            width: 2px;
+            height: 100%;
+            left: 50%;
+            top: 0;
+        }
+
+        .axis-label {
+            position: absolute;
+            font-weight: 700;
+            color: #881518;
+            background: white;
+            padding: 0.3rem 0.6rem;
+            border-radius: 4px;
+        }
+
+        .interactive-demo {
+            background: white;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            padding: 2rem;
+            margin: 2rem 0;
+        }
+
+        .slider-group {
+            margin: 1.5rem 0;
+        }
+
+        .slider-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: #881518;
+        }
+
+        input[type="range"] {
+            width: 100%;
+            height: 8px;
+            border-radius: 5px;
+            background: #ddd;
+            outline: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #881518;
+            cursor: pointer;
+        }
+
+        input[type="range"]::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #881518;
+            cursor: pointer;
+            border: none;
+        }
+
+        .visual-flow {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+
+        .flow-item {
+            padding: 1.5rem;
+            background: #e8f4f8;
+            border: 2px solid #0066cc;
+            border-radius: 4px;
+            font-weight: 700;
+            text-align: center;
+        }
+
+        .flow-item.shifted {
+            background: #fff3cd;
+            border-color: #881518;
+            margin-left: 100px;
+        }
+
+        .nav-controls {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: #881518;
+            padding: 1rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 2rem;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.2);
+            z-index: 1000;
+        }
+
+        button {
+            background: white;
+            color: #881518;
+            border: none;
+            padding: 12px 30px;
+            font-size: 1rem;
+            font-weight: 600;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        button:hover:not(:disabled) {
+            background: #f0f0f0;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .slide-counter {
+            color: white;
+            font-weight: 600;
+            font-size: 1rem;
+        }
+
+        .step-by-step {
+            background: #f9f9f9;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            padding: 2rem;
+            margin: 2rem 0;
+        }
+
+        .step {
+            padding: 1rem;
+            margin: 1rem 0;
+            background: white;
+            border-left: 4px solid #881518;
+            border-radius: 4px;
+        }
+
+        .step-number {
+            display: inline-block;
+            width: 30px;
+            height: 30px;
+            background: #881518;
+            color: white;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 30px;
+            margin-right: 1rem;
+            font-weight: 700;
+        }
+
+        @media (max-width: 768px) {
+            h2 {
+                font-size: 1.5rem;
+            }
+
+            h3 {
+                font-size: 1.3rem;
+            }
+
+            p, li {
+                font-size: 1rem;
+            }
+
+            .slide-container {
+                padding: 20px 15px 120px;
+            }
+
+            .content-box {
+                padding: 1.5rem;
+            }
+
+            .nav-controls {
+                gap: 1rem;
+                padding: 0.8rem;
+            }
+
+            button {
+                padding: 10px 20px;
+                font-size: 0.9rem;
+            }
+
+            .comparison-container {
+                grid-template-columns: 1fr;
+            }
+
+            .code-example {
+                padding: 1rem;
+            }
+
+            .code-example code {
+                font-size: 0.85rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="slide-container">
+        <!-- Slide 1 -->
+        <div class="slide active">
+            <div class="content-box">
+                <h2>CSS Positioning</h2>
+                <p>In CSS, <strong>positioning</strong> allows us to control how elements are laid out on a page.</p>
+                <div class="highlight">
+                    <h3>Two Common Types:</h3>
+                    <ul>
+                        <li><strong>Static positioning</strong> - The default</li>
+                        <li><strong>Relative positioning</strong> - Shift from normal position</li>
+                    </ul>
+                </div>
+                <div class="info-box">
+                    <p>Understanding the difference between these two positioning types is <strong>fundamental to CSS layout</strong>. Let's explore each one and see how they differ!</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 2 -->
+        <div class="slide">
+            <div class="content-box">
+                <h2>Static Positioning (Default)</h2>
+                <p>By default, <strong>all elements are statically positioned</strong>. This means they follow the <strong>normal flow of the document</strong>, one after another, from top to bottom, left to right.</p>
+                <div class="info-box">
+                    <h3>Key Points:</h3>
+                    <ul>
+                        <li>Static positioning is the <strong>default for all elements</strong></li>
+                        <li>Doesn't need any special declaration in CSS</li>
+                        <li>Elements appear where they naturally occur in the document</li>
+                        <li>Follows normal document flow</li>
+                    </ul>
+                </div>
+                <div class="success-box">
+                    <p><strong>Think of it as:</strong> Elements stacking naturally, like blocks stacking one on top of another.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 3 -->
+        <div class="slide">
+            <div class="content-box">
+                <h2>Normal Document Flow</h2>
+                <p>Let's visualize the <strong>normal document flow</strong> that static positioning follows:</p>
+                <div class="visual-flow">
+                    <div class="flow-item">Element 1</div>
+                    <div class="flow-item">Element 2</div>
+                    <div class="flow-item">Element 3</div>
+                    <div class="flow-item">Element 4</div>
+                </div>
+                <div class="info-box">
+                    <p><strong>Normal Flow:</strong> Elements appear one after another, in the order they appear in the HTML. This is how static positioning works - it's natural and predictable!</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 4 -->
+        <div class="slide">
+            <div class="content-box">
+                <h2>Static Positioning: Code Example</h2>
+                <p>Here is an example of a paragraph using <strong>default static positioning</strong>:</p>
+                <div class="code-label">HTML</div>
+                <div class="code-example">
+                    <code>&lt;p&gt;This paragraph is statically positioned.&lt;/p&gt;</code>
+                </div>
+                <div class="code-label">CSS (Optional - It's Already the Default!)</div>
+                <div class="code-example">
+                    <code>p {<br>
+&nbsp;&nbsp;position: static; /* This is the default, not needed */<br>
+}</code>
+                </div>
+                <div class="info-box">
+                    <p><strong>Note:</strong> You won't notice anything different when using static positioning because it just keeps elements where they naturally occur in the document. <strong>No special styling is applied to move it</strong>.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 5 -->
+        <div class="slide">
+            <div class="content-box">
+                <h2>Static Positioning: Visual Demo</h2>
+                <p>Here's what static positioning looks like:</p>
+                <div class="demo-area">
+                    <div class="demo-box static-demo">
+                        Box 1 (Static)
+                    </div>
+                    <div class="demo-box static-demo" style="background: #764ba2; margin-top: 1rem;">
+                        Box 2 (Static)
+                    </div>
+                    <div class="demo-box static-demo" style="background: #f093fb; margin-top: 1rem;">
+                        Box 3 (Static)
+                    </div>
+                </div>
+                <div class="success-box">
+                    <p><strong>Result:</strong> The boxes appear in their natural position, stacking vertically in the order they appear in the HTML. This is normal document flow!</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 6 -->
+        <div class="slide">
+            <div class="content-box">
+                <h2>Relative Positioning</h2>
+                <p><strong>Relative positioning</strong> allows an element to be <strong>shifted from its normal position</strong> without disrupting the flow of the document.</p>
+                <div class="highlight">
+                    <h3>Think of it as:</h3>
+                    <p>Moving the element from its default static position by giving it <strong>new coordinates</strong>.</p>
+                </div>
+                <div class="info-box">
+                    <h3>Key Difference:</h3>
+                    <p>The element moves visually, but the <strong>space it originally occupied is preserved</strong> in the layout!</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 7 -->
+        <div class="slide">
+            <div class="content-box">
+                <h2>Relative Positioning: Code Example</h2>
+                <p>Here is how you might apply <strong>relative positioning</strong>:</p>
+                <div class="code-label">HTML</div>
+                <div class="code-example">
+                    <code>&lt;p class="relative"&gt;This paragraph is positioned relatively.&lt;/p&gt;</code>
+                </div>
+                <div class="code-label">CSS</div>
+                <div class="code-example">
+                    <code>.relative {<br>
+&nbsp;&nbsp;position: relative;<br>
+&nbsp;&nbsp;top: 30px;<br>
+&nbsp;&nbsp;left: 30px;<br>
+}</code>
+                </div>
+                <div class="success-box">
+                    <p><strong>Result:</strong> The paragraph will appear <strong>30px down</strong> (top: 30px) and <strong>30px to the right</strong> (left: 30px) from its original position.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 8 -->
+        <div class="slide">
+            <div class="content-box">
+                <h2>Understanding the Coordinates</h2>
+                <p>With <code style="background: #f0f0f0; padding: 2px 6px; border-radius: 3px;">position: relative</code>, you can use four properties to shift the element:</p>
+                <div class="step-by-step">
+                    <div class="step">
+                        <span class="step-number">↓</span>
+                        <strong>top:</strong> Moves the element DOWN from its original position<br>
+                        <code style="background: #f0f0f0; padding: 2px 6px; border-radius: 3px; margin-top: 0.5rem; display: inline-block;">top: 20px;</code> moves it 20px down
+                    </div>
+                    <div class="step">
+                        <span class="step-number">↑</span>
+                        <strong>bottom:</strong> Moves the element UP from its original position<br>
+                        <code style="background: #f0f0f0; padding: 2px 6px; border-radius: 3px; margin-top: 0.5rem; display: inline-block;">bottom: 20px;</code> moves it 20px up
+                    </div>
+                    <div class="step">
+                        <span class="step-number">→</span>
+                        <strong>left:</strong> Moves the element RIGHT from its original position<br>
+                        <code style="background: #f0f0f0; padding: 2px 6px; border-radius: 3px; margin-top: 0.5rem; display: inline-block;">left: 20px;</code> moves it 20px right
+                    </div>
+                    <div class="step">
+                        <span class="step-number">←</span>
+                        <strong>right:</strong> Moves the element LEFT from its original position<br>
+                        <code style="background: #f0f0f0; padding: 2px 6px; border-radius: 3px; margin-top: 0.5rem; display: inline-block;">right: 20px;</code> moves it 20px left
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 9 -->
+        <div class="slide">
+            <div class="content-box">
+                <h2>Coordinate System Visualization</h2>
+                <p>Here's how the coordinate system works with relative positioning:</p>
+                <div class="coordinate-system">
+                    <div class="axis axis-x"></div>
+                    <div class="axis axis-y"></div>
+                    <div class="axis-label" style="top: 45%; left: 5%;">
+                        left: positive →
+                    </div>
+                    <div class="axis-label" style="top: 45%; right: 5%;">
+                        ← right: positive
+                    </div>
+                    <div class="axis-label" style="top: 10%; left: 48%;">
+                        ↓<br>top: positive
+                    </div>
+                    <div class="axis-label" style="bottom: 10%; left: 46%;">
+                        bottom: positive<br>↑
+                    </div>
+                    <div class="demo-box" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);">
+                        Original Position
+                    </div>
+                </div>
+                <div class="info-box">
+                    <p><strong>Remember:</strong> The coordinates are relative to where the element would normally be!</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 10 -->
+        <div class="slide">
+            <div class="content-box">
+                <h2>Relative Positioning: Visual Demo</h2>
+                <p>Let's see relative positioning in action:</p>
+                <div class="demo-area" style="position: relative;">
+                    <div class="demo-box static-demo">
+                        Box 1 (Static)
+                    </div>
+                    <div class="demo-box relative-demo" style="background: #f093fb;">
+                        Box 2 (Relative)<br>
+                        <small>top: 30px; left: 30px;</small>
+                    </div>
+                    <div class="original-space" style="top: 140px; left: 32px; width: 186px; height: 61px;">
+                        <span style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: #dc3545; font-size: 0.9rem; font-weight: 700;">Original Space</span>
+                    </div>
+                    <div class="demo-box static-demo" style="background: #764ba2; margin-top: 1rem;">
+                        Box 3 (Static)
+                    </div>
+                </div>
+                <div class="warning-box">
+                    <p><strong>Notice:</strong> Box 2 moved 30px down and 30px right, but the red dashed outline shows where it <em>would have been</em>. The space is preserved, and Box 3 appears where it normally would!</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 11 -->
+        <div class="slide">
+            <div class="content-box">
+                <h2>The Preserved Space</h2>
+                <p>This is the <strong>most important concept</strong> about relative positioning:</p>
+                <div class="highlight">
+                    <h3>Key Point:</h3>
+                    <p>However, the <strong>space it would have occupied in the normal flow remains preserved</strong>. The element moves visually, but other elements still treat it as if it's in its original position!</p>
+                </div>
+                <div class="success-box">
+                    <h3>✓ Why This Matters:</h3>
+                    <p>Relative positioning is very useful when you want to <strong>move an element slightly without affecting the rest of the layout</strong>.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 12 -->
+        <div class="slide">
+            <div class="content-box">
+                <h2>Static vs Relative: Side-by-Side</h2>
+                <div class="comparison-container">
+                    <div class="comparison-side">
+                        <div class="comparison-header static-header">Static (Default)</div>
+                        <div class="comparison-content">
+                            <div style="padding: 1rem; background: #e8f4f8; border: 2px solid #0066cc; text-align: center; font-weight: 700; margin-bottom: 1rem;">
+                                Element
+                            </div>
+                            <ul style="margin-top: 1rem; list-style: none; padding: 0;">
+                                <li style="margin-bottom: 0.8rem;">✓ Normal document flow</li>
+                                <li style="margin-bottom: 0.8rem;">✓ No coordinate properties</li>
+                                <li style="margin-bottom: 0.8rem;">✓ Default positioning</li>
+                                <li style="margin-bottom: 0.8rem;">✓ Can't use top/left/etc</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="comparison-side">
+                        <div class="comparison-header relative-header">Relative</div>
+                        <div class="comparison-content">
+                            <div style="padding: 1rem; background: #fff3cd; border: 2px solid #881518; text-align: center; font-weight: 700; margin-bottom: 1rem; position: relative; top: 20px; left: 20px;">
+                                Element<br>
+                                <small>(shifted)</small>
+                            </div>
+                            <ul style="margin-top: 1rem; list-style: none; padding: 0;">
+                                <li style="margin-bottom: 0.8rem;">✓ Shifted from normal position</li>
+                                <li style="margin-bottom: 0.8rem;">✓ Uses top/left/bottom/right</li>
+                                <li style="margin-bottom: 0.8rem;">✓ Original space preserved</li>
+                                <li style="margin-bottom: 0.8rem;">✓ Doesn't affect other elements</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 13 -->
+        <div class="slide">
+            <div class="content-box">
+                <h2>Interactive Demo</h2>
+                <p>Adjust the sliders to see how relative positioning works:</p>
+                <div class="interactive-demo">
+                    <div class="slider-group">
+                        <div class="slider-label">
+                            <span>Top:</span>
+                            <span id="topValue">0px</span>
+                        </div>
+                        <input type="range" id="topSlider" min="-50" max="50" value="0" oninput="updatePosition()">
+                    </div>
+                    <div class="slider-group">
+                        <div class="slider-label">
+                            <span>Left:</span>
+                            <span id="leftValue">0px</span>
+                        </div>
+                        <input type="range" id="leftSlider" min="-50" max="50" value="0" oninput="updatePosition()">
+                    </div>
+                    <div class="demo-area" style="min-height: 350px; position: relative;">
+                        <div class="demo-box static-demo">
+                            Box 1 (Static)
+                        </div>
+                        <div class="demo-box" id="interactiveBox" style="background: #f093fb; position: relative; margin-top: 1rem;">
+                            Box 2 (Relative)<br>
+                            <small id="positionDisplay">position: relative;</small>
+                        </div>
+                        <div class="original-space" id="originalSpace" style="top: 140px; left: 32px; width: 186px; height: 77px; display: none;">
+                            <span style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: #dc3545; font-size: 0.9rem; font-weight: 700;">Original Space</span>
+                        </div>
+                        <div class="demo-box static-demo" style="background: #764ba2; margin-top: 1rem;">
+                            Box 3 (Static)
+                        </div>
+                    </div>
+                    <div style="text-align: center; margin-top: 1rem;">
+                        <button onclick="resetPosition()" style="background: #881518; color: white;">Reset Position</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 14 -->
+        <div class="slide">
+            <div class="content-box">
+                <h2>Key Differences Summary</h2>
+                <div class="info-box">
+                    <h3>Static Positioning:</h3>
+                    <ul>
+                        <li><strong>Default</strong> for all elements</li>
+                        <li>Follows <strong>normal document flow</strong></li>
+                        <li><strong>Cannot</strong> use top, left, bottom, right properties</li>
+                        <li>Elements appear where they naturally occur</li>
+                        <li>No special positioning needed</li>
+                    </ul>
+                </div>
+                <div class="success-box" style="margin-top: 2rem;">
+                    <h3>Relative Positioning:</h3>
+                    <ul>
+                        <li>Element is <strong>shifted from normal position</strong></li>
+                        <li><strong>Can use</strong> top, left, bottom, right properties</li>
+                        <li><strong>Original space is preserved</strong> in the layout</li>
+                        <li>Doesn't disrupt document flow</li>
+                        <li>Other elements behave as if it's still in original position</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 15 -->
+        <div class="slide">
+            <div class="content-box">
+                <h2>Common Use Cases</h2>
+                <div class="success-box">
+                    <h3>✓ When to Use Relative Positioning:</h3>
+                    <ul>
+                        <li><strong>Fine-tuning element position:</strong> Nudge elements slightly without affecting layout</li>
+                        <li><strong>Creating a positioning context:</strong> For absolutely positioned children</li>
+                        <li><strong>Overlapping elements:</strong> Slightly overlap elements for design effects</li>
+                        <li><strong>Animation starting point:</strong> Animate elements from their natural position</li>
+                        <li><strong>Badge positioning:</strong> Position notification badges on buttons</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 16 -->
+        <div class="slide">
+            <div class="content-box">
+                <h2>Practical Example: Button Badge</h2>
+                <p>A common use case is positioning a notification badge on a button:</p>
+                <div class="code-label">HTML</div>
+                <div class="code-example">
+                    <code>&lt;button class="notification-btn"&gt;<br>
+&nbsp;&nbsp;Messages<br>
+&nbsp;&nbsp;&lt;span class="badge"&gt;3&lt;/span&gt;<br>
+&lt;/button&gt;</code>
+                </div>
+                <div class="code-label">CSS</div>
+                <div class="code-example">
+                    <code>.notification-btn {<br>
+&nbsp;&nbsp;position: relative; /* Creates positioning context */<br>
+&nbsp;&nbsp;padding: 10px 20px;<br>
+}<br>
+<br>
+.badge {<br>
+&nbsp;&nbsp;position: absolute; /* We'll learn this next! */<br>
+&nbsp;&nbsp;top: -5px;<br>
+&nbsp;&nbsp;right: -5px;<br>
+&nbsp;&nbsp;background: red;<br>
+&nbsp;&nbsp;border-radius: 50%;<br>
+}</code>
+                </div>
+                <div class="info-box">
+                    <p><strong>Note:</strong> The button uses <code style="background: #f0f0f0; padding: 2px 6px; border-radius: 3px;">position: relative</code> to create a positioning context for the absolutely positioned badge!</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 17 -->
+        <div class="slide">
+            <div class="content-box">
+                <h2>Visual Example: Button Badge</h2>
+                <div style="text-align: center; padding: 3rem; background: #f9f9f9; border: 2px solid #ddd; border-radius: 8px; margin: 2rem 0;">
+                    <button style="position: relative; padding: 15px 30px; font-size: 1.1rem; background: #667eea; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600;">
+                        Messages
+                        <span style="position: absolute; top: -8px; right: -8px; background: #dc3545; color: white; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.85rem; font-weight: 700; border: 2px solid white;">3</span>
+                    </button>
+                </div>
+                <div class="success-box">
+                    <p><strong>Result:</strong> The badge appears in the top-right corner of the button. The button has <code style="background: #f0f0f0; padding: 2px 6px; border-radius: 3px;">position: relative</code> which creates a positioning context for the badge!</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 18 -->
+        <div class="slide">
+            <div class="content-box">
+                <h2>Common Mistakes to Avoid</h2>
+                <div class="warning-box">
+                    <h3>❌ Mistake 1: Using Coordinates with Static</h3>
+                    <div class="code-example" style="margin-top: 1rem;">
+                        <code>/* This won't work! */<br>
+.element {<br>
+&nbsp;&nbsp;position: static;<br>
+&nbsp;&nbsp;top: 20px; /* Ignored! */<br>
+&nbsp;&nbsp;left: 20px; /* Ignored! */<br>
+}</code>
+                    </div>
+                    <p style="margin-top: 1rem;"><strong>Why:</strong> Static positioning <em>cannot</em> use top, left, bottom, or right properties!</p>
+                </div>
+                <div class="warning-box">
+                    <h3>❌ Mistake 2: Forgetting Space Preservation</h3>
+                    <p>Not accounting for the fact that relatively positioned elements still take up their original space in the layout.</p>
+                </div>
+                <div class="warning-box">
+                    <h3>❌ Mistake 3: Confusing Coordinate Directions</h3>
+                    <p>Remember: <code style="background: #f0f0f0; padding: 2px 6px; border-radius: 3px;">top: 20px</code> moves DOWN, not up!</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 19 -->
+        <div class="slide">
+            <div class="content-box">
+                <h2>Z-Index with Relative Positioning</h2>
+                <p>Once you use <code style="background: #f0f0f0; padding: 2px 6px; border-radius: 3px;">position: relative</code>, you can also control stacking order with <code style="background: #f0f0f0; padding: 2px 6px; border-radius: 3px;">z-index</code>:</p>
+                <div class="code-label">CSS</div>
+                <div class="code-example">
+                    <code>.element {<br>
+&nbsp;&nbsp;position: relative;<br>
+&nbsp;&nbsp;z-index: 10; /* Higher number = on top */<br>
+}</code>
+                </div>
+                <div class="info-box">
+                    <h3>Z-Index Rules:</h3>
+                    <ul>
+                        <li><code style="background: #f0f0f0; padding: 2px 6px; border-radius: 3px;">z-index</code> only works on <strong>positioned elements</strong> (not static)</li>
+                        <li>Higher values appear on top</li>
+                        <li>Default z-index is <code style="background: #f0f0f0; padding: 2px 6px; border-radius: 3px;">auto</code> (essentially 0)</li>
+                        <li>Can be positive or negative</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 20 -->
+        <div class="slide">
+            <div class="content-box">
+                <h2>Best Practices</h2>
+                <div class="success-box">
+                    <h3>✓ Do These:</h3>
+                    <ul>
+                        <li>Use relative positioning for <strong>small adjustments</strong></li>
+                        <li>Use it to create <strong>positioning contexts</strong> for absolute children</li>
+                        <li>Remember that the <strong>original space is preserved</strong></li>
+                        <li>Test your layout at different screen sizes</li>
+                        <li>Use developer tools to visualize positioning</li>
+                        <li>Combine with transitions for smooth animations</li>
+                    </ul>
+                </div>
+                <div class="warning-box" style="margin-top: 2rem;">
+                    <h3>❌ Avoid These:</h3>
+                    <ul>
+                        <li>Using relative positioning for major layout changes</li>
+                        <li>Forgetting that space is preserved (causes gaps)</li>
+                        <li>Overusing relative positioning when other methods are better</li>
+                        <li>Not considering the impact on surrounding elements</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 21 -->
+        <div class="slide">
+            <div class="content-box">
+                <h2>Quick Reference</h2>
+                <div class="code-label">Static Positioning (Default)</div>
+                <div class="code-example">
+                    <code>element {<br>
+&nbsp;&nbsp;position: static; /* Default, not needed */<br>
+&nbsp;&nbsp;/* Cannot use: top, left, bottom, right, z-index */<br>
+}</code>
+                </div>
+                <div class="code-label">Relative Positioning</div>
+                <div class="code-example">
+                    <code>element {<br>
+&nbsp;&nbsp;position: relative;<br>
+&nbsp;&nbsp;top: 20px;     /* Move down */<br>
+&nbsp;&nbsp;left: 30px;    /* Move right */<br>
+&nbsp;&nbsp;bottom: -10px; /* Move down (negative up) */<br>
+&nbsp;&nbsp;right: -15px;  /* Move right (negative left) */<br>
+&nbsp;&nbsp;z-index: 5;    /* Stacking order */<br>
+}</code>
+                </div>
+                <div class="info-box">
+                    <p><strong>Remember:</strong> Typically you only use <code style="background: #f0f0f0; padding: 2px 6px; border-radius: 3px;">top</code> OR <code style="background: #f0f0f0; padding: 2px 6px; border-radius: 3px;">bottom</code>, and <code style="background: #f0f0f0; padding: 2px 6px; border-radius: 3px;">left</code> OR <code style="background: #f0f0f0; padding: 2px 6px; border-radius: 3px;">right</code> together, not all four at once!</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 22 -->
+        <div class="slide">
+            <div class="content-box">
+                <h2>Key Takeaways</h2>
+                <div class="info-box">
+                    <h3>Static Positioning:</h3>
+                    <ul>
+                        <li><strong>Default</strong> positioning for all elements</li>
+                        <li>Follows normal document flow</li>
+                        <li>Cannot use coordinate properties</li>
+                        <li>Elements appear naturally in order</li>
+                    </ul>
+                </div>
+                <div class="success-box" style="margin-top: 1.5rem;">
+                    <h3>Relative Positioning:</h3>
+                    <ul>
+                        <li>Shifts element from its <strong>normal position</strong></li>
+                        <li>Uses top, left, bottom, right properties</li>
+                        <li><strong>Original space is preserved</strong> in layout</li>
+                        <li>Doesn't disrupt document flow</li>
+                        <li>Creates positioning context for absolute children</li>
+                    </ul>
+                </div>
+                <div class="highlight" style="margin-top: 1.5rem;">
+                    <h3>The Big Difference:</h3>
+                    <p><strong>Relative positioning allows you to shift an element without disrupting the document flow.</strong> The space where the element would have been is still preserved, so other elements don't move to fill the gap!</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="nav-controls">
+        <button id="prevBtn" onclick="changeSlide(-1)">← Previous</button>
+        <span class="slide-counter">
+            <span id="currentSlide">1</span> / <span id="totalSlides">22</span>
+        </span>
+        <button id="nextBtn" onclick="changeSlide(1)">Next →</button>
+    </div>
+
+    <script>
+        let currentSlide = 1;
+        const totalSlides = document.querySelectorAll('.slide').length;
+        
+        document.getElementById('totalSlides').textContent = totalSlides;
+
+        function showSlide(n) {
+            const slides = document.querySelectorAll('.slide');
+            const prevBtn = document.getElementById('prevBtn');
+            const nextBtn = document.getElementById('nextBtn');
+            
+            if (n > totalSlides) {
+                currentSlide = totalSlides;
+            }
+            if (n < 1) {
+                currentSlide = 1;
+            }
+            
+            slides.forEach(slide => {
+                slide.classList.remove('active');
+            });
+            
+            slides[currentSlide - 1].classList.add('active');
+            document.getElementById('currentSlide').textContent = currentSlide;
+            
+            prevBtn.disabled = currentSlide === 1;
+            nextBtn.disabled = currentSlide === totalSlides;
+            
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function changeSlide(n) {
+            currentSlide += n;
+            showSlide(currentSlide);
+        }
+
+        // Interactive positioning demo
+        function updatePosition() {
+            const topValue = document.getElementById('topSlider').value;
+            const leftValue = document.getElementById('leftSlider').value;
+            const box = document.getElementById('interactiveBox');
+            const originalSpace = document.getElementById('originalSpace');
+            const display = document.getElementById('positionDisplay');
+            
+            document.getElementById('topValue').textContent = topValue + 'px';
+            document.getElementById('leftValue').textContent = leftValue + 'px';
+            
+            box.style.top = topValue + 'px';
+            box.style.left = leftValue + 'px';
+            
+            if (topValue != 0 || leftValue != 0) {
+                originalSpace.style.display = 'block';
+                display.textContent = `top: ${topValue}px; left: ${leftValue}px;`;
+            } else {
+                originalSpace.style.display = 'none';
+                display.textContent = 'position: relative;';
+            }
+        }
+
+        function resetPosition() {
+            document.getElementById('topSlider').value = 0;
+            document.getElementById('leftSlider').value = 0;
+            updatePosition();
+        }
+
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'ArrowLeft') {
+                if (currentSlide > 1) changeSlide(-1);
+            } else if (event.key === 'ArrowRight') {
+                if (currentSlide < totalSlides) changeSlide(1);
+            }
+        });
+
+        showSlide(currentSlide);
+    </script>
+</body>
+</html>

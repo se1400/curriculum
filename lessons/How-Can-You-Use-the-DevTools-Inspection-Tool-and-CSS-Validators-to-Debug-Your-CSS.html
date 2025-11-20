@@ -1,0 +1,1051 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debugging CSS with DevTools and Validators</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #f5f5f5;
+            color: #333;
+            overflow-x: hidden;
+        }
+
+        .slide-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px 120px;
+            min-height: 100vh;
+        }
+
+        .slide {
+            display: none;
+            animation: fadeIn 0.5s;
+        }
+
+        .slide.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        h2 {
+            color: #881518;
+            font-size: 2rem;
+            margin-bottom: 1.5rem;
+            border-bottom: 3px solid #881518;
+            padding-bottom: 0.5rem;
+        }
+
+        h3 {
+            color: #881518;
+            font-size: 1.5rem;
+            margin-top: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        p {
+            font-size: 1.1rem;
+            line-height: 1.8;
+            margin-bottom: 1rem;
+        }
+
+        ul {
+            margin: 1.5rem 0;
+            padding-left: 2rem;
+        }
+
+        li {
+            font-size: 1.1rem;
+            line-height: 1.8;
+            margin-bottom: 0.8rem;
+        }
+
+        .content-box {
+            background: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+        }
+
+        .highlight {
+            background: #fff3cd;
+            padding: 1.5rem;
+            border-left: 4px solid #881518;
+            margin: 1.5rem 0;
+            border-radius: 4px;
+        }
+
+        .warning-box {
+            background: #ffe6e6;
+            padding: 1.5rem;
+            border-left: 4px solid #dc3545;
+            margin: 1.5rem 0;
+            border-radius: 4px;
+        }
+
+        .success-box {
+            background: #d4edda;
+            padding: 1.5rem;
+            border-left: 4px solid #28a745;
+            margin: 1.5rem 0;
+            border-radius: 4px;
+        }
+
+        .info-box {
+            background: #e8f4f8;
+            padding: 1.5rem;
+            border-left: 4px solid #0066cc;
+            margin: 1.5rem 0;
+            border-radius: 4px;
+        }
+
+        .code-example {
+            background: #2d2d2d;
+            color: #f8f8f2;
+            padding: 1.5rem;
+            border-radius: 4px;
+            margin: 1.5rem 0;
+            overflow-x: auto;
+            position: relative;
+        }
+
+        .code-example code {
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        .code-label {
+            color: #881518;
+            font-weight: 600;
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .error-highlight {
+            background: rgba(220, 53, 69, 0.3);
+            padding: 0 4px;
+            border-radius: 2px;
+        }
+
+        .fix-highlight {
+            background: rgba(40, 167, 69, 0.3);
+            padding: 0 4px;
+            border-radius: 2px;
+        }
+
+        .tool-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .tool-card {
+            background: white;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            padding: 1.5rem;
+            text-align: center;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .tool-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        .tool-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        .tool-title {
+            font-weight: 700;
+            color: #881518;
+            margin-bottom: 0.8rem;
+            font-size: 1.2rem;
+        }
+
+        .keyboard-shortcut {
+            display: inline-block;
+            background: #333;
+            color: white;
+            padding: 0.3rem 0.6rem;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            margin: 0 0.2rem;
+        }
+
+        .devtools-mockup {
+            background: #f9f9f9;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            overflow: hidden;
+            margin: 1.5rem 0;
+        }
+
+        .mockup-header {
+            background: #333;
+            color: white;
+            padding: 0.8rem 1rem;
+            font-weight: 600;
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+        }
+
+        .mockup-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        .dot-red { background: #ff5f56; }
+        .dot-yellow { background: #ffbd2e; }
+        .dot-green { background: #27c93f; }
+
+        .mockup-content {
+            padding: 1.5rem;
+            background: white;
+        }
+
+        .box-model-demo {
+            margin: 2rem auto;
+            max-width: 400px;
+        }
+
+        .box-layer {
+            padding: 1rem;
+            border: 2px dashed;
+            text-align: center;
+            font-weight: 600;
+        }
+
+        .margin-layer {
+            border-color: #ffa500;
+            background: rgba(255, 165, 0, 0.1);
+        }
+
+        .border-layer {
+            border-color: #ffd700;
+            background: rgba(255, 215, 0, 0.2);
+        }
+
+        .padding-layer {
+            border-color: #90ee90;
+            background: rgba(144, 238, 144, 0.2);
+        }
+
+        .content-layer {
+            border-color: #87ceeb;
+            background: rgba(135, 206, 235, 0.3);
+            padding: 2rem;
+        }
+
+        .step-by-step {
+            counter-reset: step-counter;
+        }
+
+        .step {
+            background: white;
+            border-left: 4px solid #881518;
+            padding: 1.5rem;
+            margin: 1rem 0;
+            border-radius: 4px;
+            position: relative;
+            padding-left: 4rem;
+        }
+
+        .step::before {
+            counter-increment: step-counter;
+            content: counter(step-counter);
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            background: #881518;
+            color: white;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1.2rem;
+        }
+
+        .comparison-split {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+
+        .comparison-side {
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .comparison-header {
+            padding: 1rem;
+            font-weight: 700;
+            text-align: center;
+        }
+
+        .error-side .comparison-header {
+            background: #dc3545;
+            color: white;
+        }
+
+        .fixed-side .comparison-header {
+            background: #28a745;
+            color: white;
+        }
+
+        .comparison-content {
+            padding: 1.5rem;
+            background: white;
+        }
+
+        .device-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .device-card {
+            background: white;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            padding: 1rem;
+            text-align: center;
+        }
+
+        .device-icon {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .device-name {
+            font-weight: 700;
+            color: #881518;
+            margin-bottom: 0.3rem;
+        }
+
+        .nav-controls {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: #881518;
+            padding: 1rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 2rem;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.2);
+            z-index: 1000;
+        }
+
+        button {
+            background: white;
+            color: #881518;
+            border: none;
+            padding: 12px 30px;
+            font-size: 1rem;
+            font-weight: 600;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        button:hover:not(:disabled) {
+            background: #f0f0f0;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .slide-counter {
+            color: white;
+            font-weight: 600;
+            font-size: 1rem;
+        }
+
+        @media (max-width: 768px) {
+            h2 {
+                font-size: 1.5rem;
+            }
+
+            h3 {
+                font-size: 1.3rem;
+            }
+
+            p, li {
+                font-size: 1rem;
+            }
+
+            .slide-container {
+                padding: 20px 15px 120px;
+            }
+
+            .content-box {
+                padding: 1.5rem;
+            }
+
+            .nav-controls {
+                gap: 1rem;
+                padding: 0.8rem;
+            }
+
+            button {
+                padding: 10px 20px;
+                font-size: 0.9rem;
+            }
+
+            .comparison-split,
+            .tool-grid,
+            .device-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .code-example {
+                padding: 1rem;
+            }
+
+            .code-example code {
+                font-size: 0.85rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="slide-container">
+        <!-- Slide 1 -->
+        <div class="slide active">
+            <div class="content-box">
+                <h2>Essential CSS Debugging Tools</h2>
+                <p>Developer tools, inspection tools, and CSS validators are <strong>essential resources</strong> for debugging CSS issues and ensuring your stylesheets are error-free and optimized.</p>
+                <div class="highlight">
+                    <p>These tools provide invaluable insights into how your CSS is being applied and can help identify potential problems.</p>
+                </div>
+                <div class="tool-grid">
+                    <div class="tool-card">
+                        <div class="tool-icon">🔧</div>
+                        <div class="tool-title">Browser DevTools</div>
+                        <p>Inspect and modify CSS in real-time</p>
+                    </div>
+                    <div class="tool-card">
+                        <div class="tool-icon">🔍</div>
+                        <div class="tool-title">Inspection Tool</div>
+                        <p>Examine box models and layouts</p>
+                    </div>
+                    <div class="tool-card">
+                        <div class="tool-icon">✅</div>
+                        <div class="tool-title">CSS Validators</div>
+                        <p>Check for syntax errors and issues</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 2 -->
+        <div class="slide">
+            <div class="content-box">
+                <h2>What Are Browser DevTools?</h2>
+                <p>Browser developer tools, commonly known as <strong>DevTools</strong>, are built-in debugging interfaces in modern browsers.</p>
+                <div class="info-box">
+                    <h3>Available In:</h3>
+                    <ul>
+                        <li><strong>Google Chrome:</strong> Most popular, extensive features</li>
+                        <li><strong>Mozilla Firefox:</strong> Developer-friendly tools</li>
+                        <li><strong>Safari:</strong> Built-in on macOS and iOS</li>
+                        <li><strong>Microsoft Edge:</strong> Chromium-based DevTools</li>
+                    </ul>
+                </div>
+                <div class="success-box">
+                    <h3>What DevTools Let You Do:</h3>
+                    <ul>
+                        <li>Inspect HTML and CSS in real-time</li>
+                        <li>Modify styles and see changes instantly</li>
+                        <li>Debug JavaScript</li>
+                        <li>Monitor network requests</li>
+                        <li>Test responsive designs</li>
+                        <li>Analyze performance</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 3 -->
+        <div class="slide">
+            <div class="content-box">
+                <h2>How to Access DevTools</h2>
+                <p>There are multiple ways to open DevTools:</p>
+                <div class="step-by-step">
+                    <div class="step">
+                        <h3 style="margin-top: 0;">Right-Click Method</h3>
+                        <p>Right-click on any element on a webpage and select <strong>"Inspect"</strong> or <strong>"Inspect Element"</strong></p>
+                    </div>
+                    <div class="step">
+                        <h3 style="margin-top: 0;">Keyboard Shortcuts</h3>
+                        <p><strong>Windows/Linux:</strong> <span class="keyboard-shortcut">F12</span> or <span class="keyboard-shortcut">Ctrl</span> + <span class="keyboard-shortcut">Shift</span> + <span class="keyboard-shortcut">I</span></p>
+                        <p style="margin-top: 0.5rem;"><strong>macOS:</strong> <span class="keyboard-shortcut">Cmd</span> + <span class="keyboard-shortcut">Option</span> + <span class="keyboard-shortcut">I</span></p>
+                    </div>
+                    <div class="step">
+                        <h3 style="margin-top: 0;">Browser Menu</h3>
+                        <p>Go to browser menu → More Tools → Developer Tools</p>
+                    </div>
+                </div>
+                <div class="highlight">
+                    <p><strong>Pro Tip:</strong> Using the right-click "Inspect" method automatically selects the element you clicked on, saving you time!</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 4 -->
+        <div class="slide">
+            <div class="content-box">
+                <h2>The Styles Pane</h2>
+                <p>DevTools allow you to inspect and modify your CSS in real-time through the <strong>Styles pane</strong>.</p>
+                <div class="devtools-mockup">
+                    <div class="mockup-header">
+                        <div class="mockup-dot dot-red"></div>
+                        <div class="mockup-dot dot-yellow"></div>
+                        <div class="mockup-dot dot-green"></div>
+                        <span style="margin-left: 1rem;">DevTools - Styles</span>
+                    </div>
+                    <div class="mockup-content">
+                        <div class="code-example" style="margin: 0;">
+                            <code><strong>element.style</strong> {<br>
+}<br>
+<br>
+<strong>.container</strong> {<br>
+&nbsp;&nbsp;width: 100%;<br>
+&nbsp;&nbsp;padding: 20px;<br>
+&nbsp;&nbsp;background-color: #f0f0f0;<br>
+}<br>
+<br>
+<strong>Inherited from body</strong><br>
+body {<br>
+&nbsp;&nbsp;font-family: Arial, sans-serif;<br>
+&nbsp;&nbsp;color: #333;<br>
+}</code>
+                        </div>
+                    </div>
+                </div>
+                <div class="success-box">
+                    <h3>The Styles Pane Shows:</h3>
+                    <ul>
+                        <li>All CSS rules applied to the selected element</li>
+                        <li>Inherited styles from parent elements</li>
+                        <li>Computed values for each property</li>
+                        <li>Which stylesheet each rule comes from</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 5 -->
+        <div class="slide">
+            <div class="content-box">
+                <h2>Real-Time CSS Editing</h2>
+                <p>You can toggle individual properties on and off, edit values, and even add new rules directly in the browser.</p>
+                <div class="highlight">
+                    <h3>What You Can Do:</h3>
+                    <ul>
+                        <li><strong>Toggle properties:</strong> Click the checkbox next to any CSS property to turn it on/off</li>
+                        <li><strong>Edit values:</strong> Click on any value to modify it</li>
+                        <li><strong>Add new rules:</strong> Click the "+" button to add new CSS rules</li>
+                        <li><strong>Test colors:</strong> Click color swatches to open a color picker</li>
+                        <li><strong>Experiment freely:</strong> Changes are temporary and don't affect your source code</li>
+                    </ul>
+                </div>
+                <div class="success-box">
+                    <p><strong>This immediate feedback is incredibly useful</strong> for experimenting with different styles without modifying your source code.</p>
+                </div>
+                <div class="warning-box">
+                    <p><strong>Remember:</strong> Changes in DevTools are temporary! They'll disappear when you refresh the page. Copy any changes you want to keep into your actual CSS file.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 6 -->
+        <div class="slide">
+            <div class="content-box">
+                <h2>The Inspection Tool</h2>
+                <p>The inspection tool, which is part of DevTools, allows you to hover over elements on your page and see their <strong>box model</strong>.</p>
+                <div class="box-model-demo">
+                    <div class="box-layer margin-layer">
+                        Margin
+                        <div class="box-layer border-layer">
+                            Border
+                            <div class="box-layer padding-layer">
+                                Padding
+                                <div class="box-layer content-layer">
+                                    Content
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="info-box">
+                    <h3>The Box Model Shows:</h3>
+                    <ul>
+                        <li><strong style="color: #ffa500;">Margin:</strong> Space outside the border (orange)</li>
+                        <li><strong style="color: #ffd700;">Border:</strong> The border itself (yellow)</li>
+                        <li><strong style="color: #90ee90;">Padding:</strong> Space inside the border (green)</li>
+                        <li><strong style="color: #87ceeb;">Content:</strong> The actual content area (blue)</li>
+                    </ul>
+                </div>
+                <p style="margin-top: 1.5rem;">This is particularly useful for diagnosing layout issues or understanding why elements are positioned in a certain way.</p>
+            </div>
+        </div>
+
+        <!-- Slide 7 -->
+        <div class="slide">
+            <div class="content-box">
+                <h2>CSS Validators</h2>
+                <p>CSS validators are tools that check your CSS code for errors and compliance with standards.</p>
+                <div class="info-box">
+                    <h3>The W3C CSS Validator</h3>
+                    <p>The most popular and authoritative CSS validator, provided by the World Wide Web Consortium (W3C).</p>
+                    <p style="margin-top: 0.8rem;"><strong>Website:</strong> <code style="background: #f0f0f0; padding: 2px 6px; border-radius: 3px;">https://jigsaw.w3.org/css-validator/</code></p>
+                </div>
+                <div class="success-box">
+                    <h3>What Validators Do:</h3>
+                    <ul>
+                        <li><strong>Check syntax:</strong> Find missing semicolons, brackets, etc.</li>
+                        <li><strong>Verify properties:</strong> Ensure properties are valid CSS</li>
+                        <li><strong>Report errors:</strong> List all issues with line numbers</li>
+                        <li><strong>Show warnings:</strong> Alert you to potential problems</li>
+                        <li><strong>Check specifications:</strong> Verify against official CSS standards</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 8 -->
+        <div class="slide">
+            <div class="content-box">
+                <h2>How to Use the W3C CSS Validator</h2>
+                <p>The W3C CSS Validator offers three ways to validate your CSS:</p>
+                <div class="step-by-step">
+                    <div class="step">
+                        <h3 style="margin-top: 0;">By URI (URL)</h3>
+                        <p>Enter the URL of your website to validate its CSS</p>
+                        <p style="color: #666; font-size: 0.95rem; margin-top: 0.5rem;">Best for: Live websites</p>
+                    </div>
+                    <div class="step">
+                        <h3 style="margin-top: 0;">By File Upload</h3>
+                        <p>Upload your CSS file directly to the validator</p>
+                        <p style="color: #666; font-size: 0.95rem; margin-top: 0.5rem;">Best for: Local development files</p>
+                    </div>
+                    <div class="step">
+                        <h3 style="margin-top: 0;">By Direct Input</h3>
+                        <p>Copy and paste your CSS code into the text area</p>
+                        <p style="color: #666; font-size: 0.95rem; margin-top: 0.5rem;">Best for: Quick checks of small code snippets</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 9 -->
+        <div class="slide">
+            <div class="content-box">
+                <h2>Common CSS Errors</h2>
+                <p>Let's look at a common error that validators catch:</p>
+                <div class="comparison-split">
+                    <div class="comparison-side error-side">
+                        <div class="comparison-header">❌ Error: Missing Semicolon</div>
+                        <div class="comparison-content">
+                            <div class="code-example" style="margin: 0;">
+                                <code>.container {<br>
+&nbsp;&nbsp;width: 100%;<br>
+&nbsp;&nbsp;height: 200px<span class="error-highlight"> </span>← Missing!<br>
+&nbsp;&nbsp;background-color: #F0F0F0;<br>
+}</code>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="comparison-side fixed-side">
+                        <div class="comparison-header">✓ Fixed: Semicolon Added</div>
+                        <div class="comparison-content">
+                            <div class="code-example" style="margin: 0;">
+                                <code>.container {<br>
+&nbsp;&nbsp;width: 100%;<br>
+&nbsp;&nbsp;height: 200px<span class="fix-highlight">;</span> ← Added!<br>
+&nbsp;&nbsp;background-color: #F0F0F0;<br>
+}</code>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="warning-box">
+                    <p><strong>This kind of error can be easy to overlook</strong> but can cause significant issues in your stylesheet. The validator would immediately point out the missing semicolon after the height property.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 10 -->
+        <div class="slide">
+            <div class="content-box">
+                <h2>More Common CSS Errors</h2>
+                <div class="warning-box">
+                    <h3>Errors Validators Catch:</h3>
+                    <ul>
+                        <li><strong>Missing semicolons:</strong> Forgetting the semicolon at the end of a declaration</li>
+                        <li><strong>Missing brackets:</strong> Unclosed curly braces { }</li>
+                        <li><strong>Invalid property names:</strong> Typos like "colour" instead of "color"</li>
+                        <li><strong>Invalid values:</strong> Using values that don't work with a property</li>
+                        <li><strong>Incorrect units:</strong> Wrong or missing units (px, em, %, etc.)</li>
+                        <li><strong>Malformed selectors:</strong> Syntax errors in CSS selectors</li>
+                    </ul>
+                </div>
+                <div class="code-label">Example: Multiple Errors</div>
+                <div class="code-example">
+                    <code>.button {<br>
+&nbsp;&nbsp;backround-color: blue; <span class="error-highlight">← Typo: "backround"</span><br>
+&nbsp;&nbsp;padding: 10 <span class="error-highlight">← Missing unit (px)</span><br>
+&nbsp;&nbsp;border-radius: 5px<br>
+} <span class="error-highlight">← Missing semicolon above</span></code>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 11 -->
+        <div class="slide">
+            <div class="content-box">
+                <h2>Device Emulation</h2>
+                <p>When debugging responsive designs, the <strong>device emulation feature</strong> in DevTools is invaluable.</p>
+                <div class="info-box">
+                    <h3>What It Does:</h3>
+                    <p>Allows you to simulate how your site looks on various screen sizes and devices without actually needing those devices.</p>
+                </div>
+                <div class="device-grid">
+                    <div class="device-card">
+                        <div class="device-icon">📱</div>
+                        <div class="device-name">Mobile Phone</div>
+                        <p style="font-size: 0.9rem;">320px - 480px</p>
+                    </div>
+                    <div class="device-card">
+                        <div class="device-icon">📲</div>
+                        <div class="device-name">Tablet</div>
+                        <p style="font-size: 0.9rem;">768px - 1024px</p>
+                    </div>
+                    <div class="device-card">
+                        <div class="device-icon">💻</div>
+                        <div class="device-name">Laptop</div>
+                        <p style="font-size: 0.9rem;">1024px - 1440px</p>
+                    </div>
+                    <div class="device-card">
+                        <div class="device-icon">🖥️</div>
+                        <div class="device-name">Desktop</div>
+                        <p style="font-size: 0.9rem;">1440px+</p>
+                    </div>
+                </div>
+                <div class="success-box">
+                    <h3>This Helps You:</h3>
+                    <ul>
+                        <li>Identify breakpoint issues</li>
+                        <li>Test responsive layouts</li>
+                        <li>Check if styles scale well across viewport sizes</li>
+                        <li>Simulate touch interactions</li>
+                        <li>Test different device orientations</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 12 -->
+        <div class="slide">
+            <div class="content-box">
+                <h2>How to Use Device Emulation</h2>
+                <p>Accessing device emulation in DevTools:</p>
+                <div class="step-by-step">
+                    <div class="step">
+                        <h3 style="margin-top: 0;">Open DevTools</h3>
+                        <p>Use <span class="keyboard-shortcut">F12</span> or right-click → Inspect</p>
+                    </div>
+                    <div class="step">
+                        <h3 style="margin-top: 0;">Toggle Device Toolbar</h3>
+                        <p>Click the device icon or press <span class="keyboard-shortcut">Ctrl</span> + <span class="keyboard-shortcut">Shift</span> + <span class="keyboard-shortcut">M</span> (Windows/Linux)</p>
+                        <p style="margin-top: 0.5rem;">Or <span class="keyboard-shortcut">Cmd</span> + <span class="keyboard-shortcut">Shift</span> + <span class="keyboard-shortcut">M</span> (macOS)</p>
+                    </div>
+                    <div class="step">
+                        <h3 style="margin-top: 0;">Select Device</h3>
+                        <p>Choose from preset devices or set custom dimensions</p>
+                    </div>
+                    <div class="step">
+                        <h3 style="margin-top: 0;">Test & Adjust</h3>
+                        <p>Interact with your site and adjust CSS as needed</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 13 -->
+        <div class="slide">
+            <div class="content-box">
+                <h2>Combining Tools for Effective Debugging</h2>
+                <p>Remember, <strong>effective CSS debugging often involves a combination of these tools</strong>.</p>
+                <div class="step-by-step">
+                    <div class="step">
+                        <h3 style="margin-top: 0;">Start with Validation</h3>
+                        <p>Use a CSS validator to catch any syntax errors before you begin debugging</p>
+                    </div>
+                    <div class="step">
+                        <h3 style="margin-top: 0;">Inspect with DevTools</h3>
+                        <p>Use DevTools to inspect specific elements and see how CSS is being applied</p>
+                    </div>
+                    <div class="step">
+                        <h3 style="margin-top: 0;">Experiment with Changes</h3>
+                        <p>Make changes in the Styles pane to test fixes in real-time</p>
+                    </div>
+                    <div class="step">
+                        <h3 style="margin-top: 0;">Test Responsiveness</h3>
+                        <p>Use device emulation to ensure your styles work across different screen sizes</p>
+                    </div>
+                    <div class="step">
+                        <h3 style="margin-top: 0;">Apply Fixes</h3>
+                        <p>Copy working changes back to your source CSS file</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 14 -->
+        <div class="slide">
+            <div class="content-box">
+                <h2>Debugging Workflow Example</h2>
+                <p>Here's a real-world debugging scenario:</p>
+                <div class="highlight">
+                    <h3>Problem: Button Not Showing Correctly</h3>
+                    <p>A button on your site looks wrong, and you're not sure why.</p>
+                </div>
+                <div class="step-by-step">
+                    <div class="step">
+                        <strong>Validate CSS:</strong> Run your CSS through the W3C validator - it finds a missing semicolon
+                    </div>
+                    <div class="step">
+                        <strong>Inspect Element:</strong> Right-click the button → Inspect to see applied styles
+                    </div>
+                    <div class="step">
+                        <strong>Check Box Model:</strong> Hover to see padding/margin - the padding is too large
+                    </div>
+                    <div class="step">
+                        <strong>Test Fix:</strong> In DevTools, change padding from 30px to 15px - looks better!
+                    </div>
+                    <div class="step">
+                        <strong>Test Responsive:</strong> Use device emulation - button works on mobile too!
+                    </div>
+                    <div class="step">
+                        <strong>Apply Fix:</strong> Update your CSS file with the new padding value
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 15 -->
+        <div class="slide">
+            <div class="content-box">
+                <h2>Best Practices for CSS Debugging</h2>
+                <div class="success-box">
+                    <h3>✓ Do These:</h3>
+                    <ul>
+                        <li>Validate your CSS regularly, not just when you have problems</li>
+                        <li>Use DevTools to experiment before changing your source code</li>
+                        <li>Test on multiple devices using emulation</li>
+                        <li>Keep DevTools open while developing for quick debugging</li>
+                        <li>Learn keyboard shortcuts to work faster</li>
+                        <li>Document fixes so you understand what worked</li>
+                        <li>Use the browser console to check for errors</li>
+                    </ul>
+                </div>
+                <div class="warning-box" style="margin-top: 1.5rem;">
+                    <h3>❌ Avoid These:</h3>
+                    <ul>
+                        <li>Making changes without validating first</li>
+                        <li>Testing only in one browser</li>
+                        <li>Forgetting to copy DevTools changes to your source files</li>
+                        <li>Ignoring validator warnings</li>
+                        <li>Not testing responsive designs</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 16 -->
+        <div class="slide">
+            <div class="content-box">
+                <h2>Benefits of Mastering These Tools</h2>
+                <div class="highlight">
+                    <p>By mastering these tools, you can <strong>significantly speed up your CSS debugging process</strong> and create more robust, error-free stylesheets.</p>
+                </div>
+                <div class="tool-grid">
+                    <div class="tool-card">
+                        <div class="tool-icon">⚡</div>
+                        <div class="tool-title">Faster Debugging</div>
+                        <p>Identify and fix issues in minutes instead of hours</p>
+                    </div>
+                    <div class="tool-card">
+                        <div class="tool-icon">🎯</div>
+                        <div class="tool-title">Fewer Errors</div>
+                        <p>Catch problems before they reach production</p>
+                    </div>
+                    <div class="tool-card">
+                        <div class="tool-icon">💡</div>
+                        <div class="tool-title">Better Understanding</div>
+                        <p>Learn how CSS actually works</p>
+                    </div>
+                    <div class="tool-card">
+                        <div class="tool-icon">📱</div>
+                        <div class="tool-title">Responsive Designs</div>
+                        <p>Ensure your sites work everywhere</p>
+                    </div>
+                    <div class="tool-card">
+                        <div class="tool-icon">🏆</div>
+                        <div class="tool-title">Professional Quality</div>
+                        <p>Deliver polished, bug-free websites</p>
+                    </div>
+                    <div class="tool-card">
+                        <div class="tool-icon">🚀</div>
+                        <div class="tool-title">Confidence</div>
+                        <p>Know your code is correct and optimized</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 17 -->
+        <div class="slide">
+            <div class="content-box">
+                <h2>Long-Term Benefits</h2>
+                <div class="info-box">
+                    <p>Regular use of these debugging techniques will not only help you solve immediate issues but also <strong>improve your overall understanding of CSS</strong> and how it interacts with your HTML.</p>
+                </div>
+                <div class="success-box">
+                    <h3>Over Time, You'll:</h3>
+                    <ul>
+                        <li><strong>Write better CSS:</strong> Understanding how CSS works prevents future bugs</li>
+                        <li><strong>Spot issues faster:</strong> Experience helps you recognize common problems quickly</li>
+                        <li><strong>Make fewer mistakes:</strong> Learning from debugging makes you more careful</li>
+                        <li><strong>Understand inheritance:</strong> See how styles cascade and inherit</li>
+                        <li><strong>Master specificity:</strong> Understand which rules override others</li>
+                        <li><strong>Build efficiently:</strong> Spend less time fixing, more time creating</li>
+                    </ul>
+                </div>
+                <div class="highlight">
+                    <p><strong>Remember:</strong> Every developer uses these tools constantly - they're not just for when things go wrong!</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 18 -->
+        <div class="slide">
+            <div class="content-box">
+                <h2>Key Takeaways</h2>
+                <div class="highlight">
+                    <h3>Essential Tools:</h3>
+                    <ul>
+                        <li><strong>Browser DevTools:</strong> Inspect and modify CSS in real-time</li>
+                        <li><strong>Styles Pane:</strong> See all applied CSS rules and inherited styles</li>
+                        <li><strong>Inspection Tool:</strong> Examine box models and layouts visually</li>
+                        <li><strong>CSS Validators:</strong> Check syntax and catch errors</li>
+                        <li><strong>Device Emulation:</strong> Test responsive designs across screen sizes</li>
+                    </ul>
+                </div>
+                <div class="success-box" style="margin-top: 1.5rem;">
+                    <h3>Best Workflow:</h3>
+                    <ol style="font-size: 1.1rem; line-height: 1.8;">
+                        <li>Validate CSS to catch syntax errors</li>
+                        <li>Use DevTools to inspect specific issues</li>
+                        <li>Experiment with fixes in real-time</li>
+                        <li>Test across different devices</li>
+                        <li>Apply working changes to source code</li>
+                    </ol>
+                </div>
+                <div class="info-box" style="margin-top: 1.5rem;">
+                    <p><strong>Final Reminder:</strong> These tools are your best friends in web development. Master them, and you'll be a much more effective and confident developer!</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="nav-controls">
+        <button id="prevBtn" onclick="changeSlide(-1)">← Previous</button>
+        <span class="slide-counter">
+            <span id="currentSlide">1</span> / <span id="totalSlides">18</span>
+        </span>
+        <button id="nextBtn" onclick="changeSlide(1)">Next →</button>
+    </div>
+
+    <script>
+        let currentSlide = 1;
+        const totalSlides = document.querySelectorAll('.slide').length;
+        
+        document.getElementById('totalSlides').textContent = totalSlides;
+
+        function showSlide(n) {
+            const slides = document.querySelectorAll('.slide');
+            const prevBtn = document.getElementById('prevBtn');
+            const nextBtn = document.getElementById('nextBtn');
+            
+            if (n > totalSlides) {
+                currentSlide = totalSlides;
+            }
+            if (n < 1) {
+                currentSlide = 1;
+            }
+            
+            slides.forEach(slide => {
+                slide.classList.remove('active');
+            });
+            
+            slides[currentSlide - 1].classList.add('active');
+            document.getElementById('currentSlide').textContent = currentSlide;
+            
+            prevBtn.disabled = currentSlide === 1;
+            nextBtn.disabled = currentSlide === totalSlides;
+            
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function changeSlide(n) {
+            currentSlide += n;
+            showSlide(currentSlide);
+        }
+
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'ArrowLeft') {
+                if (currentSlide > 1) changeSlide(-1);
+            } else if (event.key === 'ArrowRight') {
+                if (currentSlide < totalSlides) changeSlide(1);
+            }
+        });
+
+        showSlide(currentSlide);
+    </script>
+</body>
+</html>
