@@ -1,0 +1,1015 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CSS Flexbox Properties</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+            overflow-x: hidden;
+            color: #333;
+        }
+        
+        .slideshow-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 30px 20px 120px 20px;
+            min-height: 100vh;
+        }
+        
+        .slide {
+            display: none;
+            background: white;
+            border-radius: 12px;
+            padding: 50px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            min-height: calc(100vh - 180px);
+            animation: fadeIn 0.6s ease-in-out;
+        }
+        
+        .slide.active {
+            display: block;
+        }
+        
+        @keyframes fadeIn {
+            from { 
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to { 
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        h2 {
+            color: #881518;
+            font-size: 2.5em;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 4px solid #881518;
+            position: relative;
+        }
+        
+        h2::after {
+            content: '';
+            position: absolute;
+            bottom: -4px;
+            left: 0;
+            width: 100px;
+            height: 4px;
+            background: #c41e23;
+        }
+        
+        .concept {
+            margin-bottom: 35px;
+        }
+        
+        .concept h3 {
+            color: #2d2d2d;
+            font-size: 1.6em;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .concept h3::before {
+            content: '▸';
+            color: #881518;
+            margin-right: 10px;
+            font-size: 0.9em;
+        }
+        
+        .concept p {
+            color: #555;
+            font-size: 1.15em;
+            line-height: 1.8;
+            margin-bottom: 15px;
+        }
+        
+        .concept ul {
+            margin-left: 20px;
+            color: #555;
+            font-size: 1.1em;
+            line-height: 1.8;
+        }
+        
+        .concept li {
+            margin-bottom: 10px;
+        }
+        
+        .concept strong {
+            color: #881518;
+            font-weight: 600;
+        }
+        
+        .code-example {
+            background: #f8f8f8;
+            border-left: 5px solid #881518;
+            padding: 25px;
+            border-radius: 8px;
+            margin: 25px 0;
+            overflow-x: auto;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        .code-example code {
+            font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+            font-size: 0.95em;
+            color: #2d2d2d;
+            display: block;
+            white-space: pre;
+            line-height: 1.6;
+        }
+        
+        .visual-example {
+            margin: 30px 0;
+            padding: 25px;
+            background: linear-gradient(135deg, #fafafa 0%, #f0f0f0 100%);
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        }
+        
+        .demo-label {
+            font-size: 0.95em;
+            color: #881518;
+            margin-bottom: 10px;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .flex-demo {
+            display: flex;
+            border: 3px solid #881518;
+            padding: 15px;
+            min-height: 120px;
+            margin: 15px 0;
+            background: white;
+            border-radius: 6px;
+            position: relative;
+        }
+        
+        .flex-item {
+            background: linear-gradient(135deg, #881518 0%, #c41e23 100%);
+            color: white;
+            padding: 20px;
+            margin: 5px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 4px;
+            box-shadow: 0 2px 6px rgba(136, 21, 24, 0.3);
+            transition: transform 0.2s;
+        }
+        
+        .flex-item:hover {
+            transform: scale(1.05);
+        }
+        
+        .two-column {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+            margin: 25px 0;
+        }
+        
+        .highlight-box {
+            background: linear-gradient(135deg, #fff8f8 0%, #ffe8e8 100%);
+            border-left: 5px solid #881518;
+            padding: 20px;
+            margin: 25px 0;
+            border-radius: 6px;
+        }
+        
+        .highlight-box p {
+            color: #2d2d2d;
+            font-size: 1.05em;
+            margin: 0;
+        }
+        
+        .axis-label {
+            font-size: 0.85em;
+            color: #666;
+            margin-top: 10px;
+            font-style: italic;
+        }
+        
+        .interactive-demo {
+            background: white;
+            border: 2px solid #881518;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 25px 0;
+        }
+        
+        .control-group {
+            margin: 15px 0;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .control-group label {
+            font-weight: bold;
+            color: #2d2d2d;
+            min-width: 120px;
+        }
+        
+        .control-group button {
+            background: #881518;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: background 0.3s;
+        }
+        
+        .control-group button:hover {
+            background: #c41e23;
+        }
+        
+        .control-group button.active {
+            background: #2d2d2d;
+        }
+        
+        .navigation {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(180deg, #881518 0%, #6b1113 100%);
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.3);
+            z-index: 1000;
+        }
+        
+        .nav-button {
+            background: white;
+            color: #881518;
+            border: none;
+            padding: 14px 35px;
+            font-size: 1.05em;
+            font-weight: bold;
+            cursor: pointer;
+            border-radius: 6px;
+            transition: all 0.3s;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        }
+        
+        .nav-button:hover:not(:disabled) {
+            background: #f0f0f0;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+        
+        .nav-button:active:not(:disabled) {
+            transform: translateY(0);
+        }
+        
+        .nav-button:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+        
+        .slide-counter {
+            color: white;
+            font-size: 1.1em;
+            font-weight: bold;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 10px 20px;
+            border-radius: 6px;
+        }
+        
+        .intro-list {
+            background: linear-gradient(135deg, #f8f8f8 0%, #e8e8e8 100%);
+            padding: 25px;
+            border-radius: 8px;
+            margin: 25px 0;
+        }
+        
+        .intro-list ul {
+            list-style: none;
+            margin: 0;
+        }
+        
+        .intro-list li {
+            padding: 12px 0;
+            font-size: 1.2em;
+            color: #2d2d2d;
+            display: flex;
+            align-items: center;
+        }
+        
+        .intro-list li::before {
+            content: '✓';
+            color: #881518;
+            font-weight: bold;
+            font-size: 1.3em;
+            margin-right: 15px;
+        }
+        
+        @media (max-width: 768px) {
+            .slideshow-container {
+                padding: 20px 15px 120px 15px;
+            }
+            
+            .slide {
+                padding: 30px 20px;
+            }
+            
+            h2 {
+                font-size: 1.8em;
+            }
+            
+            .concept h3 {
+                font-size: 1.3em;
+            }
+            
+            .concept p, .concept ul {
+                font-size: 1em;
+            }
+            
+            .two-column {
+                grid-template-columns: 1fr;
+            }
+            
+            .nav-button {
+                padding: 12px 20px;
+                font-size: 0.95em;
+            }
+            
+            .slide-counter {
+                font-size: 0.95em;
+                padding: 8px 15px;
+            }
+            
+            .control-group {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .code-example {
+                padding: 15px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            h2 {
+                font-size: 1.5em;
+            }
+            
+            .nav-button {
+                padding: 10px 15px;
+                font-size: 0.85em;
+            }
+            
+            .flex-item {
+                padding: 15px 10px;
+                font-size: 0.9em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="slideshow-container">
+        <!-- Slide 1: Introduction -->
+        <div class="slide active">
+            <h2>Common Flex Properties</h2>
+            <div class="concept">
+                <p>Flex properties control how child elements are distributed and aligned within flex containers. Understanding these properties is essential for creating responsive, flexible layouts.</p>
+                
+                <div class="intro-list">
+                    <ul>
+                        <li><strong>flex-wrap</strong> – Controls wrapping behavior of flex items</li>
+                        <li><strong>justify-content</strong> – Aligns items along the main axis</li>
+                        <li><strong>align-items</strong> – Aligns items along the cross axis</li>
+                    </ul>
+                </div>
+                
+                <div class="highlight-box">
+                    <p>These properties work together to create flexible, responsive layouts that adapt to different screen sizes and content dimensions.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 2: flex-wrap: nowrap -->
+        <div class="slide">
+            <h2>flex-wrap: nowrap</h2>
+            <div class="concept">
+                <h3>Default Wrapping Behavior</h3>
+                <p>The <strong>flex-wrap</strong> property determines how flex items are wrapped within a container to fit the available space. The default value is <strong>nowrap</strong>.</p>
+                <p>With <strong>nowrap</strong>, flex items won't wrap onto a new line, even if their combined width exceeds the container's width. Instead, items will <em>shrink</em> to fit the available space.</p>
+            </div>
+            
+            <div class="visual-example">
+                <div class="demo-label">Container: 200px | Items: 3 × 80px = 240px Total</div>
+                <div class="flex-demo" style="width: 200px; flex-wrap: nowrap;">
+                    <div class="flex-item" style="width: 80px; flex-shrink: 1;">80px</div>
+                    <div class="flex-item" style="width: 80px; flex-shrink: 1;">80px</div>
+                    <div class="flex-item" style="width: 80px; flex-shrink: 1;">80px</div>
+                </div>
+                <p class="axis-label">Items automatically shrink to fit within the 200px container</p>
+            </div>
+            
+            <div class="code-example">
+                <code>main {
+  display: flex;
+  flex-wrap: nowrap; /* default value */
+  width: 200px;
+}
+
+div {
+  width: 80px;
+}</code>
+            </div>
+        </div>
+
+        <!-- Slide 3: flex-wrap: wrap & wrap-reverse -->
+        <div class="slide">
+            <h2>flex-wrap: wrap & wrap-reverse</h2>
+            <div class="concept">
+                <h3>Wrapping Flex Items</h3>
+                <p>Setting <strong>flex-wrap: wrap</strong> allows items to wrap onto new lines when they exceed the container's width, maintaining their specified dimensions.</p>
+                <p>The <strong>wrap-reverse</strong> value wraps items in reverse order, with new lines appearing above previous ones instead of below.</p>
+            </div>
+            
+            <div class="two-column">
+                <div class="visual-example">
+                    <div class="demo-label">flex-wrap: wrap</div>
+                    <div class="flex-demo" style="width: 200px; flex-wrap: wrap;">
+                        <div class="flex-item" style="width: 80px;">80px</div>
+                        <div class="flex-item" style="width: 80px;">80px</div>
+                        <div class="flex-item" style="width: 80px;">80px</div>
+                    </div>
+                    <p class="axis-label">Items wrap to new row below</p>
+                </div>
+                
+                <div class="visual-example">
+                    <div class="demo-label">flex-wrap: wrap-reverse</div>
+                    <div class="flex-demo" style="width: 200px; flex-wrap: wrap-reverse;">
+                        <div class="flex-item" style="width: 80px;">80px</div>
+                        <div class="flex-item" style="width: 80px;">80px</div>
+                        <div class="flex-item" style="width: 80px;">80px</div>
+                    </div>
+                    <p class="axis-label">Items wrap to new row above</p>
+                </div>
+            </div>
+            
+            <div class="code-example">
+                <code>main {
+  display: flex;
+  flex-wrap: wrap; /* or wrap-reverse */
+  width: 200px;
+}</code>
+            </div>
+        </div>
+
+        <!-- Slide 4: flex-flow Shorthand -->
+        <div class="slide">
+            <h2>flex-flow Shorthand Property</h2>
+            <div class="concept">
+                <h3>Combining Direction and Wrap</h3>
+                <p>The <strong>flex-flow</strong> property is a shorthand that combines <strong>flex-direction</strong> and <strong>flex-wrap</strong> into a single declaration, making your CSS more concise.</p>
+            </div>
+            
+            <div class="code-example">
+                <code>/* Shorthand syntax */
+main {
+  display: flex;
+  flex-flow: column wrap-reverse;
+}
+
+/* Equivalent to: */
+main {
+  display: flex;
+  flex-direction: column;
+  flex-wrap: wrap-reverse;
+}</code>
+            </div>
+            
+            <div class="visual-example">
+                <div class="demo-label">flex-flow: column wrap-reverse</div>
+                <div class="flex-demo" style="flex-flow: column wrap-reverse; height: 220px; width: 100%;">
+                    <div class="flex-item" style="height: 80px; width: 100px;">Item 1</div>
+                    <div class="flex-item" style="height: 80px; width: 100px;">Item 2</div>
+                    <div class="flex-item" style="height: 80px; width: 100px;">Item 3</div>
+                </div>
+                <p class="axis-label">Vertical layout with reverse wrapping</p>
+            </div>
+        </div>
+
+        <!-- Slide 5: justify-content Overview -->
+        <div class="slide">
+            <h2>justify-content Property</h2>
+            <div class="concept">
+                <h3>Alignment Along the Main Axis</h3>
+                <p>The <strong>justify-content</strong> property aligns child elements along the <em>main axis</em> of the flex container. By default, the main axis is horizontal (left to right).</p>
+                <p>When <strong>flex-direction</strong> is set to <strong>column</strong>, the main axis becomes vertical. The justify-content property always works along whichever axis is the main axis.</p>
+            </div>
+            
+            <div class="highlight-box">
+                <p><strong>Main Axis:</strong> The primary axis along which flex items are laid out. Horizontal by default (row), or vertical when flex-direction is column.</p>
+            </div>
+            
+            <div class="intro-list">
+                <p style="margin-bottom: 15px; font-weight: bold; color: #881518;">Available Values:</p>
+                <ul>
+                    <li>flex-start</li>
+                    <li>flex-end</li>
+                    <li>center</li>
+                    <li>space-between</li>
+                    <li>space-around</li>
+                    <li>space-evenly</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Slide 6: justify-content: flex-start & flex-end -->
+        <div class="slide">
+            <h2>justify-content: flex-start & flex-end</h2>
+            <div class="concept">
+                <h3>Start and End Alignment</h3>
+                <p><strong>flex-start</strong> aligns items to the start of the main axis (left side for horizontal, top for vertical).</p>
+                <p><strong>flex-end</strong> aligns items to the end of the main axis (right side for horizontal, bottom for vertical).</p>
+            </div>
+            
+            <div class="two-column">
+                <div class="visual-example">
+                    <div class="demo-label">justify-content: flex-start</div>
+                    <div class="flex-demo" style="justify-content: flex-start;">
+                        <div class="flex-item" style="width: 70px;">1</div>
+                        <div class="flex-item" style="width: 70px;">2</div>
+                        <div class="flex-item" style="width: 70px;">3</div>
+                    </div>
+                    <p class="axis-label">Items aligned to the start (left)</p>
+                </div>
+                
+                <div class="visual-example">
+                    <div class="demo-label">justify-content: flex-end</div>
+                    <div class="flex-demo" style="justify-content: flex-end;">
+                        <div class="flex-item" style="width: 70px;">1</div>
+                        <div class="flex-item" style="width: 70px;">2</div>
+                        <div class="flex-item" style="width: 70px;">3</div>
+                    </div>
+                    <p class="axis-label">Items aligned to the end (right)</p>
+                </div>
+            </div>
+            
+            <div class="code-example">
+                <code>main {
+  display: flex;
+  justify-content: flex-start; /* or flex-end */
+}</code>
+            </div>
+        </div>
+
+        <!-- Slide 7: justify-content: center -->
+        <div class="slide">
+            <h2>justify-content: center</h2>
+            <div class="concept">
+                <h3>Centering Items</h3>
+                <p>Using <strong>center</strong> centers flex items along the main axis, creating equal space on both the left and right sides (or top and bottom for vertical layouts).</p>
+            </div>
+            
+            <div class="visual-example">
+                <div class="demo-label">justify-content: center</div>
+                <div class="flex-demo" style="justify-content: center;">
+                    <div class="flex-item" style="width: 70px;">1</div>
+                    <div class="flex-item" style="width: 70px;">2</div>
+                    <div class="flex-item" style="width: 70px;">3</div>
+                </div>
+                <p class="axis-label">Items centered with equal space on both sides</p>
+            </div>
+            
+            <div class="code-example">
+                <code>main {
+  display: flex;
+  justify-content: center;
+}</code>
+            </div>
+            
+            <div class="highlight-box">
+                <p><strong>Common Use Case:</strong> Perfect for centering navigation menus, hero content, or any elements that should be visually centered.</p>
+            </div>
+        </div>
+
+        <!-- Slide 8: justify-content: space-between & space-around -->
+        <div class="slide">
+            <h2>justify-content: space-between & space-around</h2>
+            <div class="concept">
+                <h3>Distributing Space</h3>
+                <p><strong>space-between</strong> distributes items evenly with space only <em>between</em> items. The first and last items are flush with the container edges.</p>
+                <p><strong>space-around</strong> adds equal space <em>around</em> each item. The space at the edges is half the space between items, creating a balanced look.</p>
+            </div>
+            
+            <div class="two-column">
+                <div class="visual-example">
+                    <div class="demo-label">justify-content: space-between</div>
+                    <div class="flex-demo" style="justify-content: space-between;">
+                        <div class="flex-item" style="width: 70px;">1</div>
+                        <div class="flex-item" style="width: 70px;">2</div>
+                        <div class="flex-item" style="width: 70px;">3</div>
+                    </div>
+                    <p class="axis-label">No space at edges, space between items</p>
+                </div>
+                
+                <div class="visual-example">
+                    <div class="demo-label">justify-content: space-around</div>
+                    <div class="flex-demo" style="justify-content: space-around;">
+                        <div class="flex-item" style="width: 70px;">1</div>
+                        <div class="flex-item" style="width: 70px;">2</div>
+                        <div class="flex-item" style="width: 70px;">3</div>
+                    </div>
+                    <p class="axis-label">Half-space at edges, full space between</p>
+                </div>
+            </div>
+            
+            <div class="code-example">
+                <code>main {
+  display: flex;
+  justify-content: space-between; /* or space-around */
+}</code>
+            </div>
+        </div>
+
+        <!-- Slide 9: justify-content: space-evenly -->
+        <div class="slide">
+            <h2>justify-content: space-evenly</h2>
+            <div class="concept">
+                <h3>Equal Spacing Everywhere</h3>
+                <p><strong>space-evenly</strong> distributes items with exactly equal space between all items AND at the container edges. Every gap is identical in size.</p>
+            </div>
+            
+            <div class="visual-example">
+                <div class="demo-label">justify-content: space-evenly</div>
+                <div class="flex-demo" style="justify-content: space-evenly;">
+                    <div class="flex-item" style="width: 70px;">1</div>
+                    <div class="flex-item" style="width: 70px;">2</div>
+                    <div class="flex-item" style="width: 70px;">3</div>
+                </div>
+                <p class="axis-label">Equal space everywhere (edges and between items)</p>
+            </div>
+            
+            <div class="code-example">
+                <code>main {
+  display: flex;
+  justify-content: space-evenly;
+}</code>
+            </div>
+            
+            <div class="highlight-box">
+                <p><strong>Comparison:</strong> space-between has no edge space, space-around has half-size edge space, and space-evenly has full-size equal spacing everywhere.</p>
+            </div>
+        </div>
+
+        <!-- Slide 10: align-items Overview -->
+        <div class="slide">
+            <h2>align-items Property</h2>
+            <div class="concept">
+                <h3>Alignment Along the Cross Axis</h3>
+                <p>While <strong>justify-content</strong> controls the main axis, <strong>align-items</strong> controls alignment along the <em>cross axis</em> – the axis perpendicular to the main axis.</p>
+                <p>For horizontal flex containers (default), the cross axis is <strong>vertical</strong>. For vertical flex containers (column direction), the cross axis is <strong>horizontal</strong>.</p>
+            </div>
+            
+            <div class="highlight-box">
+                <p><strong>Cross Axis:</strong> The axis perpendicular to the main axis. Vertical by default (for row direction), or horizontal when flex-direction is column.</p>
+            </div>
+            
+            <div class="intro-list">
+                <p style="margin-bottom: 15px; font-weight: bold; color: #881518;">Available Values:</p>
+                <ul>
+                    <li>flex-start</li>
+                    <li>flex-end</li>
+                    <li>center</li>
+                    <li>stretch</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Slide 11: align-items: center & flex-start -->
+        <div class="slide">
+            <h2>align-items: center & flex-start</h2>
+            <div class="concept">
+                <h3>Cross Axis Alignment</h3>
+                <p><strong>center</strong> centers items along the cross axis (vertically for horizontal layouts, horizontally for vertical layouts).</p>
+                <p><strong>flex-start</strong> aligns items to the start of the cross axis (top for horizontal layouts, left for vertical layouts).</p>
+            </div>
+            
+            <div class="two-column">
+                <div class="visual-example">
+                    <div class="demo-label">align-items: center</div>
+                    <div class="flex-demo" style="height: 160px; align-items: center;">
+                        <div class="flex-item" style="width: 70px;">1</div>
+                        <div class="flex-item" style="width: 70px;">2</div>
+                        <div class="flex-item" style="width: 70px;">3</div>
+                    </div>
+                    <p class="axis-label">Items centered vertically</p>
+                </div>
+                
+                <div class="visual-example">
+                    <div class="demo-label">align-items: flex-start</div>
+                    <div class="flex-demo" style="height: 160px; align-items: flex-start;">
+                        <div class="flex-item" style="width: 70px;">1</div>
+                        <div class="flex-item" style="width: 70px;">2</div>
+                        <div class="flex-item" style="width: 70px;">3</div>
+                    </div>
+                    <p class="axis-label">Items aligned to top</p>
+                </div>
+            </div>
+            
+            <div class="code-example">
+                <code>main {
+  display: flex;
+  align-items: center; /* or flex-start */
+  height: 200px;
+}</code>
+            </div>
+        </div>
+
+        <!-- Slide 12: align-items: flex-end & stretch -->
+        <div class="slide">
+            <h2>align-items: flex-end & stretch</h2>
+            <div class="concept">
+                <h3>End Alignment and Stretching</h3>
+                <p><strong>flex-end</strong> aligns items to the end of the cross axis (bottom for horizontal layouts, right for vertical layouts).</p>
+                <p><strong>stretch</strong> makes items fill the entire container along the cross axis. This works best with auto-sized elements or those without explicit width/height.</p>
+            </div>
+            
+            <div class="two-column">
+                <div class="visual-example">
+                    <div class="demo-label">align-items: flex-end</div>
+                    <div class="flex-demo" style="height: 160px; align-items: flex-end;">
+                        <div class="flex-item" style="width: 70px;">1</div>
+                        <div class="flex-item" style="width: 70px;">2</div>
+                        <div class="flex-item" style="width: 70px;">3</div>
+                    </div>
+                    <p class="axis-label">Items aligned to bottom</p>
+                </div>
+                
+                <div class="visual-example">
+                    <div class="demo-label">align-items: stretch</div>
+                    <div class="flex-demo" style="height: 160px; align-items: stretch;">
+                        <div class="flex-item" style="width: 70px;">1</div>
+                        <div class="flex-item" style="width: 70px;">2</div>
+                        <div class="flex-item" style="width: 70px;">3</div>
+                    </div>
+                    <p class="axis-label">Items stretched to fill height</p>
+                </div>
+            </div>
+            
+            <div class="code-example">
+                <code>main {
+  display: flex;
+  align-items: flex-end; /* or stretch */
+  height: 200px;
+}</code>
+            </div>
+        </div>
+
+        <!-- Slide 13: align-self Property -->
+        <div class="slide">
+            <h2>align-self Property</h2>
+            <div class="concept">
+                <h3>Individual Item Alignment</h3>
+                <p>The <strong>align-self</strong> property allows you to override the container's <strong>align-items</strong> value for specific flex items, giving you fine-grained control over individual item alignment.</p>
+                <p>You can apply different alignments to different items within the same flex container.</p>
+            </div>
+            
+            <div class="visual-example">
+                <div class="demo-label">Different align-self values on individual items</div>
+                <div class="flex-demo" style="height: 200px; align-items: flex-start;">
+                    <div class="flex-item" style="width: 80px; align-self: flex-start;">flex-start</div>
+                    <div class="flex-item" style="width: 80px; align-self: center;">center</div>
+                    <div class="flex-item" style="width: 80px; align-self: flex-end;">flex-end</div>
+                    <div class="flex-item" style="width: 80px; align-self: stretch;">stretch</div>
+                </div>
+                <p class="axis-label">Each item has its own cross-axis alignment</p>
+            </div>
+            
+            <div class="code-example">
+                <code>.container {
+  display: flex;
+  align-items: flex-start; /* default for all items */
+}
+
+.special-item {
+  align-self: center; /* override for this item */
+}
+
+/* Values: flex-start, flex-end, center, stretch */</code>
+            </div>
+        </div>
+
+        <!-- Slide 14: Interactive Demo -->
+        <div class="slide">
+            <h2>Interactive Demo</h2>
+            <div class="concept">
+                <h3>Experiment with Flex Properties</h3>
+                <p>Try different combinations of flex properties to see how they work together.</p>
+            </div>
+            
+            <div class="interactive-demo">
+                <div class="control-group">
+                    <label>justify-content:</label>
+                    <button onclick="updateDemo('justify-content', 'flex-start')" id="jc-flex-start">flex-start</button>
+                    <button onclick="updateDemo('justify-content', 'center')" id="jc-center">center</button>
+                    <button onclick="updateDemo('justify-content', 'flex-end')" id="jc-flex-end">flex-end</button>
+                    <button onclick="updateDemo('justify-content', 'space-between')" id="jc-space-between">space-between</button>
+                    <button onclick="updateDemo('justify-content', 'space-around')" id="jc-space-around">space-around</button>
+                    <button onclick="updateDemo('justify-content', 'space-evenly')" id="jc-space-evenly">space-evenly</button>
+                </div>
+                
+                <div class="control-group">
+                    <label>align-items:</label>
+                    <button onclick="updateDemo('align-items', 'flex-start')" id="ai-flex-start">flex-start</button>
+                    <button onclick="updateDemo('align-items', 'center')" id="ai-center">center</button>
+                    <button onclick="updateDemo('align-items', 'flex-end')" id="ai-flex-end">flex-end</button>
+                    <button onclick="updateDemo('align-items', 'stretch')" id="ai-stretch">stretch</button>
+                </div>
+                
+                <div class="control-group">
+                    <label>flex-wrap:</label>
+                    <button onclick="updateDemo('flex-wrap', 'nowrap')" id="fw-nowrap">nowrap</button>
+                    <button onclick="updateDemo('flex-wrap', 'wrap')" id="fw-wrap">wrap</button>
+                    <button onclick="updateDemo('flex-wrap', 'wrap-reverse')" id="fw-wrap-reverse">wrap-reverse</button>
+                </div>
+                
+                <div class="demo-label" style="margin-top: 20px;">Result:</div>
+                <div id="interactive-flex" class="flex-demo" style="height: 200px; justify-content: center; align-items: center; flex-wrap: nowrap;">
+                    <div class="flex-item" style="width: 80px;">1</div>
+                    <div class="flex-item" style="width: 80px;">2</div>
+                    <div class="flex-item" style="width: 80px;">3</div>
+                    <div class="flex-item" style="width: 80px;">4</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 15: Summary -->
+        <div class="slide">
+            <h2>Creating Responsive Layouts</h2>
+            <div class="concept">
+                <h3>Putting It All Together</h3>
+                <p>With these CSS flex properties and your understanding of the flex model, you can create responsive layouts that provide a smooth and inclusive user experience across all devices.</p>
+            </div>
+            
+            <div class="intro-list">
+                <p style="margin-bottom: 15px; font-weight: bold; color: #881518;">Key Takeaways:</p>
+                <ul>
+                    <li><strong>flex-wrap</strong> controls whether items wrap to new lines</li>
+                    <li><strong>justify-content</strong> distributes space along the main axis</li>
+                    <li><strong>align-items</strong> aligns items along the cross axis</li>
+                    <li><strong>align-self</strong> overrides alignment for individual items</li>
+                    <li><strong>flex-flow</strong> combines direction and wrap properties</li>
+                </ul>
+            </div>
+            
+            <div class="highlight-box">
+                <p>These are the most commonly-used flex properties, but there are additional properties and values available for even more control over your responsive layouts.</p>
+            </div>
+            
+            <div class="code-example">
+                <code>/* Example: Common layout pattern */
+.container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+/* Responsive and flexible! */</code>
+            </div>
+        </div>
+    </div>
+
+    <div class="navigation">
+        <button class="nav-button" id="prevBtn" onclick="changeSlide(-1)">← Previous</button>
+        <span class="slide-counter">
+            <span id="currentSlide">1</span> / <span id="totalSlides">15</span>
+        </span>
+        <button class="nav-button" id="nextBtn" onclick="changeSlide(1)">Next →</button>
+    </div>
+
+    <script>
+        let currentSlideIndex = 0;
+        const slides = document.querySelectorAll('.slide');
+        const totalSlides = slides.length;
+        
+        document.getElementById('totalSlides').textContent = totalSlides;
+        
+        function showSlide(n) {
+            if (n >= totalSlides) {
+                currentSlideIndex = totalSlides - 1;
+            } else if (n < 0) {
+                currentSlideIndex = 0;
+            } else {
+                currentSlideIndex = n;
+            }
+            
+            slides.forEach((slide, index) => {
+                slide.classList.remove('active');
+                if (index === currentSlideIndex) {
+                    slide.classList.add('active');
+                }
+            });
+            
+            document.getElementById('currentSlide').textContent = currentSlideIndex + 1;
+            
+            document.getElementById('prevBtn').disabled = currentSlideIndex === 0;
+            document.getElementById('nextBtn').disabled = currentSlideIndex === totalSlides - 1;
+            
+            window.scrollTo(0, 0);
+        }
+        
+        function changeSlide(direction) {
+            showSlide(currentSlideIndex + direction);
+        }
+        
+        // Interactive demo functionality
+        const demoState = {
+            'justify-content': 'center',
+            'align-items': 'center',
+            'flex-wrap': 'nowrap'
+        };
+        
+        function updateDemo(property, value) {
+            demoState[property] = value;
+            const demoElement = document.getElementById('interactive-flex');
+            
+            // Update styles
+            demoElement.style.justifyContent = demoState['justify-content'];
+            demoElement.style.alignItems = demoState['align-items'];
+            demoElement.style.flexWrap = demoState['flex-wrap'];
+            
+            // Update button states
+            document.querySelectorAll('.control-group button').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            if (property === 'justify-content') {
+                document.getElementById('jc-' + value).classList.add('active');
+            } else if (property === 'align-items') {
+                document.getElementById('ai-' + value).classList.add('active');
+            } else if (property === 'flex-wrap') {
+                document.getElementById('fw-' + value).classList.add('active');
+            }
+        }
+        
+        // Initialize interactive demo buttons
+        document.getElementById('jc-center').classList.add('active');
+        document.getElementById('ai-center').classList.add('active');
+        document.getElementById('fw-nowrap').classList.add('active');
+        
+        // Keyboard navigation
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'ArrowLeft') {
+                changeSlide(-1);
+            } else if (event.key === 'ArrowRight') {
+                changeSlide(1);
+            }
+        });
+        
+        // Touch/swipe support for mobile
+        let touchStartX = 0;
+        let touchEndX = 0;
+        
+        document.addEventListener('touchstart', function(event) {
+            touchStartX = event.changedTouches[0].screenX;
+        });
+        
+        document.addEventListener('touchend', function(event) {
+            touchEndX = event.changedTouches[0].screenX;
+            handleSwipe();
+        });
+        
+        function handleSwipe() {
+            if (touchEndX < touchStartX - 50) {
+                changeSlide(1); // Swipe left - next slide
+            }
+            if (touchEndX > touchStartX + 50) {
+                changeSlide(-1); // Swipe right - previous slide
+            }
+        }
+        
+        // Initialize
+        showSlide(0);
+    </script>
+</body>
+</html>
