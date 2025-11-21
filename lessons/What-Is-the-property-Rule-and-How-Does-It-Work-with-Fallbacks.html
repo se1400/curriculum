@@ -1,0 +1,1092 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The @property Rule</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+            overflow-x: hidden;
+            color: #333;
+        }
+        
+        .slideshow-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 30px 20px 120px 20px;
+            min-height: 100vh;
+        }
+        
+        .slide {
+            display: none;
+            background: white;
+            border-radius: 12px;
+            padding: 50px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            min-height: calc(100vh - 180px);
+            animation: fadeIn 0.6s ease-in-out;
+        }
+        
+        .slide.active {
+            display: block;
+        }
+        
+        @keyframes fadeIn {
+            from { 
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to { 
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        h2 {
+            color: #881518;
+            font-size: 2.5em;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 4px solid #881518;
+            position: relative;
+        }
+        
+        h2::after {
+            content: '';
+            position: absolute;
+            bottom: -4px;
+            left: 0;
+            width: 100px;
+            height: 4px;
+            background: #c41e23;
+        }
+        
+        .concept {
+            margin-bottom: 35px;
+        }
+        
+        .concept h3 {
+            color: #2d2d2d;
+            font-size: 1.6em;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .concept h3::before {
+            content: '▸';
+            color: #881518;
+            margin-right: 10px;
+            font-size: 0.9em;
+        }
+        
+        .concept p {
+            color: #555;
+            font-size: 1.15em;
+            line-height: 1.8;
+            margin-bottom: 15px;
+        }
+        
+        .concept strong, .concept code {
+            color: #881518;
+            font-weight: 600;
+        }
+        
+        .code-example {
+            background: #f8f8f8;
+            border-left: 5px solid #881518;
+            padding: 25px;
+            border-radius: 8px;
+            margin: 25px 0;
+            overflow-x: auto;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        .code-example code {
+            font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+            font-size: 0.95em;
+            color: #2d2d2d;
+            display: block;
+            white-space: pre;
+            line-height: 1.6;
+        }
+        
+        .visual-example {
+            margin: 30px 0;
+            padding: 25px;
+            background: linear-gradient(135deg, #fafafa 0%, #f0f0f0 100%);
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        }
+        
+        .demo-label {
+            font-size: 0.95em;
+            color: #881518;
+            margin-bottom: 15px;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .highlight-box {
+            background: linear-gradient(135deg, #fff8f8 0%, #ffe8e8 100%);
+            border-left: 5px solid #881518;
+            padding: 20px;
+            margin: 25px 0;
+            border-radius: 6px;
+        }
+        
+        .highlight-box p {
+            color: #2d2d2d;
+            font-size: 1.05em;
+            margin: 0;
+        }
+        
+        .info-box {
+            background: linear-gradient(135deg, #f0f8ff 0%, #e0f0ff 100%);
+            border-left: 5px solid #4a90e2;
+            padding: 20px;
+            margin: 25px 0;
+            border-radius: 6px;
+        }
+        
+        .info-box p {
+            color: #2d2d2d;
+            font-size: 1.05em;
+            margin: 0;
+        }
+        
+        .success-box {
+            background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
+            border-left: 5px solid #4caf50;
+            padding: 20px;
+            margin: 25px 0;
+            border-radius: 6px;
+        }
+        
+        .success-box p {
+            color: #2d2d2d;
+            font-size: 1.05em;
+            margin: 0;
+        }
+        
+        .warning-box {
+            background: linear-gradient(135deg, #fff8e1 0%, #ffecb3 100%);
+            border-left: 5px solid #ff9800;
+            padding: 20px;
+            margin: 25px 0;
+            border-radius: 6px;
+        }
+        
+        .warning-box p {
+            color: #2d2d2d;
+            font-size: 1.05em;
+            margin: 0;
+        }
+        
+        .intro-list {
+            background: linear-gradient(135deg, #f8f8f8 0%, #e8e8e8 100%);
+            padding: 25px;
+            border-radius: 8px;
+            margin: 25px 0;
+        }
+        
+        .intro-list ul {
+            list-style: none;
+            margin: 0;
+        }
+        
+        .intro-list li {
+            padding: 12px 0;
+            font-size: 1.2em;
+            color: #2d2d2d;
+            display: flex;
+            align-items: center;
+        }
+        
+        .intro-list li::before {
+            content: '✓';
+            color: #881518;
+            font-weight: bold;
+            font-size: 1.3em;
+            margin-right: 15px;
+        }
+        
+        .descriptor-card {
+            background: white;
+            border: 3px solid #881518;
+            border-radius: 8px;
+            padding: 25px;
+            margin: 20px 0;
+        }
+        
+        .descriptor-card h4 {
+            color: #881518;
+            font-size: 1.4em;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #eee;
+        }
+        
+        .descriptor-card .desc-content {
+            color: #555;
+            font-size: 1.1em;
+            line-height: 1.8;
+        }
+        
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+            margin: 25px 0;
+        }
+        
+        .comparison-item {
+            background: white;
+            border: 3px solid #881518;
+            border-radius: 8px;
+            padding: 20px;
+        }
+        
+        .comparison-item h4 {
+            color: #881518;
+            font-size: 1.3em;
+            margin-bottom: 15px;
+            text-align: center;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #eee;
+        }
+        
+        .fallback-diagram {
+            background: white;
+            border: 3px solid #881518;
+            border-radius: 8px;
+            padding: 30px;
+            margin: 25px 0;
+        }
+        
+        .fallback-level {
+            margin: 20px 0;
+            padding: 20px;
+            background: #f8f8f8;
+            border-left: 4px solid #4a90e2;
+            border-radius: 6px;
+        }
+        
+        .fallback-level h5 {
+            color: #4a90e2;
+            font-size: 1.2em;
+            margin-bottom: 10px;
+        }
+        
+        .navigation {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(180deg, #881518 0%, #6b1113 100%);
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.3);
+            z-index: 1000;
+        }
+        
+        .nav-button {
+            background: white;
+            color: #881518;
+            border: none;
+            padding: 14px 35px;
+            font-size: 1.05em;
+            font-weight: bold;
+            cursor: pointer;
+            border-radius: 6px;
+            transition: all 0.3s;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        }
+        
+        .nav-button:hover:not(:disabled) {
+            background: #f0f0f0;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+        
+        .nav-button:active:not(:disabled) {
+            transform: translateY(0);
+        }
+        
+        .nav-button:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+        
+        .slide-counter {
+            color: white;
+            font-size: 1.1em;
+            font-weight: bold;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 10px 20px;
+            border-radius: 6px;
+        }
+        
+        @media (max-width: 768px) {
+            .slideshow-container {
+                padding: 20px 15px 120px 15px;
+            }
+            
+            .slide {
+                padding: 30px 20px;
+            }
+            
+            h2 {
+                font-size: 1.8em;
+            }
+            
+            .concept h3 {
+                font-size: 1.3em;
+            }
+            
+            .concept p {
+                font-size: 1em;
+            }
+            
+            .comparison-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .nav-button {
+                padding: 12px 20px;
+                font-size: 0.95em;
+            }
+            
+            .slide-counter {
+                font-size: 0.95em;
+                padding: 8px 15px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            h2 {
+                font-size: 1.5em;
+            }
+            
+            .nav-button {
+                padding: 10px 15px;
+                font-size: 0.85em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="slideshow-container">
+        <!-- Slide 1: Introduction -->
+        <div class="slide active">
+            <h2>The @property Rule</h2>
+            <div class="concept">
+                <h3>Advanced Custom Properties</h3>
+                <p>The <code>@property</code> rule is a <strong>powerful CSS feature</strong> that allows developers to define custom properties with <strong>greater control</strong> over their behavior, including how they <strong>animate</strong> and their <strong>initial values</strong>.</p>
+            </div>
+            
+            <div class="intro-list">
+                <p style="margin-bottom: 15px; font-weight: bold; color: #881518;">What You'll Learn:</p>
+                <ul>
+                    <li>Understanding the <strong>@property syntax</strong></li>
+                    <li>The three key <strong>descriptors</strong></li>
+                    <li>How to <strong>animate</strong> custom properties</li>
+                    <li>Working with <strong>fallbacks</strong></li>
+                    <li><strong>Browser support</strong> strategies</li>
+                </ul>
+            </div>
+            
+            <div class="highlight-box">
+                <p><strong>Supercharging Variables:</strong> @property takes CSS custom properties to the next level!</p>
+            </div>
+        </div>
+
+        <!-- Slide 2: Why It's Powerful -->
+        <div class="slide">
+            <h2>Enhanced Functionality</h2>
+            <div class="concept">
+                <h3>Beyond Standard Custom Properties</h3>
+                <p>This rule provides a way to <strong>enhance the functionality</strong> of CSS custom properties and offers <strong>more flexibility</strong> in their application.</p>
+            </div>
+            
+            <div class="intro-list">
+                <p style="margin-bottom: 15px; font-weight: bold; color: #881518;">Key Advantages:</p>
+                <ul>
+                    <li><strong>Type Safety</strong> – Define what values are valid</li>
+                    <li><strong>Animation</strong> – Animate custom properties smoothly</li>
+                    <li><strong>Initial Values</strong> – Set default starting values</li>
+                    <li><strong>Inheritance Control</strong> – Choose if values inherit</li>
+                    <li><strong>Better Validation</strong> – Browser checks types</li>
+                </ul>
+            </div>
+            
+            <div class="success-box">
+                <p><strong>The Difference:</strong> Standard custom properties are just strings. @property makes them typed, validated values!</p>
+            </div>
+        </div>
+
+        <!-- Slide 3: Basic Syntax -->
+        <div class="slide">
+            <h2>Basic Syntax</h2>
+            <div class="concept">
+                <h3>The Structure</h3>
+                <p>The basic syntax of the <code>@property</code> rule is as follows:</p>
+            </div>
+            
+            <div class="code-example">
+                <code>@property --property-name {
+  syntax: '&lt;type&gt;';
+  inherits: true | false;
+  initial-value: &lt;value&gt;;
+}</code>
+            </div>
+            
+            <div class="info-box">
+                <p><strong>Three Required Parts:</strong> Every @property rule must have <code>syntax</code>, <code>inherits</code>, and <code>initial-value</code>.</p>
+            </div>
+        </div>
+
+        <!-- Slide 4: Property Name -->
+        <div class="slide">
+            <h2>The Property Name</h2>
+            <div class="concept">
+                <h3>Naming Your Property</h3>
+                <p>The <code>--property-name</code> is the name of the custom property you're defining. Like all custom properties, it must <strong>start with two dashes</strong>.</p>
+            </div>
+            
+            <div class="code-example">
+                <code>/* Valid property names */
+@property --main-color { /* ... */ }
+@property --button-size { /* ... */ }
+@property --animation-speed { /* ... */ }
+
+/* Must start with -- */</code>
+            </div>
+            
+            <div class="highlight-box">
+                <p><strong>Same Rule:</strong> Just like regular custom properties, always use the <code>--</code> prefix!</p>
+            </div>
+        </div>
+
+        <!-- Slide 5: The syntax Descriptor -->
+        <div class="slide">
+            <h2>The syntax Descriptor</h2>
+            <div class="concept">
+                <h3>Defining the Type</h3>
+                <p><code>syntax</code> defines the <strong>type of the property</strong>. <code>--property-name</code> can be things like <code>&lt;color&gt;</code>, <code>&lt;length&gt;</code>, <code>&lt;number&gt;</code>, <code>&lt;percentage&gt;</code>, or more complex types.</p>
+            </div>
+            
+            <div class="code-example">
+                <code>/* Common syntax types */
+@property --my-color {
+  syntax: '&lt;color&gt;';
+  /* ... */
+}
+
+@property --my-size {
+  syntax: '&lt;length&gt;';
+  /* ... */
+}
+
+@property --my-opacity {
+  syntax: '&lt;number&gt;';
+  /* ... */
+}</code>
+            </div>
+            
+            <div class="info-box">
+                <p><strong>Type Safety:</strong> The browser will validate that values match the specified type!</p>
+            </div>
+        </div>
+
+        <!-- Slide 6: Common Syntax Types -->
+        <div class="slide">
+            <h2>Common Syntax Types</h2>
+            <div class="concept">
+                <h3>Available Types</h3>
+            </div>
+            
+            <div class="intro-list">
+                <p style="margin-bottom: 15px; font-weight: bold; color: #881518;">Frequently Used Types:</p>
+                <ul>
+                    <li><code>&lt;color&gt;</code> – Color values (#fff, rgb(), hsl())</li>
+                    <li><code>&lt;length&gt;</code> – Length values (10px, 2rem, 50%)</li>
+                    <li><code>&lt;number&gt;</code> – Numbers (0.5, 100, -5)</li>
+                    <li><code>&lt;percentage&gt;</code> – Percentages (50%, 100%)</li>
+                    <li><code>&lt;angle&gt;</code> – Angles (45deg, 0.5turn)</li>
+                    <li><code>&lt;time&gt;</code> – Time values (1s, 500ms)</li>
+                </ul>
+            </div>
+            
+            <div class="success-box">
+                <p><strong>Plus More:</strong> You can also combine types with <code>|</code> or use <code>*</code> for "any value"!</p>
+            </div>
+        </div>
+
+        <!-- Slide 7: The inherits Descriptor -->
+        <div class="slide">
+            <h2>The inherits Descriptor</h2>
+            <div class="concept">
+                <h3>Inheritance Control</h3>
+                <p><code>inherits</code> specifies whether the property should <strong>inherit its value</strong> from its parent element.</p>
+            </div>
+            
+            <div class="code-example">
+                <code>/* Inherits from parent */
+@property --text-color {
+  syntax: '&lt;color&gt;';
+  inherits: true;
+  initial-value: black;
+}
+
+/* Does NOT inherit */
+@property --button-bg {
+  syntax: '&lt;color&gt;';
+  inherits: false;
+  initial-value: blue;
+}</code>
+            </div>
+            
+            <div class="info-box">
+                <p><strong>Two Options:</strong> <code>true</code> = inherits from parent, <code>false</code> = does not inherit.</p>
+            </div>
+        </div>
+
+        <!-- Slide 8: The initial-value Descriptor -->
+        <div class="slide">
+            <h2>The initial-value Descriptor</h2>
+            <div class="concept">
+                <h3>Setting Defaults</h3>
+                <p><code>initial-value</code> sets the <strong>default value</strong> of the property.</p>
+            </div>
+            
+            <div class="code-example">
+                <code>@property --main-color {
+  syntax: '&lt;color&gt;';
+  inherits: false;
+  initial-value: #3498db;  /* Default: blue */
+}
+
+@property --spacing {
+  syntax: '&lt;length&gt;';
+  inherits: true;
+  initial-value: 20px;  /* Default: 20px */
+}</code>
+            </div>
+            
+            <div class="highlight-box">
+                <p><strong>Always There:</strong> Even if you don't set the property, it will have this initial value!</p>
+            </div>
+        </div>
+
+        <!-- Slide 9: Complete Example -->
+        <div class="slide">
+            <h2>Practical Example</h2>
+            <div class="concept">
+                <h3>All Three Descriptors</h3>
+                <p>Here's a practical example of using the <code>@property</code> rule:</p>
+            </div>
+            
+            <div class="code-example">
+                <code>@property --main-color {
+  syntax: '&lt;color&gt;';
+  inherits: false;
+  initial-value: #3498db;
+}
+
+.button {
+  background-color: var(--main-color);
+}</code>
+            </div>
+            
+            <div class="info-box">
+                <p><strong>In this example:</strong> We're defining a custom property <code>--main-color</code> as a <strong>color value</strong>, setting it to <strong>not inherit</strong>, and giving it an <strong>initial value</strong> of <code>#3498db</code>.</p>
+            </div>
+        </div>
+
+        <!-- Slide 10: Animation Benefits -->
+        <div class="slide">
+            <h2>Animation Power</h2>
+            <div class="concept">
+                <h3>Game Changer</h3>
+                <p>One of the key benefits of the <code>@property</code> rule is that it allows for <strong>animation of custom properties</strong>, which <strong>wasn't possible before</strong>:</p>
+            </div>
+            
+            <div class="highlight-box">
+                <p><strong>Revolutionary:</strong> Before @property, you couldn't animate custom properties. Now you can!</p>
+            </div>
+            
+            <div class="comparison-grid">
+                <div class="comparison-item">
+                    <h4>❌ Without @property</h4>
+                    <div style="padding: 20px; background: #ffebee; border-radius: 6px; margin-top: 15px;">
+                        <p style="color: #666; margin: 0;">Custom properties can't be animated smoothly</p>
+                    </div>
+                </div>
+                
+                <div class="comparison-item">
+                    <h4>✅ With @property</h4>
+                    <div style="padding: 20px; background: #e8f5e9; border-radius: 6px; margin-top: 15px;">
+                        <p style="color: #666; margin: 0;">Custom properties animate smoothly!</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 11: Animation Example -->
+        <div class="slide">
+            <h2>Animating a Gradient</h2>
+            <div class="concept">
+                <h3>Smooth Transitions</h3>
+            </div>
+            
+            <div class="code-example">
+                <code>@property --gradient-position {
+  syntax: '&lt;percentage&gt;';
+  inherits: false;
+  initial-value: 0%;
+}
+
+.gradient-box {
+  background: linear-gradient(
+    90deg,
+    red var(--gradient-position),
+    blue 100%
+  );
+  transition: --gradient-position 1s;
+}
+
+.gradient-box:hover {
+  --gradient-position: 100%;
+}</code>
+            </div>
+            
+            <div class="success-box">
+                <p><strong>The Result:</strong> The code above creates a gradient that <strong>smoothly animates</strong> when the element is hovered over, something that wasn't achievable with standard custom properties.</p>
+            </div>
+        </div>
+
+        <!-- Slide 12: Fallbacks Introduction -->
+        <div class="slide">
+            <h2>Working with Fallbacks</h2>
+            <div class="concept">
+                <h3>Graceful Degradation</h3>
+                <p>Now, let's discuss how the <code>@property</code> rule works with fallbacks.</p>
+            </div>
+            
+            <div class="info-box">
+                <p><strong>Why Fallbacks?</strong> Fallbacks are crucial in CSS to ensure that styles <strong>degrade gracefully</strong> in browsers that don't support certain features.</p>
+            </div>
+            
+            <div class="highlight-box">
+                <p><strong>Two Levels:</strong> With the <code>@property</code>, fallbacks work on <strong>two levels</strong>: for the rule itself and for the use of the custom property.</p>
+            </div>
+        </div>
+
+        <!-- Slide 13: Two-Level Fallbacks -->
+        <div class="slide">
+            <h2>Two Levels of Fallbacks</h2>
+            <div class="concept">
+                <h3>Double Protection</h3>
+            </div>
+            
+            <div class="fallback-diagram">
+                <div class="fallback-level">
+                    <h5>Level 1: Rule Fallback</h5>
+                    <p style="color: #666; margin-top: 10px;">For browsers that don't support <code>@property</code> at all</p>
+                </div>
+                
+                <div class="fallback-level">
+                    <h5>Level 2: Value Fallback</h5>
+                    <p style="color: #666; margin-top: 10px;">For when the custom property isn't defined or is invalid</p>
+                </div>
+            </div>
+            
+            <div class="info-box">
+                <p><strong>Belt and Suspenders:</strong> Protect both against unsupported browsers AND undefined values!</p>
+            </div>
+        </div>
+
+        <!-- Slide 14: Browser Fallback -->
+        <div class="slide">
+            <h2>Level 1: Browser Fallback</h2>
+            <div class="concept">
+                <h3>For Unsupported Browsers</h3>
+                <p>For browsers that don't support the <code>@property</code> rule, you can provide a fallback by declaring the custom property <strong>in the traditional way</strong>:</p>
+            </div>
+            
+            <div class="code-example">
+                <code>/* Fallback: Traditional custom property */
+:root {
+  --main-color: #3498db;
+}
+
+/* Enhanced: @property rule */
+@property --main-color {
+  syntax: '&lt;color&gt;';
+  inherits: false;
+  initial-value: #3498db;
+}</code>
+            </div>
+            
+            <div class="info-box">
+                <p><strong>How it works:</strong> In this case, browsers that support <code>@property</code> will use the more strictly defined version, while others will fall back to the standard custom property declaration.</p>
+            </div>
+        </div>
+
+        <!-- Slide 15: Value Fallback -->
+        <div class="slide">
+            <h2>Level 2: Value Fallback</h2>
+            <div class="concept">
+                <h3>Using var() Fallbacks</h3>
+                <p>When using the custom property, you can provide a fallback value using the <code>var()</code> function, just as you would with standard custom properties:</p>
+            </div>
+            
+            <div class="code-example">
+                <code>.button {
+  background-color: var(--main-color, blue);
+}</code>
+            </div>
+            
+            <div class="info-box">
+                <p><strong>Safety Net:</strong> This ensures that even if the <code>--main-color</code> property is not defined or is invalid, the button will still have a background color.</p>
+            </div>
+        </div>
+
+        <!-- Slide 16: Complete Fallback Strategy -->
+        <div class="slide">
+            <h2>Complete Fallback Strategy</h2>
+            <div class="concept">
+                <h3>Belt, Suspenders, AND a Rope</h3>
+            </div>
+            
+            <div class="code-example">
+                <code>/* Level 1: Traditional declaration (browser fallback) */
+:root {
+  --main-color: #3498db;
+}
+
+/* Enhanced: @property rule */
+@property --main-color {
+  syntax: '&lt;color&gt;';
+  inherits: false;
+  initial-value: #3498db;
+}
+
+/* Level 2: var() fallback (value fallback) */
+.button {
+  background-color: var(--main-color, blue);
+}</code>
+            </div>
+            
+            <div class="success-box">
+                <p><strong>Triple Protection:</strong> This covers all scenarios – unsupported browsers, undefined properties, and invalid values!</p>
+            </div>
+        </div>
+
+        <!-- Slide 17: Type-Safe Fallbacks -->
+        <div class="slide">
+            <h2>Type-Safe Fallbacks</h2>
+            <div class="concept">
+                <h3>Advanced Protection</h3>
+                <p>The <code>@property</code> rule also allows for more <strong>complex fallback scenarios</strong>. For instance, you can use it to provide <strong>type-safe fallbacks</strong>:</p>
+            </div>
+            
+            <div class="code-example">
+                <code>@property --padding {
+  syntax: '&lt;length&gt;';
+  inherits: false;
+  initial-value: 10px;
+}
+
+.box {
+  padding: var(--padding);
+}</code>
+            </div>
+            
+            <div class="info-box">
+                <p><strong>In this case:</strong> If someone tries to set <code>--padding</code> to an invalid value, like a color, the browser will fall back to the initial value of <code>10px</code>, <strong>maintaining type safety</strong>.</p>
+            </div>
+        </div>
+
+        <!-- Slide 18: Type Safety Example -->
+        <div class="slide">
+            <h2>Type Safety in Action</h2>
+            <div class="concept">
+                <h3>Invalid Values Rejected</h3>
+            </div>
+            
+            <div class="code-example">
+                <code>@property --spacing {
+  syntax: '&lt;length&gt;';
+  inherits: false;
+  initial-value: 20px;
+}
+
+/* This works */
+.element {
+  --spacing: 30px;
+  margin: var(--spacing);  /* Uses 30px */
+}
+
+/* This is INVALID - falls back to initial-value! */
+.other {
+  --spacing: red;  /* Not a length! */
+  margin: var(--spacing);  /* Uses 20px (initial value) */
+}</code>
+            </div>
+            
+            <div class="success-box">
+                <p><strong>Protection:</strong> The browser automatically validates and rejects invalid types!</p>
+            </div>
+        </div>
+
+        <!-- Slide 19: Browser Support -->
+        <div class="slide">
+            <h2>Browser Support Status</h2>
+            <div class="concept">
+                <h3>Current Compatibility</h3>
+                <p>It's worth noting that the <code>@property</code> rule itself is <strong>not yet universally supported</strong>.</p>
+            </div>
+            
+            <div class="info-box">
+                <p><strong>As of mid-2023:</strong> It's supported in <strong>Chrome</strong>, <strong>Edge</strong>, and <strong>Opera</strong>, with <strong>Firefox</strong> support behind a flag.</p>
+            </div>
+            
+            <div class="warning-box">
+                <p><strong>Important:</strong> For broader browser support, it's important to <strong>provide fallbacks</strong> and use <strong>feature detection</strong>.</p>
+            </div>
+            
+            <div class="intro-list">
+                <p style="margin-bottom: 15px; font-weight: bold; color: #881518;">Support Strategy:</p>
+                <ul>
+                    <li>Always provide <strong>traditional custom property</strong> fallback</li>
+                    <li>Use <strong>@supports</strong> for feature detection</li>
+                    <li>Test across <strong>multiple browsers</strong></li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Slide 20: Feature Detection -->
+        <div class="slide">
+            <h2>Feature Detection</h2>
+            <div class="concept">
+                <h3>Using @supports</h3>
+            </div>
+            
+            <div class="code-example">
+                <code>/* Check if @property is supported */
+@supports (background: var(--test)) {
+  /* Modern browsers with @property support */
+  @property --fancy-gradient {
+    syntax: '&lt;percentage&gt;';
+    inherits: false;
+    initial-value: 0%;
+  }
+  
+  .element {
+    /* Use animated custom property */
+    transition: --fancy-gradient 1s;
+  }
+}
+
+/* Fallback for older browsers */
+.element {
+  /* Static styles */
+}</code>
+            </div>
+            
+            <div class="info-box">
+                <p><strong>Progressive Enhancement:</strong> Enhance for modern browsers while maintaining basic functionality for all!</p>
+            </div>
+        </div>
+
+        <!-- Slide 21: Best Practices -->
+        <div class="slide">
+            <h2>Best Practices</h2>
+            <div class="concept">
+                <h3>Using @property Wisely</h3>
+            </div>
+            
+            <div class="intro-list">
+                <p style="margin-bottom: 15px; font-weight: bold; color: #881518;">Follow These Guidelines:</p>
+                <ul>
+                    <li>Always provide <strong>fallback</strong> custom properties</li>
+                    <li>Use <code>initial-value</code> as a <strong>sensible default</strong></li>
+                    <li>Choose <code>inherits</code> based on the property's <strong>purpose</strong></li>
+                    <li>Be <strong>specific</strong> with syntax types when possible</li>
+                    <li><strong>Test</strong> across multiple browsers</li>
+                    <li>Use for <strong>animation</strong> where it adds value</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Slide 22: Real-World Use Cases -->
+        <div class="slide">
+            <h2>Real-World Use Cases</h2>
+            <div class="concept">
+                <h3>When to Use @property</h3>
+            </div>
+            
+            <div class="intro-list">
+                <p style="margin-bottom: 15px; font-weight: bold; color: #881518;">Perfect For:</p>
+                <ul>
+                    <li><strong>Animated Gradients</strong> – Smooth color transitions</li>
+                    <li><strong>Dynamic Themes</strong> – Type-safe color systems</li>
+                    <li><strong>Interactive Elements</strong> – Hover effects with animations</li>
+                    <li><strong>Design Systems</strong> – Validated design tokens</li>
+                    <li><strong>Complex Animations</strong> – Custom timing functions</li>
+                    <li><strong>Type Safety</strong> – Ensuring valid values</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Slide 23: Comparison -->
+        <div class="slide">
+            <h2>@property vs Standard Custom Properties</h2>
+            <div class="concept">
+                <h3>Key Differences</h3>
+            </div>
+            
+            <div class="comparison-grid">
+                <div class="comparison-item">
+                    <h4>Standard Custom Properties</h4>
+                    <ul style="list-style: none; padding: 15px 0;">
+                        <li style="padding: 10px; margin: 8px 0; background: #f8f8f8; border-radius: 4px;">✗ No type checking</li>
+                        <li style="padding: 10px; margin: 8px 0; background: #f8f8f8; border-radius: 4px;">✗ Can't animate</li>
+                        <li style="padding: 10px; margin: 8px 0; background: #f8f8f8; border-radius: 4px;">✗ No initial value</li>
+                        <li style="padding: 10px; margin: 8px 0; background: #e8f5e9; border-radius: 4px;">✓ Universal support</li>
+                    </ul>
+                </div>
+                
+                <div class="comparison-item">
+                    <h4>@property</h4>
+                    <ul style="list-style: none; padding: 15px 0;">
+                        <li style="padding: 10px; margin: 8px 0; background: #e8f5e9; border-radius: 4px;">✓ Type checking</li>
+                        <li style="padding: 10px; margin: 8px 0; background: #e8f5e9; border-radius: 4px;">✓ Can animate</li>
+                        <li style="padding: 10px; margin: 8px 0; background: #e8f5e9; border-radius: 4px;">✓ Initial value</li>
+                        <li style="padding: 10px; margin: 8px 0; background: #f8f8f8; border-radius: 4px;">✗ Limited support</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 24: Conclusion -->
+        <div class="slide">
+            <h2>Conclusion</h2>
+            <div class="concept">
+                <h3>Significant Advancement</h3>
+                <p>In conclusion, the <code>@property</code> rule represents a <strong>significant advancement</strong> in how we work with custom properties in CSS.</p>
+            </div>
+            
+            <div class="intro-list">
+                <p style="margin-bottom: 15px; font-weight: bold; color: #881518;">Key Benefits:</p>
+                <ul>
+                    <li>Provides <strong>more control</strong> over custom properties</li>
+                    <li>Enables <strong>new possibilities</strong> like animation</li>
+                    <li>Adds <strong>type safety</strong> and validation</li>
+                    <li>Offers <strong>better defaults</strong> with initial-value</li>
+                </ul>
+            </div>
+            
+            <div class="warning-box">
+                <p><strong>Remember:</strong> Use it judiciously and always provide appropriate fallbacks to ensure a good experience across all browsers.</p>
+            </div>
+            
+            <div class="highlight-box">
+                <p><strong>The Key:</strong> As with any cutting-edge web technology, enhance the experience for browsers that support it while ensuring basic functionality for those that don't.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="navigation">
+        <button class="nav-button" id="prevBtn" onclick="changeSlide(-1)">← Previous</button>
+        <span class="slide-counter">
+            <span id="currentSlide">1</span> / <span id="totalSlides">24</span>
+        </span>
+        <button class="nav-button" id="nextBtn" onclick="changeSlide(1)">Next →</button>
+    </div>
+
+    <script>
+        let currentSlideIndex = 0;
+        const slides = document.querySelectorAll('.slide');
+        const totalSlides = slides.length;
+        
+        document.getElementById('totalSlides').textContent = totalSlides;
+        
+        function showSlide(n) {
+            if (n >= totalSlides) {
+                currentSlideIndex = totalSlides - 1;
+            } else if (n < 0) {
+                currentSlideIndex = 0;
+            } else {
+                currentSlideIndex = n;
+            }
+            
+            slides.forEach((slide, index) => {
+                slide.classList.remove('active');
+                if (index === currentSlideIndex) {
+                    slide.classList.add('active');
+                }
+            });
+            
+            document.getElementById('currentSlide').textContent = currentSlideIndex + 1;
+            
+            document.getElementById('prevBtn').disabled = currentSlideIndex === 0;
+            document.getElementById('nextBtn').disabled = currentSlideIndex === totalSlides - 1;
+            
+            window.scrollTo(0, 0);
+        }
+        
+        function changeSlide(direction) {
+            showSlide(currentSlideIndex + direction);
+        }
+        
+        // Keyboard navigation
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'ArrowLeft') {
+                changeSlide(-1);
+            } else if (event.key === 'ArrowRight') {
+                changeSlide(1);
+            }
+        });
+        
+        // Touch/swipe support for mobile
+        let touchStartX = 0;
+        let touchEndX = 0;
+        
+        document.addEventListener('touchstart', function(event) {
+            touchStartX = event.changedTouches[0].screenX;
+        });
+        
+        document.addEventListener('touchend', function(event) {
+            touchEndX = event.changedTouches[0].screenX;
+            handleSwipe();
+        });
+        
+        function handleSwipe() {
+            if (touchEndX < touchStartX - 50) {
+                changeSlide(1);
+            }
+            if (touchEndX > touchStartX + 50) {
+                changeSlide(-1);
+            }
+        }
+        
+        // Initialize
+        showSlide(0);
+    </script>
+</body>
+</html>

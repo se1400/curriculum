@@ -1,0 +1,1168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CSS Custom Properties (CSS Variables)</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+            overflow-x: hidden;
+            color: #333;
+        }
+        
+        .slideshow-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 30px 20px 120px 20px;
+            min-height: 100vh;
+        }
+        
+        .slide {
+            display: none;
+            background: white;
+            border-radius: 12px;
+            padding: 50px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            min-height: calc(100vh - 180px);
+            animation: fadeIn 0.6s ease-in-out;
+        }
+        
+        .slide.active {
+            display: block;
+        }
+        
+        @keyframes fadeIn {
+            from { 
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to { 
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        h2 {
+            color: #881518;
+            font-size: 2.5em;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 4px solid #881518;
+            position: relative;
+        }
+        
+        h2::after {
+            content: '';
+            position: absolute;
+            bottom: -4px;
+            left: 0;
+            width: 100px;
+            height: 4px;
+            background: #c41e23;
+        }
+        
+        .concept {
+            margin-bottom: 35px;
+        }
+        
+        .concept h3 {
+            color: #2d2d2d;
+            font-size: 1.6em;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .concept h3::before {
+            content: '▸';
+            color: #881518;
+            margin-right: 10px;
+            font-size: 0.9em;
+        }
+        
+        .concept p {
+            color: #555;
+            font-size: 1.15em;
+            line-height: 1.8;
+            margin-bottom: 15px;
+        }
+        
+        .concept strong, .concept code {
+            color: #881518;
+            font-weight: 600;
+        }
+        
+        .code-example {
+            background: #f8f8f8;
+            border-left: 5px solid #881518;
+            padding: 25px;
+            border-radius: 8px;
+            margin: 25px 0;
+            overflow-x: auto;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        .code-example code {
+            font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+            font-size: 0.95em;
+            color: #2d2d2d;
+            display: block;
+            white-space: pre;
+            line-height: 1.6;
+        }
+        
+        .visual-example {
+            margin: 30px 0;
+            padding: 25px;
+            background: linear-gradient(135deg, #fafafa 0%, #f0f0f0 100%);
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        }
+        
+        .demo-label {
+            font-size: 0.95em;
+            color: #881518;
+            margin-bottom: 15px;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .highlight-box {
+            background: linear-gradient(135deg, #fff8f8 0%, #ffe8e8 100%);
+            border-left: 5px solid #881518;
+            padding: 20px;
+            margin: 25px 0;
+            border-radius: 6px;
+        }
+        
+        .highlight-box p {
+            color: #2d2d2d;
+            font-size: 1.05em;
+            margin: 0;
+        }
+        
+        .info-box {
+            background: linear-gradient(135deg, #f0f8ff 0%, #e0f0ff 100%);
+            border-left: 5px solid #4a90e2;
+            padding: 20px;
+            margin: 25px 0;
+            border-radius: 6px;
+        }
+        
+        .info-box p {
+            color: #2d2d2d;
+            font-size: 1.05em;
+            margin: 0;
+        }
+        
+        .success-box {
+            background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
+            border-left: 5px solid #4caf50;
+            padding: 20px;
+            margin: 25px 0;
+            border-radius: 6px;
+        }
+        
+        .success-box p {
+            color: #2d2d2d;
+            font-size: 1.05em;
+            margin: 0;
+        }
+        
+        .warning-box {
+            background: linear-gradient(135deg, #fff8e1 0%, #ffecb3 100%);
+            border-left: 5px solid #ff9800;
+            padding: 20px;
+            margin: 25px 0;
+            border-radius: 6px;
+        }
+        
+        .warning-box p {
+            color: #2d2d2d;
+            font-size: 1.05em;
+            margin: 0;
+        }
+        
+        .intro-list {
+            background: linear-gradient(135deg, #f8f8f8 0%, #e8e8e8 100%);
+            padding: 25px;
+            border-radius: 8px;
+            margin: 25px 0;
+        }
+        
+        .intro-list ul {
+            list-style: none;
+            margin: 0;
+        }
+        
+        .intro-list li {
+            padding: 12px 0;
+            font-size: 1.2em;
+            color: #2d2d2d;
+            display: flex;
+            align-items: center;
+        }
+        
+        .intro-list li::before {
+            content: '✓';
+            color: #881518;
+            font-weight: bold;
+            font-size: 1.3em;
+            margin-right: 15px;
+        }
+        
+        .syntax-visual {
+            background: white;
+            border: 3px solid #881518;
+            border-radius: 8px;
+            padding: 30px;
+            margin: 25px 0;
+            text-align: center;
+        }
+        
+        .syntax-part {
+            display: inline-block;
+            padding: 20px 30px;
+            margin: 10px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 1.5em;
+            font-weight: bold;
+        }
+        
+        .syntax-dashes {
+            background: #881518;
+            color: white;
+        }
+        
+        .syntax-name {
+            background: #4caf50;
+            color: white;
+        }
+        
+        .syntax-value {
+            background: #4a90e2;
+            color: white;
+        }
+        
+        .interactive-demo {
+            background: white;
+            border: 3px solid #881518;
+            border-radius: 8px;
+            padding: 25px;
+            margin: 25px 0;
+        }
+        
+        .demo-button {
+            background: var(--demo-color, #3498db);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 1.1em;
+            font-weight: bold;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: transform 0.2s;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        }
+        
+        .demo-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+        
+        .theme-demo {
+            padding: 30px;
+            border-radius: 8px;
+            margin: 20px 0;
+            transition: all 0.3s;
+        }
+        
+        .light-theme {
+            --bg-color: #ffffff;
+            --text-color: #333333;
+            --border-color: #dddddd;
+            background: var(--bg-color);
+            color: var(--text-color);
+            border: 3px solid var(--border-color);
+        }
+        
+        .dark-theme {
+            --bg-color: #2d2d2d;
+            --text-color: #ffffff;
+            --border-color: #555555;
+            background: var(--bg-color);
+            color: var(--text-color);
+            border: 3px solid var(--border-color);
+        }
+        
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+            margin: 25px 0;
+        }
+        
+        .comparison-item {
+            background: white;
+            border: 3px solid #881518;
+            border-radius: 8px;
+            padding: 20px;
+        }
+        
+        .comparison-item h4 {
+            color: #881518;
+            font-size: 1.3em;
+            margin-bottom: 15px;
+            text-align: center;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #eee;
+        }
+        
+        .navigation {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(180deg, #881518 0%, #6b1113 100%);
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.3);
+            z-index: 1000;
+        }
+        
+        .nav-button {
+            background: white;
+            color: #881518;
+            border: none;
+            padding: 14px 35px;
+            font-size: 1.05em;
+            font-weight: bold;
+            cursor: pointer;
+            border-radius: 6px;
+            transition: all 0.3s;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        }
+        
+        .nav-button:hover:not(:disabled) {
+            background: #f0f0f0;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+        
+        .nav-button:active:not(:disabled) {
+            transform: translateY(0);
+        }
+        
+        .nav-button:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+        
+        .slide-counter {
+            color: white;
+            font-size: 1.1em;
+            font-weight: bold;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 10px 20px;
+            border-radius: 6px;
+        }
+        
+        @media (max-width: 768px) {
+            .slideshow-container {
+                padding: 20px 15px 120px 15px;
+            }
+            
+            .slide {
+                padding: 30px 20px;
+            }
+            
+            h2 {
+                font-size: 1.8em;
+            }
+            
+            .concept h3 {
+                font-size: 1.3em;
+            }
+            
+            .concept p {
+                font-size: 1em;
+            }
+            
+            .comparison-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .nav-button {
+                padding: 12px 20px;
+                font-size: 0.95em;
+            }
+            
+            .slide-counter {
+                font-size: 0.95em;
+                padding: 8px 15px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            h2 {
+                font-size: 1.5em;
+            }
+            
+            .nav-button {
+                padding: 10px 15px;
+                font-size: 0.85em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="slideshow-container">
+        <!-- Slide 1: Introduction -->
+        <div class="slide active">
+            <h2>CSS Custom Properties</h2>
+            <div class="concept">
+                <h3>CSS Variables Explained</h3>
+                <p>CSS custom properties, also known as <strong>CSS variables</strong>, are entities defined by CSS authors that contain <strong>specific values to be reused</strong> throughout a document.</p>
+            </div>
+            
+            <div class="highlight-box">
+                <p><strong>What Are They?</strong> Think of them as containers that store values you can use over and over again in your CSS!</p>
+            </div>
+            
+            <div class="intro-list">
+                <p style="margin-bottom: 15px; font-weight: bold; color: #881518;">What You'll Learn:</p>
+                <ul>
+                    <li>How to <strong>declare</strong> custom properties</li>
+                    <li>Using the <strong>var() function</strong></li>
+                    <li>Working with the <strong>CSS cascade</strong></li>
+                    <li>Creating <strong>themeable designs</strong></li>
+                    <li>Using with <strong>media queries</strong></li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Slide 2: Why Use Them? -->
+        <div class="slide">
+            <h2>Why Custom Properties?</h2>
+            <div class="concept">
+                <h3>Powerful Benefits</h3>
+                <p>They are a powerful feature that allows for more <strong>efficient</strong>, <strong>maintainable</strong>, and <strong>flexible</strong> stylesheets.</p>
+            </div>
+            
+            <div class="intro-list">
+                <p style="margin-bottom: 15px; font-weight: bold; color: #881518;">Key Advantages:</p>
+                <ul>
+                    <li><strong>Reusability</strong> – Define once, use everywhere</li>
+                    <li><strong>Maintainability</strong> – Change in one place</li>
+                    <li><strong>Flexibility</strong> – Dynamic runtime changes</li>
+                    <li><strong>Themeable</strong> – Easy theme switching</li>
+                    <li><strong>Cascading</strong> – Follows CSS cascade rules</li>
+                </ul>
+            </div>
+            
+            <div class="success-box">
+                <p><strong>Bottom Line:</strong> Custom properties make your CSS smarter and easier to manage!</p>
+            </div>
+        </div>
+
+        <!-- Slide 3: Basic Syntax -->
+        <div class="slide">
+            <h2>Declaration Syntax</h2>
+            <div class="concept">
+                <h3>How to Declare</h3>
+                <p>The syntax for declaring a custom property is straightforward. It begins with <strong>two dashes</strong> (<code>--</code>) followed by the property name:</p>
+            </div>
+            
+            <div class="code-example">
+                <code>:root {
+  --main-color: #3498db;
+}</code>
+            </div>
+            
+            <div class="syntax-visual">
+                <div class="syntax-part syntax-dashes">--</div>
+                <div class="syntax-part syntax-name">main-color</div>
+                <div style="display: inline-block; font-size: 2em; margin: 0 10px;">:</div>
+                <div class="syntax-part syntax-value">#3498db</div>
+            </div>
+            
+            <div class="info-box">
+                <p><strong>Breaking it down:</strong> <code>--</code> = prefix, <code>main-color</code> = name, <code>#3498db</code> = value</p>
+            </div>
+        </div>
+
+        <!-- Slide 4: Understanding the Example -->
+        <div class="slide">
+            <h2>Understanding the Declaration</h2>
+            <div class="concept">
+                <h3>What's Happening?</h3>
+                <p>In this example, we're declaring a custom property named <code>--main-color</code> with a value of <code>#3498db</code>.</p>
+            </div>
+            
+            <div class="code-example">
+                <code>:root {
+  --main-color: #3498db;  /* Blue color */
+}</code>
+            </div>
+            
+            <div class="intro-list">
+                <p style="margin-bottom: 15px; font-weight: bold; color: #881518;">Key Points:</p>
+                <ul>
+                    <li><strong>Property name:</strong> --main-color (you choose this)</li>
+                    <li><strong>Value:</strong> #3498db (a blue color)</li>
+                    <li><strong>Scope:</strong> Declared in :root (global)</li>
+                    <li><strong>Reusable:</strong> Can be used anywhere in your CSS</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Slide 5: The :root Pseudo-Class -->
+        <div class="slide">
+            <h2>Using :root</h2>
+            <div class="concept">
+                <h3>Global Scope</h3>
+                <p>The <code>:root</code> pseudo-class is commonly used to declare <strong>global custom properties</strong>, as it represents the <strong>highest-level parent</strong> in the DOM tree.</p>
+            </div>
+            
+            <div class="code-example">
+                <code>/* Global variables - available everywhere */
+:root {
+  --main-color: #3498db;
+  --secondary-color: #2ecc71;
+  --font-size: 16px;
+  --spacing: 20px;
+}</code>
+            </div>
+            
+            <div class="info-box">
+                <p><strong>Why :root?</strong> It's at the top of the DOM tree, so properties defined here are available to all elements in your document.</p>
+            </div>
+            
+            <div class="highlight-box">
+                <p><strong>Think of it as:</strong> :root is like a global storage container for your CSS values!</p>
+            </div>
+        </div>
+
+        <!-- Slide 6: Using Custom Properties -->
+        <div class="slide">
+            <h2>Using var() Function</h2>
+            <div class="concept">
+                <h3>Accessing the Values</h3>
+                <p>To use a custom property, you employ the <strong>var() function</strong>:</p>
+            </div>
+            
+            <div class="code-example">
+                <code>.button {
+  background-color: var(--main-color);
+}</code>
+            </div>
+            
+            <div class="info-box">
+                <p><strong>What this does:</strong> This sets the background color of elements with the class <code>button</code> to the value stored in <code>--main-color</code>.</p>
+            </div>
+            
+            <div class="visual-example">
+                <div class="demo-label">Live Example:</div>
+                <button class="demo-button" style="--demo-color: #3498db;">Click Me</button>
+                <p style="margin-top: 15px; color: #666; text-align: center;">This button uses <code>var(--main-color)</code> for its background!</p>
+            </div>
+        </div>
+
+        <!-- Slide 7: Complete Example -->
+        <div class="slide">
+            <h2>Complete Example</h2>
+            <div class="concept">
+                <h3>Declaration + Usage</h3>
+            </div>
+            
+            <div class="code-example">
+                <code>/* Step 1: Declare the variable */
+:root {
+  --main-color: #3498db;
+}
+
+/* Step 2: Use it anywhere! */
+.button {
+  background-color: var(--main-color);
+}
+
+.header {
+  border-color: var(--main-color);
+}
+
+.link {
+  color: var(--main-color);
+}</code>
+            </div>
+            
+            <div class="success-box">
+                <p><strong>Powerful!</strong> Change <code>--main-color</code> in one place, and all three elements update automatically!</p>
+            </div>
+        </div>
+
+        <!-- Slide 8: The CSS Cascade -->
+        <div class="slide">
+            <h2>Following the Cascade</h2>
+            <div class="concept">
+                <h3>Redefining Properties</h3>
+                <p>One of the key features of custom properties is that they <strong>follow the CSS cascade</strong>. This means that you can <strong>redefine them</strong> for specific elements or contexts:</p>
+            </div>
+            
+            <div class="code-example">
+                <code>:root {
+  --main-color: #3498db;  /* Global: Blue */
+}
+
+.alert {
+  --main-color: #e74c3c;  /* Override: Red for alerts */
+  background-color: var(--main-color);
+}</code>
+            </div>
+            
+            <div class="info-box">
+                <p><strong>In this case:</strong> Elements with the class <code>alert</code> will use a different <code>--main-color</code> value, <strong>overriding</strong> the global definition.</p>
+            </div>
+        </div>
+
+        <!-- Slide 9: Cascade Visual Example -->
+        <div class="slide">
+            <h2>Cascade in Action</h2>
+            <div class="concept">
+                <h3>Different Contexts, Different Values</h3>
+            </div>
+            
+            <div class="visual-example">
+                <div class="demo-label">Same Property, Different Values:</div>
+                <div style="padding: 20px; background: white; border-radius: 8px;">
+                    <div style="padding: 20px; margin: 10px 0; background: #3498db; color: white; border-radius: 6px; font-weight: bold;">
+                        Normal: Uses global --main-color (#3498db)
+                    </div>
+                    <div style="padding: 20px; margin: 10px 0; background: #e74c3c; color: white; border-radius: 6px; font-weight: bold;">
+                        Alert: Uses overridden --main-color (#e74c3c)
+                    </div>
+                </div>
+            </div>
+            
+            <div class="highlight-box">
+                <p><strong>Magic of Cascade:</strong> The same property name, but different values based on context!</p>
+            </div>
+        </div>
+
+        <!-- Slide 10: Fallback Values -->
+        <div class="slide">
+            <h2>Fallback Values</h2>
+            <div class="concept">
+                <h3>Safety Net</h3>
+                <p>Custom properties also support <strong>fallback values</strong>. If a custom property is not defined or is invalid, you can provide a fallback value:</p>
+            </div>
+            
+            <div class="code-example">
+                <code>.text {
+  color: var(--text-color, green);
+}</code>
+            </div>
+            
+            <div class="info-box">
+                <p><strong>How it works:</strong> Here, if <code>--text-color</code> is not defined, the color will default to <code>green</code>.</p>
+            </div>
+            
+            <div class="syntax-visual">
+                <div style="padding: 20px;">
+                    <div style="font-family: 'Courier New', monospace; font-size: 1.3em; margin-bottom: 20px;">
+                        var(<span style="color: #881518; font-weight: bold;">--text-color</span>, <span style="color: #4caf50; font-weight: bold;">green</span>)
+                    </div>
+                    <div style="display: flex; justify-content: space-around; margin-top: 20px;">
+                        <div style="text-align: center;">
+                            <div style="padding: 15px; background: #881518; color: white; border-radius: 6px; font-weight: bold; margin-bottom: 10px;">Primary</div>
+                            <p style="color: #666;">Try this first</p>
+                        </div>
+                        <div style="font-size: 2em; color: #666;">→</div>
+                        <div style="text-align: center;">
+                            <div style="padding: 15px; background: #4caf50; color: white; border-radius: 6px; font-weight: bold; margin-bottom: 10px;">Fallback</div>
+                            <p style="color: #666;">Use if primary fails</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 11: Fallback Example -->
+        <div class="slide">
+            <h2>Fallback in Action</h2>
+            <div class="concept">
+                <h3>Real-World Usage</h3>
+            </div>
+            
+            <div class="code-example">
+                <code>/* Fallback examples */
+.element {
+  /* If --primary not defined, use #3498db */
+  background: var(--primary, #3498db);
+  
+  /* If --spacing not defined, use 20px */
+  padding: var(--spacing, 20px);
+  
+  /* Multiple fallbacks! */
+  color: var(--text-color, var(--default-color, black));
+}</code>
+            </div>
+            
+            <div class="success-box">
+                <p><strong>Smart Defaults:</strong> Fallbacks ensure your styles always have a value, even if a variable isn't defined!</p>
+            </div>
+        </div>
+
+        <!-- Slide 12: Themeable Designs -->
+        <div class="slide">
+            <h2>Creating Themes</h2>
+            <div class="concept">
+                <h3>Theme Switching Made Easy</h3>
+                <p>Custom properties are particularly useful in creating <strong>themeable designs</strong>. You can define a set of properties for different themes:</p>
+            </div>
+            
+            <div class="code-example">
+                <code>/* Light theme */
+.light-theme {
+  --bg-color: #ffffff;
+  --text-color: #333333;
+}
+
+/* Dark theme */
+.dark-theme {
+  --bg-color: #2d2d2d;
+  --text-color: #ffffff;
+}
+
+/* Use the theme variables */
+body {
+  background-color: var(--bg-color);
+  color: var(--text-color);
+}</code>
+            </div>
+        </div>
+
+        <!-- Slide 13: Theme Demo -->
+        <div class="slide">
+            <h2>Theme Demo</h2>
+            <div class="concept">
+                <h3>See It in Action</h3>
+            </div>
+            
+            <div class="visual-example">
+                <div class="demo-label">Light Theme:</div>
+                <div class="theme-demo light-theme">
+                    <h3 style="margin-bottom: 10px;">Light Theme</h3>
+                    <p>This uses: --bg-color: #ffffff and --text-color: #333333</p>
+                </div>
+                
+                <div class="demo-label" style="margin-top: 20px;">Dark Theme:</div>
+                <div class="theme-demo dark-theme">
+                    <h3 style="margin-bottom: 10px;">Dark Theme</h3>
+                    <p>This uses: --bg-color: #2d2d2d and --text-color: #ffffff</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 14: Theme Switching -->
+        <div class="slide">
+            <h2>Simple Theme Switching</h2>
+            <div class="concept">
+                <h3>Just Add/Remove a Class</h3>
+                <p>Switching themes becomes as simple as <strong>adding or removing a class</strong> from the body element.</p>
+            </div>
+            
+            <div class="code-example">
+                <code>/* HTML - Just change the class! */
+&lt;body class="light-theme"&gt;
+  &lt;!-- Content --&gt;
+&lt;/body&gt;
+
+/* Switch to dark */
+&lt;body class="dark-theme"&gt;
+  &lt;!-- Same content, different theme! --&gt;
+&lt;/body&gt;</code>
+            </div>
+            
+            <div class="success-box">
+                <p><strong>That's It!</strong> One class change, entire site theme switches!</p>
+            </div>
+        </div>
+
+        <!-- Slide 15: Responsive Designs -->
+        <div class="slide">
+            <h2>Custom Properties + Media Queries</h2>
+            <div class="concept">
+                <h3>Responsive Design</h3>
+                <p>Custom properties can also be used with <strong>media queries</strong> to create responsive designs:</p>
+            </div>
+            
+            <div class="code-example">
+                <code>:root {
+  --card-width: 300px;
+}
+
+@media (max-width: 768px) {
+  :root {
+    --card-width: 100%;
+  }
+}
+
+.card {
+  width: var(--card-width);
+}</code>
+            </div>
+            
+            <div class="info-box">
+                <p><strong>Responsive Magic:</strong> Change the variable value at different breakpoints, and all elements using it adapt automatically!</p>
+            </div>
+        </div>
+
+        <!-- Slide 16: Responsive Advantages -->
+        <div class="slide">
+            <h2>Maintainable Responsive Layouts</h2>
+            <div class="concept">
+                <h3>Less Repetition</h3>
+                <p>This approach allows for more <strong>maintainable responsive layouts</strong>, as you can <strong>change values in one place</strong> rather than throughout your stylesheet.</p>
+            </div>
+            
+            <div class="comparison-grid">
+                <div class="comparison-item">
+                    <h4>❌ Without Variables</h4>
+                    <div class="code-example" style="margin: 15px 0;">
+                        <code>.card { width: 300px; }
+.sidebar { width: 300px; }
+.modal { width: 300px; }
+
+@media (max-width: 768px) {
+  .card { width: 100%; }
+  .sidebar { width: 100%; }
+  .modal { width: 100%; }
+}</code>
+                    </div>
+                </div>
+                
+                <div class="comparison-item">
+                    <h4>✅ With Variables</h4>
+                    <div class="code-example" style="margin: 15px 0;">
+                        <code>:root { --width: 300px; }
+
+.card { width: var(--width); }
+.sidebar { width: var(--width); }
+.modal { width: var(--width); }
+
+@media (max-width: 768px) {
+  :root { --width: 100%; }
+}</code>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 17: Reducing Repetition -->
+        <div class="slide">
+            <h2>Reducing Repetition</h2>
+            <div class="concept">
+                <h3>DRY Principle</h3>
+                <p>This can <strong>significantly reduce repetition</strong> in your stylesheets, especially for frequently used, complex values.</p>
+            </div>
+            
+            <div class="code-example">
+                <code>:root {
+  --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  --border-radius: 8px;
+  --transition: all 0.3s ease;
+}
+
+.card, .button, .modal, .tooltip {
+  box-shadow: var(--box-shadow);
+  border-radius: var(--border-radius);
+  transition: var(--transition);
+}</code>
+            </div>
+            
+            <div class="success-box">
+                <p><strong>Smart Coding:</strong> Define complex values once, use them everywhere!</p>
+            </div>
+        </div>
+
+        <!-- Slide 18: Referencing Other Properties -->
+        <div class="slide">
+            <h2>Referencing Other Properties</h2>
+            <div class="concept">
+                <h3>Building Relationships</h3>
+                <p>Custom properties can also <strong>reference other custom properties</strong>:</p>
+            </div>
+            
+            <div class="code-example">
+                <code>:root {
+  --primary-color: #3498db;
+  --primary-light: #5dade2;
+  --primary-dark: #2980b9;
+  
+  /* Reference other variables! */
+  --button-bg: var(--primary-color);
+  --button-hover: var(--primary-dark);
+  --link-color: var(--primary-light);
+}
+
+.button {
+  background: var(--button-bg);
+}
+
+.button:hover {
+  background: var(--button-hover);
+}</code>
+            </div>
+        </div>
+
+        <!-- Slide 19: Relationships Between Values -->
+        <div class="slide">
+            <h2>Creating Relationships</h2>
+            <div class="concept">
+                <h3>Consistent Themes</h3>
+                <p>This allows for <strong>creating relationships</strong> between different style aspects, making it easier to <strong>maintain consistent themes</strong> across your site.</p>
+            </div>
+            
+            <div class="code-example">
+                <code>:root {
+  /* Base colors */
+  --brand-color: #e74c3c;
+  
+  /* Related colors reference the base */
+  --accent: var(--brand-color);
+  --border: var(--brand-color);
+  --focus-ring: var(--brand-color);
+  
+  /* Spacing system */
+  --space-unit: 8px;
+  --space-xs: var(--space-unit);
+  --space-sm: calc(var(--space-unit) * 2);
+  --space-md: calc(var(--space-unit) * 3);
+  --space-lg: calc(var(--space-unit) * 4);
+}</code>
+            </div>
+            
+            <div class="highlight-box">
+                <p><strong>Design System:</strong> Change one base value, all related values update automatically!</p>
+            </div>
+        </div>
+
+        <!-- Slide 20: Browser Support -->
+        <div class="slide">
+            <h2>Browser Support</h2>
+            <div class="concept">
+                <h3>Compatibility Considerations</h3>
+                <p>While custom properties offer many advantages, it's important to be aware of their <strong>browser support</strong>.</p>
+            </div>
+            
+            <div class="info-box">
+                <p><strong>Good News:</strong> They are <strong>well-supported in modern browsers</strong>, but older browsers may not recognize them.</p>
+            </div>
+            
+            <div class="warning-box">
+                <p><strong>Important:</strong> Always have a <strong>fallback plan</strong> when using cutting-edge features.</p>
+            </div>
+            
+            <div class="code-example">
+                <code>/* Provide fallback for older browsers */
+.button {
+  background-color: #3498db;  /* Fallback */
+  background-color: var(--main-color);  /* Modern */
+}</code>
+            </div>
+        </div>
+
+        <!-- Slide 21: Runtime Manipulation -->
+        <div class="slide">
+            <h2>JavaScript Integration</h2>
+            <div class="concept">
+                <h3>Dynamic Changes</h3>
+                <p>One powerful feature: Custom properties can be changed at <strong>runtime with JavaScript</strong>!</p>
+            </div>
+            
+            <div class="code-example">
+                <code>// Get the root element
+const root = document.documentElement;
+
+// Change a custom property
+root.style.setProperty('--main-color', '#e74c3c');
+
+// Get a custom property value
+const color = getComputedStyle(root)
+  .getPropertyValue('--main-color');</code>
+            </div>
+            
+            <div class="success-box">
+                <p><strong>Dynamic Styling:</strong> Update themes, colors, and values on the fly based on user interaction!</p>
+            </div>
+        </div>
+
+        <!-- Slide 22: Real-World Use Cases -->
+        <div class="slide">
+            <h2>Real-World Use Cases</h2>
+            <div class="concept">
+                <h3>Where to Use Them</h3>
+            </div>
+            
+            <div class="intro-list">
+                <p style="margin-bottom: 15px; font-weight: bold; color: #881518;">Common Applications:</p>
+                <ul>
+                    <li><strong>Theme Switching</strong> – Light/dark mode</li>
+                    <li><strong>Design Systems</strong> – Consistent spacing, colors</li>
+                    <li><strong>Responsive Design</strong> – Breakpoint-specific values</li>
+                    <li><strong>Component Libraries</strong> – Customizable components</li>
+                    <li><strong>Animation</strong> – Dynamic animation properties</li>
+                    <li><strong>User Preferences</strong> – Personalized styling</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Slide 23: Best Practices -->
+        <div class="slide">
+            <h2>Best Practices</h2>
+            <div class="concept">
+                <h3>Tips for Success</h3>
+            </div>
+            
+            <div class="intro-list">
+                <p style="margin-bottom: 15px; font-weight: bold; color: #881518;">Follow These Guidelines:</p>
+                <ul>
+                    <li>Use <strong>descriptive names</strong> (--primary-color, not --c1)</li>
+                    <li>Declare <strong>global variables</strong> in :root</li>
+                    <li>Group <strong>related variables</strong> together</li>
+                    <li>Provide <strong>fallback values</strong> when appropriate</li>
+                    <li>Consider <strong>browser support</strong> for your users</li>
+                    <li>Use <strong>semantic names</strong> over specific values</li>
+                </ul>
+            </div>
+            
+            <div class="code-example">
+                <code>/* Good: Semantic names */
+--primary-color: #3498db;
+--heading-font: 'Arial', sans-serif;
+
+/* Avoid: Specific names */
+--blue: #3498db;
+--arial: 'Arial', sans-serif;</code>
+            </div>
+        </div>
+
+        <!-- Slide 24: Summary -->
+        <div class="slide">
+            <h2>Summary</h2>
+            <div class="concept">
+                <h3>Key Takeaways</h3>
+                <p>In conclusion, CSS custom properties provide a <strong>powerful way</strong> to create more <strong>dynamic</strong>, <strong>flexible</strong>, and <strong>maintainable</strong> stylesheets.</p>
+            </div>
+            
+            <div class="intro-list">
+                <p style="margin-bottom: 15px; font-weight: bold; color: #881518;">Remember:</p>
+                <ul>
+                    <li>Declare with <strong>-- prefix</strong></li>
+                    <li>Use with <strong>var() function</strong></li>
+                    <li>Follow the <strong>CSS cascade</strong></li>
+                    <li>Provide <strong>fallback values</strong></li>
+                    <li>Perfect for <strong>themes and responsiveness</strong></li>
+                    <li>Can <strong>reference other properties</strong></li>
+                    <li><strong>JavaScript integration</strong> for dynamic changes</li>
+                </ul>
+            </div>
+            
+            <div class="highlight-box">
+                <p><strong>Future of CSS:</strong> As web development continues to evolve, custom properties are becoming an increasingly important tool in a developer's toolkit!</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="navigation">
+        <button class="nav-button" id="prevBtn" onclick="changeSlide(-1)">← Previous</button>
+        <span class="slide-counter">
+            <span id="currentSlide">1</span> / <span id="totalSlides">24</span>
+        </span>
+        <button class="nav-button" id="nextBtn" onclick="changeSlide(1)">Next →</button>
+    </div>
+
+    <script>
+        let currentSlideIndex = 0;
+        const slides = document.querySelectorAll('.slide');
+        const totalSlides = slides.length;
+        
+        document.getElementById('totalSlides').textContent = totalSlides;
+        
+        function showSlide(n) {
+            if (n >= totalSlides) {
+                currentSlideIndex = totalSlides - 1;
+            } else if (n < 0) {
+                currentSlideIndex = 0;
+            } else {
+                currentSlideIndex = n;
+            }
+            
+            slides.forEach((slide, index) => {
+                slide.classList.remove('active');
+                if (index === currentSlideIndex) {
+                    slide.classList.add('active');
+                }
+            });
+            
+            document.getElementById('currentSlide').textContent = currentSlideIndex + 1;
+            
+            document.getElementById('prevBtn').disabled = currentSlideIndex === 0;
+            document.getElementById('nextBtn').disabled = currentSlideIndex === totalSlides - 1;
+            
+            window.scrollTo(0, 0);
+        }
+        
+        function changeSlide(direction) {
+            showSlide(currentSlideIndex + direction);
+        }
+        
+        // Keyboard navigation
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'ArrowLeft') {
+                changeSlide(-1);
+            } else if (event.key === 'ArrowRight') {
+                changeSlide(1);
+            }
+        });
+        
+        // Touch/swipe support for mobile
+        let touchStartX = 0;
+        let touchEndX = 0;
+        
+        document.addEventListener('touchstart', function(event) {
+            touchStartX = event.changedTouches[0].screenX;
+        });
+        
+        document.addEventListener('touchend', function(event) {
+            touchEndX = event.changedTouches[0].screenX;
+            handleSwipe();
+        });
+        
+        function handleSwipe() {
+            if (touchEndX < touchStartX - 50) {
+                changeSlide(1);
+            }
+            if (touchEndX > touchStartX + 50) {
+                changeSlide(-1);
+            }
+        }
+        
+        // Initialize
+        showSlide(0);
+    </script>
+</body>
+</html>

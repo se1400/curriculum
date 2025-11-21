@@ -1,0 +1,1094 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Accessibility and prefers-reduced-motion</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+            overflow-x: hidden;
+            color: #333;
+        }
+        
+        .slideshow-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 30px 20px 120px 20px;
+            min-height: 100vh;
+        }
+        
+        .slide {
+            display: none;
+            background: white;
+            border-radius: 12px;
+            padding: 50px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            min-height: calc(100vh - 180px);
+            animation: fadeIn 0.6s ease-in-out;
+        }
+        
+        .slide.active {
+            display: block;
+        }
+        
+        @keyframes fadeIn {
+            from { 
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to { 
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        h2 {
+            color: #881518;
+            font-size: 2.5em;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 4px solid #881518;
+            position: relative;
+        }
+        
+        h2::after {
+            content: '';
+            position: absolute;
+            bottom: -4px;
+            left: 0;
+            width: 100px;
+            height: 4px;
+            background: #c41e23;
+        }
+        
+        .concept {
+            margin-bottom: 35px;
+        }
+        
+        .concept h3 {
+            color: #2d2d2d;
+            font-size: 1.6em;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .concept h3::before {
+            content: '▸';
+            color: #881518;
+            margin-right: 10px;
+            font-size: 0.9em;
+        }
+        
+        .concept p {
+            color: #555;
+            font-size: 1.15em;
+            line-height: 1.8;
+            margin-bottom: 15px;
+        }
+        
+        .concept strong, .concept code {
+            color: #881518;
+            font-weight: 600;
+        }
+        
+        .code-example {
+            background: #f8f8f8;
+            border-left: 5px solid #881518;
+            padding: 25px;
+            border-radius: 8px;
+            margin: 25px 0;
+            overflow-x: auto;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        .code-example code {
+            font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+            font-size: 0.95em;
+            color: #2d2d2d;
+            display: block;
+            white-space: pre;
+            line-height: 1.6;
+        }
+        
+        .visual-example {
+            margin: 30px 0;
+            padding: 25px;
+            background: linear-gradient(135deg, #fafafa 0%, #f0f0f0 100%);
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        }
+        
+        .demo-label {
+            font-size: 0.95em;
+            color: #881518;
+            margin-bottom: 15px;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .highlight-box {
+            background: linear-gradient(135deg, #fff8f8 0%, #ffe8e8 100%);
+            border-left: 5px solid #881518;
+            padding: 20px;
+            margin: 25px 0;
+            border-radius: 6px;
+        }
+        
+        .highlight-box p {
+            color: #2d2d2d;
+            font-size: 1.05em;
+            margin: 0;
+        }
+        
+        .info-box {
+            background: linear-gradient(135deg, #f0f8ff 0%, #e0f0ff 100%);
+            border-left: 5px solid #4a90e2;
+            padding: 20px;
+            margin: 25px 0;
+            border-radius: 6px;
+        }
+        
+        .info-box p {
+            color: #2d2d2d;
+            font-size: 1.05em;
+            margin: 0;
+        }
+        
+        .success-box {
+            background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
+            border-left: 5px solid #4caf50;
+            padding: 20px;
+            margin: 25px 0;
+            border-radius: 6px;
+        }
+        
+        .success-box p {
+            color: #2d2d2d;
+            font-size: 1.05em;
+            margin: 0;
+        }
+        
+        .warning-box {
+            background: linear-gradient(135deg, #fff8e1 0%, #ffecb3 100%);
+            border-left: 5px solid #ff9800;
+            padding: 20px;
+            margin: 25px 0;
+            border-radius: 6px;
+        }
+        
+        .warning-box p {
+            color: #2d2d2d;
+            font-size: 1.05em;
+            margin: 0;
+        }
+        
+        .danger-box {
+            background: linear-gradient(135deg, #ffebee 0%, #ffcdd2 100%);
+            border-left: 5px solid #f44336;
+            padding: 20px;
+            margin: 25px 0;
+            border-radius: 6px;
+        }
+        
+        .danger-box p {
+            color: #2d2d2d;
+            font-size: 1.05em;
+            margin: 0;
+        }
+        
+        .intro-list {
+            background: linear-gradient(135deg, #f8f8f8 0%, #e8e8e8 100%);
+            padding: 25px;
+            border-radius: 8px;
+            margin: 25px 0;
+        }
+        
+        .intro-list ul {
+            list-style: none;
+            margin: 0;
+        }
+        
+        .intro-list li {
+            padding: 12px 0;
+            font-size: 1.2em;
+            color: #2d2d2d;
+            display: flex;
+            align-items: center;
+        }
+        
+        .intro-list li::before {
+            content: '✓';
+            color: #881518;
+            font-weight: bold;
+            font-size: 1.3em;
+            margin-right: 15px;
+        }
+        
+        .concern-card {
+            background: white;
+            border: 3px solid #881518;
+            border-radius: 8px;
+            padding: 25px;
+            margin: 20px 0;
+        }
+        
+        .concern-card h4 {
+            color: #881518;
+            font-size: 1.4em;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #eee;
+        }
+        
+        .concern-card .concern-content {
+            color: #555;
+            font-size: 1.1em;
+            line-height: 1.8;
+        }
+        
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+            margin: 25px 0;
+        }
+        
+        .comparison-item {
+            background: white;
+            border: 3px solid #881518;
+            border-radius: 8px;
+            padding: 20px;
+        }
+        
+        .comparison-item h4 {
+            color: #881518;
+            font-size: 1.3em;
+            margin-bottom: 15px;
+            text-align: center;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #eee;
+        }
+        
+        .breakdown-section {
+            background: white;
+            border: 3px solid #4a90e2;
+            border-radius: 8px;
+            padding: 25px;
+            margin: 20px 0;
+        }
+        
+        .breakdown-section h4 {
+            color: #4a90e2;
+            font-size: 1.3em;
+            margin-bottom: 15px;
+        }
+        
+        .breakdown-section p {
+            color: #666;
+            font-size: 1.05em;
+            line-height: 1.7;
+            margin: 10px 0;
+        }
+        
+        .navigation {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(180deg, #881518 0%, #6b1113 100%);
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.3);
+            z-index: 1000;
+        }
+        
+        .nav-button {
+            background: white;
+            color: #881518;
+            border: none;
+            padding: 14px 35px;
+            font-size: 1.05em;
+            font-weight: bold;
+            cursor: pointer;
+            border-radius: 6px;
+            transition: all 0.3s;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        }
+        
+        .nav-button:hover:not(:disabled) {
+            background: #f0f0f0;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+        
+        .nav-button:active:not(:disabled) {
+            transform: translateY(0);
+        }
+        
+        .nav-button:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+        
+        .slide-counter {
+            color: white;
+            font-size: 1.1em;
+            font-weight: bold;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 10px 20px;
+            border-radius: 6px;
+        }
+        
+        @media (max-width: 768px) {
+            .slideshow-container {
+                padding: 20px 15px 120px 15px;
+            }
+            
+            .slide {
+                padding: 30px 20px;
+            }
+            
+            h2 {
+                font-size: 1.8em;
+            }
+            
+            .concept h3 {
+                font-size: 1.3em;
+            }
+            
+            .concept p {
+                font-size: 1em;
+            }
+            
+            .comparison-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .nav-button {
+                padding: 12px 20px;
+                font-size: 0.95em;
+            }
+            
+            .slide-counter {
+                font-size: 0.95em;
+                padding: 8px 15px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            h2 {
+                font-size: 1.5em;
+            }
+            
+            .nav-button {
+                padding: 10px 15px;
+                font-size: 0.85em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="slideshow-container">
+        <!-- Slide 1: Introduction -->
+        <div class="slide active">
+            <h2>Animation Accessibility</h2>
+            <div class="concept">
+                <h3>Creating Inclusive Web Experiences</h3>
+                <p>Animations can greatly <strong>enhance the visual appeal</strong> and <strong>user experience</strong> of a website. However, they can also pose <strong>significant accessibility challenges</strong> for certain users.</p>
+            </div>
+            
+            <div class="highlight-box">
+                <p><strong>Critical Understanding:</strong> It's crucial to understand these concerns and implement solutions to ensure your website remains accessible to all users.</p>
+            </div>
+            
+            <div class="intro-list">
+                <p style="margin-bottom: 15px; font-weight: bold; color: #881518;">What You'll Learn:</p>
+                <ul>
+                    <li><strong>Accessibility concerns</strong> with animations</li>
+                    <li>Understanding <strong>vestibular disorders</strong></li>
+                    <li>The <strong>prefers-reduced-motion</strong> media query</li>
+                    <li><strong>Implementation strategies</strong></li>
+                    <li><strong>Best practices</strong> for inclusive design</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Slide 2: Why This Matters -->
+        <div class="slide">
+            <h2>Why Accessibility Matters</h2>
+            <div class="concept">
+                <h3>The Impact of Animations</h3>
+                <p>While animations can enhance experiences for many users, they can cause <strong>serious problems</strong> for others.</p>
+            </div>
+            
+            <div class="warning-box">
+                <p><strong>Real Impact:</strong> For some users, animations aren't just annoying – they can cause physical discomfort or prevent them from using your website entirely.</p>
+            </div>
+            
+            <div class="intro-list">
+                <p style="margin-bottom: 15px; font-weight: bold; color: #ff9800;">Affected Users Include:</p>
+                <ul>
+                    <li>People with <strong>vestibular disorders</strong></li>
+                    <li>Users with <strong>motion sensitivity</strong></li>
+                    <li>Those with <strong>cognitive disabilities</strong></li>
+                    <li>People with <strong>attention disorders</strong></li>
+                    <li>Users with <strong>photosensitive epilepsy</strong></li>
+                    <li>People with <strong>low vision</strong></li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Slide 3: Vestibular Disorders -->
+        <div class="slide">
+            <h2>Vestibular Disorders & Motion Sensitivity</h2>
+            <div class="concept">
+                <h3>Primary Concern #1</h3>
+                <p>One of the primary accessibility concerns with animations is that they can cause <strong>discomfort or even physical harm</strong> to some users.</p>
+            </div>
+            
+            <div class="concern-card">
+                <h4>Vestibular Disorders</h4>
+                <div class="concern-content">
+                    <p>People with <strong>vestibular disorders</strong> or <strong>motion sensitivity</strong> may experience:</p>
+                    <ul style="margin-top: 15px; margin-left: 25px; line-height: 2;">
+                        <li><strong>Dizziness</strong></li>
+                        <li><strong>Nausea</strong></li>
+                        <li><strong>Headaches</strong></li>
+                    </ul>
+                    <p style="margin-top: 15px;">...when exposed to certain types of movement on screen.</p>
+                </div>
+            </div>
+            
+            <div class="danger-box">
+                <p><strong>Serious Issue:</strong> This isn't mild discomfort – it can make users physically ill and unable to use the site.</p>
+            </div>
+        </div>
+
+        <!-- Slide 4: Cognitive Disabilities -->
+        <div class="slide">
+            <h2>Cognitive Disabilities & Attention Disorders</h2>
+            <div class="concept">
+                <h3>Primary Concern #2</h3>
+                <p>Additionally, animations can be <strong>distracting</strong> for users with <strong>cognitive disabilities</strong> or <strong>attention disorders</strong>.</p>
+            </div>
+            
+            <div class="concern-card">
+                <h4>The Distraction Problem</h4>
+                <div class="concern-content">
+                    <p><strong>Moving elements</strong> can:</p>
+                    <ul style="margin-top: 15px; margin-left: 25px; line-height: 2;">
+                        <li>Make it <strong>impossible to focus</strong> on content</li>
+                        <li><strong>Draw attention away</strong> from important information</li>
+                        <li>Cause <strong>cognitive overload</strong></li>
+                        <li>Make <strong>reading difficult or impossible</strong></li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="info-box">
+                <p><strong>Consider:</strong> What seems like a subtle animation to you might be completely overwhelming to someone with ADHD or a cognitive disability.</p>
+            </div>
+        </div>
+
+        <!-- Slide 5: Photosensitive Epilepsy -->
+        <div class="slide">
+            <h2>Photosensitive Epilepsy</h2>
+            <div class="concept">
+                <h3>Primary Concern #3 - CRITICAL</h3>
+                <p><strong>Rapid flashing or strobing effects</strong> are particularly problematic. They can <strong>trigger seizures</strong> in people with <strong>photosensitive epilepsy</strong>.</p>
+            </div>
+            
+            <div class="danger-box">
+                <p><strong>CRITICAL RULE:</strong> As a general rule, <strong>avoid any content that flashes more than three times per second</strong>.</p>
+            </div>
+            
+            <div class="concern-card">
+                <h4>The Three Flash Rule</h4>
+                <div class="concern-content">
+                    <p><strong>Never create animations that:</strong></p>
+                    <ul style="margin-top: 15px; margin-left: 25px; line-height: 2;">
+                        <li>Flash more than <strong>3 times per second</strong></li>
+                        <li>Include <strong>rapid strobing effects</strong></li>
+                        <li>Have <strong>high-contrast flashing</strong></li>
+                        <li>Cover a <strong>large area</strong> of the screen</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="warning-box">
+                <p><strong>Life or Death:</strong> This isn't exaggeration – flashing content can literally trigger life-threatening seizures.</p>
+            </div>
+        </div>
+
+        <!-- Slide 6: Reading Difficulties -->
+        <div class="slide">
+            <h2>Reading & Focus Difficulties</h2>
+            <div class="concept">
+                <h3>Primary Concern #4</h3>
+                <p>Another issue is that animations can make it <strong>difficult for some users to focus on or read content</strong>.</p>
+            </div>
+            
+            <div class="concern-card">
+                <h4>Low Vision & Reading Difficulties</h4>
+                <div class="concern-content">
+                    <p>This is especially true for users with <strong>low vision</strong> or <strong>reading difficulties</strong> who may struggle to:</p>
+                    <ul style="margin-top: 15px; margin-left: 25px; line-height: 2;">
+                        <li>Track <strong>moving text</strong></li>
+                        <li>Follow <strong>shifting layouts</strong></li>
+                        <li>Focus on <strong>animated content</strong></li>
+                        <li>Read when elements are <strong>constantly changing</strong></li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="warning-box">
+                <p><strong>Remember:</strong> If content is moving, some users literally cannot read it.</p>
+            </div>
+        </div>
+
+        <!-- Slide 7: The Solution -->
+        <div class="slide">
+            <h2>The Solution: prefers-reduced-motion</h2>
+            <div class="concept">
+                <h3>CSS to the Rescue</h3>
+                <p>To address these concerns, CSS provides the <strong>prefers-reduced-motion media query</strong>.</p>
+            </div>
+            
+            <div class="success-box">
+                <p><strong>Powerful Tool:</strong> This feature allows web developers to detect if the user has requested minimal animations or motion effects at the system level.</p>
+            </div>
+            
+            <div class="intro-list">
+                <p style="margin-bottom: 15px; font-weight: bold; color: #4caf50;">How It Works:</p>
+                <ul>
+                    <li>User enables "reduce motion" in their <strong>operating system</strong></li>
+                    <li>Browser <strong>detects</strong> this preference</li>
+                    <li>CSS can <strong>respond</strong> with the media query</li>
+                    <li>You provide <strong>alternative styles</strong> for these users</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Slide 8: System-Level Preference -->
+        <div class="slide">
+            <h2>System-Level Detection</h2>
+            <div class="concept">
+                <h3>How Users Enable It</h3>
+                <p>The <code>prefers-reduced-motion</code> media query detects if the user has requested <strong>minimal animations or motion effects</strong> at the <strong>system level</strong>.</p>
+            </div>
+            
+            <div class="intro-list">
+                <p style="margin-bottom: 15px; font-weight: bold; color: #881518;">Where Users Set This:</p>
+                <ul>
+                    <li><strong>macOS:</strong> System Preferences → Accessibility → Display → Reduce Motion</li>
+                    <li><strong>Windows:</strong> Settings → Ease of Access → Display → Show animations in Windows</li>
+                    <li><strong>iOS:</strong> Settings → Accessibility → Motion → Reduce Motion</li>
+                    <li><strong>Android:</strong> Settings → Accessibility → Remove animations</li>
+                </ul>
+            </div>
+            
+            <div class="info-box">
+                <p><strong>Respecting Choice:</strong> When a user enables this setting, they're telling us: "Please minimize motion effects."</p>
+            </div>
+        </div>
+
+        <!-- Slide 9: Basic Implementation -->
+        <div class="slide">
+            <h2>Basic Implementation</h2>
+            <div class="concept">
+                <h3>Using the Media Query</h3>
+                <p>Here's how you can use <code>prefers-reduced-motion</code>:</p>
+            </div>
+            
+            <div class="code-example">
+                <code>@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}</code>
+            </div>
+            
+            <div class="info-box">
+                <p><strong>What this does:</strong> This CSS code snippet <strong>effectively disables</strong> most animations and transitions for users who have indicated a preference for reduced motion.</p>
+            </div>
+        </div>
+
+        <!-- Slide 10: Breaking Down the Code -->
+        <div class="slide">
+            <h2>Breaking Down the Code</h2>
+            <div class="concept">
+                <h3>Understanding Each Part</h3>
+                <p>Let's break it down:</p>
+            </div>
+            
+            <div class="breakdown-section">
+                <h4>@media (prefers-reduced-motion: reduce)</h4>
+                <p>The <code>@media</code> query rule <strong>checks if the user prefers reduced motion</strong>. If true, it applies the enclosed styles.</p>
+            </div>
+            
+            <div class="breakdown-section">
+                <h4>Target: *</h4>
+                <p>Inside the media query, we're targeting <strong>all elements</strong> (<code>*</code>) and overriding animation and transition properties.</p>
+            </div>
+            
+            <div class="info-box">
+                <p><strong>Blanket Approach:</strong> This applies to every single element on the page.</p>
+            </div>
+        </div>
+
+        <!-- Slide 11: Duration Properties -->
+        <div class="slide">
+            <h2>Duration Properties Explained</h2>
+            <div class="concept">
+                <h3>Why 0.01ms?</h3>
+            </div>
+            
+            <div class="breakdown-section">
+                <h4>animation-duration & transition-duration: 0.01ms</h4>
+                <p>We set <code>animation-duration</code> and <code>transition-duration</code> to an <strong>extremely small value</strong> (<code>0.01ms</code>).</p>
+            </div>
+            
+            <div class="info-box">
+                <p><strong>Why not 0?</strong> This essentially turns off the animations while still <strong>allowing them to complete</strong>, which can be important for certain functionality.</p>
+            </div>
+            
+            <div class="success-box">
+                <p><strong>Smart Solution:</strong> The animation technically runs, but so fast you can't see it. This prevents JavaScript errors that might rely on animation completion events.</p>
+            </div>
+        </div>
+
+        <!-- Slide 12: Iteration Count -->
+        <div class="slide">
+            <h2>Iteration Count</h2>
+            <div class="concept">
+                <h3>Stopping Loops</h3>
+            </div>
+            
+            <div class="breakdown-section">
+                <h4>animation-iteration-count: 1</h4>
+                <p><code>animation-iteration-count: 1</code> ensures that <strong>any looping animations only play once</strong>.</p>
+            </div>
+            
+            <div class="code-example">
+                <code>/* Without reduced motion */
+.element {
+  animation: spin 2s infinite; /* Spins forever */
+}
+
+/* With reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .element {
+    animation-iteration-count: 1 !important; /* Only once */
+  }
+}</code>
+            </div>
+            
+            <div class="info-box">
+                <p><strong>Preventing Loops:</strong> Infinite animations become single-run animations.</p>
+            </div>
+        </div>
+
+        <!-- Slide 13: Scroll Behavior -->
+        <div class="slide">
+            <h2>Scroll Behavior</h2>
+            <div class="concept">
+                <h3>Disabling Smooth Scrolling</h3>
+            </div>
+            
+            <div class="breakdown-section">
+                <h4>scroll-behavior: auto</h4>
+                <p><code>scroll-behavior: auto</code> <strong>disables smooth scrolling effects</strong>.</p>
+            </div>
+            
+            <div class="code-example">
+                <code>/* Default smooth scrolling */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Instant scrolling for reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto !important;
+  }
+}</code>
+            </div>
+            
+            <div class="info-box">
+                <p><strong>Instant Jumps:</strong> Instead of smoothly scrolling, the page instantly jumps to the target – no motion involved.</p>
+            </div>
+        </div>
+
+        <!-- Slide 14: The !important Declaration -->
+        <div class="slide">
+            <h2>Using !important</h2>
+            <div class="concept">
+                <h3>Ensuring Override</h3>
+            </div>
+            
+            <div class="breakdown-section">
+                <h4>Why !important?</h4>
+                <p>The <code>!important</code> declaration is used to ensure <strong>these rules take precedence</strong> over other animation styles.</p>
+            </div>
+            
+            <div class="info-box">
+                <p><strong>Critical Override:</strong> Accessibility needs trump design preferences – these styles MUST be applied.</p>
+            </div>
+            
+            <div class="warning-box">
+                <p><strong>Rare Exception:</strong> Generally avoid !important, but accessibility is one of the few valid use cases where it's appropriate and necessary.</p>
+            </div>
+        </div>
+
+        <!-- Slide 15: Blanket Approach Caveat -->
+        <div class="slide">
+            <h2>Blanket Approach Considerations</h2>
+            <div class="concept">
+                <h3>Trade-offs</h3>
+                <p>It's important to note that while this method effectively reduces motion, it's a <strong>blanket approach</strong>.</p>
+            </div>
+            
+            <div class="warning-box">
+                <p><strong>One-Size-Fits-All:</strong> This disables ALL animations equally, without nuance.</p>
+            </div>
+            
+            <div class="info-box">
+                <p><strong>More Precise Control:</strong> For more precise control, you might want to define <strong>specific reduced-motion alternatives</strong> for your animations.</p>
+            </div>
+            
+            <div class="success-box">
+                <p><strong>Starting Point:</strong> The blanket approach is great as a baseline, but you can do better with targeted solutions!</p>
+            </div>
+        </div>
+
+        <!-- Slide 16: Targeted Approach -->
+        <div class="slide">
+            <h2>Targeted Approach</h2>
+            <div class="concept">
+                <h3>More Precise Control</h3>
+                <p>Here's an example of a more <strong>targeted approach</strong>:</p>
+            </div>
+            
+            <div class="code-example">
+                <code>.animated-element {
+  transition: transform 0.3s ease-in-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animated-element {
+    transition: none;
+  }
+}</code>
+            </div>
+            
+            <div class="info-box">
+                <p><strong>Selective Disabling:</strong> In this case, we're only disabling the transition for a <strong>specific element</strong> when reduced motion is preferred.</p>
+            </div>
+        </div>
+
+        <!-- Slide 17: Benefits of Targeted Approach -->
+        <div class="slide">
+            <h2>Benefits of Targeting</h2>
+            <div class="concept">
+                <h3>Better User Experience</h3>
+                <p>This allows you to provide <strong>alternative, less motion-intensive experiences</strong> for users who need them.</p>
+            </div>
+            
+            <div class="intro-list">
+                <p style="margin-bottom: 15px; font-weight: bold; color: #4caf50;">Advantages:</p>
+                <ul>
+                    <li><strong>Preserve essential animations</strong> (like loading indicators)</li>
+                    <li><strong>Remove decorative</strong> motion only</li>
+                    <li>Provide <strong>alternative feedback</strong> methods</li>
+                    <li>Keep <strong>important transitions</strong> for usability</li>
+                    <li>Maintain <strong>functionality</strong> while reducing motion</li>
+                </ul>
+            </div>
+            
+            <div class="success-box">
+                <p><strong>Thoughtful Design:</strong> You can keep helpful motion while removing problematic motion!</p>
+            </div>
+        </div>
+
+        <!-- Slide 18: The Goal -->
+        <div class="slide">
+            <h2>The Goal: Not Zero Motion</h2>
+            <div class="concept">
+                <h3>Finding Balance</h3>
+                <p>Remember, the goal is <strong>not to completely remove all motion</strong> from your site, but to provide options that allow all users to comfortably interact with your content.</p>
+            </div>
+            
+            <div class="highlight-box">
+                <p><strong>Important Distinction:</strong> "Reduced motion" doesn't mean "no motion" – it means <strong>less problematic motion</strong>.</p>
+            </div>
+            
+            <div class="info-box">
+                <p><strong>Beneficial Motion:</strong> Some motion can still be beneficial for usability and feedback, even for users who prefer reduced motion.</p>
+            </div>
+        </div>
+
+        <!-- Slide 19: Examples of Acceptable Motion -->
+        <div class="slide">
+            <h2>Acceptable Motion Examples</h2>
+            <div class="concept">
+                <h3>What Can Stay</h3>
+            </div>
+            
+            <div class="intro-list">
+                <p style="margin-bottom: 15px; font-weight: bold; color: #4caf50;">Even With Reduced Motion:</p>
+                <ul>
+                    <li><strong>Small-scale transforms</strong> (slight scale on hover)</li>
+                    <li><strong>Opacity changes</strong> (fading in/out)</li>
+                    <li><strong>Color transitions</strong> (smooth color changes)</li>
+                    <li><strong>Essential feedback</strong> (button state changes)</li>
+                    <li><strong>Loading indicators</strong> (if not distracting)</li>
+                </ul>
+            </div>
+            
+            <div class="warning-box">
+                <p><strong>Avoid:</strong> Large movements, parallax scrolling, auto-playing carousels, background animations.</p>
+            </div>
+        </div>
+
+        <!-- Slide 20: Implementation Best Practices -->
+        <div class="slide">
+            <h2>Implementation Best Practices</h2>
+            <div class="concept">
+                <h3>Thoughtful Use</h3>
+                <p>When implementing animations, consider using them <strong>thoughtfully</strong> rather than just for decoration.</p>
+            </div>
+            
+            <div class="intro-list">
+                <p style="margin-bottom: 15px; font-weight: bold; color: #881518;">Best Practices:</p>
+                <ul>
+                    <li>Use animations <strong>purposefully</strong>, not decoratively</li>
+                    <li>Avoid <strong>large, unexpected movements</strong></li>
+                    <li>Provide <strong>controls to pause, stop, or hide</strong> animations</li>
+                    <li><strong>ALWAYS use prefers-reduced-motion</strong></li>
+                    <li>Offer <strong>low-motion alternatives</strong></li>
+                    <li>Test with <strong>real users</strong> who have motion sensitivity</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Slide 21: Avoid Large Movements -->
+        <div class="slide">
+            <h2>Avoid Large, Unexpected Movements</h2>
+            <div class="concept">
+                <h3>Design Guideline</h3>
+            </div>
+            
+            <div class="comparison-grid">
+                <div class="comparison-item">
+                    <h4>❌ Problematic</h4>
+                    <ul style="list-style: none; padding: 15px 0;">
+                        <li style="padding: 10px; margin: 8px 0; background: #ffebee; border-radius: 4px;">Full-page parallax scrolling</li>
+                        <li style="padding: 10px; margin: 8px 0; background: #ffebee; border-radius: 4px;">Large sliding panels</li>
+                        <li style="padding: 10px; margin: 8px 0; background: #ffebee; border-radius: 4px;">Auto-playing carousels</li>
+                        <li style="padding: 10px; margin: 8px 0; background: #ffebee; border-radius: 4px;">Background video with motion</li>
+                    </ul>
+                </div>
+                
+                <div class="comparison-item">
+                    <h4>✅ Better</h4>
+                    <ul style="list-style: none; padding: 15px 0;">
+                        <li style="padding: 10px; margin: 8px 0; background: #e8f5e9; border-radius: 4px;">Small, localized animations</li>
+                        <li style="padding: 10px; margin: 8px 0; background: #e8f5e9; border-radius: 4px;">Subtle transitions</li>
+                        <li style="padding: 10px; margin: 8px 0; background: #e8f5e9; border-radius: 4px;">User-controlled carousels</li>
+                        <li style="padding: 10px; margin: 8px 0; background: #e8f5e9; border-radius: 4px;">Static images with play button</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 22: Provide Controls -->
+        <div class="slide">
+            <h2>Provide Animation Controls</h2>
+            <div class="concept">
+                <h3>User Empowerment</h3>
+                <p>Provide <strong>controls to pause, stop, or hide</strong> animations when possible.</p>
+            </div>
+            
+            <div class="code-example">
+                <code>/* Pause button example */
+.animation-container.paused * {
+  animation-play-state: paused !important;
+}
+
+/* Hide animations toggle */
+.no-animations * {
+  animation: none !important;
+  transition: none !important;
+}</code>
+            </div>
+            
+            <div class="success-box">
+                <p><strong>User Control:</strong> Give users a pause/play button or "disable animations" toggle in your settings!</p>
+            </div>
+        </div>
+
+        <!-- Slide 23: Testing Your Implementation -->
+        <div class="slide">
+            <h2>Testing Your Implementation</h2>
+            <div class="concept">
+                <h3>Verification Steps</h3>
+            </div>
+            
+            <div class="intro-list">
+                <p style="margin-bottom: 15px; font-weight: bold; color: #881518;">How to Test:</p>
+                <ul>
+                    <li>Enable "Reduce Motion" in your <strong>OS settings</strong></li>
+                    <li>Use browser <strong>DevTools</strong> to emulate the preference</li>
+                    <li>Test with <strong>real users</strong> who have motion sensitivity</li>
+                    <li>Check <strong>all pages and interactions</strong></li>
+                    <li>Verify animations are <strong>appropriately reduced</strong></li>
+                    <li>Ensure <strong>functionality still works</strong></li>
+                </ul>
+            </div>
+            
+            <div class="info-box">
+                <p><strong>Chrome DevTools:</strong> Open DevTools → More tools → Rendering → Emulate CSS media feature prefers-reduced-motion</p>
+            </div>
+        </div>
+
+        <!-- Slide 24: Mindful Design -->
+        <div class="slide">
+            <h2>Mindful Animation Design</h2>
+            <div class="concept">
+                <h3>Creating Inclusive Experiences</h3>
+                <p>By being <strong>mindful of these accessibility concerns</strong> and utilizing tools like <code>prefers-reduced-motion</code>, you can create engaging, animated experiences that are <strong>inclusive and accessible to all users</strong>.</p>
+            </div>
+            
+            <div class="intro-list">
+                <p style="margin-bottom: 15px; font-weight: bold; color: #4caf50;">Remember:</p>
+                <ul>
+                    <li>Accessibility is <strong>not optional</strong></li>
+                    <li>Motion sensitivity is a <strong>real disability</strong></li>
+                    <li><strong>prefers-reduced-motion</strong> is easy to implement</li>
+                    <li>Good design works for <strong>everyone</strong></li>
+                    <li>You can have <strong>both</strong> beautiful animations AND accessibility</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Slide 25: Summary -->
+        <div class="slide">
+            <h2>Summary</h2>
+            <div class="concept">
+                <h3>Key Takeaways</h3>
+            </div>
+            
+            <div class="intro-list">
+                <p style="margin-bottom: 15px; font-weight: bold; color: #881518;">What We Learned:</p>
+                <ul>
+                    <li>Animations can cause <strong>serious accessibility issues</strong></li>
+                    <li><strong>Vestibular disorders</strong> cause physical discomfort</li>
+                    <li><strong>Never flash</strong> more than 3 times per second</li>
+                    <li><strong>prefers-reduced-motion</strong> detects user preferences</li>
+                    <li>Use <strong>blanket OR targeted</strong> approaches</li>
+                    <li>Goal is <strong>reduced motion</strong>, not zero motion</li>
+                    <li><strong>Always test</strong> with reduced motion enabled</li>
+                </ul>
+            </div>
+            
+            <div class="highlight-box">
+                <p><strong>Final Message:</strong> Importantly, use the prefers-reduced-motion query to offer a low-motion alternative, ensuring your content remains accessible and comfortable for all users, including those sensitive to motion!</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="navigation">
+        <button class="nav-button" id="prevBtn" onclick="changeSlide(-1)">← Previous</button>
+        <span class="slide-counter">
+            <span id="currentSlide">1</span> / <span id="totalSlides">25</span>
+        </span>
+        <button class="nav-button" id="nextBtn" onclick="changeSlide(1)">Next →</button>
+    </div>
+
+    <script>
+        let currentSlideIndex = 0;
+        const slides = document.querySelectorAll('.slide');
+        const totalSlides = slides.length;
+        
+        document.getElementById('totalSlides').textContent = totalSlides;
+        
+        function showSlide(n) {
+            if (n >= totalSlides) {
+                currentSlideIndex = totalSlides - 1;
+            } else if (n < 0) {
+                currentSlideIndex = 0;
+            } else {
+                currentSlideIndex = n;
+            }
+            
+            slides.forEach((slide, index) => {
+                slide.classList.remove('active');
+                if (index === currentSlideIndex) {
+                    slide.classList.add('active');
+                }
+            });
+            
+            document.getElementById('currentSlide').textContent = currentSlideIndex + 1;
+            
+            document.getElementById('prevBtn').disabled = currentSlideIndex === 0;
+            document.getElementById('nextBtn').disabled = currentSlideIndex === totalSlides - 1;
+            
+            window.scrollTo(0, 0);
+        }
+        
+        function changeSlide(direction) {
+            showSlide(currentSlideIndex + direction);
+        }
+        
+        // Keyboard navigation
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'ArrowLeft') {
+                changeSlide(-1);
+            } else if (event.key === 'ArrowRight') {
+                changeSlide(1);
+            }
+        });
+        
+        // Touch/swipe support for mobile
+        let touchStartX = 0;
+        let touchEndX = 0;
+        
+        document.addEventListener('touchstart', function(event) {
+            touchStartX = event.changedTouches[0].screenX;
+        });
+        
+        document.addEventListener('touchend', function(event) {
+            touchEndX = event.changedTouches[0].screenX;
+            handleSwipe();
+        });
+        
+        function handleSwipe() {
+            if (touchEndX < touchStartX - 50) {
+                changeSlide(1);
+            }
+            if (touchEndX > touchStartX + 50) {
+                changeSlide(-1);
+            }
+        }
+        
+        // Initialize
+        showSlide(0);
+    </script>
+</body>
+</html>
