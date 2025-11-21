@@ -1,0 +1,1078 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Repeating Track Listings in Grid Layout</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+            overflow-x: hidden;
+            color: #333;
+        }
+        
+        .slideshow-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 30px 20px 120px 20px;
+            min-height: 100vh;
+        }
+        
+        .slide {
+            display: none;
+            background: white;
+            border-radius: 12px;
+            padding: 50px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            min-height: calc(100vh - 180px);
+            animation: fadeIn 0.6s ease-in-out;
+        }
+        
+        .slide.active {
+            display: block;
+        }
+        
+        @keyframes fadeIn {
+            from { 
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to { 
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        h2 {
+            color: #881518;
+            font-size: 2.5em;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 4px solid #881518;
+            position: relative;
+        }
+        
+        h2::after {
+            content: '';
+            position: absolute;
+            bottom: -4px;
+            left: 0;
+            width: 100px;
+            height: 4px;
+            background: #c41e23;
+        }
+        
+        .concept {
+            margin-bottom: 35px;
+        }
+        
+        .concept h3 {
+            color: #2d2d2d;
+            font-size: 1.6em;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .concept h3::before {
+            content: '▸';
+            color: #881518;
+            margin-right: 10px;
+            font-size: 0.9em;
+        }
+        
+        .concept p {
+            color: #555;
+            font-size: 1.15em;
+            line-height: 1.8;
+            margin-bottom: 15px;
+        }
+        
+        .concept ul {
+            margin-left: 20px;
+            color: #555;
+            font-size: 1.1em;
+            line-height: 1.8;
+        }
+        
+        .concept li {
+            margin-bottom: 15px;
+        }
+        
+        .concept strong, .concept code {
+            color: #881518;
+            font-weight: 600;
+        }
+        
+        .code-example {
+            background: #f8f8f8;
+            border-left: 5px solid #881518;
+            padding: 25px;
+            border-radius: 8px;
+            margin: 25px 0;
+            overflow-x: auto;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        .code-example code {
+            font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+            font-size: 0.95em;
+            color: #2d2d2d;
+            display: block;
+            white-space: pre;
+            line-height: 1.6;
+        }
+        
+        .visual-example {
+            margin: 30px 0;
+            padding: 25px;
+            background: linear-gradient(135deg, #fafafa 0%, #f0f0f0 100%);
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        }
+        
+        .demo-label {
+            font-size: 0.95em;
+            color: #881518;
+            margin-bottom: 15px;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .grid-demo {
+            display: grid;
+            margin: 20px 0;
+            padding: 20px;
+            background: white;
+            border: 3px solid #881518;
+            border-radius: 8px;
+            gap: 10px;
+        }
+        
+        .grid-box {
+            background: linear-gradient(135deg, #881518 0%, #c41e23 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            box-shadow: 0 2px 6px rgba(136, 21, 24, 0.3);
+            min-height: 80px;
+        }
+        
+        .highlight-box {
+            background: linear-gradient(135deg, #fff8f8 0%, #ffe8e8 100%);
+            border-left: 5px solid #881518;
+            padding: 20px;
+            margin: 25px 0;
+            border-radius: 6px;
+        }
+        
+        .highlight-box p {
+            color: #2d2d2d;
+            font-size: 1.05em;
+            margin: 0;
+        }
+        
+        .info-box {
+            background: linear-gradient(135deg, #f0f8ff 0%, #e0f0ff 100%);
+            border-left: 5px solid #4a90e2;
+            padding: 20px;
+            margin: 25px 0;
+            border-radius: 6px;
+        }
+        
+        .info-box p {
+            color: #2d2d2d;
+            font-size: 1.05em;
+            margin: 0;
+        }
+        
+        .success-box {
+            background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
+            border-left: 5px solid #4caf50;
+            padding: 20px;
+            margin: 25px 0;
+            border-radius: 6px;
+        }
+        
+        .success-box p {
+            color: #2d2d2d;
+            font-size: 1.05em;
+            margin: 0;
+        }
+        
+        .intro-list {
+            background: linear-gradient(135deg, #f8f8f8 0%, #e8e8e8 100%);
+            padding: 25px;
+            border-radius: 8px;
+            margin: 25px 0;
+        }
+        
+        .intro-list ul {
+            list-style: none;
+            margin: 0;
+        }
+        
+        .intro-list li {
+            padding: 12px 0;
+            font-size: 1.2em;
+            color: #2d2d2d;
+            display: flex;
+            align-items: center;
+        }
+        
+        .intro-list li::before {
+            content: '✓';
+            color: #881518;
+            font-weight: bold;
+            font-size: 1.3em;
+            margin-right: 15px;
+        }
+        
+        .comparison-box {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+            margin: 25px 0;
+        }
+        
+        .comparison-card {
+            background: white;
+            border: 3px solid #881518;
+            border-radius: 8px;
+            padding: 25px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        .comparison-card.better {
+            border-color: #4caf50;
+        }
+        
+        .comparison-card h4 {
+            color: #881518;
+            font-size: 1.3em;
+            margin-bottom: 15px;
+            text-align: center;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #eee;
+        }
+        
+        .comparison-card.better h4 {
+            color: #4caf50;
+        }
+        
+        .syntax-box {
+            background: #2d2d2d;
+            color: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            margin: 25px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 1.3em;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+        
+        .syntax-box .function {
+            color: #ff6b6b;
+            font-weight: bold;
+        }
+        
+        .syntax-box .param {
+            color: #4ecdc4;
+        }
+        
+        .syntax-box .paren {
+            color: #95e1d3;
+        }
+        
+        .pattern-demo {
+            background: white;
+            border: 3px solid #881518;
+            border-radius: 8px;
+            padding: 25px;
+            margin: 25px 0;
+        }
+        
+        .pattern-example {
+            margin: 20px 0;
+            padding: 20px;
+            background: #f8f8f8;
+            border-radius: 8px;
+        }
+        
+        .pattern-example h5 {
+            color: #881518;
+            font-size: 1.1em;
+            margin-bottom: 10px;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .pattern-visual {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .pattern-col {
+            background: linear-gradient(135deg, #881518 0%, #c41e23 100%);
+            color: white;
+            padding: 20px 10px;
+            border-radius: 4px;
+            text-align: center;
+            font-size: 0.9em;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .expansion-demo {
+            background: white;
+            border: 3px solid #4a90e2;
+            border-radius: 8px;
+            padding: 25px;
+            margin: 25px 0;
+        }
+        
+        .expansion-step {
+            padding: 15px;
+            margin: 10px 0;
+            background: #f0f8ff;
+            border-left: 4px solid #4a90e2;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .arrow-down {
+            text-align: center;
+            color: #4a90e2;
+            font-size: 2em;
+            margin: 10px 0;
+        }
+        
+        .interactive-demo {
+            background: white;
+            border: 3px solid #881518;
+            border-radius: 8px;
+            padding: 25px;
+            margin: 25px 0;
+        }
+        
+        .demo-controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        
+        .demo-controls button {
+            background: #881518;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.95em;
+            transition: background 0.3s;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .demo-controls button:hover {
+            background: #c41e23;
+        }
+        
+        .demo-controls button.active {
+            background: #2d2d2d;
+        }
+        
+        .navigation {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(180deg, #881518 0%, #6b1113 100%);
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.3);
+            z-index: 1000;
+        }
+        
+        .nav-button {
+            background: white;
+            color: #881518;
+            border: none;
+            padding: 14px 35px;
+            font-size: 1.05em;
+            font-weight: bold;
+            cursor: pointer;
+            border-radius: 6px;
+            transition: all 0.3s;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        }
+        
+        .nav-button:hover:not(:disabled) {
+            background: #f0f0f0;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+        
+        .nav-button:active:not(:disabled) {
+            transform: translateY(0);
+        }
+        
+        .nav-button:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+        
+        .slide-counter {
+            color: white;
+            font-size: 1.1em;
+            font-weight: bold;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 10px 20px;
+            border-radius: 6px;
+        }
+        
+        @media (max-width: 768px) {
+            .slideshow-container {
+                padding: 20px 15px 120px 15px;
+            }
+            
+            .slide {
+                padding: 30px 20px;
+            }
+            
+            h2 {
+                font-size: 1.8em;
+            }
+            
+            .concept h3 {
+                font-size: 1.3em;
+            }
+            
+            .concept p, .concept ul {
+                font-size: 1em;
+            }
+            
+            .comparison-box {
+                grid-template-columns: 1fr;
+            }
+            
+            .nav-button {
+                padding: 12px 20px;
+                font-size: 0.95em;
+            }
+            
+            .slide-counter {
+                font-size: 0.95em;
+                padding: 8px 15px;
+            }
+            
+            .pattern-visual {
+                flex-wrap: wrap;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            h2 {
+                font-size: 1.5em;
+            }
+            
+            .nav-button {
+                padding: 10px 15px;
+                font-size: 0.85em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="slideshow-container">
+        <!-- Slide 1: Introduction -->
+        <div class="slide active">
+            <h2>Repeating Track Listings</h2>
+            <div class="concept">
+                <h3>A Better Way to Write Repeated Values</h3>
+                <p>In previous lessons, we have been working with the <code>grid-template-columns</code> property and setting the value to a few fractional units.</p>
+                <p>While the following code is completely valid, there is an <strong>easier way</strong> to repeat a section or all of your track listings.</p>
+            </div>
+            
+            <div class="code-example">
+                <code>.grid-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr;
+  column-gap: 10px;
+}</code>
+            </div>
+            
+            <div class="info-box">
+                <p><strong>The Problem:</strong> Writing the same value multiple times is repetitive and harder to maintain. What if you need 10 or 20 columns?</p>
+            </div>
+        </div>
+
+        <!-- Slide 2: The Long Way -->
+        <div class="slide">
+            <h2>The Repetitive Approach</h2>
+            <div class="concept">
+                <h3>Valid but Verbose</h3>
+                <p>Here's what we've been writing so far:</p>
+            </div>
+            
+            <div class="code-example">
+                <code>.grid-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr;
+  column-gap: 10px;
+}</code>
+            </div>
+            
+            <div class="visual-example">
+                <div class="demo-label">Four Equal Columns:</div>
+                <div class="grid-demo" style="grid-template-columns: 1fr 1fr 1fr 1fr;">
+                    <div class="grid-box">1fr</div>
+                    <div class="grid-box">1fr</div>
+                    <div class="grid-box">1fr</div>
+                    <div class="grid-box">1fr</div>
+                </div>
+                <p style="margin-top: 10px; color: #666; text-align: center; font-style: italic;">Notice we're writing "1fr" four times</p>
+            </div>
+            
+            <div class="highlight-box">
+                <p><strong>Issues:</strong> Repetitive typing, easy to make mistakes, hard to update (imagine changing 20 columns!), and cluttered code.</p>
+            </div>
+        </div>
+
+        <!-- Slide 3: Introducing repeat() -->
+        <div class="slide">
+            <h2>The repeat() Function</h2>
+            <div class="concept">
+                <h3>A More Efficient Solution</h3>
+                <p>The <code>repeat()</code> function is used to <strong>repeat a section or all of the tracks</strong> for columns or rows.</p>
+                <p>This function takes in a <strong>repeat count</strong> and the <strong>tracks you wish to repeat</strong>.</p>
+            </div>
+            
+            <div class="syntax-box">
+                <span class="function">repeat</span><span class="paren">(</span><span class="param">count</span>, <span class="param">tracks</span><span class="paren">)</span>
+            </div>
+            
+            <div class="intro-list">
+                <p style="margin-bottom: 15px; font-weight: bold; color: #881518;">Function Parameters:</p>
+                <ul>
+                    <li><strong>count</strong> – How many times to repeat</li>
+                    <li><strong>tracks</strong> – The pattern to repeat</li>
+                </ul>
+            </div>
+            
+            <div class="info-box">
+                <p><strong>Purpose:</strong> Simplifies repetitive column or row declarations by letting you specify a pattern once and repeat it.</p>
+            </div>
+        </div>
+
+        <!-- Slide 4: Basic repeat() Example -->
+        <div class="slide">
+            <h2>Using repeat() - Basic Example</h2>
+            <div class="concept">
+                <h3>Refactored Code</h3>
+                <p>Here is a revised version of the earlier example using the <code>repeat</code> function:</p>
+            </div>
+            
+            <div class="code-example">
+                <code>.grid-container {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  column-gap: 10px;
+}</code>
+            </div>
+            
+            <div class="visual-example">
+                <div class="demo-label">Same Result with repeat():</div>
+                <div class="grid-demo" style="grid-template-columns: repeat(4, 1fr);">
+                    <div class="grid-box">1fr</div>
+                    <div class="grid-box">1fr</div>
+                    <div class="grid-box">1fr</div>
+                    <div class="grid-box">1fr</div>
+                </div>
+                <p style="margin-top: 10px; color: #666; text-align: center; font-style: italic;">Identical output, cleaner code!</p>
+            </div>
+            
+            <div class="success-box">
+                <p><strong>Result:</strong> There won't be a change for the styles in the browser, but this is a <strong>more concise way</strong> to write repeated values for the columns.</p>
+            </div>
+        </div>
+
+        <!-- Slide 5: Before and After Comparison -->
+        <div class="slide">
+            <h2>Before and After Comparison</h2>
+            <div class="concept">
+                <h3>Side-by-Side</h3>
+            </div>
+            
+            <div class="comparison-box">
+                <div class="comparison-card">
+                    <h4>❌ Before (Repetitive)</h4>
+                    <div class="code-example" style="margin: 15px 0;">
+                        <code>grid-template-columns:
+  1fr 1fr 1fr 1fr;</code>
+                    </div>
+                    <ul style="list-style: none; padding: 0; margin-top: 15px;">
+                        <li style="padding: 10px; margin: 8px 0; background: #ffebee; border-radius: 4px; border-left: 4px solid #f44336;">4 times writing "1fr"</li>
+                        <li style="padding: 10px; margin: 8px 0; background: #ffebee; border-radius: 4px; border-left: 4px solid #f44336;">Hard to change</li>
+                        <li style="padding: 10px; margin: 8px 0; background: #ffebee; border-radius: 4px; border-left: 4px solid #f44336;">Error-prone for many columns</li>
+                    </ul>
+                </div>
+                
+                <div class="comparison-card better">
+                    <h4>✓ After (Using repeat)</h4>
+                    <div class="code-example" style="margin: 15px 0;">
+                        <code>grid-template-columns:
+  repeat(4, 1fr);</code>
+                    </div>
+                    <ul style="list-style: none; padding: 0; margin-top: 15px;">
+                        <li style="padding: 10px; margin: 8px 0; background: #e8f5e9; border-radius: 4px; border-left: 4px solid #4caf50;">Write once, repeat 4 times</li>
+                        <li style="padding: 10px; margin: 8px 0; background: #e8f5e9; border-radius: 4px; border-left: 4px solid #4caf50;">Easy to update</li>
+                        <li style="padding: 10px; margin: 8px 0; background: #e8f5e9; border-radius: 4px; border-left: 4px solid #4caf50;">Cleaner, more maintainable</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 6: How repeat() Expands -->
+        <div class="slide">
+            <h2>How repeat() Expands</h2>
+            <div class="concept">
+                <h3>Behind the Scenes</h3>
+                <p>Understanding how the browser interprets <code>repeat(4, 1fr)</code>:</p>
+            </div>
+            
+            <div class="expansion-demo">
+                <div class="demo-label">The Expansion Process:</div>
+                <div class="expansion-step">
+                    repeat(4, 1fr)
+                </div>
+                <div class="arrow-down">↓</div>
+                <div class="expansion-step">
+                    1fr, 1fr, 1fr, 1fr
+                </div>
+                <div class="arrow-down">↓</div>
+                <div class="expansion-step" style="background: #e8f5e9; border-left-color: #4caf50;">
+                    Creates 4 columns, each at 1fr
+                </div>
+            </div>
+            
+            <div class="info-box">
+                <p><strong>Remember:</strong> The browser automatically expands <code>repeat()</code> into the full list of values. It's just a convenient shorthand!</p>
+            </div>
+        </div>
+
+        <!-- Slide 7: Repeating Patterns -->
+        <div class="slide">
+            <h2>Repeating Patterns</h2>
+            <div class="concept">
+                <h3>Beyond Simple Repetition</h3>
+                <p>The <code>repeat()</code> function will accept <strong>any valid pattern</strong> that you can use for rows or columns.</p>
+            </div>
+            
+            <div class="highlight-box">
+                <p><strong>Key Feature:</strong> You're not limited to repeating single values. You can repeat entire patterns!</p>
+            </div>
+            
+            <div class="code-example">
+                <code>/* Repeat a single value */
+grid-template-columns: repeat(4, 1fr);
+
+/* Repeat a pattern of multiple values */
+grid-template-columns: repeat(2, 20px 1fr);
+
+/* Mix repeat() with other values */
+grid-template-columns: 100px repeat(3, 1fr) 100px;</code>
+            </div>
+            
+            <div class="info-box">
+                <p><strong>Flexibility:</strong> The pattern inside <code>repeat()</code> can be as simple or complex as needed.</p>
+            </div>
+        </div>
+
+        <!-- Slide 8: Pattern Example -->
+        <div class="slide">
+            <h2>Repeating a Pattern</h2>
+            <div class="concept">
+                <h3>Advanced Usage</h3>
+                <p>Here is an example using the <code>repeat()</code> function to set the <strong>first and third columns to 20 pixels</strong> and the <strong>second and fourth columns to one fractional unit</strong>.</p>
+            </div>
+            
+            <div class="code-example">
+                <code>.grid-container {
+  display: grid;
+  grid-template-columns: repeat(2, 20px 1fr);
+  column-gap: 10px;
+}</code>
+            </div>
+            
+            <div class="expansion-demo">
+                <div class="demo-label">Pattern Expansion:</div>
+                <div class="expansion-step">
+                    repeat(2, 20px 1fr)
+                </div>
+                <div class="arrow-down">↓</div>
+                <div class="expansion-step">
+                    20px 1fr, 20px 1fr
+                </div>
+                <div class="arrow-down">↓</div>
+                <div class="expansion-step" style="background: #e8f5e9; border-left-color: #4caf50;">
+                    20px, 1fr, 20px, 1fr (4 columns total)
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 9: Pattern Visual -->
+        <div class="slide">
+            <h2>Visualizing the Pattern</h2>
+            <div class="concept">
+                <h3>repeat(2, 20px 1fr)</h3>
+            </div>
+            
+            <div class="visual-example">
+                <div class="demo-label">Result: 20px 1fr 20px 1fr</div>
+                <div class="pattern-visual">
+                    <div class="pattern-col" style="width: 60px; flex: none;">
+                        <div>20px<br/>(fixed)</div>
+                    </div>
+                    <div class="pattern-col" style="flex: 1;">
+                        <div>1fr<br/>(flexible)</div>
+                    </div>
+                    <div class="pattern-col" style="width: 60px; flex: none;">
+                        <div>20px<br/>(fixed)</div>
+                    </div>
+                    <div class="pattern-col" style="flex: 1;">
+                        <div>1fr<br/>(flexible)</div>
+                    </div>
+                </div>
+                <p style="margin-top: 15px; color: #666; text-align: center;">The pattern "20px 1fr" repeats 2 times, creating 4 columns</p>
+            </div>
+            
+            <div class="highlight-box">
+                <p><strong>Pattern Logic:</strong> First and third columns are narrow (20px), while second and fourth columns are flexible (1fr).</p>
+            </div>
+        </div>
+
+        <!-- Slide 10: More Pattern Examples -->
+        <div class="slide">
+            <h2>Common Repeat Patterns</h2>
+            <div class="concept">
+                <h3>Real-World Examples</h3>
+            </div>
+            
+            <div class="pattern-demo">
+                <div class="pattern-example">
+                    <h5>repeat(3, 1fr)</h5>
+                    <p style="color: #666; margin: 5px 0;">Three equal columns</p>
+                    <div class="pattern-visual">
+                        <div class="pattern-col" style="flex: 1;">1fr</div>
+                        <div class="pattern-col" style="flex: 1;">1fr</div>
+                        <div class="pattern-col" style="flex: 1;">1fr</div>
+                    </div>
+                </div>
+                
+                <div class="pattern-example">
+                    <h5>repeat(2, 100px 1fr 2fr)</h5>
+                    <p style="color: #666; margin: 5px 0;">Complex pattern: 100px 1fr 2fr 100px 1fr 2fr</p>
+                    <div class="pattern-visual">
+                        <div class="pattern-col" style="width: 60px; flex: none;">100px</div>
+                        <div class="pattern-col" style="flex: 1;">1fr</div>
+                        <div class="pattern-col" style="flex: 2;">2fr</div>
+                        <div class="pattern-col" style="width: 60px; flex: none;">100px</div>
+                        <div class="pattern-col" style="flex: 1;">1fr</div>
+                        <div class="pattern-col" style="flex: 2;">2fr</div>
+                    </div>
+                </div>
+                
+                <div class="pattern-example">
+                    <h5>repeat(4, 50px)</h5>
+                    <p style="color: #666; margin: 5px 0;">Four fixed-width columns</p>
+                    <div class="pattern-visual">
+                        <div class="pattern-col" style="width: 60px; flex: none;">50px</div>
+                        <div class="pattern-col" style="width: 60px; flex: none;">50px</div>
+                        <div class="pattern-col" style="width: 60px; flex: none;">50px</div>
+                        <div class="pattern-col" style="width: 60px; flex: none;">50px</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 11: Mixing with Other Values -->
+        <div class="slide">
+            <h2>Combining repeat() with Other Values</h2>
+            <div class="concept">
+                <h3>Maximum Flexibility</h3>
+                <p>You can <strong>mix <code>repeat()</code> with other column values</strong> in the same declaration.</p>
+            </div>
+            
+            <div class="code-example">
+                <code>/* Sidebar layout: fixed, repeated, fixed */
+grid-template-columns: 200px repeat(3, 1fr) 200px;
+/* Result: 200px 1fr 1fr 1fr 200px */
+
+/* Featured layout */
+grid-template-columns: 2fr repeat(2, 1fr);
+/* Result: 2fr 1fr 1fr */
+
+/* Complex mix */
+grid-template-columns: 100px repeat(2, 1fr 2fr) 100px;
+/* Result: 100px 1fr 2fr 1fr 2fr 100px */</code>
+            </div>
+            
+            <div class="visual-example">
+                <div class="demo-label">Example: 200px repeat(3, 1fr) 200px</div>
+                <div class="pattern-visual">
+                    <div class="pattern-col" style="width: 80px; flex: none;">200px</div>
+                    <div class="pattern-col" style="flex: 1;">1fr</div>
+                    <div class="pattern-col" style="flex: 1;">1fr</div>
+                    <div class="pattern-col" style="flex: 1;">1fr</div>
+                    <div class="pattern-col" style="width: 80px; flex: none;">200px</div>
+                </div>
+                <p style="margin-top: 10px; color: #666; text-align: center;">Fixed sidebars with flexible content area in the middle</p>
+            </div>
+        </div>
+
+        <!-- Slide 12: When to Use repeat() -->
+        <div class="slide">
+            <h2>When to Use repeat()</h2>
+            <div class="concept">
+                <h3>Making the Right Choice</h3>
+                <p>Sometimes, you might opt to <strong>write out each individual value</strong> instead of using the <code>repeat()</code> function. But there are times when this function <strong>comes in handy</strong>, especially when you want to repeat a particular pattern for a track listing.</p>
+            </div>
+            
+            <div class="intro-list">
+                <p style="margin-bottom: 15px; font-weight: bold; color: #881518;">Use repeat() when:</p>
+                <ul>
+                    <li>You have <strong>3 or more identical</strong> track sizes</li>
+                    <li>You need to <strong>repeat a pattern</strong> multiple times</li>
+                    <li>You want <strong>easy maintenance</strong> – change count, not code</li>
+                    <li>Creating <strong>many columns</strong> (5, 10, 20, etc.)</li>
+                </ul>
+            </div>
+            
+            <div class="intro-list">
+                <p style="margin-bottom: 15px; font-weight: bold; color: #881518;">Write out values when:</p>
+                <ul>
+                    <li>You have <strong>unique</strong> column sizes</li>
+                    <li>Only <strong>2-3 columns</strong> with different sizes</li>
+                    <li>The pattern is <strong>irregular</strong> and doesn't repeat</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Slide 13: Interactive Demo -->
+        <div class="slide">
+            <h2>Try Different Repeat Patterns</h2>
+            <div class="concept">
+                <h3>Interactive Examples</h3>
+                <p>Click the buttons below to see different <code>repeat()</code> patterns in action:</p>
+            </div>
+            
+            <div class="interactive-demo">
+                <div class="demo-controls">
+                    <button onclick="setRepeatPattern('basic')" id="btn-basic" class="active">repeat(4, 1fr)</button>
+                    <button onclick="setRepeatPattern('pattern')" id="btn-pattern">repeat(2, 20px 1fr)</button>
+                    <button onclick="setRepeatPattern('three')" id="btn-three">repeat(3, 100px)</button>
+                    <button onclick="setRepeatPattern('complex')" id="btn-complex">repeat(2, 1fr 2fr)</button>
+                    <button onclick="setRepeatPattern('mixed')" id="btn-mixed">200px repeat(2, 1fr)</button>
+                </div>
+                
+                <div class="demo-label" id="current-pattern-label">Current: repeat(4, 1fr)</div>
+                <div id="interactive-grid" class="grid-demo" style="grid-template-columns: repeat(4, 1fr);">
+                    <div class="grid-box">1</div>
+                    <div class="grid-box">2</div>
+                    <div class="grid-box">3</div>
+                    <div class="grid-box">4</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 14: Summary -->
+        <div class="slide">
+            <h2>Summary</h2>
+            <div class="concept">
+                <h3>Key Takeaways</h3>
+            </div>
+            
+            <div class="intro-list">
+                <p style="margin-bottom: 15px; font-weight: bold; color: #881518;">Remember:</p>
+                <ul>
+                    <li><code>repeat()</code> <strong>simplifies</strong> repetitive track listings</li>
+                    <li><strong>Syntax:</strong> <code>repeat(count, tracks)</code></li>
+                    <li>Works with <strong>single values</strong> or <strong>patterns</strong></li>
+                    <li>Can <strong>mix</strong> with other column values</li>
+                    <li><strong>More maintainable</strong> than writing values repeatedly</li>
+                    <li>Especially useful for <strong>many columns</strong> or <strong>repeating patterns</strong></li>
+                </ul>
+            </div>
+            
+            <div class="comparison-box">
+                <div class="comparison-card">
+                    <h4>Without repeat()</h4>
+                    <div class="code-example" style="margin: 10px 0;">
+                        <code>grid-template-columns:
+  1fr 1fr 1fr 1fr 1fr;</code>
+                    </div>
+                </div>
+                
+                <div class="comparison-card better">
+                    <h4>With repeat()</h4>
+                    <div class="code-example" style="margin: 10px 0;">
+                        <code>grid-template-columns:
+  repeat(5, 1fr);</code>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="success-box">
+                <p><strong>Best Practice:</strong> Use <code>repeat()</code> whenever you're writing the same track size 3+ times. Your future self will thank you!</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="navigation">
+        <button class="nav-button" id="prevBtn" onclick="changeSlide(-1)">← Previous</button>
+        <span class="slide-counter">
+            <span id="currentSlide">1</span> / <span id="totalSlides">14</span>
+        </span>
+        <button class="nav-button" id="nextBtn" onclick="changeSlide(1)">Next →</button>
+    </div>
+
+    <script>
+        let currentSlideIndex = 0;
+        const slides = document.querySelectorAll('.slide');
+        const totalSlides = slides.length;
+        
+        document.getElementById('totalSlides').textContent = totalSlides;
+        
+        function showSlide(n) {
+            if (n >= totalSlides) {
+                currentSlideIndex = totalSlides - 1;
+            } else if (n < 0) {
+                currentSlideIndex = 0;
+            } else {
+                currentSlideIndex = n;
+            }
+            
+            slides.forEach((slide, index) => {
+                slide.classList.remove('active');
+                if (index === currentSlideIndex) {
+                    slide.classList.add('active');
+                }
+            });
+            
+            document.getElementById('currentSlide').textContent = currentSlideIndex + 1;
+            
+            document.getElementById('prevBtn').disabled = currentSlideIndex === 0;
+            document.getElementById('nextBtn').disabled = currentSlideIndex === totalSlides - 1;
+            
+            window.scrollTo(0, 0);
+        }
+        
+        function changeSlide(direction) {
+            showSlide(currentSlideIndex + direction);
+        }
+        
+        // Interactive demo functionality
+        function setRepeatPattern(pattern) {
+            const grid = document.getElementById('interactive-grid');
+            const label = document.getElementById('current-pattern-label');
+            const buttons = document.querySelectorAll('.demo-controls button');
+            
+            buttons.forEach(btn => btn.classList.remove('active'));
+            
+            // Clear existing items
+            grid.innerHTML = '';
+            
+            switch(pattern) {
+                case 'basic':
+                    grid.style.gridTemplateColumns = 'repeat(4, 1fr)';
+                    label.textContent = 'Current: repeat(4, 1fr)';
+                    for (let i = 1; i <= 4; i++) {
+                        grid.innerHTML += `<div class="grid-box">${i}</div>`;
+                    }
+                    document.getElementById('btn-basic').classList.add('active');
+                    break;
+                case 'pattern':
+                    grid.style.gridTemplateColumns = 'repeat(2, 20px 1fr)';
+                    label.textContent = 'Current: repeat(2, 20px 1fr) → 20px 1fr 20px 1fr';
+                    grid.innerHTML = '<div class="grid-box">20px</div><div class="grid-box">1fr</div><div class="grid-box">20px</div><div class="grid-box">1fr</div>';
+                    document.getElementById('btn-pattern').classList.add('active');
+                    break;
+                case 'three':
+                    grid.style.gridTemplateColumns = 'repeat(3, 100px)';
+                    label.textContent = 'Current: repeat(3, 100px)';
+                    for (let i = 1; i <= 3; i++) {
+                        grid.innerHTML += `<div class="grid-box">100px</div>`;
+                    }
+                    document.getElementById('btn-three').classList.add('active');
+                    break;
+                case 'complex':
+                    grid.style.gridTemplateColumns = 'repeat(2, 1fr 2fr)';
+                    label.textContent = 'Current: repeat(2, 1fr 2fr) → 1fr 2fr 1fr 2fr';
+                    grid.innerHTML = '<div class="grid-box">1fr</div><div class="grid-box">2fr</div><div class="grid-box">1fr</div><div class="grid-box">2fr</div>';
+                    document.getElementById('btn-complex').classList.add('active');
+                    break;
+                case 'mixed':
+                    grid.style.gridTemplateColumns = '200px repeat(2, 1fr)';
+                    label.textContent = 'Current: 200px repeat(2, 1fr) → 200px 1fr 1fr';
+                    grid.innerHTML = '<div class="grid-box">200px</div><div class="grid-box">1fr</div><div class="grid-box">1fr</div>';
+                    document.getElementById('btn-mixed').classList.add('active');
+                    break;
+            }
+        }
+        
+        // Keyboard navigation
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'ArrowLeft') {
+                changeSlide(-1);
+            } else if (event.key === 'ArrowRight') {
+                changeSlide(1);
+            }
+        });
+        
+        // Touch/swipe support for mobile
+        let touchStartX = 0;
+        let touchEndX = 0;
+        
+        document.addEventListener('touchstart', function(event) {
+            touchStartX = event.changedTouches[0].screenX;
+        });
+        
+        document.addEventListener('touchend', function(event) {
+            touchEndX = event.changedTouches[0].screenX;
+            handleSwipe();
+        });
+        
+        function handleSwipe() {
+            if (touchEndX < touchStartX - 50) {
+                changeSlide(1);
+            }
+            if (touchEndX > touchStartX + 50) {
+                changeSlide(-1);
+            }
+        }
+        
+        // Initialize
+        showSlide(0);
+    </script>
+</body>
+</html>

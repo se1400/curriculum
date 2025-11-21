@@ -1,0 +1,1030 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Creating Gaps Between Grid Tracks</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+            overflow-x: hidden;
+            color: #333;
+        }
+        
+        .slideshow-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 30px 20px 120px 20px;
+            min-height: 100vh;
+        }
+        
+        .slide {
+            display: none;
+            background: white;
+            border-radius: 12px;
+            padding: 50px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            min-height: calc(100vh - 180px);
+            animation: fadeIn 0.6s ease-in-out;
+        }
+        
+        .slide.active {
+            display: block;
+        }
+        
+        @keyframes fadeIn {
+            from { 
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to { 
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        h2 {
+            color: #881518;
+            font-size: 2.5em;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 4px solid #881518;
+            position: relative;
+        }
+        
+        h2::after {
+            content: '';
+            position: absolute;
+            bottom: -4px;
+            left: 0;
+            width: 100px;
+            height: 4px;
+            background: #c41e23;
+        }
+        
+        .concept {
+            margin-bottom: 35px;
+        }
+        
+        .concept h3 {
+            color: #2d2d2d;
+            font-size: 1.6em;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .concept h3::before {
+            content: '▸';
+            color: #881518;
+            margin-right: 10px;
+            font-size: 0.9em;
+        }
+        
+        .concept p {
+            color: #555;
+            font-size: 1.15em;
+            line-height: 1.8;
+            margin-bottom: 15px;
+        }
+        
+        .concept ul {
+            margin-left: 20px;
+            color: #555;
+            font-size: 1.1em;
+            line-height: 1.8;
+        }
+        
+        .concept li {
+            margin-bottom: 15px;
+        }
+        
+        .concept strong, .concept code {
+            color: #881518;
+            font-weight: 600;
+        }
+        
+        .code-example {
+            background: #f8f8f8;
+            border-left: 5px solid #881518;
+            padding: 25px;
+            border-radius: 8px;
+            margin: 25px 0;
+            overflow-x: auto;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        .code-example code {
+            font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+            font-size: 0.95em;
+            color: #2d2d2d;
+            display: block;
+            white-space: pre;
+            line-height: 1.6;
+        }
+        
+        .visual-example {
+            margin: 30px 0;
+            padding: 25px;
+            background: linear-gradient(135deg, #fafafa 0%, #f0f0f0 100%);
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        }
+        
+        .demo-label {
+            font-size: 0.95em;
+            color: #881518;
+            margin-bottom: 15px;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .grid-demo {
+            display: grid;
+            margin: 20px 0;
+            padding: 20px;
+            background: white;
+            border: 3px solid #881518;
+            border-radius: 8px;
+        }
+        
+        .grid-item {
+            background: linear-gradient(135deg, #881518 0%, #c41e23 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            box-shadow: 0 2px 6px rgba(136, 21, 24, 0.3);
+            min-height: 80px;
+        }
+        
+        .track-visual {
+            background: white;
+            border: 3px solid #881518;
+            border-radius: 8px;
+            padding: 30px;
+            margin: 25px 0;
+            position: relative;
+        }
+        
+        .grid-lines {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 0;
+            position: relative;
+        }
+        
+        .grid-cell {
+            background: linear-gradient(135deg, #881518 0%, #c41e23 100%);
+            height: 80px;
+            border: 2px solid #2d2d2d;
+        }
+        
+        .line-label {
+            position: absolute;
+            background: #2d2d2d;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.85em;
+            font-weight: bold;
+        }
+        
+        .track-indicator {
+            position: absolute;
+            background: rgba(74, 144, 226, 0.3);
+            border: 2px dashed #4a90e2;
+            pointer-events: none;
+        }
+        
+        .track-label {
+            position: absolute;
+            background: #4a90e2;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.85em;
+            font-weight: bold;
+        }
+        
+        .highlight-box {
+            background: linear-gradient(135deg, #fff8f8 0%, #ffe8e8 100%);
+            border-left: 5px solid #881518;
+            padding: 20px;
+            margin: 25px 0;
+            border-radius: 6px;
+        }
+        
+        .highlight-box p {
+            color: #2d2d2d;
+            font-size: 1.05em;
+            margin: 0;
+        }
+        
+        .info-box {
+            background: linear-gradient(135deg, #f0f8ff 0%, #e0f0ff 100%);
+            border-left: 5px solid #4a90e2;
+            padding: 20px;
+            margin: 25px 0;
+            border-radius: 6px;
+        }
+        
+        .info-box p {
+            color: #2d2d2d;
+            font-size: 1.05em;
+            margin: 0;
+        }
+        
+        .warning-box {
+            background: linear-gradient(135deg, #fff8e1 0%, #ffecb3 100%);
+            border-left: 5px solid #f57c00;
+            padding: 20px;
+            margin: 25px 0;
+            border-radius: 6px;
+        }
+        
+        .warning-box p {
+            color: #2d2d2d;
+            font-size: 1.05em;
+            margin: 0;
+        }
+        
+        .intro-list {
+            background: linear-gradient(135deg, #f8f8f8 0%, #e8e8e8 100%);
+            padding: 25px;
+            border-radius: 8px;
+            margin: 25px 0;
+        }
+        
+        .intro-list ul {
+            list-style: none;
+            margin: 0;
+        }
+        
+        .intro-list li {
+            padding: 12px 0;
+            font-size: 1.2em;
+            color: #2d2d2d;
+            display: flex;
+            align-items: center;
+        }
+        
+        .intro-list li::before {
+            content: '✓';
+            color: #881518;
+            font-weight: bold;
+            font-size: 1.3em;
+            margin-right: 15px;
+        }
+        
+        .comparison-demo {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+            margin: 25px 0;
+        }
+        
+        .comparison-item {
+            background: white;
+            border: 3px solid #881518;
+            border-radius: 8px;
+            padding: 20px;
+        }
+        
+        .comparison-item h4 {
+            color: #881518;
+            font-size: 1.2em;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        
+        .property-card {
+            background: white;
+            border: 3px solid #881518;
+            border-radius: 8px;
+            padding: 25px;
+            margin: 25px 0;
+        }
+        
+        .property-card h4 {
+            color: #881518;
+            font-size: 1.5em;
+            margin-bottom: 20px;
+            text-align: center;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #eee;
+        }
+        
+        .values-list {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .values-list li {
+            padding: 12px;
+            margin: 8px 0;
+            background: #f8f8f8;
+            border-radius: 4px;
+            border-left: 4px solid #881518;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .interactive-demo {
+            background: white;
+            border: 3px solid #881518;
+            border-radius: 8px;
+            padding: 25px;
+            margin: 25px 0;
+        }
+        
+        .demo-controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        
+        .demo-controls button {
+            background: #881518;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.95em;
+            transition: background 0.3s;
+        }
+        
+        .demo-controls button:hover {
+            background: #c41e23;
+        }
+        
+        .demo-controls button.active {
+            background: #2d2d2d;
+        }
+        
+        .syntax-box {
+            background: #2d2d2d;
+            color: #fff;
+            padding: 25px;
+            border-radius: 8px;
+            margin: 25px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 1.2em;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+        
+        .syntax-box .keyword {
+            color: #ff6b6b;
+            font-weight: bold;
+        }
+        
+        .syntax-box .value {
+            color: #4ecdc4;
+        }
+        
+        .navigation {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(180deg, #881518 0%, #6b1113 100%);
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.3);
+            z-index: 1000;
+        }
+        
+        .nav-button {
+            background: white;
+            color: #881518;
+            border: none;
+            padding: 14px 35px;
+            font-size: 1.05em;
+            font-weight: bold;
+            cursor: pointer;
+            border-radius: 6px;
+            transition: all 0.3s;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        }
+        
+        .nav-button:hover:not(:disabled) {
+            background: #f0f0f0;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+        
+        .nav-button:active:not(:disabled) {
+            transform: translateY(0);
+        }
+        
+        .nav-button:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+        
+        .slide-counter {
+            color: white;
+            font-size: 1.1em;
+            font-weight: bold;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 10px 20px;
+            border-radius: 6px;
+        }
+        
+        @media (max-width: 768px) {
+            .slideshow-container {
+                padding: 20px 15px 120px 15px;
+            }
+            
+            .slide {
+                padding: 30px 20px;
+            }
+            
+            h2 {
+                font-size: 1.8em;
+            }
+            
+            .concept h3 {
+                font-size: 1.3em;
+            }
+            
+            .concept p, .concept ul {
+                font-size: 1em;
+            }
+            
+            .comparison-demo {
+                grid-template-columns: 1fr;
+            }
+            
+            .nav-button {
+                padding: 12px 20px;
+                font-size: 0.95em;
+            }
+            
+            .slide-counter {
+                font-size: 0.95em;
+                padding: 8px 15px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            h2 {
+                font-size: 1.5em;
+            }
+            
+            .nav-button {
+                padding: 10px 15px;
+                font-size: 0.85em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="slideshow-container">
+        <!-- Slide 1: Introduction -->
+        <div class="slide active">
+            <h2>Creating Gaps in Grid Layouts</h2>
+            <div class="concept">
+                <h3>Controlling Grid Spacing</h3>
+                <p>In previous lessons, we talked a little bit about how to create space between grid items. But in this lesson, we will dive into <strong>more detail</strong> about how to use the <code>row-gap</code>, <code>column-gap</code>, and <code>gap</code> properties in a grid layout.</p>
+            </div>
+            
+            <div class="intro-list">
+                <p style="margin-bottom: 15px; font-weight: bold; color: #881518;">Three Properties for Grid Gaps:</p>
+                <ul>
+                    <li><code>column-gap</code> – Space between columns</li>
+                    <li><code>row-gap</code> – Space between rows</li>
+                    <li><code>gap</code> – Shorthand for both</li>
+                </ul>
+            </div>
+            
+            <div class="highlight-box">
+                <p><strong>Why Gaps Matter:</strong> Gaps create visual breathing room, improve readability, and make your grid layouts more professional and polished.</p>
+            </div>
+        </div>
+
+        <!-- Slide 2: What is a Track? -->
+        <div class="slide">
+            <h2>Understanding Tracks</h2>
+            <div class="concept">
+                <h3>The Foundation of Gaps</h3>
+                <p>But first we need to review what a <strong>track</strong> is in CSS grid.</p>
+                <p>A track is the <strong>space between two neighboring grid lines</strong>. These lines are automatically created when you use CSS Grid. In this context, tracks generally refer to the <strong>rows and columns</strong> that make up the grid layout.</p>
+            </div>
+            
+            <div class="track-visual">
+                <div class="demo-label">Grid Lines and Tracks:</div>
+                <div style="position: relative; padding: 20px;">
+                    <div class="grid-lines">
+                        <div class="grid-cell"></div>
+                        <div class="grid-cell"></div>
+                        <div class="grid-cell"></div>
+                    </div>
+                    <div style="margin-top: 20px; padding: 15px; background: #f8f8f8; border-radius: 6px;">
+                        <p style="color: #666; font-size: 0.95em; line-height: 1.8; margin: 0;"><strong style="color: #2d2d2d;">Grid Lines</strong> (dark borders) define the edges<br/>
+                        <strong style="color: #4a90e2;">Tracks</strong> (blue highlight) are the spaces between lines</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="info-box">
+                <p><strong>Key Concept:</strong> Grid lines are created automatically, and the spaces between them (tracks) are what contain your grid items.</p>
+            </div>
+        </div>
+
+        <!-- Slide 3: HTML Markup -->
+        <div class="slide">
+            <h2>Starting HTML Structure</h2>
+            <div class="concept">
+                <h3>Four Column Grid Example</h3>
+                <p>Here is an example of the markup for a four column grid layout:</p>
+            </div>
+            
+            <div class="code-example">
+                <code>&lt;div class="grid-container"&gt;
+  &lt;div&gt;&lt;/div&gt;
+  &lt;div&gt;&lt;/div&gt;
+  &lt;div&gt;&lt;/div&gt;
+  &lt;div&gt;&lt;/div&gt;
+&lt;/div&gt;</code>
+            </div>
+            
+            <div class="visual-example">
+                <div class="demo-label">Four Grid Items:</div>
+                <div style="padding: 20px; background: white; border: 2px solid #ddd; border-radius: 8px;">
+                    <div style="margin: 5px 0; padding: 30px; background: #f0f0f0; border-radius: 4px; text-align: center; font-weight: bold; color: #666;">Box 1</div>
+                    <div style="margin: 5px 0; padding: 30px; background: #f0f0f0; border-radius: 4px; text-align: center; font-weight: bold; color: #666;">Box 2</div>
+                    <div style="margin: 5px 0; padding: 30px; background: #f0f0f0; border-radius: 4px; text-align: center; font-weight: bold; color: #666;">Box 3</div>
+                    <div style="margin: 5px 0; padding: 30px; background: #f0f0f0; border-radius: 4px; text-align: center; font-weight: bold; color: #666;">Box 4</div>
+                </div>
+                <p style="margin-top: 10px; color: #666; font-style: italic;">Without grid, items stack vertically</p>
+            </div>
+        </div>
+
+        <!-- Slide 4: Column Gap Property -->
+        <div class="slide">
+            <h2>The column-gap Property</h2>
+            <div class="concept">
+                <h3>Creating Space Between Columns</h3>
+                <p>To create gaps between columns in a CSS Grid, you can use the <code>column-gap</code> property.</p>
+            </div>
+            
+            <div class="property-card">
+                <h4>column-gap Values</h4>
+                <p style="text-align: center; color: #666; margin-bottom: 15px;">Acceptable values include:</p>
+                <ul class="values-list">
+                    <li><strong>pixels</strong> – e.g., <code>10px</code>, <code>20px</code></li>
+                    <li><strong>em unit</strong> – e.g., <code>1em</code>, <code>2em</code></li>
+                    <li><strong>percentages</strong> – e.g., <code>5%</code>, <code>10%</code></li>
+                    <li><strong>normal keyword</strong> – default spacing</li>
+                </ul>
+            </div>
+            
+            <div class="info-box">
+                <p><strong>The "normal" value:</strong> If you use the <code>normal</code> value for <code>column-gap</code>, the result will be <strong>0 for grid layouts</strong> and 1em for multi-column layouts.</p>
+            </div>
+        </div>
+
+        <!-- Slide 5: Column Gap Example -->
+        <div class="slide">
+            <h2>column-gap in Action</h2>
+            <div class="concept">
+                <h3>CSS Implementation</h3>
+                <p>For the CSS, we set the <code>display</code> to <code>grid</code> and the <code>column-gap</code> property to <strong>10 pixels</strong>:</p>
+            </div>
+            
+            <div class="code-example">
+                <code>.grid-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr;
+  column-gap: 10px;
+}</code>
+            </div>
+            
+            <div class="visual-example">
+                <div class="demo-label">Result with 10px column-gap:</div>
+                <div class="grid-demo" style="grid-template-columns: 1fr 1fr 1fr 1fr; column-gap: 10px;">
+                    <div class="grid-item">1</div>
+                    <div class="grid-item">2</div>
+                    <div class="grid-item">3</div>
+                    <div class="grid-item">4</div>
+                </div>
+                <p style="margin-top: 10px; color: #666; font-style: italic; text-align: center;">10 pixels of space between each column</p>
+            </div>
+        </div>
+
+        <!-- Slide 6: Row Gap Property -->
+        <div class="slide">
+            <h2>The row-gap Property</h2>
+            <div class="concept">
+                <h3>Creating Space Between Rows</h3>
+                <p>If we wanted to change the example to have <strong>two rows</strong> of boxes and create more space between the rows, we can use the <code>row-gap</code> property.</p>
+            </div>
+            
+            <div class="code-example">
+                <code>.grid-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  column-gap: 10px;
+  row-gap: 30px;
+}</code>
+            </div>
+            
+            <div class="highlight-box">
+                <p><strong>Changes:</strong> We're setting <code>row-gap</code> to 30 pixels and changing <code>grid-template-columns</code> to use just two 1fr units instead of four to create two rows of boxes.</p>
+            </div>
+            
+            <div class="info-box">
+                <p>Just like <code>column-gap</code>, acceptable values for <code>row-gap</code> can include <strong>percentages</strong>, <strong>em</strong>, and <strong>pixels</strong>.</p>
+            </div>
+        </div>
+
+        <!-- Slide 7: Row Gap Example -->
+        <div class="slide">
+            <h2>row-gap in Action</h2>
+            <div class="concept">
+                <h3>Visual Demonstration</h3>
+                <p>In this example, we're creating a 2-column, 2-row grid with 10px between columns and 30px between rows.</p>
+            </div>
+            
+            <div class="visual-example">
+                <div class="demo-label">Result with 10px column-gap and 30px row-gap:</div>
+                <div class="grid-demo" style="grid-template-columns: 1fr 1fr; column-gap: 10px; row-gap: 30px;">
+                    <div class="grid-item">1</div>
+                    <div class="grid-item">2</div>
+                    <div class="grid-item">3</div>
+                    <div class="grid-item">4</div>
+                </div>
+                <div style="margin-top: 15px; padding: 15px; background: white; border-radius: 6px; text-align: center;">
+                    <p style="color: #666; margin-bottom: 8px;"><strong style="color: #881518;">Horizontal gaps:</strong> 10px (column-gap)</p>
+                    <p style="color: #666;"><strong style="color: #881518;">Vertical gaps:</strong> 30px (row-gap)</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 8: Comparing Gaps -->
+        <div class="slide">
+            <h2>Comparing Different Gaps</h2>
+            <div class="concept">
+                <h3>Side-by-Side Comparison</h3>
+            </div>
+            
+            <div class="comparison-demo">
+                <div class="comparison-item">
+                    <h4>Small Gaps (5px)</h4>
+                    <div class="grid-demo" style="grid-template-columns: 1fr 1fr; gap: 5px;">
+                        <div class="grid-item" style="min-height: 60px;">1</div>
+                        <div class="grid-item" style="min-height: 60px;">2</div>
+                        <div class="grid-item" style="min-height: 60px;">3</div>
+                        <div class="grid-item" style="min-height: 60px;">4</div>
+                    </div>
+                </div>
+                
+                <div class="comparison-item">
+                    <h4>Large Gaps (30px)</h4>
+                    <div class="grid-demo" style="grid-template-columns: 1fr 1fr; gap: 30px;">
+                        <div class="grid-item" style="min-height: 60px;">1</div>
+                        <div class="grid-item" style="min-height: 60px;">2</div>
+                        <div class="grid-item" style="min-height: 60px;">3</div>
+                        <div class="grid-item" style="min-height: 60px;">4</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="info-box">
+                <p><strong>Choose appropriately:</strong> Small gaps for tight, compact layouts; larger gaps for more breathing room and visual separation.</p>
+            </div>
+        </div>
+
+        <!-- Slide 9: Gap Shorthand -->
+        <div class="slide">
+            <h2>The gap Shorthand Property</h2>
+            <div class="concept">
+                <h3>Simpler Syntax</h3>
+                <p>If you want to use a <strong>shorthand</strong> for creating gaps between rows and columns, you can use the <code>gap</code> property.</p>
+            </div>
+            
+            <div class="syntax-box">
+                <span class="keyword">gap:</span> <span class="value">row-value</span> <span style="opacity: 0.7;">optional-column-value</span>;
+            </div>
+            
+            <div class="intro-list">
+                <p style="margin-bottom: 15px; font-weight: bold; color: #881518;">How gap Works:</p>
+                <ul>
+                    <li><strong>One value:</strong> Applied to both rows and columns</li>
+                    <li><strong>Two values:</strong> First = row, Second = column</li>
+                </ul>
+            </div>
+            
+            <div class="code-example">
+                <code>/* One value - same for both */
+gap: 20px;
+/* Equivalent to: */
+row-gap: 20px;
+column-gap: 20px;
+
+/* Two values - different for each */
+gap: 30px 10px;
+/* Equivalent to: */
+row-gap: 30px;
+column-gap: 10px;</code>
+            </div>
+        </div>
+
+        <!-- Slide 10: Gap Shorthand Examples -->
+        <div class="slide">
+            <h2>gap Shorthand in Practice</h2>
+            <div class="concept">
+                <h3>One Value vs Two Values</h3>
+            </div>
+            
+            <div class="comparison-demo">
+                <div class="comparison-item">
+                    <h4>gap: 20px</h4>
+                    <p style="text-align: center; color: #666; font-size: 0.9em; margin-bottom: 10px;">Same gap for rows and columns</p>
+                    <div class="grid-demo" style="grid-template-columns: 1fr 1fr; gap: 20px;">
+                        <div class="grid-item" style="min-height: 60px;">1</div>
+                        <div class="grid-item" style="min-height: 60px;">2</div>
+                        <div class="grid-item" style="min-height: 60px;">3</div>
+                        <div class="grid-item" style="min-height: 60px;">4</div>
+                    </div>
+                </div>
+                
+                <div class="comparison-item">
+                    <h4>gap: 40px 10px</h4>
+                    <p style="text-align: center; color: #666; font-size: 0.9em; margin-bottom: 10px;">40px rows, 10px columns</p>
+                    <div class="grid-demo" style="grid-template-columns: 1fr 1fr; gap: 40px 10px;">
+                        <div class="grid-item" style="min-height: 60px;">1</div>
+                        <div class="grid-item" style="min-height: 60px;">2</div>
+                        <div class="grid-item" style="min-height: 60px;">3</div>
+                        <div class="grid-item" style="min-height: 60px;">4</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="highlight-box">
+                <p><strong>Remember the order:</strong> When using two values, it's always <code>gap: row column;</code></p>
+            </div>
+        </div>
+
+        <!-- Slide 11: Acceptable Values -->
+        <div class="slide">
+            <h2>What Values Can You Use?</h2>
+            <div class="concept">
+                <h3>Supported Units</h3>
+                <p>Acceptable values for the <code>gap</code> shorthand property include several CSS units and functions.</p>
+            </div>
+            
+            <div class="property-card">
+                <h4>✓ Acceptable Values</h4>
+                <ul class="values-list">
+                    <li><strong>Pixels</strong> – <code>gap: 10px;</code></li>
+                    <li><strong>Em units</strong> – <code>gap: 1em;</code></li>
+                    <li><strong>Percentages</strong> – <code>gap: 5%;</code></li>
+                    <li><strong>calc() function</strong> – <code>gap: calc(10px + 1em);</code></li>
+                </ul>
+            </div>
+            
+            <div class="warning-box">
+                <p><strong>⚠️ Important:</strong> You <strong>cannot use fr units</strong> with the gap property. fr units are only for <code>grid-template-columns</code> and <code>grid-template-rows</code>.</p>
+            </div>
+            
+            <div class="code-example">
+                <code>/* ✓ Valid */
+gap: 20px;
+gap: 1.5em 2em;
+gap: 5% 3%;
+gap: calc(10px + 5%);
+
+/* ✗ Invalid */
+gap: 1fr;  /* Won't work! */</code>
+            </div>
+        </div>
+
+        <!-- Slide 12: Interactive Demo -->
+        <div class="slide">
+            <h2>Try Different Gap Values</h2>
+            <div class="concept">
+                <h3>Interactive Examples</h3>
+                <p>Click the buttons below to see different gap values in action:</p>
+            </div>
+            
+            <div class="interactive-demo">
+                <div class="demo-controls">
+                    <button onclick="setGap('none')" id="btn-none">No Gap</button>
+                    <button onclick="setGap('small')" id="btn-small" class="active">gap: 10px</button>
+                    <button onclick="setGap('medium')" id="btn-medium">gap: 20px</button>
+                    <button onclick="setGap('large')" id="btn-large">gap: 40px</button>
+                    <button onclick="setGap('unequal')" id="btn-unequal">gap: 40px 10px</button>
+                </div>
+                
+                <div class="demo-label" id="current-gap-label">Current: gap: 10px;</div>
+                <div id="interactive-grid" class="grid-demo" style="grid-template-columns: 1fr 1fr 1fr; gap: 10px;">
+                    <div class="grid-item">1</div>
+                    <div class="grid-item">2</div>
+                    <div class="grid-item">3</div>
+                    <div class="grid-item">4</div>
+                    <div class="grid-item">5</div>
+                    <div class="grid-item">6</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 13: Benefits Summary -->
+        <div class="slide">
+            <h2>Benefits of Gap Properties</h2>
+            <div class="concept">
+                <h3>Why Use These Properties?</h3>
+                <p>The <code>row-gap</code>, <code>column-gap</code>, and <code>gap</code> properties provide <strong>flexible ways</strong> to control spacing between items in a CSS Grid layout.</p>
+            </div>
+            
+            <div class="intro-list">
+                <ul>
+                    <li><strong>Clean spacing</strong> – No need for margins on items</li>
+                    <li><strong>Consistent gaps</strong> – Applied uniformly across the grid</li>
+                    <li><strong>Easy to adjust</strong> – Change one value, update all gaps</li>
+                    <li><strong>Flexible units</strong> – Use pixels, em, percentages, or calc()</li>
+                    <li><strong>Shorthand convenience</strong> – gap property saves time</li>
+                    <li><strong>Visual clarity</strong> – Better readability and organization</li>
+                </ul>
+            </div>
+            
+            <div class="highlight-box">
+                <p><strong>Best Practice:</strong> By using these properties, you can easily create visually appealing grids with consistent and adjustable gaps between rows and columns.</p>
+            </div>
+        </div>
+
+        <!-- Slide 14: Summary -->
+        <div class="slide">
+            <h2>Summary</h2>
+            <div class="concept">
+                <h3>Key Takeaways</h3>
+            </div>
+            
+            <div class="intro-list">
+                <p style="margin-bottom: 15px; font-weight: bold; color: #881518;">Remember:</p>
+                <ul>
+                    <li><strong>Tracks</strong> are spaces between grid lines</li>
+                    <li><code>column-gap</code> creates space between columns</li>
+                    <li><code>row-gap</code> creates space between rows</li>
+                    <li><code>gap</code> is the shorthand for both</li>
+                    <li><strong>One value:</strong> same for rows and columns</li>
+                    <li><strong>Two values:</strong> first = row, second = column</li>
+                    <li><strong>Acceptable values:</strong> pixels, em, %, calc()</li>
+                    <li><strong>Not allowed:</strong> fr units in gap properties</li>
+                </ul>
+            </div>
+            
+            <div class="code-example">
+                <code>/* Three ways to create the same gaps */
+
+/* Method 1: Individual properties */
+row-gap: 20px;
+column-gap: 20px;
+
+/* Method 2: gap with one value */
+gap: 20px;
+
+/* Method 3: gap with two values (if different) */
+gap: 30px 10px;  /* 30px rows, 10px columns */</code>
+            </div>
+            
+            <div class="info-box">
+                <p><strong>Next Steps:</strong> Practice using gap properties in your grid layouts to create clean, professional spacing!</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="navigation">
+        <button class="nav-button" id="prevBtn" onclick="changeSlide(-1)">← Previous</button>
+        <span class="slide-counter">
+            <span id="currentSlide">1</span> / <span id="totalSlides">14</span>
+        </span>
+        <button class="nav-button" id="nextBtn" onclick="changeSlide(1)">Next →</button>
+    </div>
+
+    <script>
+        let currentSlideIndex = 0;
+        const slides = document.querySelectorAll('.slide');
+        const totalSlides = slides.length;
+        
+        document.getElementById('totalSlides').textContent = totalSlides;
+        
+        function showSlide(n) {
+            if (n >= totalSlides) {
+                currentSlideIndex = totalSlides - 1;
+            } else if (n < 0) {
+                currentSlideIndex = 0;
+            } else {
+                currentSlideIndex = n;
+            }
+            
+            slides.forEach((slide, index) => {
+                slide.classList.remove('active');
+                if (index === currentSlideIndex) {
+                    slide.classList.add('active');
+                }
+            });
+            
+            document.getElementById('currentSlide').textContent = currentSlideIndex + 1;
+            
+            document.getElementById('prevBtn').disabled = currentSlideIndex === 0;
+            document.getElementById('nextBtn').disabled = currentSlideIndex === totalSlides - 1;
+            
+            window.scrollTo(0, 0);
+        }
+        
+        function changeSlide(direction) {
+            showSlide(currentSlideIndex + direction);
+        }
+        
+        // Interactive demo functionality
+        function setGap(type) {
+            const grid = document.getElementById('interactive-grid');
+            const label = document.getElementById('current-gap-label');
+            const buttons = document.querySelectorAll('.demo-controls button');
+            
+            buttons.forEach(btn => btn.classList.remove('active'));
+            
+            switch(type) {
+                case 'none':
+                    grid.style.gap = '0';
+                    label.textContent = 'Current: gap: 0;';
+                    document.getElementById('btn-none').classList.add('active');
+                    break;
+                case 'small':
+                    grid.style.gap = '10px';
+                    label.textContent = 'Current: gap: 10px;';
+                    document.getElementById('btn-small').classList.add('active');
+                    break;
+                case 'medium':
+                    grid.style.gap = '20px';
+                    label.textContent = 'Current: gap: 20px;';
+                    document.getElementById('btn-medium').classList.add('active');
+                    break;
+                case 'large':
+                    grid.style.gap = '40px';
+                    label.textContent = 'Current: gap: 40px;';
+                    document.getElementById('btn-large').classList.add('active');
+                    break;
+                case 'unequal':
+                    grid.style.gap = '40px 10px';
+                    label.textContent = 'Current: gap: 40px 10px; (rows columns)';
+                    document.getElementById('btn-unequal').classList.add('active');
+                    break;
+            }
+        }
+        
+        // Keyboard navigation
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'ArrowLeft') {
+                changeSlide(-1);
+            } else if (event.key === 'ArrowRight') {
+                changeSlide(1);
+            }
+        });
+        
+        // Touch/swipe support for mobile
+        let touchStartX = 0;
+        let touchEndX = 0;
+        
+        document.addEventListener('touchstart', function(event) {
+            touchStartX = event.changedTouches[0].screenX;
+        });
+        
+        document.addEventListener('touchend', function(event) {
+            touchEndX = event.changedTouches[0].screenX;
+            handleSwipe();
+        });
+        
+        function handleSwipe() {
+            if (touchEndX < touchStartX - 50) {
+                changeSlide(1);
+            }
+            if (touchEndX > touchStartX + 50) {
+                changeSlide(-1);
+            }
+        }
+        
+        // Initialize
+        showSlide(0);
+    </script>
+</body>
+</html>

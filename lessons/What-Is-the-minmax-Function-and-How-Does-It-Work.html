@@ -1,0 +1,987 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The minmax() Function</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+            overflow-x: hidden;
+            color: #333;
+        }
+        
+        .slideshow-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 30px 20px 120px 20px;
+            min-height: 100vh;
+        }
+        
+        .slide {
+            display: none;
+            background: white;
+            border-radius: 12px;
+            padding: 50px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            min-height: calc(100vh - 180px);
+            animation: fadeIn 0.6s ease-in-out;
+        }
+        
+        .slide.active {
+            display: block;
+        }
+        
+        @keyframes fadeIn {
+            from { 
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to { 
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        h2 {
+            color: #881518;
+            font-size: 2.5em;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 4px solid #881518;
+            position: relative;
+        }
+        
+        h2::after {
+            content: '';
+            position: absolute;
+            bottom: -4px;
+            left: 0;
+            width: 100px;
+            height: 4px;
+            background: #c41e23;
+        }
+        
+        .concept {
+            margin-bottom: 35px;
+        }
+        
+        .concept h3 {
+            color: #2d2d2d;
+            font-size: 1.6em;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .concept h3::before {
+            content: '▸';
+            color: #881518;
+            margin-right: 10px;
+            font-size: 0.9em;
+        }
+        
+        .concept p {
+            color: #555;
+            font-size: 1.15em;
+            line-height: 1.8;
+            margin-bottom: 15px;
+        }
+        
+        .concept ul {
+            margin-left: 20px;
+            color: #555;
+            font-size: 1.1em;
+            line-height: 1.8;
+        }
+        
+        .concept li {
+            margin-bottom: 15px;
+        }
+        
+        .concept strong, .concept code {
+            color: #881518;
+            font-weight: 600;
+        }
+        
+        .code-example {
+            background: #f8f8f8;
+            border-left: 5px solid #881518;
+            padding: 25px;
+            border-radius: 8px;
+            margin: 25px 0;
+            overflow-x: auto;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        .code-example code {
+            font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+            font-size: 0.95em;
+            color: #2d2d2d;
+            display: block;
+            white-space: pre;
+            line-height: 1.6;
+        }
+        
+        .visual-example {
+            margin: 30px 0;
+            padding: 25px;
+            background: linear-gradient(135deg, #fafafa 0%, #f0f0f0 100%);
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        }
+        
+        .demo-label {
+            font-size: 0.95em;
+            color: #881518;
+            margin-bottom: 15px;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .highlight-box {
+            background: linear-gradient(135deg, #fff8f8 0%, #ffe8e8 100%);
+            border-left: 5px solid #881518;
+            padding: 20px;
+            margin: 25px 0;
+            border-radius: 6px;
+        }
+        
+        .highlight-box p {
+            color: #2d2d2d;
+            font-size: 1.05em;
+            margin: 0;
+        }
+        
+        .info-box {
+            background: linear-gradient(135deg, #f0f8ff 0%, #e0f0ff 100%);
+            border-left: 5px solid #4a90e2;
+            padding: 20px;
+            margin: 25px 0;
+            border-radius: 6px;
+        }
+        
+        .info-box p {
+            color: #2d2d2d;
+            font-size: 1.05em;
+            margin: 0;
+        }
+        
+        .success-box {
+            background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
+            border-left: 5px solid #4caf50;
+            padding: 20px;
+            margin: 25px 0;
+            border-radius: 6px;
+        }
+        
+        .success-box p {
+            color: #2d2d2d;
+            font-size: 1.05em;
+            margin: 0;
+        }
+        
+        .intro-list {
+            background: linear-gradient(135deg, #f8f8f8 0%, #e8e8e8 100%);
+            padding: 25px;
+            border-radius: 8px;
+            margin: 25px 0;
+        }
+        
+        .intro-list ul {
+            list-style: none;
+            margin: 0;
+        }
+        
+        .intro-list li {
+            padding: 12px 0;
+            font-size: 1.2em;
+            color: #2d2d2d;
+            display: flex;
+            align-items: center;
+        }
+        
+        .intro-list li::before {
+            content: '✓';
+            color: #881518;
+            font-weight: bold;
+            font-size: 1.3em;
+            margin-right: 15px;
+        }
+        
+        .syntax-box {
+            background: #2d2d2d;
+            color: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            margin: 25px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 1.5em;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+        
+        .syntax-box .function {
+            color: #ff6b6b;
+            font-weight: bold;
+        }
+        
+        .syntax-box .param {
+            color: #4ecdc4;
+        }
+        
+        .syntax-box .paren {
+            color: #95e1d3;
+        }
+        
+        .interactive-demo {
+            background: white;
+            border: 3px solid #881518;
+            border-radius: 8px;
+            padding: 25px;
+            margin: 25px 0;
+        }
+        
+        .resize-container {
+            background: #f8f8f8;
+            border: 2px dashed #881518;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            resize: horizontal;
+            overflow: auto;
+            min-width: 300px;
+            max-width: 100%;
+        }
+        
+        .resize-grid {
+            display: grid;
+            gap: 10px;
+        }
+        
+        .grid-item {
+            background: linear-gradient(135deg, #881518 0%, #c41e23 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            box-shadow: 0 2px 6px rgba(136, 21, 24, 0.3);
+            min-height: 80px;
+        }
+        
+        .size-indicator {
+            text-align: center;
+            margin-top: 10px;
+            padding: 10px;
+            background: #e8f5e9;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            color: #2e7d32;
+            font-weight: bold;
+        }
+        
+        .comparison-demo {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 20px;
+            margin: 25px 0;
+        }
+        
+        .comparison-card {
+            background: white;
+            border: 3px solid #881518;
+            border-radius: 8px;
+            padding: 20px;
+        }
+        
+        .comparison-card.minmax {
+            border-color: #4caf50;
+        }
+        
+        .comparison-card h4 {
+            color: #881518;
+            font-size: 1.2em;
+            margin-bottom: 15px;
+            text-align: center;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #eee;
+        }
+        
+        .comparison-card.minmax h4 {
+            color: #4caf50;
+        }
+        
+        .range-visual {
+            background: white;
+            border: 3px solid #881518;
+            border-radius: 8px;
+            padding: 25px;
+            margin: 25px 0;
+        }
+        
+        .range-bar {
+            height: 40px;
+            background: linear-gradient(90deg, #881518 0%, #c41e23 50%, #881518 100%);
+            border-radius: 4px;
+            position: relative;
+            margin: 20px 0;
+        }
+        
+        .range-marker {
+            position: absolute;
+            top: -30px;
+            background: #2d2d2d;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.85em;
+            font-weight: bold;
+        }
+        
+        .range-marker.min {
+            left: 0;
+        }
+        
+        .range-marker.max {
+            right: 0;
+        }
+        
+        .range-label {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 10px;
+            font-family: 'Courier New', monospace;
+            color: #666;
+        }
+        
+        .behavior-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin: 25px 0;
+        }
+        
+        .behavior-card {
+            background: white;
+            border: 2px solid #881518;
+            border-radius: 8px;
+            padding: 20px;
+        }
+        
+        .behavior-card .icon {
+            font-size: 2.5em;
+            text-align: center;
+            margin-bottom: 15px;
+        }
+        
+        .behavior-card h5 {
+            color: #881518;
+            font-size: 1.2em;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+        
+        .behavior-card p {
+            color: #666;
+            font-size: 0.95em;
+            line-height: 1.6;
+            text-align: center;
+        }
+        
+        .navigation {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(180deg, #881518 0%, #6b1113 100%);
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.3);
+            z-index: 1000;
+        }
+        
+        .nav-button {
+            background: white;
+            color: #881518;
+            border: none;
+            padding: 14px 35px;
+            font-size: 1.05em;
+            font-weight: bold;
+            cursor: pointer;
+            border-radius: 6px;
+            transition: all 0.3s;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        }
+        
+        .nav-button:hover:not(:disabled) {
+            background: #f0f0f0;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+        
+        .nav-button:active:not(:disabled) {
+            transform: translateY(0);
+        }
+        
+        .nav-button:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+        
+        .slide-counter {
+            color: white;
+            font-size: 1.1em;
+            font-weight: bold;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 10px 20px;
+            border-radius: 6px;
+        }
+        
+        @media (max-width: 768px) {
+            .slideshow-container {
+                padding: 20px 15px 120px 15px;
+            }
+            
+            .slide {
+                padding: 30px 20px;
+            }
+            
+            h2 {
+                font-size: 1.8em;
+            }
+            
+            .concept h3 {
+                font-size: 1.3em;
+            }
+            
+            .concept p, .concept ul {
+                font-size: 1em;
+            }
+            
+            .comparison-demo {
+                grid-template-columns: 1fr;
+            }
+            
+            .nav-button {
+                padding: 12px 20px;
+                font-size: 0.95em;
+            }
+            
+            .slide-counter {
+                font-size: 0.95em;
+                padding: 8px 15px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            h2 {
+                font-size: 1.5em;
+            }
+            
+            .nav-button {
+                padding: 10px 15px;
+                font-size: 0.85em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="slideshow-container">
+        <!-- Slide 1: Introduction -->
+        <div class="slide active">
+            <h2>The minmax() Function</h2>
+            <div class="concept">
+                <h3>Flexible Grid Track Sizing</h3>
+                <p>The <code>minmax()</code> function <strong>defines the range for the size of a grid track</strong>, specifying how much space a row or column can occupy.</p>
+            </div>
+            
+            <div class="highlight-box">
+                <p><strong>Purpose:</strong> Instead of setting a fixed size, minmax() lets you set a minimum and maximum size, allowing the track to adapt flexibly within that range.</p>
+            </div>
+            
+            <div class="intro-list">
+                <p style="margin-bottom: 15px; font-weight: bold; color: #881518;">What You'll Learn:</p>
+                <ul>
+                    <li>How <code>minmax()</code> works</li>
+                    <li>Setting minimum and maximum sizes</li>
+                    <li>Creating flexible, responsive layouts</li>
+                    <li>Advantages over fixed sizes</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Slide 2: Review of Track Sizing -->
+        <div class="slide">
+            <h2>Track Sizing Options</h2>
+            <div class="concept">
+                <h3>Before minmax()</h3>
+                <p>Remember that you can set the track size with units like <code>px</code> (pixels), <code>rem</code>, or even <code>em</code>, and with <strong>fractional units</strong> (<code>fr</code>).</p>
+            </div>
+            
+            <div class="code-example">
+                <code>/* Fixed sizes */
+grid-template-columns: 200px 300px 100px;
+
+/* Flexible sizes */
+grid-template-columns: 1fr 2fr 1fr;
+
+/* Mixed */
+grid-template-columns: 200px 1fr 100px;</code>
+            </div>
+            
+            <div class="info-box">
+                <p><strong>Limitation:</strong> Fixed sizes (px, rem, em) don't adapt to available space. Fractional units (fr) are flexible but have no minimum or maximum constraints.</p>
+            </div>
+        </div>
+
+        <!-- Slide 3: Introducing minmax() -->
+        <div class="slide">
+            <h2>Taking It Further with minmax()</h2>
+            <div class="concept">
+                <h3>The Best of Both Worlds</h3>
+                <p>The <code>minmax()</code> function takes things a bit further by allowing you to set a <strong>minimum size</strong> and a <strong>maximum size</strong> for the grid track.</p>
+            </div>
+            
+            <div class="success-box">
+                <p><strong>Advantage:</strong> Combines the stability of minimum sizes with the flexibility of maximum sizes, creating truly responsive layouts.</p>
+            </div>
+            
+            <div class="intro-list">
+                <ul>
+                    <li><strong>Flexibility</strong> – Adapts to available space</li>
+                    <li><strong>Constraints</strong> – Never too small or too large</li>
+                    <li><strong>Responsiveness</strong> – Perfect for varying screen sizes</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Slide 4: Syntax -->
+        <div class="slide">
+            <h2>minmax() Syntax</h2>
+            <div class="concept">
+                <h3>Function Structure</h3>
+                <p>Here's the syntax of the <code>minmax()</code> function:</p>
+            </div>
+            
+            <div class="syntax-box">
+                <span class="function">minmax</span><span class="paren">(</span><span class="param">min</span>, <span class="param">max</span><span class="paren">)</span>
+            </div>
+            
+            <div class="intro-list">
+                <p style="margin-bottom: 15px; font-weight: bold; color: #881518;">Parameters:</p>
+                <ul>
+                    <li><strong>min</strong> – The minimum size of the grid track</li>
+                    <li><strong>max</strong> – The maximum size of the grid track</li>
+                </ul>
+            </div>
+            
+            <div class="code-example">
+                <code>/* Example usage */
+grid-template-columns: minmax(150px, 300px) 1fr;
+
+/* Multiple minmax() values */
+grid-template-columns: minmax(100px, 200px) minmax(150px, 1fr);</code>
+            </div>
+        </div>
+
+        <!-- Slide 5: min Parameter -->
+        <div class="slide">
+            <h2>The min Parameter</h2>
+            <div class="concept">
+                <h3>Setting the Minimum Size</h3>
+                <p><strong>min</strong> is the minimum size of the grid track, which can be set using <strong>pixels</strong>, <strong>percentage</strong>, or <strong>auto</strong>.</p>
+            </div>
+            
+            <div class="code-example">
+                <code>/* Different min values */
+minmax(100px, 1fr)      /* min = 100 pixels */
+minmax(20%, 500px)      /* min = 20% of container */
+minmax(auto, 300px)     /* min = auto (content-based) */
+minmax(10rem, 1fr)      /* min = 10 rem units */</code>
+            </div>
+            
+            <div class="info-box">
+                <p><strong>The min value ensures the grid track will never shrink below a set size.</strong></p>
+            </div>
+            
+            <div class="intro-list">
+                <p style="margin-bottom: 15px; font-weight: bold; color: #881518;">Common min Values:</p>
+                <ul>
+                    <li><code>pixels (px)</code> – Fixed minimum</li>
+                    <li><code>percentage (%)</code> – Relative to container</li>
+                    <li><code>auto</code> – Based on content</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Slide 6: max Parameter -->
+        <div class="slide">
+            <h2>The max Parameter</h2>
+            <div class="concept">
+                <h3>Setting the Maximum Size</h3>
+                <p><strong>max</strong> is the maximum size of the grid track which you can set with the same units (pixels, percentage, auto), <strong>plus fractional units</strong> (<code>fr</code>).</p>
+            </div>
+            
+            <div class="code-example">
+                <code>/* Different max values */
+minmax(100px, 300px)    /* max = 300 pixels */
+minmax(10%, 50%)        /* max = 50% of container */
+minmax(100px, 1fr)      /* max = 1 fraction unit (flexible!) */
+minmax(auto, auto)      /* max = auto (content-based) */</code>
+            </div>
+            
+            <div class="info-box">
+                <p><strong>The max value limits how large the grid track can grow.</strong></p>
+            </div>
+            
+            <div class="highlight-box">
+                <p><strong>Pro Tip:</strong> Using <code>1fr</code> as the max value makes the track flexible while still respecting the minimum size!</p>
+            </div>
+        </div>
+
+        <!-- Slide 7: How They Work Together -->
+        <div class="slide">
+            <h2>How min and max Work Together</h2>
+            <div class="concept">
+                <h3>Dynamic Behavior</h3>
+                <p>The two values work together to create flexible, responsive tracks:</p>
+            </div>
+            
+            <div class="behavior-grid">
+                <div class="behavior-card">
+                    <div class="icon">📏</div>
+                    <h5>Minimum Protection</h5>
+                    <p>The min value ensures the grid track will never shrink below a set size</p>
+                </div>
+                
+                <div class="behavior-card">
+                    <div class="icon">📐</div>
+                    <h5>Maximum Limit</h5>
+                    <p>The max value limits how large the grid track can grow</p>
+                </div>
+                
+                <div class="behavior-card">
+                    <div class="icon">⚖️</div>
+                    <h5>Dynamic Adjustment</h5>
+                    <p>The grid track size adjusts dynamically between min and max based on content and container size</p>
+                </div>
+            </div>
+            
+            <div class="success-box">
+                <p><strong>Result:</strong> A track that's flexible enough to adapt but constrained enough to remain usable!</p>
+            </div>
+        </div>
+
+        <!-- Slide 8: Visual Range -->
+        <div class="slide">
+            <h2>Visualizing the Range</h2>
+            <div class="concept">
+                <h3>Understanding minmax(150px, 300px)</h3>
+            </div>
+            
+            <div class="range-visual">
+                <div class="demo-label">The Flexible Range:</div>
+                <div style="position: relative;">
+                    <div class="range-marker min">MIN: 150px</div>
+                    <div class="range-marker max">MAX: 300px</div>
+                    <div class="range-bar"></div>
+                </div>
+                <div class="range-label">
+                    <span><strong>Never smaller than 150px</strong></span>
+                    <span><strong>Never larger than 300px</strong></span>
+                </div>
+                <div style="margin-top: 25px; padding: 20px; background: #f0f8ff; border-radius: 6px; text-align: center;">
+                    <p style="color: #666; font-size: 1.1em; line-height: 1.8; margin: 0;">
+                        The track will be <strong>somewhere between 150px and 300px</strong>,<br/>
+                        adjusting based on available space and content
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 9: Practical Example Setup -->
+        <div class="slide">
+            <h2>Practical Example</h2>
+            <div class="concept">
+                <h3>Real-World Usage</h3>
+                <p>Let's look at a practical example:</p>
+            </div>
+            
+            <div class="code-example">
+                <code>.grid-container {
+  display: grid;
+  grid-template-columns: minmax(150px, 300px) 1fr;
+  gap: 10px;
+}</code>
+            </div>
+            
+            <div class="visual-example">
+                <div class="demo-label">Two-Column Layout:</div>
+                <div style="display: grid; grid-template-columns: minmax(150px, 300px) 1fr; gap: 10px; padding: 20px; background: white; border: 3px solid #881518; border-radius: 8px;">
+                    <div class="grid-item">
+                        <div>Item 1<br/><span style="font-size: 0.8em;">minmax(150px, 300px)</span></div>
+                    </div>
+                    <div class="grid-item">
+                        <div>Item 2<br/><span style="font-size: 0.8em;">1fr</span></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 10: Explaining the Example -->
+        <div class="slide">
+            <h2>What's Happening Here?</h2>
+            <div class="concept">
+                <h3>Breaking Down the Behavior</h3>
+            </div>
+            
+            <div class="intro-list">
+                <p style="margin-bottom: 15px; font-weight: bold; color: #881518;">First Column: minmax(150px, 300px)</p>
+                <ul>
+                    <li>Will <strong>always be at least 150px</strong> wide</li>
+                    <li>Will be <strong>at most 300px</strong> wide</li>
+                    <li>Adjusts <strong>depending on available space</strong></li>
+                    <li>Grows when there's extra room (up to 300px)</li>
+                    <li>Stays at 150px minimum when space is tight</li>
+                </ul>
+            </div>
+            
+            <div class="intro-list">
+                <p style="margin-bottom: 15px; font-weight: bold; color: #4a90e2;">Second Column: 1fr</p>
+                <ul>
+                    <li>Takes up <strong>any remaining space</strong></li>
+                    <li>Grows and shrinks <strong>flexibly</strong></li>
+                    <li>No other columns to <strong>share space with</strong></li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Slide 11: Interactive Resize Demo -->
+        <div class="slide">
+            <h2>Try Resizing</h2>
+            <div class="concept">
+                <h3>Interactive Demonstration</h3>
+                <p>Drag the bottom-right corner of the container below to see how <code>minmax(150px, 300px)</code> behaves:</p>
+            </div>
+            
+            <div class="interactive-demo">
+                <div class="demo-label">↘ Drag to Resize ↘</div>
+                <div class="resize-container">
+                    <div class="resize-grid" style="grid-template-columns: minmax(150px, 300px) 1fr;">
+                        <div class="grid-item" id="col1">Column 1<br/><span style="font-size: 0.8em;">minmax(150px, 300px)</span></div>
+                        <div class="grid-item">Column 2<br/><span style="font-size: 0.8em;">1fr (flexible)</span></div>
+                    </div>
+                </div>
+                <div class="info-box" style="margin-top: 15px;">
+                    <p><strong>Notice:</strong> Column 1 stays between 150px and 300px, while Column 2 takes the remaining space!</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 12: Comparison with Other Methods -->
+        <div class="slide">
+            <h2>Comparing Sizing Methods</h2>
+            <div class="concept">
+                <h3>minmax() vs Fixed vs fr</h3>
+            </div>
+            
+            <div class="comparison-demo">
+                <div class="comparison-card">
+                    <h4>Fixed Size (200px)</h4>
+                    <div style="margin: 15px 0; padding: 15px; background: #ffebee; border-radius: 6px;">
+                        <p style="text-align: center; color: #666; font-size: 0.95em; margin: 0;">Always 200px<br/>❌ Not flexible</p>
+                    </div>
+                    <div style="height: 60px; width: 200px; margin: 0 auto; background: linear-gradient(135deg, #881518 0%, #c41e23 100%); border-radius: 4px;"></div>
+                </div>
+                
+                <div class="comparison-card">
+                    <h4>Fractional (1fr)</h4>
+                    <div style="margin: 15px 0; padding: 15px; background: #fff8e1; border-radius: 6px;">
+                        <p style="text-align: center; color: #666; font-size: 0.95em; margin: 0;">Fills space<br/>⚠️ No minimum</p>
+                    </div>
+                    <div style="height: 60px; width: 100%; background: linear-gradient(135deg, #881518 0%, #c41e23 100%); border-radius: 4px;"></div>
+                </div>
+                
+                <div class="comparison-card minmax">
+                    <h4>minmax(100px, 1fr) ✓</h4>
+                    <div style="margin: 15px 0; padding: 15px; background: #e8f5e9; border-radius: 6px;">
+                        <p style="text-align: center; color: #666; font-size: 0.95em; margin: 0;">Flexible + minimum<br/>✓ Best of both!</p>
+                    </div>
+                    <div style="height: 60px; min-width: 100px; width: 100%; background: linear-gradient(135deg, #4caf50 0%, #66bb6a 100%); border-radius: 4px;"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 13: Advantages -->
+        <div class="slide">
+            <h2>Advantages of minmax()</h2>
+            <div class="concept">
+                <h3>Why Use minmax()?</h3>
+                <p>The advantage of the <code>minmax()</code> function over <strong>fixed sizes</strong> and even <strong>fr units</strong> is that it is <strong>more flexible</strong>, making it ideal for <strong>adaptability and responsiveness</strong>.</p>
+            </div>
+            
+            <div class="intro-list">
+                <p style="margin-bottom: 15px; font-weight: bold; color: #881518;">Key Benefits:</p>
+                <ul>
+                    <li><strong>Flexible</strong> – Adapts to available space</li>
+                    <li><strong>Constrained</strong> – Maintains usability with minimum size</li>
+                    <li><strong>Responsive</strong> – Perfect for varying screen sizes</li>
+                    <li><strong>Predictable</strong> – Never too small or too large</li>
+                    <li><strong>Content-aware</strong> – Can use auto for content-based sizing</li>
+                </ul>
+            </div>
+            
+            <div class="success-box">
+                <p><strong>Best Practice:</strong> Use minmax() when you need flexibility with guardrails – especially for responsive layouts that work across different devices!</p>
+            </div>
+        </div>
+
+        <!-- Slide 14: Common Patterns -->
+        <div class="slide">
+            <h2>Common minmax() Patterns</h2>
+            <div class="concept">
+                <h3>Real-World Use Cases</h3>
+            </div>
+            
+            <div class="code-example">
+                <code>/* Sidebar with flexible content */
+grid-template-columns: minmax(200px, 250px) 1fr;
+
+/* Responsive card grid */
+grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+
+/* Flexible middle column */
+grid-template-columns: 200px minmax(300px, 1fr) 200px;
+
+/* All flexible with minimums */
+grid-template-columns: minmax(150px, 1fr) minmax(200px, 1fr) minmax(150px, 1fr);</code>
+            </div>
+            
+            <div class="info-box">
+                <p><strong>Pro Tip:</strong> Combine <code>minmax()</code> with <code>repeat()</code> and <code>auto-fit</code> for truly responsive grid layouts!</p>
+            </div>
+        </div>
+
+        <!-- Slide 15: Summary -->
+        <div class="slide">
+            <h2>Summary</h2>
+            <div class="concept">
+                <h3>Key Takeaways</h3>
+            </div>
+            
+            <div class="intro-list">
+                <p style="margin-bottom: 15px; font-weight: bold; color: #881518;">Remember:</p>
+                <ul>
+                    <li><code>minmax(min, max)</code> defines a <strong>flexible range</strong></li>
+                    <li><strong>min</strong> sets the minimum size (never smaller)</li>
+                    <li><strong>max</strong> sets the maximum size (never larger)</li>
+                    <li>Track adjusts <strong>dynamically</strong> within the range</li>
+                    <li>More <strong>flexible</strong> than fixed sizes</li>
+                    <li>More <strong>controlled</strong> than plain fr units</li>
+                    <li>Ideal for <strong>responsive</strong>, <strong>adaptable</strong> layouts</li>
+                </ul>
+            </div>
+            
+            <div class="syntax-box" style="font-size: 1.2em;">
+                <span class="function">minmax</span><span class="paren">(</span><span class="param">150px</span>, <span class="param">300px</span><span class="paren">)</span>
+            </div>
+            
+            <div class="highlight-box">
+                <p><strong>Next Step:</strong> Try using minmax() in your next grid layout. Start with a simple two-column layout and experiment with different min/max values!</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="navigation">
+        <button class="nav-button" id="prevBtn" onclick="changeSlide(-1)">← Previous</button>
+        <span class="slide-counter">
+            <span id="currentSlide">1</span> / <span id="totalSlides">15</span>
+        </span>
+        <button class="nav-button" id="nextBtn" onclick="changeSlide(1)">Next →</button>
+    </div>
+
+    <script>
+        let currentSlideIndex = 0;
+        const slides = document.querySelectorAll('.slide');
+        const totalSlides = slides.length;
+        
+        document.getElementById('totalSlides').textContent = totalSlides;
+        
+        function showSlide(n) {
+            if (n >= totalSlides) {
+                currentSlideIndex = totalSlides - 1;
+            } else if (n < 0) {
+                currentSlideIndex = 0;
+            } else {
+                currentSlideIndex = n;
+            }
+            
+            slides.forEach((slide, index) => {
+                slide.classList.remove('active');
+                if (index === currentSlideIndex) {
+                    slide.classList.add('active');
+                }
+            });
+            
+            document.getElementById('currentSlide').textContent = currentSlideIndex + 1;
+            
+            document.getElementById('prevBtn').disabled = currentSlideIndex === 0;
+            document.getElementById('nextBtn').disabled = currentSlideIndex === totalSlides - 1;
+            
+            window.scrollTo(0, 0);
+        }
+        
+        function changeSlide(direction) {
+            showSlide(currentSlideIndex + direction);
+        }
+        
+        // Keyboard navigation
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'ArrowLeft') {
+                changeSlide(-1);
+            } else if (event.key === 'ArrowRight') {
+                changeSlide(1);
+            }
+        });
+        
+        // Touch/swipe support for mobile
+        let touchStartX = 0;
+        let touchEndX = 0;
+        
+        document.addEventListener('touchstart', function(event) {
+            touchStartX = event.changedTouches[0].screenX;
+        });
+        
+        document.addEventListener('touchend', function(event) {
+            touchEndX = event.changedTouches[0].screenX;
+            handleSwipe();
+        });
+        
+        function handleSwipe() {
+            if (touchEndX < touchStartX - 50) {
+                changeSlide(1);
+            }
+            if (touchEndX > touchStartX + 50) {
+                changeSlide(-1);
+            }
+        }
+        
+        // Initialize
+        showSlide(0);
+    </script>
+</body>
+</html>

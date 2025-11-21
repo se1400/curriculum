@@ -1,0 +1,988 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Implicit vs Explicit Grid</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+            overflow-x: hidden;
+            color: #333;
+        }
+        
+        .slideshow-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 30px 20px 120px 20px;
+            min-height: 100vh;
+        }
+        
+        .slide {
+            display: none;
+            background: white;
+            border-radius: 12px;
+            padding: 50px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            min-height: calc(100vh - 180px);
+            animation: fadeIn 0.6s ease-in-out;
+        }
+        
+        .slide.active {
+            display: block;
+        }
+        
+        @keyframes fadeIn {
+            from { 
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to { 
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        h2 {
+            color: #881518;
+            font-size: 2.5em;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 4px solid #881518;
+            position: relative;
+        }
+        
+        h2::after {
+            content: '';
+            position: absolute;
+            bottom: -4px;
+            left: 0;
+            width: 100px;
+            height: 4px;
+            background: #c41e23;
+        }
+        
+        .concept {
+            margin-bottom: 35px;
+        }
+        
+        .concept h3 {
+            color: #2d2d2d;
+            font-size: 1.6em;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .concept h3::before {
+            content: '▸';
+            color: #881518;
+            margin-right: 10px;
+            font-size: 0.9em;
+        }
+        
+        .concept p {
+            color: #555;
+            font-size: 1.15em;
+            line-height: 1.8;
+            margin-bottom: 15px;
+        }
+        
+        .concept ul {
+            margin-left: 20px;
+            color: #555;
+            font-size: 1.1em;
+            line-height: 1.8;
+        }
+        
+        .concept li {
+            margin-bottom: 15px;
+        }
+        
+        .concept strong, .concept code {
+            color: #881518;
+            font-weight: 600;
+        }
+        
+        .code-example {
+            background: #f8f8f8;
+            border-left: 5px solid #881518;
+            padding: 25px;
+            border-radius: 8px;
+            margin: 25px 0;
+            overflow-x: auto;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        .code-example code {
+            font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+            font-size: 0.95em;
+            color: #2d2d2d;
+            display: block;
+            white-space: pre;
+            line-height: 1.6;
+        }
+        
+        .visual-example {
+            margin: 30px 0;
+            padding: 25px;
+            background: linear-gradient(135deg, #fafafa 0%, #f0f0f0 100%);
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        }
+        
+        .demo-label {
+            font-size: 0.95em;
+            color: #881518;
+            margin-bottom: 15px;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .grid-demo {
+            display: grid;
+            margin: 20px 0;
+            padding: 20px;
+            background: white;
+            border: 3px solid #881518;
+            border-radius: 8px;
+            gap: 10px;
+        }
+        
+        .grid-item {
+            background: linear-gradient(135deg, #881518 0%, #c41e23 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            box-shadow: 0 2px 6px rgba(136, 21, 24, 0.3);
+            min-height: 80px;
+        }
+        
+        .grid-item.explicit {
+            background: linear-gradient(135deg, #881518 0%, #c41e23 100%);
+        }
+        
+        .grid-item.implicit {
+            background: linear-gradient(135deg, #4a90e2 0%, #64b5f6 100%);
+            box-shadow: 0 2px 6px rgba(74, 144, 226, 0.3);
+        }
+        
+        .highlight-box {
+            background: linear-gradient(135deg, #fff8f8 0%, #ffe8e8 100%);
+            border-left: 5px solid #881518;
+            padding: 20px;
+            margin: 25px 0;
+            border-radius: 6px;
+        }
+        
+        .highlight-box p {
+            color: #2d2d2d;
+            font-size: 1.05em;
+            margin: 0;
+        }
+        
+        .info-box {
+            background: linear-gradient(135deg, #f0f8ff 0%, #e0f0ff 100%);
+            border-left: 5px solid #4a90e2;
+            padding: 20px;
+            margin: 25px 0;
+            border-radius: 6px;
+        }
+        
+        .info-box p {
+            color: #2d2d2d;
+            font-size: 1.05em;
+            margin: 0;
+        }
+        
+        .intro-list {
+            background: linear-gradient(135deg, #f8f8f8 0%, #e8e8e8 100%);
+            padding: 25px;
+            border-radius: 8px;
+            margin: 25px 0;
+        }
+        
+        .intro-list ul {
+            list-style: none;
+            margin: 0;
+        }
+        
+        .intro-list li {
+            padding: 12px 0;
+            font-size: 1.2em;
+            color: #2d2d2d;
+            display: flex;
+            align-items: center;
+        }
+        
+        .intro-list li::before {
+            content: '✓';
+            color: #881518;
+            font-weight: bold;
+            font-size: 1.3em;
+            margin-right: 15px;
+        }
+        
+        .type-card {
+            background: white;
+            border: 3px solid #881518;
+            border-radius: 8px;
+            padding: 25px;
+            margin: 25px 0;
+        }
+        
+        .type-card.implicit {
+            border-color: #4a90e2;
+        }
+        
+        .type-card h4 {
+            color: #881518;
+            font-size: 1.5em;
+            margin-bottom: 20px;
+            text-align: center;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #eee;
+        }
+        
+        .type-card.implicit h4 {
+            color: #4a90e2;
+        }
+        
+        .comparison-table {
+            background: white;
+            border: 3px solid #881518;
+            border-radius: 8px;
+            padding: 25px;
+            margin: 25px 0;
+            overflow-x: auto;
+        }
+        
+        .comparison-table table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .comparison-table th {
+            background: #881518;
+            color: white;
+            padding: 15px;
+            text-align: left;
+            font-size: 1.1em;
+        }
+        
+        .comparison-table td {
+            padding: 15px;
+            border-bottom: 1px solid #ddd;
+            font-size: 1em;
+            line-height: 1.6;
+        }
+        
+        .comparison-table tr:nth-child(even) {
+            background: #f8f8f8;
+        }
+        
+        .comparison-table td:first-child {
+            font-weight: bold;
+            color: #881518;
+            width: 150px;
+        }
+        
+        .annotation {
+            position: absolute;
+            background: #2d2d2d;
+            color: white;
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-size: 0.85em;
+            font-weight: bold;
+            z-index: 10;
+        }
+        
+        .annotation.explicit {
+            background: #881518;
+        }
+        
+        .annotation.implicit {
+            background: #4a90e2;
+        }
+        
+        .legend {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            margin: 20px 0;
+            padding: 15px;
+            background: white;
+            border-radius: 8px;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .legend-color {
+            width: 30px;
+            height: 30px;
+            border-radius: 4px;
+        }
+        
+        .legend-color.explicit {
+            background: linear-gradient(135deg, #881518 0%, #c41e23 100%);
+        }
+        
+        .legend-color.implicit {
+            background: linear-gradient(135deg, #4a90e2 0%, #64b5f6 100%);
+        }
+        
+        .navigation {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(180deg, #881518 0%, #6b1113 100%);
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.3);
+            z-index: 1000;
+        }
+        
+        .nav-button {
+            background: white;
+            color: #881518;
+            border: none;
+            padding: 14px 35px;
+            font-size: 1.05em;
+            font-weight: bold;
+            cursor: pointer;
+            border-radius: 6px;
+            transition: all 0.3s;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        }
+        
+        .nav-button:hover:not(:disabled) {
+            background: #f0f0f0;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+        
+        .nav-button:active:not(:disabled) {
+            transform: translateY(0);
+        }
+        
+        .nav-button:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+        
+        .slide-counter {
+            color: white;
+            font-size: 1.1em;
+            font-weight: bold;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 10px 20px;
+            border-radius: 6px;
+        }
+        
+        @media (max-width: 768px) {
+            .slideshow-container {
+                padding: 20px 15px 120px 15px;
+            }
+            
+            .slide {
+                padding: 30px 20px;
+            }
+            
+            h2 {
+                font-size: 1.8em;
+            }
+            
+            .concept h3 {
+                font-size: 1.3em;
+            }
+            
+            .concept p, .concept ul {
+                font-size: 1em;
+            }
+            
+            .nav-button {
+                padding: 12px 20px;
+                font-size: 0.95em;
+            }
+            
+            .slide-counter {
+                font-size: 0.95em;
+                padding: 8px 15px;
+            }
+            
+            .comparison-table {
+                font-size: 0.9em;
+            }
+            
+            .legend {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            h2 {
+                font-size: 1.5em;
+            }
+            
+            .nav-button {
+                padding: 10px 15px;
+                font-size: 0.85em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="slideshow-container">
+        <!-- Slide 1: Introduction -->
+        <div class="slide active">
+            <h2>Implicit vs Explicit Grid</h2>
+            <div class="concept">
+                <h3>Two Types of Grid Tracks</h3>
+                <p>In CSS Grid, there are <strong>two types</strong> of grid tracks (rows and columns): <strong>explicit</strong> and <strong>implicit</strong>.</p>
+            </div>
+            
+            <div class="intro-list">
+                <p style="margin-bottom: 15px; font-weight: bold; color: #881518;">Understanding Both Types:</p>
+                <ul>
+                    <li><strong>Explicit Grid</strong> – Tracks you define intentionally</li>
+                    <li><strong>Implicit Grid</strong> – Tracks created automatically by the browser</li>
+                </ul>
+            </div>
+            
+            <div class="highlight-box">
+                <p><strong>Key Distinction:</strong> Explicit tracks are planned and defined by you, while implicit tracks are created automatically when needed.</p>
+            </div>
+            
+            <div class="legend">
+                <div class="legend-item">
+                    <div class="legend-color explicit"></div>
+                    <strong>Explicit Grid (Red)</strong>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color implicit"></div>
+                    <strong>Implicit Grid (Blue)</strong>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 2: What is Implicit Grid? -->
+        <div class="slide">
+            <h2>What is Implicit Grid?</h2>
+            <div class="concept">
+                <h3>Automatically Created Tracks</h3>
+                <p><strong>Implicit grid</strong> refers to the <strong>rows and columns automatically created by the browser</strong> when placing items in a grid layout – those <strong>not explicitly defined</strong> using <code>grid-template-rows</code> or <code>grid-template-columns</code>.</p>
+            </div>
+            
+            <div class="type-card implicit">
+                <h4>🔷 Implicit Grid</h4>
+                <ul style="list-style: none; padding: 0;">
+                    <li style="padding: 12px; margin: 8px 0; background: #f0f8ff; border-radius: 4px; border-left: 4px solid #4a90e2;">
+                        <strong>Automatically created</strong> by the browser
+                    </li>
+                    <li style="padding: 12px; margin: 8px 0; background: #f0f8ff; border-radius: 4px; border-left: 4px solid #4a90e2;">
+                        Generated when <strong>items exceed</strong> explicit grid
+                    </li>
+                    <li style="padding: 12px; margin: 8px 0; background: #f0f8ff; border-radius: 4px; border-left: 4px solid #4a90e2;">
+                        <strong>Not manually defined</strong> in your CSS
+                    </li>
+                </ul>
+            </div>
+            
+            <div class="info-box">
+                <p><strong>Example:</strong> If you define 2 columns but have 6 items, the browser automatically creates additional rows to hold items 3-6. Those extra rows are implicit!</p>
+            </div>
+        </div>
+
+        <!-- Slide 3: Controlling Implicit Grid -->
+        <div class="slide">
+            <h2>Controlling Implicit Tracks</h2>
+            <div class="concept">
+                <h3>Special Properties</h3>
+                <p>The properties that control the columns and rows created <strong>implicitly by the browser</strong> are <code>grid-auto-columns</code> and <code>grid-auto-rows</code>.</p>
+            </div>
+            
+            <div class="code-example">
+                <code>.grid-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr;  /* Explicit: 2 columns */
+  grid-auto-rows: 100px;            /* Implicit: auto rows at 100px */
+}</code>
+            </div>
+            
+            <div class="intro-list">
+                <p style="margin-bottom: 15px; font-weight: bold; color: #4a90e2;">Properties for Implicit Grid:</p>
+                <ul>
+                    <li><code>grid-auto-rows</code> – Sets size of implicit rows</li>
+                    <li><code>grid-auto-columns</code> – Sets size of implicit columns</li>
+                </ul>
+            </div>
+            
+            <div class="highlight-box">
+                <p><strong>Default Behavior:</strong> If you don't set these properties, implicit tracks default to <code>auto</code> sizing (sized by their content).</p>
+            </div>
+        </div>
+
+        <!-- Slide 4: Two Meanings of Implicit Grid -->
+        <div class="slide">
+            <h2>Two Meanings of Implicit Grid</h2>
+            <div class="concept">
+                <h3>Dual Definition</h3>
+                <p><strong>Implicit grid</strong> also refers to the <strong>additional rows and columns</strong> the browser automatically generates when you place an item <strong>outside the explicitly defined</strong> rows and columns.</p>
+            </div>
+            
+            <div class="intro-list">
+                <p style="margin-bottom: 15px; font-weight: bold; color: #4a90e2;">Implicit Grid Means:</p>
+                <ul>
+                    <li><strong>Tracks created automatically</strong> when items overflow explicit grid</li>
+                    <li><strong>Additional tracks</strong> generated when items are placed outside explicit grid</li>
+                </ul>
+            </div>
+            
+            <div class="info-box">
+                <p><strong>In Practice:</strong> Both meanings describe the same concept – the browser creating tracks you didn't explicitly define when they're needed.</p>
+            </div>
+        </div>
+
+        <!-- Slide 5: Example Setup -->
+        <div class="slide">
+            <h2>Example: 2 Explicit Columns</h2>
+            <div class="concept">
+                <h3>Setting Up the Grid</h3>
+                <p>For instance, let's say you define only <strong>two explicit columns</strong> in a grid layout this way:</p>
+            </div>
+            
+            <div class="code-example">
+                <code>.grid-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr;  /* Only 2 columns defined */
+}</code>
+            </div>
+            
+            <div class="code-example">
+                <code>&lt;div class="grid-container"&gt;
+  &lt;div class="grid-item"&gt;Item 1&lt;/div&gt;
+  &lt;div class="grid-item"&gt;Item 2&lt;/div&gt;
+  &lt;div class="grid-item"&gt;Item 3&lt;/div&gt;
+  &lt;div class="grid-item"&gt;Item 4&lt;/div&gt;
+  &lt;div class="grid-item"&gt;Item 5&lt;/div&gt;
+  &lt;div class="grid-item"&gt;Item 6&lt;/div&gt;
+&lt;/div&gt;</code>
+            </div>
+            
+            <div class="highlight-box">
+                <p><strong>Question:</strong> We defined 2 columns but have 6 items. What happens to items 3-6?</p>
+            </div>
+        </div>
+
+        <!-- Slide 6: Visual Result -->
+        <div class="slide">
+            <h2>The Result</h2>
+            <div class="concept">
+                <h3>Automatic Row Creation</h3>
+                <p>Two items filled the first row using the two explicit columns – Item 1 in the first column and Item 2 in the second column.</p>
+                <p>The next items start a <strong>new row</strong> with Item 3 going in the first column of the second row and Item 4 in the second column of the second row, and so on.</p>
+            </div>
+            
+            <div class="visual-example">
+                <div class="demo-label">2 Explicit Columns, 6 Items:</div>
+                <div class="grid-demo" style="grid-template-columns: 1fr 1fr; position: relative;">
+                    <div class="grid-item explicit">Item 1</div>
+                    <div class="grid-item explicit">Item 2</div>
+                    <div class="grid-item implicit">Item 3</div>
+                    <div class="grid-item implicit">Item 4</div>
+                    <div class="grid-item implicit">Item 5</div>
+                    <div class="grid-item implicit">Item 6</div>
+                </div>
+                <div class="legend">
+                    <div class="legend-item">
+                        <div class="legend-color explicit"></div>
+                        <span>Row 1: Explicit columns</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color implicit"></div>
+                        <span>Rows 2-3: Implicit rows</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 7: Breaking Down the Example -->
+        <div class="slide">
+            <h2>Understanding the Layout</h2>
+            <div class="concept">
+                <h3>Explicit vs Implicit</h3>
+            </div>
+            
+            <div class="intro-list">
+                <p style="margin-bottom: 15px; font-weight: bold; color: #881518;">What We Defined (Explicit):</p>
+                <ul>
+                    <li><strong>2 columns</strong> using <code>grid-template-columns: 1fr 1fr</code></li>
+                    <li><strong>No rows</strong> explicitly defined</li>
+                </ul>
+            </div>
+            
+            <div class="intro-list">
+                <p style="margin-bottom: 15px; font-weight: bold; color: #4a90e2;">What the Browser Created (Implicit):</p>
+                <ul>
+                    <li><strong>3 rows</strong> automatically to hold all 6 items</li>
+                    <li><strong>Row 1</strong>: Items 1-2 (using explicit columns)</li>
+                    <li><strong>Row 2</strong>: Items 3-4 (implicit row)</li>
+                    <li><strong>Row 3</strong>: Items 5-6 (implicit row)</li>
+                </ul>
+            </div>
+            
+            <div class="highlight-box">
+                <p><strong>Key Point:</strong> The columns were explicit (we defined them), but the rows were implicit (browser created them automatically).</p>
+            </div>
+        </div>
+
+        <!-- Slide 8: What is Explicit Grid? -->
+        <div class="slide">
+            <h2>What is Explicit Grid?</h2>
+            <div class="concept">
+                <h3>Intentionally Defined Tracks</h3>
+                <p>As you've already seen, <strong>explicit grids</strong> are the areas of the grid you <strong>intentionally set up</strong>. That is, the rows and columns you <strong>explicitly define</strong> for a grid layout using the <code>grid-template-rows</code> and <code>grid-template-columns</code> properties.</p>
+            </div>
+            
+            <div class="type-card">
+                <h4>🔶 Explicit Grid</h4>
+                <ul style="list-style: none; padding: 0;">
+                    <li style="padding: 12px; margin: 8px 0; background: #fff8f8; border-radius: 4px; border-left: 4px solid #881518;">
+                        <strong>Manually defined</strong> by you in CSS
+                    </li>
+                    <li style="padding: 12px; margin: 8px 0; background: #fff8f8; border-radius: 4px; border-left: 4px solid #881518;">
+                        Uses <code>grid-template-rows</code> and <code>grid-template-columns</code>
+                    </li>
+                    <li style="padding: 12px; margin: 8px 0; background: #fff8f8; border-radius: 4px; border-left: 4px solid #881518;">
+                        <strong>Planned structure</strong> that you control
+                    </li>
+                </ul>
+            </div>
+            
+            <div class="code-example">
+                <code>.grid-container {
+  display: grid;
+  grid-template-columns: 100px 200px 100px;  /* 3 explicit columns */
+  grid-template-rows: 50px 100px;             /* 2 explicit rows */
+}</code>
+            </div>
+        </div>
+
+        <!-- Slide 9: Explicit Grid Properties -->
+        <div class="slide">
+            <h2>Properties for Explicit Grid</h2>
+            <div class="concept">
+                <h3>Defining Your Grid Structure</h3>
+            </div>
+            
+            <div class="intro-list">
+                <p style="margin-bottom: 15px; font-weight: bold; color: #881518;">Properties for Explicit Grid:</p>
+                <ul>
+                    <li><code>grid-template-columns</code> – Defines column structure</li>
+                    <li><code>grid-template-rows</code> – Defines row structure</li>
+                </ul>
+            </div>
+            
+            <div class="code-example">
+                <code>/* Define 3 columns and 2 rows explicitly */
+.grid-container {
+  display: grid;
+  grid-template-columns: 1fr 2fr 1fr;
+  grid-template-rows: 100px 200px;
+}
+
+/* Use repeat() for repeated values */
+.grid-container {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  grid-template-rows: 50px 100px;
+}</code>
+            </div>
+            
+            <div class="info-box">
+                <p><strong>Full Control:</strong> With explicit grid, you have complete control over the size and number of tracks in your layout.</p>
+            </div>
+        </div>
+
+        <!-- Slide 10: Side-by-Side Comparison -->
+        <div class="slide">
+            <h2>Visual Comparison</h2>
+            <div class="concept">
+                <h3>Explicit vs Implicit Side-by-Side</h3>
+            </div>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 25px; margin: 25px 0;">
+                <div class="type-card">
+                    <h4>Explicit Grid</h4>
+                    <div class="code-example" style="margin: 15px 0;">
+                        <code>grid-template-columns:
+  1fr 1fr;
+grid-template-rows:
+  100px 100px;</code>
+                    </div>
+                    <div class="grid-demo" style="grid-template-columns: 1fr 1fr; grid-template-rows: 80px 80px; gap: 5px;">
+                        <div class="grid-item explicit" style="min-height: auto;">1</div>
+                        <div class="grid-item explicit" style="min-height: auto;">2</div>
+                        <div class="grid-item explicit" style="min-height: auto;">3</div>
+                        <div class="grid-item explicit" style="min-height: auto;">4</div>
+                    </div>
+                    <p style="text-align: center; color: #881518; font-weight: bold; margin-top: 10px;">All tracks defined by you</p>
+                </div>
+                
+                <div class="type-card implicit">
+                    <h4>Implicit Grid</h4>
+                    <div class="code-example" style="margin: 15px 0;">
+                        <code>grid-template-columns:
+  1fr 1fr;
+/* Rows auto-created */</code>
+                    </div>
+                    <div class="grid-demo" style="grid-template-columns: 1fr 1fr; gap: 5px;">
+                        <div class="grid-item explicit" style="min-height: auto;">1</div>
+                        <div class="grid-item explicit" style="min-height: auto;">2</div>
+                        <div class="grid-item implicit" style="min-height: auto;">3</div>
+                        <div class="grid-item implicit" style="min-height: auto;">4</div>
+                    </div>
+                    <p style="text-align: center; color: #4a90e2; font-weight: bold; margin-top: 10px;">Rows created automatically</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 11: Comparison Table - Part 1 -->
+        <div class="slide">
+            <h2>Comparison Table: Part 1</h2>
+            <div class="concept">
+                <h3>Key Differences</h3>
+            </div>
+            
+            <div class="comparison-table">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Feature</th>
+                            <th>Explicit Grid</th>
+                            <th>Implicit Grid</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Size control</td>
+                            <td>Fully customizable using <code>grid-template-rows</code> and <code>grid-template-columns</code></td>
+                            <td>Controlled by <code>grid-auto-rows</code> and <code>grid-auto-columns</code>, or defaults to auto</td>
+                        </tr>
+                        <tr>
+                            <td>Default Behavior</td>
+                            <td>Does not change unless explicitly defined</td>
+                            <td>Automatically adapts to items placed outside the explicit grid</td>
+                        </tr>
+                        <tr>
+                            <td>Complexity</td>
+                            <td>Requires more planning for layout structure</td>
+                            <td>Easier to implement for unstructured or variable content</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Slide 12: Comparison Table - Part 2 -->
+        <div class="slide">
+            <h2>Comparison Table: Part 2</h2>
+            <div class="concept">
+                <h3>More Differences</h3>
+            </div>
+            
+            <div class="comparison-table">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Feature</th>
+                            <th>Explicit Grid</th>
+                            <th>Implicit Grid</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Flexibility</td>
+                            <td>Rigid structure with defined rows and columns</td>
+                            <td>Flexible and adapts to dynamically placed content</td>
+                        </tr>
+                        <tr>
+                            <td>Performance</td>
+                            <td>Potentially more performant as the layout is predefined</td>
+                            <td>May require additional browser computations for implicit grid generation</td>
+                        </tr>
+                        <tr>
+                            <td>Use case</td>
+                            <td>Useful when the grid structure is predictable and defined upfront</td>
+                            <td>Useful for dynamic layouts where content is unknown or changes frequently</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Slide 13: When to Use Each -->
+        <div class="slide">
+            <h2>When to Use Each Type</h2>
+            <div class="concept">
+                <h3>Making the Right Choice</h3>
+            </div>
+            
+            <div class="intro-list">
+                <p style="margin-bottom: 15px; font-weight: bold; color: #881518;">Use Explicit Grid When:</p>
+                <ul>
+                    <li>You know the <strong>exact layout structure</strong> in advance</li>
+                    <li>You need <strong>precise control</strong> over track sizes</li>
+                    <li>The layout is <strong>predictable and fixed</strong></li>
+                    <li>You want <strong>maximum performance</strong></li>
+                </ul>
+            </div>
+            
+            <div class="intro-list">
+                <p style="margin-bottom: 15px; font-weight: bold; color: #4a90e2;">Use Implicit Grid When:</p>
+                <ul>
+                    <li>Content is <strong>dynamic or unknown</strong></li>
+                    <li>Number of items <strong>may vary</strong></li>
+                    <li>You want the browser to <strong>handle overflow</strong> automatically</li>
+                    <li>Building <strong>flexible, adaptable</strong> layouts</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Slide 14: Summary -->
+        <div class="slide">
+            <h2>Summary</h2>
+            <div class="concept">
+                <h3>Key Takeaways</h3>
+            </div>
+            
+            <div class="intro-list">
+                <p style="margin-bottom: 15px; font-weight: bold; color: #881518;">Remember:</p>
+                <ul>
+                    <li><strong>Explicit Grid</strong> – Tracks you define with <code>grid-template-*</code></li>
+                    <li><strong>Implicit Grid</strong> – Tracks the browser creates automatically</li>
+                    <li><strong>Control implicit sizing</strong> with <code>grid-auto-rows/columns</code></li>
+                    <li><strong>Explicit = planned</strong>, Implicit = automatic</li>
+                    <li>Most layouts use <strong>both types together</strong></li>
+                </ul>
+            </div>
+            
+            <div class="code-example">
+                <code>/* Common pattern: Explicit columns, implicit rows */
+.grid-container {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);  /* Explicit: 3 columns */
+  grid-auto-rows: 100px;                   /* Implicit: rows at 100px */
+  gap: 20px;
+}
+
+/* Result: 3 columns defined, as many rows as needed */</code>
+            </div>
+            
+            <div class="highlight-box">
+                <p><strong>Pro Tip:</strong> Understanding the difference helps you write more efficient grid layouts and predict how your grid will behave with varying content!</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="navigation">
+        <button class="nav-button" id="prevBtn" onclick="changeSlide(-1)">← Previous</button>
+        <span class="slide-counter">
+            <span id="currentSlide">1</span> / <span id="totalSlides">14</span>
+        </span>
+        <button class="nav-button" id="nextBtn" onclick="changeSlide(1)">Next →</button>
+    </div>
+
+    <script>
+        let currentSlideIndex = 0;
+        const slides = document.querySelectorAll('.slide');
+        const totalSlides = slides.length;
+        
+        document.getElementById('totalSlides').textContent = totalSlides;
+        
+        function showSlide(n) {
+            if (n >= totalSlides) {
+                currentSlideIndex = totalSlides - 1;
+            } else if (n < 0) {
+                currentSlideIndex = 0;
+            } else {
+                currentSlideIndex = n;
+            }
+            
+            slides.forEach((slide, index) => {
+                slide.classList.remove('active');
+                if (index === currentSlideIndex) {
+                    slide.classList.add('active');
+                }
+            });
+            
+            document.getElementById('currentSlide').textContent = currentSlideIndex + 1;
+            
+            document.getElementById('prevBtn').disabled = currentSlideIndex === 0;
+            document.getElementById('nextBtn').disabled = currentSlideIndex === totalSlides - 1;
+            
+            window.scrollTo(0, 0);
+        }
+        
+        function changeSlide(direction) {
+            showSlide(currentSlideIndex + direction);
+        }
+        
+        // Keyboard navigation
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'ArrowLeft') {
+                changeSlide(-1);
+            } else if (event.key === 'ArrowRight') {
+                changeSlide(1);
+            }
+        });
+        
+        // Touch/swipe support for mobile
+        let touchStartX = 0;
+        let touchEndX = 0;
+        
+        document.addEventListener('touchstart', function(event) {
+            touchStartX = event.changedTouches[0].screenX;
+        });
+        
+        document.addEventListener('touchend', function(event) {
+            touchEndX = event.changedTouches[0].screenX;
+            handleSwipe();
+        });
+        
+        function handleSwipe() {
+            if (touchEndX < touchStartX - 50) {
+                changeSlide(1);
+            }
+            if (touchEndX > touchStartX + 50) {
+                changeSlide(-1);
+            }
+        }
+        
+        // Initialize
+        showSlide(0);
+    </script>
+</body>
+</html>
