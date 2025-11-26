@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JavaScript, HTML & CSS - Interactive Slideshow</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #881518 0%, #a81d20 100%);
+            color: #333;
+            overflow-x: hidden;
+        }
+
+        .slideshow-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            min-height: 100vh;
+            padding-bottom: 100px;
+        }
+
+        .slide {
+            display: none;
+            background: white;
+            border-radius: 12px;
+            padding: 40px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            animation: fadeIn 0.5s ease-in;
+            margin-top: 20px;
+            overflow-y: auto;
+            max-height: calc(100vh - 140px);
+        }
+
+        .slide.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        h1 {
+            color: #881518;
+            font-size: 2.5em;
+            margin-bottom: 25px;
+            border-bottom: 4px solid #881518;
+            padding-bottom: 15px;
+        }
+
+        h2 {
+            color: #881518;
+            font-size: 2em;
+            margin-bottom: 20px;
+            margin-top: 20px;
+        }
+
+        h3 {
+            color: #a81d20;
+            font-size: 1.5em;
+            margin-bottom: 15px;
+            margin-top: 20px;
+        }
+
+        p {
+            line-height: 1.8;
+            font-size: 1.1em;
+            margin-bottom: 15px;
+            color: #444;
+        }
+
+        ul {
+            margin-left: 30px;
+            margin-bottom: 20px;
+        }
+
+        li {
+            line-height: 1.8;
+            font-size: 1.1em;
+            margin-bottom: 10px;
+            color: #444;
+        }
+
+        .content-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-top: 20px;
+        }
+
+        .content-section {
+            background: #f9f9f9;
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 4px solid #881518;
+        }
+
+        pre {
+            background: #2d2d2d;
+            color: #f8f8f2;
+            padding: 20px;
+            border-radius: 8px;
+            overflow-x: auto;
+            font-size: 0.95em;
+            line-height: 1.6;
+            margin: 15px 0;
+        }
+
+        code {
+            font-family: 'Courier New', monospace;
+        }
+
+        .highlight {
+            background: #fff3cd;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-weight: 600;
+            color: #856404;
+        }
+
+        .example-box {
+            background: #e8f4f8;
+            border: 2px solid #881518;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .interactive-demo {
+            background: white;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            text-align: center;
+        }
+
+        .demo-button {
+            background: #881518;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            font-size: 1.1em;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .demo-button:hover {
+            background: #a81d20;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(136, 21, 24, 0.3);
+        }
+
+        .demo-heading {
+            color: green;
+            font-size: 2em;
+            margin-bottom: 15px;
+        }
+
+        .navigation {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(136, 21, 24, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 -5px 20px rgba(0, 0, 0, 0.3);
+            z-index: 1000;
+        }
+
+        .nav-button {
+            background: white;
+            color: #881518;
+            border: none;
+            padding: 12px 30px;
+            font-size: 1em;
+            font-weight: 600;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .nav-button:hover:not(:disabled) {
+            background: #f0f0f0;
+            transform: scale(1.05);
+        }
+
+        .nav-button:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        .slide-counter {
+            color: white;
+            font-size: 1.1em;
+            font-weight: 600;
+        }
+
+        @media (max-width: 768px) {
+            .slideshow-container {
+                padding: 15px;
+            }
+
+            .slide {
+                padding: 25px;
+                margin-top: 10px;
+            }
+
+            h1 {
+                font-size: 1.8em;
+            }
+
+            h2 {
+                font-size: 1.5em;
+            }
+
+            h3 {
+                font-size: 1.2em;
+            }
+
+            p, li {
+                font-size: 1em;
+            }
+
+            .content-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+
+            pre {
+                font-size: 0.85em;
+                padding: 15px;
+            }
+
+            .navigation {
+                padding: 15px;
+            }
+
+            .nav-button {
+                padding: 10px 20px;
+                font-size: 0.9em;
+            }
+
+            .slide-counter {
+                font-size: 0.95em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="slideshow-container">
+        <!-- Slide 1: What is JavaScript? -->
+        <div class="slide active">
+            <h1>What is JavaScript?</h1>
+            <p>JavaScript is a <span class="highlight">powerful programming language</span> that brings interactivity and dynamic behavior to websites.</p>
+            
+            <div class="content-grid">
+                <div class="content-section">
+                    <h3>HTML & CSS</h3>
+                    <p><strong>Markup languages</strong> used to:</p>
+                    <ul>
+                        <li>Structure content (HTML)</li>
+                        <li>Style elements (CSS)</li>
+                    </ul>
+                </div>
+                <div class="content-section">
+                    <h3>JavaScript</h3>
+                    <p><strong>Programming language</strong> that goes beyond markup to enable:</p>
+                    <ul>
+                        <li>Complex functionality</li>
+                        <li>Interactive behavior</li>
+                        <li>Dynamic responses</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 2: JavaScript Capabilities -->
+        <div class="slide">
+            <h1>What JavaScript Can Do</h1>
+            <p>JavaScript enables complex functionality that makes websites come alive:</p>
+            
+            <div class="example-box">
+                <h3>Interactive Features</h3>
+                <ul>
+                    <li><strong>Handle user input:</strong> Respond to keyboard typing, mouse clicks, and touch gestures</li>
+                    <li><strong>Animate elements:</strong> Create smooth transitions and visual effects</li>
+                    <li><strong>Build web applications:</strong> Create complete, interactive programs in the browser</li>
+                </ul>
+            </div>
+
+            <h3>Common Examples You See Every Day</h3>
+            <ul>
+                <li>🖱️ <strong>Clicking a button:</strong> JavaScript determines what happens</li>
+                <li>📝 <strong>Submitting a form:</strong> JavaScript validates and processes the data</li>
+                <li>📋 <strong>Hovering over a menu:</strong> JavaScript shows/hides menu items</li>
+            </ul>
+        </div>
+
+        <!-- Slide 3: How They Work Together -->
+        <div class="slide">
+            <h1>How HTML, CSS, and JavaScript Work Together</h1>
+            
+            <p>Each technology has a specific role in creating a complete web experience:</p>
+
+            <div class="content-grid">
+                <div class="content-section">
+                    <h3>HTML - Structure</h3>
+                    <p>Defines the content and elements on the page</p>
+<pre><code>&lt;h1&gt;Hello, World!&lt;/h1&gt;
+&lt;button&gt;Click me&lt;/button&gt;</code></pre>
+                </div>
+
+                <div class="content-section">
+                    <h3>CSS - Style</h3>
+                    <p>Applies visual styling to elements</p>
+<pre><code>h1 {
+  color: green;
+}</code></pre>
+                </div>
+            </div>
+
+            <div class="content-section">
+                <h3>JavaScript - Behavior</h3>
+                <p>Adds interactivity and dynamic functionality</p>
+<pre><code>onclick="alert('Button clicked!')"</code></pre>
+            </div>
+        </div>
+
+        <!-- Slide 4: Complete Example -->
+        <div class="slide">
+            <h1>Complete Working Example</h1>
+            
+            <p>Here's a complete example showing all three technologies working together:</p>
+
+<pre><code>&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+  &lt;style&gt;
+    h1 {
+      color: green;
+    }
+  &lt;/style&gt;
+&lt;/head&gt;
+&lt;body&gt;
+  &lt;h1&gt;Hello, World!&lt;/h1&gt;
+  &lt;button onclick="alert('Button clicked!')"&gt;Click me&lt;/button&gt;
+&lt;/body&gt;
+&lt;/html&gt;</code></pre>
+
+            <h3>How This Code Works:</h3>
+            <ul>
+                <li><span class="highlight">HTML</span> defines the content: a heading (h1 element) and a button</li>
+                <li><span class="highlight">CSS</span> applies styles: makes the heading text green</li>
+                <li><span class="highlight">JavaScript</span> enables behavior: displays an alert when button is clicked</li>
+            </ul>
+
+            <div class="interactive-demo">
+                <h3>Try It Yourself:</h3>
+                <h1 class="demo-heading">Hello, World!</h1>
+                <button class="demo-button" onclick="alert('Button clicked!')">Click me</button>
+            </div>
+        </div>
+
+        <!-- Slide 5: Summary -->
+        <div class="slide">
+            <h1>Summary: The Three Pillars of Web Development</h1>
+            
+            <div class="example-box">
+                <h2>Working Together</h2>
+                <p style="font-size: 1.2em; margin-bottom: 30px;">HTML, CSS, and JavaScript combine to create a complete and interactive web experience.</p>
+                
+                <div class="content-grid">
+                    <div class="content-section">
+                        <h3>📄 HTML</h3>
+                        <p><strong>Provides Structure</strong></p>
+                        <p>The foundation and content of the webpage</p>
+                    </div>
+                    
+                    <div class="content-section">
+                        <h3>🎨 CSS</h3>
+                        <p><strong>Adds Styling</strong></p>
+                        <p>The visual appearance and layout</p>
+                    </div>
+                </div>
+                
+                <div class="content-section" style="margin-top: 20px;">
+                    <h3>⚡ JavaScript</h3>
+                    <p><strong>Enables Behavior</strong></p>
+                    <p>The interactivity and dynamic functionality that brings pages to life</p>
+                </div>
+            </div>
+
+            <p style="margin-top: 30px; font-size: 1.15em; text-align: center; font-style: italic;">
+                Together, these three technologies form the core of modern web development.
+            </p>
+        </div>
+    </div>
+
+    <div class="navigation">
+        <button class="nav-button" id="prevBtn" onclick="changeSlide(-1)">← Previous</button>
+        <span class="slide-counter">
+            <span id="currentSlide">1</span> / <span id="totalSlides">5</span>
+        </span>
+        <button class="nav-button" id="nextBtn" onclick="changeSlide(1)">Next →</button>
+    </div>
+
+    <script>
+        let currentSlideIndex = 0;
+        const slides = document.querySelectorAll('.slide');
+        const totalSlides = slides.length;
+        
+        document.getElementById('totalSlides').textContent = totalSlides;
+
+        function showSlide(index) {
+            slides.forEach((slide, i) => {
+                slide.classList.remove('active');
+                if (i === index) {
+                    slide.classList.add('active');
+                    slide.scrollTop = 0; // Scroll to top of slide content
+                }
+            });
+            
+            // Scroll to top of page
+            window.scrollTo(0, 0);
+            
+            document.getElementById('currentSlide').textContent = index + 1;
+            
+            // Update button states
+            document.getElementById('prevBtn').disabled = index === 0;
+            document.getElementById('nextBtn').disabled = index === totalSlides - 1;
+        }
+
+        function changeSlide(direction) {
+            currentSlideIndex += direction;
+            
+            if (currentSlideIndex < 0) {
+                currentSlideIndex = 0;
+            } else if (currentSlideIndex >= totalSlides) {
+                currentSlideIndex = totalSlides - 1;
+            }
+            
+            showSlide(currentSlideIndex);
+        }
+
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowLeft') {
+                changeSlide(-1);
+            } else if (e.key === 'ArrowRight') {
+                changeSlide(1);
+            }
+        });
+
+        // Initialize
+        showSlide(0);
+    </script>
+</body>
+</html>
