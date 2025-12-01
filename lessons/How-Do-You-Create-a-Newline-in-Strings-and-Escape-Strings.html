@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Newlines and Escape Sequences - Interactive Slideshow</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #881518 0%, #a81d20 100%);
+            color: #333;
+            overflow-x: hidden;
+        }
+
+        .slideshow-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            min-height: 100vh;
+            padding-bottom: 100px;
+        }
+
+        .slide {
+            display: none;
+            background: white;
+            border-radius: 12px;
+            padding: 40px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            animation: fadeIn 0.5s ease-in;
+            margin-top: 20px;
+            overflow-y: auto;
+            max-height: calc(100vh - 140px);
+        }
+
+        .slide.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        h1 {
+            color: #881518;
+            font-size: 2.5em;
+            margin-bottom: 25px;
+            border-bottom: 4px solid #881518;
+            padding-bottom: 15px;
+        }
+
+        h2 {
+            color: #881518;
+            font-size: 2em;
+            margin-bottom: 20px;
+            margin-top: 20px;
+        }
+
+        h3 {
+            color: #a81d20;
+            font-size: 1.5em;
+            margin-bottom: 15px;
+            margin-top: 20px;
+        }
+
+        p {
+            line-height: 1.8;
+            font-size: 1.1em;
+            margin-bottom: 15px;
+            color: #444;
+        }
+
+        ul {
+            margin-left: 30px;
+            margin-bottom: 20px;
+        }
+
+        li {
+            line-height: 1.8;
+            font-size: 1.1em;
+            margin-bottom: 10px;
+            color: #444;
+        }
+
+        .content-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-top: 20px;
+        }
+
+        .content-section {
+            background: #f9f9f9;
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 4px solid #881518;
+        }
+
+        pre {
+            background: #2d2d2d;
+            color: #f8f8f2;
+            padding: 20px;
+            border-radius: 8px;
+            overflow-x: auto;
+            font-size: 0.95em;
+            line-height: 1.6;
+            margin: 15px 0;
+        }
+
+        code {
+            font-family: 'Courier New', monospace;
+        }
+
+        .inline-code {
+            background: #2d2d2d;
+            color: #f8f8f2;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.95em;
+        }
+
+        .highlight {
+            background: #fff3cd;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-weight: 600;
+            color: #856404;
+        }
+
+        .example-box {
+            background: #e8f4f8;
+            border: 2px solid #881518;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .key-concept {
+            background: #fef9e7;
+            border-left: 5px solid #f39c12;
+            padding: 15px 20px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+
+        .warning-box {
+            background: #fff3cd;
+            border: 3px solid #ffc107;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .success-box {
+            background: #d4edda;
+            border: 3px solid #28a745;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .error-box {
+            background: #f8d7da;
+            border: 3px solid #dc3545;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .console-output {
+            background: #1e1e1e;
+            border: 2px solid #555;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 15px 0;
+            font-family: 'Courier New', monospace;
+            color: #ce9178;
+            font-size: 1.05em;
+            white-space: pre-line;
+        }
+
+        .escape-badge {
+            display: inline-block;
+            background: #881518;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-weight: bold;
+            font-family: 'Courier New', monospace;
+            font-size: 1.2em;
+            margin: 5px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        th {
+            background: #881518;
+            color: white;
+            font-weight: 600;
+        }
+
+        tr:hover {
+            background: #f5f5f5;
+        }
+
+        .navigation {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(136, 21, 24, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 -5px 20px rgba(0, 0, 0, 0.3);
+            z-index: 1000;
+        }
+
+        .nav-button {
+            background: white;
+            color: #881518;
+            border: none;
+            padding: 12px 30px;
+            font-size: 1em;
+            font-weight: 600;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .nav-button:hover:not(:disabled) {
+            background: #f0f0f0;
+            transform: scale(1.05);
+        }
+
+        .nav-button:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        .slide-counter {
+            color: white;
+            font-size: 1.1em;
+            font-weight: 600;
+        }
+
+        @media (max-width: 768px) {
+            .slideshow-container {
+                padding: 15px;
+            }
+
+            .slide {
+                padding: 25px;
+                margin-top: 10px;
+            }
+
+            h1 {
+                font-size: 1.8em;
+            }
+
+            h2 {
+                font-size: 1.5em;
+            }
+
+            h3 {
+                font-size: 1.2em;
+            }
+
+            p, li {
+                font-size: 1em;
+            }
+
+            .content-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+
+            pre {
+                font-size: 0.85em;
+                padding: 15px;
+            }
+
+            .navigation {
+                padding: 15px;
+            }
+
+            .nav-button {
+                padding: 10px 20px;
+                font-size: 0.9em;
+            }
+
+            .slide-counter {
+                font-size: 0.95em;
+            }
+
+            .escape-badge {
+                font-size: 1em;
+                padding: 6px 12px;
+            }
+
+            table {
+                font-size: 0.9em;
+            }
+
+            th, td {
+                padding: 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="slideshow-container">
+        <!-- Slide 1: Introduction -->
+        <div class="slide active">
+            <h1>Special Characters in Strings</h1>
+            
+            <p>When working with strings in JavaScript, there are times when you need to include <span class="highlight">special characters</span> that the JavaScript engine might otherwise misinterpret.</p>
+            
+            <div class="example-box">
+                <h3>Two Common Tasks</h3>
+                <ul>
+                    <li>Creating a <strong>newline</strong> within a string</li>
+                    <li><strong>Escaping</strong> certain characters (like quotes) to make sure they appear correctly</li>
+                </ul>
+            </div>
+
+            <div class="key-concept">
+                <p>These techniques help you prevent errors and ensure your text appears exactly as intended.</p>
+            </div>
+        </div>
+
+        <!-- Slide 2: Escape Sequences -->
+        <div class="slide">
+            <h1>What are Escape Sequences?</h1>
+            
+            <p>In many programming languages, including JavaScript, you can create special characters using <span class="highlight">escape sequences</span>.</p>
+
+            <div class="key-concept">
+                <h3>Escape Sequence</h3>
+                <p style="font-size: 1.2em;">A special character combination that starts with a <strong>backslash</strong> (<span class="inline-code">\</span>) and tells JavaScript to interpret the following character in a special way.</p>
+            </div>
+
+            <div class="example-box">
+                <h3>Common Escape Sequences</h3>
+                <div style="text-align: center; margin: 20px 0;">
+                    <span class="escape-badge">\n</span>
+                    <span class="escape-badge">\"</span>
+                    <span class="escape-badge">\'</span>
+                    <span class="escape-badge">\\</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 3: Creating Newlines with \n -->
+        <div class="slide">
+            <h1>Creating Newlines with \n</h1>
+            
+            <p>The most common escape sequence for newlines is <span class="inline-code">\n</span>.</p>
+
+            <div class="key-concept">
+                <h3>How It Works</h3>
+                <p>If you want to break a string into multiple lines, you use <span class="inline-code">\n</span> where you want the new line to begin.</p>
+            </div>
+
+            <h3>Example: Poem with Newlines</h3>
+<pre><code>let poem = "Roses are red,\nViolets are blue,\nJavaScript is fun,\nAnd so are you.";
+console.log(poem);</code></pre>
+
+            <div class="console-output">Roses are red,
+Violets are blue,
+JavaScript is fun,
+And so are you.</div>
+
+            <div class="success-box">
+                <p>The <span class="inline-code">\n</span> escape sequence tells JavaScript to <strong>insert a line break</strong> at that point, which results in the string being displayed across multiple lines.</p>
+            </div>
+        </div>
+
+        <!-- Slide 4: The Problem with Quotes -->
+        <div class="slide">
+            <h1>The Problem with Quotes in Strings</h1>
+            
+            <p>Sometimes, you need to include characters in your string that JavaScript normally uses for something else, such as <strong>quotes</strong>.</p>
+
+            <div class="warning-box">
+                <h3>⚠️ The Issue</h3>
+                <p>If you simply use quotes inside a string without escaping them, it can cause an error because JavaScript will think you're trying to end the string.</p>
+            </div>
+
+            <h3>Example: This Will Cause an Error</h3>
+<pre><code>let statement = "She said, "Hello!"";
+// ❌ ERROR!</code></pre>
+
+            <div class="error-box">
+                <h3>❌ What Goes Wrong?</h3>
+                <p>JavaScript gets confused because it thinks the string ends after the word <span class="inline-code">"said,"</span></p>
+                <p style="margin-top: 10px;">But you want the quotes around <span class="inline-code">"Hello!"</span> to be part of the string.</p>
+            </div>
+        </div>
+
+        <!-- Slide 5: Escaping Quotes -->
+        <div class="slide">
+            <h1>Escaping Quotes with Backslash</h1>
+            
+            <p>To fix this, you can <span class="highlight">escape the inner quotes</span> by placing a backslash (<span class="inline-code">\</span>) before them.</p>
+
+            <h3>Solution: Escape the Quotes</h3>
+<pre><code>let statement = "She said, \"Hello!\"";
+console.log(statement); // She said, "Hello!"</code></pre>
+
+            <div class="console-output">She said, "Hello!"</div>
+
+            <div class="success-box">
+                <h3>✓ It Works!</h3>
+                <p>The backslash tells JavaScript to <strong>treat the quotes as literal characters</strong>, so they appear correctly in the output.</p>
+            </div>
+
+            <div class="key-concept">
+                <p><strong>Remember:</strong> <span class="inline-code">\"</span> creates a literal quote character inside the string.</p>
+            </div>
+        </div>
+
+        <!-- Slide 6: Escaping Single Quotes -->
+        <div class="slide">
+            <h1>Escaping Single Quotes</h1>
+            
+            <p>You can also escape <strong>single quotes</strong> within a string surrounded by single quotes using <span class="inline-code">\'</span></p>
+
+            <h3>Example: Escaping Single Quotes</h3>
+<pre><code>let quote = 'It\'s a beautiful day!';
+console.log(quote); // It's a beautiful day!</code></pre>
+
+            <div class="console-output">It's a beautiful day!</div>
+
+            <div class="example-box">
+                <h3>Why This is Needed</h3>
+                <p>Without the backslash:</p>
+                <ul>
+                    <li>JavaScript would see <span class="inline-code">'It'</span> as a complete string</li>
+                    <li>Then encounter <span class="inline-code">s a beautiful day!'</span> as invalid syntax</li>
+                    <li>Result: Error!</li>
+                </ul>
+                <p style="margin-top: 15px;">By escaping the single quote with <span class="inline-code">\'</span>, JavaScript knows to <strong>include it as part of the string</strong> rather than ending the string early.</p>
+            </div>
+        </div>
+
+        <!-- Slide 7: Other Escape Sequences -->
+        <div class="slide">
+            <h1>Other Common Escape Sequences</h1>
+            
+            <p>You can escape other special characters too:</p>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Escape Sequence</th>
+                        <th>Result</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>\n</code></td>
+                        <td>Newline</td>
+                        <td>Creates a line break</td>
+                    </tr>
+                    <tr>
+                        <td><code>\"</code></td>
+                        <td>"</td>
+                        <td>Literal double quote</td>
+                    </tr>
+                    <tr>
+                        <td><code>\'</code></td>
+                        <td>'</td>
+                        <td>Literal single quote</td>
+                    </tr>
+                    <tr>
+                        <td><code>\\</code></td>
+                        <td>\</td>
+                        <td>Literal backslash</td>
+                    </tr>
+                    <tr>
+                        <td><code>\t</code></td>
+                        <td>Tab</td>
+                        <td>Creates a tab space</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>Example: Escaping a Backslash</h3>
+<pre><code>let path = "C:\\Users\\Documents\\file.txt";
+console.log(path); // C:\Users\Documents\file.txt</code></pre>
+        </div>
+
+        <!-- Slide 8: When to Use Escaping -->
+        <div class="slide">
+            <h1>When to Use Escaping</h1>
+            
+            <div class="example-box">
+                <h3>Escaping and creating newlines are essential when:</h3>
+                <ul>
+                    <li>Formatting output for better readability</li>
+                    <li>Handling special characters in strings</li>
+                    <li>Including quotes within quoted strings</li>
+                    <li>Working with file paths (backslashes)</li>
+                    <li>Creating multi-line text displays</li>
+                </ul>
+            </div>
+
+            <div class="content-grid">
+                <div class="success-box">
+                    <h3>Newlines (\n)</h3>
+<pre><code>let message = "Line 1\nLine 2\nLine 3";
+console.log(message);</code></pre>
+                    <p style="margin-top: 10px;">Creates formatted, multi-line output</p>
+                </div>
+
+                <div class="success-box">
+                    <h3>Escaped Quotes</h3>
+<pre><code>let dialogue = "He said, \"Hi!\"";
+console.log(dialogue);</code></pre>
+                    <p style="margin-top: 10px;">Includes quotes within the string</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 9: Practical Examples -->
+        <div class="slide">
+            <h1>Practical Examples</h1>
+            
+            <h3>Example 1: Multi-line Address</h3>
+<pre><code>let address = "John Doe\n123 Main Street\nNew York, NY 10001";
+console.log(address);</code></pre>
+            <div class="console-output">John Doe
+123 Main Street
+New York, NY 10001</div>
+
+            <h3>Example 2: Dialogue with Quotes</h3>
+<pre><code>let conversation = "Alice said, \"How are you?\"\nBob replied, \"I'm great!\"";
+console.log(conversation);</code></pre>
+            <div class="console-output">Alice said, "How are you?"
+Bob replied, "I'm great!"</div>
+
+            <h3>Example 3: File Path with Backslashes</h3>
+<pre><code>let windowsPath = "C:\\Program Files\\MyApp\\config.txt";
+console.log(windowsPath);</code></pre>
+            <div class="console-output">C:\Program Files\MyApp\config.txt</div>
+        </div>
+
+        <!-- Slide 10: Summary -->
+        <div class="slide">
+            <h1>Escape Sequences Summary</h1>
+            
+            <div class="example-box">
+                <h2>Key Takeaways</h2>
+                
+                <h3 style="color: #881518; margin-top: 20px;">What are Escape Sequences?</h3>
+                <p>Special character combinations starting with a backslash (<span class="inline-code">\</span>) that tell JavaScript to interpret the following character in a special way.</p>
+
+                <h3 style="color: #881518; margin-top: 25px;">Creating Newlines</h3>
+                <p>Use <span class="inline-code">\n</span> to create line breaks within strings for multi-line text output.</p>
+
+                <h3 style="color: #881518; margin-top: 25px;">Escaping Quotes</h3>
+                <ul style="margin-top: 10px;">
+                    <li><span class="inline-code">\"</span> - Include double quotes inside a double-quoted string</li>
+                    <li><span class="inline-code">\'</span> - Include single quotes inside a single-quoted string</li>
+                </ul>
+
+                <h3 style="color: #881518; margin-top: 25px;">Other Escape Sequences</h3>
+                <ul style="margin-top: 10px;">
+                    <li><span class="inline-code">\\</span> - Literal backslash character</li>
+                    <li><span class="inline-code">\t</span> - Tab character</li>
+                </ul>
+
+                <h3 style="color: #881518; margin-top: 25px;">Why This Matters</h3>
+                <p>These techniques help you <strong>prevent errors</strong> and ensure your text appears exactly as intended, especially when formatting output or handling special characters.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="navigation">
+        <button class="nav-button" id="prevBtn" onclick="changeSlide(-1)">← Previous</button>
+        <span class="slide-counter">
+            <span id="currentSlide">1</span> / <span id="totalSlides">10</span>
+        </span>
+        <button class="nav-button" id="nextBtn" onclick="changeSlide(1)">Next →</button>
+    </div>
+
+    <script>
+        let currentSlideIndex = 0;
+        const slides = document.querySelectorAll('.slide');
+        const totalSlides = slides.length;
+        
+        document.getElementById('totalSlides').textContent = totalSlides;
+
+        function showSlide(index) {
+            slides.forEach((slide, i) => {
+                slide.classList.remove('active');
+                if (i === index) {
+                    slide.classList.add('active');
+                    slide.scrollTop = 0;
+                }
+            });
+            
+            window.scrollTo(0, 0);
+            
+            document.getElementById('currentSlide').textContent = index + 1;
+            
+            document.getElementById('prevBtn').disabled = index === 0;
+            document.getElementById('nextBtn').disabled = index === totalSlides - 1;
+        }
+
+        function changeSlide(direction) {
+            currentSlideIndex += direction;
+            
+            if (currentSlideIndex < 0) {
+                currentSlideIndex = 0;
+            } else if (currentSlideIndex >= totalSlides) {
+                currentSlideIndex = totalSlides - 1;
+            }
+            
+            showSlide(currentSlideIndex);
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowLeft') {
+                changeSlide(-1);
+            } else if (e.key === 'ArrowRight') {
+                changeSlide(1);
+            }
+        });
+
+        showSlide(0);
+    </script>
+</body>
+</html>

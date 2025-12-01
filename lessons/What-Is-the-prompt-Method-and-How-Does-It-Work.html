@@ -1,0 +1,812 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>prompt() Method - Interactive Slideshow</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #881518 0%, #a81d20 100%);
+            color: #333;
+            overflow-x: hidden;
+        }
+
+        .slideshow-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            min-height: 100vh;
+            padding-bottom: 100px;
+        }
+
+        .slide {
+            display: none;
+            background: white;
+            border-radius: 12px;
+            padding: 40px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            animation: fadeIn 0.5s ease-in;
+            margin-top: 20px;
+            overflow-y: auto;
+            max-height: calc(100vh - 140px);
+        }
+
+        .slide.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        h1 {
+            color: #881518;
+            font-size: 2.5em;
+            margin-bottom: 25px;
+            border-bottom: 4px solid #881518;
+            padding-bottom: 15px;
+        }
+
+        h2 {
+            color: #881518;
+            font-size: 2em;
+            margin-bottom: 20px;
+            margin-top: 20px;
+        }
+
+        h3 {
+            color: #a81d20;
+            font-size: 1.5em;
+            margin-bottom: 15px;
+            margin-top: 20px;
+        }
+
+        p {
+            line-height: 1.8;
+            font-size: 1.1em;
+            margin-bottom: 15px;
+            color: #444;
+        }
+
+        ul {
+            margin-left: 30px;
+            margin-bottom: 20px;
+        }
+
+        li {
+            line-height: 1.8;
+            font-size: 1.1em;
+            margin-bottom: 10px;
+            color: #444;
+        }
+
+        .content-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-top: 20px;
+        }
+
+        .content-section {
+            background: #f9f9f9;
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 4px solid #881518;
+        }
+
+        pre {
+            background: #2d2d2d;
+            color: #f8f8f2;
+            padding: 20px;
+            border-radius: 8px;
+            overflow-x: auto;
+            font-size: 0.95em;
+            line-height: 1.6;
+            margin: 15px 0;
+        }
+
+        code {
+            font-family: 'Courier New', monospace;
+        }
+
+        .inline-code {
+            background: #2d2d2d;
+            color: #f8f8f2;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.95em;
+        }
+
+        .highlight {
+            background: #fff3cd;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-weight: 600;
+            color: #856404;
+        }
+
+        .example-box {
+            background: #e8f4f8;
+            border: 2px solid #881518;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .key-concept {
+            background: #fef9e7;
+            border-left: 5px solid #f39c12;
+            padding: 15px 20px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+
+        .warning-box {
+            background: #fff3cd;
+            border: 3px solid #ffc107;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .success-box {
+            background: #d4edda;
+            border: 3px solid #28a745;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .method-badge {
+            display: inline-block;
+            background: #881518;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: bold;
+            font-family: 'Courier New', monospace;
+            font-size: 1.3em;
+            margin: 10px;
+        }
+
+        .dialog-mockup {
+            background: #f0f0f0;
+            border: 2px solid #999;
+            border-radius: 8px;
+            padding: 25px;
+            margin: 25px auto;
+            max-width: 500px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .dialog-title {
+            background: linear-gradient(180deg, #e3e3e3 0%, #d0d0d0 100%);
+            padding: 8px 12px;
+            margin: -25px -25px 15px -25px;
+            border-radius: 6px 6px 0 0;
+            font-size: 0.9em;
+            color: #333;
+        }
+
+        .dialog-message {
+            font-size: 1.1em;
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        .dialog-input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #999;
+            border-radius: 4px;
+            font-size: 1em;
+            margin-bottom: 15px;
+        }
+
+        .dialog-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+        }
+
+        .dialog-button {
+            padding: 8px 20px;
+            border: 1px solid #999;
+            border-radius: 4px;
+            background: linear-gradient(180deg, #f0f0f0 0%, #d8d8d8 100%);
+            cursor: pointer;
+            font-size: 0.95em;
+        }
+
+        .interactive-demo {
+            background: #f0f8ff;
+            border: 3px solid #881518;
+            border-radius: 12px;
+            padding: 25px;
+            margin: 25px 0;
+            text-align: center;
+        }
+
+        .demo-button {
+            background: #881518;
+            color: white;
+            border: none;
+            padding: 15px 35px;
+            font-size: 1.1em;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 10px;
+        }
+
+        .demo-button:hover {
+            background: #a81d20;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(136, 21, 24, 0.3);
+        }
+
+        .navigation {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(136, 21, 24, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 -5px 20px rgba(0, 0, 0, 0.3);
+            z-index: 1000;
+        }
+
+        .nav-button {
+            background: white;
+            color: #881518;
+            border: none;
+            padding: 12px 30px;
+            font-size: 1em;
+            font-weight: 600;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .nav-button:hover:not(:disabled) {
+            background: #f0f0f0;
+            transform: scale(1.05);
+        }
+
+        .nav-button:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        .slide-counter {
+            color: white;
+            font-size: 1.1em;
+            font-weight: 600;
+        }
+
+        @media (max-width: 768px) {
+            .slideshow-container {
+                padding: 15px;
+            }
+
+            .slide {
+                padding: 25px;
+                margin-top: 10px;
+            }
+
+            h1 {
+                font-size: 1.8em;
+            }
+
+            h2 {
+                font-size: 1.5em;
+            }
+
+            h3 {
+                font-size: 1.2em;
+            }
+
+            p, li {
+                font-size: 1em;
+            }
+
+            .content-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+
+            pre {
+                font-size: 0.85em;
+                padding: 15px;
+            }
+
+            .navigation {
+                padding: 15px;
+            }
+
+            .nav-button {
+                padding: 10px 20px;
+                font-size: 0.9em;
+            }
+
+            .slide-counter {
+                font-size: 0.95em;
+            }
+
+            .method-badge {
+                font-size: 1.1em;
+                padding: 8px 16px;
+            }
+
+            .demo-button {
+                padding: 12px 25px;
+                font-size: 1em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="slideshow-container">
+        <!-- Slide 1: What is prompt()? -->
+        <div class="slide active">
+            <h1>The prompt() Method</h1>
+            
+            <div style="text-align: center; margin: 25px 0;">
+                <span class="method-badge">prompt()</span>
+            </div>
+            
+            <p>The <span class="inline-code">prompt()</span> method is an important part of JavaScript's <span class="highlight">interaction with the user</span>.</p>
+            
+            <div class="key-concept">
+                <h3>What It Does</h3>
+                <p style="font-size: 1.2em;">It's one of the <strong>simplest ways to get input</strong> from a user through a small pop-up dialog box.</p>
+            </div>
+
+            <div class="example-box">
+                <h3>Common Uses</h3>
+                <p>You'll often see it used in cases where the webpage needs a piece of information from the user, such as:</p>
+                <ul>
+                    <li>A name</li>
+                    <li>Age or date of birth</li>
+                    <li>Preferences or choices</li>
+                    <li>Any form of text input</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Slide 2: How prompt() Works -->
+        <div class="slide">
+            <h1>How prompt() Works</h1>
+            
+            <p>So, what exactly does the <span class="inline-code">prompt()</span> method do?</p>
+
+            <div class="key-concept">
+                <h3>Two Things Happen:</h3>
+                <ol style="margin-left: 20px;">
+                    <li>It <strong>opens a dialog box</strong> that asks the user for some input</li>
+                    <li>It <strong>returns the text</strong> entered by the user as a string</li>
+                </ol>
+            </div>
+
+            <div class="dialog-mockup">
+                <div class="dialog-title">This page says:</div>
+                <div class="dialog-message">What is your name?</div>
+                <input type="text" class="dialog-input" value="Guest" disabled>
+                <div class="dialog-buttons">
+                    <button class="dialog-button">Cancel</button>
+                    <button class="dialog-button">OK</button>
+                </div>
+            </div>
+
+            <div class="success-box">
+                <p>The user can type their response and click <strong>OK</strong>, or click <strong>Cancel</strong> to dismiss the dialog.</p>
+            </div>
+        </div>
+
+        <!-- Slide 3: prompt() Arguments -->
+        <div class="slide">
+            <h1>prompt() Arguments</h1>
+            
+            <p>The <span class="inline-code">prompt()</span> method takes <span class="highlight">two arguments</span>:</p>
+
+            <div class="content-grid">
+                <div class="content-section">
+                    <h3>1️⃣ Message (Required)</h3>
+                    <p>The text that will appear inside the dialog box, typically prompting the user to enter information.</p>
+                </div>
+
+                <div class="content-section">
+                    <h3>2️⃣ Default Value (Optional)</h3>
+                    <p>A default value that will fill the input field initially.</p>
+                </div>
+            </div>
+
+            <h3>Basic Syntax</h3>
+<pre><code>prompt(message, default);</code></pre>
+
+            <div class="example-box">
+                <h3>Examples</h3>
+<pre><code>// With just a message
+prompt("Enter your age:");
+
+// With a message and default value
+prompt("Enter your name:", "Anonymous");</code></pre>
+            </div>
+        </div>
+
+        <!-- Slide 4: Basic Example -->
+        <div class="slide">
+            <h1>Basic Example</h1>
+            
+            <p>Here's a simple example of how <span class="inline-code">prompt()</span> works:</p>
+
+<pre><code>const userName = prompt("What is your name?", "Guest");</code></pre>
+
+            <div class="dialog-mockup">
+                <div class="dialog-title">This page says:</div>
+                <div class="dialog-message">What is your name?</div>
+                <input type="text" class="dialog-input" value="Guest" disabled>
+                <div class="dialog-buttons">
+                    <button class="dialog-button">Cancel</button>
+                    <button class="dialog-button">OK</button>
+                </div>
+            </div>
+
+            <div class="example-box">
+                <h3>What Happens:</h3>
+                <ul>
+                    <li>A dialog box appears with the message <span class="inline-code">"What is your name?"</span></li>
+                    <li>The input field initially contains <span class="inline-code">"Guest"</span></li>
+                    <li>The user can type their name or keep the default</li>
+                    <li>The entered value is stored in the <span class="inline-code">userName</span> variable</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Slide 5: User Clicks OK -->
+        <div class="slide">
+            <h1>When the User Clicks "OK"</h1>
+            
+            <p>If the user types their name and presses <strong>"OK"</strong>, the <span class="inline-code">userName</span> variable will <span class="highlight">store the entered value</span>.</p>
+
+            <h3>Example:</h3>
+<pre><code>const userName = prompt("What is your name?", "Guest");
+console.log("Hello, " + userName + "!");</code></pre>
+
+            <div class="success-box">
+                <h3>✓ User Types "Alice" and Clicks OK</h3>
+                <p><strong>Result:</strong></p>
+                <ul style="margin-top: 10px;">
+                    <li><span class="inline-code">userName</span> = <span class="inline-code">"Alice"</span></li>
+                    <li>Console output: <span class="inline-code">Hello, Alice!</span></li>
+                </ul>
+            </div>
+
+            <div class="success-box">
+                <h3>✓ User Keeps Default and Clicks OK</h3>
+                <p><strong>Result:</strong></p>
+                <ul style="margin-top: 10px;">
+                    <li><span class="inline-code">userName</span> = <span class="inline-code">"Guest"</span></li>
+                    <li>Console output: <span class="inline-code">Hello, Guest!</span></li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Slide 6: User Clicks Cancel -->
+        <div class="slide">
+            <h1>When the User Clicks "Cancel"</h1>
+            
+            <p>If the user presses <strong>"Cancel"</strong>, the <span class="inline-code">userName</span> variable will be set to <span class="inline-code">null</span>.</p>
+
+            <div class="key-concept">
+                <h3>What is null?</h3>
+                <p><span class="inline-code">null</span> signifies that the user <strong>did not provide any input</strong>.</p>
+            </div>
+
+            <h3>Example:</h3>
+<pre><code>const userName = prompt("What is your name?", "Guest");
+
+if (userName === null) {
+  console.log("User cancelled the prompt");
+} else {
+  console.log("Hello, " + userName + "!");
+}</code></pre>
+
+            <div class="warning-box">
+                <h3>⚠️ User Clicks Cancel</h3>
+                <p><strong>Result:</strong></p>
+                <ul style="margin-top: 10px;">
+                    <li><span class="inline-code">userName</span> = <span class="inline-code">null</span></li>
+                    <li>Console output: <span class="inline-code">User cancelled the prompt</span></li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Slide 7: Complete Example -->
+        <div class="slide">
+            <h1>Complete Working Example</h1>
+            
+            <p>Here's a more complete example showing how <span class="inline-code">prompt()</span> might be used in a real application:</p>
+
+<pre><code>const btn = document.getElementById("prompt-btn");
+const output = document.getElementById("output");
+
+btn.addEventListener("click", () => {
+  const userName = prompt("What is your name?", "Guest");
+  output.textContent = "Hello, " + userName + "!";
+});</code></pre>
+
+            <div class="example-box">
+                <h3>Step-by-Step:</h3>
+                <ol style="margin-left: 20px;">
+                    <li>When the user clicks the button</li>
+                    <li>The <span class="inline-code">prompt()</span> method displays a dialog box</li>
+                    <li>User sees: <span class="inline-code">"What is your name?"</span></li>
+                    <li>Input field contains default: <span class="inline-code">"Guest"</span></li>
+                    <li>User enters their name (or keeps default) and clicks OK</li>
+                    <li>The output paragraph displays: <span class="inline-code">"Hello, [name]!"</span></li>
+                </ol>
+            </div>
+        </div>
+
+        <!-- Slide 8: Script Execution Halts -->
+        <div class="slide">
+            <h1>Important: Script Execution Halts</h1>
+            
+            <div class="warning-box">
+                <h3>⚠️ Critical Behavior</h3>
+                <p style="font-size: 1.15em;">Keep in mind that the <span class="inline-code">prompt()</span> method will <strong>halt the execution of the script</strong> until the user interacts with the dialog box.</p>
+            </div>
+
+            <div class="key-concept">
+                <h3>What This Means</h3>
+                <p>The rest of your JavaScript code <strong>won't run</strong> until the user either:</p>
+                <ul style="margin-top: 15px;">
+                    <li>Provides input and clicks <strong>"OK"</strong></li>
+                    <li>Clicks <strong>"Cancel"</strong></li>
+                </ul>
+            </div>
+
+            <h3>Example:</h3>
+<pre><code>console.log("Before prompt");
+const name = prompt("Enter your name:");
+console.log("After prompt");
+console.log("You entered:", name);</code></pre>
+
+            <div class="example-box">
+                <p>The message <span class="inline-code">"After prompt"</span> won't appear in the console until the user responds to the dialog box!</p>
+            </div>
+        </div>
+
+        <!-- Slide 9: Modern Web Applications -->
+        <div class="slide">
+            <h1>Modern Web Applications</h1>
+            
+            <div class="warning-box">
+                <h3>⚠️ Use with Caution</h3>
+                <p>While <span class="inline-code">prompt()</span> is useful for <strong>quick testing or small applications</strong>, it's generally <strong>avoided in modern, complex web applications</strong>.</p>
+            </div>
+
+            <div class="content-grid">
+                <div class="content-section">
+                    <h3>Why Avoid It?</h3>
+                    <ul>
+                        <li><strong>Disruptive nature:</strong> Blocks all user interaction</li>
+                        <li><strong>Inconsistent behavior:</strong> Varies across browsers</li>
+                        <li><strong>Poor UX:</strong> Looks outdated</li>
+                        <li><strong>Limited styling:</strong> Can't customize appearance</li>
+                    </ul>
+                </div>
+
+                <div class="content-section">
+                    <h3>When It's OK to Use</h3>
+                    <ul>
+                        <li>Quick testing during development</li>
+                        <li>Simple learning exercises</li>
+                        <li>Small personal projects</li>
+                        <li>Prototyping ideas</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="success-box" style="margin-top: 25px;">
+                <h3>Modern Alternatives</h3>
+                <p>In production applications, developers typically use:</p>
+                <ul style="margin-top: 10px;">
+                    <li>HTML forms</li>
+                    <li>Custom modal dialogs</li>
+                    <li>Input elements with validation</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Slide 10: Interactive Demo -->
+        <div class="slide">
+            <h1>Try It Yourself!</h1>
+            
+            <p style="text-align: center; font-size: 1.2em; margin-bottom: 25px;">Click the button below to see <span class="inline-code">prompt()</span> in action!</p>
+
+            <div class="interactive-demo">
+                <h3>Interactive Demo</h3>
+                
+                <button class="demo-button" onclick="demo1()">
+                    Ask for Name
+                </button>
+
+                <button class="demo-button" onclick="demo2()">
+                    Ask for Age
+                </button>
+
+                <button class="demo-button" onclick="demo3()">
+                    Ask Favorite Color
+                </button>
+
+                <p id="demo-output" style="margin-top: 25px; font-size: 1.2em; font-weight: bold; min-height: 30px;"></p>
+
+                <p style="margin-top: 25px; font-style: italic; color: #555;">
+                    💡 Try clicking OK with the default value, or type your own response!
+                </p>
+            </div>
+        </div>
+
+        <!-- Slide 11: Summary -->
+        <div class="slide">
+            <h1>prompt() Summary</h1>
+            
+            <div class="example-box">
+                <h2>Key Takeaways</h2>
+                
+                <h3 style="color: #881518; margin-top: 20px;">What is prompt()?</h3>
+                <p>A method that opens a dialog box asking for user input and returns the input as a string.</p>
+
+                <h3 style="color: #881518; margin-top: 25px;">Syntax</h3>
+<pre><code>prompt(message, defaultValue)</code></pre>
+
+                <h3 style="color: #881518; margin-top: 25px;">Arguments</h3>
+                <ul style="margin-top: 10px;">
+                    <li><strong>message:</strong> Text displayed to the user (required)</li>
+                    <li><strong>defaultValue:</strong> Initial value in input field (optional)</li>
+                </ul>
+
+                <h3 style="color: #881518; margin-top: 25px;">Return Values</h3>
+                <ul style="margin-top: 10px;">
+                    <li><strong>String:</strong> The text the user entered (if they click OK)</li>
+                    <li><strong>null:</strong> If the user clicks Cancel</li>
+                </ul>
+
+                <h3 style="color: #881518; margin-top: 25px;">Important Behaviors</h3>
+                <ul style="margin-top: 10px;">
+                    <li>Halts script execution until user responds</li>
+                    <li>Blocks all other user interactions</li>
+                    <li>Always returns a string (or null)</li>
+                    <li>Cannot be styled or customized</li>
+                </ul>
+
+                <h3 style="color: #881518; margin-top: 25px;">When to Use</h3>
+                <ul style="margin-top: 10px;">
+                    <li>✓ Quick testing and debugging</li>
+                    <li>✓ Learning exercises and tutorials</li>
+                    <li>✓ Small personal projects</li>
+                    <li>✗ Modern production applications</li>
+                </ul>
+
+                <h3 style="color: #881518; margin-top: 25px;">Remember</h3>
+                <p style="text-align: center; font-size: 1.15em; background: #fef9e7; padding: 15px; border-radius: 8px; margin-top: 15px;">
+                    By understanding <span class="inline-code">prompt()</span>, you gain a simple way to interact with users and retrieve information directly through the browser!
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div class="navigation">
+        <button class="nav-button" id="prevBtn" onclick="changeSlide(-1)">← Previous</button>
+        <span class="slide-counter">
+            <span id="currentSlide">1</span> / <span id="totalSlides">11</span>
+        </span>
+        <button class="nav-button" id="nextBtn" onclick="changeSlide(1)">Next →</button>
+    </div>
+
+    <script>
+        let currentSlideIndex = 0;
+        const slides = document.querySelectorAll('.slide');
+        const totalSlides = slides.length;
+        
+        document.getElementById('totalSlides').textContent = totalSlides;
+
+        function showSlide(index) {
+            slides.forEach((slide, i) => {
+                slide.classList.remove('active');
+                if (i === index) {
+                    slide.classList.add('active');
+                    slide.scrollTop = 0;
+                }
+            });
+            
+            window.scrollTo(0, 0);
+            
+            document.getElementById('currentSlide').textContent = index + 1;
+            
+            document.getElementById('prevBtn').disabled = index === 0;
+            document.getElementById('nextBtn').disabled = index === totalSlides - 1;
+        }
+
+        function changeSlide(direction) {
+            currentSlideIndex += direction;
+            
+            if (currentSlideIndex < 0) {
+                currentSlideIndex = 0;
+            } else if (currentSlideIndex >= totalSlides) {
+                currentSlideIndex = totalSlides - 1;
+            }
+            
+            showSlide(currentSlideIndex);
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowLeft') {
+                changeSlide(-1);
+            } else if (e.key === 'ArrowRight') {
+                changeSlide(1);
+            }
+        });
+
+        // Demo functions
+        function demo1() {
+            const output = document.getElementById('demo-output');
+            const name = prompt("What is your name?", "Guest");
+            if (name === null) {
+                output.textContent = "You cancelled the prompt!";
+                output.style.color = "#dc3545";
+            } else {
+                output.textContent = `Hello, ${name}!`;
+                output.style.color = "#28a745";
+            }
+        }
+
+        function demo2() {
+            const output = document.getElementById('demo-output');
+            const age = prompt("How old are you?", "25");
+            if (age === null) {
+                output.textContent = "You cancelled the prompt!";
+                output.style.color = "#dc3545";
+            } else {
+                output.textContent = `You are ${age} years old!`;
+                output.style.color = "#28a745";
+            }
+        }
+
+        function demo3() {
+            const output = document.getElementById('demo-output');
+            const color = prompt("What is your favorite color?", "Blue");
+            if (color === null) {
+                output.textContent = "You cancelled the prompt!";
+                output.style.color = "#dc3545";
+            } else {
+                output.textContent = `Your favorite color is ${color}!`;
+                output.style.color = "#28a745";
+            }
+        }
+
+        showSlide(0);
+    </script>
+</body>
+</html>
