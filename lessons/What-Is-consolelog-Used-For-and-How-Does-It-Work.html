@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>console.log() - Interactive Slideshow</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #881518 0%, #a81d20 100%);
+            color: #333;
+            overflow-x: hidden;
+        }
+
+        .slideshow-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            min-height: 100vh;
+            padding-bottom: 100px;
+        }
+
+        .slide {
+            display: none;
+            background: white;
+            border-radius: 12px;
+            padding: 40px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            animation: fadeIn 0.5s ease-in;
+            margin-top: 20px;
+            overflow-y: auto;
+            max-height: calc(100vh - 140px);
+        }
+
+        .slide.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        h1 {
+            color: #881518;
+            font-size: 2.5em;
+            margin-bottom: 25px;
+            border-bottom: 4px solid #881518;
+            padding-bottom: 15px;
+        }
+
+        h2 {
+            color: #881518;
+            font-size: 2em;
+            margin-bottom: 20px;
+            margin-top: 20px;
+        }
+
+        h3 {
+            color: #a81d20;
+            font-size: 1.5em;
+            margin-bottom: 15px;
+            margin-top: 20px;
+        }
+
+        p {
+            line-height: 1.8;
+            font-size: 1.1em;
+            margin-bottom: 15px;
+            color: #444;
+        }
+
+        ul {
+            margin-left: 30px;
+            margin-bottom: 20px;
+        }
+
+        li {
+            line-height: 1.8;
+            font-size: 1.1em;
+            margin-bottom: 10px;
+            color: #444;
+        }
+
+        .content-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-top: 20px;
+        }
+
+        .content-section {
+            background: #f9f9f9;
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 4px solid #881518;
+        }
+
+        pre {
+            background: #2d2d2d;
+            color: #f8f8f2;
+            padding: 20px;
+            border-radius: 8px;
+            overflow-x: auto;
+            font-size: 0.95em;
+            line-height: 1.6;
+            margin: 15px 0;
+        }
+
+        code {
+            font-family: 'Courier New', monospace;
+        }
+
+        .inline-code {
+            background: #2d2d2d;
+            color: #f8f8f2;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.95em;
+        }
+
+        .highlight {
+            background: #fff3cd;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-weight: 600;
+            color: #856404;
+        }
+
+        .example-box {
+            background: #e8f4f8;
+            border: 2px solid #881518;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .key-concept {
+            background: #fef9e7;
+            border-left: 5px solid #f39c12;
+            padding: 15px 20px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+
+        .console-output {
+            background: #1e1e1e;
+            border: 2px solid #555;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 15px 0;
+            font-family: 'Courier New', monospace;
+            color: #d4d4d4;
+        }
+
+        .output-label {
+            color: #4ec9b0;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .console-text {
+            color: #ce9178;
+            font-size: 1.05em;
+        }
+
+        .console-number {
+            color: #b5cea8;
+            font-size: 1.05em;
+        }
+
+        .interactive-demo {
+            background: #f0f8ff;
+            border: 3px solid #881518;
+            border-radius: 12px;
+            padding: 25px;
+            margin: 25px 0;
+            text-align: center;
+        }
+
+        .demo-button {
+            background: #881518;
+            color: white;
+            border: none;
+            padding: 15px 35px;
+            font-size: 1.1em;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 10px;
+        }
+
+        .demo-button:hover {
+            background: #a81d20;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(136, 21, 24, 0.3);
+        }
+
+        .navigation {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(136, 21, 24, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 -5px 20px rgba(0, 0, 0, 0.3);
+            z-index: 1000;
+        }
+
+        .nav-button {
+            background: white;
+            color: #881518;
+            border: none;
+            padding: 12px 30px;
+            font-size: 1em;
+            font-weight: 600;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .nav-button:hover:not(:disabled) {
+            background: #f0f0f0;
+            transform: scale(1.05);
+        }
+
+        .nav-button:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        .slide-counter {
+            color: white;
+            font-size: 1.1em;
+            font-weight: 600;
+        }
+
+        @media (max-width: 768px) {
+            .slideshow-container {
+                padding: 15px;
+            }
+
+            .slide {
+                padding: 25px;
+                margin-top: 10px;
+            }
+
+            h1 {
+                font-size: 1.8em;
+            }
+
+            h2 {
+                font-size: 1.5em;
+            }
+
+            h3 {
+                font-size: 1.2em;
+            }
+
+            p, li {
+                font-size: 1em;
+            }
+
+            .content-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+
+            pre {
+                font-size: 0.85em;
+                padding: 15px;
+            }
+
+            .navigation {
+                padding: 15px;
+            }
+
+            .nav-button {
+                padding: 10px 20px;
+                font-size: 0.9em;
+            }
+
+            .slide-counter {
+                font-size: 0.95em;
+            }
+
+            .demo-button {
+                padding: 12px 25px;
+                font-size: 1em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="slideshow-container">
+        <!-- Slide 1: What is console.log()? -->
+        <div class="slide active">
+            <h1>What is console.log()?</h1>
+            
+            <p>In JavaScript, <span class="inline-code">console.log()</span> is a <span class="highlight">simple yet powerful tool</span> used to display messages or output information to the browser's console.</p>
+            
+            <div class="key-concept">
+                <h3>Primary Purpose</h3>
+                <p style="font-size: 1.2em;">It's mostly used by developers to <strong>debug and inspect code</strong> while working on their programs.</p>
+            </div>
+
+            <div class="example-box">
+                <h3>What You Can Do with console.log()</h3>
+                <ul>
+                    <li>Log text messages to the console</li>
+                    <li>Display variable values</li>
+                    <li>Ensure your code is running correctly</li>
+                    <li>Track the flow of your program</li>
+                    <li>Identify errors and issues</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Slide 2: Basic Usage -->
+        <div class="slide">
+            <h1>How to Use console.log()</h1>
+            
+            <p>To use <span class="inline-code">console.log()</span>, you call the method with the value or message you want to output <strong>inside the parentheses</strong>.</p>
+
+            <h3>Example 1: Logging Text</h3>
+<pre><code>console.log("Hello, world!");</code></pre>
+
+            <div class="console-output">
+                <div class="output-label">Console Output:</div>
+                <div class="console-text">Hello, world!</div>
+            </div>
+
+            <p style="margin-top: 25px;">This example prints <span class="inline-code">"Hello, world!"</span> in the browser's console.</p>
+        </div>
+
+        <!-- Slide 3: Logging Variables -->
+        <div class="slide">
+            <h1>Logging Variables</h1>
+            
+            <p>You can also use <span class="inline-code">console.log()</span> to display the <strong>value of variables</strong>.</p>
+
+            <h3>Example: Logging a Number</h3>
+<pre><code>let num = 5;
+console.log(num); // 5</code></pre>
+
+            <div class="console-output">
+                <div class="output-label">Console Output:</div>
+                <div class="console-number">5</div>
+            </div>
+
+            <div class="key-concept">
+                <p>This example prints the value <span class="inline-code">5</span> to the console. The variable <span class="inline-code">num</span> holds the value, and <span class="inline-code">console.log()</span> displays it.</p>
+            </div>
+        </div>
+
+        <!-- Slide 4: Combining Strings and Variables -->
+        <div class="slide">
+            <h1>Combining Strings and Variables</h1>
+            
+            <p>You can combine text and variables using string concatenation with the <span class="inline-code">+</span> operator.</p>
+
+            <h3>Example: Personalized Message</h3>
+<pre><code>let name = "Alice";
+console.log("Hello, " + name + "!"); // Hello, Alice!</code></pre>
+
+            <div class="console-output">
+                <div class="output-label">Console Output:</div>
+                <div class="console-text">Hello, Alice!</div>
+            </div>
+
+            <div class="example-box">
+                <h3>Breaking It Down</h3>
+                <p>This concatenates three parts:</p>
+                <ul>
+                    <li><span class="inline-code">"Hello, "</span> - the greeting text</li>
+                    <li><span class="inline-code">name</span> - the variable (which holds <span class="inline-code">"Alice"</span>)</li>
+                    <li><span class="inline-code">"!"</span> - the exclamation point</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Slide 5: Logging Multiple Values -->
+        <div class="slide">
+            <h1>Logging Multiple Values</h1>
+            
+            <p>You can pass <span class="highlight">multiple values</span> to <span class="inline-code">console.log()</span> separated by commas.</p>
+
+            <h3>Example: Multiple Pieces of Information</h3>
+<pre><code>let name = "Alice";
+let age = 25;
+console.log("Name:", name, "Age:", age); // Name: Alice Age: 25</code></pre>
+
+            <div class="console-output">
+                <div class="output-label">Console Output:</div>
+                <div>Name: Alice Age: 25</div>
+            </div>
+
+            <div class="key-concept">
+                <h3>Why This is Helpful</h3>
+                <p>This is helpful for <strong>logging multiple pieces of information at once</strong> without having to concatenate strings.</p>
+                <p style="margin-top: 10px;">Each value is separated by a space in the console output.</p>
+            </div>
+        </div>
+
+        <!-- Slide 6: Purpose of console.log() -->
+        <div class="slide">
+            <h1>Why Use console.log()?</h1>
+            
+            <div class="example-box">
+                <h2>The Power of console.log()</h2>
+                <p style="font-size: 1.2em;">The <span class="inline-code">console.log()</span> method helps you <span class="highlight">monitor your code as it runs</span>, making it easier to spot mistakes and understand how your program behaves.</p>
+            </div>
+
+            <div class="content-grid">
+                <div class="content-section">
+                    <h3>🐛 Debugging</h3>
+                    <p>Find and fix errors by checking variable values and program flow</p>
+                </div>
+
+                <div class="content-section">
+                    <h3>🔍 Inspection</h3>
+                    <p>Examine the state of your program at different points</p>
+                </div>
+
+                <div class="content-section">
+                    <h3>✓ Verification</h3>
+                    <p>Confirm that your code is executing as expected</p>
+                </div>
+
+                <div class="content-section">
+                    <h3>📊 Testing</h3>
+                    <p>Check outputs and validate logic during development</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 7: Interactive Demo -->
+        <div class="slide">
+            <h1>Try It Yourself!</h1>
+            
+            <p style="text-align: center; font-size: 1.2em; margin-bottom: 25px;">Click the buttons below to see <span class="inline-code">console.log()</span> in action. <strong>Open your browser's console</strong> (F12 or right-click → Inspect → Console) to see the output!</p>
+
+            <div class="interactive-demo">
+                <h3>Interactive Examples</h3>
+                
+                <button class="demo-button" onclick="demo1()">
+                    Log "Hello, World!"
+                </button>
+
+                <button class="demo-button" onclick="demo2()">
+                    Log a Number
+                </button>
+
+                <button class="demo-button" onclick="demo3()">
+                    Log Multiple Values
+                </button>
+
+                <button class="demo-button" onclick="demo4()">
+                    Log with Variables
+                </button>
+
+                <p style="margin-top: 25px; font-style: italic; color: #555;">
+                    💡 Tip: Open your browser's console to see the output from these buttons!
+                </p>
+            </div>
+        </div>
+
+        <!-- Slide 8: Summary -->
+        <div class="slide">
+            <h1>console.log() Summary</h1>
+            
+            <div class="example-box">
+                <h2>Key Takeaways</h2>
+                
+                <h3 style="color: #881518; margin-top: 20px;">What It Does</h3>
+                <p><span class="inline-code">console.log()</span> displays messages and values in the browser's console for debugging and inspection.</p>
+
+                <h3 style="color: #881518; margin-top: 25px;">Basic Syntax</h3>
+<pre><code>console.log(value);           // Single value
+console.log(value1, value2);  // Multiple values</code></pre>
+
+                <h3 style="color: #881518; margin-top: 25px;">Common Uses</h3>
+                <ul>
+                    <li>Logging text messages: <span class="inline-code">console.log("Hello!")</span></li>
+                    <li>Displaying variables: <span class="inline-code">console.log(myVariable)</span></li>
+                    <li>Combining strings and values: <span class="inline-code">console.log("Value:", myVar)</span></li>
+                    <li>Debugging code execution</li>
+                    <li>Inspecting program state</li>
+                </ul>
+
+                <h3 style="color: #881518; margin-top: 25px;">Why It Matters</h3>
+                <p>It's an essential tool for developers to debug, inspect, and verify code during development.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="navigation">
+        <button class="nav-button" id="prevBtn" onclick="changeSlide(-1)">← Previous</button>
+        <span class="slide-counter">
+            <span id="currentSlide">1</span> / <span id="totalSlides">8</span>
+        </span>
+        <button class="nav-button" id="nextBtn" onclick="changeSlide(1)">Next →</button>
+    </div>
+
+    <script>
+        let currentSlideIndex = 0;
+        const slides = document.querySelectorAll('.slide');
+        const totalSlides = slides.length;
+        
+        document.getElementById('totalSlides').textContent = totalSlides;
+
+        function showSlide(index) {
+            slides.forEach((slide, i) => {
+                slide.classList.remove('active');
+                if (i === index) {
+                    slide.classList.add('active');
+                    slide.scrollTop = 0;
+                }
+            });
+            
+            window.scrollTo(0, 0);
+            
+            document.getElementById('currentSlide').textContent = index + 1;
+            
+            document.getElementById('prevBtn').disabled = index === 0;
+            document.getElementById('nextBtn').disabled = index === totalSlides - 1;
+        }
+
+        function changeSlide(direction) {
+            currentSlideIndex += direction;
+            
+            if (currentSlideIndex < 0) {
+                currentSlideIndex = 0;
+            } else if (currentSlideIndex >= totalSlides) {
+                currentSlideIndex = totalSlides - 1;
+            }
+            
+            showSlide(currentSlideIndex);
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowLeft') {
+                changeSlide(-1);
+            } else if (e.key === 'ArrowRight') {
+                changeSlide(1);
+            }
+        });
+
+        // Interactive demo functions
+        function demo1() {
+            console.log("Hello, World!");
+            alert("Check your console! You should see: Hello, World!");
+        }
+
+        function demo2() {
+            let num = 42;
+            console.log(num);
+            alert("Check your console! You should see the number: 42");
+        }
+
+        function demo3() {
+            let name = "Alice";
+            let age = 25;
+            console.log("Name:", name, "Age:", age);
+            alert("Check your console! You should see: Name: Alice Age: 25");
+        }
+
+        function demo4() {
+            let language = "JavaScript";
+            console.log("I'm learning " + language + "!");
+            alert("Check your console! You should see: I'm learning JavaScript!");
+        }
+
+        showSlide(0);
+    </script>
+</body>
+</html>

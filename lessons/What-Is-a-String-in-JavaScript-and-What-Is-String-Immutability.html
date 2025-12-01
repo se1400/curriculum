@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JavaScript Strings - Interactive Slideshow</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #881518 0%, #a81d20 100%);
+            color: #333;
+            overflow-x: hidden;
+        }
+
+        .slideshow-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            min-height: 100vh;
+            padding-bottom: 100px;
+        }
+
+        .slide {
+            display: none;
+            background: white;
+            border-radius: 12px;
+            padding: 40px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            animation: fadeIn 0.5s ease-in;
+            margin-top: 20px;
+            overflow-y: auto;
+            max-height: calc(100vh - 140px);
+        }
+
+        .slide.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        h1 {
+            color: #881518;
+            font-size: 2.5em;
+            margin-bottom: 25px;
+            border-bottom: 4px solid #881518;
+            padding-bottom: 15px;
+        }
+
+        h2 {
+            color: #881518;
+            font-size: 2em;
+            margin-bottom: 20px;
+            margin-top: 20px;
+        }
+
+        h3 {
+            color: #a81d20;
+            font-size: 1.5em;
+            margin-bottom: 15px;
+            margin-top: 20px;
+        }
+
+        p {
+            line-height: 1.8;
+            font-size: 1.1em;
+            margin-bottom: 15px;
+            color: #444;
+        }
+
+        ul {
+            margin-left: 30px;
+            margin-bottom: 20px;
+        }
+
+        li {
+            line-height: 1.8;
+            font-size: 1.1em;
+            margin-bottom: 10px;
+            color: #444;
+        }
+
+        .content-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-top: 20px;
+        }
+
+        .content-section {
+            background: #f9f9f9;
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 4px solid #881518;
+        }
+
+        pre {
+            background: #2d2d2d;
+            color: #f8f8f2;
+            padding: 20px;
+            border-radius: 8px;
+            overflow-x: auto;
+            font-size: 0.95em;
+            line-height: 1.6;
+            margin: 15px 0;
+        }
+
+        code {
+            font-family: 'Courier New', monospace;
+        }
+
+        .inline-code {
+            background: #2d2d2d;
+            color: #f8f8f2;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.95em;
+        }
+
+        .highlight {
+            background: #fff3cd;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-weight: 600;
+            color: #856404;
+        }
+
+        .example-box {
+            background: #e8f4f8;
+            border: 2px solid #881518;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .key-concept {
+            background: #fef9e7;
+            border-left: 5px solid #f39c12;
+            padding: 15px 20px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+
+        .error-box {
+            background: #f8d7da;
+            border: 3px solid #dc3545;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .success-box {
+            background: #d4edda;
+            border: 3px solid #28a745;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .warning-box {
+            background: #fff3cd;
+            border: 3px solid #ffc107;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .primitive-badge {
+            display: inline-block;
+            background: #881518;
+            color: white;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 0.9em;
+            font-weight: bold;
+            margin: 5px 5px 5px 0;
+        }
+
+        .navigation {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(136, 21, 24, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 -5px 20px rgba(0, 0, 0, 0.3);
+            z-index: 1000;
+        }
+
+        .nav-button {
+            background: white;
+            color: #881518;
+            border: none;
+            padding: 12px 30px;
+            font-size: 1em;
+            font-weight: 600;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .nav-button:hover:not(:disabled) {
+            background: #f0f0f0;
+            transform: scale(1.05);
+        }
+
+        .nav-button:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        .slide-counter {
+            color: white;
+            font-size: 1.1em;
+            font-weight: 600;
+        }
+
+        .comparison-box {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        @media (max-width: 768px) {
+            .slideshow-container {
+                padding: 15px;
+            }
+
+            .slide {
+                padding: 25px;
+                margin-top: 10px;
+            }
+
+            h1 {
+                font-size: 1.8em;
+            }
+
+            h2 {
+                font-size: 1.5em;
+            }
+
+            h3 {
+                font-size: 1.2em;
+            }
+
+            p, li {
+                font-size: 1em;
+            }
+
+            .content-grid, .comparison-box {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+
+            pre {
+                font-size: 0.85em;
+                padding: 15px;
+            }
+
+            .navigation {
+                padding: 15px;
+            }
+
+            .nav-button {
+                padding: 10px 20px;
+                font-size: 0.9em;
+            }
+
+            .slide-counter {
+                font-size: 0.95em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="slideshow-container">
+        <!-- Slide 1: What is a String? -->
+        <div class="slide active">
+            <h1>What is a String?</h1>
+            
+            <p>In JavaScript, a <span class="highlight">string</span> is a <strong>sequence of characters</strong> used to represent text data.</p>
+            
+            <div class="key-concept">
+                <h3>Strings are Primitive Data Types</h3>
+                <p>Strings are one of the <strong>primitive data types</strong> in JavaScript, along with:</p>
+                <div style="margin-top: 15px;">
+                    <span class="primitive-badge">Numbers</span>
+                    <span class="primitive-badge">Booleans</span>
+                    <span class="primitive-badge">null</span>
+                    <span class="primitive-badge">undefined</span>
+                    <span class="primitive-badge">Strings</span>
+                </div>
+            </div>
+
+            <div class="example-box">
+                <h3>What Can Strings Represent?</h3>
+                <ul>
+                    <li>Names and usernames</li>
+                    <li>Messages and descriptions</li>
+                    <li>Addresses and labels</li>
+                    <li>Any text-based information</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Slide 2: Creating Strings -->
+        <div class="slide">
+            <h1>Creating Strings in JavaScript</h1>
+            
+            <p>To create a string in JavaScript, you can use <span class="highlight">single quotes</span> (<span class="inline-code">'</span>) or <span class="highlight">double quotes</span> (<span class="inline-code">"</span>).</p>
+
+            <h3>Examples of String Creation</h3>
+
+            <div class="comparison-box">
+                <div class="success-box">
+                    <h3>Single Quotes</h3>
+<pre><code>let singleQuotes = 'This is a string';
+console.log(singleQuotes);</code></pre>
+                </div>
+
+                <div class="success-box">
+                    <h3>Double Quotes</h3>
+<pre><code>let doubleQuotes = "This is also a string";
+console.log(doubleQuotes);</code></pre>
+                </div>
+            </div>
+
+            <div class="key-concept">
+                <p><strong>Both methods are valid!</strong> Either single or double quotes work to create strings in JavaScript.</p>
+            </div>
+        </div>
+
+        <!-- Slide 3: Quote Consistency Rule -->
+        <div class="slide">
+            <h1>Quote Consistency is Critical</h1>
+            
+            <p>Even though you can use single or double quotes to create strings, <span class="highlight">it's important to be consistent</span>.</p>
+
+            <div class="warning-box">
+                <h3>⚠️ Important Rule</h3>
+                <p style="font-size: 1.15em;"><strong>If a string begins with a single quote, it must also end with a single quote.</strong></p>
+                <p style="font-size: 1.15em; margin-top: 10px;"><strong>The same applies to double quotes.</strong></p>
+            </div>
+
+            <h3>Valid Examples</h3>
+            <div class="success-box">
+<pre><code>'This is valid'      // Single quotes match
+"This is valid"      // Double quotes match</code></pre>
+            </div>
+
+            <h3>Invalid Example</h3>
+            <div class="error-box">
+<pre><code>const improperStr = "Do not do this';</code></pre>
+                <p style="margin-top: 15px;"><strong>❌ This will throw an error</strong> because it starts with a double quote and ends with a single quote!</p>
+            </div>
+        </div>
+
+        <!-- Slide 4: String Immutability Concept -->
+        <div class="slide">
+            <h1>What is String Immutability?</h1>
+            
+            <p>Another important thing to understand is that <span class="highlight">strings are immutable</span>.</p>
+
+            <div class="key-concept">
+                <h3>What Does Immutability Mean?</h3>
+                <p style="font-size: 1.2em;">In programming, <strong>immutability</strong> means that once something is created, it <strong>cannot be changed</strong>.</p>
+            </div>
+
+            <div class="example-box">
+                <h3>For Strings, This Means:</h3>
+                <p style="font-size: 1.15em;">When you create a string, you <strong>can't change its characters directly</strong>.</p>
+                <p style="font-size: 1.15em; margin-top: 15px;">Instead, you would <strong>create a new string</strong> if you want to make changes.</p>
+            </div>
+        </div>
+
+        <!-- Slide 5: Immutability in Action -->
+        <div class="slide">
+            <h1>String Immutability in Action</h1>
+            
+            <p>Let's see how string immutability works with a practical example:</p>
+
+<pre><code>let developer = "Jessica";
+console.log(developer);
+
+developer = "Quincy";
+console.log(developer);</code></pre>
+
+            <div class="key-concept">
+                <h3>What's Happening Here?</h3>
+                <p>Since strings are immutable, we <strong>can't update the first string directly</strong>.</p>
+                <p style="margin-top: 15px;">That is why we are <strong>assigning a new string</strong> to the <span class="inline-code">developer</span> variable.</p>
+            </div>
+
+            <div class="example-box">
+                <h3>Understanding the Process</h3>
+                <ol style="margin-left: 20px;">
+                    <li>First, <span class="inline-code">"Jessica"</span> is created and stored</li>
+                    <li>When we assign <span class="inline-code">"Quincy"</span>, we're not changing <span class="inline-code">"Jessica"</span></li>
+                    <li>Instead, we're creating a <strong>new string</strong> <span class="inline-code">"Quincy"</span> and assigning it to the variable</li>
+                    <li>The original <span class="inline-code">"Jessica"</span> string remains unchanged (though no longer referenced)</li>
+                </ol>
+            </div>
+        </div>
+
+        <!-- Slide 6: Why Immutability Matters -->
+        <div class="slide">
+            <h1>Why String Immutability Matters</h1>
+            
+            <div class="example-box">
+                <h3>What You CANNOT Do</h3>
+                <p>You cannot change individual characters of a string:</p>
+<pre><code>let name = "John";
+name[0] = "Z";  // This won't work!
+console.log(name);  // Still "John"</code></pre>
+                <p style="margin-top: 15px;">The string remains <span class="inline-code">"John"</span> because strings are immutable.</p>
+            </div>
+
+            <div class="success-box">
+                <h3>What You CAN Do</h3>
+                <p>Create a new string and assign it:</p>
+<pre><code>let name = "John";
+name = "Zohn";  // Assign a new string
+console.log(name);  // Now "Zohn"</code></pre>
+                <p style="margin-top: 15px;">This works because you're creating and assigning a <strong>completely new string</strong>.</p>
+            </div>
+        </div>
+
+        <!-- Slide 7: Summary -->
+        <div class="slide">
+            <h1>String Concepts Summary</h1>
+            
+            <div class="example-box">
+                <h2>Key Takeaways</h2>
+                
+                <h3 style="color: #881518; margin-top: 20px;">1. What is a String?</h3>
+                <p>A sequence of characters used to represent text data, and a primitive data type in JavaScript.</p>
+
+                <h3 style="color: #881518; margin-top: 25px;">2. Creating Strings</h3>
+                <p>Use either single quotes (<span class="inline-code">'text'</span>) or double quotes (<span class="inline-code">"text"</span>).</p>
+
+                <h3 style="color: #881518; margin-top: 25px;">3. Quote Consistency</h3>
+                <p>If a string starts with single quotes, it must end with single quotes. Same rule applies to double quotes. Mismatched quotes will throw an error.</p>
+
+                <h3 style="color: #881518; margin-top: 25px;">4. String Immutability</h3>
+                <p>Once a string is created, you cannot change its characters directly. You must create a new string to make changes.</p>
+            </div>
+
+            <p style="margin-top: 30px; font-size: 1.15em; text-align: center; font-style: italic;">
+                Strings are an important part of programming, and in future lessons, you will learn advanced techniques for manipulating them and harnessing their full potential to create dynamic and interactive applications.
+            </p>
+        </div>
+    </div>
+
+    <div class="navigation">
+        <button class="nav-button" id="prevBtn" onclick="changeSlide(-1)">← Previous</button>
+        <span class="slide-counter">
+            <span id="currentSlide">1</span> / <span id="totalSlides">7</span>
+        </span>
+        <button class="nav-button" id="nextBtn" onclick="changeSlide(1)">Next →</button>
+    </div>
+
+    <script>
+        let currentSlideIndex = 0;
+        const slides = document.querySelectorAll('.slide');
+        const totalSlides = slides.length;
+        
+        document.getElementById('totalSlides').textContent = totalSlides;
+
+        function showSlide(index) {
+            slides.forEach((slide, i) => {
+                slide.classList.remove('active');
+                if (i === index) {
+                    slide.classList.add('active');
+                    slide.scrollTop = 0;
+                }
+            });
+            
+            window.scrollTo(0, 0);
+            
+            document.getElementById('currentSlide').textContent = index + 1;
+            
+            document.getElementById('prevBtn').disabled = index === 0;
+            document.getElementById('nextBtn').disabled = index === totalSlides - 1;
+        }
+
+        function changeSlide(direction) {
+            currentSlideIndex += direction;
+            
+            if (currentSlideIndex < 0) {
+                currentSlideIndex = 0;
+            } else if (currentSlideIndex >= totalSlides) {
+                currentSlideIndex = totalSlides - 1;
+            }
+            
+            showSlide(currentSlideIndex);
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowLeft') {
+                changeSlide(-1);
+            } else if (e.key === 'ArrowRight') {
+                changeSlide(1);
+            }
+        });
+
+        showSlide(0);
+    </script>
+</body>
+</html>
