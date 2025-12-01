@@ -1,3 +1,4 @@
+// inpage-console.js
 (function () {
   function attachInPageConsole() {
     const box = document.createElement('div');
