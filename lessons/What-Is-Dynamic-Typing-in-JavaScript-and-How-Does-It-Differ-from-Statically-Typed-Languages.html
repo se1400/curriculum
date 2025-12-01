@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dynamic Typing in JavaScript - Interactive Slideshow</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #881518 0%, #a81d20 100%);
+            color: #333;
+            overflow-x: hidden;
+        }
+
+        .slideshow-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            min-height: 100vh;
+            padding-bottom: 100px;
+        }
+
+        .slide {
+            display: none;
+            background: white;
+            border-radius: 12px;
+            padding: 40px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            animation: fadeIn 0.5s ease-in;
+            margin-top: 20px;
+            overflow-y: auto;
+            max-height: calc(100vh - 140px);
+        }
+
+        .slide.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        h1 {
+            color: #881518;
+            font-size: 2.5em;
+            margin-bottom: 25px;
+            border-bottom: 4px solid #881518;
+            padding-bottom: 15px;
+        }
+
+        h2 {
+            color: #881518;
+            font-size: 2em;
+            margin-bottom: 20px;
+            margin-top: 20px;
+        }
+
+        h3 {
+            color: #a81d20;
+            font-size: 1.5em;
+            margin-bottom: 15px;
+            margin-top: 20px;
+        }
+
+        p {
+            line-height: 1.8;
+            font-size: 1.1em;
+            margin-bottom: 15px;
+            color: #444;
+        }
+
+        ul {
+            margin-left: 30px;
+            margin-bottom: 20px;
+        }
+
+        li {
+            line-height: 1.8;
+            font-size: 1.1em;
+            margin-bottom: 10px;
+            color: #444;
+        }
+
+        .content-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-top: 20px;
+        }
+
+        .content-section {
+            background: #f9f9f9;
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 4px solid #881518;
+        }
+
+        pre {
+            background: #2d2d2d;
+            color: #f8f8f2;
+            padding: 20px;
+            border-radius: 8px;
+            overflow-x: auto;
+            font-size: 0.95em;
+            line-height: 1.6;
+            margin: 15px 0;
+        }
+
+        code {
+            font-family: 'Courier New', monospace;
+        }
+
+        .inline-code {
+            background: #2d2d2d;
+            color: #f8f8f2;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.95em;
+        }
+
+        .highlight {
+            background: #fff3cd;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-weight: 600;
+            color: #856404;
+        }
+
+        .example-box {
+            background: #e8f4f8;
+            border: 2px solid #881518;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .key-concept {
+            background: #fef9e7;
+            border-left: 5px solid #f39c12;
+            padding: 15px 20px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+
+        .warning-box {
+            background: #fff3cd;
+            border: 3px solid #ffc107;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .success-box {
+            background: #d4edda;
+            border: 3px solid #28a745;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .error-box {
+            background: #f8d7da;
+            border: 3px solid #dc3545;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .comparison-table {
+            width: 100%;
+            margin: 25px 0;
+            border-collapse: collapse;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .comparison-table th {
+            background: #881518;
+            color: white;
+            padding: 15px;
+            text-align: left;
+            font-size: 1.1em;
+        }
+
+        .comparison-table td {
+            padding: 15px;
+            border-bottom: 1px solid #ddd;
+            font-size: 1.05em;
+        }
+
+        .comparison-table tr:nth-child(even) {
+            background: #f9f9f9;
+        }
+
+        .comparison-table tr:hover {
+            background: #e8f4f8;
+        }
+
+        .language-badge {
+            display: inline-block;
+            background: #6c757d;
+            color: white;
+            padding: 6px 14px;
+            border-radius: 5px;
+            font-size: 0.95em;
+            font-weight: bold;
+            margin: 5px;
+        }
+
+        .js-badge {
+            background: #f0db4f;
+            color: #323330;
+        }
+
+        .navigation {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(136, 21, 24, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 -5px 20px rgba(0, 0, 0, 0.3);
+            z-index: 1000;
+        }
+
+        .nav-button {
+            background: white;
+            color: #881518;
+            border: none;
+            padding: 12px 30px;
+            font-size: 1em;
+            font-weight: 600;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .nav-button:hover:not(:disabled) {
+            background: #f0f0f0;
+            transform: scale(1.05);
+        }
+
+        .nav-button:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        .slide-counter {
+            color: white;
+            font-size: 1.1em;
+            font-weight: 600;
+        }
+
+        .vs-box {
+            text-align: center;
+            font-size: 2em;
+            font-weight: bold;
+            color: #881518;
+            margin: 20px 0;
+        }
+
+        @media (max-width: 768px) {
+            .slideshow-container {
+                padding: 15px;
+            }
+
+            .slide {
+                padding: 25px;
+                margin-top: 10px;
+            }
+
+            h1 {
+                font-size: 1.8em;
+            }
+
+            h2 {
+                font-size: 1.5em;
+            }
+
+            h3 {
+                font-size: 1.2em;
+            }
+
+            p, li {
+                font-size: 1em;
+            }
+
+            .content-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+
+            pre {
+                font-size: 0.85em;
+                padding: 15px;
+            }
+
+            .navigation {
+                padding: 15px;
+            }
+
+            .nav-button {
+                padding: 10px 20px;
+                font-size: 0.9em;
+            }
+
+            .slide-counter {
+                font-size: 0.95em;
+            }
+
+            .comparison-table {
+                font-size: 0.9em;
+            }
+
+            .comparison-table th, .comparison-table td {
+                padding: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="slideshow-container">
+        <!-- Slide 1: What is Dynamic Typing? -->
+        <div class="slide active">
+            <h1>What is Dynamic Typing?</h1>
+            
+            <p>JavaScript is a <span class="highlight">dynamically typed language</span>, meaning you don't need to specify the data type of a variable when you declare it.</p>
+            
+            <div class="key-concept">
+                <h3>How It Works</h3>
+                <p style="font-size: 1.2em;">Instead, the type is determined <strong>based on the value assigned</strong> to the variable <strong>while the program is running</strong>.</p>
+            </div>
+
+            <div class="example-box">
+                <h3>What This Means</h3>
+                <p style="font-size: 1.15em;">This allows you to <strong>change the type of a variable</strong> throughout the program.</p>
+                <p style="margin-top: 15px;">The variable's type is not fixed - it can change as your code runs!</p>
+            </div>
+        </div>
+
+        <!-- Slide 2: Dynamic Typing Example -->
+        <div class="slide">
+            <h1>Dynamic Typing in Action</h1>
+            
+            <p>Let's see how dynamic typing works with a simple example:</p>
+
+<pre><code>let example = "Hello";
+example = 42;</code></pre>
+
+            <div class="example-box">
+                <h3>Breaking It Down</h3>
+                <ol style="margin-left: 20px;">
+                    <li>We have a variable called <span class="inline-code">example</span> with the data type of <strong>string</strong> (<span class="inline-code">"Hello"</span>)</li>
+                    <li>Then we update the value to be a <strong>number</strong> (<span class="inline-code">42</span>) instead</li>
+                    <li>JavaScript allows this without any errors!</li>
+                </ol>
+            </div>
+
+            <div class="success-box">
+                <h3>✓ This Works in JavaScript</h3>
+                <p>The variable smoothly transitions from string to number without complaint.</p>
+            </div>
+        </div>
+
+        <!-- Slide 3: Flexibility vs Potential Issues -->
+        <div class="slide">
+            <h1>The Trade-off: Flexibility vs Safety</h1>
+            
+            <div class="content-grid">
+                <div class="success-box">
+                    <h3>✓ Benefits</h3>
+                    <p style="font-size: 1.1em;"><strong>Flexibility</strong></p>
+                    <ul style="margin-top: 15px;">
+                        <li>Quick and easy to write code</li>
+                        <li>Great for rapid prototyping</li>
+                        <li>More forgiving for beginners</li>
+                        <li>Perfect for quick scripting</li>
+                    </ul>
+                </div>
+
+                <div class="warning-box">
+                    <h3>⚠️ Drawbacks</h3>
+                    <p style="font-size: 1.1em;"><strong>Potential Bugs</strong></p>
+                    <ul style="margin-top: 15px;">
+                        <li>Type-related bugs can occur</li>
+                        <li>Errors may be harder to catch</li>
+                        <li>Issues grow as programs get larger</li>
+                        <li>Unexpected behavior at runtime</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="key-concept" style="margin-top: 25px;">
+                <p>The flexibility of dynamic typing makes JavaScript more forgiving and easy to work with for quick scripting, but it can also introduce bugs that may be harder to catch, especially as your program grows larger.</p>
+            </div>
+        </div>
+
+        <!-- Slide 4: What is Static Typing? -->
+        <div class="slide">
+            <h1>What is Static Typing?</h1>
+            
+            <p>In <span class="highlight">statically typed languages</span> like Java or C++, you must <strong>declare the data type</strong> of a variable when you create it, and <strong>that type cannot change</strong>.</p>
+
+            <div style="text-align: center; margin: 25px 0;">
+                <span class="language-badge">Java</span>
+                <span class="language-badge">C++</span>
+                <span class="language-badge">C#</span>
+                <span class="language-badge">TypeScript</span>
+            </div>
+
+            <div class="key-concept">
+                <h3>The Rule</h3>
+                <p style="font-size: 1.2em;">If you declare a variable as <span class="inline-code">integer</span>, you can <strong>only assign it integer values</strong>.</p>
+                <p style="margin-top: 15px;">If you try to assign it a different type, the program will throw an error.</p>
+            </div>
+        </div>
+
+        <!-- Slide 5: Static Typing Example (Java) -->
+        <div class="slide">
+            <h1>Static Typing: Java Example</h1>
+            
+            <p>Here's an example in the Java language:</p>
+
+<pre><code>int value = 42;      // value must always be an integer
+value = "Hello";     // This would cause an error in Java</code></pre>
+
+            <div class="error-box">
+                <h3>❌ This Does NOT Work in Java</h3>
+                <p>Java would throw a <strong>compile-time error</strong> before the program even runs.</p>
+                <p style="margin-top: 15px;">The compiler checks: "Wait, you declared <span class="inline-code">value</span> as an <span class="inline-code">int</span> but now you're trying to put a string in it? That's not allowed!"</p>
+            </div>
+
+            <div class="example-box">
+                <h3>The Difference</h3>
+                <p>In Java, the data type is <strong>fixed at declaration</strong> and enforced by the compiler.</p>
+            </div>
+        </div>
+
+        <!-- Slide 6: Dynamic vs Static Comparison -->
+        <div class="slide">
+            <h1>Dynamic vs Static Typing</h1>
+            
+            <p>The difference between dynamic typing and static typing lies in the <span class="highlight">flexibility vs. safety</span> of your code.</p>
+
+            <div class="content-grid">
+                <div class="content-section">
+                    <h3><span class="language-badge js-badge">Dynamic</span></h3>
+                    <p style="font-size: 1.1em;"><strong>Flexibility</strong></p>
+                    <ul style="margin-top: 15px;">
+                        <li>Offer flexibility</li>
+                        <li>Quick to write</li>
+                        <li>Easy for scripting</li>
+                    </ul>
+                    <p style="margin-top: 15px; font-style: italic;"><strong>Cost:</strong> Potential runtime errors</p>
+                </div>
+
+                <div class="content-section">
+                    <h3><span class="language-badge">Static</span></h3>
+                    <p style="font-size: 1.1em;"><strong>Safety</strong></p>
+                    <ul style="margin-top: 15px;">
+                        <li>Enforce stricter rules</li>
+                        <li>Prevent certain errors</li>
+                        <li>Catch issues early</li>
+                    </ul>
+                    <p style="margin-top: 15px; font-style: italic;"><strong>Cost:</strong> More upfront work, less flexibility</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 7: Another Dynamic Example -->
+        <div class="slide">
+            <h1>Another Dynamic Typing Example</h1>
+            
+            <p>Here's another example showing how JavaScript allows type changes:</p>
+
+<pre><code>let data = 100;       // Initially a number
+data = "New data";    // Dynamically changes to a string</code></pre>
+
+            <div class="success-box">
+                <h3>✓ JavaScript Says: "No Problem!"</h3>
+                <p>The variable <span class="inline-code">data</span> starts as a number and becomes a string without any issues.</p>
+            </div>
+
+            <div class="example-box">
+                <h3>Step-by-Step</h3>
+                <ol style="margin-left: 20px;">
+                    <li><span class="inline-code">data</span> is created and assigned <span class="inline-code">100</span> (a number)</li>
+                    <li>Later, <span class="inline-code">data</span> is reassigned to <span class="inline-code">"New data"</span> (a string)</li>
+                    <li>JavaScript automatically changes the type</li>
+                </ol>
+            </div>
+
+            <div class="warning-box" style="margin-top: 20px;">
+                <p><strong>In a statically typed language:</strong> This kind of change would <strong>not be allowed</strong>, as the data type would be fixed.</p>
+            </div>
+        </div>
+
+        <!-- Slide 8: Comparison Table -->
+        <div class="slide">
+            <h1>Side-by-Side Comparison</h1>
+            
+            <table class="comparison-table">
+                <thead>
+                    <tr>
+                        <th>Feature</th>
+                        <th>Dynamic Typing (JavaScript)</th>
+                        <th>Static Typing (Java, C++)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Type Declaration</strong></td>
+                        <td>Not required</td>
+                        <td>Required</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Type Changes</strong></td>
+                        <td>✓ Allowed at runtime</td>
+                        <td>✗ Not allowed</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Error Detection</strong></td>
+                        <td>Runtime (when code runs)</td>
+                        <td>Compile-time (before code runs)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Flexibility</strong></td>
+                        <td>High - very flexible</td>
+                        <td>Low - strict rules</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Code Safety</strong></td>
+                        <td>Lower - more potential bugs</td>
+                        <td>Higher - catches errors early</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Development Speed</strong></td>
+                        <td>Fast - less upfront work</td>
+                        <td>Slower - more declarations needed</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Example</strong></td>
+                        <td><code>let x = 5; x = "hi";</code></td>
+                        <td><code>int x = 5; x = "hi"; // Error!</code></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Slide 9: Summary -->
+        <div class="slide">
+            <h1>Dynamic Typing Summary</h1>
+            
+            <div class="example-box">
+                <h2>Key Takeaways</h2>
+                
+                <h3 style="color: #881518; margin-top: 20px;">JavaScript's Dynamic Typing</h3>
+                <p>JavaScript's dynamic typing allows variables to <strong>change types freely</strong>, which offers flexibility but can lead to unexpected errors during execution.</p>
+
+                <h3 style="color: #881518; margin-top: 25px;">How It Works</h3>
+                <ul>
+                    <li>No need to declare variable types</li>
+                    <li>Types are determined at runtime based on assigned values</li>
+                    <li>Variables can change types throughout the program</li>
+                </ul>
+
+                <h3 style="color: #881518; margin-top: 25px;">Static Typing (Comparison)</h3>
+                <p>Statically typed languages like Java require you to <strong>specify variable types upfront</strong>, which helps catch errors before the program runs but offers less flexibility.</p>
+
+                <h3 style="color: #881518; margin-top: 25px;">The Trade-off</h3>
+                <div class="content-grid" style="margin-top: 15px;">
+                    <div>
+                        <p><strong>Dynamic Typing:</strong></p>
+                        <p>Flexibility + Speed - Safety</p>
+                    </div>
+                    <div>
+                        <p><strong>Static Typing:</strong></p>
+                        <p>Safety + Error Prevention - Flexibility</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="navigation">
+        <button class="nav-button" id="prevBtn" onclick="changeSlide(-1)">← Previous</button>
+        <span class="slide-counter">
+            <span id="currentSlide">1</span> / <span id="totalSlides">9</span>
+        </span>
+        <button class="nav-button" id="nextBtn" onclick="changeSlide(1)">Next →</button>
+    </div>
+
+    <script>
+        let currentSlideIndex = 0;
+        const slides = document.querySelectorAll('.slide');
+        const totalSlides = slides.length;
+        
+        document.getElementById('totalSlides').textContent = totalSlides;
+
+        function showSlide(index) {
+            slides.forEach((slide, i) => {
+                slide.classList.remove('active');
+                if (i === index) {
+                    slide.classList.add('active');
+                    slide.scrollTop = 0;
+                }
+            });
+            
+            window.scrollTo(0, 0);
+            
+            document.getElementById('currentSlide').textContent = index + 1;
+            
+            document.getElementById('prevBtn').disabled = index === 0;
+            document.getElementById('nextBtn').disabled = index === totalSlides - 1;
+        }
+
+        function changeSlide(direction) {
+            currentSlideIndex += direction;
+            
+            if (currentSlideIndex < 0) {
+                currentSlideIndex = 0;
+            } else if (currentSlideIndex >= totalSlides) {
+                currentSlideIndex = totalSlides - 1;
+            }
+            
+            showSlide(currentSlideIndex);
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowLeft') {
+                changeSlide(-1);
+            } else if (e.key === 'ArrowRight') {
+                changeSlide(1);
+            }
+        });
+
+        showSlide(0);
+    </script>
+</body>
+</html>
