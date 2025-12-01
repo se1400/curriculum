@@ -15,7 +15,7 @@
       'white-space: pre-wrap'
     ].join(';');
 
-    box.innerHTML = 'Console output\n';
+    box.innerHTML = 'Console output:\n';
 
     function ensureAttached() {
       if (!box.isConnected) {
@@ -30,7 +30,7 @@
     function writeLine(type, args) {
       ensureAttached();
       const line = document.createElement('div');
-      line.textContent = '[' + type + '] ' + args.map(String).join(' ');
+      line.textContent = '[' + type + ']\n' + args.map(String).join(' ');
       box.appendChild(line);
       box.scrollTop = box.scrollHeight;
     }
