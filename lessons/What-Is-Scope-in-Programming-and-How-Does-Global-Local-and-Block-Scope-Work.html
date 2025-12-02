@@ -1,0 +1,932 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JavaScript Scope</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+            color: #ffffff;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .slide-container {
+            height: calc(100vh - 80px);
+            overflow-y: auto;
+            padding: 40px 20px 20px;
+            scroll-behavior: smooth;
+        }
+
+        .slide {
+            display: none;
+            max-width: 1200px;
+            margin: 0 auto;
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        .slide.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        h2 {
+            color: #881518;
+            font-size: 2rem;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 3px solid #881518;
+        }
+
+        .concept {
+            background: rgba(136, 21, 24, 0.1);
+            border-left: 4px solid #881518;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 4px;
+        }
+
+        .concept h3 {
+            color: #ff6b6e;
+            margin-bottom: 15px;
+            font-size: 1.4rem;
+        }
+
+        .concept p {
+            line-height: 1.8;
+            font-size: 1.1rem;
+            margin-bottom: 15px;
+        }
+
+        .concept ul {
+            margin-left: 25px;
+            line-height: 1.8;
+        }
+
+        .concept li {
+            margin-bottom: 10px;
+            font-size: 1.05rem;
+        }
+
+        .code-example {
+            background: #1e1e1e;
+            border: 1px solid #881518;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            overflow-x: auto;
+        }
+
+        .code-example pre {
+            margin: 0;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        .code-example code {
+            color: #d4d4d4;
+        }
+
+        .keyword {
+            color: #569cd6;
+        }
+
+        .string {
+            color: #ce9178;
+        }
+
+        .comment {
+            color: #6a9955;
+        }
+
+        .boolean {
+            color: #4ec9b0;
+        }
+
+        .function {
+            color: #dcdcaa;
+        }
+
+        .number {
+            color: #b5cea8;
+        }
+
+        .output {
+            color: #4ec9b0;
+        }
+
+        .warning {
+            background: rgba(255, 193, 7, 0.1);
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+
+        .warning::before {
+            content: "⚠️ ";
+            font-size: 1.2rem;
+        }
+
+        .tip {
+            background: rgba(76, 175, 80, 0.1);
+            border-left: 4px solid #4caf50;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+
+        .tip::before {
+            content: "💡 ";
+            font-size: 1.2rem;
+        }
+
+        .error {
+            background: rgba(244, 67, 54, 0.1);
+            border-left: 4px solid #f44336;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 4px;
+            font-family: 'Consolas', 'Monaco', monospace;
+        }
+
+        .error::before {
+            content: "❌ ";
+            font-size: 1.2rem;
+        }
+
+        .scope-diagram {
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid #881518;
+            border-radius: 8px;
+            padding: 30px;
+            margin: 20px 0;
+            position: relative;
+        }
+
+        .scope-layer {
+            border: 2px solid rgba(136, 21, 24, 0.5);
+            border-radius: 8px;
+            padding: 20px;
+            margin: 10px 0;
+            position: relative;
+        }
+
+        .scope-layer.global {
+            border-color: #ff6b6e;
+            background: rgba(255, 107, 110, 0.05);
+        }
+
+        .scope-layer.local {
+            border-color: #6464ff;
+            background: rgba(100, 100, 255, 0.05);
+            margin-left: 30px;
+        }
+
+        .scope-layer.block {
+            border-color: #4caf50;
+            background: rgba(76, 175, 80, 0.05);
+            margin-left: 60px;
+        }
+
+        .scope-label {
+            position: absolute;
+            top: -12px;
+            left: 10px;
+            background: #1a1a1a;
+            padding: 0 10px;
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+
+        .scope-layer.global .scope-label {
+            color: #ff6b6e;
+        }
+
+        .scope-layer.local .scope-label {
+            color: #6464ff;
+        }
+
+        .scope-layer.block .scope-label {
+            color: #4caf50;
+        }
+
+        .scope-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .scope-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid rgba(136, 21, 24, 0.3);
+            border-radius: 8px;
+            padding: 20px;
+        }
+
+        .scope-card h4 {
+            color: #ff6b6e;
+            margin-bottom: 15px;
+            text-align: center;
+            font-size: 1.2rem;
+        }
+
+        .navigation {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(136, 21, 24, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+        }
+
+        .nav-button {
+            background: #ffffff;
+            color: #881518;
+            border: none;
+            padding: 12px 30px;
+            font-size: 1rem;
+            font-weight: bold;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .nav-button:hover:not(:disabled) {
+            background: #881518;
+            color: #ffffff;
+            transform: scale(1.05);
+            box-shadow: 0 4px 15px rgba(136, 21, 24, 0.4);
+        }
+
+        .nav-button:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+
+        .slide-counter {
+            color: #ffffff;
+            font-size: 1rem;
+            font-weight: bold;
+        }
+
+        .interactive-demo {
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid #881518;
+            border-radius: 8px;
+            padding: 25px;
+            margin: 20px 0;
+        }
+
+        .interactive-demo h4 {
+            color: #ff6b6e;
+            margin-bottom: 15px;
+        }
+
+        .demo-controls {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 15px;
+        }
+
+        .demo-button {
+            background: #881518;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+
+        .demo-button:hover {
+            background: #a01a1d;
+            transform: translateY(-2px);
+        }
+
+        .demo-output {
+            background: #1e1e1e;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 15px;
+            font-family: 'Consolas', 'Monaco', monospace;
+            min-height: 50px;
+        }
+
+        .visual-scope {
+            margin: 20px 0;
+        }
+
+        @media (max-width: 768px) {
+            .slide-container {
+                padding: 20px 15px;
+            }
+
+            h2 {
+                font-size: 1.5rem;
+            }
+
+            .concept h3 {
+                font-size: 1.2rem;
+            }
+
+            .concept p, .concept li {
+                font-size: 1rem;
+            }
+
+            .code-example pre {
+                font-size: 0.85rem;
+            }
+
+            .nav-button {
+                padding: 10px 20px;
+                font-size: 0.9rem;
+            }
+
+            .scope-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .scope-layer.local {
+                margin-left: 15px;
+            }
+
+            .scope-layer.block {
+                margin-left: 30px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="slide-container">
+        <!-- Slide 1: What is Scope? -->
+        <div class="slide active">
+            <h2>What is Scope?</h2>
+            <div class="concept">
+                <h3>Visibility and Accessibility of Variables</h3>
+                <p><strong>Scope</strong> in programming refers to the visibility and accessibility of variables in different parts of your code.</p>
+                <p>It determines <em>where</em> variables can be accessed or modified in your program.</p>
+            </div>
+            <div class="concept">
+                <h3>Why is Scope Important?</h3>
+                <ul>
+                    <li>Helps organize your code by controlling variable access</li>
+                    <li>Prevents naming conflicts between variables</li>
+                    <li>Makes code more predictable and easier to debug</li>
+                    <li>Essential for writing clean, efficient, and bug-free code</li>
+                </ul>
+            </div>
+            <div class="tip">
+                Understanding scope is crucial for writing maintainable JavaScript code. It's the foundation for managing how data flows through your programs.
+            </div>
+        </div>
+
+        <!-- Slide 2: Three Types of Scope -->
+        <div class="slide">
+            <h2>Three Types of Scope in JavaScript</h2>
+            <div class="scope-grid">
+                <div class="scope-card">
+                    <h4>Global Scope</h4>
+                    <p>Variables accessible from <strong>anywhere</strong> in your code</p>
+                    <div class="code-example">
+                        <pre><code><span class="keyword">let</span> globalVar = <span class="string">"I'm global"</span>;</code></pre>
+                    </div>
+                </div>
+                <div class="scope-card">
+                    <h4>Local (Function) Scope</h4>
+                    <p>Variables accessible only <strong>within a function</strong></p>
+                    <div class="code-example">
+                        <pre><code><span class="keyword">function</span> <span class="function">test</span>() {
+    <span class="keyword">let</span> localVar = <span class="string">"local"</span>;
+}</code></pre>
+                    </div>
+                </div>
+                <div class="scope-card">
+                    <h4>Block Scope</h4>
+                    <p>Variables accessible only <strong>within a block { }</strong></p>
+                    <div class="code-example">
+                        <pre><code><span class="keyword">if</span> (<span class="boolean">true</span>) {
+    <span class="keyword">let</span> blockVar = <span class="string">"block"</span>;
+}</code></pre>
+                    </div>
+                </div>
+            </div>
+            <div class="visual-scope">
+                <div class="scope-diagram">
+                    <div class="scope-layer global">
+                        <span class="scope-label">GLOBAL SCOPE</span>
+                        <p>Accessible everywhere</p>
+                        <div class="scope-layer local">
+                            <span class="scope-label">LOCAL SCOPE</span>
+                            <p>Only in this function</p>
+                            <div class="scope-layer block">
+                                <span class="scope-label">BLOCK SCOPE</span>
+                                <p>Only in this block</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 3: Global Scope - Definition -->
+        <div class="slide">
+            <h2>Global Scope</h2>
+            <div class="concept">
+                <h3>The Outermost Scope</h3>
+                <p>Global scope is the <strong>outermost scope</strong> in a JavaScript program. Variables declared in the global scope are accessible from anywhere in your code, including within functions and blocks.</p>
+                <p>These variables are often called <strong>global variables</strong>.</p>
+            </div>
+            <div class="code-example">
+                <pre><code><span class="keyword">let</span> globalVar = <span class="string">"I'm a global variable"</span>;
+
+<span class="keyword">function</span> <span class="function">printGlobalVar</span>() {
+    <span class="function">console</span>.<span class="function">log</span>(globalVar); <span class="comment">// Can access global variable</span>
+}
+
+<span class="function">printGlobalVar</span>(); <span class="comment">// "I'm a global variable"</span></code></pre>
+            </div>
+            <div class="concept">
+                <h3>Key Points</h3>
+                <ul>
+                    <li>Declared outside of any function or block</li>
+                    <li>Accessible from anywhere in the code</li>
+                    <li>Exists for the entire lifetime of the program</li>
+                    <li>Can be accessed and modified by any part of the code</li>
+                </ul>
+            </div>
+            <div class="interactive-demo">
+                <h4>See global scope in action:</h4>
+                <div class="demo-controls">
+                    <button class="demo-button" onclick="testGlobalScope()">Test Global Access</button>
+                </div>
+                <div class="demo-output" id="global-demo"></div>
+            </div>
+        </div>
+
+        <!-- Slide 4: Global Scope - Caution -->
+        <div class="slide">
+            <h2>Global Scope - Use with Caution</h2>
+            <div class="warning">
+                <strong>Global variables should be used sparingly!</strong> While they can be convenient, they can lead to problems in larger programs.
+            </div>
+            <div class="concept">
+                <h3>Problems with Global Variables</h3>
+                <ul>
+                    <li><strong>Naming conflicts:</strong> Different parts of code might accidentally use the same variable name</li>
+                    <li><strong>Hard to maintain:</strong> Changes to global variables can affect the entire program unpredictably</li>
+                    <li><strong>Debugging difficulties:</strong> Hard to track where global variables are being modified</li>
+                    <li><strong>Memory usage:</strong> Global variables persist for the entire program lifetime</li>
+                </ul>
+            </div>
+            <div class="code-example">
+                <pre><code><span class="comment">// Multiple functions using the same global variable</span>
+<span class="keyword">let</span> count = <span class="number">0</span>; <span class="comment">// Global variable</span>
+
+<span class="keyword">function</span> <span class="function">increment</span>() {
+    count++; <span class="comment">// Modifies global</span>
+}
+
+<span class="keyword">function</span> <span class="function">reset</span>() {
+    count = <span class="number">0</span>; <span class="comment">// Also modifies global</span>
+}
+
+<span class="comment">// Hard to track who changes 'count' and when</span></code></pre>
+            </div>
+            <div class="tip">
+                <strong>Best Practice:</strong> Limit the use of global variables. Prefer local variables and pass data between functions using parameters and return values.
+            </div>
+        </div>
+
+        <!-- Slide 5: Local (Function) Scope -->
+        <div class="slide">
+            <h2>Local (Function) Scope</h2>
+            <div class="concept">
+                <h3>Variables Within Functions</h3>
+                <p><strong>Local scope</strong> refers to variables that are only accessible within a function. These are called <strong>local variables</strong>.</p>
+                <p>Local variables are created when a function is called and destroyed when the function finishes executing.</p>
+            </div>
+            <div class="code-example">
+                <pre><code><span class="keyword">function</span> <span class="function">greet</span>() {
+    <span class="keyword">let</span> message = <span class="string">"Hello, local scope!"</span>; <span class="comment">// Local variable</span>
+    <span class="function">console</span>.<span class="function">log</span>(message); <span class="comment">// Works inside function</span>
+}
+
+<span class="function">greet</span>(); <span class="comment">// "Hello, local scope!"</span></code></pre>
+            </div>
+            <div class="concept">
+                <h3>Benefits of Local Scope</h3>
+                <ul>
+                    <li><strong>Isolation:</strong> Variables don't interfere with other parts of the code</li>
+                    <li><strong>Reusability:</strong> Same variable names can be used in different functions</li>
+                    <li><strong>Memory efficiency:</strong> Variables are freed when function completes</li>
+                    <li><strong>Predictability:</strong> Variables can only be changed within the function</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Slide 6: Local Scope - Access Restrictions -->
+        <div class="slide">
+            <h2>Local Scope - Access Restrictions</h2>
+            <div class="concept">
+                <h3>Cannot Access Outside the Function</h3>
+                <p>Local variables can be used inside the function where they're declared, but trying to access them outside the function will result in an error.</p>
+            </div>
+            <div class="code-example">
+                <pre><code><span class="keyword">function</span> <span class="function">greet</span>() {
+    <span class="keyword">let</span> message = <span class="string">"Hello, local scope!"</span>;
+    <span class="function">console</span>.<span class="function">log</span>(message); <span class="comment">// Works fine ✓</span>
+}
+
+<span class="function">greet</span>(); <span class="comment">// "Hello, local scope!"</span>
+
+<span class="function">console</span>.<span class="function">log</span>(message); <span class="comment">// ❌ ReferenceError!</span></code></pre>
+            </div>
+            <div class="error">
+                <strong>ReferenceError: message is not defined</strong><br>
+                The variable 'message' only exists inside the greet() function and cannot be accessed from outside.
+            </div>
+            <div class="tip">
+                This isolation is actually a good thing! It prevents different parts of your code from accidentally interfering with each other, especially useful in larger programs.
+            </div>
+            <div class="interactive-demo">
+                <h4>Test local scope boundaries:</h4>
+                <div class="demo-controls">
+                    <button class="demo-button" onclick="testLocalScope()">Test Local Access</button>
+                </div>
+                <div class="demo-output" id="local-demo"></div>
+            </div>
+        </div>
+
+        <!-- Slide 7: Block Scope - Introduction -->
+        <div class="slide">
+            <h2>Block Scope - Introduction</h2>
+            <div class="concept">
+                <h3>ES6 Feature: let and const</h3>
+                <p><strong>Block scope</strong> is a concept introduced with the <code>let</code> and <code>const</code> keywords in ES6 (ECMAScript 2015).</p>
+                <p>A <strong>block</strong> is any code section within curly braces <code>{ }</code>, such as:</p>
+                <ul>
+                    <li><code>if</code> statements</li>
+                    <li><code>for</code> loops</li>
+                    <li><code>while</code> loops</li>
+                    <li>Any other code wrapped in <code>{ }</code></li>
+                </ul>
+            </div>
+            <div class="concept">
+                <h3>Key Principle</h3>
+                <p>Variables declared with <code>let</code> or <code>const</code> inside a block are <strong>only accessible within that block</strong>.</p>
+            </div>
+            <div class="warning">
+                <strong>Note:</strong> Variables declared with <code>var</code> do NOT have block scope - they only have function scope. This is one reason why <code>let</code> and <code>const</code> are preferred in modern JavaScript.
+            </div>
+        </div>
+
+        <!-- Slide 8: Block Scope - Example -->
+        <div class="slide">
+            <h2>Block Scope - Example</h2>
+            <div class="concept">
+                <h3>Variables Within Blocks</h3>
+                <p>Variables declared with <code>let</code> or <code>const</code> inside a block exist only within that block.</p>
+            </div>
+            <div class="code-example">
+                <pre><code><span class="keyword">if</span> (<span class="boolean">true</span>) {
+    <span class="keyword">let</span> blockVar = <span class="string">"I'm in a block"</span>;
+    <span class="function">console</span>.<span class="function">log</span>(blockVar); <span class="comment">// "I'm in a block" ✓</span>
+}
+
+<span class="function">console</span>.<span class="function">log</span>(blockVar); <span class="comment">// ❌ ReferenceError!</span></code></pre>
+            </div>
+            <div class="error">
+                <strong>ReferenceError: blockVar is not defined</strong><br>
+                The variable 'blockVar' only exists within the if block and cannot be accessed outside.
+            </div>
+            <div class="concept">
+                <h3>More Block Examples</h3>
+                <div class="code-example">
+                    <pre><code><span class="comment">// For loop block</span>
+<span class="keyword">for</span> (<span class="keyword">let</span> i = <span class="number">0</span>; i < <span class="number">5</span>; i++) {
+    <span class="keyword">let</span> temp = i * <span class="number">2</span>;
+    <span class="comment">// 'temp' only exists here</span>
+}
+<span class="comment">// 'temp' and 'i' don't exist here</span>
+
+<span class="comment">// While loop block</span>
+<span class="keyword">while</span> (<span class="boolean">true</span>) {
+    <span class="keyword">let</span> counter = <span class="number">0</span>;
+    <span class="comment">// 'counter' only exists here</span>
+    <span class="keyword">break</span>;
+}</code></pre>
+                </div>
+            </div>
+            <div class="interactive-demo">
+                <h4>Test block scope:</h4>
+                <div class="demo-controls">
+                    <button class="demo-button" onclick="testBlockScope()">Test Block Access</button>
+                </div>
+                <div class="demo-output" id="block-demo"></div>
+            </div>
+        </div>
+
+        <!-- Slide 9: Scope Shadowing -->
+        <div class="slide">
+            <h2>Variable Shadowing</h2>
+            <div class="concept">
+                <h3>Same Names, Different Scopes</h3>
+                <p>You can have variables with the same name in different scopes. The inner scope variable "shadows" (hides) the outer scope variable.</p>
+            </div>
+            <div class="code-example">
+                <pre><code><span class="keyword">let</span> x = <span class="number">10</span>; <span class="comment">// Global scope</span>
+
+<span class="keyword">function</span> <span class="function">printX</span>() {
+    <span class="keyword">let</span> x = <span class="number">20</span>; <span class="comment">// Local scope - shadows global x</span>
+    <span class="function">console</span>.<span class="function">log</span>(x); <span class="comment">// 20 (uses local x)</span>
+}
+
+<span class="function">printX</span>();         <span class="comment">// 20</span>
+<span class="function">console</span>.<span class="function">log</span>(x); <span class="comment">// 10 (global x unchanged)</span></code></pre>
+            </div>
+            <div class="concept">
+                <h3>What Happened?</h3>
+                <ul>
+                    <li>The global <code>x</code> has value <code>10</code></li>
+                    <li>Inside <code>printX()</code>, a new local <code>x</code> is created with value <code>20</code></li>
+                    <li>The local <code>x</code> shadows the global <code>x</code> inside the function</li>
+                    <li>Outside the function, the global <code>x</code> is still <code>10</code></li>
+                    <li>They are completely separate variables despite having the same name</li>
+                </ul>
+            </div>
+            <div class="interactive-demo">
+                <h4>Explore variable shadowing:</h4>
+                <div class="demo-controls">
+                    <button class="demo-button" onclick="testShadowing()">Test Shadowing</button>
+                </div>
+                <div class="demo-output" id="shadow-demo"></div>
+            </div>
+        </div>
+
+        <!-- Slide 10: Scope Chain -->
+        <div class="slide">
+            <h2>The Scope Chain</h2>
+            <div class="concept">
+                <h3>Looking Outward for Variables</h3>
+                <p>When JavaScript looks for a variable, it starts in the current scope and works its way outward until it finds the variable or reaches the global scope.</p>
+            </div>
+            <div class="code-example">
+                <pre><code><span class="keyword">let</span> global = <span class="string">"I'm global"</span>;
+
+<span class="keyword">function</span> <span class="function">outer</span>() {
+    <span class="keyword">let</span> outerVar = <span class="string">"I'm in outer"</span>;
+    
+    <span class="keyword">function</span> <span class="function">inner</span>() {
+        <span class="keyword">let</span> innerVar = <span class="string">"I'm in inner"</span>;
+        
+        <span class="function">console</span>.<span class="function">log</span>(innerVar);  <span class="comment">// Found in inner scope ✓</span>
+        <span class="function">console</span>.<span class="function">log</span>(outerVar);  <span class="comment">// Found in outer scope ✓</span>
+        <span class="function">console</span>.<span class="function">log</span>(global);    <span class="comment">// Found in global scope ✓</span>
+    }
+    
+    <span class="function">inner</span>();
+}
+
+<span class="function">outer</span>();</code></pre>
+            </div>
+            <div class="visual-scope">
+                <div class="scope-diagram">
+                    <div class="scope-layer global">
+                        <span class="scope-label">GLOBAL: global variable</span>
+                        <div class="scope-layer local">
+                            <span class="scope-label">OUTER: outerVar + access to global</span>
+                            <div class="scope-layer block">
+                                <span class="scope-label">INNER: innerVar + access to outerVar + global</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="tip">
+                Inner scopes can access outer scopes, but outer scopes CANNOT access inner scopes. This is a one-way street!
+            </div>
+        </div>
+
+        <!-- Slide 11: Best Practices -->
+        <div class="slide">
+            <h2>Best Practices for Scope</h2>
+            <div class="concept">
+                <h3>Guidelines for Clean Code</h3>
+            </div>
+            <div class="scope-grid">
+                <div class="scope-card">
+                    <h4>Minimize Global Variables</h4>
+                    <ul>
+                        <li>Use global variables sparingly</li>
+                        <li>Can lead to naming conflicts</li>
+                        <li>Makes code harder to maintain</li>
+                        <li>Prefer passing data via parameters</li>
+                    </ul>
+                </div>
+                <div class="scope-card">
+                    <h4>Use Local Variables</h4>
+                    <ul>
+                        <li>Keep different parts of code isolated</li>
+                        <li>Especially useful in larger programs</li>
+                        <li>Prevents unintended side effects</li>
+                        <li>Makes code more predictable</li>
+                    </ul>
+                </div>
+                <div class="scope-card">
+                    <h4>Leverage Block Scope</h4>
+                    <ul>
+                        <li>Use <code>let</code> and <code>const</code> instead of <code>var</code></li>
+                        <li>Provides finer control over variables</li>
+                        <li>Helps prevent errors</li>
+                        <li>Makes code more predictable</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="tip">
+                <strong>Golden Rule:</strong> Declare variables in the smallest scope necessary. This makes your code easier to understand, debug, and maintain.
+            </div>
+        </div>
+
+        <!-- Slide 12: Summary -->
+        <div class="slide">
+            <h2>Summary</h2>
+            <div class="concept">
+                <h3>Key Takeaways</h3>
+                <ul>
+                    <li><strong>Scope</strong> determines where variables can be accessed in your code</li>
+                    <li><strong>Global scope:</strong> Variables accessible from anywhere (use sparingly)</li>
+                    <li><strong>Local (function) scope:</strong> Variables accessible only within a function</li>
+                    <li><strong>Block scope:</strong> Variables declared with <code>let</code>/<code>const</code> accessible only within <code>{ }</code></li>
+                    <li><strong>Scope chain:</strong> JavaScript looks for variables from inner to outer scopes</li>
+                    <li><strong>Variable shadowing:</strong> Inner scope variables can hide outer scope variables with the same name</li>
+                    <li><strong>Best practice:</strong> Use the smallest scope necessary for each variable</li>
+                </ul>
+            </div>
+            <div class="comparison">
+                <div class="comparison-item">
+                    <h4>Global Scope</h4>
+                    <div class="code-example">
+                        <pre><code><span class="keyword">let</span> global = <span class="string">"everywhere"</span>;</code></pre>
+                    </div>
+                    <p>✓ Accessible anywhere<br>⚠️ Use with caution</p>
+                </div>
+                <div class="comparison-item">
+                    <h4>Local Scope</h4>
+                    <div class="code-example">
+                        <pre><code><span class="keyword">function</span> <span class="function">test</span>() {
+    <span class="keyword">let</span> local = <span class="string">"here"</span>;
+}</code></pre>
+                    </div>
+                    <p>✓ Function only<br>✓ Isolated</p>
+                </div>
+            </div>
+            <div class="concept" style="margin-top: 20px;">
+                <h3>Block Scope</h3>
+                <div class="code-example">
+                    <pre><code><span class="keyword">if</span> (<span class="boolean">true</span>) {
+    <span class="keyword">let</span> block = <span class="string">"only here"</span>;
+}</code></pre>
+                </div>
+                <p>✓ Block only • ✓ Finer control • ✓ Modern JavaScript</p>
+            </div>
+            <div class="tip">
+                Mastering these basic concepts of global, local, and block scope provides a solid foundation for understanding more advanced JavaScript topics!
+            </div>
+        </div>
+    </div>
+
+    <div class="navigation">
+        <button class="nav-button" id="prevBtn" onclick="changeSlide(-1)">← Previous</button>
+        <span class="slide-counter"><span id="currentSlide">1</span> / <span id="totalSlides">12</span></span>
+        <button class="nav-button" id="nextBtn" onclick="changeSlide(1)">Next →</button>
+    </div>
+
+    <script>
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.slide');
+        const totalSlides = slides.length;
+        
+        document.getElementById('totalSlides').textContent = totalSlides;
+
+        function showSlide(n) {
+            slides[currentSlide].classList.remove('active');
+            
+            if (n >= totalSlides) {
+                currentSlide = totalSlides - 1;
+            } else if (n < 0) {
+                currentSlide = 0;
+            } else {
+                currentSlide = n;
+            }
+            
+            slides[currentSlide].classList.add('active');
+            document.getElementById('currentSlide').textContent = currentSlide + 1;
+            
+            document.getElementById('prevBtn').disabled = currentSlide === 0;
+            document.getElementById('nextBtn').disabled = currentSlide === totalSlides - 1;
+            
+            document.querySelector('.slide-container').scrollTop = 0;
+        }
+
+        function changeSlide(direction) {
+            showSlide(currentSlide + direction);
+        }
+
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'ArrowLeft') {
+                changeSlide(-1);
+            } else if (e.key === 'ArrowRight') {
+                changeSlide(1);
+            }
+        });
+
+        showSlide(0);
+
+        // Interactive demos
+        function testGlobalScope() {
+            const output = document.getElementById('global-demo');
+            output.innerHTML = `
+                <div style="color: #6a9955;">// Global variable declared</div>
+                <div style="color: #d4d4d4;">let globalVar = <span style="color: #ce9178;">"I'm global"</span>;</div>
+                <div style="color: #6a9955; margin-top: 10px;">// Accessed inside function</div>
+                <div style="color: #d4d4d4;">function printGlobal() {</div>
+                <div style="color: #d4d4d4; margin-left: 20px;">console.log(globalVar);</div>
+                <div style="color: #d4d4d4;">}</div>
+                <div style="color: #4ec9b0; margin-top: 10px;">Output: "I'm global" ✓</div>
+                <div style="color: #6a9955; margin-top: 10px;">// Global variable accessible everywhere!</div>
+            `;
+        }
+
+        function testLocalScope() {
+            const output = document.getElementById('local-demo');
+            output.innerHTML = `
+                <div style="color: #d4d4d4;">function greet() {</div>
+                <div style="color: #d4d4d4; margin-left: 20px;">let message = <span style="color: #ce9178;">"Hello"</span>;</div>
+                <div style="color: #d4d4d4; margin-left: 20px;">console.log(message); <span style="color: #4ec9b0;">// ✓ Works</span></div>
+                <div style="color: #d4d4d4;">}</div>
+                <div style="color: #d4d4d4; margin-top: 10px;">console.log(message); <span style="color: #f44336;">// ❌ Error!</span></div>
+                <div style="color: #f44336; margin-top: 15px; font-weight: bold;">ReferenceError: message is not defined</div>
+                <div style="color: #6a9955; margin-top: 10px;">// 'message' only exists inside greet()</div>
+            `;
+        }
+
+        function testBlockScope() {
+            const output = document.getElementById('block-demo');
+            output.innerHTML = `
+                <div style="color: #d4d4d4;">if (true) {</div>
+                <div style="color: #d4d4d4; margin-left: 20px;">let blockVar = <span style="color: #ce9178;">"I'm in a block"</span>;</div>
+                <div style="color: #d4d4d4; margin-left: 20px;">console.log(blockVar); <span style="color: #4ec9b0;">// ✓ Works</span></div>
+                <div style="color: #d4d4d4;">}</div>
+                <div style="color: #d4d4d4; margin-top: 10px;">console.log(blockVar); <span style="color: #f44336;">// ❌ Error!</span></div>
+                <div style="color: #f44336; margin-top: 15px; font-weight: bold;">ReferenceError: blockVar is not defined</div>
+                <div style="color: #6a9955; margin-top: 10px;">// 'blockVar' only exists in the if block</div>
+            `;
+        }
+
+        function testShadowing() {
+            const output = document.getElementById('shadow-demo');
+            output.innerHTML = `
+                <div style="color: #d4d4d4;">let x = <span style="color: #b5cea8;">10</span>; <span style="color: #6a9955;">// Global x</span></div>
+                <div style="color: #d4d4d4; margin-top: 10px;">function printX() {</div>
+                <div style="color: #d4d4d4; margin-left: 20px;">let x = <span style="color: #b5cea8;">20</span>; <span style="color: #6a9955;">// Local x (shadows global)</span></div>
+                <div style="color: #d4d4d4; margin-left: 20px;">console.log(x); <span style="color: #4ec9b0;">// 20</span></div>
+                <div style="color: #d4d4d4;">}</div>
+                <div style="color: #d4d4d4; margin-top: 10px;">printX(); <span style="color: #4ec9b0;">// 20 (local x)</span></div>
+                <div style="color: #d4d4d4;">console.log(x); <span style="color: #4ec9b0;">// 10 (global x unchanged)</span></div>
+                <div style="color: #ffc107; margin-top: 15px;">Two separate variables with the same name!</div>
+            `;
+        }
+    </script>
+</body>
+</html>
