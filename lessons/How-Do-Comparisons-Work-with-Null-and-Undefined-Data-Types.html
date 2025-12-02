@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Null and Undefined Comparisons</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+            color: #ffffff;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .slide-container {
+            height: calc(100vh - 80px);
+            overflow-y: auto;
+            padding: 40px 20px 20px;
+            scroll-behavior: smooth;
+        }
+
+        .slide {
+            display: none;
+            max-width: 1200px;
+            margin: 0 auto;
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        .slide.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        h2 {
+            color: #881518;
+            font-size: 2rem;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 3px solid #881518;
+        }
+
+        .concept {
+            background: rgba(136, 21, 24, 0.1);
+            border-left: 4px solid #881518;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 4px;
+        }
+
+        .concept h3 {
+            color: #ff6b6e;
+            margin-bottom: 15px;
+            font-size: 1.4rem;
+        }
+
+        .concept p {
+            line-height: 1.8;
+            font-size: 1.1rem;
+            margin-bottom: 15px;
+        }
+
+        .concept ul {
+            margin-left: 25px;
+            line-height: 1.8;
+        }
+
+        .concept li {
+            margin-bottom: 10px;
+            font-size: 1.05rem;
+        }
+
+        .code-example {
+            background: #1e1e1e;
+            border: 1px solid #881518;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            overflow-x: auto;
+        }
+
+        .code-example pre {
+            margin: 0;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        .code-example code {
+            color: #d4d4d4;
+        }
+
+        .keyword {
+            color: #569cd6;
+        }
+
+        .string {
+            color: #ce9178;
+        }
+
+        .comment {
+            color: #6a9955;
+        }
+
+        .boolean {
+            color: #4ec9b0;
+        }
+
+        .function {
+            color: #dcdcaa;
+        }
+
+        .output {
+            color: #4ec9b0;
+        }
+
+        .warning {
+            background: rgba(255, 193, 7, 0.1);
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+
+        .warning::before {
+            content: "⚠️ ";
+            font-size: 1.2rem;
+        }
+
+        .tip {
+            background: rgba(76, 175, 80, 0.1);
+            border-left: 4px solid #4caf50;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+
+        .tip::before {
+            content: "💡 ";
+            font-size: 1.2rem;
+        }
+
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .comparison-item {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid rgba(136, 21, 24, 0.3);
+        }
+
+        .comparison-item code {
+            display: block;
+            margin-bottom: 8px;
+            color: #d4d4d4;
+            font-family: 'Consolas', 'Monaco', monospace;
+        }
+
+        .result {
+            color: #4ec9b0;
+            font-weight: bold;
+        }
+
+        .navigation {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(136, 21, 24, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+        }
+
+        .nav-button {
+            background: #ffffff;
+            color: #881518;
+            border: none;
+            padding: 12px 30px;
+            font-size: 1rem;
+            font-weight: bold;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .nav-button:hover:not(:disabled) {
+            background: #881518;
+            color: #ffffff;
+            transform: scale(1.05);
+            box-shadow: 0 4px 15px rgba(136, 21, 24, 0.4);
+        }
+
+        .nav-button:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+
+        .slide-counter {
+            color: #ffffff;
+            font-size: 1rem;
+            font-weight: bold;
+        }
+
+        .interactive-demo {
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid #881518;
+            border-radius: 8px;
+            padding: 25px;
+            margin: 20px 0;
+        }
+
+        .interactive-demo h4 {
+            color: #ff6b6e;
+            margin-bottom: 15px;
+        }
+
+        .demo-controls {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 15px;
+        }
+
+        .demo-button {
+            background: #881518;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+
+        .demo-button:hover {
+            background: #a01a1d;
+            transform: translateY(-2px);
+        }
+
+        .demo-output {
+            background: #1e1e1e;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 15px;
+            font-family: 'Consolas', 'Monaco', monospace;
+            min-height: 50px;
+        }
+
+        @media (max-width: 768px) {
+            .slide-container {
+                padding: 20px 15px;
+            }
+
+            h2 {
+                font-size: 1.5rem;
+            }
+
+            .concept h3 {
+                font-size: 1.2rem;
+            }
+
+            .concept p, .concept li {
+                font-size: 1rem;
+            }
+
+            .code-example pre {
+                font-size: 0.85rem;
+            }
+
+            .nav-button {
+                padding: 10px 20px;
+                font-size: 0.9rem;
+            }
+
+            .comparison-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="slide-container">
+        <!-- Slide 1: Introduction -->
+        <div class="slide active">
+            <h2>Introduction to null and undefined</h2>
+            <div class="concept">
+                <h3>Two Distinct Data Types</h3>
+                <p>JavaScript has two special types that represent the absence of a value:</p>
+                <ul>
+                    <li><strong>null</strong> - represents a deliberate non-value</li>
+                    <li><strong>undefined</strong> - represents an uninitialized value</li>
+                </ul>
+                <p>While both indicate "no value," they behave differently in comparisons and are crucial to understand for writing robust code.</p>
+            </div>
+        </div>
+
+        <!-- Slide 2: Understanding undefined -->
+        <div class="slide">
+            <h2>Understanding undefined</h2>
+            <div class="concept">
+                <h3>What is undefined?</h3>
+                <p>A variable is <code>undefined</code> when it has been declared but hasn't been assigned a value yet.</p>
+                <ul>
+                    <li>Default value of uninitialized variables</li>
+                    <li>Default value for function parameters not provided</li>
+                    <li>Return value of functions with no explicit return</li>
+                </ul>
+            </div>
+            <div class="code-example">
+                <pre><code><span class="keyword">let</span> x;
+<span class="function">console</span>.<span class="function">log</span>(x); <span class="comment">// undefined</span>
+
+<span class="keyword">function</span> <span class="function">greet</span>(name) {
+    <span class="function">console</span>.<span class="function">log</span>(name); <span class="comment">// undefined if no argument passed</span>
+}
+<span class="function">greet</span>();
+
+<span class="keyword">function</span> <span class="function">noReturn</span>() {
+    <span class="comment">// no return statement</span>
+}
+<span class="function">console</span>.<span class="function">log</span>(<span class="function">noReturn</span>()); <span class="comment">// undefined</span></code></pre>
+            </div>
+        </div>
+
+        <!-- Slide 3: Understanding null -->
+        <div class="slide">
+            <h2>Understanding null</h2>
+            <div class="concept">
+                <h3>What is null?</h3>
+                <p><code>null</code> is an assignment value that represents a deliberate absence of any object value.</p>
+                <ul>
+                    <li>Must be explicitly assigned</li>
+                    <li>Indicates intentional "no value"</li>
+                    <li>Often used to clear or reset variables</li>
+                </ul>
+            </div>
+            <div class="code-example">
+                <pre><code><span class="keyword">let</span> user = <span class="keyword">null</span>; <span class="comment">// intentionally no user</span>
+
+<span class="keyword">let</span> data = <span class="function">fetchData</span>();
+<span class="keyword">if</span> (!data) {
+    data = <span class="keyword">null</span>; <span class="comment">// explicitly set to null</span>
+}
+
+<span class="keyword">function</span> <span class="function">findElement</span>(id) {
+    <span class="comment">// return null if element not found</span>
+    <span class="keyword">return</span> element || <span class="keyword">null</span>;
+}</code></pre>
+            </div>
+        </div>
+
+        <!-- Slide 4: Equality Operator (==) -->
+        <div class="slide">
+            <h2>Equality Operator (==) - Type Coercion</h2>
+            <div class="concept">
+                <h3>Loose Equality Comparison</h3>
+                <p>The equality operator (<code>==</code>) performs type coercion, converting operands to the same type before comparison.</p>
+                <p><strong>Special case:</strong> <code>null</code> and <code>undefined</code> are considered equal with <code>==</code></p>
+            </div>
+            <div class="code-example">
+                <pre><code><span class="function">console</span>.<span class="function">log</span>(<span class="keyword">null</span> == <span class="keyword">undefined</span>); <span class="comment">// true</span></code></pre>
+            </div>
+            <div class="warning">
+                Type coercion with <code>==</code> can lead to unexpected results. JavaScript treats <code>null</code> and <code>undefined</code> as equal only to each other (and themselves).
+            </div>
+            <div class="interactive-demo">
+                <h4>Try it yourself:</h4>
+                <div class="demo-controls">
+                    <button class="demo-button" onclick="runDemo1()">Run: null == undefined</button>
+                </div>
+                <div class="demo-output" id="demo1"></div>
+            </div>
+        </div>
+
+        <!-- Slide 5: Strict Equality Operator (===) -->
+        <div class="slide">
+            <h2>Strict Equality Operator (===)</h2>
+            <div class="concept">
+                <h3>No Type Coercion</h3>
+                <p>The strict equality operator (<code>===</code>) checks both value and type without performing any type conversion.</p>
+                <p><code>null</code> and <code>undefined</code> are NOT equal with <code>===</code> because they are different types.</p>
+            </div>
+            <div class="code-example">
+                <pre><code><span class="function">console</span>.<span class="function">log</span>(<span class="keyword">null</span> === <span class="keyword">undefined</span>); <span class="comment">// false</span></code></pre>
+            </div>
+            <div class="tip">
+                Use <code>===</code> (strict equality) to avoid unexpected behavior from type coercion. It makes your code's intent clearer and more predictable.
+            </div>
+            <div class="interactive-demo">
+                <h4>Compare the difference:</h4>
+                <div class="demo-controls">
+                    <button class="demo-button" onclick="runDemo2()">Run Comparison</button>
+                </div>
+                <div class="demo-output" id="demo2"></div>
+            </div>
+        </div>
+
+        <!-- Slide 6: Comparisons with Other Values -->
+        <div class="slide">
+            <h2>Comparisons with Other Values</h2>
+            <div class="concept">
+                <h3>null and undefined with Other Types</h3>
+                <p>When comparing <code>null</code> or <code>undefined</code> with other values using <code>==</code>, they are NOT equal to anything except each other.</p>
+            </div>
+            <div class="comparison-grid">
+                <div class="comparison-item">
+                    <code>null == 0</code>
+                    <span class="result">false</span>
+                </div>
+                <div class="comparison-item">
+                    <code>null == ''</code>
+                    <span class="result">false</span>
+                </div>
+                <div class="comparison-item">
+                    <code>undefined == 0</code>
+                    <span class="result">false</span>
+                </div>
+                <div class="comparison-item">
+                    <code>undefined == ''</code>
+                    <span class="result">false</span>
+                </div>
+            </div>
+            <div class="warning">
+                <code>null</code> and <code>undefined</code> are only equal to each other (and themselves) when using the <code>==</code> operator.
+            </div>
+        </div>
+
+        <!-- Slide 7: null in Numeric Comparisons -->
+        <div class="slide">
+            <h2>null in Numeric Comparisons</h2>
+            <div class="concept">
+                <h3>Tricky Behavior of null</h3>
+                <p>The behavior of <code>null</code> in numeric comparisons is particularly surprising and inconsistent.</p>
+            </div>
+            <div class="code-example">
+                <pre><code><span class="function">console</span>.<span class="function">log</span>(<span class="keyword">null</span> > <span class="output">0</span>);  <span class="comment">// false</span>
+<span class="function">console</span>.<span class="function">log</span>(<span class="keyword">null</span> == <span class="output">0</span>); <span class="comment">// false</span>
+<span class="function">console</span>.<span class="function">log</span>(<span class="keyword">null</span> >= <span class="output">0</span>); <span class="comment">// true ⚠️</span></code></pre>
+            </div>
+            <div class="warning">
+                <strong>Why does <code>null >= 0</code> return true?</strong><br>
+                In comparison operators (<code>&gt;</code>, <code>&lt;</code>, <code>&gt;=</code>, <code>&lt;=</code>), <code>null</code> is converted to <code>0</code>. But with equality operators (<code>==</code>, <code>===</code>), no numeric conversion happens. This creates inconsistent behavior.
+            </div>
+            <div class="interactive-demo">
+                <h4>Explore null comparisons:</h4>
+                <div class="demo-controls">
+                    <button class="demo-button" onclick="runDemo3()">Test null comparisons</button>
+                </div>
+                <div class="demo-output" id="demo3"></div>
+            </div>
+        </div>
+
+        <!-- Slide 8: undefined in Numeric Comparisons -->
+        <div class="slide">
+            <h2>undefined in Numeric Comparisons</h2>
+            <div class="concept">
+                <h3>undefined Converts to NaN</h3>
+                <p><code>undefined</code> always converts to <code>NaN</code> (Not a Number) in numeric contexts.</p>
+                <p>Since any comparison with <code>NaN</code> returns <code>false</code>, all numeric comparisons with <code>undefined</code> are <code>false</code>.</p>
+            </div>
+            <div class="code-example">
+                <pre><code><span class="function">console</span>.<span class="function">log</span>(<span class="keyword">undefined</span> > <span class="output">0</span>);  <span class="comment">// false</span>
+<span class="function">console</span>.<span class="function">log</span>(<span class="keyword">undefined</span> < <span class="output">0</span>);  <span class="comment">// false</span>
+<span class="function">console</span>.<span class="function">log</span>(<span class="keyword">undefined</span> == <span class="output">0</span>); <span class="comment">// false</span>
+<span class="function">console</span>.<span class="function">log</span>(<span class="keyword">undefined</span> >= <span class="output">0</span>); <span class="comment">// false</span></code></pre>
+            </div>
+            <div class="warning">
+                <code>undefined</code> behaves more consistently than <code>null</code> in numeric comparisons - it's always <code>false</code> because <code>NaN</code> is never equal to or comparable with any value.
+            </div>
+        </div>
+
+        <!-- Slide 9: Best Practices -->
+        <div class="slide">
+            <h2>Best Practices</h2>
+            <div class="concept">
+                <h3>Recommendations for Comparing Values</h3>
+                <ul>
+                    <li><strong>Use strict equality (<code>===</code>)</strong> to avoid unexpected type coercion</li>
+                    <li><strong>Avoid relying on type coercion</strong> with <code>null</code> and <code>undefined</code></li>
+                    <li><strong>Be explicit</strong> when checking for these values</li>
+                    <li><strong>Test your comparisons</strong> to understand the behavior</li>
+                </ul>
+            </div>
+            <div class="tip">
+                Using <code>===</code> makes your code's behavior more predictable and helps prevent bugs caused by unexpected type conversions.
+            </div>
+            <div class="code-example">
+                <pre><code><span class="comment">// Good: Explicit checks</span>
+<span class="keyword">if</span> (value === <span class="keyword">null</span>) {
+    <span class="comment">// handle null specifically</span>
+}
+
+<span class="keyword">if</span> (value === <span class="keyword">undefined</span>) {
+    <span class="comment">// handle undefined specifically</span>
+}
+
+<span class="comment">// Check for both null and undefined</span>
+<span class="keyword">if</span> (value == <span class="keyword">null</span>) {
+    <span class="comment">// handles both null and undefined</span>
+}</code></pre>
+            </div>
+        </div>
+
+        <!-- Slide 10: Summary -->
+        <div class="slide">
+            <h2>Summary</h2>
+            <div class="concept">
+                <h3>Key Takeaways</h3>
+                <ul>
+                    <li><code>null</code> and <code>undefined</code> both represent the absence of a value, but serve different purposes</li>
+                    <li><code>undefined</code> is the default for uninitialized values</li>
+                    <li><code>null</code> is explicitly assigned to indicate "no value"</li>
+                    <li>With <code>==</code>, they equal each other but nothing else</li>
+                    <li>With <code>===</code>, they are not equal (different types)</li>
+                    <li><code>null</code> has inconsistent behavior in numeric comparisons</li>
+                    <li><code>undefined</code> converts to <code>NaN</code> in numeric contexts</li>
+                    <li>Always prefer <code>===</code> for predictable comparisons</li>
+                </ul>
+            </div>
+            <div class="tip">
+                Understanding these differences is essential for writing clear, bug-free JavaScript code. When in doubt, use strict equality and be explicit about what you're checking for.
+            </div>
+        </div>
+    </div>
+
+    <div class="navigation">
+        <button class="nav-button" id="prevBtn" onclick="changeSlide(-1)">← Previous</button>
+        <span class="slide-counter"><span id="currentSlide">1</span> / <span id="totalSlides">10</span></span>
+        <button class="nav-button" id="nextBtn" onclick="changeSlide(1)">Next →</button>
+    </div>
+
+    <script>
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.slide');
+        const totalSlides = slides.length;
+        
+        document.getElementById('totalSlides').textContent = totalSlides;
+
+        function showSlide(n) {
+            slides[currentSlide].classList.remove('active');
+            
+            if (n >= totalSlides) {
+                currentSlide = totalSlides - 1;
+            } else if (n < 0) {
+                currentSlide = 0;
+            } else {
+                currentSlide = n;
+            }
+            
+            slides[currentSlide].classList.add('active');
+            document.getElementById('currentSlide').textContent = currentSlide + 1;
+            
+            // Update button states
+            document.getElementById('prevBtn').disabled = currentSlide === 0;
+            document.getElementById('nextBtn').disabled = currentSlide === totalSlides - 1;
+            
+            // Scroll to top of slide container
+            document.querySelector('.slide-container').scrollTop = 0;
+        }
+
+        function changeSlide(direction) {
+            showSlide(currentSlide + direction);
+        }
+
+        // Keyboard navigation
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'ArrowLeft') {
+                changeSlide(-1);
+            } else if (e.key === 'ArrowRight') {
+                changeSlide(1);
+            }
+        });
+
+        // Initialize
+        showSlide(0);
+
+        // Interactive demos
+        function runDemo1() {
+            const output = document.getElementById('demo1');
+            const result = null == undefined;
+            output.innerHTML = `
+                <div style="color: #4ec9b0;">Result: ${result}</div>
+                <div style="color: #6a9955; margin-top: 10px;">// null and undefined are equal with ==</div>
+            `;
+        }
+
+        function runDemo2() {
+            const output = document.getElementById('demo2');
+            const looseResult = null == undefined;
+            const strictResult = null === undefined;
+            output.innerHTML = `
+                <div style="color: #d4d4d4;">null == undefined → <span style="color: #4ec9b0;">${looseResult}</span></div>
+                <div style="color: #d4d4d4; margin-top: 10px;">null === undefined → <span style="color: #4ec9b0;">${strictResult}</span></div>
+                <div style="color: #6a9955; margin-top: 10px;">// === checks type and value</div>
+            `;
+        }
+
+        function runDemo3() {
+            const output = document.getElementById('demo3');
+            const gt = null > 0;
+            const eq = null == 0;
+            const gte = null >= 0;
+            output.innerHTML = `
+                <div style="color: #d4d4d4;">null > 0 → <span style="color: #4ec9b0;">${gt}</span></div>
+                <div style="color: #d4d4d4; margin-top: 8px;">null == 0 → <span style="color: #4ec9b0;">${eq}</span></div>
+                <div style="color: #d4d4d4; margin-top: 8px;">null >= 0 → <span style="color: ${gte ? '#ffc107' : '#4ec9b0'};">${gte}</span> <span style="color: #ff6b6e;">⚠️ Surprising!</span></div>
+                <div style="color: #6a9955; margin-top: 15px;">// null converts to 0 in >= but not in ==</div>
+            `;
+        }
+    </script>
+</body>
+</html>
