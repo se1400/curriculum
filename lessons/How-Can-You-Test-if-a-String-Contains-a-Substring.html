@@ -1,0 +1,756 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>includes() Method - Interactive Slideshow</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #881518 0%, #a81d20 100%);
+            color: #333;
+            overflow-x: hidden;
+        }
+
+        .slideshow-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            min-height: 100vh;
+            padding-bottom: 100px;
+        }
+
+        .slide {
+            display: none;
+            background: white;
+            border-radius: 12px;
+            padding: 40px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            animation: fadeIn 0.5s ease-in;
+            margin-top: 20px;
+            overflow-y: auto;
+            max-height: calc(100vh - 140px);
+        }
+
+        .slide.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        h1 {
+            color: #881518;
+            font-size: 2.5em;
+            margin-bottom: 25px;
+            border-bottom: 4px solid #881518;
+            padding-bottom: 15px;
+        }
+
+        h2 {
+            color: #881518;
+            font-size: 2em;
+            margin-bottom: 20px;
+            margin-top: 20px;
+        }
+
+        h3 {
+            color: #a81d20;
+            font-size: 1.5em;
+            margin-bottom: 15px;
+            margin-top: 20px;
+        }
+
+        p {
+            line-height: 1.8;
+            font-size: 1.1em;
+            margin-bottom: 15px;
+            color: #444;
+        }
+
+        ul {
+            margin-left: 30px;
+            margin-bottom: 20px;
+        }
+
+        li {
+            line-height: 1.8;
+            font-size: 1.1em;
+            margin-bottom: 10px;
+            color: #444;
+        }
+
+        .content-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-top: 20px;
+        }
+
+        .content-section {
+            background: #f9f9f9;
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 4px solid #881518;
+        }
+
+        pre {
+            background: #2d2d2d;
+            color: #f8f8f2;
+            padding: 20px;
+            border-radius: 8px;
+            overflow-x: auto;
+            font-size: 0.95em;
+            line-height: 1.6;
+            margin: 15px 0;
+        }
+
+        code {
+            font-family: 'Courier New', monospace;
+        }
+
+        .inline-code {
+            background: #2d2d2d;
+            color: #f8f8f2;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.95em;
+        }
+
+        .highlight {
+            background: #fff3cd;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-weight: 600;
+            color: #856404;
+        }
+
+        .example-box {
+            background: #e8f4f8;
+            border: 2px solid #881518;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .key-concept {
+            background: #fef9e7;
+            border-left: 5px solid #f39c12;
+            padding: 15px 20px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+
+        .warning-box {
+            background: #fff3cd;
+            border: 3px solid #ffc107;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .success-box {
+            background: #d4edda;
+            border: 3px solid #28a745;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .error-box {
+            background: #f8d7da;
+            border: 3px solid #dc3545;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .console-output {
+            background: #1e1e1e;
+            border: 2px solid #555;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 15px 0;
+            font-family: 'Courier New', monospace;
+            color: #ce9178;
+            font-size: 1.05em;
+        }
+
+        .method-badge {
+            display: inline-block;
+            background: #881518;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: bold;
+            font-family: 'Courier New', monospace;
+            font-size: 1.3em;
+            margin: 10px;
+        }
+
+        .boolean-badge {
+            display: inline-block;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-weight: bold;
+            font-family: 'Courier New', monospace;
+            font-size: 1.2em;
+            margin: 5px;
+        }
+
+        .true-badge {
+            background: #28a745;
+            color: white;
+        }
+
+        .false-badge {
+            background: #dc3545;
+            color: white;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        th {
+            background: #881518;
+            color: white;
+            font-weight: 600;
+        }
+
+        tr:hover {
+            background: #f5f5f5;
+        }
+
+        .comparison-table {
+            width: 100%;
+            margin: 25px 0;
+        }
+
+        .navigation {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(136, 21, 24, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 -5px 20px rgba(0, 0, 0, 0.3);
+            z-index: 1000;
+        }
+
+        .nav-button {
+            background: white;
+            color: #881518;
+            border: none;
+            padding: 12px 30px;
+            font-size: 1em;
+            font-weight: 600;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .nav-button:hover:not(:disabled) {
+            background: #f0f0f0;
+            transform: scale(1.05);
+        }
+
+        .nav-button:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        .slide-counter {
+            color: white;
+            font-size: 1.1em;
+            font-weight: 600;
+        }
+
+        @media (max-width: 768px) {
+            .slideshow-container {
+                padding: 15px;
+            }
+
+            .slide {
+                padding: 25px;
+                margin-top: 10px;
+            }
+
+            h1 {
+                font-size: 1.8em;
+            }
+
+            h2 {
+                font-size: 1.5em;
+            }
+
+            h3 {
+                font-size: 1.2em;
+            }
+
+            p, li {
+                font-size: 1em;
+            }
+
+            .content-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+
+            pre {
+                font-size: 0.85em;
+                padding: 15px;
+            }
+
+            .navigation {
+                padding: 15px;
+            }
+
+            .nav-button {
+                padding: 10px 20px;
+                font-size: 0.9em;
+            }
+
+            .slide-counter {
+                font-size: 0.95em;
+            }
+
+            .method-badge {
+                font-size: 1.1em;
+                padding: 8px 16px;
+            }
+
+            table {
+                font-size: 0.9em;
+            }
+
+            th, td {
+                padding: 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="slideshow-container">
+        <!-- Slide 1: Introduction -->
+        <div class="slide active">
+            <h1>Testing for Substrings</h1>
+            
+            <p>When working with strings in JavaScript, there are many cases where you might need to <span class="highlight">check whether a string contains a specific substring</span>.</p>
+            
+            <div class="key-concept">
+                <h3>What is a Substring?</h3>
+                <p style="font-size: 1.2em;">A <strong>substring</strong> is a smaller part of a larger string.</p>
+            </div>
+
+            <div class="example-box">
+                <h3>Common Use Cases</h3>
+                <p>You might want to check if a user's input includes a specific word or character before performing some action:</p>
+                <ul>
+                    <li>Validate that an email contains "@"</li>
+                    <li>Check if a message contains profanity</li>
+                    <li>Verify that a password includes special characters</li>
+                    <li>Search for keywords in text</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Slide 2: The includes() Method -->
+        <div class="slide">
+            <h1>The includes() Method</h1>
+            
+            <div style="text-align: center; margin: 25px 0;">
+                <span class="method-badge">includes()</span>
+            </div>
+            
+            <p>One way to check if a string contains a substring is by using the <span class="inline-code">includes()</span> method.</p>
+
+            <div class="key-concept">
+                <h3>What It Does</h3>
+                <p style="font-size: 1.2em;">The <span class="inline-code">includes()</span> method is used to <strong>check if a string contains a specific substring</strong>.</p>
+            </div>
+
+            <div class="content-grid">
+                <div class="success-box">
+                    <h3>If Found</h3>
+                    <div style="text-align: center; margin: 15px 0;">
+                        <span class="boolean-badge true-badge">true</span>
+                    </div>
+                    <p>Returns <span class="inline-code">true</span> if the substring is found</p>
+                </div>
+
+                <div class="error-box">
+                    <h3>If Not Found</h3>
+                    <div style="text-align: center; margin: 15px 0;">
+                        <span class="boolean-badge false-badge">false</span>
+                    </div>
+                    <p>Returns <span class="inline-code">false</span> if the substring is not found</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 3: Basic Syntax -->
+        <div class="slide">
+            <h1>Basic Syntax</h1>
+            
+            <p>Here's the basic syntax for <span class="inline-code">includes()</span>:</p>
+
+<pre><code>string.includes(searchValue);</code></pre>
+
+            <div class="key-concept">
+                <h3>The searchValue Parameter</h3>
+                <p>The <span class="inline-code">searchValue</span> is the substring you want to look for within the string.</p>
+            </div>
+
+            <div class="example-box">
+                <h3>Simple Examples</h3>
+<pre><code>// Check if "hello" contains "ell"
+"hello".includes("ell");  // true
+
+// Check if "world" contains "xyz"
+"world".includes("xyz");  // false</code></pre>
+            </div>
+        </div>
+
+        <!-- Slide 4: Basic Example - Found -->
+        <div class="slide">
+            <h1>Finding a Substring</h1>
+            
+            <p>Here's an example where the substring is found:</p>
+
+<pre><code>let phrase = "JavaScript is awesome!";
+let result = phrase.includes("awesome");
+console.log(result); // true</code></pre>
+
+            <div class="console-output">true</div>
+
+            <div class="success-box">
+                <h3>✓ Substring Found</h3>
+                <p>In this example, the word <span class="inline-code">"awesome"</span> is found within the string <span class="inline-code">"JavaScript is awesome!"</span></p>
+                <p style="margin-top: 15px;">So the <span class="inline-code">includes()</span> method returns <span class="inline-code">true</span>.</p>
+            </div>
+        </div>
+
+        <!-- Slide 5: Case Sensitivity -->
+        <div class="slide">
+            <h1>includes() is Case Sensitive</h1>
+            
+            <div class="warning-box">
+                <h3>⚠️ Important Note</h3>
+                <p style="font-size: 1.2em;">It's important to note that the <span class="inline-code">includes()</span> method is <strong>case-sensitive</strong>.</p>
+                <p style="margin-top: 15px;">This means that the <strong>exact match</strong> of the characters is required, including their case.</p>
+            </div>
+
+            <h3>Example: Case Mismatch</h3>
+<pre><code>let phrase = "JavaScript is awesome!";
+let result = phrase.includes("Awesome");
+console.log(result); // false</code></pre>
+
+            <div class="console-output">false</div>
+
+            <div class="error-box">
+                <h3>❌ Why false?</h3>
+                <p>Since <span class="inline-code">"Awesome"</span> (with an uppercase <span class="inline-code">A</span>) does not match <span class="inline-code">"awesome"</span> (with a lowercase <span class="inline-code">a</span>), the result is <span class="inline-code">false</span>.</p>
+            </div>
+        </div>
+
+        <!-- Slide 6: More Case Sensitivity Examples -->
+        <div class="slide">
+            <h1>Case Sensitivity Examples</h1>
+            
+            <p>Let's look at more examples to understand case sensitivity:</p>
+
+            <div class="content-grid">
+                <div class="error-box">
+                    <h3>❌ Won't Match</h3>
+<pre><code>"Hello World".includes("hello")
+// false
+
+"JavaScript".includes("JAVA")
+// false
+
+"Programming".includes("GRAM")
+// false</code></pre>
+                </div>
+
+                <div class="success-box">
+                    <h3>✓ Will Match</h3>
+<pre><code>"Hello World".includes("Hello")
+// true
+
+"JavaScript".includes("Java")
+// true
+
+"Programming".includes("gram")
+// true</code></pre>
+                </div>
+            </div>
+
+            <div class="key-concept" style="margin-top: 25px;">
+                <h3>💡 Remember</h3>
+                <p>Every letter must match <strong>exactly</strong>, including uppercase and lowercase!</p>
+            </div>
+        </div>
+
+        <!-- Slide 7: Starting Position Parameter -->
+        <div class="slide">
+            <h1>Specifying a Starting Position</h1>
+            
+            <p>You can also use <span class="inline-code">includes()</span> to check for a substring <span class="highlight">starting at a specific index</span> by providing a second parameter.</p>
+
+            <h3>Syntax with Starting Position</h3>
+<pre><code>string.includes(searchValue, startPosition);</code></pre>
+
+            <h3>Example: Search from Position 7</h3>
+<pre><code>let text = "Hello, JavaScript world!";
+let result = text.includes("JavaScript", 7);
+console.log(result); // true</code></pre>
+
+            <div class="console-output">true</div>
+
+            <div class="example-box">
+                <h3>What Happened?</h3>
+                <p>The search for the substring <span class="inline-code">"JavaScript"</span> starts from the <strong>7th position</strong> in the string.</p>
+                <p style="margin-top: 15px;">This ensures it <strong>skips any characters before this position</strong>.</p>
+            </div>
+        </div>
+
+        <!-- Slide 8: Starting Position Visual Example -->
+        <div class="slide">
+            <h1>Understanding Starting Position</h1>
+            
+            <p>Let's visualize how the starting position works:</p>
+
+<pre><code>let text = "Hello, JavaScript world!";
+//          0123456789...
+let result = text.includes("JavaScript", 7);
+console.log(result); // true</code></pre>
+
+            <div class="example-box">
+                <h3>Breaking It Down</h3>
+                <ul>
+                    <li>Position 0-6: <span class="inline-code">"Hello, "</span> - SKIPPED</li>
+                    <li>Position 7+: Search begins here</li>
+                    <li><span class="inline-code">"JavaScript"</span> is found starting at position 7</li>
+                    <li>Result: <span class="inline-code">true</span></li>
+                </ul>
+            </div>
+
+            <h3>Another Example: Not Found After Position</h3>
+<pre><code>let text = "Hello, JavaScript world!";
+let result = text.includes("Hello", 7);
+console.log(result); // false</code></pre>
+
+            <div class="error-box">
+                <p>This returns <span class="inline-code">false</span> because <span class="inline-code">"Hello"</span> appears before position 7, so it's not found when searching from position 7 onward.</p>
+            </div>
+        </div>
+
+        <!-- Slide 9: includes() vs indexOf() -->
+        <div class="slide">
+            <h1>includes() vs indexOf()</h1>
+            
+            <p>The <span class="inline-code">includes()</span> method only returns a <span class="inline-code">true</span> or <span class="inline-code">false</span> result.</p>
+
+            <div class="warning-box">
+                <h3>⚠️ Limitation</h3>
+                <p>It does <strong>not</strong> provide information on:</p>
+                <ul style="margin-top: 15px;">
+                    <li>Where the substring is located in the string</li>
+                    <li>How many times it occurs</li>
+                </ul>
+            </div>
+
+            <div class="key-concept">
+                <p>If you need that level of detail, other methods, such as the <span class="inline-code">indexOf()</span> method, might be more suitable.</p>
+            </div>
+
+            <table class="comparison-table">
+                <thead>
+                    <tr>
+                        <th>Method</th>
+                        <th>Returns</th>
+                        <th>Use When</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>includes()</code></td>
+                        <td>Boolean (true/false)</td>
+                        <td>You just need to know IF substring exists</td>
+                    </tr>
+                    <tr>
+                        <td><code>indexOf()</code></td>
+                        <td>Number (index or -1)</td>
+                        <td>You need to know WHERE substring is located</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Slide 10: Practical Examples -->
+        <div class="slide">
+            <h1>Practical Use Cases</h1>
+            
+            <h3>Example 1: Email Validation</h3>
+<pre><code>let email = "user@example.com";
+if (email.includes("@") && email.includes(".")) {
+  console.log("Valid email format");
+} else {
+  console.log("Invalid email format");
+}</code></pre>
+
+            <h3>Example 2: Checking for Keywords</h3>
+<pre><code>let message = "This is urgent! Please respond ASAP.";
+if (message.includes("urgent") || message.includes("ASAP")) {
+  console.log("Priority message detected");
+}</code></pre>
+
+            <h3>Example 3: File Extension Check</h3>
+<pre><code>let filename = "document.pdf";
+if (filename.includes(".pdf")) {
+  console.log("This is a PDF file");
+} else if (filename.includes(".jpg") || filename.includes(".png")) {
+  console.log("This is an image file");
+}</code></pre>
+
+            <h3>Example 4: Password Validation</h3>
+<pre><code>let password = "SecureP@ss123";
+let hasSpecialChar = password.includes("@") || 
+                     password.includes("!") || 
+                     password.includes("#");
+if (hasSpecialChar) {
+  console.log("Password contains special character");
+}</code></pre>
+        </div>
+
+        <!-- Slide 11: Summary -->
+        <div class="slide">
+            <h1>includes() Summary</h1>
+            
+            <div class="example-box">
+                <h2>Key Takeaways</h2>
+                
+                <h3 style="color: #881518; margin-top: 20px;">What is includes()?</h3>
+                <p>A string method that checks if a string contains a specific substring.</p>
+
+                <h3 style="color: #881518; margin-top: 25px;">Syntax</h3>
+<pre><code>string.includes(searchValue)
+string.includes(searchValue, startPosition)</code></pre>
+
+                <h3 style="color: #881518; margin-top: 25px;">Parameters</h3>
+                <ul style="margin-top: 10px;">
+                    <li><strong>searchValue:</strong> The substring to search for (required)</li>
+                    <li><strong>startPosition:</strong> Index to start searching from (optional)</li>
+                </ul>
+
+                <h3 style="color: #881518; margin-top: 25px;">Return Values</h3>
+                <ul style="margin-top: 10px;">
+                    <li><span class="boolean-badge true-badge" style="display: inline;">true</span> - If substring is found</li>
+                    <li><span class="boolean-badge false-badge" style="display: inline;">false</span> - If substring is not found</li>
+                </ul>
+
+                <h3 style="color: #881518; margin-top: 25px;">Important Notes</h3>
+                <ul style="margin-top: 10px;">
+                    <li><span class="inline-code">includes()</span> is <strong>case-sensitive</strong></li>
+                    <li>Returns only a boolean (true/false)</li>
+                    <li>Does not tell you WHERE the substring is</li>
+                    <li>Does not tell you HOW MANY times it appears</li>
+                    <li>Use <span class="inline-code">indexOf()</span> if you need position information</li>
+                </ul>
+
+                <h3 style="color: #881518; margin-top: 25px;">Common Use Cases</h3>
+                <ul style="margin-top: 10px;">
+                    <li>Checking if input contains specific words</li>
+                    <li>Validating email/password formats</li>
+                    <li>Searching for keywords in text</li>
+                    <li>File type/extension detection</li>
+                    <li>Simple substring existence checks</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="navigation">
+        <button class="nav-button" id="prevBtn" onclick="changeSlide(-1)">← Previous</button>
+        <span class="slide-counter">
+            <span id="currentSlide">1</span> / <span id="totalSlides">11</span>
+        </span>
+        <button class="nav-button" id="nextBtn" onclick="changeSlide(1)">Next →</button>
+    </div>
+
+    <script>
+        let currentSlideIndex = 0;
+        const slides = document.querySelectorAll('.slide');
+        const totalSlides = slides.length;
+        
+        document.getElementById('totalSlides').textContent = totalSlides;
+
+        function showSlide(index) {
+            slides.forEach((slide, i) => {
+                slide.classList.remove('active');
+                if (i === index) {
+                    slide.classList.add('active');
+                    slide.scrollTop = 0;
+                }
+            });
+            
+            window.scrollTo(0, 0);
+            
+            document.getElementById('currentSlide').textContent = index + 1;
+            
+            document.getElementById('prevBtn').disabled = index === 0;
+            document.getElementById('nextBtn').disabled = index === totalSlides - 1;
+        }
+
+        function changeSlide(direction) {
+            currentSlideIndex += direction;
+            
+            if (currentSlideIndex < 0) {
+                currentSlideIndex = 0;
+            } else if (currentSlideIndex >= totalSlides) {
+                currentSlideIndex = totalSlides - 1;
+            }
+            
+            showSlide(currentSlideIndex);
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowLeft') {
+                changeSlide(-1);
+            } else if (e.key === 'ArrowRight') {
+                changeSlide(1);
+            }
+        });
+
+        showSlide(0);
+    </script>
+</body>
+</html>

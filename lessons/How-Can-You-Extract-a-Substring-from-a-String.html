@@ -1,0 +1,785 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>slice() Method - Interactive Slideshow</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #881518 0%, #a81d20 100%);
+            color: #333;
+            overflow-x: hidden;
+        }
+
+        .slideshow-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            min-height: 100vh;
+            padding-bottom: 100px;
+        }
+
+        .slide {
+            display: none;
+            background: white;
+            border-radius: 12px;
+            padding: 40px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            animation: fadeIn 0.5s ease-in;
+            margin-top: 20px;
+            overflow-y: auto;
+            max-height: calc(100vh - 140px);
+        }
+
+        .slide.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        h1 {
+            color: #881518;
+            font-size: 2.5em;
+            margin-bottom: 25px;
+            border-bottom: 4px solid #881518;
+            padding-bottom: 15px;
+        }
+
+        h2 {
+            color: #881518;
+            font-size: 2em;
+            margin-bottom: 20px;
+            margin-top: 20px;
+        }
+
+        h3 {
+            color: #a81d20;
+            font-size: 1.5em;
+            margin-bottom: 15px;
+            margin-top: 20px;
+        }
+
+        p {
+            line-height: 1.8;
+            font-size: 1.1em;
+            margin-bottom: 15px;
+            color: #444;
+        }
+
+        ul, ol {
+            margin-left: 30px;
+            margin-bottom: 20px;
+        }
+
+        li {
+            line-height: 1.8;
+            font-size: 1.1em;
+            margin-bottom: 10px;
+            color: #444;
+        }
+
+        .content-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-top: 20px;
+        }
+
+        .content-section {
+            background: #f9f9f9;
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 4px solid #881518;
+        }
+
+        pre {
+            background: #2d2d2d;
+            color: #f8f8f2;
+            padding: 20px;
+            border-radius: 8px;
+            overflow-x: auto;
+            font-size: 0.95em;
+            line-height: 1.6;
+            margin: 15px 0;
+        }
+
+        code {
+            font-family: 'Courier New', monospace;
+        }
+
+        .inline-code {
+            background: #2d2d2d;
+            color: #f8f8f2;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.95em;
+        }
+
+        .highlight {
+            background: #fff3cd;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-weight: 600;
+            color: #856404;
+        }
+
+        .example-box {
+            background: #e8f4f8;
+            border: 2px solid #881518;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .key-concept {
+            background: #fef9e7;
+            border-left: 5px solid #f39c12;
+            padding: 15px 20px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+
+        .warning-box {
+            background: #fff3cd;
+            border: 3px solid #ffc107;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .success-box {
+            background: #d4edda;
+            border: 3px solid #28a745;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .console-output {
+            background: #1e1e1e;
+            border: 2px solid #555;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 15px 0;
+            font-family: 'Courier New', monospace;
+            color: #ce9178;
+            font-size: 1.05em;
+        }
+
+        .method-badge {
+            display: inline-block;
+            background: #881518;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: bold;
+            font-family: 'Courier New', monospace;
+            font-size: 1.3em;
+            margin: 10px;
+        }
+
+        .visual-string {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 3px;
+            margin: 30px 0;
+            flex-wrap: wrap;
+            font-family: 'Courier New', monospace;
+        }
+
+        .char-box {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .char {
+            background: #f0f0f0;
+            border: 2px solid #ddd;
+            font-size: 1.2em;
+            font-weight: bold;
+            padding: 10px;
+            min-width: 40px;
+            text-align: center;
+        }
+
+        .char.highlight-char {
+            background: #881518;
+            color: white;
+            border-color: #881518;
+        }
+
+        .char.excluded-char {
+            background: #f8d7da;
+            border-color: #dc3545;
+            opacity: 0.5;
+        }
+
+        .index {
+            background: #6c757d;
+            color: white;
+            font-size: 0.9em;
+            font-weight: bold;
+            padding: 4px 8px;
+            border-radius: 3px;
+            margin-top: 5px;
+        }
+
+        .index.negative {
+            background: #881518;
+        }
+
+        .navigation {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(136, 21, 24, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 -5px 20px rgba(0, 0, 0, 0.3);
+            z-index: 1000;
+        }
+
+        .nav-button {
+            background: white;
+            color: #881518;
+            border: none;
+            padding: 12px 30px;
+            font-size: 1em;
+            font-weight: 600;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .nav-button:hover:not(:disabled) {
+            background: #f0f0f0;
+            transform: scale(1.05);
+        }
+
+        .nav-button:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        .slide-counter {
+            color: white;
+            font-size: 1.1em;
+            font-weight: 600;
+        }
+
+        @media (max-width: 768px) {
+            .slideshow-container {
+                padding: 15px;
+            }
+
+            .slide {
+                padding: 25px;
+                margin-top: 10px;
+            }
+
+            h1 {
+                font-size: 1.8em;
+            }
+
+            h2 {
+                font-size: 1.5em;
+            }
+
+            h3 {
+                font-size: 1.2em;
+            }
+
+            p, li {
+                font-size: 1em;
+            }
+
+            .content-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+
+            pre {
+                font-size: 0.85em;
+                padding: 15px;
+            }
+
+            .navigation {
+                padding: 15px;
+            }
+
+            .nav-button {
+                padding: 10px 20px;
+                font-size: 0.9em;
+            }
+
+            .slide-counter {
+                font-size: 0.95em;
+            }
+
+            .method-badge {
+                font-size: 1.1em;
+                padding: 8px 16px;
+            }
+
+            .char {
+                font-size: 1em;
+                padding: 8px;
+                min-width: 35px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="slideshow-container">
+        <!-- Slide 1: Introduction -->
+        <div class="slide active">
+            <h1>Extracting Substrings</h1>
+            
+            <p>When working with strings in JavaScript, you often need to <span class="highlight">extract a portion or substring</span> from a larger string.</p>
+            
+            <div class="example-box">
+                <h3>Common Use Cases</h3>
+                <p>You may want to extract:</p>
+                <ul>
+                    <li>Part of a word</li>
+                    <li>A specific character sequence</li>
+                    <li>Just a fragment of a sentence</li>
+                    <li>File extensions from filenames</li>
+                    <li>Usernames from email addresses</li>
+                </ul>
+            </div>
+
+            <div class="key-concept">
+                <h3>The Solution</h3>
+                <p style="font-size: 1.2em;">JavaScript provides several methods for this task, one of the most commonly used being the <strong>slice() method</strong>.</p>
+            </div>
+        </div>
+
+        <!-- Slide 2: The slice() Method -->
+        <div class="slide">
+            <h1>The slice() Method</h1>
+            
+            <div style="text-align: center; margin: 25px 0;">
+                <span class="method-badge">slice()</span>
+            </div>
+            
+            <p>The <span class="inline-code">slice()</span> method allows you to <span class="highlight">extract a portion of a string</span> and returns a new string.</p>
+
+            <div class="success-box">
+                <h3>✓ Important Features</h3>
+                <ul>
+                    <li>Returns a <strong>new string</strong></li>
+                    <li><strong>Does NOT modify</strong> the original string</li>
+                    <li>Takes two parameters: start and end indexes</li>
+                </ul>
+            </div>
+
+            <div class="key-concept">
+                <h3>The Two Parameters</h3>
+                <ol>
+                    <li><strong>Starting Index:</strong> Where the extraction starts</li>
+                    <li><strong>Ending Index:</strong> Where the extraction ends (optional)</li>
+                </ol>
+            </div>
+        </div>
+
+        <!-- Slide 3: Basic Syntax -->
+        <div class="slide">
+            <h1>Basic Syntax</h1>
+            
+            <p>Here's the basic syntax for <span class="inline-code">slice()</span>:</p>
+
+<pre><code>string.slice(startIndex, endIndex);</code></pre>
+
+            <div class="content-grid">
+                <div class="content-section">
+                    <h3>startIndex</h3>
+                    <p>The position where the extraction <strong>starts</strong>.</p>
+                    <p style="margin-top: 10px;">This character <strong>is included</strong> in the result.</p>
+                </div>
+
+                <div class="content-section">
+                    <h3>endIndex (Optional)</h3>
+                    <p>Where the extraction <strong>ends</strong>.</p>
+                    <p style="margin-top: 10px;">This character is <strong>NOT included</strong> in the result.</p>
+                    <p style="margin-top: 10px;">If not provided, <span class="inline-code">slice()</span> extracts until the end of the string.</p>
+                </div>
+            </div>
+
+            <div class="warning-box" style="margin-top: 25px;">
+                <h3>⚠️ Important Note</h3>
+                <p>The <span class="inline-code">endIndex</span> is <strong>NOT included</strong> in the extracted substring!</p>
+            </div>
+        </div>
+
+        <!-- Slide 4: Basic Example -->
+        <div class="slide">
+            <h1>Basic Example</h1>
+            
+            <p>Let's look at a simple example of extracting part of a string:</p>
+
+<pre><code>let message = "Hello, world!";
+let greeting = message.slice(0, 5);
+console.log(greeting); // Hello</code></pre>
+
+            <div class="console-output">Hello</div>
+
+            <div class="example-box">
+                <h3>What Happened?</h3>
+                <p><span class="inline-code">slice(0, 5)</span> extracts characters starting from index <strong>0</strong> up to but <strong>not including</strong> index <strong>5</strong>.</p>
+                <p style="margin-top: 15px;">As a result, the word <span class="inline-code">"Hello"</span> is extracted.</p>
+            </div>
+
+            <div class="visual-string">
+                <div class="char-box"><div class="char highlight-char">H</div><div class="index">0</div></div>
+                <div class="char-box"><div class="char highlight-char">e</div><div class="index">1</div></div>
+                <div class="char-box"><div class="char highlight-char">l</div><div class="index">2</div></div>
+                <div class="char-box"><div class="char highlight-char">l</div><div class="index">3</div></div>
+                <div class="char-box"><div class="char highlight-char">o</div><div class="index">4</div></div>
+                <div class="char-box"><div class="char excluded-char">,</div><div class="index">5</div></div>
+                <div class="char-box"><div class="char">&nbsp;</div><div class="index">6</div></div>
+                <div class="char-box"><div class="char">w</div><div class="index">7</div></div>
+            </div>
+
+            <p style="text-align: center; margin-top: 20px;">Indexes 0-4 are included (highlighted), index 5 is excluded (red)</p>
+        </div>
+
+        <!-- Slide 5: Omitting the End Index -->
+        <div class="slide">
+            <h1>Omitting the End Index</h1>
+            
+            <p>If you <strong>omit the second parameter</strong>, <span class="inline-code">slice()</span> will extract everything from the start index to the end of the string.</p>
+
+<pre><code>let message = "Hello, world!";
+let world = message.slice(7);
+console.log(world); // world!</code></pre>
+
+            <div class="console-output">world!</div>
+
+            <div class="success-box">
+                <h3>✓ What Happened?</h3>
+                <p><span class="inline-code">slice(7)</span> extracts the string from index <strong>7 to the end</strong> of the string.</p>
+                <p style="margin-top: 15px;">Result: <span class="inline-code">"world!"</span></p>
+            </div>
+
+            <div class="visual-string">
+                <div class="char-box"><div class="char">H</div><div class="index">0</div></div>
+                <div class="char-box"><div class="char">e</div><div class="index">1</div></div>
+                <div class="char-box"><div class="char">l</div><div class="index">2</div></div>
+                <div class="char-box"><div class="char">l</div><div class="index">3</div></div>
+                <div class="char-box"><div class="char">o</div><div class="index">4</div></div>
+                <div class="char-box"><div class="char">,</div><div class="index">5</div></div>
+                <div class="char-box"><div class="char">&nbsp;</div><div class="index">6</div></div>
+                <div class="char-box"><div class="char highlight-char">w</div><div class="index">7</div></div>
+                <div class="char-box"><div class="char highlight-char">o</div><div class="index">8</div></div>
+                <div class="char-box"><div class="char highlight-char">r</div><div class="index">9</div></div>
+                <div class="char-box"><div class="char highlight-char">l</div><div class="index">10</div></div>
+                <div class="char-box"><div class="char highlight-char">d</div><div class="index">11</div></div>
+                <div class="char-box"><div class="char highlight-char">!</div><div class="index">12</div></div>
+            </div>
+
+            <p style="text-align: center; margin-top: 20px;">Everything from index 7 onward is extracted (highlighted)</p>
+        </div>
+
+        <!-- Slide 6: Using Negative Indexes -->
+        <div class="slide">
+            <h1>Using Negative Indexes</h1>
+            
+            <p>You can also use <span class="highlight">negative numbers</span> as indexes.</p>
+
+            <div class="key-concept">
+                <h3>How Negative Indexes Work</h3>
+                <p style="font-size: 1.2em;">When you use a negative number, it <strong>counts backward from the end</strong> of the string.</p>
+            </div>
+
+<pre><code>let message = "JavaScript is fun!";
+let lastWord = message.slice(-4);
+console.log(lastWord); // fun!</code></pre>
+
+            <div class="console-output">fun!</div>
+
+            <div class="example-box">
+                <h3>What Happened?</h3>
+                <p><span class="inline-code">slice(-4)</span> extracts the <strong>last four characters</strong> from the string.</p>
+                <p style="margin-top: 15px;">Result: <span class="inline-code">"fun!"</span></p>
+            </div>
+
+            <div class="visual-string">
+                <div class="char-box"><div class="char">f</div><div class="index negative">-4</div></div>
+                <div class="char-box"><div class="char">u</div><div class="index negative">-3</div></div>
+                <div class="char-box"><div class="char">n</div><div class="index negative">-2</div></div>
+                <div class="char-box"><div class="char">!</div><div class="index negative">-1</div></div>
+            </div>
+
+            <p style="text-align: center; margin-top: 20px;">Negative indexes count from the end of the string</p>
+        </div>
+
+        <!-- Slide 7: Negative Index Examples -->
+        <div class="slide">
+            <h1>More Negative Index Examples</h1>
+            
+            <h3>Example 1: Last 3 Characters</h3>
+<pre><code>let text = "Programming";
+let result = text.slice(-3);
+console.log(result); // ing</code></pre>
+            <div class="console-output">ing</div>
+
+            <h3>Example 2: All But Last 3 Characters</h3>
+<pre><code>let text = "Programming";
+let result = text.slice(0, -3);
+console.log(result); // Programm</code></pre>
+            <div class="console-output">Programm</div>
+
+            <h3>Example 3: From -7 to -2</h3>
+<pre><code>let text = "Programming";
+let result = text.slice(-7, -2);
+console.log(result); // gramm</code></pre>
+            <div class="console-output">gramm</div>
+
+            <div class="key-concept">
+                <h3>💡 Remember</h3>
+                <p>Negative indexes are useful for extracting content from the <strong>end of a string</strong> without knowing its exact length!</p>
+            </div>
+        </div>
+
+        <!-- Slide 8: Extracting from the Middle -->
+        <div class="slide">
+            <h1>Extracting from the Middle</h1>
+            
+            <p>Let's say you want to extract a section from the <strong>middle</strong> of a string. You can provide both the starting and ending indexes to precisely control which part of the string you want.</p>
+
+<pre><code>let message = "I love JavaScript!";
+let language = message.slice(7, 17);
+console.log(language); // JavaScript</code></pre>
+
+            <div class="console-output">JavaScript</div>
+
+            <div class="example-box">
+                <h3>Breaking It Down</h3>
+                <p><span class="inline-code">slice(7, 17)</span> extracts the substring:</p>
+                <ul style="margin-top: 15px;">
+                    <li>Starting at index <strong>7</strong></li>
+                    <li>Ending right before index <strong>17</strong></li>
+                    <li>Result: <span class="inline-code">"JavaScript"</span></li>
+                </ul>
+            </div>
+
+            <div class="visual-string">
+                <div class="char-box"><div class="char">I</div><div class="index">0</div></div>
+                <div class="char-box"><div class="char">&nbsp;</div><div class="index">1</div></div>
+                <div class="char-box"><div class="char">l</div><div class="index">2</div></div>
+                <div class="char-box"><div class="char">o</div><div class="index">3</div></div>
+                <div class="char-box"><div class="char">v</div><div class="index">4</div></div>
+                <div class="char-box"><div class="char">e</div><div class="index">5</div></div>
+                <div class="char-box"><div class="char">&nbsp;</div><div class="index">6</div></div>
+                <div class="char-box"><div class="char highlight-char">J</div><div class="index">7</div></div>
+                <div class="char-box"><div class="char highlight-char">a</div><div class="index">8</div></div>
+                <div class="char-box"><div class="char highlight-char">v</div><div class="index">9</div></div>
+                <div class="char-box"><div class="char highlight-char">a</div><div class="index">10</div></div>
+            </div>
+        </div>
+
+        <!-- Slide 9: Original String Not Modified -->
+        <div class="slide">
+            <h1>Original String Not Modified</h1>
+            
+            <div class="success-box">
+                <h3>✓ Key Characteristic</h3>
+                <p style="font-size: 1.2em;">The <span class="inline-code">slice()</span> method <strong>does NOT modify</strong> the original string!</p>
+            </div>
+
+            <h3>Example: Demonstrating Immutability</h3>
+<pre><code>let original = "Hello, World!";
+let extracted = original.slice(0, 5);
+
+console.log(extracted);  // Hello
+console.log(original);   // Hello, World! (unchanged!)</code></pre>
+
+            <div class="console-output">Hello
+Hello, World!</div>
+
+            <div class="key-concept">
+                <h3>What This Means</h3>
+                <p>When you use <span class="inline-code">slice()</span>, you get a <strong>new string</strong> with the extracted portion, but the original string remains exactly as it was.</p>
+            </div>
+
+            <div class="example-box">
+                <h3>Why This Matters</h3>
+                <ul>
+                    <li>Safe to use without worrying about changing original data</li>
+                    <li>Can create multiple extractions from the same string</li>
+                    <li>Original string is preserved for other operations</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Slide 10: Practical Examples -->
+        <div class="slide">
+            <h1>Practical Use Cases</h1>
+            
+            <h3>Example 1: Extracting File Extension</h3>
+<pre><code>let filename = "document.pdf";
+let extension = filename.slice(-3);
+console.log(extension); // pdf</code></pre>
+
+            <h3>Example 2: Getting Username from Email</h3>
+<pre><code>let email = "user@example.com";
+let atIndex = email.indexOf("@");
+let username = email.slice(0, atIndex);
+console.log(username); // user</code></pre>
+
+            <h3>Example 3: Extracting First Name</h3>
+<pre><code>let fullName = "John Smith";
+let spaceIndex = fullName.indexOf(" ");
+let firstName = fullName.slice(0, spaceIndex);
+console.log(firstName); // John</code></pre>
+
+            <h3>Example 4: Getting Last 10 Characters</h3>
+<pre><code>let longText = "This is a very long text string";
+let lastPart = longText.slice(-10);
+console.log(lastPart); // ext string</code></pre>
+
+            <h3>Example 5: Middle Section</h3>
+<pre><code>let sentence = "The quick brown fox";
+let middle = sentence.slice(4, 9);
+console.log(middle); // quick</code></pre>
+        </div>
+
+        <!-- Slide 11: Summary -->
+        <div class="slide">
+            <h1>slice() Summary</h1>
+            
+            <div class="example-box">
+                <h2>Key Takeaways</h2>
+                
+                <h3 style="color: #881518; margin-top: 20px;">What is slice()?</h3>
+                <p>A method that extracts a portion of a string and returns a new string without modifying the original.</p>
+
+                <h3 style="color: #881518; margin-top: 25px;">Syntax</h3>
+<pre><code>string.slice(startIndex)
+string.slice(startIndex, endIndex)</code></pre>
+
+                <h3 style="color: #881518; margin-top: 25px;">Parameters</h3>
+                <ul style="margin-top: 10px;">
+                    <li><strong>startIndex:</strong> Where extraction begins (included in result)</li>
+                    <li><strong>endIndex:</strong> Where extraction ends (NOT included in result, optional)</li>
+                </ul>
+
+                <h3 style="color: #881518; margin-top: 25px;">Index Options</h3>
+                <ul style="margin-top: 10px;">
+                    <li><strong>Positive indexes:</strong> Count from the start (0, 1, 2...)</li>
+                    <li><strong>Negative indexes:</strong> Count from the end (-1, -2, -3...)</li>
+                    <li><strong>Omit endIndex:</strong> Extract to the end of string</li>
+                </ul>
+
+                <h3 style="color: #881518; margin-top: 25px;">Important Behaviors</h3>
+                <ul style="margin-top: 10px;">
+                    <li>Returns a <strong>new string</strong></li>
+                    <li><strong>Does NOT modify</strong> the original string</li>
+                    <li>The <strong>endIndex is NOT included</strong> in the result</li>
+                    <li>Works with both positive and negative indexes</li>
+                </ul>
+
+                <h3 style="color: #881518; margin-top: 25px;">Common Patterns</h3>
+<pre><code>// Get first 5 characters
+string.slice(0, 5)
+
+// Get last 5 characters
+string.slice(-5)
+
+// Get everything after index 10
+string.slice(10)
+
+// Get from index 5 to 10
+string.slice(5, 10)
+
+// Remove last 3 characters
+string.slice(0, -3)</code></pre>
+
+                <h3 style="color: #881518; margin-top: 25px;">Remember</h3>
+                <p style="text-align: center; font-size: 1.15em; background: #fef9e7; padding: 15px; border-radius: 8px; margin-top: 15px;">
+                    The <span class="inline-code">slice()</span> method is a powerful tool for extracting parts of strings with flexible options for positive, negative, and omitted indexes!
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div class="navigation">
+        <button class="nav-button" id="prevBtn" onclick="changeSlide(-1)">← Previous</button>
+        <span class="slide-counter">
+            <span id="currentSlide">1</span> / <span id="totalSlides">11</span>
+        </span>
+        <button class="nav-button" id="nextBtn" onclick="changeSlide(1)">Next →</button>
+    </div>
+
+    <script>
+        let currentSlideIndex = 0;
+        const slides = document.querySelectorAll('.slide');
+        const totalSlides = slides.length;
+        
+        document.getElementById('totalSlides').textContent = totalSlides;
+
+        function showSlide(index) {
+            slides.forEach((slide, i) => {
+                slide.classList.remove('active');
+                if (i === index) {
+                    slide.classList.add('active');
+                    slide.scrollTop = 0;
+                }
+            });
+            
+            window.scrollTo(0, 0);
+            
+            document.getElementById('currentSlide').textContent = index + 1;
+            
+            document.getElementById('prevBtn').disabled = index === 0;
+            document.getElementById('nextBtn').disabled = index === totalSlides - 1;
+        }
+
+        function changeSlide(direction) {
+            currentSlideIndex += direction;
+            
+            if (currentSlideIndex < 0) {
+                currentSlideIndex = 0;
+            } else if (currentSlideIndex >= totalSlides) {
+                currentSlideIndex = totalSlides - 1;
+            }
+            
+            showSlide(currentSlideIndex);
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowLeft') {
+                changeSlide(-1);
+            } else if (e.key === 'ArrowRight') {
+                changeSlide(1);
+            }
+        });
+
+        showSlide(0);
+    </script>
+</body>
+</html>

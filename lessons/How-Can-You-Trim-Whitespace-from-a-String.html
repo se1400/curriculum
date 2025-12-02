@@ -1,0 +1,821 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trimming Whitespace - Interactive Slideshow</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #881518 0%, #a81d20 100%);
+            color: #333;
+            overflow-x: hidden;
+        }
+
+        .slideshow-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            min-height: 100vh;
+            padding-bottom: 100px;
+        }
+
+        .slide {
+            display: none;
+            background: white;
+            border-radius: 12px;
+            padding: 40px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            animation: fadeIn 0.5s ease-in;
+            margin-top: 20px;
+            overflow-y: auto;
+            max-height: calc(100vh - 140px);
+        }
+
+        .slide.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        h1 {
+            color: #881518;
+            font-size: 2.5em;
+            margin-bottom: 25px;
+            border-bottom: 4px solid #881518;
+            padding-bottom: 15px;
+        }
+
+        h2 {
+            color: #881518;
+            font-size: 2em;
+            margin-bottom: 20px;
+            margin-top: 20px;
+        }
+
+        h3 {
+            color: #a81d20;
+            font-size: 1.5em;
+            margin-bottom: 15px;
+            margin-top: 20px;
+        }
+
+        p {
+            line-height: 1.8;
+            font-size: 1.1em;
+            margin-bottom: 15px;
+            color: #444;
+        }
+
+        ul, ol {
+            margin-left: 30px;
+            margin-bottom: 20px;
+        }
+
+        li {
+            line-height: 1.8;
+            font-size: 1.1em;
+            margin-bottom: 10px;
+            color: #444;
+        }
+
+        .content-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-top: 20px;
+        }
+
+        .content-section {
+            background: #f9f9f9;
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 4px solid #881518;
+        }
+
+        pre {
+            background: #2d2d2d;
+            color: #f8f8f2;
+            padding: 20px;
+            border-radius: 8px;
+            overflow-x: auto;
+            font-size: 0.95em;
+            line-height: 1.6;
+            margin: 15px 0;
+        }
+
+        code {
+            font-family: 'Courier New', monospace;
+        }
+
+        .inline-code {
+            background: #2d2d2d;
+            color: #f8f8f2;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.95em;
+        }
+
+        .highlight {
+            background: #fff3cd;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-weight: 600;
+            color: #856404;
+        }
+
+        .example-box {
+            background: #e8f4f8;
+            border: 2px solid #881518;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .key-concept {
+            background: #fef9e7;
+            border-left: 5px solid #f39c12;
+            padding: 15px 20px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+
+        .success-box {
+            background: #d4edda;
+            border: 3px solid #28a745;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .console-output {
+            background: #1e1e1e;
+            border: 2px solid #555;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 15px 0;
+            font-family: 'Courier New', monospace;
+            color: #ce9178;
+            font-size: 1.05em;
+        }
+
+        .method-badge {
+            display: inline-block;
+            background: #881518;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: bold;
+            font-family: 'Courier New', monospace;
+            font-size: 1.3em;
+            margin: 10px;
+        }
+
+        .whitespace-demo {
+            background: white;
+            border: 3px solid #881518;
+            border-radius: 12px;
+            padding: 25px;
+            margin: 25px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 1.3em;
+        }
+
+        .whitespace-char {
+            background: #ffc107;
+            color: #333;
+            padding: 5px 2px;
+            border-radius: 3px;
+            display: inline-block;
+            min-width: 20px;
+            text-align: center;
+        }
+
+        .text-char {
+            color: #333;
+        }
+
+        .removed {
+            background: #f8d7da;
+            text-decoration: line-through;
+            opacity: 0.6;
+        }
+
+        .kept {
+            background: #d4edda;
+        }
+
+        .before-after {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 30px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+
+        .demo-text {
+            background: #f0f0f0;
+            border: 2px solid #881518;
+            padding: 20px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 1.2em;
+            min-width: 200px;
+        }
+
+        .arrow {
+            font-size: 2em;
+            color: #881518;
+            font-weight: bold;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        th {
+            background: #881518;
+            color: white;
+            font-weight: 600;
+        }
+
+        tr:hover {
+            background: #f5f5f5;
+        }
+
+        .navigation {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(136, 21, 24, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 -5px 20px rgba(0, 0, 0, 0.3);
+            z-index: 1000;
+        }
+
+        .nav-button {
+            background: white;
+            color: #881518;
+            border: none;
+            padding: 12px 30px;
+            font-size: 1em;
+            font-weight: 600;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .nav-button:hover:not(:disabled) {
+            background: #f0f0f0;
+            transform: scale(1.05);
+        }
+
+        .nav-button:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        .slide-counter {
+            color: white;
+            font-size: 1.1em;
+            font-weight: 600;
+        }
+
+        @media (max-width: 768px) {
+            .slideshow-container {
+                padding: 15px;
+            }
+
+            .slide {
+                padding: 25px;
+                margin-top: 10px;
+            }
+
+            h1 {
+                font-size: 1.8em;
+            }
+
+            h2 {
+                font-size: 1.5em;
+            }
+
+            h3 {
+                font-size: 1.2em;
+            }
+
+            p, li {
+                font-size: 1em;
+            }
+
+            .content-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+
+            pre {
+                font-size: 0.85em;
+                padding: 15px;
+            }
+
+            .navigation {
+                padding: 15px;
+            }
+
+            .nav-button {
+                padding: 10px 20px;
+                font-size: 0.9em;
+            }
+
+            .slide-counter {
+                font-size: 0.95em;
+            }
+
+            .method-badge {
+                font-size: 1.1em;
+                padding: 8px 16px;
+            }
+
+            .before-after {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .arrow {
+                transform: rotate(90deg);
+            }
+
+            .whitespace-demo {
+                font-size: 1.1em;
+                padding: 20px;
+            }
+
+            .demo-text {
+                font-size: 1em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="slideshow-container">
+        <!-- Slide 1: Introduction -->
+        <div class="slide active">
+            <h1>Trimming Whitespace from Strings</h1>
+            
+            <p>When working with strings in JavaScript, it's common to encounter <span class="highlight">unwanted whitespace</span> at the beginning or end of a string.</p>
+            
+            <div class="example-box">
+                <h3>Why Whitespace Matters</h3>
+                <p>Whitespace can interfere with operations like:</p>
+                <ul>
+                    <li><strong>Comparison</strong> - Two strings might not match due to extra spaces</li>
+                    <li><strong>Storage</strong> - Wasted space in databases</li>
+                    <li><strong>Display</strong> - Awkward formatting in user interfaces</li>
+                    <li><strong>Validation</strong> - Form inputs with accidental spaces</li>
+                </ul>
+            </div>
+
+            <div class="key-concept">
+                <h3>The Solution</h3>
+                <p style="font-size: 1.2em;">JavaScript provides three methods to trim whitespace: <strong>trim()</strong>, <strong>trimStart()</strong>, and <strong>trimEnd()</strong></p>
+            </div>
+        </div>
+
+        <!-- Slide 2: What is Whitespace? -->
+        <div class="slide">
+            <h1>What is Whitespace?</h1>
+            
+            <div class="key-concept">
+                <h3>Definition</h3>
+                <p style="font-size: 1.2em;"><strong>Whitespace</strong> refers to spaces, tabs, or line breaks that occur in a string but are not visible characters.</p>
+            </div>
+
+            <h3>Example with Whitespace</h3>
+<pre><code>let greeting = "   Hello, world!   ";</code></pre>
+
+            <div class="whitespace-demo">
+                <span class="whitespace-char">•</span><span class="whitespace-char">•</span><span class="whitespace-char">•</span><span class="text-char">Hello, world!</span><span class="whitespace-char">•</span><span class="whitespace-char">•</span><span class="whitespace-char">•</span>
+            </div>
+            <p style="text-align: center; font-style: italic; color: #666;">Yellow boxes (•) represent whitespace characters</p>
+
+            <div class="example-box">
+                <h3>Types of Whitespace</h3>
+                <ul>
+                    <li><strong>Spaces:</strong> Regular space character</li>
+                    <li><strong>Tabs:</strong> Tab character (\t)</li>
+                    <li><strong>Line breaks:</strong> Newline characters (\n, \r)</li>
+                </ul>
+                <p style="margin-top: 15px;">In this case, there are spaces <strong>before and after</strong> the visible text, <span class="inline-code">"Hello, world!"</span></p>
+            </div>
+        </div>
+
+        <!-- Slide 3: The trim() Method -->
+        <div class="slide">
+            <h1>The trim() Method</h1>
+            
+            <div style="text-align: center; margin: 25px 0;">
+                <span class="method-badge">trim()</span>
+            </div>
+            
+            <p>The <span class="inline-code">trim()</span> method is the <span class="highlight">most commonly used</span> way to remove whitespace from <strong>both the beginning and the end</strong> of a string.</p>
+
+            <div class="key-concept">
+                <h3>What It Does</h3>
+                <ul style="margin-top: 15px;">
+                    <li>Removes <strong>leading whitespace</strong> (from the start)</li>
+                    <li>Removes <strong>trailing whitespace</strong> (from the end)</li>
+                    <li>Leaves whitespace <strong>within the string</strong> untouched</li>
+                    <li>Returns a <strong>new string</strong> (doesn't modify original)</li>
+                </ul>
+            </div>
+
+            <div class="whitespace-demo">
+                <span class="whitespace-char removed">•</span><span class="whitespace-char removed">•</span><span class="text-char kept">Hello, world!</span><span class="whitespace-char removed">•</span><span class="whitespace-char removed">•</span>
+            </div>
+            <p style="text-align: center; font-style: italic; color: #666;">Removed (red with strikethrough), Kept (green)</p>
+        </div>
+
+        <!-- Slide 4: trim() Example -->
+        <div class="slide">
+            <h1>trim() Example</h1>
+            
+            <p>Here's an example:</p>
+
+<pre><code>let message = "   Hello!   ";
+console.log(message);        // "   Hello!   "
+let trimmedMessage = message.trim();
+console.log(trimmedMessage); // "Hello!"</code></pre>
+
+            <div class="console-output">   Hello!   
+Hello!</div>
+
+            <div class="before-after">
+                <div class="demo-text">
+                    <div style="text-align: center; margin-bottom: 10px; font-weight: bold; color: #881518;">Before</div>
+                    <span class="whitespace-char">•</span><span class="whitespace-char">•</span><span class="whitespace-char">•</span>Hello!<span class="whitespace-char">•</span><span class="whitespace-char">•</span><span class="whitespace-char">•</span>
+                </div>
+                <div class="arrow">→</div>
+                <div class="demo-text">
+                    <div style="text-align: center; margin-bottom: 10px; font-weight: bold; color: #28a745;">After trim()</div>
+                    Hello!
+                </div>
+            </div>
+
+            <div class="success-box">
+                <h3>✓ What Happened?</h3>
+                <p>The <span class="inline-code">trim()</span> method removes all the <strong>leading and trailing spaces</strong>, leaving just <span class="inline-code">"Hello!"</span></p>
+            </div>
+        </div>
+
+        <!-- Slide 5: Whitespace Within String -->
+        <div class="slide">
+            <h1>Whitespace Within String</h1>
+            
+            <p>Note that any whitespace <strong>within the string</strong> (between words, for example) is <span class="highlight">left untouched</span> by <span class="inline-code">trim()</span>.</p>
+
+            <h3>Example: Internal Whitespace Preserved</h3>
+<pre><code>let sentence = "   Hello    World   ";
+let trimmed = sentence.trim();
+console.log(trimmed); // "Hello    World"</code></pre>
+
+            <div class="console-output">Hello    World</div>
+
+            <div class="whitespace-demo">
+                <div style="margin-bottom: 15px;">
+                    <strong>Before:</strong><br>
+                    <span class="whitespace-char removed">•</span><span class="whitespace-char removed">•</span><span class="whitespace-char removed">•</span>Hello<span class="whitespace-char kept">•</span><span class="whitespace-char kept">•</span><span class="whitespace-char kept">•</span><span class="whitespace-char kept">•</span>World<span class="whitespace-char removed">•</span><span class="whitespace-char removed">•</span><span class="whitespace-char removed">•</span>
+                </div>
+                <div>
+                    <strong>After trim():</strong><br>
+                    Hello<span class="whitespace-char">•</span><span class="whitespace-char">•</span><span class="whitespace-char">•</span><span class="whitespace-char">•</span>World
+                </div>
+            </div>
+
+            <div class="key-concept">
+                <h3>💡 Important</h3>
+                <p>Only the whitespace at the <strong>beginning and end</strong> is removed. Whitespace <strong>between words</strong> remains!</p>
+            </div>
+        </div>
+
+        <!-- Slide 6: trimStart() Method -->
+        <div class="slide">
+            <h1>The trimStart() Method</h1>
+            
+            <div style="text-align: center; margin: 25px 0;">
+                <span class="method-badge">trimStart()</span>
+            </div>
+            
+            <p>Sometimes, you may only want to remove whitespace from <strong>either the beginning or the end</strong> of a string, but not both.</p>
+
+            <div class="key-concept">
+                <h3>What trimStart() Does</h3>
+                <p style="font-size: 1.2em;"><span class="inline-code">trimStart()</span> removes whitespace from the <strong>beginning (or start)</strong> of the string.</p>
+            </div>
+
+<pre><code>let greeting = "   Hello!   ";
+console.log(greeting);           // "   Hello!   "
+let trimmedStart = greeting.trimStart();
+console.log(trimmedStart);       // "Hello!   "</code></pre>
+
+            <div class="console-output">   Hello!   
+Hello!   </div>
+
+            <div class="whitespace-demo">
+                <span class="whitespace-char removed">•</span><span class="whitespace-char removed">•</span><span class="whitespace-char removed">•</span><span class="text-char kept">Hello!</span><span class="whitespace-char kept">•</span><span class="whitespace-char kept">•</span><span class="whitespace-char kept">•</span>
+            </div>
+            <p style="text-align: center; font-style: italic; color: #666;">Only leading whitespace removed (start), trailing kept (end)</p>
+        </div>
+
+        <!-- Slide 7: trimEnd() Method -->
+        <div class="slide">
+            <h1>The trimEnd() Method</h1>
+            
+            <div style="text-align: center; margin: 25px 0;">
+                <span class="method-badge">trimEnd()</span>
+            </div>
+            
+            <div class="key-concept">
+                <h3>What trimEnd() Does</h3>
+                <p style="font-size: 1.2em;"><span class="inline-code">trimEnd()</span> removes whitespace from the <strong>end</strong> of the string.</p>
+            </div>
+
+<pre><code>let greeting = "   Hello!   ";
+console.log(greeting);         // "   Hello!   "
+let trimmedEnd = greeting.trimEnd();
+console.log(trimmedEnd);       // "   Hello!"</code></pre>
+
+            <div class="console-output">   Hello!   
+   Hello!</div>
+
+            <div class="whitespace-demo">
+                <span class="whitespace-char kept">•</span><span class="whitespace-char kept">•</span><span class="whitespace-char kept">•</span><span class="text-char kept">Hello!</span><span class="whitespace-char removed">•</span><span class="whitespace-char removed">•</span><span class="whitespace-char removed">•</span>
+            </div>
+            <p style="text-align: center; font-style: italic; color: #666;">Only trailing whitespace removed (end), leading kept (start)</p>
+
+            <div class="success-box">
+                <h3>✓ Precise Control</h3>
+                <p>These methods give you <strong>more precise control</strong> over which part of the string you want to clean up.</p>
+            </div>
+        </div>
+
+        <!-- Slide 8: Comparison of All Three Methods -->
+        <div class="slide">
+            <h1>Comparison of All Three Methods</h1>
+            
+            <p>Let's compare all three methods side by side:</p>
+
+<pre><code>let text = "   JavaScript   ";
+
+console.log(text.trim());       // "JavaScript"
+console.log(text.trimStart());  // "JavaScript   "
+console.log(text.trimEnd());    // "   JavaScript"</code></pre>
+
+            <div class="console-output">JavaScript
+JavaScript   
+   JavaScript</div>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Method</th>
+                        <th>Removes From</th>
+                        <th>Result (for "   JavaScript   ")</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>trim()</code></td>
+                        <td>Both start and end</td>
+                        <td><code>"JavaScript"</code></td>
+                    </tr>
+                    <tr>
+                        <td><code>trimStart()</code></td>
+                        <td>Start only</td>
+                        <td><code>"JavaScript   "</code></td>
+                    </tr>
+                    <tr>
+                        <td><code>trimEnd()</code></td>
+                        <td>End only</td>
+                        <td><code>"   JavaScript"</code></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Slide 9: Practical Use Cases -->
+        <div class="slide">
+            <h1>Practical Use Cases</h1>
+            
+            <h3>Example 1: Cleaning User Input</h3>
+<pre><code>let userInput = "  john.doe@example.com  ";
+let cleanEmail = userInput.trim();
+console.log(cleanEmail); // "john.doe@example.com"</code></pre>
+
+            <h3>Example 2: String Comparison</h3>
+<pre><code>let input1 = "  hello  ";
+let input2 = "hello";
+console.log(input1 === input2);              // false
+console.log(input1.trim() === input2);       // true</code></pre>
+
+            <h3>Example 3: Form Validation</h3>
+<pre><code>let password = "  secret123  ";
+if (password.trim().length < 8) {
+  console.log("Password too short!");
+}</code></pre>
+
+            <h3>Example 4: Preparing Data for Storage</h3>
+<pre><code>let firstName = "  John  ";
+let lastName = "  Smith  ";
+let fullName = firstName.trim() + " " + lastName.trim();
+console.log(fullName); // "John Smith"</code></pre>
+
+            <h3>Example 5: Removing Line Breaks</h3>
+<pre><code>let multiline = "\n\n  Text with breaks  \n\n";
+let cleaned = multiline.trim();
+console.log(cleaned); // "Text with breaks"</code></pre>
+        </div>
+
+        <!-- Slide 10: When to Use Each Method -->
+        <div class="slide">
+            <h1>When to Use Each Method</h1>
+            
+            <div class="content-grid">
+                <div class="example-box">
+                    <h3>Use trim()</h3>
+                    <ul>
+                        <li>Cleaning user input</li>
+                        <li>Form validation</li>
+                        <li>String comparison</li>
+                        <li>Preparing data for storage</li>
+                        <li><strong>Most common use case</strong></li>
+                    </ul>
+                </div>
+
+                <div class="example-box">
+                    <h3>Use trimStart()</h3>
+                    <ul>
+                        <li>Removing leading indentation</li>
+                        <li>Cleaning code snippets</li>
+                        <li>Processing text files</li>
+                        <li>Formatting left-aligned text</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="example-box" style="margin-top: 30px;">
+                <h3>Use trimEnd()</h3>
+                <ul>
+                    <li>Removing trailing spaces</li>
+                    <li>Cleaning file paths</li>
+                    <li>Processing log entries</li>
+                    <li>Removing unwanted line endings</li>
+                </ul>
+            </div>
+
+            <div class="key-concept" style="margin-top: 30px;">
+                <h3>💡 General Rule</h3>
+                <p>If you're unsure which to use, start with <span class="inline-code">trim()</span> - it's the safest option for most scenarios!</p>
+            </div>
+        </div>
+
+        <!-- Slide 11: Summary -->
+        <div class="slide">
+            <h1>Trimming Whitespace Summary</h1>
+            
+            <div class="example-box">
+                <h2>Key Takeaways</h2>
+                
+                <h3 style="color: #881518; margin-top: 20px;">What is Whitespace?</h3>
+                <p>Spaces, tabs, or line breaks that occur in a string but are not visible characters.</p>
+
+                <h3 style="color: #881518; margin-top: 25px;">Three Trimming Methods</h3>
+                <ul style="margin-top: 10px;">
+                    <li><span class="inline-code">trim()</span> - Removes whitespace from <strong>both beginning and end</strong></li>
+                    <li><span class="inline-code">trimStart()</span> - Removes whitespace from <strong>beginning only</strong></li>
+                    <li><span class="inline-code">trimEnd()</span> - Removes whitespace from <strong>end only</strong></li>
+                </ul>
+
+                <h3 style="color: #881518; margin-top: 25px;">Syntax</h3>
+<pre><code>string.trim()       // Remove from both sides
+string.trimStart()  // Remove from start only
+string.trimEnd()    // Remove from end only</code></pre>
+
+                <h3 style="color: #881518; margin-top: 25px;">Important Behaviors</h3>
+                <ul style="margin-top: 10px;">
+                    <li>All methods return a <strong>new string</strong></li>
+                    <li><strong>Do NOT modify</strong> the original string</li>
+                    <li>Whitespace <strong>within the string</strong> is preserved</li>
+                    <li>No parameters required</li>
+                </ul>
+
+                <h3 style="color: #881518; margin-top: 25px;">Common Use Cases</h3>
+                <ul style="margin-top: 10px;">
+                    <li><strong>Clean user input:</strong> Remove accidental spaces</li>
+                    <li><strong>Ensure consistent comparisons:</strong> Compare strings accurately</li>
+                    <li><strong>Data validation:</strong> Check actual content length</li>
+                    <li><strong>Storage preparation:</strong> Save clean data to databases</li>
+                </ul>
+
+                <h3 style="color: #881518; margin-top: 25px;">Quick Examples</h3>
+<pre><code>// Remove from both sides
+"  hello  ".trim()          // "hello"
+
+// Remove from start only
+"  hello  ".trimStart()     // "hello  "
+
+// Remove from end only
+"  hello  ".trimEnd()       // "  hello"</code></pre>
+
+                <h3 style="color: #881518; margin-top: 25px;">Remember</h3>
+                <p style="text-align: center; font-size: 1.15em; background: #fef9e7; padding: 15px; border-radius: 8px; margin-top: 15px;">
+                    Trimming whitespace is an <strong>essential part</strong> of working with strings in JavaScript for clean, consistent data handling!
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div class="navigation">
+        <button class="nav-button" id="prevBtn" onclick="changeSlide(-1)">← Previous</button>
+        <span class="slide-counter">
+            <span id="currentSlide">1</span> / <span id="totalSlides">11</span>
+        </span>
+        <button class="nav-button" id="nextBtn" onclick="changeSlide(1)">Next →</button>
+    </div>
+
+    <script>
+        let currentSlideIndex = 0;
+        const slides = document.querySelectorAll('.slide');
+        const totalSlides = slides.length;
+        
+        document.getElementById('totalSlides').textContent = totalSlides;
+
+        function showSlide(index) {
+            slides.forEach((slide, i) => {
+                slide.classList.remove('active');
+                if (i === index) {
+                    slide.classList.add('active');
+                    slide.scrollTop = 0;
+                }
+            });
+            
+            window.scrollTo(0, 0);
+            
+            document.getElementById('currentSlide').textContent = index + 1;
+            
+            document.getElementById('prevBtn').disabled = index === 0;
+            document.getElementById('nextBtn').disabled = index === totalSlides - 1;
+        }
+
+        function changeSlide(direction) {
+            currentSlideIndex += direction;
+            
+            if (currentSlideIndex < 0) {
+                currentSlideIndex = 0;
+            } else if (currentSlideIndex >= totalSlides) {
+                currentSlideIndex = totalSlides - 1;
+            }
+            
+            showSlide(currentSlideIndex);
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowLeft') {
+                changeSlide(-1);
+            } else if (e.key === 'ArrowRight') {
+                changeSlide(1);
+            }
+        });
+
+        showSlide(0);
+    </script>
+</body>
+</html>
