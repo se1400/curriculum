@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Array Destructuring in JavaScript</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #881518 0%, #a91d20 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .slide-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+            padding-bottom: 100px;
+            min-height: 100vh;
+        }
+
+        .slide {
+            display: none;
+            background: white;
+            border-radius: 12px;
+            padding: 2.5rem;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        .slide.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        h2 {
+            color: #881518;
+            font-size: 2rem;
+            margin-bottom: 1.5rem;
+            border-bottom: 3px solid #881518;
+            padding-bottom: 0.5rem;
+        }
+
+        .concept {
+            margin-bottom: 2rem;
+        }
+
+        .concept h3 {
+            color: #333;
+            font-size: 1.4rem;
+            margin-bottom: 1rem;
+        }
+
+        .concept-text {
+            color: #555;
+            font-size: 1.1rem;
+            line-height: 1.6;
+            margin-bottom: 1rem;
+        }
+
+        .code-example {
+            background: #f8f9fa;
+            border-left: 4px solid #881518;
+            padding: 1.5rem;
+            border-radius: 6px;
+            margin: 1rem 0;
+            overflow-x: auto;
+        }
+
+        .code-example pre {
+            margin: 0;
+            font-family: 'Courier New', monospace;
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+
+        .code-example code {
+            color: #333;
+        }
+
+        .keyword {
+            color: #0066cc;
+            font-weight: bold;
+        }
+
+        .string {
+            color: #22863a;
+        }
+
+        .comment {
+            color: #6a737d;
+            font-style: italic;
+        }
+
+        .output {
+            background: #e8f4f8;
+            border-left: 4px solid #0066cc;
+            padding: 1rem;
+            margin-top: 0.5rem;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+        }
+
+        .highlight {
+            background: #fff3cd;
+            padding: 0.2rem 0.4rem;
+            border-radius: 3px;
+            font-weight: 600;
+        }
+
+        .comparison-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin: 1.5rem 0;
+        }
+
+        .comparison-box {
+            background: #f8f9fa;
+            padding: 1.5rem;
+            border-radius: 8px;
+            border: 2px solid #881518;
+        }
+
+        .comparison-box h4 {
+            color: #881518;
+            margin-bottom: 1rem;
+            font-size: 1.2rem;
+        }
+
+        .comparison-box.highlight-green {
+            border-color: #28a745;
+        }
+
+        .comparison-box.highlight-green h4 {
+            color: #28a745;
+        }
+
+        .info-box {
+            background: #e7f3ff;
+            border-left: 4px solid #0066cc;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 4px;
+        }
+
+        .info-box strong {
+            color: #004085;
+        }
+
+        .visual-demo {
+            background: #f8f9fa;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin: 1.5rem 0;
+            border: 2px solid #881518;
+        }
+
+        .arrow {
+            font-size: 1.5rem;
+            color: #881518;
+            margin: 0.5rem 0;
+        }
+
+        .variable-box {
+            background: white;
+            padding: 0.8rem 1.2rem;
+            border-radius: 6px;
+            border: 2px solid #881518;
+            display: inline-block;
+            margin: 0.5rem;
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+        }
+
+        .navigation {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0, 0, 0, 0.9);
+            padding: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.3);
+            z-index: 1000;
+        }
+
+        .nav-button {
+            background: #881518;
+            color: white;
+            border: none;
+            padding: 0.8rem 2rem;
+            font-size: 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+        }
+
+        .nav-button:hover {
+            background: #a91d20;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(136, 21, 24, 0.4);
+        }
+
+        .nav-button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .slide-counter {
+            color: white;
+            font-size: 1rem;
+            font-weight: 600;
+        }
+
+        .benefit-list {
+            background: #f8f9fa;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+        }
+
+        .benefit-list li {
+            color: #333;
+            font-size: 1.05rem;
+            line-height: 1.8;
+            margin-bottom: 0.5rem;
+        }
+
+        @media (max-width: 768px) {
+            .slide-container {
+                padding: 1rem;
+                padding-bottom: 100px;
+            }
+
+            .slide {
+                padding: 1.5rem;
+            }
+
+            h2 {
+                font-size: 1.5rem;
+            }
+
+            .concept h3 {
+                font-size: 1.2rem;
+            }
+
+            .concept-text {
+                font-size: 1rem;
+            }
+
+            .nav-button {
+                padding: 0.7rem 1.2rem;
+                font-size: 0.9rem;
+            }
+
+            .comparison-container {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+
+            .code-example {
+                padding: 1rem;
+            }
+
+            .code-example pre {
+                font-size: 0.85rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .navigation {
+                padding: 0.8rem;
+            }
+
+            .nav-button {
+                padding: 0.6rem 1rem;
+                font-size: 0.85rem;
+            }
+
+            .slide-counter {
+                font-size: 0.9rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="slide-container">
+        <!-- Slide 1: Introduction to Array Destructuring -->
+        <div class="slide active">
+            <h2>What Is Array Destructuring?</h2>
+            
+            <div class="concept">
+                <h3>Definition</h3>
+                <p class="concept-text">
+                    <span class="highlight">Array destructuring</span> is a feature in JavaScript that allows you to extract values from arrays and assign them to variables in a more <strong>concise and readable</strong> way.
+                </p>
+                <p class="concept-text">
+                    It provides a convenient syntax for <strong>unpacking array elements</strong> into distinct variables.
+                </p>
+            </div>
+
+            <div class="concept">
+                <h3>Why Use Destructuring?</h3>
+                <ul style="margin-left: 2rem; color: #555; font-size: 1.1rem; line-height: 1.8;">
+                    <li>Makes code more <strong>concise</strong> and <strong>readable</strong></li>
+                    <li>Particularly useful when working with arrays</li>
+                    <li>Great for functions that return multiple values</li>
+                    <li>Reduces the need for index notation</li>
+                </ul>
+            </div>
+
+            <div class="info-box">
+                <strong>Key Concept:</strong>
+                <p style="margin-top: 0.5rem; color: #555; line-height: 1.6;">
+                    Instead of accessing array elements by index (e.g., <code style="background: white; padding: 0.2rem 0.5rem;">array[0]</code>, <code style="background: white; padding: 0.2rem 0.5rem;">array[1]</code>), destructuring lets you extract multiple values into named variables in a single statement.
+                </p>
+            </div>
+        </div>
+
+        <!-- Slide 2: Basic Destructuring Syntax -->
+        <div class="slide">
+            <h2>Basic Destructuring Syntax</h2>
+            
+            <div class="concept">
+                <h3>Simple Example</h3>
+                <p class="concept-text">
+                    Here's how to extract array elements into individual variables:
+                </p>
+                
+                <div class="code-example">
+                    <pre><code><span class="keyword">let</span> fruits = [<span class="string">"apple"</span>, <span class="string">"banana"</span>, <span class="string">"orange"</span>];
+<span class="keyword">let</span> [first, second, third] = fruits;
+
+console.log(first);  <span class="comment">// "apple"</span>
+console.log(second); <span class="comment">// "banana"</span>
+console.log(third);  <span class="comment">// "orange"</span></code></pre>
+                    <div class="output">Output:<br>"apple"<br>"banana"<br>"orange"</div>
+                </div>
+            </div>
+
+            <div class="visual-demo">
+                <h4 style="color: #881518; margin-bottom: 1rem;">How It Works:</h4>
+                <div style="text-align: center;">
+                    <div style="font-family: 'Courier New', monospace; font-size: 1.1rem; margin-bottom: 1rem;">
+                        ["apple", "banana", "orange"]
+                    </div>
+                    <div class="arrow">↓ Destructuring ↓</div>
+                    <div style="margin-top: 1rem;">
+                        <div class="variable-box">first = "apple"</div>
+                        <div class="variable-box">second = "banana"</div>
+                        <div class="variable-box">third = "orange"</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="concept">
+                <p class="concept-text">
+                    This allows us to easily access individual elements without using index notation like <code style="background: #f0f0f0; padding: 0.2rem 0.5rem;">fruits[0]</code>, <code style="background: #f0f0f0; padding: 0.2rem 0.5rem;">fruits[1]</code>, etc.
+                </p>
+            </div>
+        </div>
+
+        <!-- Slide 3: Comparison with Traditional Access -->
+        <div class="slide">
+            <h2>Destructuring vs. Traditional Access</h2>
+            
+            <div class="concept">
+                <h3>Side-by-Side Comparison</h3>
+                <p class="concept-text">
+                    Let's compare array destructuring with the traditional index-based approach:
+                </p>
+            </div>
+
+            <div class="comparison-container">
+                <div class="comparison-box">
+                    <h4>❌ Traditional Way</h4>
+                    <div class="code-example" style="border-left-color: #6c757d;">
+                        <pre><code><span class="keyword">const</span> fruits = [<span class="string">"apple"</span>, <span class="string">"banana"</span>, <span class="string">"orange"</span>];
+
+<span class="keyword">const</span> first = fruits[0];
+<span class="keyword">const</span> second = fruits[1];
+<span class="keyword">const</span> third = fruits[2];
+
+console.log(first);
+console.log(second);
+console.log(third);</code></pre>
+                    </div>
+                    <p style="color: #555; font-size: 0.95rem; margin-top: 1rem;">
+                        • More verbose<br>
+                        • Requires multiple lines<br>
+                        • Uses index notation
+                    </p>
+                </div>
+
+                <div class="comparison-box highlight-green">
+                    <h4>✓ With Destructuring</h4>
+                    <div class="code-example" style="border-left-color: #28a745;">
+                        <pre><code><span class="keyword">let</span> fruits = [<span class="string">"apple"</span>, <span class="string">"banana"</span>, <span class="string">"orange"</span>];
+
+<span class="keyword">let</span> [first, second, third] = fruits;
+
+
+
+console.log(first);
+console.log(second);
+console.log(third);</code></pre>
+                    </div>
+                    <p style="color: #555; font-size: 0.95rem; margin-top: 1rem;">
+                        • Clean and concise<br>
+                        • Single line extraction<br>
+                        • Easier to read
+                    </p>
+                </div>
+            </div>
+
+            <div class="info-box">
+                <strong>Result:</strong>
+                <p style="margin-top: 0.5rem; color: #555;">
+                    Both approaches produce the exact same output, but destructuring is more elegant and reduces code clutter.
+                </p>
+            </div>
+        </div>
+
+        <!-- Slide 4: Skipping Elements -->
+        <div class="slide">
+            <h2>Skipping Elements</h2>
+            
+            <div class="concept">
+                <h3>Using Commas to Skip Elements</h3>
+                <p class="concept-text">
+                    You can skip elements you're not interested in by using <span class="highlight">extra commas</span> in the destructuring pattern:
+                </p>
+                
+                <div class="code-example">
+                    <pre><code><span class="keyword">let</span> colors = [<span class="string">"red"</span>, <span class="string">"green"</span>, <span class="string">"blue"</span>, <span class="string">"yellow"</span>];
+<span class="keyword">let</span> [firstColor, , thirdColor] = colors;
+
+console.log(firstColor); <span class="comment">// "red"</span>
+console.log(thirdColor); <span class="comment">// "blue"</span></code></pre>
+                    <div class="output">Output:<br>"red"<br>"blue"</div>
+                </div>
+            </div>
+
+            <div class="visual-demo">
+                <h4 style="color: #881518; margin-bottom: 1rem;">What Happens:</h4>
+                <div style="font-family: 'Courier New', monospace; line-height: 2;">
+                    <div style="margin-bottom: 1rem;">
+                        Array: [<span style="color: #881518;">"red"</span>, <span style="text-decoration: line-through; color: #999;">"green"</span>, <span style="color: #881518;">"blue"</span>, <span style="text-decoration: line-through; color: #999;">"yellow"</span>]
+                    </div>
+                    <div style="margin-bottom: 0.5rem;">
+                        firstColor = "red" <span style="color: #28a745;">✓</span>
+                    </div>
+                    <div style="margin-bottom: 0.5rem;">
+                        <span style="color: #999;">(skipped "green")</span>
+                    </div>
+                    <div>
+                        thirdColor = "blue" <span style="color: #28a745;">✓</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="concept">
+                <h3>How It Works</h3>
+                <p class="concept-text">
+                    By placing an extra comma (<code style="background: #f0f0f0; padding: 0.2rem 0.5rem;">, ,</code>) in the destructuring pattern, you skip the second element (<code style="background: #f0f0f0; padding: 0.2rem 0.5rem;">"green"</code>). This effectively ignores elements you don't need.
+                </p>
+            </div>
+        </div>
+
+        <!-- Slide 5: Default Values -->
+        <div class="slide">
+            <h2>Default Values in Destructuring</h2>
+            
+            <div class="concept">
+                <h3>Handling Missing Elements</h3>
+                <p class="concept-text">
+                    If an array has fewer elements than variables, you can provide <span class="highlight">default values</span> to prevent <code style="background: #f0f0f0; padding: 0.2rem 0.5rem;">undefined</code>:
+                </p>
+                
+                <div class="code-example">
+                    <pre><code><span class="keyword">let</span> numbers = [1, 2];
+<span class="keyword">let</span> [a, b, c = 3] = numbers;
+
+console.log(a); <span class="comment">// 1</span>
+console.log(b); <span class="comment">// 2</span>
+console.log(c); <span class="comment">// 3 (default value used)</span></code></pre>
+                    <div class="output">Output:<br>1<br>2<br>3</div>
+                </div>
+            </div>
+
+            <div class="visual-demo">
+                <h4 style="color: #881518; margin-bottom: 1rem;">Explanation:</h4>
+                <div style="font-family: 'Courier New', monospace; line-height: 2;">
+                    <div style="margin-bottom: 1rem;">
+                        Array: [1, 2] <span style="color: #881518;">(only 2 elements)</span>
+                    </div>
+                    <div style="margin-bottom: 0.5rem;">
+                        a = 1 <span style="color: #28a745;">✓ from array</span>
+                    </div>
+                    <div style="margin-bottom: 0.5rem;">
+                        b = 2 <span style="color: #28a745;">✓ from array</span>
+                    </div>
+                    <div>
+                        c = 3 <span style="color: #0066cc;">✓ default value (no third element)</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="concept">
+                <h3>When Default Values Are Used</h3>
+                <ul style="margin-left: 2rem; color: #555; font-size: 1.1rem; line-height: 1.8;">
+                    <li>Default values kick in when the array doesn't have enough elements</li>
+                    <li>Prevents <code style="background: #f0f0f0; padding: 0.2rem 0.5rem;">undefined</code> from being assigned</li>
+                    <li>Syntax: <code style="background: #f0f0f0; padding: 0.2rem 0.5rem;">variable = defaultValue</code></li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Slide 6: Rest Syntax -->
+        <div class="slide">
+            <h2>The Rest Syntax (...)</h2>
+            
+            <div class="concept">
+                <h3>Capturing Remaining Elements</h3>
+                <p class="concept-text">
+                    The <span class="highlight">rest syntax</span> (three dots: <code style="background: #f0f0f0; padding: 0.2rem 0.5rem;">...</code>) allows you to capture all remaining elements that haven't been destructured into a <strong>new array</strong>:
+                </p>
+                
+                <div class="code-example">
+                    <pre><code><span class="keyword">let</span> fruits = [<span class="string">"apple"</span>, <span class="string">"banana"</span>, <span class="string">"orange"</span>, <span class="string">"mango"</span>, <span class="string">"kiwi"</span>];
+<span class="keyword">let</span> [first, second, ...rest] = fruits;
+
+console.log(first);  <span class="comment">// "apple"</span>
+console.log(second); <span class="comment">// "banana"</span>
+console.log(rest);   <span class="comment">// ["orange", "mango", "kiwi"]</span></code></pre>
+                    <div class="output">Output:<br>"apple"<br>"banana"<br>["orange", "mango", "kiwi"]</div>
+                </div>
+            </div>
+
+            <div class="visual-demo">
+                <h4 style="color: #881518; margin-bottom: 1rem;">How Rest Works:</h4>
+                <div style="text-align: center;">
+                    <div style="font-family: 'Courier New', monospace; font-size: 1.1rem; margin-bottom: 1rem;">
+                        ["apple", "banana", <span style="color: #881518;">"orange", "mango", "kiwi"</span>]
+                    </div>
+                    <div class="arrow">↓</div>
+                    <div style="margin-top: 1rem;">
+                        <div class="variable-box">first = "apple"</div>
+                        <div class="variable-box">second = "banana"</div>
+                        <div class="variable-box" style="border-color: #0066cc; color: #0066cc;">
+                            ...rest = ["orange", "mango", "kiwi"]
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="info-box" style="border-left-color: #dc3545; background: #f8d7da;">
+                <strong style="color: #721c24;">⚠️ Important Rule:</strong>
+                <p style="margin-top: 0.5rem; color: #721c24; line-height: 1.6;">
+                    The rest syntax <strong>must be the last element</strong> in the destructuring pattern. You cannot have any variables after the rest parameter.
+                </p>
+            </div>
+        </div>
+
+        <!-- Slide 7: Summary -->
+        <div class="slide">
+            <h2>Summary & Benefits</h2>
+            
+            <div class="concept">
+                <h3>What We Learned</h3>
+                <div class="benefit-list">
+                    <ul style="list-style-position: inside;">
+                        <li><strong>Basic Destructuring:</strong> Extract array values into variables in one line</li>
+                        <li><strong>Skipping Elements:</strong> Use commas to ignore elements you don't need</li>
+                        <li><strong>Default Values:</strong> Provide fallback values for missing elements</li>
+                        <li><strong>Rest Syntax:</strong> Capture remaining elements with <code style="background: white; padding: 0.2rem 0.5rem;">...</code></li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="concept">
+                <h3>Why Use Destructuring?</h3>
+                <div style="background: #f8f9fa; padding: 1.5rem; border-radius: 8px; border-left: 4px solid #881518;">
+                    <ul style="color: #333; font-size: 1.05rem; line-height: 1.8; list-style-position: inside;">
+                        <li>Makes code more <strong>concise</strong> and easier to read</li>
+                        <li>Reduces repetitive index notation</li>
+                        <li>Especially useful for extracting specific array elements</li>
+                        <li>Perfect for working with functions that return arrays</li>
+                        <li>Improves code maintainability</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="info-box">
+                <strong>Key Takeaways:</strong>
+                <div style="margin-top: 1rem; font-family: 'Courier New', monospace; color: #333; line-height: 1.8;">
+                    <div>• Basic: <code style="background: white; padding: 0.2rem 0.5rem;">let [a, b, c] = array;</code></div>
+                    <div>• Skip: <code style="background: white; padding: 0.2rem 0.5rem;">let [a, , c] = array;</code></div>
+                    <div>• Default: <code style="background: white; padding: 0.2rem 0.5rem;">let [a, b, c = 3] = array;</code></div>
+                    <div>• Rest: <code style="background: white; padding: 0.2rem 0.5rem;">let [a, b, ...rest] = array;</code></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="navigation">
+        <button class="nav-button" id="prevBtn" onclick="changeSlide(-1)">← Previous</button>
+        <span class="slide-counter">
+            <span id="currentSlide">1</span> / <span id="totalSlides">7</span>
+        </span>
+        <button class="nav-button" id="nextBtn" onclick="changeSlide(1)">Next →</button>
+    </div>
+
+    <script>
+        let currentSlide = 1;
+        const totalSlides = document.querySelectorAll('.slide').length;
+        
+        document.getElementById('totalSlides').textContent = totalSlides;
+        
+        function showSlide(n) {
+            const slides = document.querySelectorAll('.slide');
+            
+            if (n > totalSlides) {
+                currentSlide = totalSlides;
+            }
+            if (n < 1) {
+                currentSlide = 1;
+            }
+            
+            slides.forEach(slide => {
+                slide.classList.remove('active');
+            });
+            
+            slides[currentSlide - 1].classList.add('active');
+            
+            document.getElementById('currentSlide').textContent = currentSlide;
+            
+            // Update button states
+            document.getElementById('prevBtn').disabled = currentSlide === 1;
+            document.getElementById('nextBtn').disabled = currentSlide === totalSlides;
+            
+            // Scroll to top of slide
+            window.scrollTo(0, 0);
+        }
+        
+        function changeSlide(direction) {
+            currentSlide += direction;
+            showSlide(currentSlide);
+        }
+        
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowLeft') {
+                changeSlide(-1);
+            } else if (e.key === 'ArrowRight') {
+                changeSlide(1);
+            }
+        });
+        
+        // Initialize
+        showSlide(currentSlide);
+    </script>
+</body>
+</html>

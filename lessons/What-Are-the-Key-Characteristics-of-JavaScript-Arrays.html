@@ -1,0 +1,925 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JavaScript Arrays</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+            color: #ffffff;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .slide-container {
+            height: calc(100vh - 80px);
+            overflow-y: auto;
+            padding: 40px 20px 20px;
+            scroll-behavior: smooth;
+        }
+
+        .slide {
+            display: none;
+            max-width: 1200px;
+            margin: 0 auto;
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        .slide.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        h2 {
+            color: #881518;
+            font-size: 2rem;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 3px solid #881518;
+        }
+
+        .concept {
+            background: rgba(136, 21, 24, 0.1);
+            border-left: 4px solid #881518;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 4px;
+        }
+
+        .concept h3 {
+            color: #ff6b6e;
+            margin-bottom: 15px;
+            font-size: 1.4rem;
+        }
+
+        .concept p {
+            line-height: 1.8;
+            font-size: 1.1rem;
+            margin-bottom: 15px;
+        }
+
+        .concept ul {
+            margin-left: 25px;
+            line-height: 1.8;
+        }
+
+        .concept li {
+            margin-bottom: 10px;
+            font-size: 1.05rem;
+        }
+
+        .code-example {
+            background: #1e1e1e;
+            border: 1px solid #881518;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            overflow-x: auto;
+        }
+
+        .code-example pre {
+            margin: 0;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        .code-example code {
+            color: #d4d4d4;
+        }
+
+        .keyword {
+            color: #569cd6;
+        }
+
+        .string {
+            color: #ce9178;
+        }
+
+        .comment {
+            color: #6a9955;
+        }
+
+        .boolean {
+            color: #4ec9b0;
+        }
+
+        .function {
+            color: #dcdcaa;
+        }
+
+        .number {
+            color: #b5cea8;
+        }
+
+        .output {
+            color: #4ec9b0;
+        }
+
+        .warning {
+            background: rgba(255, 193, 7, 0.1);
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+
+        .warning::before {
+            content: "⚠️ ";
+            font-size: 1.2rem;
+        }
+
+        .tip {
+            background: rgba(76, 175, 80, 0.1);
+            border-left: 4px solid #4caf50;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+
+        .tip::before {
+            content: "💡 ";
+            font-size: 1.2rem;
+        }
+
+        .array-visual {
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid #881518;
+            border-radius: 8px;
+            padding: 30px;
+            margin: 20px 0;
+        }
+
+        .array-container {
+            display: flex;
+            gap: 2px;
+            justify-content: center;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+
+        .array-cell {
+            border: 2px solid #881518;
+            background: rgba(136, 21, 24, 0.2);
+            padding: 15px 20px;
+            min-width: 100px;
+            text-align: center;
+            border-radius: 4px;
+            position: relative;
+        }
+
+        .array-cell .value {
+            font-size: 1.2rem;
+            color: #ce9178;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .array-cell .index {
+            font-size: 0.9rem;
+            color: #ff6b6e;
+            position: absolute;
+            top: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #1a1a1a;
+            padding: 2px 8px;
+            border-radius: 3px;
+            white-space: nowrap;
+        }
+
+        .navigation {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(136, 21, 24, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+        }
+
+        .nav-button {
+            background: #ffffff;
+            color: #881518;
+            border: none;
+            padding: 12px 30px;
+            font-size: 1rem;
+            font-weight: bold;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .nav-button:hover:not(:disabled) {
+            background: #881518;
+            color: #ffffff;
+            transform: scale(1.05);
+            box-shadow: 0 4px 15px rgba(136, 21, 24, 0.4);
+        }
+
+        .nav-button:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+
+        .slide-counter {
+            color: #ffffff;
+            font-size: 1rem;
+            font-weight: bold;
+        }
+
+        .interactive-demo {
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid #881518;
+            border-radius: 8px;
+            padding: 25px;
+            margin: 20px 0;
+        }
+
+        .interactive-demo h4 {
+            color: #ff6b6e;
+            margin-bottom: 15px;
+        }
+
+        .demo-controls {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 15px;
+        }
+
+        .demo-button {
+            background: #881518;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+
+        .demo-button:hover {
+            background: #a01a1d;
+            transform: translateY(-2px);
+        }
+
+        .demo-output {
+            background: #1e1e1e;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 15px;
+            font-family: 'Consolas', 'Monaco', monospace;
+            min-height: 50px;
+        }
+
+        .highlight-box {
+            background: rgba(255, 107, 110, 0.1);
+            border: 2px dashed #ff6b6e;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            text-align: center;
+        }
+
+        .data-type-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .data-type-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid rgba(136, 21, 24, 0.3);
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+        }
+
+        .data-type-card h5 {
+            color: #ff6b6e;
+            margin-bottom: 10px;
+        }
+
+        .comparison-table {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            overflow: hidden;
+            margin: 20px 0;
+        }
+
+        .comparison-row {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 1px;
+            background: rgba(136, 21, 24, 0.3);
+        }
+
+        .comparison-cell {
+            background: rgba(30, 30, 30, 0.8);
+            padding: 15px;
+        }
+
+        .comparison-cell.header {
+            background: rgba(136, 21, 24, 0.5);
+            font-weight: bold;
+            color: #ff6b6e;
+        }
+
+        @media (max-width: 768px) {
+            .slide-container {
+                padding: 20px 15px;
+            }
+
+            h2 {
+                font-size: 1.5rem;
+            }
+
+            .concept h3 {
+                font-size: 1.2rem;
+            }
+
+            .concept p, .concept li {
+                font-size: 1rem;
+            }
+
+            .code-example pre {
+                font-size: 0.85rem;
+            }
+
+            .nav-button {
+                padding: 10px 20px;
+                font-size: 0.9rem;
+            }
+
+            .array-cell {
+                min-width: 80px;
+                padding: 12px 15px;
+            }
+
+            .data-type-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .comparison-row {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="slide-container">
+        <!-- Slide 1: What is an Array? -->
+        <div class="slide active">
+            <h2>What is an Array?</h2>
+            <div class="concept">
+                <h3>Ordered Collection of Values</h3>
+                <p>An array in JavaScript is an <strong>ordered collection of values</strong>, each identified by a numeric index.</p>
+                <p>Think of an array as a list or container that can hold multiple values in a specific order.</p>
+            </div>
+            <div class="array-visual">
+                <h4 style="color: #ff6b6e; text-align: center; margin-bottom: 20px;">Visual Representation</h4>
+                <div class="array-container">
+                    <div class="array-cell">
+                        <div class="index">index 0</div>
+                        <div class="value">"apple"</div>
+                    </div>
+                    <div class="array-cell">
+                        <div class="index">index 1</div>
+                        <div class="value">"banana"</div>
+                    </div>
+                    <div class="array-cell">
+                        <div class="index">index 2</div>
+                        <div class="value">"orange"</div>
+                    </div>
+                </div>
+                <p style="text-align: center; color: #6a9955; margin-top: 20px;">Each value has a position (index) in the array</p>
+            </div>
+            <div class="tip">
+                Arrays are one of the most fundamental data structures in programming, allowing you to store and organize multiple related values efficiently.
+            </div>
+        </div>
+
+        <!-- Slide 2: Creating Arrays -->
+        <div class="slide">
+            <h2>Creating Arrays</h2>
+            <div class="concept">
+                <h3>Using Square Brackets</h3>
+                <p>To create an array in JavaScript, use square brackets <code>[]</code> and separate values with commas.</p>
+            </div>
+            <div class="code-example">
+                <pre><code><span class="keyword">let</span> fruits = [<span class="string">"apple"</span>, <span class="string">"banana"</span>, <span class="string">"orange"</span>];</code></pre>
+            </div>
+            <div class="concept">
+                <h3>Breaking It Down</h3>
+                <ul>
+                    <li><code>let fruits</code> - Declare a variable named <code>fruits</code></li>
+                    <li><code>[ ]</code> - Square brackets create the array</li>
+                    <li><code>"apple", "banana", "orange"</code> - Three string values separated by commas</li>
+                </ul>
+            </div>
+            <div class="highlight-box">
+                <strong>Syntax Pattern:</strong><br>
+                <code style="font-size: 1.2rem;">let arrayName = [value1, value2, value3, ...];</code>
+            </div>
+            <div class="interactive-demo">
+                <h4>Create your own array:</h4>
+                <div class="demo-controls">
+                    <button class="demo-button" onclick="createArray('numbers')">Number Array</button>
+                    <button class="demo-button" onclick="createArray('colors')">Color Array</button>
+                    <button class="demo-button" onclick="createArray('mixed')">Mixed Array</button>
+                </div>
+                <div class="demo-output" id="create-demo"></div>
+            </div>
+        </div>
+
+        <!-- Slide 3: Arrays Can Hold Different Data Types -->
+        <div class="slide">
+            <h2>Arrays Can Hold Different Data Types</h2>
+            <div class="concept">
+                <h3>Versatile Storage</h3>
+                <p>The values in a JavaScript array can be of <strong>different data types</strong>, including:</p>
+            </div>
+            <div class="data-type-grid">
+                <div class="data-type-card">
+                    <h5>Numbers</h5>
+                    <code>[1, 2, 3, 4, 5]</code>
+                </div>
+                <div class="data-type-card">
+                    <h5>Strings</h5>
+                    <code>["hello", "world"]</code>
+                </div>
+                <div class="data-type-card">
+                    <h5>Booleans</h5>
+                    <code>[true, false, true]</code>
+                </div>
+                <div class="data-type-card">
+                    <h5>Objects</h5>
+                    <code>[{name: "John"}, {name: "Jane"}]</code>
+                </div>
+                <div class="data-type-card">
+                    <h5>Other Arrays</h5>
+                    <code>[[1, 2], [3, 4]]</code>
+                </div>
+                <div class="data-type-card">
+                    <h5>Mixed Types</h5>
+                    <code>[1, "hello", true]</code>
+                </div>
+            </div>
+            <div class="code-example">
+                <pre><code><span class="comment">// Array with mixed data types</span>
+<span class="keyword">let</span> mixedArray = [
+    <span class="number">42</span>,                    <span class="comment">// number</span>
+    <span class="string">"hello"</span>,               <span class="comment">// string</span>
+    <span class="boolean">true</span>,                  <span class="comment">// boolean</span>
+    { <span class="function">name</span>: <span class="string">"John"</span> },       <span class="comment">// object</span>
+    [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>]              <span class="comment">// array</span>
+];</code></pre>
+            </div>
+            <div class="tip">
+                This flexibility makes arrays incredibly powerful for storing diverse collections of data in your programs.
+            </div>
+        </div>
+
+        <!-- Slide 4: Zero-Indexed Arrays -->
+        <div class="slide">
+            <h2>Zero-Indexed Arrays</h2>
+            <div class="concept">
+                <h3>A Key Characteristic</h3>
+                <p>One of the key characteristics of arrays is that they are <strong>zero-indexed</strong>.</p>
+                <p>This means:</p>
+                <ul>
+                    <li>The <strong>first</strong> element has an index of <code>0</code></li>
+                    <li>The <strong>second</strong> element has an index of <code>1</code></li>
+                    <li>The <strong>third</strong> element has an index of <code>2</code></li>
+                    <li>And so on...</li>
+                </ul>
+            </div>
+            <div class="array-visual">
+                <h4 style="color: #ff6b6e; text-align: center; margin-bottom: 20px;">Zero-Indexed Example</h4>
+                <div class="array-container">
+                    <div class="array-cell">
+                        <div class="index">0 (first)</div>
+                        <div class="value">"apple"</div>
+                    </div>
+                    <div class="array-cell">
+                        <div class="index">1 (second)</div>
+                        <div class="value">"banana"</div>
+                    </div>
+                    <div class="array-cell">
+                        <div class="index">2 (third)</div>
+                        <div class="value">"orange"</div>
+                    </div>
+                </div>
+            </div>
+            <div class="warning">
+                <strong>Common Mistake:</strong> Beginners often forget that arrays start at 0, not 1! The first element is at index 0.
+            </div>
+        </div>
+
+        <!-- Slide 5: Accessing Array Elements -->
+        <div class="slide">
+            <h2>Accessing Array Elements</h2>
+            <div class="concept">
+                <h3>Using Index Notation</h3>
+                <p>You can access individual elements in an array using their index with square bracket notation: <code>arrayName[index]</code></p>
+            </div>
+            <div class="code-example">
+                <pre><code><span class="keyword">let</span> fruits = [<span class="string">"apple"</span>, <span class="string">"banana"</span>, <span class="string">"orange"</span>];
+
+<span class="function">console</span>.<span class="function">log</span>(fruits[<span class="number">0</span>]); <span class="comment">// "apple"</span>
+<span class="function">console</span>.<span class="function">log</span>(fruits[<span class="number">2</span>]); <span class="comment">// "orange"</span></code></pre>
+            </div>
+            <div class="array-visual">
+                <h4 style="color: #ff6b6e; text-align: center; margin-bottom: 20px;">Accessing Elements</h4>
+                <div class="array-container">
+                    <div class="array-cell" style="border-color: #4caf50; background: rgba(76, 175, 80, 0.2);">
+                        <div class="index" style="color: #4caf50;">fruits[0]</div>
+                        <div class="value">"apple"</div>
+                    </div>
+                    <div class="array-cell">
+                        <div class="index">fruits[1]</div>
+                        <div class="value">"banana"</div>
+                    </div>
+                    <div class="array-cell" style="border-color: #ffc107; background: rgba(255, 193, 7, 0.2);">
+                        <div class="index" style="color: #ffc107;">fruits[2]</div>
+                        <div class="value">"orange"</div>
+                    </div>
+                </div>
+            </div>
+            <div class="interactive-demo">
+                <h4>Practice accessing elements:</h4>
+                <div class="demo-controls">
+                    <button class="demo-button" onclick="accessElement(0)">Access Index 0</button>
+                    <button class="demo-button" onclick="accessElement(1)">Access Index 1</button>
+                    <button class="demo-button" onclick="accessElement(2)">Access Index 2</button>
+                    <button class="demo-button" onclick="accessElement(5)">Access Index 5</button>
+                </div>
+                <div class="demo-output" id="access-demo"></div>
+            </div>
+        </div>
+
+        <!-- Slide 6: The length Property -->
+        <div class="slide">
+            <h2>The length Property</h2>
+            <div class="concept">
+                <h3>Counting Array Elements</h3>
+                <p>Arrays in JavaScript have a special <code>length</code> property that returns the number of elements in the array.</p>
+                <p>You can access this property using the <code>length</code> keyword: <code>arrayName.length</code></p>
+            </div>
+            <div class="code-example">
+                <pre><code><span class="keyword">let</span> fruits = [<span class="string">"apple"</span>, <span class="string">"banana"</span>, <span class="string">"orange"</span>];
+
+<span class="function">console</span>.<span class="function">log</span>(fruits.<span class="function">length</span>); <span class="comment">// 3</span></code></pre>
+            </div>
+            <div class="array-visual">
+                <h4 style="color: #ff6b6e; text-align: center; margin-bottom: 20px;">Length Property</h4>
+                <div class="array-container">
+                    <div class="array-cell">
+                        <div class="index">0</div>
+                        <div class="value">"apple"</div>
+                    </div>
+                    <div class="array-cell">
+                        <div class="index">1</div>
+                        <div class="value">"banana"</div>
+                    </div>
+                    <div class="array-cell">
+                        <div class="index">2</div>
+                        <div class="value">"orange"</div>
+                    </div>
+                </div>
+                <p style="text-align: center; margin-top: 20px;">
+                    <span style="color: #ff6b6e; font-size: 1.3rem; font-weight: bold;">fruits.length = 3</span>
+                </p>
+            </div>
+            <div class="tip">
+                The <code>length</code> property is very useful for loops and determining how many items are in an array!
+            </div>
+            <div class="interactive-demo">
+                <h4>Test length property:</h4>
+                <div class="demo-controls">
+                    <button class="demo-button" onclick="testLength([1, 2, 3])">3 Elements</button>
+                    <button class="demo-button" onclick="testLength([1, 2, 3, 4, 5])">5 Elements</button>
+                    <button class="demo-button" onclick="testLength([])">Empty Array</button>
+                    <button class="demo-button" onclick="testLength(['a', 'b', 'c', 'd', 'e', 'f', 'g'])">7 Elements</button>
+                </div>
+                <div class="demo-output" id="length-demo"></div>
+            </div>
+        </div>
+
+        <!-- Slide 7: Length vs Last Index -->
+        <div class="slide">
+            <h2>Length vs Last Index</h2>
+            <div class="concept">
+                <h3>Important Distinction</h3>
+                <p>Because arrays are zero-indexed, the <code>length</code> property is always one more than the highest index.</p>
+            </div>
+            <div class="comparison-table">
+                <div class="comparison-row">
+                    <div class="comparison-cell header">Property</div>
+                    <div class="comparison-cell header">Value</div>
+                </div>
+                <div class="comparison-row">
+                    <div class="comparison-cell">First Index</div>
+                    <div class="comparison-cell"><code>0</code></div>
+                </div>
+                <div class="comparison-row">
+                    <div class="comparison-cell">Last Index</div>
+                    <div class="comparison-cell"><code>length - 1</code></div>
+                </div>
+                <div class="comparison-row">
+                    <div class="comparison-cell">Total Elements</div>
+                    <div class="comparison-cell"><code>length</code></div>
+                </div>
+            </div>
+            <div class="code-example">
+                <pre><code><span class="keyword">let</span> fruits = [<span class="string">"apple"</span>, <span class="string">"banana"</span>, <span class="string">"orange"</span>];
+
+<span class="function">console</span>.<span class="function">log</span>(fruits.<span class="function">length</span>);           <span class="comment">// 3 (total elements)</span>
+<span class="function">console</span>.<span class="function">log</span>(fruits[<span class="number">0</span>]);               <span class="comment">// "apple" (first element)</span>
+<span class="function">console</span>.<span class="function">log</span>(fruits[fruits.<span class="function">length</span> - <span class="number">1</span>]); <span class="comment">// "orange" (last element)</span></code></pre>
+            </div>
+            <div class="highlight-box">
+                <strong>To access the last element:</strong><br>
+                <code style="font-size: 1.2rem;">arrayName[arrayName.length - 1]</code>
+            </div>
+            <div class="warning">
+                Trying to access <code>arrayName[arrayName.length]</code> will return <code>undefined</code> because that index doesn't exist!
+            </div>
+        </div>
+
+        <!-- Slide 8: Dynamic Arrays -->
+        <div class="slide">
+            <h2>Dynamic Arrays</h2>
+            <div class="concept">
+                <h3>Size Can Change</h3>
+                <p>Another key characteristic of arrays in JavaScript is that they are <strong>dynamic</strong>, meaning that their size can change after they are created.</p>
+                <p>You can add or remove elements from an array at any time.</p>
+            </div>
+            <div class="concept">
+                <h3>Array Methods (Preview)</h3>
+                <p>JavaScript provides various methods to modify arrays:</p>
+                <ul>
+                    <li><code>push()</code> - Add elements to the end</li>
+                    <li><code>pop()</code> - Remove element from the end</li>
+                    <li><code>shift()</code> - Remove element from the beginning</li>
+                    <li><code>unshift()</code> - Add elements to the beginning</li>
+                    <li><code>splice()</code> - Add or remove elements at any position</li>
+                    <li>And many more...</li>
+                </ul>
+            </div>
+            <div class="tip">
+                These array methods will be taught in detail in upcoming lessons. For now, just know that arrays are flexible and can grow or shrink as needed!
+            </div>
+            <div class="code-example">
+                <pre><code><span class="comment">// Example of dynamic behavior (methods taught later)</span>
+<span class="keyword">let</span> numbers = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>];
+<span class="function">console</span>.<span class="function">log</span>(numbers.<span class="function">length</span>); <span class="comment">// 3</span>
+
+numbers.<span class="function">push</span>(<span class="number">4</span>); <span class="comment">// Add element</span>
+<span class="function">console</span>.<span class="function">log</span>(numbers.<span class="function">length</span>); <span class="comment">// 4</span>
+
+numbers.<span class="function">pop</span>(); <span class="comment">// Remove element</span>
+<span class="function">console</span>.<span class="function">log</span>(numbers.<span class="function">length</span>); <span class="comment">// 3</span></code></pre>
+            </div>
+        </div>
+
+        <!-- Slide 9: Arrays Are Ordered -->
+        <div class="slide">
+            <h2>Arrays Are Ordered Collections</h2>
+            <div class="concept">
+                <h3>Order Matters!</h3>
+                <p>Arrays maintain the <strong>order</strong> of their elements. This is a fundamental characteristic that distinguishes arrays from other data structures.</p>
+            </div>
+            <div class="array-visual">
+                <h4 style="color: #ff6b6e; text-align: center; margin-bottom: 20px;">Order is Preserved</h4>
+                <div style="margin: 20px 0;">
+                    <p style="text-align: center; margin-bottom: 15px;"><strong>Original Array:</strong></p>
+                    <div class="array-container">
+                        <div class="array-cell">
+                            <div class="index">0</div>
+                            <div class="value">"first"</div>
+                        </div>
+                        <div class="array-cell">
+                            <div class="index">1</div>
+                            <div class="value">"second"</div>
+                        </div>
+                        <div class="array-cell">
+                            <div class="index">2</div>
+                            <div class="value">"third"</div>
+                        </div>
+                    </div>
+                </div>
+                <p style="text-align: center; color: #4caf50; margin: 20px 0;">
+                    The elements will always stay in this order unless you explicitly change it
+                </p>
+            </div>
+            <div class="warning">
+                <strong>Important:</strong> The statement "arrays are an unordered collection of values" is FALSE. Arrays ARE ordered!
+            </div>
+        </div>
+
+        <!-- Slide 10: Why Use Arrays? -->
+        <div class="slide">
+            <h2>Why Use Arrays?</h2>
+            <div class="concept">
+                <h3>Benefits of Arrays</h3>
+                <p>JavaScript arrays are versatile and useful when it comes to data storage inside your programs.</p>
+            </div>
+            <div class="data-type-grid">
+                <div class="data-type-card">
+                    <h5>Organization</h5>
+                    <p>Group related data together in one structure</p>
+                </div>
+                <div class="data-type-card">
+                    <h5>Efficiency</h5>
+                    <p>Access any element directly using its index</p>
+                </div>
+                <div class="data-type-card">
+                    <h5>Flexibility</h5>
+                    <p>Store different types of data and change size dynamically</p>
+                </div>
+                <div class="data-type-card">
+                    <h5>Iteration</h5>
+                    <p>Easy to loop through all elements</p>
+                </div>
+                <div class="data-type-card">
+                    <h5>Methods</h5>
+                    <p>Rich set of built-in methods for manipulation</p>
+                </div>
+                <div class="data-type-card">
+                    <h5>Common Use</h5>
+                    <p>Fundamental data structure in programming</p>
+                </div>
+            </div>
+            <div class="tip">
+                Throughout this module, you'll learn how working with arrays will help you efficiently manage and manipulate collections of data in your programs!
+            </div>
+        </div>
+
+        <!-- Slide 11: Summary -->
+        <div class="slide">
+            <h2>Summary</h2>
+            <div class="concept">
+                <h3>Key Characteristics of JavaScript Arrays</h3>
+                <ul>
+                    <li><strong>Ordered collection:</strong> Arrays maintain the order of elements</li>
+                    <li><strong>Created with brackets:</strong> Use <code>[]</code> with comma-separated values</li>
+                    <li><strong>Multiple data types:</strong> Can contain numbers, strings, booleans, objects, and even other arrays</li>
+                    <li><strong>Zero-indexed:</strong> First element is at index 0, second at index 1, etc.</li>
+                    <li><strong>Access with brackets:</strong> Use <code>arrayName[index]</code> to access elements</li>
+                    <li><strong>length property:</strong> Returns the number of elements in the array</li>
+                    <li><strong>Dynamic size:</strong> Can grow or shrink after creation</li>
+                    <li><strong>Array methods:</strong> Many built-in methods for manipulation (covered in future lessons)</li>
+                </ul>
+            </div>
+            <div class="code-example">
+                <pre><code><span class="comment">// Creating an array</span>
+<span class="keyword">let</span> fruits = [<span class="string">"apple"</span>, <span class="string">"banana"</span>, <span class="string">"orange"</span>];
+
+<span class="comment">// Accessing elements (zero-indexed)</span>
+<span class="function">console</span>.<span class="function">log</span>(fruits[<span class="number">0</span>]);    <span class="comment">// "apple"</span>
+
+<span class="comment">// Getting array length</span>
+<span class="function">console</span>.<span class="function">log</span>(fruits.<span class="function">length</span>); <span class="comment">// 3</span>
+
+<span class="comment">// Accessing last element</span>
+<span class="function">console</span>.<span class="function">log</span>(fruits[fruits.<span class="function">length</span> - <span class="number">1</span>]); <span class="comment">// "orange"</span></code></pre>
+            </div>
+            <div class="tip">
+                Mastering arrays is essential for JavaScript programming. They're one of the most commonly used data structures and form the foundation for many programming concepts!
+            </div>
+        </div>
+    </div>
+
+    <div class="navigation">
+        <button class="nav-button" id="prevBtn" onclick="changeSlide(-1)">← Previous</button>
+        <span class="slide-counter"><span id="currentSlide">1</span> / <span id="totalSlides">11</span></span>
+        <button class="nav-button" id="nextBtn" onclick="changeSlide(1)">Next →</button>
+    </div>
+
+    <script>
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.slide');
+        const totalSlides = slides.length;
+        
+        document.getElementById('totalSlides').textContent = totalSlides;
+
+        function showSlide(n) {
+            slides[currentSlide].classList.remove('active');
+            
+            if (n >= totalSlides) {
+                currentSlide = totalSlides - 1;
+            } else if (n < 0) {
+                currentSlide = 0;
+            } else {
+                currentSlide = n;
+            }
+            
+            slides[currentSlide].classList.add('active');
+            document.getElementById('currentSlide').textContent = currentSlide + 1;
+            
+            document.getElementById('prevBtn').disabled = currentSlide === 0;
+            document.getElementById('nextBtn').disabled = currentSlide === totalSlides - 1;
+            
+            document.querySelector('.slide-container').scrollTop = 0;
+        }
+
+        function changeSlide(direction) {
+            showSlide(currentSlide + direction);
+        }
+
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'ArrowLeft') {
+                changeSlide(-1);
+            } else if (e.key === 'ArrowRight') {
+                changeSlide(1);
+            }
+        });
+
+        showSlide(0);
+
+        // Interactive demos
+        function createArray(type) {
+            const output = document.getElementById('create-demo');
+            let code = '';
+            let description = '';
+            
+            if (type === 'numbers') {
+                code = 'let numbers = <span style="color: #ff6b6e;">[</span><span style="color: #b5cea8;">1, 2, 3, 4, 5</span><span style="color: #ff6b6e;">]</span>;';
+                description = 'An array of numbers';
+            } else if (type === 'colors') {
+                code = 'let colors = <span style="color: #ff6b6e;">[</span><span style="color: #ce9178;">"red", "green", "blue"</span><span style="color: #ff6b6e;">]</span>;';
+                description = 'An array of strings';
+            } else {
+                code = 'let mixed = <span style="color: #ff6b6e;">[</span><span style="color: #b5cea8;">42</span>, <span style="color: #ce9178;">"hello"</span>, <span style="color: #4ec9b0;">true</span><span style="color: #ff6b6e;">]</span>;';
+                description = 'An array with mixed data types';
+            }
+            
+            output.innerHTML = `
+                <div style="color: #d4d4d4; margin-bottom: 10px;">${code}</div>
+                <div style="color: #6a9955; margin-top: 10px;">// ${description}</div>
+            `;
+        }
+
+        function accessElement(index) {
+            const output = document.getElementById('access-demo');
+            const fruits = ["apple", "banana", "orange"];
+            const value = fruits[index];
+            const exists = value !== undefined;
+            
+            output.innerHTML = `
+                <div style="color: #d4d4d4;">let fruits = <span style="color: #ff6b6e;">[</span><span style="color: #ce9178;">"apple", "banana", "orange"</span><span style="color: #ff6b6e;">]</span>;</div>
+                <div style="color: #d4d4d4; margin-top: 10px;">fruits[<span style="color: #b5cea8;">${index}</span>]</div>
+                <div style="color: ${exists ? '#4ec9b0' : '#ffc107'}; margin-top: 10px; font-weight: bold;">
+                    ${exists ? `Result: "${value}"` : 'Result: undefined (index out of bounds)'}
+                </div>
+                <div style="color: #6a9955; margin-top: 10px;">// ${exists ? 'Valid index!' : 'This index does not exist in the array'}</div>
+            `;
+        }
+
+        function testLength(arr) {
+            const output = document.getElementById('length-demo');
+            const arrayStr = JSON.stringify(arr);
+            const length = arr.length;
+            
+            output.innerHTML = `
+                <div style="color: #d4d4d4;">Array: ${arrayStr}</div>
+                <div style="color: #d4d4d4; margin-top: 10px;">array.length</div>
+                <div style="color: #4ec9b0; margin-top: 10px; font-weight: bold; font-size: 1.2rem;">
+                    Result: ${length}
+                </div>
+                <div style="color: #6a9955; margin-top: 10px;">
+                    // ${length === 0 ? 'Empty array has length 0' : `This array contains ${length} element${length !== 1 ? 's' : ''}`}
+                </div>
+            `;
+        }
+    </script>
+</body>
+</html>
