@@ -1,0 +1,799 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Array splice() Method</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #881518 0%, #a91d20 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .slide-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+            padding-bottom: 100px;
+            min-height: 100vh;
+        }
+
+        .slide {
+            display: none;
+            background: white;
+            border-radius: 12px;
+            padding: 2.5rem;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        .slide.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        h2 {
+            color: #881518;
+            font-size: 2rem;
+            margin-bottom: 1.5rem;
+            border-bottom: 3px solid #881518;
+            padding-bottom: 0.5rem;
+        }
+
+        .concept {
+            margin-bottom: 2rem;
+        }
+
+        .concept h3 {
+            color: #333;
+            font-size: 1.4rem;
+            margin-bottom: 1rem;
+        }
+
+        .concept-text {
+            color: #555;
+            font-size: 1.1rem;
+            line-height: 1.6;
+            margin-bottom: 1rem;
+        }
+
+        .code-example {
+            background: #f8f9fa;
+            border-left: 4px solid #881518;
+            padding: 1.5rem;
+            border-radius: 6px;
+            margin: 1rem 0;
+            overflow-x: auto;
+        }
+
+        .code-example pre {
+            margin: 0;
+            font-family: 'Courier New', monospace;
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+
+        .code-example code {
+            color: #333;
+        }
+
+        .keyword {
+            color: #0066cc;
+            font-weight: bold;
+        }
+
+        .string {
+            color: #22863a;
+        }
+
+        .comment {
+            color: #6a737d;
+            font-style: italic;
+        }
+
+        .output {
+            background: #e8f4f8;
+            border-left: 4px solid #0066cc;
+            padding: 1rem;
+            margin-top: 0.5rem;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+        }
+
+        .highlight {
+            background: #fff3cd;
+            padding: 0.2rem 0.4rem;
+            border-radius: 3px;
+            font-weight: 600;
+        }
+
+        .syntax-box {
+            background: #f8f9fa;
+            border: 2px solid #881518;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin: 1.5rem 0;
+            font-family: 'Courier New', monospace;
+            font-size: 1.1rem;
+            text-align: center;
+            color: #333;
+        }
+
+        .parameter-list {
+            background: #f8f9fa;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+        }
+
+        .parameter-list li {
+            color: #333;
+            font-size: 1.05rem;
+            line-height: 1.8;
+            margin-bottom: 0.5rem;
+        }
+
+        .info-box {
+            background: #e7f3ff;
+            border-left: 4px solid #0066cc;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 4px;
+        }
+
+        .info-box strong {
+            color: #004085;
+        }
+
+        .warning-box {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 4px;
+        }
+
+        .warning-box strong {
+            color: #856404;
+        }
+
+        .visual-demo {
+            background: #f8f9fa;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin: 1.5rem 0;
+            border: 2px solid #881518;
+        }
+
+        .array-visual {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin: 1rem 0;
+        }
+
+        .array-item {
+            background: white;
+            border: 2px solid #881518;
+            padding: 0.8rem 1.2rem;
+            border-radius: 6px;
+            font-family: 'Courier New', monospace;
+            position: relative;
+        }
+
+        .array-item .index-label {
+            position: absolute;
+            top: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.85rem;
+            color: #881518;
+            font-weight: bold;
+        }
+
+        .array-item.removed {
+            background: #f8d7da;
+            border-color: #dc3545;
+            text-decoration: line-through;
+            opacity: 0.6;
+        }
+
+        .array-item.added {
+            background: #d4edda;
+            border-color: #28a745;
+        }
+
+        .arrow-down {
+            text-align: center;
+            font-size: 1.5rem;
+            color: #881518;
+            margin: 1rem 0;
+        }
+
+        .navigation {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0, 0, 0, 0.9);
+            padding: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.3);
+            z-index: 1000;
+        }
+
+        .nav-button {
+            background: #881518;
+            color: white;
+            border: none;
+            padding: 0.8rem 2rem;
+            font-size: 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+        }
+
+        .nav-button:hover {
+            background: #a91d20;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(136, 21, 24, 0.4);
+        }
+
+        .nav-button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .slide-counter {
+            color: white;
+            font-size: 1rem;
+            font-weight: 600;
+        }
+
+        @media (max-width: 768px) {
+            .slide-container {
+                padding: 1rem;
+                padding-bottom: 100px;
+            }
+
+            .slide {
+                padding: 1.5rem;
+            }
+
+            h2 {
+                font-size: 1.5rem;
+            }
+
+            .concept h3 {
+                font-size: 1.2rem;
+            }
+
+            .concept-text {
+                font-size: 1rem;
+            }
+
+            .nav-button {
+                padding: 0.7rem 1.2rem;
+                font-size: 0.9rem;
+            }
+
+            .code-example {
+                padding: 1rem;
+            }
+
+            .code-example pre {
+                font-size: 0.85rem;
+            }
+
+            .array-visual {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .navigation {
+                padding: 0.8rem;
+            }
+
+            .nav-button {
+                padding: 0.6rem 1rem;
+                font-size: 0.85rem;
+            }
+
+            .slide-counter {
+                font-size: 0.9rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="slide-container">
+        <!-- Slide 1: Introduction -->
+        <div class="slide active">
+            <h2>The splice() Method</h2>
+            
+            <div class="concept">
+                <h3>What Is splice()?</h3>
+                <p class="concept-text">
+                    The <span class="highlight">splice()</span> method is a powerful way to modify arrays in JavaScript. It allows you to <strong>add or remove elements from any position</strong> in an array, including the middle.
+                </p>
+            </div>
+
+            <div class="concept">
+                <h3>Basic Syntax</h3>
+                <div class="syntax-box">
+                    array.splice(startIndex, itemsToRemove, item1, item2, ...)
+                </div>
+            </div>
+
+            <div class="concept">
+                <h3>Return Value</h3>
+                <p class="concept-text">
+                    The <code style="background: #f0f0f0; padding: 0.2rem 0.5rem;">splice()</code> method returns an <strong>array of the items removed</strong>. If nothing was removed, an empty array is returned.
+                </p>
+            </div>
+
+            <div class="warning-box">
+                <strong>⚠️ Important:</strong>
+                <p style="margin-top: 0.5rem; color: #856404; line-height: 1.6;">
+                    This method <strong>mutates the original array</strong>, modifying it in place rather than creating a new array. This is something to be aware of when working with splice().
+                </p>
+            </div>
+        </div>
+
+        <!-- Slide 2: Parameters Explained -->
+        <div class="slide">
+            <h2>Understanding the Parameters</h2>
+            
+            <div class="concept">
+                <h3>Parameter Breakdown</h3>
+                <div class="syntax-box">
+                    array.splice(startIndex, itemsToRemove, item1, item2, ...)
+                </div>
+                
+                <div class="parameter-list">
+                    <ul style="list-style-position: inside;">
+                        <li><strong>startIndex</strong> - The index at which to begin modifying the array</li>
+                        <li><strong>itemsToRemove</strong> (optional) - How many elements to remove. If omitted, splice() removes all elements from startIndex to the end</li>
+                        <li><strong>item1, item2, ...</strong> (optional) - Elements to add to the array, beginning at the startIndex</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="info-box">
+                <strong>Key Behaviors:</strong>
+                <div style="margin-top: 1rem; color: #555; line-height: 1.8;">
+                    • <strong>Only startIndex:</strong> <code style="background: white; padding: 0.2rem 0.5rem;">splice(2)</code> removes from index 2 to end<br>
+                    • <strong>startIndex + 0 items:</strong> <code style="background: white; padding: 0.2rem 0.5rem;">splice(2, 0)</code> removes nothing (used for adding)<br>
+                    • <strong>With items to add:</strong> <code style="background: white; padding: 0.2rem 0.5rem;">splice(2, 1, "new")</code> removes 1 and adds "new"
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 3: Removing Elements -->
+        <div class="slide">
+            <h2>Removing Elements from the Middle</h2>
+            
+            <div class="concept">
+                <h3>Example: Removing Two Elements</h3>
+                
+                <div class="code-example">
+                    <pre><code><span class="keyword">let</span> fruits = [<span class="string">"apple"</span>, <span class="string">"banana"</span>, <span class="string">"orange"</span>, <span class="string">"mango"</span>, <span class="string">"kiwi"</span>];
+<span class="keyword">let</span> removed = fruits.splice(2, 2);
+
+console.log(fruits);  <span class="comment">// ["apple", "banana", "kiwi"]</span>
+console.log(removed); <span class="comment">// ["orange", "mango"]</span></code></pre>
+                    <div class="output">Modified Array: ["apple", "banana", "kiwi"]<br>Removed Items: ["orange", "mango"]</div>
+                </div>
+            </div>
+
+            <div class="visual-demo">
+                <h4 style="color: #881518; margin-bottom: 1rem; text-align: center;">Before: splice(2, 2)</h4>
+                <div class="array-visual">
+                    <div class="array-item">
+                        <div class="index-label">Index 0</div>
+                        "apple"
+                    </div>
+                    <div class="array-item">
+                        <div class="index-label">Index 1</div>
+                        "banana"
+                    </div>
+                    <div class="array-item" style="border-color: #ffc107; background: #fff3cd;">
+                        <div class="index-label">Index 2 (Start)</div>
+                        "orange"
+                    </div>
+                    <div class="array-item" style="border-color: #ffc107; background: #fff3cd;">
+                        <div class="index-label">Index 3</div>
+                        "mango"
+                    </div>
+                    <div class="array-item">
+                        <div class="index-label">Index 4</div>
+                        "kiwi"
+                    </div>
+                </div>
+                
+                <div class="arrow-down">↓</div>
+                
+                <h4 style="color: #881518; margin-bottom: 1rem; text-align: center;">After</h4>
+                <div class="array-visual">
+                    <div class="array-item">
+                        <div class="index-label">Index 0</div>
+                        "apple"
+                    </div>
+                    <div class="array-item">
+                        <div class="index-label">Index 1</div>
+                        "banana"
+                    </div>
+                    <div class="array-item">
+                        <div class="index-label">Index 2</div>
+                        "kiwi"
+                    </div>
+                </div>
+            </div>
+
+            <div class="concept">
+                <p class="concept-text">
+                    <code style="background: #f0f0f0; padding: 0.2rem 0.5rem;">splice(2, 2)</code> starts at index 2 and removes 2 elements ("orange" and "mango"). The array is modified in place.
+                </p>
+            </div>
+        </div>
+
+        <!-- Slide 4: Adding Elements -->
+        <div class="slide">
+            <h2>Adding Elements to the Middle</h2>
+            
+            <div class="concept">
+                <h3>Example: Inserting Elements</h3>
+                
+                <div class="code-example">
+                    <pre><code><span class="keyword">let</span> colors = [<span class="string">"red"</span>, <span class="string">"green"</span>, <span class="string">"blue"</span>];
+colors.splice(1, 0, <span class="string">"yellow"</span>, <span class="string">"purple"</span>);
+
+console.log(colors); <span class="comment">// ["red", "yellow", "purple", "green", "blue"]</span></code></pre>
+                    <div class="output">["red", "yellow", "purple", "green", "blue"]</div>
+                </div>
+            </div>
+
+            <div class="visual-demo">
+                <h4 style="color: #881518; margin-bottom: 1rem; text-align: center;">Before: splice(1, 0, "yellow", "purple")</h4>
+                <div class="array-visual">
+                    <div class="array-item">
+                        <div class="index-label">Index 0</div>
+                        "red"
+                    </div>
+                    <div class="array-item" style="border-color: #0066cc; background: #e7f3ff;">
+                        <div class="index-label">Index 1 (Insert)</div>
+                        "green"
+                    </div>
+                    <div class="array-item">
+                        <div class="index-label">Index 2</div>
+                        "blue"
+                    </div>
+                </div>
+                
+                <div class="arrow-down">↓</div>
+                
+                <h4 style="color: #881518; margin-bottom: 1rem; text-align: center;">After</h4>
+                <div class="array-visual">
+                    <div class="array-item">
+                        <div class="index-label">Index 0</div>
+                        "red"
+                    </div>
+                    <div class="array-item added">
+                        <div class="index-label">Index 1 (New)</div>
+                        "yellow"
+                    </div>
+                    <div class="array-item added">
+                        <div class="index-label">Index 2 (New)</div>
+                        "purple"
+                    </div>
+                    <div class="array-item">
+                        <div class="index-label">Index 3</div>
+                        "green"
+                    </div>
+                    <div class="array-item">
+                        <div class="index-label">Index 4</div>
+                        "blue"
+                    </div>
+                </div>
+            </div>
+
+            <div class="info-box">
+                <strong>How It Works:</strong>
+                <p style="margin-top: 0.5rem; color: #555;">
+                    <code style="background: white; padding: 0.2rem 0.5rem;">splice(1, 0, "yellow", "purple")</code> starts at index 1, removes <strong>0 elements</strong>, and inserts "yellow" and "purple". The second parameter (0) means no elements are removed before insertion.
+                </p>
+            </div>
+        </div>
+
+        <!-- Slide 5: Removing and Adding Simultaneously -->
+        <div class="slide">
+            <h2>Removing and Adding Together</h2>
+            
+            <div class="concept">
+                <h3>Example: Replace Elements</h3>
+                
+                <div class="code-example">
+                    <pre><code><span class="keyword">let</span> numbers = [1, 2, 3, 4, 5];
+numbers.splice(1, 2, 6, 7, 8);
+
+console.log(numbers); <span class="comment">// [1, 6, 7, 8, 4, 5]</span></code></pre>
+                    <div class="output">[1, 6, 7, 8, 4, 5]</div>
+                </div>
+            </div>
+
+            <div class="visual-demo">
+                <h4 style="color: #881518; margin-bottom: 1rem; text-align: center;">Before: splice(1, 2, 6, 7, 8)</h4>
+                <div class="array-visual">
+                    <div class="array-item">
+                        <div class="index-label">Index 0</div>
+                        1
+                    </div>
+                    <div class="array-item" style="border-color: #ffc107; background: #fff3cd;">
+                        <div class="index-label">Index 1 (Start)</div>
+                        2
+                    </div>
+                    <div class="array-item" style="border-color: #ffc107; background: #fff3cd;">
+                        <div class="index-label">Index 2</div>
+                        3
+                    </div>
+                    <div class="array-item">
+                        <div class="index-label">Index 3</div>
+                        4
+                    </div>
+                    <div class="array-item">
+                        <div class="index-label">Index 4</div>
+                        5
+                    </div>
+                </div>
+                
+                <div class="arrow-down">↓</div>
+                
+                <h4 style="color: #881518; margin-bottom: 1rem; text-align: center;">After</h4>
+                <div class="array-visual">
+                    <div class="array-item">
+                        <div class="index-label">Index 0</div>
+                        1
+                    </div>
+                    <div class="array-item added">
+                        <div class="index-label">Index 1 (New)</div>
+                        6
+                    </div>
+                    <div class="array-item added">
+                        <div class="index-label">Index 2 (New)</div>
+                        7
+                    </div>
+                    <div class="array-item added">
+                        <div class="index-label">Index 3 (New)</div>
+                        8
+                    </div>
+                    <div class="array-item">
+                        <div class="index-label">Index 4</div>
+                        4
+                    </div>
+                    <div class="array-item">
+                        <div class="index-label">Index 5</div>
+                        5
+                    </div>
+                </div>
+            </div>
+
+            <div class="info-box">
+                <strong>Explanation:</strong>
+                <p style="margin-top: 0.5rem; color: #555;">
+                    <code style="background: white; padding: 0.2rem 0.5rem;">splice(1, 2, 6, 7, 8)</code> starts at index 1, removes 2 elements (2 and 3), and inserts 6, 7, and 8. This effectively <strong>replaces</strong> elements.
+                </p>
+            </div>
+        </div>
+
+        <!-- Slide 6: Creating Copies -->
+        <div class="slide">
+            <h2>Preserving the Original Array</h2>
+            
+            <div class="concept">
+                <h3>Using the Spread Operator</h3>
+                <p class="concept-text">
+                    If you need to keep the original array unchanged, create a <span class="highlight">copy</span> before using splice():
+                </p>
+                
+                <div class="code-example">
+                    <pre><code><span class="keyword">let</span> original = [1, 2, 3, 4, 5];
+<span class="keyword">let</span> copy = [...original]; <span class="comment">// Create a copy with spread operator</span>
+
+copy.splice(2, 1, 6);
+
+console.log(original); <span class="comment">// [1, 2, 3, 4, 5] - unchanged</span>
+console.log(copy);     <span class="comment">// [1, 2, 6, 4, 5] - modified</span></code></pre>
+                    <div class="output">Original: [1, 2, 3, 4, 5]<br>Copy: [1, 2, 6, 4, 5]</div>
+                </div>
+            </div>
+
+            <div class="info-box">
+                <strong>How the Spread Operator Works:</strong>
+                <p style="margin-top: 0.5rem; color: #555; line-height: 1.6;">
+                    The spread operator (<code style="background: white; padding: 0.2rem 0.5rem;">...</code>) creates a <strong>shallow copy</strong> of the original array into a new array. When we use <code style="background: white; padding: 0.2rem 0.5rem;">copy.splice(2, 1, 6)</code>, it modifies only the copy by removing the element at index 2 (which is 3) and inserting 6 at that position.
+                </p>
+            </div>
+
+            <div class="warning-box">
+                <strong>Remember:</strong>
+                <p style="margin-top: 0.5rem; color: #856404;">
+                    Without creating a copy, splice() will <strong>permanently modify</strong> your original array. Use the spread operator when you need to preserve the original data.
+                </p>
+            </div>
+        </div>
+
+        <!-- Slide 7: Practical Use Case with indexOf -->
+        <div class="slide">
+            <h2>Practical Use: Removing by Value</h2>
+            
+            <div class="concept">
+                <h3>Combining indexOf() with splice()</h3>
+                <p class="concept-text">
+                    A common use case is to remove an element when you know its <strong>value</strong> but not its index:
+                </p>
+                
+                <div class="code-example">
+                    <pre><code><span class="keyword">let</span> fruits = [<span class="string">"apple"</span>, <span class="string">"banana"</span>, <span class="string">"orange"</span>, <span class="string">"mango"</span>];
+<span class="keyword">let</span> indexToRemove = fruits.indexOf(<span class="string">"orange"</span>);
+
+<span class="keyword">if</span> (indexToRemove !== -1) {
+    fruits.splice(indexToRemove, 1);
+}
+
+console.log(fruits); <span class="comment">// ["apple", "banana", "mango"]</span></code></pre>
+                    <div class="output">["apple", "banana", "mango"]</div>
+                </div>
+            </div>
+
+            <div class="concept">
+                <h3>Step-by-Step Breakdown</h3>
+                <div class="parameter-list">
+                    <ol style="list-style-position: inside; line-height: 2;">
+                        <li><strong>Find the index:</strong> Use <code style="background: white; padding: 0.2rem 0.5rem;">indexOf("orange")</code> to find its position</li>
+                        <li><strong>Check if found:</strong> Compare with -1 to ensure element exists</li>
+                        <li><strong>Remove element:</strong> If found, use <code style="background: white; padding: 0.2rem 0.5rem;">splice(index, 1)</code> to remove it</li>
+                    </ol>
+                </div>
+            </div>
+
+            <div class="concept">
+                <h3>Clearing an Array</h3>
+                <p class="concept-text">
+                    You can also use splice() to clear an entire array:
+                </p>
+                
+                <div class="code-example">
+                    <pre><code><span class="keyword">let</span> array = [1, 2, 3, 4, 5];
+array.splice(0); <span class="comment">// Remove all elements from index 0 onwards</span>
+
+console.log(array); <span class="comment">// []</span></code></pre>
+                    <div class="output">[]</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 8: Performance & Summary -->
+        <div class="slide">
+            <h2>Performance Considerations & Summary</h2>
+            
+            <div class="concept">
+                <h3>Performance Notes</h3>
+                <div class="warning-box">
+                    <strong>⚠️ Performance Consideration:</strong>
+                    <p style="margin-top: 0.5rem; color: #856404; line-height: 1.6;">
+                        For very large arrays, <code style="background: white; padding: 0.2rem 0.5rem;">splice()</code> can be less efficient than other methods, especially when modifying the beginning of the array. This is because splice() may need to shift all subsequent elements.
+                    </p>
+                    <p style="margin-top: 0.5rem; color: #856404;">
+                        For adding/removing at the end: use <code style="background: white; padding: 0.2rem 0.5rem;">push()</code>, <code style="background: white; padding: 0.2rem 0.5rem;">pop()</code><br>
+                        For adding/removing at the beginning: use <code style="background: white; padding: 0.2rem 0.5rem;">unshift()</code>, <code style="background: white; padding: 0.2rem 0.5rem;">shift()</code>
+                    </p>
+                </div>
+            </div>
+
+            <div class="concept">
+                <h3>Key Takeaways</h3>
+                <div style="background: #f8f9fa; padding: 1.5rem; border-radius: 8px; border-left: 4px solid #881518;">
+                    <ul style="color: #333; font-size: 1.05rem; line-height: 1.8; list-style-position: inside;">
+                        <li><strong>Versatile:</strong> Add, remove, or replace elements anywhere in an array</li>
+                        <li><strong>Mutates:</strong> Modifies the original array in place</li>
+                        <li><strong>Returns:</strong> Array of removed elements (or empty array)</li>
+                        <li><strong>Syntax:</strong> <code style="background: white; padding: 0.2rem 0.5rem;">splice(start, deleteCount, item1, ...)</code></li>
+                        <li><strong>Preserve original:</strong> Use spread operator to create a copy first</li>
+                        <li><strong>Common pattern:</strong> Combine with <code style="background: white; padding: 0.2rem 0.5rem;">indexOf()</code> to remove by value</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="info-box">
+                <strong>Conclusion:</strong>
+                <p style="margin-top: 0.5rem; color: #555;">
+                    The splice() method is a versatile tool for modifying arrays in JavaScript. Understanding how to use splice() effectively can greatly enhance your ability to manipulate arrays in your code.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div class="navigation">
+        <button class="nav-button" id="prevBtn" onclick="changeSlide(-1)">← Previous</button>
+        <span class="slide-counter">
+            <span id="currentSlide">1</span> / <span id="totalSlides">8</span>
+        </span>
+        <button class="nav-button" id="nextBtn" onclick="changeSlide(1)">Next →</button>
+    </div>
+
+    <script>
+        let currentSlide = 1;
+        const totalSlides = document.querySelectorAll('.slide').length;
+        
+        document.getElementById('totalSlides').textContent = totalSlides;
+        
+        function showSlide(n) {
+            const slides = document.querySelectorAll('.slide');
+            
+            if (n > totalSlides) {
+                currentSlide = totalSlides;
+            }
+            if (n < 1) {
+                currentSlide = 1;
+            }
+            
+            slides.forEach(slide => {
+                slide.classList.remove('active');
+            });
+            
+            slides[currentSlide - 1].classList.add('active');
+            
+            document.getElementById('currentSlide').textContent = currentSlide;
+            
+            // Update button states
+            document.getElementById('prevBtn').disabled = currentSlide === 1;
+            document.getElementById('nextBtn').disabled = currentSlide === totalSlides;
+            
+            // Scroll to top of slide
+            window.scrollTo(0, 0);
+        }
+        
+        function changeSlide(direction) {
+            currentSlide += direction;
+            showSlide(currentSlide);
+        }
+        
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowLeft') {
+                changeSlide(-1);
+            } else if (e.key === 'ArrowRight') {
+                changeSlide(1);
+            }
+        });
+        
+        // Initialize
+        showSlide(currentSlide);
+    </script>
+</body>
+</html>
