@@ -1,0 +1,1015 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JavaScript Form Validation Presentation</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #f5f5f5 0%, #ffffff 100%);
+            color: #2d2d2d;
+            overflow-x: hidden;
+        }
+
+        .slide-container {
+            min-height: 100vh;
+            padding: 2rem 2rem 120px 2rem;
+            display: none;
+        }
+
+        .slide-container.active {
+            display: block;
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .slide-content {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            color: #881518;
+            font-size: clamp(1.8rem, 4vw, 3rem);
+            margin-bottom: 2rem;
+            border-bottom: 3px solid #881518;
+            padding-bottom: 1rem;
+        }
+
+        h2 {
+            color: #a81c1f;
+            font-size: clamp(1.4rem, 3vw, 2rem);
+            margin: 2rem 0 1rem 0;
+        }
+
+        h3 {
+            color: #c8575a;
+            font-size: clamp(1.2rem, 2.5vw, 1.5rem);
+            margin: 1.5rem 0 1rem 0;
+        }
+
+        p, li {
+            font-size: clamp(1rem, 2vw, 1.2rem);
+            line-height: 1.8;
+            margin-bottom: 1rem;
+            color: #333333;
+        }
+
+        .content-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+
+        @media (min-width: 768px) {
+            .content-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        .concept-box {
+            background: rgba(136, 21, 24, 0.05);
+            border-left: 4px solid #881518;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin: 1.5rem 0;
+        }
+
+        .code-box {
+            background: #f8f8f8;
+            border: 1px solid #d0d0d0;
+            border-radius: 8px;
+            padding: 1.5rem;
+            overflow-x: auto;
+            margin: 1rem 0;
+        }
+
+        code {
+            font-family: 'Courier New', Courier, monospace;
+            font-size: clamp(0.85rem, 1.5vw, 1rem);
+            color: #0066cc;
+        }
+
+        .keyword { color: #881518; }
+        .string { color: #2a8d2a; }
+        .function { color: #795e26; }
+        .comment { color: #008000; }
+        .property { color: #0066cc; }
+        .tag { color: #881518; }
+        .attribute { color: #d73a49; }
+
+        .interactive-demo {
+            background: rgba(136, 21, 24, 0.03);
+            border: 2px dashed #881518;
+            border-radius: 8px;
+            padding: 2rem;
+            margin: 2rem 0;
+        }
+
+        .demo-button {
+            background: #881518;
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1.1rem;
+            font-weight: 600;
+            transition: all 0.3s;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            margin: 0.5rem;
+        }
+
+        .demo-button:hover {
+            background: #a81c1f;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(136, 21, 24, 0.3);
+        }
+
+        .demo-output {
+            background: white;
+            border: 2px solid #881518;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1rem 0;
+            min-height: 80px;
+        }
+
+        ul {
+            margin-left: 2rem;
+        }
+
+        .navigation {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(to top, #ffffff, rgba(255, 255, 255, 0.98));
+            padding: 1.5rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+            border-top: 2px solid #e0e0e0;
+        }
+
+        .nav-button {
+            background: #881518;
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: clamp(0.9rem, 2vw, 1.1rem);
+            font-weight: 600;
+            transition: all 0.3s;
+            min-width: 100px;
+        }
+
+        .nav-button:hover:not(:disabled) {
+            background: #a81c1f;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(136, 21, 24, 0.3);
+        }
+
+        .nav-button:disabled {
+            background: #cccccc;
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        .slide-counter {
+            color: #881518;
+            font-weight: 600;
+            font-size: clamp(1rem, 2vw, 1.2rem);
+        }
+
+        @media (max-width: 768px) {
+            .navigation {
+                padding: 1rem;
+            }
+
+            .nav-button {
+                padding: 0.75rem 1rem;
+                min-width: 80px;
+            }
+        }
+
+        .highlight {
+            background: rgba(136, 21, 24, 0.15);
+            padding: 0.2rem 0.4rem;
+            border-radius: 3px;
+            font-weight: 600;
+        }
+
+        .inline-code {
+            background: #f0f0f0;
+            padding: 0.2rem 0.5rem;
+            border-radius: 3px;
+            font-family: 'Courier New', Courier, monospace;
+            color: #881518;
+            font-size: 0.9em;
+        }
+
+        .success-box {
+            background: linear-gradient(135deg, #d4edda, #c3e6cb);
+            border: 2px solid #28a745;
+            border-left: 6px solid #1e7e34;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+        }
+
+        .success-box h3 {
+            color: #1e7e34;
+            margin-top: 0;
+        }
+
+        .info-box {
+            background: linear-gradient(135deg, #e3f2fd, #bbdefb);
+            border: 2px solid #2196f3;
+            border-left: 6px solid #1976d2;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+        }
+
+        .info-box h3 {
+            color: #1565c0;
+            margin-top: 0;
+        }
+
+        .warning-box {
+            background: linear-gradient(135deg, #fff3cd, #ffe69c);
+            border: 2px solid #ffc107;
+            border-left: 6px solid #ff9800;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+        }
+
+        .warning-box h3 {
+            color: #ff6f00;
+            margin-top: 0;
+        }
+
+        .form-demo {
+            background: white;
+            padding: 2rem;
+            border: 2px solid #881518;
+            border-radius: 8px;
+            margin: 1rem 0;
+        }
+
+        .form-demo label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+            color: #881518;
+        }
+
+        .form-demo input,
+        .form-demo textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid #d0d0d0;
+            border-radius: 5px;
+            font-size: 1rem;
+            margin-bottom: 1rem;
+            transition: border-color 0.3s;
+        }
+
+        .form-demo input:focus,
+        .form-demo textarea:focus {
+            outline: none;
+            border-color: #881518;
+        }
+
+        .form-demo input:invalid,
+        .form-demo textarea:invalid {
+            border-color: #f44336;
+        }
+
+        .form-demo input:valid,
+        .form-demo textarea:valid {
+            border-color: #4caf50;
+        }
+
+        .form-demo textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .validity-state {
+            background: #f8f8f8;
+            border: 2px solid #881518;
+            border-radius: 8px;
+            padding: 1rem;
+            margin: 1rem 0;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.9rem;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .validity-item {
+            padding: 0.25rem 0;
+            color: #333;
+        }
+
+        .validity-true {
+            color: #f44336;
+            font-weight: bold;
+        }
+
+        .validity-false {
+            color: #4caf50;
+        }
+
+        .method-signature {
+            background: rgba(136, 21, 24, 0.08);
+            border: 2px solid #881518;
+            border-radius: 8px;
+            padding: 1rem 1.5rem;
+            margin: 1rem 0;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: clamp(0.9rem, 2vw, 1.1rem);
+            font-weight: bold;
+            color: #881518;
+        }
+
+        .step-number {
+            display: inline-block;
+            background: #881518;
+            color: white;
+            width: 2.5rem;
+            height: 2.5rem;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 2.5rem;
+            font-weight: bold;
+            margin-right: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <!-- Slide 1: Introduction -->
+    <div class="slide-container active">
+        <div class="slide-content">
+            <h1>Form Validation Using JavaScript</h1>
+            
+            <div class="concept-box">
+                <h2>Beyond HTML Validation</h2>
+                <p>In a previous lesson, you've learned how to use HTML to restrict the values your users can submit in your form.</p>
+                <p>But sometimes that's <span class="highlight">not enough</span>.</p>
+            </div>
+
+            <div class="content-grid">
+                <div class="info-box">
+                    <h3>HTML Validation Limitations</h3>
+                    <p>✓ Basic required fields</p>
+                    <p>✓ Simple type checking</p>
+                    <p>✓ Min/max lengths</p>
+                    <p>✗ Custom error messages</p>
+                    <p>✗ Complex business logic</p>
+                    <p>✗ Real-time feedback</p>
+                </div>
+
+                <div class="success-box">
+                    <h3>✓ JavaScript to the Rescue!</h3>
+                    <p>If you want to get more complex, such as <span class="highlight">displaying your own error messages</span> to the user, you will need to use JavaScript.</p>
+                </div>
+            </div>
+
+            <div class="concept-box">
+                <h2>The Constraint Validation API</h2>
+                <p>Certain HTML elements, such as the <span class="inline-code">textarea</span> and <span class="inline-code">input</span> elements, expose a <span class="highlight">Constraint Validation API</span>.</p>
+                <p>This API allows you to assert that the user's provided value for that element passes any HTML-level validation you have written, such as minimum length or pattern matching.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 2: The Problem -->
+    <div class="slide-container">
+        <div class="slide-content">
+            <h1>The Problem: Company Email Validation</h1>
+
+            <div class="concept-box">
+                <h2>Real-World Scenario</h2>
+                <p>Let's say you wanted employees at a company to send feedback messages through a form.</p>
+            </div>
+
+            <div class="info-box">
+                <h3>Basic Email Input</h3>
+                <p>We use the <span class="inline-code">email</span> input which comes with built-in validation to check for basic validation like if the input includes the at (<span class="inline-code">@</span>) sign.</p>
+            </div>
+
+            <div class="warning-box">
+                <h3>⚠️ The Problem</h3>
+                <p>But what if the user provides an email address like <span class="inline-code">example@email.com</span>?</p>
+                <p>This would <strong>pass</strong> the basic validation, but we want to be more specific about accepting emails from those with a <span class="highlight">company email address</span>.</p>
+            </div>
+
+            <h3>Basic Form (Without Pattern)</h3>
+            <div class="code-box">
+                <code>
+<span class="tag">&lt;form&gt;</span>
+  <span class="tag">&lt;label&gt;</span>Enter your email: <span class="tag">&lt;/label&gt;</span>
+  <span class="tag">&lt;input</span> <span class="attribute">required</span> <span class="attribute">type</span>=<span class="string">"email"</span> <span class="tag">/&gt;</span>
+  
+  <span class="tag">&lt;label&gt;</span>Enter your feedback: <span class="tag">&lt;/label&gt;</span>
+  <span class="tag">&lt;textarea</span> <span class="attribute">required</span> <span class="attribute">placeholder</span>=<span class="string">"Your feedback here..."</span><span class="tag">&gt;&lt;/textarea&gt;</span>
+  
+  <span class="tag">&lt;button</span> <span class="attribute">type</span>=<span class="string">"submit"</span><span class="tag">&gt;</span>Submit Feedback<span class="tag">&lt;/button&gt;</span>
+<span class="tag">&lt;/form&gt;</span>
+                </code>
+            </div>
+
+            <div class="concept-box">
+                <p>This validates that it's an email format, but accepts <strong>any</strong> email address including <span class="inline-code">example@email.com</span>.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 3: Adding Pattern Attribute -->
+    <div class="slide-container">
+        <div class="slide-content">
+            <h1>Solution: The pattern Attribute</h1>
+
+            <div class="concept-box">
+                <h2>More Specific Validation</h2>
+                <p>This is where we can use the <span class="inline-code">pattern</span> attribute to specify that the email address must end in a <span class="highlight">company email address</span>.</p>
+            </div>
+
+            <h3>Updated Form (With Pattern)</h3>
+            <div class="code-box">
+                <code>
+<span class="tag">&lt;form&gt;</span>
+  <span class="tag">&lt;label&gt;</span>Enter your email: <span class="tag">&lt;/label&gt;</span>
+  <span class="tag">&lt;input</span>
+    <span class="attribute">required</span>
+    <span class="attribute">placeholder</span>=<span class="string">"username@sampleCompany.com"</span>
+    <span class="attribute">type</span>=<span class="string">"email"</span>
+    <span class="attribute">pattern</span>=<span class="string">"[a-z0-9._%+-]+@sampleCompany\.com$"</span>
+  <span class="tag">/&gt;</span>
+  
+  <span class="tag">&lt;label&gt;</span>Enter your feedback: <span class="tag">&lt;/label&gt;</span>
+  <span class="tag">&lt;textarea</span> <span class="attribute">required</span> <span class="attribute">placeholder</span>=<span class="string">"Your feedback here..."</span><span class="tag">&gt;&lt;/textarea&gt;</span>
+  
+  <span class="tag">&lt;button</span> <span class="attribute">type</span>=<span class="string">"submit"</span><span class="tag">&gt;</span>Submit Feedback<span class="tag">&lt;/button&gt;</span>
+<span class="tag">&lt;/form&gt;</span>
+                </code>
+            </div>
+
+            <div class="info-box">
+                <h3>What the Pattern Does</h3>
+                <p>The regex pattern <span class="inline-code">[a-z0-9._%+-]+@sampleCompany\.com$</span> ensures:</p>
+                <p>• Email must end with <span class="inline-code">@sampleCompany.com</span></p>
+                <p>• Only accepts company email addresses</p>
+                <p>• Rejects emails like <span class="inline-code">user@gmail.com</span></p>
+            </div>
+
+            <div class="warning-box">
+                <h3>⚠️ Still a Problem</h3>
+                <p>Now, if you try to submit the feedback, you will see a message saying <strong>"Please match the requested format."</strong></p>
+                <p>Even though the input does have placeholder text showing them the desired format, it would be better to also include a <span class="highlight">customized error message</span> using JavaScript.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 4: checkValidity() Method -->
+    <div class="slide-container">
+        <div class="slide-content">
+            <h1>The checkValidity() Method</h1>
+
+            <div class="concept-box">
+                <h2>Part of the Constraint Validation API</h2>
+                <p>Let's first take a look at the <span class="inline-code">checkValidity()</span> method.</p>
+            </div>
+
+            <div class="method-signature">
+                element.checkValidity()
+            </div>
+
+            <div class="info-box">
+                <h3>What It Does</h3>
+                <p>The <span class="inline-code">checkValidity()</span> method returns <strong>true</strong> if the element matches all HTML validation (based on its attributes), and <strong>false</strong> if it fails.</p>
+            </div>
+
+            <h3>Example Code</h3>
+            <div class="code-box">
+                <code>
+<span class="keyword">const</span> input = <span class="keyword">document</span>.<span class="function">querySelector</span>(<span class="string">"input[type='email']"</span>);
+
+input.<span class="function">addEventListener</span>(<span class="string">"input"</span>, (<span class="keyword">e</span>) => {
+  <span class="keyword">console</span>.<span class="function">log</span>(<span class="keyword">e</span>.<span class="property">target</span>.<span class="function">checkValidity</span>());
+});
+                </code>
+            </div>
+
+            <div class="concept-box">
+                <h3>Understanding the Code</h3>
+                <p>• We've queried our input from the DOM</p>
+                <p>• Added an <span class="inline-code">input</span> event listener</p>
+                <p>• <span class="inline-code">e.target</span> refers to the element that triggered the event (our input)</p>
+                <p>• <span class="inline-code">checkValidity()</span> checks if input meets all validation rules</p>
+            </div>
+
+            <div class="success-box">
+                <h3>Result</h3>
+                <p>When we try with an invalid input, we see <strong>false</strong> gets logged in the console.</p>
+                <p>Now that we know the input is invalid, let's report the invalidity!</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 5: reportValidity() Method -->
+    <div class="slide-container">
+        <div class="slide-content">
+            <h1>The reportValidity() Method</h1>
+
+            <div class="concept-box">
+                <h2>Showing the Error to Users</h2>
+                <p>Now let's report the invalidity to the user.</p>
+            </div>
+
+            <div class="method-signature">
+                element.reportValidity()
+            </div>
+
+            <h3>Updated Code</h3>
+            <div class="code-box">
+                <code>
+<span class="keyword">const</span> input = <span class="keyword">document</span>.<span class="function">querySelector</span>(<span class="string">"input[type='email']"</span>);
+
+input.<span class="function">addEventListener</span>(<span class="string">"input"</span>, (<span class="keyword">e</span>) => {
+  <span class="keyword">const</span> isValid = <span class="keyword">e</span>.<span class="property">target</span>.<span class="function">checkValidity</span>();
+  
+  <span class="keyword">if</span> (!isValid) {
+    <span class="keyword">e</span>.<span class="property">target</span>.<span class="function">reportValidity</span>();
+  }
+});
+                </code>
+            </div>
+
+            <div class="info-box">
+                <h3>What reportValidity() Does</h3>
+                <p>• Shows the browser's built-in error message</p>
+                <p>• Reports the invalid state <strong>immediately</strong></p>
+                <p>• No need to wait for form submission</p>
+            </div>
+
+            <div class="warning-box">
+                <h3>⚠️ Still Using Default Message</h3>
+                <p>As a result, you will see the browser's error message: <strong>"Please match the requested format."</strong></p>
+                <p>It reports the invalid state immediately, instead of waiting for us to submit the form. But it's <span class="highlight">still using the default message</span>.</p>
+                <p>This is because the <span class="inline-code">reportValidity</span> method only tells the browser that the input is invalid. The browser still chooses how to display why it's invalid.</p>
+                <p>That's where the <span class="inline-code">setCustomValidity</span> method comes in.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 6: setCustomValidity() Method -->
+    <div class="slide-container">
+        <div class="slide-content">
+            <h1>The setCustomValidity() Method</h1>
+
+            <div class="concept-box">
+                <h2>Custom Error Messages</h2>
+                <p>This method accepts a custom error message, which is displayed to the user.</p>
+            </div>
+
+            <div class="method-signature">
+                element.setCustomValidity(message)
+            </div>
+
+            <h3>Complete Solution</h3>
+            <div class="code-box">
+                <code>
+<span class="keyword">const</span> input = <span class="keyword">document</span>.<span class="function">querySelector</span>(<span class="string">"input[type='email']"</span>);
+
+input.<span class="function">addEventListener</span>(<span class="string">"input"</span>, (<span class="keyword">e</span>) => {
+  <span class="keyword">const</span> isValid = <span class="keyword">e</span>.<span class="property">target</span>.<span class="function">checkValidity</span>();
+  
+  <span class="keyword">if</span> (!isValid) {
+    <span class="keyword">e</span>.<span class="property">target</span>.<span class="function">setCustomValidity</span>(
+      <span class="string">"You must use a company email address that ends in @sampleCompany.com"</span>
+    );
+    <span class="keyword">e</span>.<span class="property">target</span>.<span class="function">reportValidity</span>();
+  } <span class="keyword">else</span> {
+    <span class="comment">// Clear the custom message when valid</span>
+    <span class="keyword">e</span>.<span class="property">target</span>.<span class="function">setCustomValidity</span>(<span class="string">""</span>);
+  }
+});
+                </code>
+            </div>
+
+            <div class="success-box">
+                <h3>✓ Result</h3>
+                <p>As a result, you will see the custom error message:</p>
+                <p><strong>"You must use a company email address that ends in @sampleCompany.com"</strong></p>
+            </div>
+
+            <div class="warning-box">
+                <h3>⚠️ Important!</h3>
+                <p>Always clear the custom validity message when the input becomes valid by calling:</p>
+                <p><span class="inline-code">element.setCustomValidity("")</span></p>
+                <p>Otherwise, the form will remain invalid even with valid input!</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 7: Interactive Demo -->
+    <div class="slide-container">
+        <div class="slide-content">
+            <h1>Try It Yourself!</h1>
+
+            <div class="interactive-demo">
+                <h3>Interactive Form Validation Demo</h3>
+                <p>Try entering different email addresses to see the validation in action:</p>
+                
+                <div class="form-demo">
+                    <form id="demo-form" onsubmit="return handleDemoSubmit(event)">
+                        <label for="demo-email">Enter your email:</label>
+                        <input 
+                            id="demo-email" 
+                            type="email" 
+                            required 
+                            placeholder="username@sampleCompany.com"
+                            pattern="[a-z0-9._%+-]+@sampleCompany\.com$"
+                        />
+                        
+                        <label for="demo-feedback">Enter your feedback:</label>
+                        <textarea 
+                            id="demo-feedback" 
+                            required 
+                            placeholder="Your feedback here..."
+                        ></textarea>
+                        
+                        <button type="submit" class="demo-button">Submit Feedback</button>
+                    </form>
+                </div>
+
+                <div class="demo-output">
+                    <h4>Try these examples:</h4>
+                    <p>❌ <span class="inline-code">user@gmail.com</span> - Wrong domain</p>
+                    <p>❌ <span class="inline-code">test@email.com</span> - Wrong domain</p>
+                    <p>✓ <span class="inline-code">john@sampleCompany.com</span> - Valid!</p>
+                    <p>✓ <span class="inline-code">jane.doe@sampleCompany.com</span> - Valid!</p>
+                </div>
+
+                <div id="demo-result" class="demo-output" style="display: none;">
+                    <h4 style="color: #1e7e34;">✓ Form Submitted Successfully!</h4>
+                    <p><strong>Email:</strong> <span id="result-email"></span></p>
+                    <p><strong>Feedback:</strong> <span id="result-feedback"></span></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 8: The validity Property -->
+    <div class="slide-container">
+        <div class="slide-content">
+            <h1>The validity Property</h1>
+
+            <div class="concept-box">
+                <h2>Understanding Why Validation Failed</h2>
+                <p>If you are interested in exploring more about the different types of validity states and why a particular validation has failed, you can log out the <span class="inline-code">validity</span> property.</p>
+            </div>
+
+            <h3>Accessing the validity Property</h3>
+            <div class="code-box">
+                <code>
+<span class="keyword">const</span> input = <span class="keyword">document</span>.<span class="function">querySelector</span>(<span class="string">"input[type='email']"</span>);
+
+input.<span class="function">addEventListener</span>(<span class="string">"input"</span>, (<span class="keyword">e</span>) => {
+  <span class="keyword">console</span>.<span class="function">log</span>(<span class="keyword">e</span>.<span class="property">target</span>.<span class="property">validity</span>);
+});
+                </code>
+            </div>
+
+            <div class="info-box">
+                <h3>ValidityState Object</h3>
+                <p>The <span class="inline-code">validity</span> property is an instance of the <span class="highlight">ValidityState</span> object.</p>
+                <p>Here is an example of what the object might look like in the browser:</p>
+            </div>
+
+            <div class="validity-state">
+                <div class="validity-item">ValidityState {</div>
+                <div class="validity-item">  badInput: <span class="validity-false">false</span>,</div>
+                <div class="validity-item">  customError: <span class="validity-false">false</span>,</div>
+                <div class="validity-item">  patternMismatch: <span class="validity-true">true</span>,</div>
+                <div class="validity-item">  rangeOverflow: <span class="validity-false">false</span>,</div>
+                <div class="validity-item">  rangeUnderflow: <span class="validity-false">false</span>,</div>
+                <div class="validity-item">  stepMismatch: <span class="validity-false">false</span>,</div>
+                <div class="validity-item">  tooLong: <span class="validity-false">false</span>,</div>
+                <div class="validity-item">  tooShort: <span class="validity-false">false</span>,</div>
+                <div class="validity-item">  typeMismatch: <span class="validity-false">false</span>,</div>
+                <div class="validity-item">  valueMissing: <span class="validity-false">false</span>,</div>
+                <div class="validity-item">  valid: <span class="validity-false">false</span></div>
+                <div class="validity-item">}</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 9: ValidityState Properties -->
+    <div class="slide-container">
+        <div class="slide-content">
+            <h1>ValidityState Properties</h1>
+
+            <div class="concept-box">
+                <h2>All Boolean Properties</h2>
+                <p>There are several helpful properties which all hold the value of a boolean of <strong>true</strong> or <strong>false</strong>.</p>
+            </div>
+
+            <div class="content-grid">
+                <div class="info-box">
+                    <h3>Common Properties</h3>
+                    <p><strong>valueMissing:</strong> true when a required input field is left empty</p>
+                    <p><strong>patternMismatch:</strong> true if the value doesn't match the specified regex pattern</p>
+                    <p><strong>typeMismatch:</strong> true if value doesn't match input type (e.g., not a valid email)</p>
+                    <p><strong>tooShort:</strong> true if value is shorter than minlength</p>
+                    <p><strong>tooLong:</strong> true if value is longer than maxlength</p>
+                </div>
+
+                <div class="info-box">
+                    <h3>More Properties</h3>
+                    <p><strong>rangeUnderflow:</strong> true if value < min</p>
+                    <p><strong>rangeOverflow:</strong> true if value > max</p>
+                    <p><strong>stepMismatch:</strong> true if value doesn't fit step attribute</p>
+                    <p><strong>badInput:</strong> true if browser can't convert input</p>
+                    <p><strong>customError:</strong> true if custom error set via setCustomValidity()</p>
+                    <p><strong>valid:</strong> true if all validations pass</p>
+                </div>
+            </div>
+
+            <div class="success-box">
+                <h3>💡 Tip</h3>
+                <p>After this lesson, I encourage you to play around with the examples given in this lesson and explore more about the different validity properties.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 10: Interactive Validity Demo -->
+    <div class="slide-container">
+        <div class="slide-content">
+            <h1>Explore ValidityState</h1>
+
+            <div class="interactive-demo">
+                <h3>Real-Time ValidityState Inspector</h3>
+                <p>Type in the input below to see the ValidityState object update in real-time:</p>
+                
+                <div class="form-demo">
+                    <label for="validity-email">Enter your email:</label>
+                    <input 
+                        id="validity-email" 
+                        type="email" 
+                        required 
+                        minlength="5"
+                        placeholder="username@sampleCompany.com"
+                        pattern="[a-z0-9._%+-]+@sampleCompany\.com$"
+                    />
+                </div>
+
+                <div class="validity-state" id="validity-output">
+                    <div style="color: #999; font-style: italic;">Start typing to see validity state...</div>
+                </div>
+
+                <div class="demo-output">
+                    <h4>Test Cases:</h4>
+                    <p>1. Leave it empty → <span class="inline-code">valueMissing: true</span></p>
+                    <p>2. Type "abc" → <span class="inline-code">typeMismatch: true</span>, <span class="inline-code">tooShort: true</span></p>
+                    <p>3. Type "user@gmail.com" → <span class="inline-code">patternMismatch: true</span></p>
+                    <p>4. Type "user@sampleCompany.com" → <span class="inline-code">valid: true</span> ✓</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 11: Complete Example -->
+    <div class="slide-container">
+        <div class="slide-content">
+            <h1>Complete Working Example</h1>
+
+            <h3>HTML</h3>
+            <div class="code-box">
+                <code>
+<span class="tag">&lt;form</span> <span class="attribute">id</span>=<span class="string">"feedbackForm"</span><span class="tag">&gt;</span>
+  <span class="tag">&lt;label&gt;</span>Enter your email: <span class="tag">&lt;/label&gt;</span>
+  <span class="tag">&lt;input</span>
+    <span class="attribute">id</span>=<span class="string">"email"</span>
+    <span class="attribute">type</span>=<span class="string">"email"</span>
+    <span class="attribute">required</span>
+    <span class="attribute">placeholder</span>=<span class="string">"username@sampleCompany.com"</span>
+    <span class="attribute">pattern</span>=<span class="string">"[a-z0-9._%+-]+@sampleCompany\.com$"</span>
+  <span class="tag">/&gt;</span>
+  
+  <span class="tag">&lt;label&gt;</span>Enter your feedback: <span class="tag">&lt;/label&gt;</span>
+  <span class="tag">&lt;textarea</span> <span class="attribute">id</span>=<span class="string">"feedback"</span> <span class="attribute">required</span><span class="tag">&gt;&lt;/textarea&gt;</span>
+  
+  <span class="tag">&lt;button</span> <span class="attribute">type</span>=<span class="string">"submit"</span><span class="tag">&gt;</span>Submit<span class="tag">&lt;/button&gt;</span>
+<span class="tag">&lt;/form&gt;</span>
+                </code>
+            </div>
+
+            <h3>JavaScript</h3>
+            <div class="code-box">
+                <code>
+<span class="keyword">const</span> emailInput = <span class="keyword">document</span>.<span class="function">getElementById</span>(<span class="string">"email"</span>);
+<span class="keyword">const</span> feedbackInput = <span class="keyword">document</span>.<span class="function">getElementById</span>(<span class="string">"feedback"</span>);
+
+<span class="comment">// Email validation</span>
+emailInput.<span class="function">addEventListener</span>(<span class="string">"input"</span>, (<span class="keyword">e</span>) => {
+  <span class="keyword">if</span> (!<span class="keyword">e</span>.<span class="property">target</span>.<span class="function">checkValidity</span>()) {
+    <span class="keyword">e</span>.<span class="property">target</span>.<span class="function">setCustomValidity</span>(
+      <span class="string">"You must use a company email that ends in @sampleCompany.com"</span>
+    );
+  } <span class="keyword">else</span> {
+    <span class="keyword">e</span>.<span class="property">target</span>.<span class="function">setCustomValidity</span>(<span class="string">""</span>);
+  }
+});
+
+<span class="comment">// Form submission</span>
+<span class="keyword">document</span>.<span class="function">getElementById</span>(<span class="string">"feedbackForm"</span>).<span class="function">addEventListener</span>(<span class="string">"submit"</span>, (<span class="keyword">e</span>) => {
+  <span class="keyword">e</span>.<span class="function">preventDefault</span>();
+  <span class="keyword">console</span>.<span class="function">log</span>(<span class="string">"Form submitted successfully!"</span>);
+});
+                </code>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 12: Key Takeaways -->
+    <div class="slide-container">
+        <div class="slide-content">
+            <h1>Key Takeaways</h1>
+
+            <div class="concept-box">
+                <h2>The Constraint Validation API</h2>
+                <p>Provides powerful JavaScript methods to control form validation with <span class="highlight">custom error messages</span> and <span class="highlight">real-time feedback</span>.</p>
+            </div>
+
+            <div class="content-grid">
+                <div class="success-box">
+                    <h3>✓ Three Key Methods</h3>
+                    <p><strong>checkValidity():</strong> Returns true/false if element is valid</p>
+                    <p><strong>reportValidity():</strong> Shows browser's error message</p>
+                    <p><strong>setCustomValidity():</strong> Sets custom error message</p>
+                </div>
+
+                <div class="info-box">
+                    <h3>ValidityState Properties</h3>
+                    <p><strong>valueMissing:</strong> Required field empty</p>
+                    <p><strong>patternMismatch:</strong> Doesn't match regex</p>
+                    <p><strong>typeMismatch:</strong> Wrong type</p>
+                    <p><strong>tooShort/tooLong:</strong> Length issues</p>
+                    <p><strong>valid:</strong> All validations pass</p>
+                </div>
+            </div>
+
+            <div class="warning-box">
+                <h3>⚠️ Remember</h3>
+                <p>Always clear custom validity with <span class="inline-code">setCustomValidity("")</span> when input becomes valid!</p>
+            </div>
+
+            <div class="success-box">
+                <h3>💡 Best Practices</h3>
+                <p>✓ Use <span class="inline-code">pattern</span> attribute for regex validation</p>
+                <p>✓ Provide clear, helpful error messages</p>
+                <p>✓ Give real-time feedback on input events</p>
+                <p>✓ Check validity state to understand why validation failed</p>
+                <p>✓ Combine HTML and JavaScript validation for best results</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Navigation -->
+    <div class="navigation">
+        <button class="nav-button" id="prevBtn" onclick="changeSlide(-1)">← Previous</button>
+        <div class="slide-counter">
+            <span id="currentSlide">1</span> / <span id="totalSlides">12</span>
+        </div>
+        <button class="nav-button" id="nextBtn" onclick="changeSlide(1)">Next →</button>
+    </div>
+
+    <script>
+        let currentSlide = 1;
+        const totalSlides = document.querySelectorAll('.slide-container').length;
+        
+        document.getElementById('totalSlides').textContent = totalSlides;
+        
+        function showSlide(n) {
+            const slides = document.querySelectorAll('.slide-container');
+            
+            if (n > totalSlides) {
+                currentSlide = totalSlides;
+            }
+            if (n < 1) {
+                currentSlide = 1;
+            }
+            
+            slides.forEach(slide => slide.classList.remove('active'));
+            slides[currentSlide - 1].classList.add('active');
+            
+            document.getElementById('currentSlide').textContent = currentSlide;
+            
+            // Update button states
+            document.getElementById('prevBtn').disabled = currentSlide === 1;
+            document.getElementById('nextBtn').disabled = currentSlide === totalSlides;
+            
+            // Scroll to top of page
+            window.scrollTo(0, 0);
+        }
+        
+        function changeSlide(direction) {
+            currentSlide += direction;
+            showSlide(currentSlide);
+        }
+        
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowLeft') {
+                changeSlide(-1);
+            } else if (e.key === 'ArrowRight') {
+                changeSlide(1);
+            }
+        });
+        
+        // Demo form validation
+        const demoEmail = document.getElementById('demo-email');
+        const demoFeedback = document.getElementById('demo-feedback');
+        
+        if (demoEmail) {
+            demoEmail.addEventListener('input', (e) => {
+                if (!e.target.checkValidity()) {
+                    e.target.setCustomValidity(
+                        'You must use a company email address that ends in @sampleCompany.com'
+                    );
+                } else {
+                    e.target.setCustomValidity('');
+                }
+            });
+        }
+        
+        function handleDemoSubmit(e) {
+            e.preventDefault();
+            
+            const email = document.getElementById('demo-email').value;
+            const feedback = document.getElementById('demo-feedback').value;
+            
+            document.getElementById('result-email').textContent = email;
+            document.getElementById('result-feedback').textContent = feedback;
+            document.getElementById('demo-result').style.display = 'block';
+            
+            // Reset form after 3 seconds
+            setTimeout(() => {
+                document.getElementById('demo-form').reset();
+                document.getElementById('demo-result').style.display = 'none';
+            }, 3000);
+            
+            return false;
+        }
+        
+        // Validity state inspector
+        const validityEmail = document.getElementById('validity-email');
+        const validityOutput = document.getElementById('validity-output');
+        
+        if (validityEmail) {
+            validityEmail.addEventListener('input', (e) => {
+                const validity = e.target.validity;
+                
+                let html = '<div class="validity-item">ValidityState {</div>';
+                
+                for (let key in validity) {
+                    if (typeof validity[key] === 'boolean') {
+                        const cssClass = validity[key] ? 'validity-true' : 'validity-false';
+                        html += `<div class="validity-item">  ${key}: <span class="${cssClass}">${validity[key]}</span>,</div>`;
+                    }
+                }
+                
+                html += '<div class="validity-item">}</div>';
+                validityOutput.innerHTML = html;
+            });
+            
+            // Trigger initial state
+            validityEmail.dispatchEvent(new Event('input'));
+        }
+        
+        // Initialize
+        showSlide(currentSlide);
+    </script>
+</body>
+</html>

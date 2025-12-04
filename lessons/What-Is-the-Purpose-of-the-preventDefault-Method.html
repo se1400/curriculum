@@ -1,0 +1,767 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>preventDefault() Method Presentation</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            color: #2c3e50;
+            overflow-x: hidden;
+        }
+
+        .slide-container {
+            min-height: 100vh;
+            padding: 2rem;
+            padding-bottom: 100px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .slide {
+            display: none;
+            animation: fadeIn 0.5s ease-in;
+            background: white;
+            padding: 2.5rem;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        .slide.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        h1 {
+            color: #881518;
+            font-size: 2.5rem;
+            margin-bottom: 2rem;
+            border-bottom: 3px solid #881518;
+            padding-bottom: 0.5rem;
+        }
+
+        h2 {
+            color: #a81d21;
+            font-size: 2rem;
+            margin-bottom: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        h3 {
+            color: #c82428;
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        p {
+            font-size: 1.2rem;
+            line-height: 1.8;
+            margin-bottom: 1rem;
+            color: #34495e;
+        }
+
+        ul {
+            margin-left: 2rem;
+            margin-bottom: 1.5rem;
+        }
+
+        li {
+            font-size: 1.1rem;
+            line-height: 1.8;
+            margin-bottom: 0.8rem;
+            list-style-type: none;
+            position: relative;
+            padding-left: 1.5rem;
+            color: #34495e;
+        }
+
+        li:before {
+            content: "→";
+            color: #881518;
+            font-weight: bold;
+            position: absolute;
+            left: 0;
+        }
+
+        .concept-box {
+            background: linear-gradient(135deg, #fff5f5 0%, #ffe5e5 100%);
+            border-left: 4px solid #881518;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 8px;
+        }
+
+        .code-example {
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            overflow-x: auto;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        code {
+            color: #e83e8c;
+            font-family: 'Courier New', monospace;
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        .keyword {
+            color: #881518;
+            font-weight: 600;
+        }
+
+        .string {
+            color: #4caf50;
+        }
+
+        .comment {
+            color: #6c757d;
+            font-style: italic;
+        }
+
+        .highlight {
+            color: #881518;
+            font-weight: 600;
+            background: #fff5f5;
+            padding: 0.2rem 0.4rem;
+            border-radius: 3px;
+        }
+
+        .two-column {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+
+        .column {
+            background: #f8f9fa;
+            padding: 1.5rem;
+            border-radius: 8px;
+            border: 1px solid #e9ecef;
+        }
+
+        .nav-buttons {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(to top, rgba(255, 255, 255, 0.98) 0%, rgba(255, 255, 255, 0.95) 80%, transparent 100%);
+            padding: 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 1000;
+            box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        button {
+            background: #881518;
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            font-size: 1.1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            box-shadow: 0 4px 12px rgba(136, 21, 24, 0.2);
+        }
+
+        button:hover {
+            background: #a81d21;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(136, 21, 24, 0.3);
+        }
+
+        button:disabled {
+            background: #cbd5e0;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+            color: #a0aec0;
+        }
+
+        .slide-counter {
+            color: #718096;
+            font-size: 1rem;
+            font-weight: 600;
+        }
+
+        .example-box {
+            background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
+            border-left: 4px solid #4caf50;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 8px;
+        }
+
+        .info-box {
+            background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+            border-left: 4px solid #2196f3;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 8px;
+        }
+
+        .warning-box {
+            background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%);
+            border-left: 4px solid #ff9800;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 8px;
+        }
+
+        strong {
+            color: #881518;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 1.8rem;
+            }
+
+            h2 {
+                font-size: 1.5rem;
+            }
+
+            h3 {
+                font-size: 1.3rem;
+            }
+
+            p, li {
+                font-size: 1rem;
+            }
+
+            .slide-container {
+                padding: 1rem;
+                padding-bottom: 100px;
+            }
+
+            .slide {
+                padding: 1.5rem;
+            }
+
+            .two-column {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+
+            button {
+                padding: 0.8rem 1.5rem;
+                font-size: 1rem;
+            }
+
+            .nav-buttons {
+                padding: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="slide-container">
+        <!-- Slide 1: Introduction -->
+        <div class="slide active">
+            <h1>preventDefault() Method</h1>
+            
+            <div class="concept-box">
+                <h3>What is preventDefault()?</h3>
+                <p>The <span class="highlight">preventDefault()</span> method on event objects stops the default behavior of an event from happening.</p>
+            </div>
+
+            <h2>Understanding Default Behaviors</h2>
+            <p>Every event that triggers in the DOM has some sort of <strong>default behavior</strong>.</p>
+
+            <div class="example-box">
+                <h3>Common Default Behaviors</h3>
+                <ul>
+                    <li>Clicking a checkbox toggles its state</li>
+                    <li>Pressing space bar on a button activates it</li>
+                    <li>Typing in an input displays characters</li>
+                    <li>Submitting a form sends data and reloads the page</li>
+                    <li>Clicking a link navigates to a URL</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Slide 2: Why Use preventDefault? -->
+        <div class="slide">
+            <h1>Why Use preventDefault()?</h1>
+
+            <div class="concept-box">
+                <h3>Taking Control</h3>
+                <p>Sometimes you want to <span class="highlight">override the default behavior</span> and implement your own custom handling.</p>
+            </div>
+
+            <h2>Common Use Cases</h2>
+            <ul>
+                <li><strong>Custom Form Validation:</strong> Validate before submitting</li>
+                <li><strong>Ajax Form Submission:</strong> Submit without page reload</li>
+                <li><strong>Custom Input Handling:</strong> Process keystrokes differently</li>
+                <li><strong>Link Prevention:</strong> Trigger actions instead of navigation</li>
+                <li><strong>Custom Interactions:</strong> Create unique user experiences</li>
+            </ul>
+
+            <div class="info-box">
+                <h3>The Goal</h3>
+                <p>Give yourself the ability to <strong>implement custom event handling</strong> instead of accepting default browser behavior.</p>
+            </div>
+        </div>
+
+        <!-- Slide 3: Basic Input Example - Setup -->
+        <div class="slide">
+            <h1>Example: Custom Input Display</h1>
+
+            <div class="concept-box">
+                <h3>Our Goal</h3>
+                <p>Instead of showing characters in an input field, display them in a separate element.</p>
+            </div>
+
+            <h2>Step 1: Basic Input HTML</h2>
+            <div class="code-example">
+                <code>
+<span class="keyword">&lt;label&gt;</span>Enter some characters:<br>
+&nbsp;&nbsp;<span class="keyword">&lt;input</span> type=<span class="string">"text"</span><span class="keyword">&gt;</span><br>
+<span class="keyword">&lt;/label&gt;</span>
+                </code>
+            </div>
+
+            <div class="example-box">
+                <h3>Default Behavior</h3>
+                <p>With this HTML, we can type in the input field as expected. Characters appear where we type them.</p>
+            </div>
+        </div>
+
+        <!-- Slide 4: Adding Output Element -->
+        <div class="slide">
+            <h1>Step 2: Add Output Element</h1>
+
+            <div class="concept-box">
+                <h3>Display Characters Elsewhere</h3>
+                <p>We want to show the character the user types in a <strong>separate element</strong>.</p>
+            </div>
+
+            <h2>Updated HTML</h2>
+            <div class="code-example">
+                <code>
+<span class="keyword">&lt;label&gt;</span>Enter some characters:<br>
+&nbsp;&nbsp;<span class="keyword">&lt;input</span> type=<span class="string">"text"</span><span class="keyword">&gt;</span><br>
+<span class="keyword">&lt;/label&gt;</span><br>
+<span class="keyword">&lt;p</span> id=<span class="string">"output"</span><span class="keyword">&gt;&lt;/p&gt;</span>
+                </code>
+            </div>
+
+            <div class="info-box">
+                <h3>Next Step</h3>
+                <p>Now we need JavaScript to listen for keystrokes and display them in the paragraph element.</p>
+            </div>
+        </div>
+
+        <!-- Slide 5: Listening to keydown Event -->
+        <div class="slide">
+            <h1>Step 3: Listen to keydown Event</h1>
+
+            <div class="concept-box">
+                <h3>The keydown Event</h3>
+                <p>We need to hook into the <code>keydown</code> event to listen for characters being typed on the keyboard.</p>
+            </div>
+
+            <h2>JavaScript Setup</h2>
+            <div class="code-example">
+                <code>
+<span class="keyword">const</span> input = document.querySelector(<span class="string">"input"</span>);<br><br>
+input.addEventListener(<span class="string">"keydown"</span>, (e) => {<br>
+&nbsp;&nbsp;<span class="comment">// We'll add code here</span><br>
+});
+                </code>
+            </div>
+
+            <div class="info-box">
+                <h3>Why keydown?</h3>
+                <p>We use <code>keydown</code> instead of <code>change</code> or <code>input</code> events because we need the <strong>keyboard information</strong> (which key was pressed).</p>
+            </div>
+
+            <p><code>keydown</code> fires when you press down on a keyboard key.</p>
+        </div>
+
+        <!-- Slide 6: The e.key Property -->
+        <div class="slide">
+            <h1>Understanding e.key</h1>
+
+            <div class="concept-box">
+                <h3>Getting the Key Value</h3>
+                <p><code>e.key</code> gives you the <strong>value of the key pressed</strong>.</p>
+            </div>
+
+            <h2>Examples of e.key Values</h2>
+
+            <div class="two-column">
+                <div class="column">
+                    <h3>Letter Keys</h3>
+                    <ul>
+                        <li>Press 'a' → <code>e.key = "a"</code></li>
+                        <li>Press 'z' → <code>e.key = "z"</code></li>
+                        <li>Press 'A' → <code>e.key = "A"</code></li>
+                    </ul>
+                </div>
+
+                <div class="column">
+                    <h3>Special Keys</h3>
+                    <ul>
+                        <li>Enter → <code>e.key = "Enter"</code></li>
+                        <li>Space → <code>e.key = " "</code></li>
+                        <li>Escape → <code>e.key = "Escape"</code></li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="example-box">
+                <h3>Useful Property</h3>
+                <p>This property lets us know exactly which key the user pressed, enabling custom handling.</p>
+            </div>
+        </div>
+
+        <!-- Slide 7: Displaying the Character -->
+        <div class="slide">
+            <h1>Step 4: Display the Character</h1>
+
+            <div class="concept-box">
+                <h3>Show in Output Element</h3>
+                <p>Let's display the character in our paragraph element.</p>
+            </div>
+
+            <h2>Complete Code</h2>
+            <div class="code-example">
+                <code>
+<span class="keyword">const</span> input = document.querySelector(<span class="string">"input"</span>);<br>
+<span class="keyword">const</span> output = document.getElementById(<span class="string">"output"</span>);<br><br>
+input.addEventListener(<span class="string">"keydown"</span>, (e) => {<br>
+&nbsp;&nbsp;output.textContent += e.key;<br>
+});
+                </code>
+            </div>
+
+            <div class="example-box">
+                <h3>What Happens</h3>
+                <p>When you type in the input, the character you type will be <strong>displayed in the paragraph element</strong>.</p>
+                <p>However, it will <strong>also still appear in the input field</strong> - that's the default behavior.</p>
+            </div>
+        </div>
+
+        <!-- Slide 8: The Problem -->
+        <div class="slide">
+            <h1>The Problem</h1>
+
+            <div class="concept-box">
+                <h3>Unwanted Behavior</h3>
+                <p>Right now, characters appear in <strong>both places</strong>:</p>
+                <ul>
+                    <li>In the input field (default behavior)</li>
+                    <li>In the output paragraph (our custom handling)</li>
+                </ul>
+            </div>
+
+            <h2>What We Want</h2>
+            <div class="example-box">
+                <p>We <strong>don't want</strong> to show the characters in the input field.</p>
+                <p>We <strong>only want</strong> them to appear in the output paragraph.</p>
+            </div>
+
+            <div class="info-box">
+                <h3>The Solution</h3>
+                <p>This is where <code>preventDefault()</code> comes in!</p>
+            </div>
+        </div>
+
+        <!-- Slide 9: Using preventDefault() -->
+        <div class="slide">
+            <h1>Solution: preventDefault()</h1>
+
+            <div class="concept-box">
+                <h3>Stopping Default Behavior</h3>
+                <p>The default behavior of a <code>keydown</code> event is to <strong>render the character in the input</strong>.</p>
+                <p>Let's prevent that by calling <code>e.preventDefault()</code>.</p>
+            </div>
+
+            <h2>Updated Code</h2>
+            <div class="code-example">
+                <code>
+<span class="keyword">const</span> input = document.querySelector(<span class="string">"input"</span>);<br>
+<span class="keyword">const</span> output = document.getElementById(<span class="string">"output"</span>);<br><br>
+input.addEventListener(<span class="string">"keydown"</span>, (e) => {<br>
+&nbsp;&nbsp;e.preventDefault(); <span class="comment">// Stop default behavior!</span><br>
+&nbsp;&nbsp;output.textContent += e.key;<br>
+});
+                </code>
+            </div>
+
+            <div class="example-box">
+                <h3>Result</h3>
+                <p>Now the characters will <strong>only appear in the output paragraph</strong>, not in the input field!</p>
+            </div>
+        </div>
+
+        <!-- Slide 10: What We Accomplished -->
+        <div class="slide">
+            <h1>Custom Event Handling Achieved</h1>
+
+            <div class="concept-box">
+                <h3>Success!</h3>
+                <p>You have prevented the default behavior to allow yourself to <span class="highlight">implement your own custom event handling</span>.</p>
+            </div>
+
+            <h2>Before preventDefault()</h2>
+            <div class="two-column">
+                <div class="column">
+                    <h3>Input Field</h3>
+                    <p>✓ Characters appear</p>
+                </div>
+                <div class="column">
+                    <h3>Output Element</h3>
+                    <p>✓ Characters appear</p>
+                </div>
+            </div>
+
+            <h2>After preventDefault()</h2>
+            <div class="two-column">
+                <div class="column">
+                    <h3>Input Field</h3>
+                    <p>✗ Characters DON'T appear</p>
+                </div>
+                <div class="column">
+                    <h3>Output Element</h3>
+                    <p>✓ Characters appear</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 11: Form Submission Example -->
+        <div class="slide">
+            <h1>Common Example: Form Submission</h1>
+
+            <div class="concept-box">
+                <h3>Default Form Behavior</h3>
+                <p>By default, submitting a form:</p>
+                <ul>
+                    <li>Sends data to the server</li>
+                    <li>Reloads the page</li>
+                </ul>
+            </div>
+
+            <h2>Preventing Default Submission</h2>
+            <div class="code-example">
+                <code>
+<span class="keyword">const</span> form = document.querySelector(<span class="string">"form"</span>);<br><br>
+form.addEventListener(<span class="string">"submit"</span>, (e) => {<br>
+&nbsp;&nbsp;e.preventDefault(); <span class="comment">// Stop page reload!</span><br>
+&nbsp;&nbsp;<span class="comment">// Your custom form handling here</span><br>
+&nbsp;&nbsp;<span class="comment">// e.g., validate, send via Ajax, etc.</span><br>
+});
+                </code>
+            </div>
+
+            <div class="example-box">
+                <h3>Why This Is Useful</h3>
+                <p>Allows you to handle form submission with JavaScript (validation, Ajax) without the page reloading.</p>
+            </div>
+        </div>
+
+        <!-- Slide 12: More Form Examples -->
+        <div class="slide">
+            <h1>Custom Form Handling</h1>
+
+            <h2>Complete Form Example</h2>
+            <div class="code-example">
+                <code>
+<span class="keyword">const</span> form = document.querySelector(<span class="string">"form"</span>);<br><br>
+form.addEventListener(<span class="string">"submit"</span>, (e) => {<br>
+&nbsp;&nbsp;e.preventDefault();<br><br>
+&nbsp;&nbsp;<span class="comment">// Get form data</span><br>
+&nbsp;&nbsp;<span class="keyword">const</span> formData = <span class="keyword">new</span> FormData(form);<br><br>
+&nbsp;&nbsp;<span class="comment">// Validate</span><br>
+&nbsp;&nbsp;<span class="keyword">if</span> (isValid(formData)) {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="comment">// Send via Ajax</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;submitViaAjax(formData);<br>
+&nbsp;&nbsp;} <span class="keyword">else</span> {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="comment">// Show errors</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;showErrors();<br>
+&nbsp;&nbsp;}<br>
+});
+                </code>
+            </div>
+
+            <p>This approach gives you complete control over form submission.</p>
+        </div>
+
+        <!-- Slide 13: Accessibility Considerations -->
+        <div class="slide">
+            <h1>Important: Accessibility</h1>
+
+            <div class="warning-box">
+                <h3>⚠️ Critical Consideration</h3>
+                <p>Preventing default behavior is powerful, but it's important to keep <span class="highlight">accessibility</span> in mind.</p>
+            </div>
+
+            <h2>Best Practices</h2>
+            <div class="concept-box">
+                <h3>Maintain Features</h3>
+                <p>Your <strong>custom behavior should provide the same features</strong> as the default behavior.</p>
+            </div>
+
+            <div class="example-box">
+                <h3>Examples</h3>
+                <ul>
+                    <li>If you prevent form submission, ensure users can still submit via keyboard (Enter key)</li>
+                    <li>If you prevent link navigation, provide alternative navigation methods</li>
+                    <li>If you prevent checkbox toggling, ensure keyboard users can still interact</li>
+                    <li>Maintain focus management and keyboard accessibility</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Slide 14: When to Use preventDefault() -->
+        <div class="slide">
+            <h1>When to Use preventDefault()</h1>
+
+            <h2>Good Use Cases</h2>
+            <div class="example-box">
+                <ul>
+                    <li><strong>Form Validation:</strong> Check data before allowing submission</li>
+                    <li><strong>Ajax Submissions:</strong> Submit without page reload</li>
+                    <li><strong>Custom Interactions:</strong> Create unique user experiences</li>
+                    <li><strong>Single-Page Apps:</strong> Handle navigation without page changes</li>
+                    <li><strong>Special Input Handling:</strong> Implement custom keyboard behavior</li>
+                </ul>
+            </div>
+
+            <h2>When to Avoid</h2>
+            <div class="info-box">
+                <ul>
+                    <li>When default behavior is already what you want</li>
+                    <li>When you can't maintain accessibility features</li>
+                    <li>When it would confuse or frustrate users</li>
+                    <li>When standard behavior is expected</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Slide 15: Summary -->
+        <div class="slide">
+            <h1>Summary</h1>
+
+            <h2>Key Concepts</h2>
+
+            <div class="concept-box">
+                <h3>What is preventDefault()?</h3>
+                <p>A method on event objects that <strong>stops the default behavior</strong> of an event from happening.</p>
+            </div>
+
+            <div class="concept-box">
+                <h3>Common Uses</h3>
+                <ul>
+                    <li><strong>Forms:</strong> Prevent submission to handle with JavaScript</li>
+                    <li><strong>Inputs:</strong> Customize how input is processed</li>
+                    <li><strong>Links:</strong> Prevent navigation to run custom code</li>
+                    <li><strong>Buttons:</strong> Override default actions</li>
+                </ul>
+            </div>
+
+            <div class="concept-box">
+                <h3>Syntax</h3>
+                <div class="code-example" style="margin-top: 1rem;">
+                    <code>
+element.addEventListener(<span class="string">"event"</span>, (e) => {<br>
+&nbsp;&nbsp;e.preventDefault(); <span class="comment">// Stop default behavior</span><br>
+&nbsp;&nbsp;<span class="comment">// Your custom code here</span><br>
+});
+                    </code>
+                </div>
+            </div>
+
+            <div class="warning-box">
+                <h3>Remember</h3>
+                <p>Always maintain <strong>accessibility</strong> when overriding default behaviors. Your custom implementation should provide the same features.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="nav-buttons">
+        <button id="prevBtn" onclick="changeSlide(-1)">Previous</button>
+        <span class="slide-counter">
+            <span id="currentSlide">1</span> / <span id="totalSlides">15</span>
+        </span>
+        <button id="nextBtn" onclick="changeSlide(1)">Next</button>
+    </div>
+
+    <script>
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.slide');
+        const totalSlides = slides.length;
+        
+        document.getElementById('totalSlides').textContent = totalSlides;
+
+        function showSlide(n) {
+            slides.forEach(slide => slide.classList.remove('active'));
+            
+            if (n >= totalSlides) {
+                currentSlide = totalSlides - 1;
+            } else if (n < 0) {
+                currentSlide = 0;
+            } else {
+                currentSlide = n;
+            }
+            
+            slides[currentSlide].classList.add('active');
+            document.getElementById('currentSlide').textContent = currentSlide + 1;
+            
+            // Update button states
+            document.getElementById('prevBtn').disabled = currentSlide === 0;
+            document.getElementById('nextBtn').disabled = currentSlide === totalSlides - 1;
+            
+            // Scroll to top when changing slides
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function changeSlide(direction) {
+            showSlide(currentSlide + direction);
+        }
+
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowLeft') {
+                changeSlide(-1);
+            } else if (e.key === 'ArrowRight') {
+                changeSlide(1);
+            }
+        });
+
+        // Initialize
+        showSlide(0);
+    </script>
+</body>
+</html>
