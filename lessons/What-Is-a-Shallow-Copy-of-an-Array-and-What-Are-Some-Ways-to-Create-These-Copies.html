@@ -1,0 +1,757 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Array includes() Method</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #881518 0%, #a91d20 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .slide-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+            padding-bottom: 100px;
+            min-height: 100vh;
+        }
+
+        .slide {
+            display: none;
+            background: white;
+            border-radius: 12px;
+            padding: 2.5rem;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        .slide.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        h2 {
+            color: #881518;
+            font-size: 2rem;
+            margin-bottom: 1.5rem;
+            border-bottom: 3px solid #881518;
+            padding-bottom: 0.5rem;
+        }
+
+        .concept {
+            margin-bottom: 2rem;
+        }
+
+        .concept h3 {
+            color: #333;
+            font-size: 1.4rem;
+            margin-bottom: 1rem;
+        }
+
+        .concept-text {
+            color: #555;
+            font-size: 1.1rem;
+            line-height: 1.6;
+            margin-bottom: 1rem;
+        }
+
+        .code-example {
+            background: #f8f9fa;
+            border-left: 4px solid #881518;
+            padding: 1.5rem;
+            border-radius: 6px;
+            margin: 1rem 0;
+            overflow-x: auto;
+        }
+
+        .code-example pre {
+            margin: 0;
+            font-family: 'Courier New', monospace;
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+
+        .code-example code {
+            color: #333;
+        }
+
+        .keyword {
+            color: #0066cc;
+            font-weight: bold;
+        }
+
+        .string {
+            color: #22863a;
+        }
+
+        .comment {
+            color: #6a737d;
+            font-style: italic;
+        }
+
+        .output {
+            background: #e8f4f8;
+            border-left: 4px solid #0066cc;
+            padding: 1rem;
+            margin-top: 0.5rem;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+        }
+
+        .output.true {
+            background: #d4edda;
+            border-color: #28a745;
+            color: #155724;
+        }
+
+        .output.false {
+            background: #f8d7da;
+            border-color: #dc3545;
+            color: #721c24;
+        }
+
+        .highlight {
+            background: #fff3cd;
+            padding: 0.2rem 0.4rem;
+            border-radius: 3px;
+            font-weight: 600;
+        }
+
+        .syntax-box {
+            background: #f8f9fa;
+            border: 2px solid #881518;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin: 1.5rem 0;
+            font-family: 'Courier New', monospace;
+            font-size: 1.1rem;
+            text-align: center;
+            color: #333;
+        }
+
+        .comparison-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            margin: 1.5rem 0;
+        }
+
+        .comparison-box {
+            background: #f8f9fa;
+            padding: 1.5rem;
+            border-radius: 8px;
+            border: 2px solid #881518;
+        }
+
+        .comparison-box h4 {
+            color: #881518;
+            margin-bottom: 1rem;
+            font-size: 1.2rem;
+        }
+
+        .info-box {
+            background: #e7f3ff;
+            border-left: 4px solid #0066cc;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 4px;
+        }
+
+        .info-box strong {
+            color: #004085;
+        }
+
+        .warning-box {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 4px;
+        }
+
+        .warning-box strong {
+            color: #856404;
+        }
+
+        .visual-demo {
+            background: #f8f9fa;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin: 1.5rem 0;
+            border: 2px solid #881518;
+        }
+
+        .array-visual {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin: 1rem 0;
+        }
+
+        .array-item {
+            background: white;
+            border: 2px solid #881518;
+            padding: 0.8rem 1.2rem;
+            border-radius: 6px;
+            font-family: 'Courier New', monospace;
+            position: relative;
+        }
+
+        .array-item .index-label {
+            position: absolute;
+            top: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.85rem;
+            color: #881518;
+            font-weight: bold;
+        }
+
+        .array-item.highlight {
+            background: #d4edda;
+            border-color: #28a745;
+            box-shadow: 0 0 10px rgba(40, 167, 69, 0.5);
+        }
+
+        .array-item.skipped {
+            opacity: 0.3;
+        }
+
+        .boolean-badge {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+
+        .boolean-badge.true {
+            background: #d4edda;
+            color: #155724;
+            border: 2px solid #28a745;
+        }
+
+        .boolean-badge.false {
+            background: #f8d7da;
+            color: #721c24;
+            border: 2px solid #dc3545;
+        }
+
+        .navigation {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0, 0, 0, 0.9);
+            padding: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.3);
+            z-index: 1000;
+        }
+
+        .nav-button {
+            background: #881518;
+            color: white;
+            border: none;
+            padding: 0.8rem 2rem;
+            font-size: 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+        }
+
+        .nav-button:hover {
+            background: #a91d20;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(136, 21, 24, 0.4);
+        }
+
+        .nav-button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .slide-counter {
+            color: white;
+            font-size: 1rem;
+            font-weight: 600;
+        }
+
+        @media (max-width: 768px) {
+            .slide-container {
+                padding: 1rem;
+                padding-bottom: 100px;
+            }
+
+            .slide {
+                padding: 1.5rem;
+            }
+
+            h2 {
+                font-size: 1.5rem;
+            }
+
+            .concept h3 {
+                font-size: 1.2rem;
+            }
+
+            .concept-text {
+                font-size: 1rem;
+            }
+
+            .nav-button {
+                padding: 0.7rem 1.2rem;
+                font-size: 0.9rem;
+            }
+
+            .comparison-container {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+
+            .code-example {
+                padding: 1rem;
+            }
+
+            .code-example pre {
+                font-size: 0.85rem;
+            }
+
+            .array-visual {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .navigation {
+                padding: 0.8rem;
+            }
+
+            .nav-button {
+                padding: 0.6rem 1rem;
+                font-size: 0.85rem;
+            }
+
+            .slide-counter {
+                font-size: 0.9rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="slide-container">
+        <!-- Slide 1: Introduction -->
+        <div class="slide active">
+            <h2>The includes() Method</h2>
+            
+            <div class="concept">
+                <h3>What Is includes()?</h3>
+                <p class="concept-text">
+                    The <span class="highlight">includes()</span> method is a simple and efficient way to check if an array contains a specific value.
+                </p>
+                <p class="concept-text">
+                    This method returns a <strong>boolean value</strong>:
+                </p>
+                <ul style="margin-left: 2rem; color: #555; font-size: 1.1rem; line-height: 1.8;">
+                    <li><span class="boolean-badge true">true</span> if the array contains the specified element</li>
+                    <li><span class="boolean-badge false">false</span> if the element is not found</li>
+                </ul>
+            </div>
+
+            <div class="concept">
+                <h3>Basic Syntax</h3>
+                <div class="syntax-box">
+                    array.includes(searchElement, fromIndex)
+                </div>
+            </div>
+
+            <div class="info-box">
+                <strong>Key Benefit:</strong>
+                <p style="margin-top: 0.5rem; color: #555; line-height: 1.6;">
+                    The <code style="background: white; padding: 0.2rem 0.5rem;">includes()</code> method is particularly useful when you need to quickly verify the presence of an element without needing to know its exact position.
+                </p>
+            </div>
+        </div>
+
+        <!-- Slide 2: Basic Usage -->
+        <div class="slide">
+            <h2>Basic Usage Examples</h2>
+            
+            <div class="concept">
+                <h3>Checking for Elements</h3>
+                
+                <div class="code-example">
+                    <pre><code><span class="keyword">let</span> fruits = [<span class="string">"apple"</span>, <span class="string">"banana"</span>, <span class="string">"orange"</span>, <span class="string">"mango"</span>];
+
+console.log(fruits.includes(<span class="string">"banana"</span>)); <span class="comment">// true</span>
+console.log(fruits.includes(<span class="string">"grape"</span>));  <span class="comment">// false</span></code></pre>
+                    <div class="output">
+                        <div class="boolean-badge true">true</div> - "banana" is in the array<br><br>
+                        <div class="boolean-badge false">false</div> - "grape" is not in the array
+                    </div>
+                </div>
+            </div>
+
+            <div class="visual-demo">
+                <h4 style="color: #881518; margin-bottom: 1rem; text-align: center;">Visual Representation</h4>
+                <p style="text-align: center; margin-bottom: 1rem; color: #555;">
+                    Searching for "banana":
+                </p>
+                <div class="array-visual">
+                    <div class="array-item">
+                        <div class="index-label">Index 0</div>
+                        "apple"
+                    </div>
+                    <div class="array-item highlight">
+                        <div class="index-label">Index 1 ✓</div>
+                        "banana"
+                    </div>
+                    <div class="array-item">
+                        <div class="index-label">Index 2</div>
+                        "orange"
+                    </div>
+                    <div class="array-item">
+                        <div class="index-label">Index 3</div>
+                        "mango"
+                    </div>
+                </div>
+                <div style="text-align: center; margin-top: 1rem;">
+                    <span class="boolean-badge true">includes("banana") → true</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 3: Case Sensitivity -->
+        <div class="slide">
+            <h2>Case Sensitivity</h2>
+            
+            <div class="concept">
+                <h3>String Comparisons Are Case-Sensitive</h3>
+                <p class="concept-text">
+                    The <code style="background: #f0f0f0; padding: 0.2rem 0.5rem;">includes()</code> method is <span class="highlight">case-sensitive</span> when dealing with strings.
+                </p>
+                <p class="concept-text">
+                    <code style="background: #f0f0f0; padding: 0.2rem 0.5rem;">"Banana"</code> (capital B) and <code style="background: #f0f0f0; padding: 0.2rem 0.5rem;">"banana"</code> (lowercase) are considered <strong>different values</strong>.
+                </p>
+                
+                <div class="code-example">
+                    <pre><code><span class="keyword">let</span> fruits = [<span class="string">"apple"</span>, <span class="string">"banana"</span>, <span class="string">"orange"</span>];
+
+console.log(fruits.includes(<span class="string">"banana"</span>)); <span class="comment">// true</span>
+console.log(fruits.includes(<span class="string">"Banana"</span>)); <span class="comment">// false</span></code></pre>
+                    <div class="output">
+                        <div class="boolean-badge true">true</div> - "banana" matches exactly<br><br>
+                        <div class="boolean-badge false">false</div> - "Banana" does not match (different case)
+                    </div>
+                </div>
+            </div>
+
+            <div class="comparison-container">
+                <div class="comparison-box" style="border-color: #28a745;">
+                    <h4 style="color: #28a745;">✓ Found</h4>
+                    <div style="font-family: 'Courier New', monospace; color: #333; margin-top: 1rem; line-height: 2;">
+                        Array: ["apple", "banana", "orange"]<br>
+                        Search: "banana"<br>
+                        Result: <span class="boolean-badge true">true</span>
+                    </div>
+                </div>
+
+                <div class="comparison-box" style="border-color: #dc3545;">
+                    <h4 style="color: #dc3545;">✗ Not Found</h4>
+                    <div style="font-family: 'Courier New', monospace; color: #333; margin-top: 1rem; line-height: 2;">
+                        Array: ["apple", "banana", "orange"]<br>
+                        Search: "Banana"<br>
+                        Result: <span class="boolean-badge false">false</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="warning-box">
+                <strong>Remember:</strong>
+                <p style="margin-top: 0.5rem; color: #856404;">
+                    Always match the exact case of the string when using <code style="background: white; padding: 0.2rem 0.5rem;">includes()</code>. Even a single letter's capitalization difference will result in <strong>false</strong>.
+                </p>
+            </div>
+        </div>
+
+        <!-- Slide 4: fromIndex Parameter -->
+        <div class="slide">
+            <h2>Starting Position: fromIndex</h2>
+            
+            <div class="concept">
+                <h3>Optional Second Parameter</h3>
+                <p class="concept-text">
+                    The <code style="background: #f0f0f0; padding: 0.2rem 0.5rem;">includes()</code> method accepts an optional <span class="highlight">second parameter</span> that specifies the position to start the search.
+                </p>
+                <p class="concept-text">
+                    This is useful if you want to check for an element's presence in a <strong>specific part</strong> of the array.
+                </p>
+                
+                <div class="code-example">
+                    <pre><code><span class="keyword">let</span> numbers = [10, 20, 30, 40, 50, 30, 60];
+
+console.log(numbers.includes(30, 3)); <span class="comment">// true</span>
+console.log(numbers.includes(30, 4)); <span class="comment">// true</span></code></pre>
+                    <div class="output true">
+                        Both return true because 30 appears after the specified starting positions
+                    </div>
+                </div>
+            </div>
+
+            <div class="visual-demo">
+                <h4 style="color: #881518; margin-bottom: 1rem; text-align: center;">Example: includes(30, 3)</h4>
+                <p style="text-align: center; margin-bottom: 0.5rem; color: #555;">
+                    Start searching from index 3:
+                </p>
+                <div class="array-visual">
+                    <div class="array-item skipped">
+                        <div class="index-label">Index 0</div>
+                        10
+                    </div>
+                    <div class="array-item skipped">
+                        <div class="index-label">Index 1</div>
+                        20
+                    </div>
+                    <div class="array-item skipped">
+                        <div class="index-label">Index 2</div>
+                        30
+                    </div>
+                    <div class="array-item" style="border-color: #0066cc;">
+                        <div class="index-label">Index 3 (Start)</div>
+                        40
+                    </div>
+                    <div class="array-item">
+                        <div class="index-label">Index 4</div>
+                        50
+                    </div>
+                    <div class="array-item highlight">
+                        <div class="index-label">Index 5 ✓</div>
+                        30
+                    </div>
+                    <div class="array-item">
+                        <div class="index-label">Index 6</div>
+                        60
+                    </div>
+                </div>
+                <div style="text-align: center; margin-top: 1rem;">
+                    <span class="boolean-badge true">Found 30 at index 5 → true</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 5: Strict Equality -->
+        <div class="slide">
+            <h2>Strict Equality (===)</h2>
+            
+            <div class="concept">
+                <h3>Type Matters!</h3>
+                <p class="concept-text">
+                    The <code style="background: #f0f0f0; padding: 0.2rem 0.5rem;">includes()</code> method uses <span class="highlight">strict equality comparison (===)</span>, which means it can distinguish between different types.
+                </p>
+                
+                <div class="code-example">
+                    <pre><code><span class="keyword">let</span> mixedArray = [1, <span class="string">"2"</span>, 3, <span class="string">"4"</span>, 5];
+
+console.log(mixedArray.includes(2));    <span class="comment">// false (number)</span>
+console.log(mixedArray.includes(<span class="string">"2"</span>));  <span class="comment">// true (string)</span></code></pre>
+                    <div class="output">
+                        <div class="boolean-badge false">false</div> - Searching for number 2, but array has string "2"<br><br>
+                        <div class="boolean-badge true">true</div> - Searching for string "2", which exists in array
+                    </div>
+                </div>
+            </div>
+
+            <div class="visual-demo">
+                <h4 style="color: #881518; margin-bottom: 1rem; text-align: center;">Type Comparison</h4>
+                <div style="text-align: center; margin-bottom: 1.5rem;">
+                    <div style="font-family: 'Courier New', monospace; color: #555; line-height: 2;">
+                        Array: [1, <span style="background: #fff3cd; padding: 0.2rem 0.5rem;">"2"</span>, 3, "4", 5]
+                    </div>
+                </div>
+                
+                <div class="comparison-container">
+                    <div class="comparison-box" style="border-color: #dc3545;">
+                        <h4 style="color: #dc3545;">Search for: 2 (number)</h4>
+                        <div style="margin-top: 1rem; padding: 1rem; background: white; border-radius: 6px;">
+                            <div style="font-family: 'Courier New', monospace; color: #333;">
+                                2 !== "2"
+                            </div>
+                            <div style="margin-top: 0.5rem; color: #555;">
+                                Number vs String
+                            </div>
+                            <div style="margin-top: 1rem;">
+                                <span class="boolean-badge false">false</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="comparison-box" style="border-color: #28a745;">
+                        <h4 style="color: #28a745;">Search for: "2" (string)</h4>
+                        <div style="margin-top: 1rem; padding: 1rem; background: white; border-radius: 6px;">
+                            <div style="font-family: 'Courier New', monospace; color: #333;">
+                                "2" === "2"
+                            </div>
+                            <div style="margin-top: 0.5rem; color: #555;">
+                                String vs String
+                            </div>
+                            <div style="margin-top: 1rem;">
+                                <span class="boolean-badge true">true</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="info-box">
+                <strong>Key Concept:</strong>
+                <p style="margin-top: 0.5rem; color: #555;">
+                    The number <code style="background: white; padding: 0.2rem 0.5rem;">2</code> and the string <code style="background: white; padding: 0.2rem 0.5rem;">"2"</code> are considered <strong>different data types</strong>, so they are not equal under strict comparison.
+                </p>
+            </div>
+        </div>
+
+        <!-- Slide 6: Summary -->
+        <div class="slide">
+            <h2>Summary & Benefits</h2>
+            
+            <div class="concept">
+                <h3>Why Use includes()?</h3>
+                <div style="background: #f8f9fa; padding: 1.5rem; border-radius: 8px; border-left: 4px solid #881518;">
+                    <ul style="color: #333; font-size: 1.05rem; line-height: 1.8; list-style-position: inside;">
+                        <li><strong>Simple:</strong> Easy to use and understand</li>
+                        <li><strong>Efficient:</strong> Returns boolean for quick checks</li>
+                        <li><strong>Readable:</strong> Makes code more maintainable</li>
+                        <li><strong>Versatile:</strong> Works with strings, numbers, and mixed types</li>
+                        <li><strong>No loops needed:</strong> Saves you from writing complex conditions</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="concept">
+                <h3>Key Behaviors to Remember</h3>
+                <div class="warning-box">
+                    <strong>Important Points:</strong>
+                    <div style="margin-top: 1rem; color: #856404; line-height: 1.8;">
+                        ✓ Returns <strong>boolean</strong> (true/false), not an index<br>
+                        ✓ <strong>Case-sensitive</strong> for strings<br>
+                        ✓ Uses <strong>strict equality (===)</strong> for comparison<br>
+                        ✓ Can start search from specific position with <code style="background: white; padding: 0.2rem 0.5rem;">fromIndex</code><br>
+                        ✓ Distinguishes between different data types
+                    </div>
+                </div>
+            </div>
+
+            <div class="concept">
+                <h3>Quick Reference</h3>
+                <div class="info-box">
+                    <div style="font-family: 'Courier New', monospace; color: #333; line-height: 2;">
+                        <strong style="color: #004085;">Syntax:</strong><br>
+                        array.includes(searchElement, fromIndex)
+                    </div>
+                    <div style="margin-top: 1rem; color: #555; line-height: 1.8;">
+                        <strong>searchElement:</strong> The value to search for<br>
+                        <strong>fromIndex:</strong> (Optional) Position to start searching
+                    </div>
+                </div>
+            </div>
+
+            <div class="concept">
+                <h3>Common Use Cases</h3>
+                <div style="background: #e7f3ff; padding: 1.5rem; border-radius: 8px; margin-top: 1rem;">
+                    <ul style="color: #333; font-size: 1.05rem; line-height: 1.8; list-style-position: inside;">
+                        <li>Validating user input against a whitelist</li>
+                        <li>Checking if an item exists before processing</li>
+                        <li>Filtering or conditional logic based on array contents</li>
+                        <li>Quick membership tests without needing the position</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="navigation">
+        <button class="nav-button" id="prevBtn" onclick="changeSlide(-1)">← Previous</button>
+        <span class="slide-counter">
+            <span id="currentSlide">1</span> / <span id="totalSlides">6</span>
+        </span>
+        <button class="nav-button" id="nextBtn" onclick="changeSlide(1)">Next →</button>
+    </div>
+
+    <script>
+        let currentSlide = 1;
+        const totalSlides = document.querySelectorAll('.slide').length;
+        
+        document.getElementById('totalSlides').textContent = totalSlides;
+        
+        function showSlide(n) {
+            const slides = document.querySelectorAll('.slide');
+            
+            if (n > totalSlides) {
+                currentSlide = totalSlides;
+            }
+            if (n < 1) {
+                currentSlide = 1;
+            }
+            
+            slides.forEach(slide => {
+                slide.classList.remove('active');
+            });
+            
+            slides[currentSlide - 1].classList.add('active');
+            
+            document.getElementById('currentSlide').textContent = currentSlide;
+            
+            // Update button states
+            document.getElementById('prevBtn').disabled = currentSlide === 1;
+            document.getElementById('nextBtn').disabled = currentSlide === totalSlides;
+            
+            // Scroll to top of slide
+            window.scrollTo(0, 0);
+        }
+        
+        function changeSlide(direction) {
+            currentSlide += direction;
+            showSlide(currentSlide);
+        }
+        
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowLeft') {
+                changeSlide(-1);
+            } else if (e.key === 'ArrowRight') {
+                changeSlide(1);
+            }
+        });
+        
+        // Initialize
+        showSlide(currentSlide);
+    </script>
+</body>
+</html>

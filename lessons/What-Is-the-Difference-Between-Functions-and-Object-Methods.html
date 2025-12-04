@@ -1,0 +1,750 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Functions vs Object Methods</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #881518 0%, #a91d20 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .slide-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+            padding-bottom: 100px;
+            min-height: 100vh;
+        }
+
+        .slide {
+            display: none;
+            background: white;
+            border-radius: 12px;
+            padding: 2.5rem;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        .slide.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        h2 {
+            color: #881518;
+            font-size: 2rem;
+            margin-bottom: 1.5rem;
+            border-bottom: 3px solid #881518;
+            padding-bottom: 0.5rem;
+        }
+
+        .concept {
+            margin-bottom: 2rem;
+        }
+
+        .concept h3 {
+            color: #333;
+            font-size: 1.4rem;
+            margin-bottom: 1rem;
+        }
+
+        .concept-text {
+            color: #555;
+            font-size: 1.1rem;
+            line-height: 1.6;
+            margin-bottom: 1rem;
+        }
+
+        .code-example {
+            background: #f8f9fa;
+            border-left: 4px solid #881518;
+            padding: 1.5rem;
+            border-radius: 6px;
+            margin: 1rem 0;
+            overflow-x: auto;
+        }
+
+        .code-example pre {
+            margin: 0;
+            font-family: 'Courier New', monospace;
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+
+        .code-example code {
+            color: #333;
+        }
+
+        .keyword {
+            color: #0066cc;
+            font-weight: bold;
+        }
+
+        .string {
+            color: #22863a;
+        }
+
+        .comment {
+            color: #6a737d;
+            font-style: italic;
+        }
+
+        .output {
+            background: #e8f4f8;
+            border-left: 4px solid #0066cc;
+            padding: 1rem;
+            margin-top: 0.5rem;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+        }
+
+        .highlight {
+            background: #fff3cd;
+            padding: 0.2rem 0.4rem;
+            border-radius: 3px;
+            font-weight: 600;
+        }
+
+        .info-box {
+            background: #e7f3ff;
+            border-left: 4px solid #0066cc;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 4px;
+        }
+
+        .info-box strong {
+            color: #004085;
+        }
+
+        .warning-box {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 4px;
+        }
+
+        .warning-box strong {
+            color: #856404;
+        }
+
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            margin: 1.5rem 0;
+        }
+
+        .comparison-box {
+            background: #f8f9fa;
+            padding: 1.5rem;
+            border-radius: 8px;
+            border: 2px solid #881518;
+        }
+
+        .comparison-box h4 {
+            color: #881518;
+            margin-bottom: 1rem;
+            font-size: 1.2rem;
+        }
+
+        .invocation-example {
+            background: white;
+            border: 2px solid #881518;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+            text-align: center;
+        }
+
+        .invocation-code {
+            font-family: 'Courier New', monospace;
+            font-size: 1.2rem;
+            color: #881518;
+            background: #f8f9fa;
+            padding: 1rem;
+            border-radius: 6px;
+            margin: 1rem 0;
+        }
+
+        .navigation {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0, 0, 0, 0.9);
+            padding: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.3);
+            z-index: 1000;
+        }
+
+        .nav-button {
+            background: #881518;
+            color: white;
+            border: none;
+            padding: 0.8rem 2rem;
+            font-size: 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+        }
+
+        .nav-button:hover {
+            background: #a91d20;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(136, 21, 24, 0.4);
+        }
+
+        .nav-button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .slide-counter {
+            color: white;
+            font-size: 1rem;
+            font-weight: 600;
+        }
+
+        @media (max-width: 768px) {
+            .slide-container {
+                padding: 1rem;
+                padding-bottom: 100px;
+            }
+
+            .slide {
+                padding: 1.5rem;
+            }
+
+            h2 {
+                font-size: 1.5rem;
+            }
+
+            .concept h3 {
+                font-size: 1.2rem;
+            }
+
+            .concept-text {
+                font-size: 1rem;
+            }
+
+            .nav-button {
+                padding: 0.7rem 1.2rem;
+                font-size: 0.9rem;
+            }
+
+            .comparison-grid {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+
+            .code-example {
+                padding: 1rem;
+            }
+
+            .code-example pre {
+                font-size: 0.85rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .navigation {
+                padding: 0.8rem;
+            }
+
+            .nav-button {
+                padding: 0.6rem 1rem;
+                font-size: 0.85rem;
+            }
+
+            .slide-counter {
+                font-size: 0.9rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="slide-container">
+        <!-- Slide 1: Introduction -->
+        <div class="slide active">
+            <h2>Functions vs Object Methods</h2>
+            
+            <div class="concept">
+                <h3>Two Ways to Encapsulate Code</h3>
+                <p class="concept-text">
+                    In JavaScript, <span class="highlight">functions</span> and <span class="highlight">object methods</span> are both ways to encapsulate reusable code, but they have key differences in:
+                </p>
+                <ul style="margin-left: 2rem; color: #555; font-size: 1.1rem; line-height: 1.8;">
+                    <li>How they are defined</li>
+                    <li>How they are used</li>
+                    <li>The context in which they operate</li>
+                </ul>
+            </div>
+
+            <div class="concept">
+                <h3>Why Understanding This Matters</h3>
+                <p class="concept-text">
+                    Understanding these differences is <strong>crucial</strong> for writing:
+                </p>
+                <ul style="margin-left: 2rem; color: #555; font-size: 1.1rem; line-height: 1.8;">
+                    <li>Effective JavaScript code</li>
+                    <li>Organized and maintainable programs</li>
+                    <li>Object-oriented applications</li>
+                </ul>
+            </div>
+
+            <div class="comparison-grid">
+                <div class="comparison-box" style="border-color: #28a745;">
+                    <h4 style="color: #28a745;">Functions</h4>
+                    <p style="color: #555; line-height: 1.6;">
+                        <strong>Standalone</strong> blocks of reusable code that perform specific tasks
+                    </p>
+                    <div style="margin-top: 1rem; padding: 1rem; background: white; border-radius: 6px; font-family: 'Courier New', monospace; font-size: 0.9rem;">
+                        function greet(name) {<br>
+                        &nbsp;&nbsp;return "Hello, " + name;<br>
+                        }
+                    </div>
+                </div>
+
+                <div class="comparison-box" style="border-color: #0066cc;">
+                    <h4 style="color: #0066cc;">Object Methods</h4>
+                    <p style="color: #555; line-height: 1.6;">
+                        Functions <strong>associated with objects</strong> that can access object data
+                    </p>
+                    <div style="margin-top: 1rem; padding: 1rem; background: white; border-radius: 6px; font-family: 'Courier New', monospace; font-size: 0.9rem;">
+                        const obj = {<br>
+                        &nbsp;&nbsp;greet: function() {...}<br>
+                        };
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 2: Regular Functions -->
+        <div class="slide">
+            <h2>Regular Functions</h2>
+            
+            <div class="concept">
+                <h3>What Are Functions?</h3>
+                <p class="concept-text">
+                    Functions are <span class="highlight">reusable blocks of code</span> that perform a specific task. They are standalone and can be called from anywhere in your code.
+                </p>
+                
+                <div class="code-example">
+                    <pre><code><span class="keyword">function</span> greet(name) {
+    <span class="keyword">return</span> <span class="string">"Hello, "</span> + name + <span class="string">"!"</span>;
+}
+
+console.log(greet(<span class="string">"Alice"</span>)); <span class="comment">// "Hello, Alice!"</span></code></pre>
+                    <div class="output">"Hello, Alice!"</div>
+                </div>
+            </div>
+
+            <div class="concept">
+                <h3>Key Characteristics</h3>
+                <div style="background: #f8f9fa; padding: 1.5rem; border-radius: 8px; border-left: 4px solid #881518;">
+                    <ul style="color: #555; font-size: 1.05rem; line-height: 1.8; margin-left: 1.5rem;">
+                        <li><strong>Independent:</strong> Not tied to any specific object</li>
+                        <li><strong>Reusable:</strong> Can be called from anywhere</li>
+                        <li><strong>General purpose:</strong> For tasks that aren't object-specific</li>
+                        <li><strong>Own scope:</strong> Have their own execution context</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="concept">
+                <h3>How to Call a Function</h3>
+                <div class="invocation-example">
+                    <div style="color: #555; margin-bottom: 1rem;">
+                        Call by <strong>function name</strong> with parentheses:
+                    </div>
+                    <div class="invocation-code">
+                        greet("Alice")
+                    </div>
+                </div>
+            </div>
+
+            <div class="info-box">
+                <strong>Use Functions When:</strong>
+                <p style="margin-top: 0.5rem; color: #555;">
+                    You need general, reusable code that isn't tied to a specific object or when performing calculations, transformations, or operations that stand alone.
+                </p>
+            </div>
+        </div>
+
+        <!-- Slide 3: Object Methods -->
+        <div class="slide">
+            <h2>Object Methods</h2>
+            
+            <div class="concept">
+                <h3>What Are Methods?</h3>
+                <p class="concept-text">
+                    <span class="highlight">Object methods</span> are functions that are <strong>associated with an object</strong>. They are defined as properties of an object and can access and manipulate the object's data.
+                </p>
+                
+                <div class="code-example">
+                    <pre><code><span class="keyword">const</span> person = {
+    name: <span class="string">"Bob"</span>,
+    age: 30,
+    sayHello: <span class="keyword">function</span>() {
+        <span class="keyword">return</span> <span class="string">"Hello, my name is "</span> + <span class="keyword">this</span>.name;
+    }
+};
+
+console.log(person.sayHello()); <span class="comment">// "Hello, my name is Bob"</span></code></pre>
+                    <div class="output">"Hello, my name is Bob"</div>
+                </div>
+            </div>
+
+            <div class="concept">
+                <h3>Key Characteristics</h3>
+                <div style="background: #f8f9fa; padding: 1.5rem; border-radius: 8px; border-left: 4px solid #881518;">
+                    <ul style="color: #555; font-size: 1.05rem; line-height: 1.8; margin-left: 1.5rem;">
+                        <li><strong>Object-bound:</strong> Part of an object's properties</li>
+                        <li><strong>Access to object data:</strong> Can use <code style="background: white; padding: 0.2rem 0.5rem;">this</code> keyword</li>
+                        <li><strong>Organized:</strong> Group related functionality with data</li>
+                        <li><strong>Contextual:</strong> Operate within the object's context</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="concept">
+                <h3>How to Call a Method</h3>
+                <div class="invocation-example">
+                    <div style="color: #555; margin-bottom: 1rem;">
+                        Call using <strong>dot notation</strong> on the object:
+                    </div>
+                    <div class="invocation-code">
+                        person.sayHello()
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 4: The this Keyword -->
+        <div class="slide">
+            <h2>The this Keyword in Methods</h2>
+            
+            <div class="concept">
+                <h3>Accessing Object Properties</h3>
+                <p class="concept-text">
+                    The <span class="highlight">this</span> keyword allows a method to access the properties of the object it belongs to.
+                </p>
+                
+                <div class="code-example">
+                    <pre><code><span class="keyword">const</span> person = {
+    name: <span class="string">"Bob"</span>,
+    age: 30,
+    sayHello: <span class="keyword">function</span>() {
+        <span class="keyword">return</span> <span class="string">"Hello, my name is "</span> + <span class="keyword">this</span>.name;
+        <span class="comment">// 'this' refers to the 'person' object</span>
+    }
+};</code></pre>
+                </div>
+            </div>
+
+            <div class="concept">
+                <h3>Breaking It Down</h3>
+                <div style="background: #f8f9fa; padding: 1.5rem; border-radius: 8px; margin: 1rem 0; border: 2px solid #881518;">
+                    <div style="font-family: 'Courier New', monospace; line-height: 2.5; color: #333;">
+                        <div style="padding: 0.8rem; background: white; margin: 0.5rem 0; border-radius: 6px; border-left: 4px solid #881518;">
+                            <strong>this.name</strong> → Accesses the <code style="background: #f0f0f0; padding: 0.2rem 0.5rem;">name</code> property of <code style="background: #f0f0f0; padding: 0.2rem 0.5rem;">person</code>
+                        </div>
+                        <div style="padding: 0.8rem; background: white; margin: 0.5rem 0; border-radius: 6px; border-left: 4px solid #28a745;">
+                            <strong>this.age</strong> → Would access the <code style="background: #f0f0f0; padding: 0.2rem 0.5rem;">age</code> property of <code style="background: #f0f0f0; padding: 0.2rem 0.5rem;">person</code>
+                        </div>
+                        <div style="padding: 0.8rem; background: white; margin: 0.5rem 0; border-radius: 6px; border-left: 4px solid #0066cc;">
+                            <strong>this</strong> = <strong>person</strong> (the object calling the method)
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="info-box">
+                <strong>Important Note:</strong>
+                <p style="margin-top: 0.5rem; color: #555;">
+                    In this example, <code style="background: white; padding: 0.2rem 0.5rem;">sayHello</code> is a method of the <code style="background: white; padding: 0.2rem 0.5rem;">person</code> object. The <code style="background: white; padding: 0.2rem 0.5rem;">this</code> keyword allows the method to access the object's properties. You will learn more about <code style="background: white; padding: 0.2rem 0.5rem;">this</code> in future lessons.
+                </p>
+            </div>
+        </div>
+
+        <!-- Slide 5: Invocation Differences -->
+        <div class="slide">
+            <h2>How They Are Invoked</h2>
+            
+            <div class="concept">
+                <h3>Different Calling Patterns</h3>
+                <p class="concept-text">
+                    A key difference between functions and methods is <span class="highlight">how they are invoked</span> (called).
+                </p>
+            </div>
+
+            <div class="comparison-grid">
+                <div class="comparison-box" style="border-color: #28a745;">
+                    <h4 style="color: #28a745;">Functions</h4>
+                    <p style="color: #555; margin-bottom: 1rem;">
+                        Called by their <strong>name</strong>
+                    </p>
+                    <div class="code-example" style="margin: 0; border-left-color: #28a745;">
+                        <pre><code><span class="keyword">function</span> greet(name) {
+    <span class="keyword">return</span> <span class="string">"Hello, "</span> + name;
+}
+
+<span class="comment">// Called by name:</span>
+greet(<span class="string">"Alice"</span>);</code></pre>
+                    </div>
+                    <div class="invocation-code" style="background: #d4edda; border: 2px solid #28a745; margin-top: 1rem;">
+                        functionName(arguments)
+                    </div>
+                </div>
+
+                <div class="comparison-box" style="border-color: #0066cc;">
+                    <h4 style="color: #0066cc;">Methods</h4>
+                    <p style="color: #555; margin-bottom: 1rem;">
+                        Called using <strong>dot notation</strong>
+                    </p>
+                    <div class="code-example" style="margin: 0; border-left-color: #0066cc;">
+                        <pre><code><span class="keyword">const</span> person = {
+    sayHello: <span class="keyword">function</span>() {
+        <span class="keyword">return</span> <span class="string">"Hello!"</span>;
+    }
+};
+
+<span class="comment">// Called with dot notation:</span>
+person.sayHello();</code></pre>
+                    </div>
+                    <div class="invocation-code" style="background: #e7f3ff; border: 2px solid #0066cc; margin-top: 1rem;">
+                        object.methodName(arguments)
+                    </div>
+                </div>
+            </div>
+
+            <div class="warning-box">
+                <strong>Remember:</strong>
+                <p style="margin-top: 0.5rem; color: #856404;">
+                    • Functions: <code style="background: white; padding: 0.2rem 0.5rem;">greet("Alice")</code><br>
+                    • Methods: <code style="background: white; padding: 0.2rem 0.5rem;">person.sayHello()</code>
+                </p>
+            </div>
+        </div>
+
+        <!-- Slide 6: Context Differences -->
+        <div class="slide">
+            <h2>Context Differences</h2>
+            
+            <div class="concept">
+                <h3>Operating Context</h3>
+                <p class="concept-text">
+                    Another important difference is <span class="highlight">the context</span> in which they operate.
+                </p>
+            </div>
+
+            <div class="comparison-grid">
+                <div class="comparison-box">
+                    <h4>Regular Functions</h4>
+                    <div style="background: white; padding: 1.5rem; border-radius: 6px; margin-top: 1rem;">
+                        <p style="color: #555; line-height: 1.6; margin-bottom: 1rem;">
+                            • Have their <strong>own scope</strong><br>
+                            • Don't have built-in reference to any object<br>
+                            • Stand alone, independent of objects
+                        </p>
+                        <div class="code-example" style="margin: 0;">
+                            <pre><code><span class="keyword">function</span> calculate(x, y) {
+    <span class="keyword">return</span> x + y;
+}
+<span class="comment">// No object context needed</span></code></pre>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="comparison-box">
+                    <h4>Object Methods</h4>
+                    <div style="background: white; padding: 1.5rem; border-radius: 6px; margin-top: 1rem;">
+                        <p style="color: #555; line-height: 1.6; margin-bottom: 1rem;">
+                            • <strong>Bound to their object</strong><br>
+                            • Can access object properties via <code style="background: #f0f0f0; padding: 0.2rem 0.5rem;">this</code><br>
+                            • Operate within object context
+                        </p>
+                        <div class="code-example" style="margin: 0;">
+                            <pre><code><span class="keyword">const</span> obj = {
+    value: 10,
+    getValue: <span class="keyword">function</span>() {
+        <span class="keyword">return</span> <span class="keyword">this</span>.value;
+    }
+};</code></pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="info-box">
+                <strong>Key Insight:</strong>
+                <p style="margin-top: 0.5rem; color: #555; line-height: 1.6;">
+                    Methods help in <strong>organizing code into logical objects</strong>, grouping related data and functionality together. Functions are used for more <strong>general, reusable code</strong> that doesn't belong to a specific object.
+                </p>
+            </div>
+        </div>
+
+        <!-- Slide 7: Summary & When to Use Each -->
+        <div class="slide">
+            <h2>Summary & Best Practices</h2>
+            
+            <div class="concept">
+                <h3>Quick Comparison Table</h3>
+                <table style="width: 100%; border-collapse: collapse; margin: 1.5rem 0;">
+                    <thead>
+                        <tr style="background: #881518; color: white;">
+                            <th style="padding: 0.8rem; text-align: left; border: 1px solid #ddd;">Aspect</th>
+                            <th style="padding: 0.8rem; text-align: center; border: 1px solid #ddd;">Functions</th>
+                            <th style="padding: 0.8rem; text-align: center; border: 1px solid #ddd;">Methods</th>
+                        </tr>
+                    </thead>
+                    <tbody style="background: white;">
+                        <tr>
+                            <td style="padding: 0.8rem; border: 1px solid #ddd;"><strong>Definition</strong></td>
+                            <td style="padding: 0.8rem; border: 1px solid #ddd;">Standalone blocks of code</td>
+                            <td style="padding: 0.8rem; border: 1px solid #ddd;">Properties of objects</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 0.8rem; border: 1px solid #ddd;"><strong>Invocation</strong></td>
+                            <td style="padding: 0.8rem; border: 1px solid #ddd; font-family: 'Courier New', monospace; font-size: 0.9rem;">functionName()</td>
+                            <td style="padding: 0.8rem; border: 1px solid #ddd; font-family: 'Courier New', monospace; font-size: 0.9rem;">object.methodName()</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 0.8rem; border: 1px solid #ddd;"><strong>Context</strong></td>
+                            <td style="padding: 0.8rem; border: 1px solid #ddd;">Own scope</td>
+                            <td style="padding: 0.8rem; border: 1px solid #ddd;">Bound to object</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 0.8rem; border: 1px solid #ddd;"><strong>this keyword</strong></td>
+                            <td style="padding: 0.8rem; border: 1px solid #ddd;">No built-in reference</td>
+                            <td style="padding: 0.8rem; border: 1px solid #ddd;">Accesses object properties</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 0.8rem; border: 1px solid #ddd;"><strong>Use case</strong></td>
+                            <td style="padding: 0.8rem; border: 1px solid #ddd;">General, reusable code</td>
+                            <td style="padding: 0.8rem; border: 1px solid #ddd;">Object-specific operations</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="concept">
+                <h3>When to Use Each</h3>
+                <div style="background: #f8f9fa; padding: 1.5rem; border-radius: 8px; border-left: 4px solid #881518;">
+                    <div style="margin-bottom: 1.5rem;">
+                        <strong style="color: #28a745;">Use Functions When:</strong>
+                        <ul style="margin: 0.5rem 0 0 1.5rem; color: #555; line-height: 1.8;">
+                            <li>You need general-purpose, reusable code</li>
+                            <li>The code doesn't belong to a specific object</li>
+                            <li>Performing calculations or transformations</li>
+                            <li>Creating utility functions</li>
+                        </ul>
+                    </div>
+                    
+                    <div>
+                        <strong style="color: #0066cc;">Use Methods When:</strong>
+                        <ul style="margin: 0.5rem 0 0 1.5rem; color: #555; line-height: 1.8;">
+                            <li>The code operates on object data</li>
+                            <li>You need to access object properties</li>
+                            <li>Organizing related functionality with data</li>
+                            <li>Building object-oriented applications</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="info-box">
+                <strong>Final Takeaway:</strong>
+                <p style="margin-top: 0.5rem; color: #555; line-height: 1.6;">
+                    While functions and methods may seem similar at first, recognizing <strong>when to use each</strong> will help you write more <strong>organized, efficient, and maintainable code</strong>. This understanding is important as you progress in your JavaScript journey.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div class="navigation">
+        <button class="nav-button" id="prevBtn" onclick="changeSlide(-1)">← Previous</button>
+        <span class="slide-counter">
+            <span id="currentSlide">1</span> / <span id="totalSlides">7</span>
+        </span>
+        <button class="nav-button" id="nextBtn" onclick="changeSlide(1)">Next →</button>
+    </div>
+
+    <script>
+        let currentSlide = 1;
+        const totalSlides = document.querySelectorAll('.slide').length;
+        
+        document.getElementById('totalSlides').textContent = totalSlides;
+        
+        function showSlide(n) {
+            const slides = document.querySelectorAll('.slide');
+            
+            if (n > totalSlides) {
+                currentSlide = totalSlides;
+            }
+            if (n < 1) {
+                currentSlide = 1;
+            }
+            
+            slides.forEach(slide => {
+                slide.classList.remove('active');
+            });
+            
+            slides[currentSlide - 1].classList.add('active');
+            
+            document.getElementById('currentSlide').textContent = currentSlide;
+            
+            // Update button states
+            document.getElementById('prevBtn').disabled = currentSlide === 1;
+            document.getElementById('nextBtn').disabled = currentSlide === totalSlides;
+            
+            // Scroll to top of slide
+            window.scrollTo(0, 0);
+        }
+        
+        function changeSlide(direction) {
+            currentSlide += direction;
+            showSlide(currentSlide);
+        }
+        
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowLeft') {
+                changeSlide(-1);
+            } else if (e.key === 'ArrowRight') {
+                changeSlide(1);
+            }
+        });
+        
+        // Initialize
+        showSlide(currentSlide);
+    </script>
+</body>
+</html>

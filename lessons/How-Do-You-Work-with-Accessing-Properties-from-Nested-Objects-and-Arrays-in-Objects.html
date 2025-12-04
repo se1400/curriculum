@@ -1,0 +1,770 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nested Objects and Arrays</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #881518 0%, #a91d20 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .slide-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+            padding-bottom: 100px;
+            min-height: 100vh;
+        }
+
+        .slide {
+            display: none;
+            background: white;
+            border-radius: 12px;
+            padding: 2.5rem;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        .slide.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        h2 {
+            color: #881518;
+            font-size: 2rem;
+            margin-bottom: 1.5rem;
+            border-bottom: 3px solid #881518;
+            padding-bottom: 0.5rem;
+        }
+
+        .concept {
+            margin-bottom: 2rem;
+        }
+
+        .concept h3 {
+            color: #333;
+            font-size: 1.4rem;
+            margin-bottom: 1rem;
+        }
+
+        .concept-text {
+            color: #555;
+            font-size: 1.1rem;
+            line-height: 1.6;
+            margin-bottom: 1rem;
+        }
+
+        .code-example {
+            background: #f8f9fa;
+            border-left: 4px solid #881518;
+            padding: 1.5rem;
+            border-radius: 6px;
+            margin: 1rem 0;
+            overflow-x: auto;
+        }
+
+        .code-example pre {
+            margin: 0;
+            font-family: 'Courier New', monospace;
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+
+        .code-example code {
+            color: #333;
+        }
+
+        .keyword {
+            color: #0066cc;
+            font-weight: bold;
+        }
+
+        .string {
+            color: #22863a;
+        }
+
+        .comment {
+            color: #6a737d;
+            font-style: italic;
+        }
+
+        .output {
+            background: #e8f4f8;
+            border-left: 4px solid #0066cc;
+            padding: 1rem;
+            margin-top: 0.5rem;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+        }
+
+        .highlight {
+            background: #fff3cd;
+            padding: 0.2rem 0.4rem;
+            border-radius: 3px;
+            font-weight: 600;
+        }
+
+        .info-box {
+            background: #e7f3ff;
+            border-left: 4px solid #0066cc;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 4px;
+        }
+
+        .info-box strong {
+            color: #004085;
+        }
+
+        .visual-demo {
+            background: #f8f9fa;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin: 1.5rem 0;
+            border: 2px solid #881518;
+        }
+
+        .nested-structure {
+            background: white;
+            border: 3px solid #881518;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1rem 0;
+        }
+
+        .level-1 {
+            padding: 1rem;
+            background: #fff3cd;
+            border-left: 4px solid #881518;
+            border-radius: 6px;
+            margin: 0.5rem 0;
+        }
+
+        .level-2 {
+            padding: 1rem;
+            background: #d4edda;
+            border-left: 4px solid #28a745;
+            border-radius: 6px;
+            margin: 0.5rem 0 0.5rem 2rem;
+        }
+
+        .level-3 {
+            padding: 1rem;
+            background: #e7f3ff;
+            border-left: 4px solid #0066cc;
+            border-radius: 6px;
+            margin: 0.5rem 0 0.5rem 2rem;
+        }
+
+        .property-label {
+            font-weight: bold;
+            color: #881518;
+            font-family: 'Courier New', monospace;
+        }
+
+        .value-label {
+            color: #22863a;
+            font-family: 'Courier New', monospace;
+        }
+
+        .path-highlight {
+            background: #881518;
+            color: white;
+            padding: 0.8rem 1.5rem;
+            border-radius: 6px;
+            font-family: 'Courier New', monospace;
+            font-size: 1.1rem;
+            margin: 1rem 0;
+            text-align: center;
+        }
+
+        .array-visual {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            margin: 1rem 0;
+            justify-content: center;
+        }
+
+        .array-item {
+            background: white;
+            border: 2px solid #881518;
+            padding: 1rem;
+            border-radius: 6px;
+            min-width: 150px;
+        }
+
+        .array-index {
+            background: #881518;
+            color: white;
+            padding: 0.3rem 0.6rem;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+            display: inline-block;
+        }
+
+        .navigation {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0, 0, 0, 0.9);
+            padding: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.3);
+            z-index: 1000;
+        }
+
+        .nav-button {
+            background: #881518;
+            color: white;
+            border: none;
+            padding: 0.8rem 2rem;
+            font-size: 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+        }
+
+        .nav-button:hover {
+            background: #a91d20;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(136, 21, 24, 0.4);
+        }
+
+        .nav-button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .slide-counter {
+            color: white;
+            font-size: 1rem;
+            font-weight: 600;
+        }
+
+        @media (max-width: 768px) {
+            .slide-container {
+                padding: 1rem;
+                padding-bottom: 100px;
+            }
+
+            .slide {
+                padding: 1.5rem;
+            }
+
+            h2 {
+                font-size: 1.5rem;
+            }
+
+            .concept h3 {
+                font-size: 1.2rem;
+            }
+
+            .concept-text {
+                font-size: 1rem;
+            }
+
+            .nav-button {
+                padding: 0.7rem 1.2rem;
+                font-size: 0.9rem;
+            }
+
+            .code-example {
+                padding: 1rem;
+            }
+
+            .code-example pre {
+                font-size: 0.85rem;
+            }
+
+            .level-2, .level-3 {
+                margin-left: 1rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .navigation {
+                padding: 0.8rem;
+            }
+
+            .nav-button {
+                padding: 0.6rem 1rem;
+                font-size: 0.85rem;
+            }
+
+            .slide-counter {
+                font-size: 0.9rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="slide-container">
+        <!-- Slide 1: Introduction -->
+        <div class="slide active">
+            <h2>Nested Objects and Arrays</h2>
+            
+            <div class="concept">
+                <h3>Complex Data Structures</h3>
+                <p class="concept-text">
+                    In JavaScript, you'll often encounter <span class="highlight">complex data structures</span> that involve nested objects and arrays within objects.
+                </p>
+                <p class="concept-text">
+                    These structures can represent <strong>rich, hierarchical data</strong>, but they require a clear understanding of how to access and manipulate the data within them.
+                </p>
+            </div>
+
+            <div class="concept">
+                <h3>What Are Nested Structures?</h3>
+                <div style="background: #f8f9fa; padding: 1.5rem; border-radius: 8px; border-left: 4px solid #881518;">
+                    <ul style="color: #555; font-size: 1.1rem; line-height: 1.8; margin-left: 1.5rem;">
+                        <li><strong>Nested Objects</strong> - Objects within objects</li>
+                        <li><strong>Arrays in Objects</strong> - Arrays as property values</li>
+                        <li><strong>Objects in Arrays</strong> - Array elements that are objects</li>
+                        <li><strong>Mixed Structures</strong> - Combinations of all the above</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="concept">
+                <h3>Accessing Nested Data</h3>
+                <p class="concept-text">
+                    To access nested data, you'll need to <span class="highlight">chain property accessors</span> to drill down into the structure using:
+                </p>
+                <ul style="margin-left: 2rem; color: #555; font-size: 1.1rem; line-height: 1.8;">
+                    <li><strong>Dot notation</strong> - For object properties</li>
+                    <li><strong>Bracket notation</strong> - For objects and arrays</li>
+                    <li><strong>Array indices</strong> - For array elements</li>
+                </ul>
+            </div>
+
+            <div class="info-box">
+                <strong>Key Skill:</strong>
+                <p style="margin-top: 0.5rem; color: #555;">
+                    Understanding how to navigate nested structures is essential when working with real-world data, such as API responses, configuration files, or complex application state.
+                </p>
+            </div>
+        </div>
+
+        <!-- Slide 2: Nested Objects with Dot Notation -->
+        <div class="slide">
+            <h2>Accessing Nested Objects</h2>
+            
+            <div class="concept">
+                <h3>Chaining Dot Notation</h3>
+                
+                <div class="code-example">
+                    <pre><code><span class="keyword">const</span> person = {
+    name: <span class="string">"Alice"</span>,
+    age: 30,
+    contact: {
+        email: <span class="string">"alice@example.com"</span>,
+        phone: {
+            home: <span class="string">"123-456-7890"</span>,
+            work: <span class="string">"098-765-4321"</span>
+        }
+    }
+};
+
+console.log(person.contact.phone.work); <span class="comment">// "098-765-4321"</span></code></pre>
+                    <div class="output">"098-765-4321"</div>
+                </div>
+            </div>
+
+            <div class="visual-demo">
+                <h4 style="color: #881518; margin-bottom: 1rem;">Object Structure Visualization</h4>
+                <div class="nested-structure">
+                    <div class="level-1">
+                        <span class="property-label">person</span>
+                        <div class="level-2">
+                            <span class="property-label">name:</span> <span class="value-label">"Alice"</span>
+                        </div>
+                        <div class="level-2">
+                            <span class="property-label">age:</span> <span class="value-label">30</span>
+                        </div>
+                        <div class="level-2">
+                            <span class="property-label">contact</span>
+                            <div class="level-3">
+                                <span class="property-label">email:</span> <span class="value-label">"alice@example.com"</span>
+                            </div>
+                            <div class="level-3">
+                                <span class="property-label">phone</span>
+                                <div style="padding: 0.5rem; background: white; border-radius: 4px; margin: 0.5rem 0 0 1rem;">
+                                    <span class="property-label">home:</span> <span class="value-label">"123-456-7890"</span>
+                                </div>
+                                <div style="padding: 0.5rem; background: #fff3cd; border-radius: 4px; margin: 0.5rem 0 0 1rem; border: 2px solid #881518;">
+                                    <span class="property-label">work:</span> <span class="value-label">"098-765-4321"</span> ✓
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="path-highlight">
+                    person → contact → phone → work
+                </div>
+            </div>
+
+            <div class="info-box">
+                <strong>How Chaining Works:</strong>
+                <p style="margin-top: 0.5rem; color: #555;">
+                    Each dot accesses the next level down. <code style="background: white; padding: 0.2rem 0.5rem;">person.contact</code> gives you the contact object, then <code style="background: white; padding: 0.2rem 0.5rem;">.phone</code> accesses the phone object within contact, and finally <code style="background: white; padding: 0.2rem 0.5rem;">.work</code> gets the work phone number.
+                </p>
+            </div>
+        </div>
+
+        <!-- Slide 3: Bracket Notation for Nested Objects -->
+        <div class="slide">
+            <h2>Using Bracket Notation</h2>
+            
+            <div class="concept">
+                <h3>Alternative Access Method</h3>
+                <p class="concept-text">
+                    You can also use <span class="highlight">bracket notation</span> to access nested properties. This is particularly useful when:
+                </p>
+                <ul style="margin-left: 2rem; color: #555; font-size: 1.1rem; line-height: 1.8;">
+                    <li>Property names include spaces or special characters</li>
+                    <li>Using variables to access properties</li>
+                    <li>Property names are dynamically determined</li>
+                </ul>
+                
+                <div class="code-example">
+                    <pre><code><span class="keyword">const</span> person = {
+    name: <span class="string">"Alice"</span>,
+    age: 30,
+    contact: {
+        email: <span class="string">"alice@example.com"</span>,
+        phone: {
+            home: <span class="string">"123-456-7890"</span>,
+            work: <span class="string">"098-765-4321"</span>
+        }
+    }
+};
+
+console.log(person[<span class="string">'contact'</span>][<span class="string">'phone'</span>][<span class="string">'work'</span>]); <span class="comment">// "098-765-4321"</span></code></pre>
+                    <div class="output">"098-765-4321"</div>
+                </div>
+            </div>
+
+            <div class="visual-demo">
+                <h4 style="color: #881518; margin-bottom: 1rem;">Comparison: Dot vs Bracket Notation</h4>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+                    <div style="background: white; padding: 1.5rem; border-radius: 8px; border: 2px solid #28a745;">
+                        <h4 style="color: #28a745; margin-bottom: 1rem;">Dot Notation</h4>
+                        <div style="font-family: 'Courier New', monospace; color: #333;">
+                            person.contact.phone.work
+                        </div>
+                    </div>
+                    <div style="background: white; padding: 1.5rem; border-radius: 8px; border: 2px solid #0066cc;">
+                        <h4 style="color: #0066cc; margin-bottom: 1rem;">Bracket Notation</h4>
+                        <div style="font-family: 'Courier New', monospace; color: #333;">
+                            person['contact']['phone']['work']
+                        </div>
+                    </div>
+                </div>
+                <div style="text-align: center; margin-top: 1rem; color: #555; font-style: italic;">
+                    Both produce the same result: "098-765-4321"
+                </div>
+            </div>
+
+            <div class="info-box">
+                <strong>Mixing Notations:</strong>
+                <p style="margin-top: 0.5rem; color: #555;">
+                    You can also mix dot and bracket notation: <code style="background: white; padding: 0.2rem 0.5rem;">person.contact['phone'].work</code> works perfectly fine!
+                </p>
+            </div>
+        </div>
+
+        <!-- Slide 4: Arrays in Objects -->
+        <div class="slide">
+            <h2>Arrays Within Objects</h2>
+            
+            <div class="concept">
+                <h3>Objects with Array Properties</h3>
+                <p class="concept-text">
+                    When an object property contains an <span class="highlight">array</span>, you use bracket notation with an index to access specific elements.
+                </p>
+                
+                <div class="code-example">
+                    <pre><code><span class="keyword">const</span> person = {
+    name: <span class="string">"Alice"</span>,
+    age: 30,
+    addresses: [
+        { type: <span class="string">"home"</span>, street: <span class="string">"123 Main St"</span>, city: <span class="string">"Anytown"</span> },
+        { type: <span class="string">"work"</span>, street: <span class="string">"456 Market St"</span>, city: <span class="string">"Workville"</span> }
+    ]
+};
+
+console.log(person.addresses[1].city); <span class="comment">// "Workville"</span></code></pre>
+                    <div class="output">"Workville"</div>
+                </div>
+            </div>
+
+            <div class="visual-demo">
+                <h4 style="color: #881518; margin-bottom: 1rem;">Array Within Object Structure</h4>
+                <div class="nested-structure">
+                    <div class="level-1">
+                        <span class="property-label">person</span>
+                        <div class="level-2">
+                            <span class="property-label">name:</span> <span class="value-label">"Alice"</span>
+                        </div>
+                        <div class="level-2">
+                            <span class="property-label">age:</span> <span class="value-label">30</span>
+                        </div>
+                        <div class="level-2">
+                            <span class="property-label">addresses:</span> <span style="color: #555;">[Array]</span>
+                            <div class="array-visual">
+                                <div class="array-item">
+                                    <div class="array-index">[0]</div>
+                                    <div style="color: #555; font-size: 0.9rem; margin-top: 0.5rem;">
+                                        type: "home"<br>
+                                        street: "123 Main St"<br>
+                                        city: "Anytown"
+                                    </div>
+                                </div>
+                                <div class="array-item" style="border-color: #881518; background: #fff3cd;">
+                                    <div class="array-index">[1] ✓</div>
+                                    <div style="color: #555; font-size: 0.9rem; margin-top: 0.5rem;">
+                                        type: "work"<br>
+                                        street: "456 Market St"<br>
+                                        <strong style="color: #881518;">city: "Workville"</strong>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="path-highlight">
+                    person → addresses → [1] → city
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 5: Breaking Down Array Access -->
+        <div class="slide">
+            <h2>Understanding Array Access in Objects</h2>
+            
+            <div class="concept">
+                <h3>Step-by-Step Breakdown</h3>
+                <p class="concept-text">
+                    Let's break down <code style="background: #f0f0f0; padding: 0.2rem 0.5rem;">person.addresses[1].city</code> step by step:
+                </p>
+                
+                <div class="visual-demo">
+                    <div style="font-family: 'Courier New', monospace; line-height: 2.5; color: #333;">
+                        <div style="padding: 1rem; background: white; margin: 0.5rem 0; border-radius: 6px; border-left: 4px solid #881518;">
+                            <strong>Step 1:</strong> person.addresses
+                            <div style="color: #555; margin-top: 0.5rem; font-size: 0.95rem;">
+                                → Returns the entire addresses array
+                            </div>
+                        </div>
+                        
+                        <div style="padding: 1rem; background: white; margin: 0.5rem 0; border-radius: 6px; border-left: 4px solid #28a745;">
+                            <strong>Step 2:</strong> person.addresses[1]
+                            <div style="color: #555; margin-top: 0.5rem; font-size: 0.95rem;">
+                                → Accesses the element at index 1 (second item)<br>
+                                → Returns: {type: "work", street: "456 Market St", city: "Workville"}
+                            </div>
+                        </div>
+                        
+                        <div style="padding: 1rem; background: white; margin: 0.5rem 0; border-radius: 6px; border-left: 4px solid #0066cc;">
+                            <strong>Step 3:</strong> person.addresses[1].city
+                            <div style="color: #555; margin-top: 0.5rem; font-size: 0.95rem;">
+                                → Accesses the city property of that object<br>
+                                → Returns: "Workville"
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="concept">
+                <h3>Key Pattern</h3>
+                <div style="background: #f8f9fa; padding: 1.5rem; border-radius: 8px; border-left: 4px solid #881518;">
+                    <p style="color: #555; line-height: 1.6;">
+                        When you have an array in an object, the pattern is:
+                    </p>
+                    <div style="margin-top: 1rem; padding: 1rem; background: white; border-radius: 6px; font-family: 'Courier New', monospace; text-align: center; color: #333; font-size: 1.1rem;">
+                        object.arrayProperty[index].property
+                    </div>
+                </div>
+            </div>
+
+            <div class="info-box">
+                <strong>Remember:</strong>
+                <p style="margin-top: 0.5rem; color: #555;">
+                    • <code style="background: white; padding: 0.2rem 0.5rem;">person.addresses</code> refers to the array<br>
+                    • <code style="background: white; padding: 0.2rem 0.5rem;">[1]</code> accesses the second element in that array (index 1)<br>
+                    • <code style="background: white; padding: 0.2rem 0.5rem;">.city</code> accesses the city property from that element
+                </p>
+            </div>
+        </div>
+
+        <!-- Slide 6: Summary & Practice -->
+        <div class="slide">
+            <h2>Summary & Practice Tips</h2>
+            
+            <div class="concept">
+                <h3>Access Patterns Summary</h3>
+                <div style="background: #f8f9fa; padding: 1.5rem; border-radius: 8px; border-left: 4px solid #881518;">
+                    <div style="margin-bottom: 1.5rem;">
+                        <h4 style="color: #881518; margin-bottom: 0.5rem;">Nested Objects</h4>
+                        <div style="font-family: 'Courier New', monospace; padding: 1rem; background: white; border-radius: 6px; margin-top: 0.5rem;">
+                            object.property.nestedProperty
+                        </div>
+                        <p style="color: #555; margin-top: 0.5rem;">
+                            Chain dot notation to drill down through objects
+                        </p>
+                    </div>
+                    
+                    <div style="margin-bottom: 1.5rem;">
+                        <h4 style="color: #881518; margin-bottom: 0.5rem;">Arrays in Objects</h4>
+                        <div style="font-family: 'Courier New', monospace; padding: 1rem; background: white; border-radius: 6px; margin-top: 0.5rem;">
+                            object.arrayProperty[index]
+                        </div>
+                        <p style="color: #555; margin-top: 0.5rem;">
+                            Use bracket notation with index to access array elements
+                        </p>
+                    </div>
+                    
+                    <div>
+                        <h4 style="color: #881518; margin-bottom: 0.5rem;">Objects in Arrays in Objects</h4>
+                        <div style="font-family: 'Courier New', monospace; padding: 1rem; background: white; border-radius: 6px; margin-top: 0.5rem;">
+                            object.arrayProperty[index].property
+                        </div>
+                        <p style="color: #555; margin-top: 0.5rem;">
+                            Combine array access with property access
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="concept">
+                <h3>Quick Reference Table</h3>
+                <table style="width: 100%; border-collapse: collapse; margin: 1rem 0;">
+                    <thead>
+                        <tr style="background: #881518; color: white;">
+                            <th style="padding: 0.8rem; text-align: left; border: 1px solid #ddd;">Structure</th>
+                            <th style="padding: 0.8rem; text-align: left; border: 1px solid #ddd;">Access Pattern</th>
+                            <th style="padding: 0.8rem; text-align: left; border: 1px solid #ddd;">Example</th>
+                        </tr>
+                    </thead>
+                    <tbody style="background: white;">
+                        <tr>
+                            <td style="padding: 0.8rem; border: 1px solid #ddd;">Nested Object</td>
+                            <td style="padding: 0.8rem; border: 1px solid #ddd; font-family: 'Courier New', monospace; font-size: 0.9rem;">obj.prop.nested</td>
+                            <td style="padding: 0.8rem; border: 1px solid #ddd; font-family: 'Courier New', monospace; font-size: 0.9rem;">person.contact.email</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 0.8rem; border: 1px solid #ddd;">Array in Object</td>
+                            <td style="padding: 0.8rem; border: 1px solid #ddd; font-family: 'Courier New', monospace; font-size: 0.9rem;">obj.array[i]</td>
+                            <td style="padding: 0.8rem; border: 1px solid #ddd; font-family: 'Courier New', monospace; font-size: 0.9rem;">person.hobbies[0]</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 0.8rem; border: 1px solid #ddd;">Object in Array</td>
+                            <td style="padding: 0.8rem; border: 1px solid #ddd; font-family: 'Courier New', monospace; font-size: 0.9rem;">obj.array[i].prop</td>
+                            <td style="padding: 0.8rem; border: 1px solid #ddd; font-family: 'Courier New', monospace; font-size: 0.9rem;">person.addresses[1].city</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 0.8rem; border: 1px solid #ddd;">Deep Nesting</td>
+                            <td style="padding: 0.8rem; border: 1px solid #ddd; font-family: 'Courier New', monospace; font-size: 0.9rem;">obj.a.b.c</td>
+                            <td style="padding: 0.8rem; border: 1px solid #ddd; font-family: 'Courier New', monospace; font-size: 0.9rem;">person.contact.phone.work</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="info-box">
+                <strong>Practice Opportunity:</strong>
+                <p style="margin-top: 0.5rem; color: #555; line-height: 1.6;">
+                    Understanding how to access properties in nested objects and arrays is <strong>essential</strong> when working with complex data structures. In future workshops and labs, you will have the opportunity to practice working with these types of data structures, especially when working with API responses and real-world data!
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div class="navigation">
+        <button class="nav-button" id="prevBtn" onclick="changeSlide(-1)">← Previous</button>
+        <span class="slide-counter">
+            <span id="currentSlide">1</span> / <span id="totalSlides">6</span>
+        </span>
+        <button class="nav-button" id="nextBtn" onclick="changeSlide(1)">Next →</button>
+    </div>
+
+    <script>
+        let currentSlide = 1;
+        const totalSlides = document.querySelectorAll('.slide').length;
+        
+        document.getElementById('totalSlides').textContent = totalSlides;
+        
+        function showSlide(n) {
+            const slides = document.querySelectorAll('.slide');
+            
+            if (n > totalSlides) {
+                currentSlide = totalSlides;
+            }
+            if (n < 1) {
+                currentSlide = 1;
+            }
+            
+            slides.forEach(slide => {
+                slide.classList.remove('active');
+            });
+            
+            slides[currentSlide - 1].classList.add('active');
+            
+            document.getElementById('currentSlide').textContent = currentSlide;
+            
+            // Update button states
+            document.getElementById('prevBtn').disabled = currentSlide === 1;
+            document.getElementById('nextBtn').disabled = currentSlide === totalSlides;
+            
+            // Scroll to top of slide
+            window.scrollTo(0, 0);
+        }
+        
+        function changeSlide(direction) {
+            currentSlide += direction;
+            showSlide(currentSlide);
+        }
+        
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowLeft') {
+                changeSlide(-1);
+            } else if (e.key === 'ArrowRight') {
+                changeSlide(1);
+            }
+        });
+        
+        // Initialize
+        showSlide(currentSlide);
+    </script>
+</body>
+</html>

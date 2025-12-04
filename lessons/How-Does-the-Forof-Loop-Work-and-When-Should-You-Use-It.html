@@ -1,0 +1,744 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>For...of Loop in JavaScript</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #881518 0%, #a91d20 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .slide-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+            padding-bottom: 100px;
+            min-height: 100vh;
+        }
+
+        .slide {
+            display: none;
+            background: white;
+            border-radius: 12px;
+            padding: 2.5rem;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        .slide.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        h2 {
+            color: #881518;
+            font-size: 2rem;
+            margin-bottom: 1.5rem;
+            border-bottom: 3px solid #881518;
+            padding-bottom: 0.5rem;
+        }
+
+        .concept {
+            margin-bottom: 2rem;
+        }
+
+        .concept h3 {
+            color: #333;
+            font-size: 1.4rem;
+            margin-bottom: 1rem;
+        }
+
+        .concept-text {
+            color: #555;
+            font-size: 1.1rem;
+            line-height: 1.6;
+            margin-bottom: 1rem;
+        }
+
+        .code-example {
+            background: #f8f9fa;
+            border-left: 4px solid #881518;
+            padding: 1.5rem;
+            border-radius: 6px;
+            margin: 1rem 0;
+            overflow-x: auto;
+        }
+
+        .code-example pre {
+            margin: 0;
+            font-family: 'Courier New', monospace;
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+
+        .code-example code {
+            color: #333;
+        }
+
+        .keyword {
+            color: #0066cc;
+            font-weight: bold;
+        }
+
+        .comment {
+            color: #6a737d;
+            font-style: italic;
+        }
+
+        .output {
+            background: #e8f4f8;
+            border-left: 4px solid #0066cc;
+            padding: 1rem;
+            margin-top: 0.5rem;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+        }
+
+        .highlight {
+            background: #fff3cd;
+            padding: 0.2rem 0.4rem;
+            border-radius: 3px;
+            font-weight: 600;
+        }
+
+        .syntax-box {
+            background: #f8f9fa;
+            border: 2px solid #881518;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin: 1.5rem 0;
+            font-family: 'Courier New', monospace;
+            font-size: 1.1rem;
+            color: #333;
+        }
+
+        .info-box {
+            background: #e7f3ff;
+            border-left: 4px solid #0066cc;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 4px;
+        }
+
+        .info-box strong {
+            color: #004085;
+        }
+
+        .warning-box {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 4px;
+        }
+
+        .warning-box strong {
+            color: #856404;
+        }
+
+        .error-box {
+            background: #f8d7da;
+            border-left: 4px solid #dc3545;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 4px;
+        }
+
+        .error-box strong {
+            color: #721c24;
+        }
+
+        .visual-demo {
+            background: #f8f9fa;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin: 1.5rem 0;
+            border: 2px solid #881518;
+        }
+
+        .iteration-box {
+            background: white;
+            border: 2px solid #881518;
+            padding: 1rem;
+            margin: 0.8rem 0;
+            border-radius: 6px;
+        }
+
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            margin: 1.5rem 0;
+        }
+
+        .comparison-box {
+            background: #f8f9fa;
+            padding: 1.5rem;
+            border-radius: 8px;
+            border: 2px solid #881518;
+        }
+
+        .comparison-box h4 {
+            color: #881518;
+            margin-bottom: 1rem;
+            font-size: 1.2rem;
+        }
+
+        .comparison-box.success {
+            border-color: #28a745;
+        }
+
+        .comparison-box.success h4 {
+            color: #28a745;
+        }
+
+        .comparison-box.error {
+            border-color: #dc3545;
+        }
+
+        .comparison-box.error h4 {
+            color: #dc3545;
+        }
+
+        .navigation {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0, 0, 0, 0.9);
+            padding: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.3);
+            z-index: 1000;
+        }
+
+        .nav-button {
+            background: #881518;
+            color: white;
+            border: none;
+            padding: 0.8rem 2rem;
+            font-size: 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+        }
+
+        .nav-button:hover {
+            background: #a91d20;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(136, 21, 24, 0.4);
+        }
+
+        .nav-button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .slide-counter {
+            color: white;
+            font-size: 1rem;
+            font-weight: 600;
+        }
+
+        @media (max-width: 768px) {
+            .slide-container {
+                padding: 1rem;
+                padding-bottom: 100px;
+            }
+
+            .slide {
+                padding: 1.5rem;
+            }
+
+            h2 {
+                font-size: 1.5rem;
+            }
+
+            .concept h3 {
+                font-size: 1.2rem;
+            }
+
+            .concept-text {
+                font-size: 1rem;
+            }
+
+            .nav-button {
+                padding: 0.7rem 1.2rem;
+                font-size: 0.9rem;
+            }
+
+            .comparison-grid {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+
+            .code-example {
+                padding: 1rem;
+            }
+
+            .code-example pre {
+                font-size: 0.85rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .navigation {
+                padding: 0.8rem;
+            }
+
+            .nav-button {
+                padding: 0.6rem 1rem;
+                font-size: 0.85rem;
+            }
+
+            .slide-counter {
+                font-size: 0.9rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="slide-container">
+        <!-- Slide 1: Introduction -->
+        <div class="slide active">
+            <h2>The For...of Loop</h2>
+            
+            <div class="concept">
+                <h3>What Is a For...of Loop?</h3>
+                <p class="concept-text">
+                    A <span class="highlight">for...of</span> loop is used when you need to loop over <strong>values from an iterable</strong>.
+                </p>
+            </div>
+
+            <div class="concept">
+                <h3>What Are Iterables?</h3>
+                <p class="concept-text">
+                    Iterables are data structures that can be looped over. Examples include:
+                </p>
+                <ul style="margin-left: 2rem; color: #555; font-size: 1.1rem; line-height: 1.8;">
+                    <li><strong>Arrays</strong> - Collections of values</li>
+                    <li><strong>Strings</strong> - Sequences of characters</li>
+                </ul>
+            </div>
+
+            <div class="concept">
+                <h3>Basic Syntax</h3>
+                <div class="syntax-box">
+<span class="keyword">for</span> (variable <span class="keyword">of</span> iterable) {
+    <span class="comment">// code block to be executed</span>
+}
+                </div>
+            </div>
+
+            <div class="info-box">
+                <strong>Key Concept:</strong>
+                <p style="margin-top: 0.5rem; color: #555; line-height: 1.6;">
+                    The <code style="background: white; padding: 0.2rem 0.5rem;">variable</code> represents the <strong>current value</strong> of the iterable being looped over.<br><br>
+                    • For an array of numbers → variable is the current number<br>
+                    • For a string → variable is the current character
+                </p>
+            </div>
+        </div>
+
+        <!-- Slide 2: Looping Over Arrays -->
+        <div class="slide">
+            <h2>Looping Over Arrays</h2>
+            
+            <div class="concept">
+                <h3>Array Example</h3>
+                <p class="concept-text">
+                    Let's loop over an array of numbers and log each one to the console:
+                </p>
+                
+                <div class="code-example">
+                    <pre><code><span class="keyword">const</span> numbers = [1, 2, 3, 4, 5];
+
+<span class="keyword">for</span> (<span class="keyword">const</span> num <span class="keyword">of</span> numbers) {
+    console.log(num);
+}</code></pre>
+                    <div class="output">Output:<br>1<br>2<br>3<br>4<br>5</div>
+                </div>
+            </div>
+
+            <div class="visual-demo">
+                <h4 style="color: #881518; margin-bottom: 1rem;">How It Works</h4>
+                <p style="color: #555; margin-bottom: 1rem;">
+                    We create a variable called <code style="background: white; padding: 0.2rem 0.5rem;">num</code> that represents the current number in the array:
+                </p>
+                
+                <div class="iteration-box">
+                    <strong>Iteration 1:</strong> num = 1 → console.log(1)
+                </div>
+                <div class="iteration-box">
+                    <strong>Iteration 2:</strong> num = 2 → console.log(2)
+                </div>
+                <div class="iteration-box">
+                    <strong>Iteration 3:</strong> num = 3 → console.log(3)
+                </div>
+                <div class="iteration-box">
+                    <strong>Iteration 4:</strong> num = 4 → console.log(4)
+                </div>
+                <div class="iteration-box">
+                    <strong>Iteration 5:</strong> num = 5 → console.log(5)
+                </div>
+            </div>
+
+            <div class="info-box">
+                <strong>Notice:</strong>
+                <p style="margin-top: 0.5rem; color: #555;">
+                    The for...of loop automatically goes through each element in the array. You don't need to manage an index counter like in a traditional for loop!
+                </p>
+            </div>
+        </div>
+
+        <!-- Slide 3: Looping Over Strings -->
+        <div class="slide">
+            <h2>Looping Over Strings</h2>
+            
+            <div class="concept">
+                <h3>String Example</h3>
+                <p class="concept-text">
+                    We can also loop over each character in a string:
+                </p>
+                
+                <div class="code-example">
+                    <pre><code><span class="keyword">const</span> str = <span class="string">'freeCodeCamp'</span>;
+
+<span class="keyword">for</span> (<span class="keyword">let</span> char <span class="keyword">of</span> str) {
+    console.log(char);
+}</code></pre>
+                    <div class="output">Output:<br>f<br>r<br>e<br>e<br>C<br>o<br>d<br>e<br>C<br>a<br>m<br>p</div>
+                </div>
+            </div>
+
+            <div class="visual-demo">
+                <h4 style="color: #881518; margin-bottom: 1rem;">Character by Character</h4>
+                <p style="color: #555; margin-bottom: 1rem;">
+                    The variable <code style="background: white; padding: 0.2rem 0.5rem;">char</code> represents each character:
+                </p>
+                
+                <div style="font-family: 'Courier New', monospace; line-height: 2; color: #333;">
+                    <div style="padding: 0.5rem; background: white; margin: 0.3rem 0; border-radius: 4px;">
+                        Iteration 1: char = 'f'
+                    </div>
+                    <div style="padding: 0.5rem; background: white; margin: 0.3rem 0; border-radius: 4px;">
+                        Iteration 2: char = 'r'
+                    </div>
+                    <div style="padding: 0.5rem; background: white; margin: 0.3rem 0; border-radius: 4px;">
+                        Iteration 3: char = 'e'
+                    </div>
+                    <div style="padding: 0.5rem; background: white; margin: 0.3rem 0; border-radius: 4px;">
+                        ... and so on for each character
+                    </div>
+                </div>
+            </div>
+
+            <div class="info-box">
+                <strong>Use Case:</strong>
+                <p style="margin-top: 0.5rem; color: #555;">
+                    Looping over strings is useful for character-by-character processing, such as counting vowels, validating input, or transforming text.
+                </p>
+            </div>
+        </div>
+
+        <!-- Slide 4: let vs const -->
+        <div class="slide">
+            <h2>Using let vs const</h2>
+            
+            <div class="concept">
+                <h3>Both Work in For...of Loops</h3>
+                <p class="concept-text">
+                    You can use either <span class="highlight">let</span> or <span class="highlight">const</span> when declaring the variable in a for...of loop.
+                </p>
+            </div>
+
+            <div class="comparison-grid">
+                <div class="comparison-box success">
+                    <h4>✓ Using const (Read-Only)</h4>
+                    <div class="code-example" style="margin: 0; border-left-color: #28a745;">
+                        <pre><code><span class="keyword">const</span> colors = [<span class="string">'red'</span>, <span class="string">'blue'</span>];
+
+<span class="keyword">for</span> (<span class="keyword">const</span> color <span class="keyword">of</span> colors) {
+    console.log(color);
+    <span class="comment">// No reassignment</span>
+}</code></pre>
+                    </div>
+                    <p style="color: #555; margin-top: 1rem;">
+                        Works fine because we're not changing the value of <code style="background: white; padding: 0.2rem 0.5rem;">color</code>
+                    </p>
+                </div>
+
+                <div class="comparison-box success">
+                    <h4>✓ Using let (Can Modify)</h4>
+                    <div class="code-example" style="margin: 0; border-left-color: #28a745;">
+                        <pre><code><span class="keyword">const</span> numbers = [1, 2, 3];
+
+<span class="keyword">for</span> (<span class="keyword">let</span> num <span class="keyword">of</span> numbers) {
+    num = num * 2;
+    console.log(num);
+}</code></pre>
+                    </div>
+                    <p style="color: #555; margin-top: 1rem;">
+                        Works because <code style="background: white; padding: 0.2rem 0.5rem;">let</code> allows reassignment
+                    </p>
+                </div>
+            </div>
+
+            <div class="warning-box">
+                <strong>⚠️ Important Rule:</strong>
+                <p style="margin-top: 0.5rem; color: #856404; line-height: 1.6;">
+                    If you use <code style="background: white; padding: 0.2rem 0.5rem;">const</code>, make sure the value of the variable does <strong>not change</strong> inside the loop. If it does, you will get an error!
+                </p>
+            </div>
+        </div>
+
+        <!-- Slide 5: const Reassignment Error -->
+        <div class="slide">
+            <h2>⚠️ const Reassignment Error</h2>
+            
+            <div class="concept">
+                <h3>What Happens When You Try to Change const?</h3>
+                
+                <div class="error-box">
+                    <strong>❌ This Will Cause an Error:</strong>
+                    <div class="code-example" style="margin-top: 1rem; border-left-color: #dc3545;">
+                        <pre><code><span class="keyword">const</span> numbers = [1, 2, 3, 4, 5];
+
+<span class="keyword">for</span> (<span class="keyword">const</span> num <span class="keyword">of</span> numbers) {
+    console.log(num);
+    num = num + 1; <span class="comment">// ❌ This will cause an error!</span>
+}</code></pre>
+                    </div>
+                    <div style="margin-top: 1rem; padding: 1rem; background: white; border-radius: 6px; font-family: 'Courier New', monospace; color: #721c24;">
+                        TypeError: Assignment to constant variable
+                    </div>
+                </div>
+            </div>
+
+            <div class="concept">
+                <h3>The Solution: Use let</h3>
+                
+                <div class="comparison-box success">
+                    <h4>✓ Correct Way:</h4>
+                    <div class="code-example" style="margin: 0; border-left-color: #28a745;">
+                        <pre><code><span class="keyword">const</span> numbers = [1, 2, 3, 4, 5];
+
+<span class="keyword">for</span> (<span class="keyword">let</span> num <span class="keyword">of</span> numbers) {
+    console.log(num);
+    num = num + 1; <span class="comment">// ✓ Works fine with let</span>
+}</code></pre>
+                    </div>
+                </div>
+            </div>
+
+            <div class="info-box">
+                <strong>When to Use Each:</strong>
+                <div style="margin-top: 1rem; color: #555; line-height: 1.8;">
+                    • Use <code style="background: white; padding: 0.2rem 0.5rem;">const</code> when you're <strong>only reading</strong> the value<br>
+                    • Use <code style="background: white; padding: 0.2rem 0.5rem;">let</code> when you need to <strong>modify</strong> the value inside the loop
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 6: Array of Objects -->
+        <div class="slide">
+            <h2>Looping Over Array of Objects</h2>
+            
+            <div class="concept">
+                <h3>More Complex Data Structures</h3>
+                <p class="concept-text">
+                    The for...of loop works great with arrays of objects:
+                </p>
+                
+                <div class="code-example">
+                    <pre><code><span class="keyword">const</span> people = [
+    { name: <span class="string">'John'</span>, age: 30 },
+    { name: <span class="string">'Jane'</span>, age: 25 },
+    { name: <span class="string">'Jim'</span>, age: 40 }
+];
+
+<span class="keyword">for</span> (<span class="keyword">const</span> person <span class="keyword">of</span> people) {
+    console.log(`${person.name} is ${person.age} years old`);
+}</code></pre>
+                    <div class="output">Output:<br>John is 30 years old<br>Jane is 25 years old<br>Jim is 40 years old</div>
+                </div>
+            </div>
+
+            <div class="visual-demo">
+                <h4 style="color: #881518; margin-bottom: 1rem;">How It Works</h4>
+                <p style="color: #555; margin-bottom: 1rem;">
+                    The variable <code style="background: white; padding: 0.2rem 0.5rem;">person</code> represents each object in the array:
+                </p>
+                
+                <div class="iteration-box">
+                    <strong>Iteration 1:</strong>
+                    <div style="font-family: 'Courier New', monospace; margin-top: 0.5rem;">
+                        person = { name: 'John', age: 30 }<br>
+                        Output: "John is 30 years old"
+                    </div>
+                </div>
+                
+                <div class="iteration-box">
+                    <strong>Iteration 2:</strong>
+                    <div style="font-family: 'Courier New', monospace; margin-top: 0.5rem;">
+                        person = { name: 'Jane', age: 25 }<br>
+                        Output: "Jane is 25 years old"
+                    </div>
+                </div>
+                
+                <div class="iteration-box">
+                    <strong>Iteration 3:</strong>
+                    <div style="font-family: 'Courier New', monospace; margin-top: 0.5rem;">
+                        person = { name: 'Jim', age: 40 }<br>
+                        Output: "Jim is 40 years old"
+                    </div>
+                </div>
+            </div>
+
+            <div class="info-box">
+                <strong>Accessing Object Properties:</strong>
+                <p style="margin-top: 0.5rem; color: #555;">
+                    Inside the loop, you can access any property of the current object using dot notation (e.g., <code style="background: white; padding: 0.2rem 0.5rem;">person.name</code>, <code style="background: white; padding: 0.2rem 0.5rem;">person.age</code>).
+                </p>
+            </div>
+        </div>
+
+        <!-- Slide 7: Summary -->
+        <div class="slide">
+            <h2>When to Use For...of Loops</h2>
+            
+            <div class="concept">
+                <h3>Benefits of For...of Loops</h3>
+                <div style="background: #f8f9fa; padding: 1.5rem; border-radius: 8px; border-left: 4px solid #881518;">
+                    <ul style="color: #333; font-size: 1.05rem; line-height: 1.8; list-style-position: inside;">
+                        <li><strong>Easy to read:</strong> Clear and concise syntax</li>
+                        <li><strong>No index management:</strong> Automatically iterates through values</li>
+                        <li><strong>Works with iterables:</strong> Arrays, strings, and more</li>
+                        <li><strong>Clean code:</strong> Makes your code more maintainable</li>
+                        <li><strong>Direct access:</strong> Get the value directly, not the index</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="concept">
+                <h3>Quick Reference</h3>
+                <div class="syntax-box">
+<span class="comment">// Basic syntax</span>
+<span class="keyword">for</span> (variable <span class="keyword">of</span> iterable) {
+    <span class="comment">// code block</span>
+}
+
+<span class="comment">// With array</span>
+<span class="keyword">for</span> (<span class="keyword">const</span> item <span class="keyword">of</span> array) { }
+
+<span class="comment">// With string</span>
+<span class="keyword">for</span> (<span class="keyword">const</span> char <span class="keyword">of</span> string) { }
+                </div>
+            </div>
+
+            <div class="concept">
+                <h3>Key Takeaways</h3>
+                <div class="info-box">
+                    <strong>Remember:</strong>
+                    <div style="margin-top: 1rem; color: #555; line-height: 1.8;">
+                        ✓ Use <code style="background: white; padding: 0.2rem 0.5rem;">const</code> when only reading values<br>
+                        ✓ Use <code style="background: white; padding: 0.2rem 0.5rem;">let</code> when modifying values inside the loop<br>
+                        ✓ Variable represents the <strong>current value</strong> (not the index)<br>
+                        ✓ Perfect for looping over arrays and strings<br>
+                        ✓ More readable than traditional for loops for simple iterations
+                    </div>
+                </div>
+            </div>
+
+            <div class="warning-box">
+                <strong>Best Practice:</strong>
+                <p style="margin-top: 0.5rem; color: #856404;">
+                    Use for...of loops when you need to access the <strong>values</strong> of an iterable. If you need the <strong>index</strong> as well, consider using a traditional for loop or <code style="background: white; padding: 0.2rem 0.5rem;">forEach()</code> with index parameter.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div class="navigation">
+        <button class="nav-button" id="prevBtn" onclick="changeSlide(-1)">← Previous</button>
+        <span class="slide-counter">
+            <span id="currentSlide">1</span> / <span id="totalSlides">7</span>
+        </span>
+        <button class="nav-button" id="nextBtn" onclick="changeSlide(1)">Next →</button>
+    </div>
+
+    <script>
+        let currentSlide = 1;
+        const totalSlides = document.querySelectorAll('.slide').length;
+        
+        document.getElementById('totalSlides').textContent = totalSlides;
+        
+        function showSlide(n) {
+            const slides = document.querySelectorAll('.slide');
+            
+            if (n > totalSlides) {
+                currentSlide = totalSlides;
+            }
+            if (n < 1) {
+                currentSlide = 1;
+            }
+            
+            slides.forEach(slide => {
+                slide.classList.remove('active');
+            });
+            
+            slides[currentSlide - 1].classList.add('active');
+            
+            document.getElementById('currentSlide').textContent = currentSlide;
+            
+            // Update button states
+            document.getElementById('prevBtn').disabled = currentSlide === 1;
+            document.getElementById('nextBtn').disabled = currentSlide === totalSlides;
+            
+            // Scroll to top of slide
+            window.scrollTo(0, 0);
+        }
+        
+        function changeSlide(direction) {
+            currentSlide += direction;
+            showSlide(currentSlide);
+        }
+        
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowLeft') {
+                changeSlide(-1);
+            } else if (e.key === 'ArrowRight') {
+                changeSlide(1);
+            }
+        });
+        
+        // Initialize
+        showSlide(currentSlide);
+    </script>
+</body>
+</html>

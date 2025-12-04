@@ -1,0 +1,792 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JavaScript Objects and Property Access</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #881518 0%, #a91d20 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .slide-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+            padding-bottom: 100px;
+            min-height: 100vh;
+        }
+
+        .slide {
+            display: none;
+            background: white;
+            border-radius: 12px;
+            padding: 2.5rem;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        .slide.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        h2 {
+            color: #881518;
+            font-size: 2rem;
+            margin-bottom: 1.5rem;
+            border-bottom: 3px solid #881518;
+            padding-bottom: 0.5rem;
+        }
+
+        .concept {
+            margin-bottom: 2rem;
+        }
+
+        .concept h3 {
+            color: #333;
+            font-size: 1.4rem;
+            margin-bottom: 1rem;
+        }
+
+        .concept-text {
+            color: #555;
+            font-size: 1.1rem;
+            line-height: 1.6;
+            margin-bottom: 1rem;
+        }
+
+        .code-example {
+            background: #f8f9fa;
+            border-left: 4px solid #881518;
+            padding: 1.5rem;
+            border-radius: 6px;
+            margin: 1rem 0;
+            overflow-x: auto;
+        }
+
+        .code-example pre {
+            margin: 0;
+            font-family: 'Courier New', monospace;
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+
+        .code-example code {
+            color: #333;
+        }
+
+        .keyword {
+            color: #0066cc;
+            font-weight: bold;
+        }
+
+        .string {
+            color: #22863a;
+        }
+
+        .comment {
+            color: #6a737d;
+            font-style: italic;
+        }
+
+        .output {
+            background: #e8f4f8;
+            border-left: 4px solid #0066cc;
+            padding: 1rem;
+            margin-top: 0.5rem;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+        }
+
+        .highlight {
+            background: #fff3cd;
+            padding: 0.2rem 0.4rem;
+            border-radius: 3px;
+            font-weight: 600;
+        }
+
+        .syntax-box {
+            background: #f8f9fa;
+            border: 2px solid #881518;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin: 1.5rem 0;
+            font-family: 'Courier New', monospace;
+            font-size: 1.1rem;
+            color: #333;
+        }
+
+        .info-box {
+            background: #e7f3ff;
+            border-left: 4px solid #0066cc;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 4px;
+        }
+
+        .info-box strong {
+            color: #004085;
+        }
+
+        .warning-box {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 4px;
+        }
+
+        .warning-box strong {
+            color: #856404;
+        }
+
+        .visual-demo {
+            background: #f8f9fa;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin: 1.5rem 0;
+            border: 2px solid #881518;
+        }
+
+        .object-visual {
+            background: white;
+            border: 3px solid #881518;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1rem 0;
+        }
+
+        .property-row {
+            display: flex;
+            align-items: center;
+            padding: 0.8rem;
+            margin: 0.5rem 0;
+            background: #f8f9fa;
+            border-radius: 6px;
+            border-left: 4px solid #881518;
+        }
+
+        .property-key {
+            color: #881518;
+            font-weight: bold;
+            font-family: 'Courier New', monospace;
+            min-width: 120px;
+        }
+
+        .property-colon {
+            color: #333;
+            margin: 0 1rem;
+            font-weight: bold;
+        }
+
+        .property-value {
+            color: #22863a;
+            font-family: 'Courier New', monospace;
+        }
+
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            margin: 1.5rem 0;
+        }
+
+        .comparison-box {
+            background: #f8f9fa;
+            padding: 1.5rem;
+            border-radius: 8px;
+            border: 2px solid #881518;
+        }
+
+        .comparison-box h4 {
+            color: #881518;
+            margin-bottom: 1rem;
+            font-size: 1.2rem;
+        }
+
+        .navigation {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0, 0, 0, 0.9);
+            padding: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.3);
+            z-index: 1000;
+        }
+
+        .nav-button {
+            background: #881518;
+            color: white;
+            border: none;
+            padding: 0.8rem 2rem;
+            font-size: 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+        }
+
+        .nav-button:hover {
+            background: #a91d20;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(136, 21, 24, 0.4);
+        }
+
+        .nav-button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .slide-counter {
+            color: white;
+            font-size: 1rem;
+            font-weight: 600;
+        }
+
+        @media (max-width: 768px) {
+            .slide-container {
+                padding: 1rem;
+                padding-bottom: 100px;
+            }
+
+            .slide {
+                padding: 1.5rem;
+            }
+
+            h2 {
+                font-size: 1.5rem;
+            }
+
+            .concept h3 {
+                font-size: 1.2rem;
+            }
+
+            .concept-text {
+                font-size: 1rem;
+            }
+
+            .nav-button {
+                padding: 0.7rem 1.2rem;
+                font-size: 0.9rem;
+            }
+
+            .comparison-grid {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+
+            .code-example {
+                padding: 1rem;
+            }
+
+            .code-example pre {
+                font-size: 0.85rem;
+            }
+
+            .property-row {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .property-colon {
+                margin: 0;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .navigation {
+                padding: 0.8rem;
+            }
+
+            .nav-button {
+                padding: 0.6rem 1rem;
+                font-size: 0.85rem;
+            }
+
+            .slide-counter {
+                font-size: 0.9rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="slide-container">
+        <!-- Slide 1: Introduction to Objects -->
+        <div class="slide active">
+            <h2>What Is a JavaScript Object?</h2>
+            
+            <div class="concept">
+                <h3>Objects as Data Structures</h3>
+                <p class="concept-text">
+                    In JavaScript, an <span class="highlight">object</span> is a fundamental data structure that allows you to <strong>store and organize related data and functionality</strong>.
+                </p>
+            </div>
+
+            <div class="concept">
+                <h3>The Filing Cabinet Analogy</h3>
+                <div style="background: #e7f3ff; padding: 1.5rem; border-radius: 8px; border-left: 4px solid #0066cc;">
+                    <p style="color: #555; line-height: 1.6;">
+                        Think of an object as a <strong>container</strong> that holds various pieces of information, much like a <strong>filing cabinet</strong> holds different folders and documents.
+                    </p>
+                </div>
+            </div>
+
+            <div class="concept">
+                <h3>Properties: Key-Value Pairs</h3>
+                <p class="concept-text">
+                    The pieces of information stored in an object are called <span class="highlight">properties</span>. Each property consists of:
+                </p>
+                <ul style="margin-left: 2rem; color: #555; font-size: 1.1rem; line-height: 1.8;">
+                    <li><strong>Name (or key)</strong> - The identifier for the property</li>
+                    <li><strong>Value</strong> - The data stored in that property</li>
+                </ul>
+            </div>
+
+            <div class="concept">
+                <h3>Basic Syntax</h3>
+                <div class="syntax-box">
+<span class="keyword">const</span> exampleObject = {
+    propertyName: value
+};
+                </div>
+            </div>
+
+            <div class="info-box">
+                <strong>JavaScript Is Object-Centric:</strong>
+                <p style="margin-top: 0.5rem; color: #555; line-height: 1.6;">
+                    Almost everything in JavaScript is an object or can be treated as one. This includes arrays, functions, and even primitive data types like strings and numbers in certain contexts. This object-centric nature makes JavaScript incredibly flexible and powerful.
+                </p>
+            </div>
+        </div>
+
+        <!-- Slide 2: Creating Objects -->
+        <div class="slide">
+            <h2>Creating an Object</h2>
+            
+            <div class="concept">
+                <h3>Example: A Person Object</h3>
+                
+                <div class="code-example">
+                    <pre><code><span class="keyword">const</span> person = {
+    name: <span class="string">"Alice"</span>,
+    age: 30,
+    city: <span class="string">"New York"</span>
+};</code></pre>
+                </div>
+            </div>
+
+            <div class="visual-demo">
+                <h4 style="color: #881518; margin-bottom: 1rem;">Object Visualization</h4>
+                <div class="object-visual">
+                    <div style="text-align: center; font-family: 'Courier New', monospace; color: #881518; font-weight: bold; margin-bottom: 1rem;">
+                        person = { }
+                    </div>
+                    
+                    <div class="property-row">
+                        <span class="property-key">name</span>
+                        <span class="property-colon">:</span>
+                        <span class="property-value">"Alice"</span>
+                    </div>
+                    
+                    <div class="property-row">
+                        <span class="property-key">age</span>
+                        <span class="property-colon">:</span>
+                        <span class="property-value">30</span>
+                    </div>
+                    
+                    <div class="property-row">
+                        <span class="property-key">city</span>
+                        <span class="property-colon">:</span>
+                        <span class="property-value">"New York"</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="concept">
+                <h3>Understanding the Structure</h3>
+                <ul style="margin-left: 2rem; color: #555; font-size: 1.1rem; line-height: 1.8;">
+                    <li>We've created an object called <code style="background: #f0f0f0; padding: 0.2rem 0.5rem;">person</code></li>
+                    <li>It has <strong>three properties</strong>: name, age, and city</li>
+                    <li>Each property has a <strong>name and a value</strong>, separated by a colon</li>
+                    <li>Properties are separated by commas</li>
+                </ul>
+            </div>
+
+            <div class="info-box">
+                <strong>Note:</strong>
+                <p style="margin-top: 0.5rem; color: #555;">
+                    The curly braces <code style="background: white; padding: 0.2rem 0.5rem;">{ }</code> define the object. Inside, you list all the properties you want to store.
+                </p>
+            </div>
+        </div>
+
+        <!-- Slide 3: Dot Notation -->
+        <div class="slide">
+            <h2>Dot Notation</h2>
+            
+            <div class="concept">
+                <h3>The Most Common Way to Access Properties</h3>
+                <p class="concept-text">
+                    <span class="highlight">Dot notation</span> is the most straightforward way to access object properties.
+                </p>
+                
+                <div class="syntax-box">
+objectName.propertyName
+                </div>
+            </div>
+
+            <div class="concept">
+                <h3>Example Usage</h3>
+                
+                <div class="code-example">
+                    <pre><code><span class="keyword">const</span> person = {
+    name: <span class="string">"Alice"</span>,
+    age: 30,
+    city: <span class="string">"New York"</span>
+};
+
+console.log(person.name); <span class="comment">// "Alice"</span>
+console.log(person.age);  <span class="comment">// 30</span></code></pre>
+                    <div class="output">Output:<br>"Alice"<br>30</div>
+                </div>
+            </div>
+
+            <div class="visual-demo">
+                <h4 style="color: #881518; margin-bottom: 1rem;">How Dot Notation Works</h4>
+                <div style="font-family: 'Courier New', monospace; line-height: 2; color: #333;">
+                    <div style="padding: 0.8rem; background: white; margin: 0.5rem 0; border-radius: 6px; border: 2px solid #881518;">
+                        person<span style="color: #881518; font-weight: bold;">.name</span> → Accesses the "name" property → Returns "Alice"
+                    </div>
+                    <div style="padding: 0.8rem; background: white; margin: 0.5rem 0; border-radius: 6px; border: 2px solid #881518;">
+                        person<span style="color: #881518; font-weight: bold;">.age</span> → Accesses the "age" property → Returns 30
+                    </div>
+                    <div style="padding: 0.8rem; background: white; margin: 0.5rem 0; border-radius: 6px; border: 2px solid #881518;">
+                        person<span style="color: #881518; font-weight: bold;">.city</span> → Accesses the "city" property → Returns "New York"
+                    </div>
+                </div>
+            </div>
+
+            <div class="info-box">
+                <strong>Why Use Dot Notation?</strong>
+                <p style="margin-top: 0.5rem; color: #555; line-height: 1.6;">
+                    • <strong>Concise and easy to read</strong><br>
+                    • Preferred choice when you know the exact property name<br>
+                    • Works when the property name is a valid JavaScript identifier (no spaces, doesn't start with a number, no special characters)
+                </p>
+            </div>
+        </div>
+
+        <!-- Slide 4: Bracket Notation -->
+        <div class="slide">
+            <h2>Bracket Notation</h2>
+            
+            <div class="concept">
+                <h3>A More Flexible Alternative</h3>
+                <p class="concept-text">
+                    <span class="highlight">Bracket notation</span> allows you to access object properties using a string inside square brackets.
+                </p>
+                
+                <div class="syntax-box">
+objectName[<span class="string">"propertyName"</span>]
+                </div>
+            </div>
+
+            <div class="concept">
+                <h3>Example Usage</h3>
+                
+                <div class="code-example">
+                    <pre><code><span class="keyword">const</span> person = {
+    name: <span class="string">"Alice"</span>,
+    age: 30,
+    city: <span class="string">"New York"</span>
+};
+
+console.log(person[<span class="string">"name"</span>]); <span class="comment">// "Alice"</span>
+console.log(person[<span class="string">"age"</span>]);  <span class="comment">// 30</span></code></pre>
+                    <div class="output">Output:<br>"Alice"<br>30</div>
+                </div>
+            </div>
+
+            <div class="concept">
+                <h3>Same Result, Different Syntax</h3>
+                <div class="comparison-grid">
+                    <div class="comparison-box">
+                        <h4>Dot Notation</h4>
+                        <div style="font-family: 'Courier New', monospace; padding: 1rem; background: white; border-radius: 6px;">
+                            person.name<br>
+                            person.age<br>
+                            person.city
+                        </div>
+                    </div>
+                    
+                    <div class="comparison-box">
+                        <h4>Bracket Notation</h4>
+                        <div style="font-family: 'Courier New', monospace; padding: 1rem; background: white; border-radius: 6px;">
+                            person["name"]<br>
+                            person["age"]<br>
+                            person["city"]
+                        </div>
+                    </div>
+                </div>
+                <div style="text-align: center; color: #555; font-style: italic; margin-top: 1rem;">
+                    Both approaches produce the same results!
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 5: When to Use Bracket Notation -->
+        <div class="slide">
+            <h2>Bracket Notation: Special Cases</h2>
+            
+            <div class="concept">
+                <h3>Properties with Spaces or Numbers</h3>
+                <p class="concept-text">
+                    Bracket notation is <strong>more flexible</strong> because it allows you to use property names that aren't valid JavaScript identifiers.
+                </p>
+                
+                <div class="code-example">
+                    <pre><code><span class="keyword">const</span> oddObject = {
+    <span class="string">"1stProperty"</span>: <span class="string">"Hello"</span>,
+    <span class="string">"property with spaces"</span>: <span class="string">"World"</span>
+};
+
+console.log(oddObject[<span class="string">"1stProperty"</span>]); <span class="comment">// "Hello"</span>
+console.log(oddObject[<span class="string">"property with spaces"</span>]); <span class="comment">// "World"</span></code></pre>
+                    <div class="output">Output:<br>"Hello"<br>"World"</div>
+                </div>
+            </div>
+
+            <div class="warning-box">
+                <strong>⚠️ These Won't Work with Dot Notation:</strong>
+                <div style="margin-top: 1rem; font-family: 'Courier New', monospace; color: #856404;">
+                    oddObject.1stProperty ❌ (starts with number)<br>
+                    oddObject.property with spaces ❌ (contains spaces)
+                </div>
+                <p style="margin-top: 1rem; color: #856404;">
+                    You <strong>must use bracket notation</strong> for property names like these!
+                </p>
+            </div>
+
+            <div class="info-box">
+                <strong>Valid JavaScript Identifiers:</strong>
+                <p style="margin-top: 0.5rem; color: #555;">
+                    To use dot notation, property names must:<br>
+                    • Not start with a number<br>
+                    • Not contain special characters or spaces<br>
+                    • Follow JavaScript naming rules
+                </p>
+            </div>
+        </div>
+
+        <!-- Slide 6: Dynamic Property Access -->
+        <div class="slide">
+            <h2>Dynamic Property Access</h2>
+            
+            <div class="concept">
+                <h3>Using Variables with Bracket Notation</h3>
+                <p class="concept-text">
+                    Bracket notation allows you to use <span class="highlight">variables</span> to access properties dynamically.
+                </p>
+                
+                <div class="code-example">
+                    <pre><code><span class="keyword">const</span> person = {
+    name: <span class="string">"Alice"</span>,
+    age: 30,
+    city: <span class="string">"Wonderland"</span>
+};
+
+<span class="keyword">let</span> propertyName = <span class="string">"city"</span>;
+console.log(person[propertyName]); <span class="comment">// "Wonderland"</span></code></pre>
+                    <div class="output">Output:<br>"Wonderland"</div>
+                </div>
+            </div>
+
+            <div class="visual-demo">
+                <h4 style="color: #881518; margin-bottom: 1rem;">How It Works</h4>
+                <div style="font-family: 'Courier New', monospace; line-height: 2; color: #333;">
+                    <div style="padding: 0.8rem; background: white; margin: 0.5rem 0; border-radius: 6px; border: 2px solid #0066cc;">
+                        <strong>Step 1:</strong> propertyName = "city"
+                    </div>
+                    <div style="padding: 0.8rem; background: white; margin: 0.5rem 0; border-radius: 6px; border: 2px solid #0066cc;">
+                        <strong>Step 2:</strong> person[propertyName] becomes person["city"]
+                    </div>
+                    <div style="padding: 0.8rem; background: white; margin: 0.5rem 0; border-radius: 6px; border: 2px solid #0066cc;">
+                        <strong>Step 3:</strong> Returns "Wonderland"
+                    </div>
+                </div>
+            </div>
+
+            <div class="concept">
+                <h3>Why This Is Powerful</h3>
+                <div style="background: #f8f9fa; padding: 1.5rem; border-radius: 8px; border-left: 4px solid #881518;">
+                    <p style="color: #555; line-height: 1.6; margin-bottom: 1rem;">
+                        This flexibility makes bracket notation particularly useful when:
+                    </p>
+                    <ul style="color: #555; line-height: 1.8; margin-left: 1.5rem;">
+                        <li>You don't know the exact property name when writing the code</li>
+                        <li>The property name comes from user input</li>
+                        <li>You're working with dynamic data sources</li>
+                        <li>You're looping through properties</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 7: Summary -->
+        <div class="slide">
+            <h2>Summary & Best Practices</h2>
+            
+            <div class="concept">
+                <h3>Dot vs Bracket Notation</h3>
+                <div class="comparison-grid">
+                    <div class="comparison-box" style="border-color: #28a745;">
+                        <h4 style="color: #28a745;">Dot Notation</h4>
+                        <div style="margin-top: 1rem;">
+                            <strong>Syntax:</strong>
+                            <div style="font-family: 'Courier New', monospace; padding: 0.5rem; background: white; border-radius: 4px; margin: 0.5rem 0;">
+                                object.property
+                            </div>
+                            <strong style="display: block; margin-top: 1rem;">Use when:</strong>
+                            <ul style="margin: 0.5rem 0 0 1.5rem; color: #555; line-height: 1.8;">
+                                <li>Property name is known</li>
+                                <li>Name is valid identifier</li>
+                                <li>Want concise, readable code</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="comparison-box" style="border-color: #0066cc;">
+                        <h4 style="color: #0066cc;">Bracket Notation</h4>
+                        <div style="margin-top: 1rem;">
+                            <strong>Syntax:</strong>
+                            <div style="font-family: 'Courier New', monospace; padding: 0.5rem; background: white; border-radius: 4px; margin: 0.5rem 0;">
+                                object["property"]
+                            </div>
+                            <strong style="display: block; margin-top: 1rem;">Use when:</strong>
+                            <ul style="margin: 0.5rem 0 0 1.5rem; color: #555; line-height: 1.8;">
+                                <li>Property name has spaces</li>
+                                <li>Name starts with number</li>
+                                <li>Using variables</li>
+                                <li>Dynamic access needed</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="concept">
+                <h3>Objects Are Versatile</h3>
+                <div class="info-box">
+                    <strong>What Objects Can Contain:</strong>
+                    <p style="margin-top: 0.5rem; color: #555; line-height: 1.8;">
+                        • Simple values (strings, numbers, booleans)<br>
+                        • Arrays<br>
+                        • Other objects (nested objects)<br>
+                        • Functions (methods)<br>
+                        • Any combination of the above
+                    </p>
+                </div>
+            </div>
+
+            <div class="concept">
+                <h3>Why Objects Matter</h3>
+                <div style="background: #f8f9fa; padding: 1.5rem; border-radius: 8px; border-left: 4px solid #881518;">
+                    <p style="color: #555; line-height: 1.8;">
+                        Understanding objects and how to work with them is <strong>crucial in JavaScript</strong> because they're used extensively throughout the language and in many JavaScript libraries and frameworks. Mastering objects opens up a world of possibilities for creating complex and powerful applications.
+                    </p>
+                </div>
+            </div>
+
+            <div class="warning-box">
+                <strong>Key Takeaway:</strong>
+                <p style="margin-top: 0.5rem; color: #856404;">
+                    When in doubt, use <strong>dot notation</strong> for simplicity. Switch to <strong>bracket notation</strong> when you need the extra flexibility for special property names or dynamic access.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div class="navigation">
+        <button class="nav-button" id="prevBtn" onclick="changeSlide(-1)">← Previous</button>
+        <span class="slide-counter">
+            <span id="currentSlide">1</span> / <span id="totalSlides">7</span>
+        </span>
+        <button class="nav-button" id="nextBtn" onclick="changeSlide(1)">Next →</button>
+    </div>
+
+    <script>
+        let currentSlide = 1;
+        const totalSlides = document.querySelectorAll('.slide').length;
+        
+        document.getElementById('totalSlides').textContent = totalSlides;
+        
+        function showSlide(n) {
+            const slides = document.querySelectorAll('.slide');
+            
+            if (n > totalSlides) {
+                currentSlide = totalSlides;
+            }
+            if (n < 1) {
+                currentSlide = 1;
+            }
+            
+            slides.forEach(slide => {
+                slide.classList.remove('active');
+            });
+            
+            slides[currentSlide - 1].classList.add('active');
+            
+            document.getElementById('currentSlide').textContent = currentSlide;
+            
+            // Update button states
+            document.getElementById('prevBtn').disabled = currentSlide === 1;
+            document.getElementById('nextBtn').disabled = currentSlide === totalSlides;
+            
+            // Scroll to top of slide
+            window.scrollTo(0, 0);
+        }
+        
+        function changeSlide(direction) {
+            currentSlide += direction;
+            showSlide(currentSlide);
+        }
+        
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowLeft') {
+                changeSlide(-1);
+            } else if (e.key === 'ArrowRight') {
+                changeSlide(1);
+            }
+        });
+        
+        // Initialize
+        showSlide(currentSlide);
+    </script>
+</body>
+</html>

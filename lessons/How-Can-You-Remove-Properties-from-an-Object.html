@@ -1,0 +1,743 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Removing Properties from Objects</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #881518 0%, #a91d20 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .slide-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+            padding-bottom: 100px;
+            min-height: 100vh;
+        }
+
+        .slide {
+            display: none;
+            background: white;
+            border-radius: 12px;
+            padding: 2.5rem;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        .slide.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        h2 {
+            color: #881518;
+            font-size: 2rem;
+            margin-bottom: 1.5rem;
+            border-bottom: 3px solid #881518;
+            padding-bottom: 0.5rem;
+        }
+
+        .concept {
+            margin-bottom: 2rem;
+        }
+
+        .concept h3 {
+            color: #333;
+            font-size: 1.4rem;
+            margin-bottom: 1rem;
+        }
+
+        .concept-text {
+            color: #555;
+            font-size: 1.1rem;
+            line-height: 1.6;
+            margin-bottom: 1rem;
+        }
+
+        .code-example {
+            background: #f8f9fa;
+            border-left: 4px solid #881518;
+            padding: 1.5rem;
+            border-radius: 6px;
+            margin: 1rem 0;
+            overflow-x: auto;
+        }
+
+        .code-example pre {
+            margin: 0;
+            font-family: 'Courier New', monospace;
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+
+        .code-example code {
+            color: #333;
+        }
+
+        .keyword {
+            color: #0066cc;
+            font-weight: bold;
+        }
+
+        .string {
+            color: #22863a;
+        }
+
+        .comment {
+            color: #6a737d;
+            font-style: italic;
+        }
+
+        .output {
+            background: #e8f4f8;
+            border-left: 4px solid #0066cc;
+            padding: 1rem;
+            margin-top: 0.5rem;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+        }
+
+        .highlight {
+            background: #fff3cd;
+            padding: 0.2rem 0.4rem;
+            border-radius: 3px;
+            font-weight: 600;
+        }
+
+        .info-box {
+            background: #e7f3ff;
+            border-left: 4px solid #0066cc;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 4px;
+        }
+
+        .info-box strong {
+            color: #004085;
+        }
+
+        .warning-box {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 4px;
+        }
+
+        .warning-box strong {
+            color: #856404;
+        }
+
+        .visual-demo {
+            background: #f8f9fa;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin: 1.5rem 0;
+            border: 2px solid #881518;
+        }
+
+        .before-after {
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            gap: 1.5rem;
+            align-items: center;
+            margin: 1.5rem 0;
+        }
+
+        .object-box {
+            background: white;
+            border: 3px solid #881518;
+            border-radius: 8px;
+            padding: 1.5rem;
+        }
+
+        .object-box h4 {
+            color: #881518;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+
+        .property-row {
+            display: flex;
+            align-items: center;
+            padding: 0.8rem;
+            margin: 0.5rem 0;
+            background: #f8f9fa;
+            border-radius: 6px;
+            border-left: 4px solid #881518;
+        }
+
+        .property-row.removed {
+            background: #f8d7da;
+            border-left-color: #dc3545;
+            opacity: 0.5;
+            text-decoration: line-through;
+        }
+
+        .property-key {
+            color: #881518;
+            font-weight: bold;
+            font-family: 'Courier New', monospace;
+            min-width: 80px;
+        }
+
+        .property-colon {
+            color: #333;
+            margin: 0 1rem;
+            font-weight: bold;
+        }
+
+        .property-value {
+            color: #22863a;
+            font-family: 'Courier New', monospace;
+        }
+
+        .arrow {
+            font-size: 2rem;
+            color: #881518;
+            font-weight: bold;
+        }
+
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            margin: 1.5rem 0;
+        }
+
+        .comparison-box {
+            background: #f8f9fa;
+            padding: 1.5rem;
+            border-radius: 8px;
+            border: 2px solid #881518;
+        }
+
+        .comparison-box h4 {
+            color: #881518;
+            margin-bottom: 1rem;
+            font-size: 1.2rem;
+        }
+
+        .navigation {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0, 0, 0, 0.9);
+            padding: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.3);
+            z-index: 1000;
+        }
+
+        .nav-button {
+            background: #881518;
+            color: white;
+            border: none;
+            padding: 0.8rem 2rem;
+            font-size: 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+        }
+
+        .nav-button:hover {
+            background: #a91d20;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(136, 21, 24, 0.4);
+        }
+
+        .nav-button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .slide-counter {
+            color: white;
+            font-size: 1rem;
+            font-weight: 600;
+        }
+
+        @media (max-width: 768px) {
+            .slide-container {
+                padding: 1rem;
+                padding-bottom: 100px;
+            }
+
+            .slide {
+                padding: 1.5rem;
+            }
+
+            h2 {
+                font-size: 1.5rem;
+            }
+
+            .concept h3 {
+                font-size: 1.2rem;
+            }
+
+            .concept-text {
+                font-size: 1rem;
+            }
+
+            .nav-button {
+                padding: 0.7rem 1.2rem;
+                font-size: 0.9rem;
+            }
+
+            .before-after {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+
+            .arrow {
+                transform: rotate(90deg);
+            }
+
+            .comparison-grid {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+
+            .code-example {
+                padding: 1rem;
+            }
+
+            .code-example pre {
+                font-size: 0.85rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .navigation {
+                padding: 0.8rem;
+            }
+
+            .nav-button {
+                padding: 0.6rem 1rem;
+                font-size: 0.85rem;
+            }
+
+            .slide-counter {
+                font-size: 0.9rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="slide-container">
+        <!-- Slide 1: Introduction -->
+        <div class="slide active">
+            <h2>Removing Properties from Objects</h2>
+            
+            <div class="concept">
+                <h3>Why Remove Properties?</h3>
+                <p class="concept-text">
+                    Sometimes you need to remove properties from objects to:
+                </p>
+                <ul style="margin-left: 2rem; color: #555; font-size: 1.1rem; line-height: 1.8;">
+                    <li>Clean up unnecessary data</li>
+                    <li>Manipulate objects dynamically</li>
+                    <li>Remove sensitive information</li>
+                    <li>Update object structure</li>
+                </ul>
+            </div>
+
+            <div class="concept">
+                <h3>Two Main Methods</h3>
+                <div class="comparison-grid">
+                    <div class="comparison-box" style="border-color: #dc3545;">
+                        <h4 style="color: #dc3545;">1. Delete Operator</h4>
+                        <p style="color: #555; line-height: 1.6;">
+                            The most <strong>straightforward and commonly used</strong> method. Directly removes the property from the existing object.
+                        </p>
+                        <div style="margin-top: 1rem; padding: 1rem; background: white; border-radius: 6px; font-family: 'Courier New', monospace;">
+                            delete object.property
+                        </div>
+                    </div>
+
+                    <div class="comparison-box" style="border-color: #0066cc;">
+                        <h4 style="color: #0066cc;">2. Destructuring with Rest</h4>
+                        <p style="color: #555; line-height: 1.6;">
+                            Creates a <strong>new object</strong> without the specified properties. The original object remains unchanged.
+                        </p>
+                        <div style="margin-top: 1rem; padding: 1rem; background: white; border-radius: 6px; font-family: 'Courier New', monospace; font-size: 0.85rem;">
+                            const {prop, ...rest} = obj
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="info-box">
+                <strong>Key Difference:</strong>
+                <p style="margin-top: 0.5rem; color: #555; line-height: 1.6;">
+                    • <strong>delete</strong> → Modifies the original object<br>
+                    • <strong>destructuring</strong> → Creates a new object, leaves original intact
+                </p>
+            </div>
+        </div>
+
+        <!-- Slide 2: The Delete Operator -->
+        <div class="slide">
+            <h2>The Delete Operator</h2>
+            
+            <div class="concept">
+                <h3>How Delete Works</h3>
+                <p class="concept-text">
+                    When you use <span class="highlight">delete</span>, it <strong>removes the selected property</strong> from the object.
+                </p>
+                
+                <div class="code-example">
+                    <pre><code><span class="keyword">const</span> person = {
+    name: <span class="string">"Alice"</span>,
+    age: 30,
+    job: <span class="string">"Engineer"</span>
+};
+
+<span class="keyword">delete</span> person.job;
+
+console.log(person.job); <span class="comment">// undefined</span></code></pre>
+                    <div class="output">Output: undefined</div>
+                </div>
+            </div>
+
+            <div class="concept">
+                <h3>What Happens</h3>
+                <ul style="margin-left: 2rem; color: #555; font-size: 1.1rem; line-height: 1.8;">
+                    <li>The <code style="background: #f0f0f0; padding: 0.2rem 0.5rem;">job</code> property is <strong>completely removed</strong> from the object</li>
+                    <li>After deletion, accessing <code style="background: #f0f0f0; padding: 0.2rem 0.5rem;">person.job</code> returns <code style="background: #f0f0f0; padding: 0.2rem 0.5rem;">undefined</code></li>
+                    <li>The property no longer exists in the object</li>
+                </ul>
+            </div>
+
+            <div class="info-box">
+                <strong>Return Value:</strong>
+                <p style="margin-top: 0.5rem; color: #555;">
+                    The delete operator returns <code style="background: white; padding: 0.2rem 0.5rem;">true</code> if the deletion was successful. However, accessing the deleted property returns <code style="background: white; padding: 0.2rem 0.5rem;">undefined</code>.
+                </p>
+            </div>
+        </div>
+
+        <!-- Slide 3: Delete Operator Visual -->
+        <div class="slide">
+            <h2>Delete Operator: Before & After</h2>
+            
+            <div class="concept">
+                <h3>Visual Representation</h3>
+                <div class="before-after">
+                    <div class="object-box">
+                        <h4>Before Delete</h4>
+                        <div class="property-row">
+                            <span class="property-key">name</span>
+                            <span class="property-colon">:</span>
+                            <span class="property-value">"Alice"</span>
+                        </div>
+                        <div class="property-row">
+                            <span class="property-key">age</span>
+                            <span class="property-colon">:</span>
+                            <span class="property-value">30</span>
+                        </div>
+                        <div class="property-row" style="border-left-color: #ffc107; background: #fff3cd;">
+                            <span class="property-key">job</span>
+                            <span class="property-colon">:</span>
+                            <span class="property-value">"Engineer"</span>
+                        </div>
+                    </div>
+
+                    <div class="arrow">→</div>
+
+                    <div class="object-box">
+                        <h4>After Delete</h4>
+                        <div class="property-row">
+                            <span class="property-key">name</span>
+                            <span class="property-colon">:</span>
+                            <span class="property-value">"Alice"</span>
+                        </div>
+                        <div class="property-row">
+                            <span class="property-key">age</span>
+                            <span class="property-colon">:</span>
+                            <span class="property-value">30</span>
+                        </div>
+                        <div class="property-row removed">
+                            <span class="property-key">job</span>
+                            <span class="property-colon">:</span>
+                            <span class="property-value">"Engineer"</span>
+                        </div>
+                    </div>
+                </div>
+                <div style="text-align: center; margin-top: 1rem; padding: 1rem; background: #f8f9fa; border-radius: 6px; font-family: 'Courier New', monospace; color: #dc3545; font-weight: bold;">
+                    delete person.job → job property is removed
+                </div>
+            </div>
+
+            <div class="warning-box">
+                <strong>Important:</strong>
+                <p style="margin-top: 0.5rem; color: #856404;">
+                    The delete operator <strong>modifies the original object</strong>. The property is permanently removed from that object.
+                </p>
+            </div>
+        </div>
+
+        <!-- Slide 4: Multiple Properties -->
+        <div class="slide">
+            <h2>Removing Multiple Properties</h2>
+            
+            <div class="concept">
+                <h3>Delete Multiple Properties One by One</h3>
+                
+                <div class="code-example">
+                    <pre><code><span class="keyword">const</span> car = {
+    brand: <span class="string">"Toyota"</span>,
+    model: <span class="string">"Corolla"</span>,
+    year: 2020,
+    color: <span class="string">"blue"</span>
+};
+
+<span class="keyword">delete</span> car.year;
+<span class="keyword">delete</span> car.color;
+
+console.log(car);
+<span class="comment">// { brand: "Toyota", model: "Corolla" }</span></code></pre>
+                    <div class="output">{ brand: "Toyota", model: "Corolla" }</div>
+                </div>
+            </div>
+
+            <div class="visual-demo">
+                <h4 style="color: #881518; margin-bottom: 1rem;">Step-by-Step Removal</h4>
+                <div style="font-family: 'Courier New', monospace; line-height: 2; color: #333;">
+                    <div style="padding: 0.8rem; background: white; margin: 0.5rem 0; border-radius: 6px; border: 2px solid #881518;">
+                        <strong>Original:</strong> {brand, model, year, color}
+                    </div>
+                    <div style="padding: 0.8rem; background: #fff3cd; margin: 0.5rem 0; border-radius: 6px; border: 2px solid #ffc107;">
+                        <strong>delete car.year</strong> → {brand, model, color}
+                    </div>
+                    <div style="padding: 0.8rem; background: #d4edda; margin: 0.5rem 0; border-radius: 6px; border: 2px solid #28a745;">
+                        <strong>delete car.color</strong> → {brand, model}
+                    </div>
+                </div>
+            </div>
+
+            <div class="info-box">
+                <strong>Note:</strong>
+                <p style="margin-top: 0.5rem; color: #555;">
+                    You can use multiple delete statements to remove several properties. Each delete operation removes one property at a time.
+                </p>
+            </div>
+        </div>
+
+        <!-- Slide 5: Destructuring Alternative -->
+        <div class="slide">
+            <h2>Destructuring with Rest Parameters</h2>
+            
+            <div class="concept">
+                <h3>Creating a New Object Without Properties</h3>
+                <p class="concept-text">
+                    This approach doesn't actually delete the property—it creates a <span class="highlight">new object</span> without the specified properties.
+                </p>
+                
+                <div class="code-example">
+                    <pre><code><span class="keyword">const</span> person = {
+    name: <span class="string">"Bob"</span>,
+    age: 25,
+    job: <span class="string">"Designer"</span>,
+    city: <span class="string">"New York"</span>
+};
+
+<span class="keyword">const</span> { job, city, ...remainingProperties } = person;
+
+console.log(remainingProperties);
+<span class="comment">// { name: "Bob", age: 25 }</span></code></pre>
+                    <div class="output">{ name: "Bob", age: 25 }</div>
+                </div>
+            </div>
+
+            <div class="concept">
+                <h3>How It Works</h3>
+                <div class="visual-demo">
+                    <div style="font-family: 'Courier New', monospace; line-height: 2; color: #333;">
+                        <div style="padding: 0.8rem; background: white; margin: 0.5rem 0; border-radius: 6px; border: 2px solid #881518;">
+                            <strong>Step 1:</strong> Extract job and city from person
+                        </div>
+                        <div style="padding: 0.8rem; background: white; margin: 0.5rem 0; border-radius: 6px; border: 2px solid #881518;">
+                            <strong>Step 2:</strong> Collect remaining properties with ...rest
+                        </div>
+                        <div style="padding: 0.8rem; background: white; margin: 0.5rem 0; border-radius: 6px; border: 2px solid #881518;">
+                            <strong>Step 3:</strong> Create new object with only name and age
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="warning-box">
+                <strong>Important Difference:</strong>
+                <p style="margin-top: 0.5rem; color: #856404;">
+                    The original <code style="background: white; padding: 0.2rem 0.5rem;">person</code> object still has all four properties! This method creates a <strong>new object</strong> called <code style="background: white; padding: 0.2rem 0.5rem;">remainingProperties</code> without job and city.
+                </p>
+            </div>
+        </div>
+
+        <!-- Slide 6: Comparison & Summary -->
+        <div class="slide">
+            <h2>Delete vs Destructuring: Key Differences</h2>
+            
+            <div class="concept">
+                <h3>Side-by-Side Comparison</h3>
+                <div class="comparison-grid">
+                    <div class="comparison-box" style="border-color: #dc3545;">
+                        <h4 style="color: #dc3545;">Delete Operator</h4>
+                        <div class="code-example" style="margin: 1rem 0; border-left-color: #dc3545;">
+                            <pre><code><span class="keyword">const</span> obj = {a: 1, b: 2};
+<span class="keyword">delete</span> obj.b;
+console.log(obj);
+<span class="comment">// {a: 1}</span></code></pre>
+                        </div>
+                        <div style="padding: 1rem; background: white; border-radius: 6px;">
+                            <strong>Behavior:</strong>
+                            <ul style="margin-top: 0.5rem; color: #555; line-height: 1.8; margin-left: 1.5rem;">
+                                <li>Modifies original object</li>
+                                <li>Property is removed</li>
+                                <li>Returns true/false</li>
+                                <li>Direct deletion</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="comparison-box" style="border-color: #0066cc;">
+                        <h4 style="color: #0066cc;">Destructuring</h4>
+                        <div class="code-example" style="margin: 1rem 0; border-left-color: #0066cc;">
+                            <pre><code><span class="keyword">const</span> obj = {a: 1, b: 2};
+<span class="keyword">const</span> {b, ...rest} = obj;
+console.log(rest);
+<span class="comment">// {a: 1}</span></code></pre>
+                        </div>
+                        <div style="padding: 1rem; background: white; border-radius: 6px;">
+                            <strong>Behavior:</strong>
+                            <ul style="margin-top: 0.5rem; color: #555; line-height: 1.8; margin-left: 1.5rem;">
+                                <li>Creates new object</li>
+                                <li>Original unchanged</li>
+                                <li>Returns new object</li>
+                                <li>Immutable approach</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="concept">
+                <h3>When to Use Each Method</h3>
+                <div style="background: #f8f9fa; padding: 1.5rem; border-radius: 8px; border-left: 4px solid #881518;">
+                    <div style="margin-bottom: 1.5rem;">
+                        <h4 style="color: #dc3545; margin-bottom: 0.5rem;">Use Delete When:</h4>
+                        <ul style="color: #555; line-height: 1.8; margin-left: 1.5rem;">
+                            <li>You want to modify the original object</li>
+                            <li>You need to remove one or a few properties</li>
+                            <li>Memory cleanup is important</li>
+                            <li>You're working with a single object reference</li>
+                        </ul>
+                    </div>
+                    
+                    <div>
+                        <h4 style="color: #0066cc; margin-bottom: 0.5rem;">Use Destructuring When:</h4>
+                        <ul style="color: #555; line-height: 1.8; margin-left: 1.5rem;">
+                            <li>You want to preserve the original object</li>
+                            <li>You're following immutable patterns</li>
+                            <li>You need to remove multiple properties at once</li>
+                            <li>You're working with React or functional programming</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="info-box">
+                <strong>Key Takeaway:</strong>
+                <p style="margin-top: 0.5rem; color: #555; line-height: 1.6;">
+                    Understanding how to remove properties from objects is an <strong>important skill</strong> in JavaScript programming. It allows you to manipulate objects dynamically and clean up unnecessary data. Choose the method that best fits your needs!
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div class="navigation">
+        <button class="nav-button" id="prevBtn" onclick="changeSlide(-1)">← Previous</button>
+        <span class="slide-counter">
+            <span id="currentSlide">1</span> / <span id="totalSlides">6</span>
+        </span>
+        <button class="nav-button" id="nextBtn" onclick="changeSlide(1)">Next →</button>
+    </div>
+
+    <script>
+        let currentSlide = 1;
+        const totalSlides = document.querySelectorAll('.slide').length;
+        
+        document.getElementById('totalSlides').textContent = totalSlides;
+        
+        function showSlide(n) {
+            const slides = document.querySelectorAll('.slide');
+            
+            if (n > totalSlides) {
+                currentSlide = totalSlides;
+            }
+            if (n < 1) {
+                currentSlide = 1;
+            }
+            
+            slides.forEach(slide => {
+                slide.classList.remove('active');
+            });
+            
+            slides[currentSlide - 1].classList.add('active');
+            
+            document.getElementById('currentSlide').textContent = currentSlide;
+            
+            // Update button states
+            document.getElementById('prevBtn').disabled = currentSlide === 1;
+            document.getElementById('nextBtn').disabled = currentSlide === totalSlides;
+            
+            // Scroll to top of slide
+            window.scrollTo(0, 0);
+        }
+        
+        function changeSlide(direction) {
+            currentSlide += direction;
+            showSlide(currentSlide);
+        }
+        
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowLeft') {
+                changeSlide(-1);
+            } else if (e.key === 'ArrowRight') {
+                changeSlide(1);
+            }
+        });
+        
+        // Initialize
+        showSlide(currentSlide);
+    </script>
+</body>
+</html>
