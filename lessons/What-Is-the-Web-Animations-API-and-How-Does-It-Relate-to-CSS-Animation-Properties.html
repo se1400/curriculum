@@ -1,0 +1,1129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Web Animations API Presentation</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #f5f5f5 0%, #ffffff 100%);
+            color: #2d2d2d;
+            overflow-x: hidden;
+        }
+
+        .slide-container {
+            min-height: 100vh;
+            padding: 2rem 2rem 120px 2rem;
+            display: none;
+        }
+
+        .slide-container.active {
+            display: block;
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .slide-content {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            color: #881518;
+            font-size: clamp(1.8rem, 4vw, 3rem);
+            margin-bottom: 2rem;
+            border-bottom: 3px solid #881518;
+            padding-bottom: 1rem;
+        }
+
+        h2 {
+            color: #a81c1f;
+            font-size: clamp(1.4rem, 3vw, 2rem);
+            margin: 2rem 0 1rem 0;
+        }
+
+        h3 {
+            color: #c8575a;
+            font-size: clamp(1.2rem, 2.5vw, 1.5rem);
+            margin: 1.5rem 0 1rem 0;
+        }
+
+        p, li {
+            font-size: clamp(1rem, 2vw, 1.2rem);
+            line-height: 1.8;
+            margin-bottom: 1rem;
+            color: #333333;
+        }
+
+        .content-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+
+        @media (min-width: 768px) {
+            .content-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        .concept-box {
+            background: rgba(136, 21, 24, 0.05);
+            border-left: 4px solid #881518;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin: 1.5rem 0;
+        }
+
+        .code-box {
+            background: #f8f8f8;
+            border: 1px solid #d0d0d0;
+            border-radius: 8px;
+            padding: 1.5rem;
+            overflow-x: auto;
+            margin: 1rem 0;
+        }
+
+        code {
+            font-family: 'Courier New', Courier, monospace;
+            font-size: clamp(0.85rem, 1.5vw, 1rem);
+            color: #0066cc;
+        }
+
+        .keyword { color: #881518; }
+        .string { color: #2a8d2a; }
+        .function { color: #795e26; }
+        .comment { color: #008000; }
+        .property { color: #0066cc; }
+
+        .interactive-demo {
+            background: rgba(136, 21, 24, 0.03);
+            border: 2px dashed #881518;
+            border-radius: 8px;
+            padding: 2rem;
+            margin: 2rem 0;
+        }
+
+        .demo-button {
+            background: #881518;
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1.1rem;
+            font-weight: 600;
+            transition: all 0.3s;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            margin: 0.5rem;
+        }
+
+        .demo-button:hover {
+            background: #a81c1f;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(136, 21, 24, 0.3);
+        }
+
+        .demo-output {
+            background: white;
+            border: 2px solid #881518;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1rem 0;
+            min-height: 80px;
+        }
+
+        ul {
+            margin-left: 2rem;
+        }
+
+        .navigation {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(to top, #ffffff, rgba(255, 255, 255, 0.98));
+            padding: 1.5rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+            border-top: 2px solid #e0e0e0;
+        }
+
+        .nav-button {
+            background: #881518;
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: clamp(0.9rem, 2vw, 1.1rem);
+            font-weight: 600;
+            transition: all 0.3s;
+            min-width: 100px;
+        }
+
+        .nav-button:hover:not(:disabled) {
+            background: #a81c1f;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(136, 21, 24, 0.3);
+        }
+
+        .nav-button:disabled {
+            background: #cccccc;
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        .slide-counter {
+            color: #881518;
+            font-weight: 600;
+            font-size: clamp(1rem, 2vw, 1.2rem);
+        }
+
+        @media (max-width: 768px) {
+            .navigation {
+                padding: 1rem;
+            }
+
+            .nav-button {
+                padding: 0.75rem 1rem;
+                min-width: 80px;
+            }
+        }
+
+        .highlight {
+            background: rgba(136, 21, 24, 0.15);
+            padding: 0.2rem 0.4rem;
+            border-radius: 3px;
+            font-weight: 600;
+        }
+
+        .inline-code {
+            background: #f0f0f0;
+            padding: 0.2rem 0.5rem;
+            border-radius: 3px;
+            font-family: 'Courier New', Courier, monospace;
+            color: #881518;
+            font-size: 0.9em;
+        }
+
+        .success-box {
+            background: linear-gradient(135deg, #d4edda, #c3e6cb);
+            border: 2px solid #28a745;
+            border-left: 6px solid #1e7e34;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+        }
+
+        .success-box h3 {
+            color: #1e7e34;
+            margin-top: 0;
+        }
+
+        .info-box {
+            background: linear-gradient(135deg, #e3f2fd, #bbdefb);
+            border: 2px solid #2196f3;
+            border-left: 6px solid #1976d2;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+        }
+
+        .info-box h3 {
+            color: #1565c0;
+            margin-top: 0;
+        }
+
+        .method-signature {
+            background: rgba(136, 21, 24, 0.08);
+            border: 2px solid #881518;
+            border-radius: 8px;
+            padding: 1rem 1.5rem;
+            margin: 1rem 0;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: clamp(0.9rem, 2vw, 1.1rem);
+            font-weight: bold;
+            color: #881518;
+        }
+
+        .animation-stage {
+            background: #ffffff;
+            border: 3px solid #881518;
+            border-radius: 8px;
+            height: 150px;
+            position: relative;
+            overflow: hidden;
+            margin: 2rem 0;
+        }
+
+        .animated-square {
+            position: absolute;
+            background: #2196f3;
+            width: 80px;
+            height: 80px;
+            top: 35px;
+            left: 0;
+            border-radius: 8px;
+        }
+
+        .methods-list {
+            background: rgba(136, 21, 24, 0.05);
+            border: 2px solid #881518;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1rem 0;
+        }
+
+        .methods-list h4 {
+            color: #881518;
+            margin-bottom: 0.5rem;
+        }
+
+        .methods-list ul {
+            list-style: none;
+            margin-left: 0;
+        }
+
+        .methods-list li {
+            padding: 0.5rem 0;
+            border-bottom: 1px solid rgba(136, 21, 24, 0.1);
+        }
+
+        .methods-list li:last-child {
+            border-bottom: none;
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 2rem 0;
+        }
+
+        .comparison-table th {
+            background: #881518;
+            color: white;
+            padding: 1rem;
+            text-align: left;
+            border: 1px solid #d0d0d0;
+        }
+
+        .comparison-table td {
+            background: #fafafa;
+            padding: 1rem;
+            border: 1px solid #d0d0d0;
+            vertical-align: top;
+        }
+
+        .comparison-table tr:nth-child(even) td {
+            background: #f5f5f5;
+        }
+
+        .warning-box {
+            background: linear-gradient(135deg, #fff3cd, #ffe69c);
+            border: 2px solid #ffc107;
+            border-left: 6px solid #ff9800;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+        }
+
+        .warning-box h3 {
+            color: #ff6f00;
+            margin-top: 0;
+        }
+    </style>
+</head>
+<body>
+    <!-- Slide 1: Introduction -->
+    <div class="slide-container active">
+        <div class="slide-content">
+            <h1>Web Animations API (WAAPI)</h1>
+            
+            <div class="concept-box">
+                <h2>What is WAAPI?</h2>
+                <p>The <span class="highlight">Web Animations API (WAAPI)</span> allows you to create and control animations <strong>directly within JavaScript</strong>.</p>
+                <p>With WAAPI, you can work with animations more <span class="highlight">dynamically</span>, making it easier to manipulate them.</p>
+            </div>
+
+            <div class="content-grid">
+                <div class="success-box">
+                    <h3>✓ Key Benefits</h3>
+                    <p>• Create animations in JavaScript</p>
+                    <p>• Full programmatic control</p>
+                    <p>• Dynamic manipulation</p>
+                    <p>• Play, pause, reverse, cancel</p>
+                    <p>• Adjust speed and timing</p>
+                </div>
+
+                <div class="info-box">
+                    <h3>Why Use WAAPI?</h3>
+                    <p>✨ <strong>Dynamic control:</strong> Change animations at runtime</p>
+                    <p>🎮 <strong>Interactive:</strong> Respond to user actions</p>
+                    <p>🔧 <strong>Flexible:</strong> Modify animations on the fly</p>
+                    <p>💪 <strong>Powerful:</strong> Combines CSS and JS strengths</p>
+                </div>
+            </div>
+
+            <div class="concept-box">
+                <h2>In This Presentation</h2>
+                <p>Let's take a look at WAAPI in more detail, so you can start working with animations directly inside your JavaScript code.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 2: Animation Constructor -->
+    <div class="slide-container">
+        <div class="slide-content">
+            <h1>The Animation Constructor</h1>
+
+            <div class="concept-box">
+                <h2>Core of WAAPI</h2>
+                <p>At the core of WAAPI is the <span class="highlight">Animation constructor</span>, which provides several instance methods and properties that allow you to <strong>dynamically animate elements</strong>.</p>
+            </div>
+
+            <div class="info-box">
+                <h3>The animate() Method</h3>
+                <p>A significant method in the Animation constructor is <span class="inline-code">animate()</span>.</p>
+                <p>It allows you to create an animation by specifying <strong>keyframes</strong> and <strong>options</strong> like duration, direction, easing, and iterations.</p>
+            </div>
+
+            <h3>Basic Syntax</h3>
+            <div class="method-signature">
+                element.animate(keyframes, options);
+            </div>
+
+            <div class="content-grid">
+                <div class="concept-box">
+                    <h3>Parameters</h3>
+                    <p><strong>keyframes:</strong> An array of objects defining the animation states</p>
+                    <p><strong>options:</strong> An object with animation settings (duration, easing, iterations, etc.)</p>
+                </div>
+
+                <div class="concept-box">
+                    <h3>Return Value</h3>
+                    <p>Returns an <strong>Animation object</strong> that you can control with methods like <span class="inline-code">play()</span>, <span class="inline-code">pause()</span>, <span class="inline-code">reverse()</span></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 3: Basic Example -->
+    <div class="slide-container">
+        <div class="slide-content">
+            <h1>Basic Example: Moving Square</h1>
+
+            <div class="concept-box">
+                <h2>Let's See It In Action</h2>
+                <p>The result in the browser will be a blue square moving back and forth horizontally.</p>
+            </div>
+
+            <h3>HTML</h3>
+            <div class="code-box">
+                <code>
+<span class="keyword">&lt;link</span> <span class="property">rel</span>=<span class="string">"stylesheet"</span> <span class="property">href</span>=<span class="string">"styles.css"</span> <span class="keyword">/&gt;</span>
+<span class="keyword">&lt;div</span> <span class="property">class</span>=<span class="string">"square"</span> <span class="property">id</span>=<span class="string">"square"</span><span class="keyword">&gt;&lt;/div&gt;</span>
+<span class="keyword">&lt;script</span> <span class="property">src</span>=<span class="string">"index.js"</span><span class="keyword">&gt;&lt;/script&gt;</span>
+                </code>
+            </div>
+
+            <h3>CSS</h3>
+            <div class="code-box">
+                <code>
+<span class="keyword">.square</span> {
+  <span class="property">width</span>: <span class="string">80px</span>;
+  <span class="property">height</span>: <span class="string">80px</span>;
+  <span class="property">background</span>: <span class="string">#2196f3</span>;
+  <span class="property">border-radius</span>: <span class="string">8px</span>;
+}
+                </code>
+            </div>
+
+            <h3>JavaScript</h3>
+            <div class="code-box">
+                <code>
+<span class="keyword">const</span> square = <span class="keyword">document</span>.<span class="function">getElementById</span>(<span class="string">"square"</span>);
+
+square.<span class="function">animate</span>(
+  [
+    { <span class="property">transform</span>: <span class="string">"translateX(0px)"</span> },
+    { <span class="property">transform</span>: <span class="string">"translateX(300px)"</span> }
+  ],
+  {
+    <span class="property">duration</span>: <span class="keyword">2000</span>,
+    <span class="property">iterations</span>: <span class="keyword">Infinity</span>,
+    <span class="property">direction</span>: <span class="string">"alternate"</span>
+  }
+);
+                </code>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 4: Keyframes Explained -->
+    <div class="slide-container">
+        <div class="slide-content">
+            <h1>Understanding Keyframes</h1>
+
+            <div class="concept-box">
+                <h2>What Are Keyframes?</h2>
+                <p><span class="highlight">Keyframes</span> define the states of the animation at different points in time.</p>
+                <p>They're an array of objects, each representing a snapshot of CSS properties.</p>
+            </div>
+
+            <div class="code-box">
+                <code>
+<span class="comment">// Keyframes array</span>
+[
+  { <span class="property">transform</span>: <span class="string">"translateX(0px)"</span> },      <span class="comment">// Start: at position 0</span>
+  { <span class="property">transform</span>: <span class="string">"translateX(300px)"</span> }   <span class="comment">// End: at position 300px</span>
+]
+                </code>
+            </div>
+
+            <div class="content-grid">
+                <div class="info-box">
+                    <h3>More Keyframe Examples</h3>
+                    <div class="code-box">
+                        <code>
+<span class="comment">// Fade in</span>
+[
+  { <span class="property">opacity</span>: <span class="keyword">0</span> },
+  { <span class="property">opacity</span>: <span class="keyword">1</span> }
+]
+
+<span class="comment">// Rotate</span>
+[
+  { <span class="property">transform</span>: <span class="string">"rotate(0deg)"</span> },
+  { <span class="property">transform</span>: <span class="string">"rotate(360deg)"</span> }
+]
+
+<span class="comment">// Scale up</span>
+[
+  { <span class="property">transform</span>: <span class="string">"scale(1)"</span> },
+  { <span class="property">transform</span>: <span class="string">"scale(1.5)"</span> }
+]
+                        </code>
+                    </div>
+                </div>
+
+                <div class="info-box">
+                    <h3>Multiple Properties</h3>
+                    <div class="code-box">
+                        <code>
+<span class="comment">// Combine effects</span>
+[
+  {
+    <span class="property">transform</span>: <span class="string">"translateX(0px)"</span>,
+    <span class="property">opacity</span>: <span class="keyword">0</span>,
+    <span class="property">backgroundColor</span>: <span class="string">"blue"</span>
+  },
+  {
+    <span class="property">transform</span>: <span class="string">"translateX(300px)"</span>,
+    <span class="property">opacity</span>: <span class="keyword">1</span>,
+    <span class="property">backgroundColor</span>: <span class="string">"red"</span>
+  }
+]
+                        </code>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 5: Options Explained -->
+    <div class="slide-container">
+        <div class="slide-content">
+            <h1>Understanding Options</h1>
+
+            <div class="concept-box">
+                <h2>Animation Options</h2>
+                <p>The <span class="highlight">options</span> object controls how the animation behaves.</p>
+            </div>
+
+            <div class="code-box">
+                <code>
+{
+  <span class="property">duration</span>: <span class="keyword">2000</span>,              <span class="comment">// How long animation lasts (ms)</span>
+  <span class="property">iterations</span>: <span class="keyword">Infinity</span>,        <span class="comment">// How many times to repeat</span>
+  <span class="property">direction</span>: <span class="string">"alternate"</span>,       <span class="comment">// Play forward then backward</span>
+  <span class="property">easing</span>: <span class="string">"ease-in-out"</span>,       <span class="comment">// Timing function</span>
+  <span class="property">delay</span>: <span class="keyword">0</span>,                   <span class="comment">// Delay before starting (ms)</span>
+  <span class="property">fill</span>: <span class="string">"both"</span>                <span class="comment">// How styles apply before/after</span>
+}
+                </code>
+            </div>
+
+            <div class="content-grid">
+                <div class="methods-list">
+                    <h4>duration</h4>
+                    <p>Animation length in milliseconds</p>
+                    <p>Example: <span class="inline-code">2000</span> = 2 seconds</p>
+                </div>
+
+                <div class="methods-list">
+                    <h4>iterations</h4>
+                    <p>Number of times to repeat</p>
+                    <p><span class="inline-code">1</span> = once, <span class="inline-code">Infinity</span> = forever</p>
+                </div>
+
+                <div class="methods-list">
+                    <h4>direction</h4>
+                    <p>Animation playback direction</p>
+                    <p><span class="inline-code">"normal"</span>, <span class="inline-code">"reverse"</span>, <span class="inline-code">"alternate"</span>, <span class="inline-code">"alternate-reverse"</span></p>
+                </div>
+
+                <div class="methods-list">
+                    <h4>easing</h4>
+                    <p>Timing function for acceleration</p>
+                    <p><span class="inline-code">"linear"</span>, <span class="inline-code">"ease"</span>, <span class="inline-code">"ease-in-out"</span>, <span class="inline-code">"cubic-bezier(...)"</span></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 6: Interactive Demo 1 -->
+    <div class="slide-container">
+        <div class="slide-content">
+            <h1>See It In Action!</h1>
+
+            <div class="interactive-demo">
+                <h3>Basic Animation Demo</h3>
+                <p>Click "Start" to see the square animate back and forth:</p>
+                
+                <div style="text-align: center; margin: 1rem 0;">
+                    <button class="demo-button" onclick="startDemo1()">Start Animation</button>
+                </div>
+
+                <div class="animation-stage">
+                    <div id="demo1-square" class="animated-square"></div>
+                </div>
+
+                <div class="concept-box" style="margin-top: 1rem;">
+                    <p><strong>What's happening:</strong></p>
+                    <p>• Square moves from 0px to 300px</p>
+                    <p>• Takes 2 seconds each direction</p>
+                    <p>• Alternates back and forth infinitely</p>
+                    <p>• Uses ease-in-out timing</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 7: Instance Methods -->
+    <div class="slide-container">
+        <div class="slide-content">
+            <h1>Animation Instance Methods</h1>
+
+            <div class="concept-box">
+                <h2>Control Your Animations</h2>
+                <p>The Animation constructor provides instance methods that allow you to control animations dynamically.</p>
+            </div>
+
+            <div class="methods-list">
+                <h4>Instance Methods</h4>
+                <ul>
+                    <li><strong>play():</strong> Starts or resumes the animation</li>
+                    <li><strong>pause():</strong> Pauses the animation</li>
+                    <li><strong>reverse():</strong> Reverses the animation direction</li>
+                    <li><strong>finish():</strong> Jumps to the end of the animation</li>
+                    <li><strong>cancel():</strong> Cancels the animation and resets to initial state</li>
+                </ul>
+            </div>
+
+            <h3>Example Usage</h3>
+            <div class="code-box">
+                <code>
+<span class="keyword">const</span> animation = square.<span class="function">animate</span>(keyframes, options);
+
+<span class="comment">// Control the animation</span>
+animation.<span class="function">play</span>();       <span class="comment">// Start/resume</span>
+animation.<span class="function">pause</span>();      <span class="comment">// Pause</span>
+animation.<span class="function">reverse</span>();    <span class="comment">// Play backwards</span>
+animation.<span class="function">finish</span>();     <span class="comment">// Jump to end</span>
+animation.<span class="function">cancel</span>();     <span class="comment">// Stop and reset</span>
+                </code>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 8: Instance Properties -->
+    <div class="slide-container">
+        <div class="slide-content">
+            <h1>Animation Instance Properties</h1>
+
+            <div class="concept-box">
+                <h2>Read and Modify Animation State</h2>
+                <p>The Animation object also has properties you can read or modify.</p>
+            </div>
+
+            <div class="methods-list">
+                <h4>Instance Properties</h4>
+                <ul>
+                    <li><strong>playbackRate:</strong> Speed multiplier (1 = normal, 2 = double speed)</li>
+                    <li><strong>currentTime:</strong> Current position in milliseconds</li>
+                    <li><strong>startTime:</strong> When the animation started</li>
+                    <li><strong>effect:</strong> The KeyframeEffect object</li>
+                    <li><strong>timeline:</strong> The timeline object</li>
+                    <li><strong>playState:</strong> Current state ("idle", "running", "paused", "finished")</li>
+                    <li><strong>finished:</strong> Promise that resolves when animation completes</li>
+                    <li><strong>onfinish:</strong> Callback when animation finishes</li>
+                    <li><strong>oncancel:</strong> Callback when animation is cancelled</li>
+                </ul>
+            </div>
+
+            <h3>Example Usage</h3>
+            <div class="code-box">
+                <code>
+<span class="keyword">const</span> animation = square.<span class="function">animate</span>(keyframes, options);
+
+<span class="comment">// Read properties</span>
+<span class="keyword">console</span>.<span class="function">log</span>(animation.<span class="property">playState</span>);  <span class="comment">// "running"</span>
+
+<span class="comment">// Modify speed</span>
+animation.<span class="property">playbackRate</span> = <span class="keyword">2</span>;  <span class="comment">// Play at 2x speed</span>
+
+<span class="comment">// Set callback</span>
+animation.<span class="property">onfinish</span> = () => {
+  <span class="keyword">console</span>.<span class="function">log</span>(<span class="string">"Animation completed!"</span>);
+};
+                </code>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 9: Example with Play/Pause -->
+    <div class="slide-container">
+        <div class="slide-content">
+            <h1>Example: Play and Pause Controls</h1>
+
+            <div class="concept-box">
+                <h2>Modified Example</h2>
+                <p>Let's modify the example to use the <span class="inline-code">play()</span>, <span class="inline-code">pause()</span> methods and the <span class="inline-code">onfinish</span> property.</p>
+            </div>
+
+            <h3>HTML</h3>
+            <div class="code-box">
+                <code>
+<span class="keyword">&lt;div</span> <span class="property">class</span>=<span class="string">"square"</span> <span class="property">id</span>=<span class="string">"square"</span><span class="keyword">&gt;&lt;/div&gt;</span>
+<span class="keyword">&lt;button</span> <span class="property">id</span>=<span class="string">"playBtn"</span><span class="keyword">&gt;</span>Play<span class="keyword">&lt;/button&gt;</span>
+<span class="keyword">&lt;button</span> <span class="property">id</span>=<span class="string">"pauseBtn"</span><span class="keyword">&gt;</span>Pause<span class="keyword">&lt;/button&gt;</span>
+                </code>
+            </div>
+
+            <h3>JavaScript</h3>
+            <div class="code-box">
+                <code>
+<span class="keyword">const</span> square = <span class="keyword">document</span>.<span class="function">getElementById</span>(<span class="string">"square"</span>);
+
+<span class="keyword">const</span> animation = square.<span class="function">animate</span>(
+  [
+    { <span class="property">transform</span>: <span class="string">"translateX(0px)"</span> },
+    { <span class="property">transform</span>: <span class="string">"translateX(300px)"</span> }
+  ],
+  {
+    <span class="property">duration</span>: <span class="keyword">2000</span>,
+    <span class="property">fill</span>: <span class="string">"forwards"</span>
+  }
+);
+
+animation.<span class="function">pause</span>();  <span class="comment">// Start paused</span>
+
+<span class="keyword">document</span>.<span class="function">getElementById</span>(<span class="string">"playBtn"</span>).<span class="property">onclick</span> = () => animation.<span class="function">play</span>();
+<span class="keyword">document</span>.<span class="function">getElementById</span>(<span class="string">"pauseBtn"</span>).<span class="property">onclick</span> = () => animation.<span class="function">pause</span>();
+
+animation.<span class="property">onfinish</span> = () => {
+  <span class="keyword">console</span>.<span class="function">log</span>(<span class="string">"Animation finished!"</span>);
+};
+                </code>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 10: Interactive Demo 2 -->
+    <div class="slide-container">
+        <div class="slide-content">
+            <h1>Full Control Demo</h1>
+
+            <div class="interactive-demo">
+                <h3>Complete Animation Controls</h3>
+                <p>Use all the control methods to manipulate the animation:</p>
+                
+                <div style="text-align: center; margin: 1rem 0;">
+                    <button class="demo-button" onclick="demo2Play()">Play</button>
+                    <button class="demo-button" onclick="demo2Pause()">Pause</button>
+                    <button class="demo-button" onclick="demo2Reverse()">Reverse</button>
+                    <button class="demo-button" onclick="demo2Finish()">Finish</button>
+                    <button class="demo-button" onclick="demo2Cancel()">Cancel</button>
+                </div>
+
+                <div style="margin: 1rem 0;">
+                    <label style="font-weight: bold;">Speed: <span id="speed-display">1.0</span>x</label><br>
+                    <input type="range" min="0.1" max="3" value="1" step="0.1" style="width: 100%; max-width: 400px;" oninput="updatePlaybackRate(this.value)">
+                </div>
+
+                <div class="animation-stage">
+                    <div id="demo2-square" class="animated-square"></div>
+                </div>
+
+                <div class="demo-output">
+                    <p><strong>Status:</strong> <span id="demo2-status">Idle</span></p>
+                    <p><strong>Current Time:</strong> <span id="demo2-time">0</span>ms</p>
+                    <p id="demo2-message" style="color: #1e7e34; font-weight: bold;"></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 11: WAAPI vs CSS Animations -->
+    <div class="slide-container">
+        <div class="slide-content">
+            <h1>WAAPI vs CSS Animations</h1>
+
+            <div class="concept-box">
+                <h2>How They Relate</h2>
+                <p>WAAPI <span class="highlight">extends the capabilities</span> of CSS animations by providing more <strong>dynamic control</strong> over animations right inside JavaScript.</p>
+            </div>
+
+            <div class="info-box">
+                <h3>CSS Animations</h3>
+                <p>With CSS animations, you define animations <span class="highlight">declaratively</span> using properties like:</p>
+                <p>• <span class="inline-code">animation-name</span></p>
+                <p>• <span class="inline-code">animation-duration</span></p>
+                <p>• <span class="inline-code">animation-timing-function</span></p>
+            </div>
+
+            <div class="success-box">
+                <h3>✓ WAAPI Advantage</h3>
+                <p>You also have the opportunity to do the same thing using the <span class="inline-code">animate()</span> method of WAAPI.</p>
+                <p>The difference is that you can control the animations you create with the <span class="inline-code">animate()</span> method <span class="highlight">more directly and dynamically</span>.</p>
+                <p>But with CSS animations, you need to do way more by defining custom styles and triggering them inside your JavaScript file.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 12: Comparison Table -->
+    <div class="slide-container">
+        <div class="slide-content">
+            <h1>CSS vs WAAPI Comparison</h1>
+
+            <table class="comparison-table">
+                <thead>
+                    <tr>
+                        <th>Feature</th>
+                        <th>CSS Animations</th>
+                        <th>WAAPI</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Where Defined</strong></td>
+                        <td>In CSS files</td>
+                        <td>In JavaScript code</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Control Method</strong></td>
+                        <td>Declarative (automatic)</td>
+                        <td>Imperative (programmatic)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Dynamic Control</strong></td>
+                        <td>Limited (add/remove classes)</td>
+                        <td>Full (methods & properties)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Pause/Resume</strong></td>
+                        <td>Difficult</td>
+                        <td>Easy with pause()/play()</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Reverse</strong></td>
+                        <td>Complex workarounds</td>
+                        <td>Simple with reverse()</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Speed Control</strong></td>
+                        <td>Must redefine animation</td>
+                        <td>Easy with playbackRate</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Best For</strong></td>
+                        <td>Simple, automatic animations</td>
+                        <td>Interactive, complex animations</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Slide 13: When to Use Each -->
+    <div class="slide-container">
+        <div class="slide-content">
+            <h1>When to Use Each Approach</h1>
+
+            <div class="success-box">
+                <h3>✓ Use CSS Animations When:</h3>
+                <p>CSS animation is ideal for <span class="highlight">simple and declarative animations</span> that run automatically.</p>
+                <p>Those include:</p>
+                <p>• <strong>Hover effects:</strong> Button hover states, link underlines</p>
+                <p>• <strong>Transitions:</strong> Fade-ins, slide-ins on page load</p>
+                <p>• <strong>Non-interactive animations:</strong> Animations that don't need much interaction once triggered</p>
+            </div>
+
+            <div class="info-box">
+                <h3>✓ Use WAAPI When:</h3>
+                <p>If your animation needs to <span class="highlight">respond to user interactions</span> like clicks and scrolls, or you want the user to be able to <strong>pause, reverse, or change speed dynamically</strong>, WAAPI is the better choice.</p>
+                <p>Use cases:</p>
+                <p>• <strong>Interactive controls:</strong> Play/pause buttons</p>
+                <p>• <strong>User-driven animations:</strong> Drag-and-drop, scroll-based</p>
+                <p>• <strong>Dynamic changes:</strong> Speed controls, direction changes</p>
+                <p>• <strong>Complex sequences:</strong> Chained animations with logic</p>
+                <p>• <strong>Game animations:</strong> Character movements, effects</p>
+            </div>
+
+            <div class="warning-box">
+                <h3>💡 Best of Both Worlds</h3>
+                <p>You can consider <span class="highlight">combining both WAAPI and CSS animations</span> when you want the simplicity of CSS for basic setup but need to control animations at runtime.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 14: Key Takeaways -->
+    <div class="slide-container">
+        <div class="slide-content">
+            <h1>Key Takeaways</h1>
+
+            <div class="concept-box">
+                <h2>What is WAAPI?</h2>
+                <p>The <span class="highlight">Web Animations API</span> allows you to create and control animations directly in JavaScript with full programmatic control.</p>
+            </div>
+
+            <div class="method-signature">
+                element.animate(keyframes, options);
+            </div>
+
+            <div class="content-grid">
+                <div class="methods-list">
+                    <h4>Key Methods</h4>
+                    <ul>
+                        <li><strong>animate():</strong> Create animation</li>
+                        <li><strong>play():</strong> Start/resume</li>
+                        <li><strong>pause():</strong> Pause</li>
+                        <li><strong>reverse():</strong> Reverse direction</li>
+                        <li><strong>finish():</strong> Jump to end</li>
+                        <li><strong>cancel():</strong> Stop and reset</li>
+                    </ul>
+                </div>
+
+                <div class="methods-list">
+                    <h4>Important Properties</h4>
+                    <ul>
+                        <li><strong>playbackRate:</strong> Control speed</li>
+                        <li><strong>currentTime:</strong> Current position</li>
+                        <li><strong>playState:</strong> Animation state</li>
+                        <li><strong>onfinish:</strong> Completion callback</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="success-box">
+                <h3>✓ Remember</h3>
+                <p><strong>CSS Animations:</strong> Simple, declarative, automatic</p>
+                <p><strong>WAAPI:</strong> Dynamic, interactive, full control</p>
+                <p><strong>Combine:</strong> Use both for optimal results!</p>
+            </div>
+
+            <div class="info-box">
+                <h3>💪 Power of WAAPI</h3>
+                <p>WAAPI gives you the flexibility to create <strong>interactive, responsive animations</strong> that react to user input and can be controlled dynamically at runtime!</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Navigation -->
+    <div class="navigation">
+        <button class="nav-button" id="prevBtn" onclick="changeSlide(-1)">← Previous</button>
+        <div class="slide-counter">
+            <span id="currentSlide">1</span> / <span id="totalSlides">14</span>
+        </div>
+        <button class="nav-button" id="nextBtn" onclick="changeSlide(1)">Next →</button>
+    </div>
+
+    <script>
+        let currentSlide = 1;
+        const totalSlides = document.querySelectorAll('.slide-container').length;
+        
+        document.getElementById('totalSlides').textContent = totalSlides;
+        
+        function showSlide(n) {
+            const slides = document.querySelectorAll('.slide-container');
+            
+            if (n > totalSlides) {
+                currentSlide = totalSlides;
+            }
+            if (n < 1) {
+                currentSlide = 1;
+            }
+            
+            slides.forEach(slide => slide.classList.remove('active'));
+            slides[currentSlide - 1].classList.add('active');
+            
+            document.getElementById('currentSlide').textContent = currentSlide;
+            
+            // Update button states
+            document.getElementById('prevBtn').disabled = currentSlide === 1;
+            document.getElementById('nextBtn').disabled = currentSlide === totalSlides;
+            
+            // Scroll to top of page
+            window.scrollTo(0, 0);
+        }
+        
+        function changeSlide(direction) {
+            currentSlide += direction;
+            showSlide(currentSlide);
+        }
+        
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowLeft') {
+                changeSlide(-1);
+            } else if (e.key === 'ArrowRight') {
+                changeSlide(1);
+            }
+        });
+        
+        // Demo 1 - Basic animation
+        let demo1Animation = null;
+        
+        function startDemo1() {
+            const square = document.getElementById('demo1-square');
+            
+            if (demo1Animation) {
+                demo1Animation.cancel();
+            }
+            
+            demo1Animation = square.animate(
+                [
+                    { transform: 'translateX(0px)' },
+                    { transform: 'translateX(300px)' }
+                ],
+                {
+                    duration: 2000,
+                    iterations: Infinity,
+                    direction: 'alternate',
+                    easing: 'ease-in-out'
+                }
+            );
+        }
+        
+        // Demo 2 - Full control
+        let demo2Animation = null;
+        let demo2UpdateInterval = null;
+        
+        function createDemo2Animation() {
+            const square = document.getElementById('demo2-square');
+            
+            if (demo2Animation) {
+                demo2Animation.cancel();
+            }
+            
+            demo2Animation = square.animate(
+                [
+                    { transform: 'translateX(0px)' },
+                    { transform: 'translateX(calc(100% - 80px))' }
+                ],
+                {
+                    duration: 3000,
+                    fill: 'both'
+                }
+            );
+            
+            demo2Animation.pause();
+            
+            demo2Animation.onfinish = () => {
+                document.getElementById('demo2-message').textContent = '✓ Animation finished!';
+                document.getElementById('demo2-status').textContent = 'Finished';
+            };
+            
+            demo2Animation.oncancel = () => {
+                document.getElementById('demo2-message').textContent = 'Animation cancelled';
+                document.getElementById('demo2-status').textContent = 'Cancelled';
+            };
+            
+            updateDemo2Status();
+            
+            if (demo2UpdateInterval) {
+                clearInterval(demo2UpdateInterval);
+            }
+            
+            demo2UpdateInterval = setInterval(updateDemo2Status, 100);
+        }
+        
+        function updateDemo2Status() {
+            if (!demo2Animation) return;
+            
+            document.getElementById('demo2-status').textContent = demo2Animation.playState;
+            document.getElementById('demo2-time').textContent = Math.round(demo2Animation.currentTime || 0);
+        }
+        
+        function demo2Play() {
+            if (!demo2Animation) createDemo2Animation();
+            demo2Animation.play();
+            document.getElementById('demo2-message').textContent = '';
+        }
+        
+        function demo2Pause() {
+            if (!demo2Animation) createDemo2Animation();
+            demo2Animation.pause();
+            document.getElementById('demo2-message').textContent = '';
+        }
+        
+        function demo2Reverse() {
+            if (!demo2Animation) createDemo2Animation();
+            demo2Animation.reverse();
+            document.getElementById('demo2-message').textContent = 'Playing in reverse';
+        }
+        
+        function demo2Finish() {
+            if (!demo2Animation) createDemo2Animation();
+            demo2Animation.finish();
+        }
+        
+        function demo2Cancel() {
+            if (!demo2Animation) return;
+            demo2Animation.cancel();
+            createDemo2Animation();
+        }
+        
+        function updatePlaybackRate(value) {
+            const rate = parseFloat(value);
+            document.getElementById('speed-display').textContent = rate.toFixed(1);
+            
+            if (demo2Animation) {
+                demo2Animation.playbackRate = rate;
+            }
+        }
+        
+        // Initialize demo 2
+        createDemo2Animation();
+        
+        // Initialize
+        showSlide(currentSlide);
+    </script>
+</body>
+</html>

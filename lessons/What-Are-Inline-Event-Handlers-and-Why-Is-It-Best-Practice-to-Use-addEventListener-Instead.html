@@ -1,0 +1,992 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inline Event Handlers vs addEventListener Presentation</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #f5f5f5 0%, #ffffff 100%);
+            color: #2d2d2d;
+            overflow-x: hidden;
+        }
+
+        .slide-container {
+            min-height: 100vh;
+            padding: 2rem 2rem 120px 2rem;
+            display: none;
+        }
+
+        .slide-container.active {
+            display: block;
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .slide-content {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            color: #881518;
+            font-size: clamp(1.8rem, 4vw, 3rem);
+            margin-bottom: 2rem;
+            border-bottom: 3px solid #881518;
+            padding-bottom: 1rem;
+        }
+
+        h2 {
+            color: #a81c1f;
+            font-size: clamp(1.4rem, 3vw, 2rem);
+            margin: 2rem 0 1rem 0;
+        }
+
+        h3 {
+            color: #c8575a;
+            font-size: clamp(1.2rem, 2.5vw, 1.5rem);
+            margin: 1.5rem 0 1rem 0;
+        }
+
+        p, li {
+            font-size: clamp(1rem, 2vw, 1.2rem);
+            line-height: 1.8;
+            margin-bottom: 1rem;
+            color: #333333;
+        }
+
+        .content-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+
+        @media (min-width: 768px) {
+            .content-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        .concept-box {
+            background: rgba(136, 21, 24, 0.05);
+            border-left: 4px solid #881518;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin: 1.5rem 0;
+        }
+
+        .code-box {
+            background: #f8f8f8;
+            border: 1px solid #d0d0d0;
+            border-radius: 8px;
+            padding: 1.5rem;
+            overflow-x: auto;
+            margin: 1rem 0;
+        }
+
+        code {
+            font-family: 'Courier New', Courier, monospace;
+            font-size: clamp(0.85rem, 1.5vw, 1rem);
+            color: #0066cc;
+        }
+
+        .keyword { color: #881518; }
+        .tag { color: #881518; }
+        .string { color: #2a8d2a; }
+        .function { color: #795e26; }
+        .comment { color: #008000; }
+        .property { color: #0066cc; }
+        .attribute { color: #d73a49; }
+
+        .interactive-demo {
+            background: rgba(136, 21, 24, 0.03);
+            border: 2px dashed #881518;
+            border-radius: 8px;
+            padding: 2rem;
+            margin: 2rem 0;
+        }
+
+        .demo-button {
+            background: #881518;
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1.1rem;
+            font-weight: 600;
+            transition: all 0.3s;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            margin: 0.5rem;
+        }
+
+        .demo-button:hover {
+            background: #a81c1f;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(136, 21, 24, 0.3);
+        }
+
+        .demo-output {
+            background: white;
+            border: 2px solid #881518;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1rem 0;
+            min-height: 80px;
+        }
+
+        .warning-box {
+            background: linear-gradient(135deg, #fff3cd, #ffe69c);
+            border: 2px solid #ffc107;
+            border-left: 6px solid #ff9800;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+        }
+
+        .warning-box h3 {
+            color: #ff6f00;
+            margin-top: 0;
+        }
+
+        .success-box {
+            background: linear-gradient(135deg, #d4edda, #c3e6cb);
+            border: 2px solid #28a745;
+            border-left: 6px solid #1e7e34;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+        }
+
+        .success-box h3 {
+            color: #1e7e34;
+            margin-top: 0;
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 2rem 0;
+        }
+
+        .comparison-table th {
+            background: #881518;
+            color: white;
+            padding: 1rem;
+            text-align: left;
+            border: 1px solid #d0d0d0;
+        }
+
+        .comparison-table td {
+            background: #fafafa;
+            padding: 1rem;
+            border: 1px solid #d0d0d0;
+            vertical-align: top;
+        }
+
+        .comparison-table tr:nth-child(even) td {
+            background: #f5f5f5;
+        }
+
+        ul {
+            margin-left: 2rem;
+        }
+
+        .navigation {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(to top, #ffffff, rgba(255, 255, 255, 0.98));
+            padding: 1.5rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+            border-top: 2px solid #e0e0e0;
+        }
+
+        .nav-button {
+            background: #881518;
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: clamp(0.9rem, 2vw, 1.1rem);
+            font-weight: 600;
+            transition: all 0.3s;
+            min-width: 100px;
+        }
+
+        .nav-button:hover:not(:disabled) {
+            background: #a81c1f;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(136, 21, 24, 0.3);
+        }
+
+        .nav-button:disabled {
+            background: #cccccc;
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        .slide-counter {
+            color: #881518;
+            font-weight: 600;
+            font-size: clamp(1rem, 2vw, 1.2rem);
+        }
+
+        @media (max-width: 768px) {
+            .navigation {
+                padding: 1rem;
+            }
+
+            .nav-button {
+                padding: 0.75rem 1rem;
+                min-width: 80px;
+            }
+        }
+
+        .highlight {
+            background: rgba(136, 21, 24, 0.15);
+            padding: 0.2rem 0.4rem;
+            border-radius: 3px;
+            font-weight: 600;
+        }
+
+        .inline-code {
+            background: #f0f0f0;
+            padding: 0.2rem 0.5rem;
+            border-radius: 3px;
+            font-family: 'Courier New', Courier, monospace;
+            color: #881518;
+            font-size: 0.9em;
+        }
+
+        .bad-practice {
+            background: linear-gradient(135deg, #ffebee, #ffcdd2);
+            border: 2px solid #f44336;
+            border-left: 6px solid #d32f2f;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+        }
+
+        .bad-practice h3 {
+            color: #c62828;
+            margin-top: 0;
+        }
+
+        .good-practice {
+            background: linear-gradient(135deg, #e8f5e9, #c8e6c9);
+            border: 2px solid #4caf50;
+            border-left: 6px solid #388e3c;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+        }
+
+        .good-practice h3 {
+            color: #2e7d32;
+            margin-top: 0;
+        }
+
+        .versus-box {
+            text-align: center;
+            margin: 2rem 0;
+            padding: 1rem;
+            background: rgba(136, 21, 24, 0.08);
+            border-radius: 8px;
+            font-size: 2rem;
+            font-weight: bold;
+            color: #881518;
+        }
+
+        .side-by-side {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+
+        @media (min-width: 768px) {
+            .side-by-side {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Slide 1: Introduction -->
+    <div class="slide-container active">
+        <div class="slide-content">
+            <h1>Inline Event Handlers vs addEventListener()</h1>
+            
+            <div class="concept-box">
+                <h2>What You've Learned</h2>
+                <p>In the previous lessons, you learned how to work with events by using the <span class="highlight">addEventListener()</span> method.</p>
+                <p>But there is <strong>another, not recommended way</strong>, to work with events in JavaScript.</p>
+            </div>
+
+            <div class="content-grid">
+                <div class="bad-practice">
+                    <h3>❌ Inline Event Handlers</h3>
+                    <p>An older approach to handling events</p>
+                    <p><strong>Not recommended</strong> for modern JavaScript</p>
+                </div>
+
+                <div class="good-practice">
+                    <h3>✓ addEventListener()</h3>
+                    <p>The modern, best practice approach</p>
+                    <p><strong>Recommended</strong> for all projects</p>
+                </div>
+            </div>
+
+            <div class="concept-box">
+                <h2>In This Lesson</h2>
+                <p>You'll learn:</p>
+                <p>• What inline event handlers are</p>
+                <p>• How they work</p>
+                <p>• Why they're not recommended</p>
+                <p>• Why <span class="inline-code">addEventListener()</span> is the best practice</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 2: What Are Inline Event Handlers -->
+    <div class="slide-container">
+        <div class="slide-content">
+            <h1>What Are Inline Event Handlers?</h1>
+
+            <div class="concept-box">
+                <h2>Definition</h2>
+                <p><span class="highlight">Inline event handlers</span> are special attributes on an HTML element that are used to execute JavaScript code when an event occurs.</p>
+            </div>
+
+            <h3>Simple Example</h3>
+            <div class="code-box">
+                <code>
+<span class="tag">&lt;button</span> <span class="attribute">onclick</span>=<span class="string">"alert('Hello World!')"</span><span class="tag">&gt;</span>Show alert<span class="tag">&lt;/button&gt;</span>
+                </code>
+            </div>
+
+            <div class="concept-box">
+                <h3>How It Works</h3>
+                <p>1. User clicks the button</p>
+                <p>2. The <span class="inline-code">onclick</span> attribute triggers</p>
+                <p>3. The JavaScript code inside runs</p>
+                <p>4. An alert dialog appears with "Hello World!"</p>
+            </div>
+
+            <div class="warning-box">
+                <h3>⚠️ Key Characteristics</h3>
+                <p>• The event handler is written directly in the HTML</p>
+                <p>• JavaScript code is mixed with HTML markup</p>
+                <p>• Uses special attributes like <span class="inline-code">onclick</span>, <span class="inline-code">onchange</span>, <span class="inline-code">onmouseover</span></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 3: Inline Handler Example 1 -->
+    <div class="slide-container">
+        <div class="slide-content">
+            <h1>Example 1: Inline Alert</h1>
+
+            <h3>HTML Code</h3>
+            <div class="code-box">
+                <code>
+<span class="tag">&lt;button</span> <span class="attribute">onclick</span>=<span class="string">"alert('Hello World!')"</span><span class="tag">&gt;</span>
+  Show alert
+<span class="tag">&lt;/button&gt;</span>
+                </code>
+            </div>
+
+            <div class="concept-box">
+                <h3>What Happens</h3>
+                <p>When the user clicks the button, the <span class="inline-code">alert</span> function is called and an alert dialog is displayed with the message <strong>"Hello World!"</strong></p>
+            </div>
+
+            <div class="interactive-demo">
+                <h3>Try It Yourself</h3>
+                <p>This button uses an inline event handler:</p>
+                <div style="text-align: center; margin: 2rem 0;">
+                    <button class="demo-button" onclick="alert('Hello World!')">Show alert</button>
+                </div>
+                <div class="code-box">
+                    <code>
+<span class="comment">// The inline code that runs:</span>
+<span class="function">alert</span>(<span class="string">'Hello World!'</span>);
+                    </code>
+                </div>
+            </div>
+
+            <div class="warning-box">
+                <h3>Notice</h3>
+                <p>The JavaScript code <span class="inline-code">alert('Hello World!')</span> is written directly inside the HTML attribute.</p>
+                <p>This mixes HTML and JavaScript together.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 4: Inline Handler Example 2 -->
+    <div class="slide-container">
+        <div class="slide-content">
+            <h1>Example 2: Calling a Function</h1>
+
+            <div class="concept-box">
+                <h2>Another Way to Use Inline Handlers</h2>
+                <p>You can call a function that is defined in a <span class="inline-code">&lt;script&gt;</span> tag in the HTML document.</p>
+            </div>
+
+            <h3>HTML + JavaScript</h3>
+            <div class="code-box">
+                <code>
+<span class="tag">&lt;script&gt;</span>
+  <span class="keyword">function</span> <span class="function">changeBgColor</span>() {
+    <span class="keyword">document</span>.<span class="property">body</span>.<span class="property">style</span>.<span class="property">backgroundColor</span> = <span class="string">"lightblue"</span>;
+  }
+<span class="tag">&lt;/script&gt;</span>
+
+<span class="tag">&lt;button</span> <span class="attribute">onclick</span>=<span class="string">"changeBgColor()"</span><span class="tag">&gt;</span>
+  Change background color
+<span class="tag">&lt;/button&gt;</span>
+                </code>
+            </div>
+
+            <div class="concept-box">
+                <h3>What Happens</h3>
+                <p>1. Function <span class="inline-code">changeBgColor()</span> is defined in the script</p>
+                <p>2. User clicks the button</p>
+                <p>3. The <span class="inline-code">onclick</span> attribute calls <span class="inline-code">changeBgColor()</span></p>
+                <p>4. The background color changes to light blue</p>
+            </div>
+
+            <div class="interactive-demo">
+                <h3>Try It Yourself</h3>
+                <p>Click the button to change the background color:</p>
+                <div style="text-align: center; margin: 2rem 0;">
+                    <button class="demo-button" onclick="changeDemoBackground()">Change background color</button>
+                    <button class="demo-button" onclick="resetDemoBackground()">Reset</button>
+                </div>
+                <div id="color-demo" class="demo-output">
+                    This area's background will change
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 5: Why Not Use Inline Handlers -->
+    <div class="slide-container">
+        <div class="slide-content">
+            <h1>Why Inline Handlers Are Not Best Practice</h1>
+
+            <div class="concept-box">
+                <h2>The Problems</h2>
+                <p>While it is <span class="highlight">possible</span> to use inline event handlers, it is <strong>not considered a best practice</strong>.</p>
+            </div>
+
+            <div class="warning-box">
+                <h3>❌ Problem 1: Single Event Listener Limit</h3>
+                <p>Inline event handlers can only be used to attach <span class="highlight">one event listener</span> to an element.</p>
+                <p>If you want to attach multiple event listeners to the same element, you will need to use <span class="inline-code">addEventListener()</span>.</p>
+                <div class="code-box">
+                    <code>
+<span class="comment">// ❌ Can't do this with inline handlers</span>
+<span class="comment">// Only ONE onclick per element</span>
+<span class="tag">&lt;button</span> <span class="attribute">onclick</span>=<span class="string">"function1()"</span><span class="tag">&gt;</span>...<span class="tag">&lt;/button&gt;</span>
+<span class="comment">// Can't add another onclick!</span>
+                    </code>
+                </div>
+            </div>
+
+            <div class="warning-box">
+                <h3>❌ Problem 2: Mixing HTML and JavaScript</h3>
+                <p>Inline event handlers <span class="highlight">mix HTML and JavaScript code together</span>, which can make your code harder to read and maintain.</p>
+                <p>It is better to keep your HTML code and JavaScript code <strong>separate</strong> by using <span class="inline-code">addEventListener()</span>.</p>
+                <div class="code-box">
+                    <code>
+<span class="comment">// HTML and JavaScript mixed together - hard to maintain</span>
+<span class="tag">&lt;button</span> <span class="attribute">onclick</span>=<span class="string">"console.log('click'); updateCount(); saveData();"</span><span class="tag">&gt;</span>
+  Click Me
+<span class="tag">&lt;/button&gt;</span>
+                    </code>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 6: Comparison Side by Side -->
+    <div class="slide-container">
+        <div class="slide-content">
+            <h1>Inline Handlers vs addEventListener()</h1>
+
+            <div class="versus-box">
+                ❌ vs ✓
+            </div>
+
+            <div class="side-by-side">
+                <div class="bad-practice">
+                    <h3>❌ Inline Event Handler</h3>
+                    <div class="code-box">
+                        <code>
+<span class="comment">&lt;!-- HTML file --&gt;</span>
+<span class="tag">&lt;button</span> <span class="attribute">onclick</span>=<span class="string">"handleClick()"</span><span class="tag">&gt;</span>
+  Click Me
+<span class="tag">&lt;/button&gt;</span>
+
+<span class="tag">&lt;script&gt;</span>
+  <span class="keyword">function</span> <span class="function">handleClick</span>() {
+    <span class="function">alert</span>(<span class="string">"Clicked!"</span>);
+  }
+<span class="tag">&lt;/script&gt;</span>
+                        </code>
+                    </div>
+                    <p><strong>Issues:</strong></p>
+                    <p>• HTML and JavaScript mixed</p>
+                    <p>• Only one handler per element</p>
+                    <p>• Harder to maintain</p>
+                </div>
+
+                <div class="good-practice">
+                    <h3>✓ addEventListener()</h3>
+                    <div class="code-box">
+                        <code>
+<span class="comment">&lt;!-- HTML file --&gt;</span>
+<span class="tag">&lt;button</span> <span class="property">id</span>=<span class="string">"myBtn"</span><span class="tag">&gt;</span>
+  Click Me
+<span class="tag">&lt;/button&gt;</span>
+
+<span class="comment">// JavaScript file</span>
+<span class="keyword">const</span> btn = <span class="keyword">document</span>.<span class="function">getElementById</span>(<span class="string">"myBtn"</span>);
+btn.<span class="function">addEventListener</span>(<span class="string">"click"</span>, () => {
+  <span class="function">alert</span>(<span class="string">"Clicked!"</span>);
+});
+                        </code>
+                    </div>
+                    <p><strong>Benefits:</strong></p>
+                    <p>• Separation of concerns</p>
+                    <p>• Multiple handlers possible</p>
+                    <p>• Easier to maintain</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 7: Multiple Event Listeners Example -->
+    <div class="slide-container">
+        <div class="slide-content">
+            <h1>Multiple Event Listeners</h1>
+
+            <div class="concept-box">
+                <h2>Why addEventListener() is More Powerful</h2>
+                <p>With <span class="inline-code">addEventListener()</span>, you can attach <span class="highlight">multiple event listeners</span> to the same element.</p>
+            </div>
+
+            <div class="content-grid">
+                <div class="bad-practice">
+                    <h3>❌ Inline Handler Limitation</h3>
+                    <div class="code-box">
+                        <code>
+<span class="comment">// Can only have ONE onclick</span>
+<span class="tag">&lt;button</span> <span class="attribute">onclick</span>=<span class="string">"handler1()"</span><span class="tag">&gt;</span>
+  Click
+<span class="tag">&lt;/button&gt;</span>
+
+<span class="comment">// Can't add another!</span>
+<span class="comment">// This would replace the first one:</span>
+button.<span class="property">onclick</span> = handler2;
+                        </code>
+                    </div>
+                </div>
+
+                <div class="good-practice">
+                    <h3>✓ addEventListener() Power</h3>
+                    <div class="code-box">
+                        <code>
+<span class="comment">// Can have MULTIPLE listeners!</span>
+button.<span class="function">addEventListener</span>(<span class="string">"click"</span>, handler1);
+button.<span class="function">addEventListener</span>(<span class="string">"click"</span>, handler2);
+button.<span class="function">addEventListener</span>(<span class="string">"click"</span>, handler3);
+
+<span class="comment">// All three will run!</span>
+                        </code>
+                    </div>
+                </div>
+            </div>
+
+            <div class="interactive-demo">
+                <h3>Try Multiple Listeners</h3>
+                <p>This button has THREE event listeners attached with addEventListener():</p>
+                <div style="text-align: center; margin: 2rem 0;">
+                    <button class="demo-button" id="multi-listener-btn">Click Me (3 listeners)</button>
+                </div>
+                <div class="demo-output">
+                    <p id="listener-output"><em>Click the button above...</em></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 8: Separation of Concerns -->
+    <div class="slide-container">
+        <div class="slide-content">
+            <h1>Separation of Concerns</h1>
+
+            <div class="concept-box">
+                <h2>Keep HTML and JavaScript Separate</h2>
+                <p>It is better to keep your HTML code and JavaScript code <span class="highlight">separate</span> by using <span class="inline-code">addEventListener()</span> to attach event listeners to elements.</p>
+            </div>
+
+            <div class="side-by-side">
+                <div class="bad-practice">
+                    <h3>❌ Mixed Code</h3>
+                    <div class="code-box">
+                        <code>
+<span class="tag">&lt;button</span> <span class="attribute">onclick</span>=<span class="string">"
+  console.log('clicked');
+  count++;
+  updateDisplay();
+  saveToDatabase();
+"</span><span class="tag">&gt;</span>
+  Save
+<span class="tag">&lt;/button&gt;</span>
+                        </code>
+                    </div>
+                    <p><strong>Problems:</strong></p>
+                    <p>• Logic in HTML</p>
+                    <p>• Hard to read</p>
+                    <p>• Difficult to debug</p>
+                    <p>• Can't reuse code</p>
+                </div>
+
+                <div class="good-practice">
+                    <h3>✓ Clean Separation</h3>
+                    <div class="code-box">
+                        <code>
+<span class="comment">&lt;!-- HTML: Just markup --&gt;</span>
+<span class="tag">&lt;button</span> <span class="property">id</span>=<span class="string">"saveBtn"</span><span class="tag">&gt;</span>Save<span class="tag">&lt;/button&gt;</span>
+
+<span class="comment">// JavaScript: All logic</span>
+<span class="keyword">const</span> btn = <span class="keyword">document</span>.<span class="function">getElementById</span>(<span class="string">"saveBtn"</span>);
+btn.<span class="function">addEventListener</span>(<span class="string">"click"</span>, () => {
+  <span class="keyword">console</span>.<span class="function">log</span>(<span class="string">'clicked'</span>);
+  count++;
+  <span class="function">updateDisplay</span>();
+  <span class="function">saveToDatabase</span>();
+});
+                        </code>
+                    </div>
+                    <p><strong>Benefits:</strong></p>
+                    <p>• Clear structure</p>
+                    <p>• Easy to read</p>
+                    <p>• Simple to debug</p>
+                    <p>• Reusable code</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 9: Comparison Table -->
+    <div class="slide-container">
+        <div class="slide-content">
+            <h1>Feature Comparison</h1>
+
+            <table class="comparison-table">
+                <thead>
+                    <tr>
+                        <th>Feature</th>
+                        <th>Inline Event Handlers ❌</th>
+                        <th>addEventListener() ✓</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Multiple Listeners</strong></td>
+                        <td>❌ Only ONE per element</td>
+                        <td>✓ UNLIMITED per element</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Code Organization</strong></td>
+                        <td>❌ Mixed HTML & JavaScript</td>
+                        <td>✓ Separated concerns</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Maintainability</strong></td>
+                        <td>❌ Harder to maintain</td>
+                        <td>✓ Easier to maintain</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Readability</strong></td>
+                        <td>❌ Difficult with complex code</td>
+                        <td>✓ Clear and organized</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Remove Listeners</strong></td>
+                        <td>❌ Must modify HTML</td>
+                        <td>✓ Use removeEventListener()</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Debugging</strong></td>
+                        <td>❌ Harder to debug</td>
+                        <td>✓ Easier to debug</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Event Options</strong></td>
+                        <td>❌ No advanced options</td>
+                        <td>✓ Capture, once, passive options</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Best Practice</strong></td>
+                        <td>❌ NOT recommended</td>
+                        <td>✓ RECOMMENDED</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Slide 10: Real World Scenario -->
+    <div class="slide-container">
+        <div class="slide-content">
+            <h1>Real-World Scenario</h1>
+
+            <div class="concept-box">
+                <h2>Building a Form with Validation</h2>
+                <p>Let's see how these approaches compare in a real project.</p>
+            </div>
+
+            <div class="side-by-side">
+                <div class="bad-practice">
+                    <h3>❌ Inline Handlers</h3>
+                    <div class="code-box">
+                        <code>
+<span class="tag">&lt;form</span> <span class="attribute">onsubmit</span>=<span class="string">"validateForm(); return false;"</span><span class="tag">&gt;</span>
+  <span class="tag">&lt;input</span> 
+    <span class="attribute">onchange</span>=<span class="string">"validateEmail()"</span>
+    <span class="attribute">onfocus</span>=<span class="string">"showHint()"</span>
+    <span class="attribute">onblur</span>=<span class="string">"hideHint()"</span>
+  <span class="tag">/&gt;</span>
+  <span class="tag">&lt;button</span> 
+    <span class="attribute">onclick</span>=<span class="string">"submitForm()"</span>
+    <span class="attribute">onmouseover</span>=<span class="string">"highlightBtn()"</span>
+  <span class="tag">&gt;</span>
+    Submit
+  <span class="tag">&lt;/button&gt;</span>
+<span class="tag">&lt;/form&gt;</span>
+                        </code>
+                    </div>
+                    <p>⚠️ HTML is cluttered with JavaScript</p>
+                </div>
+
+                <div class="good-practice">
+                    <h3>✓ addEventListener()</h3>
+                    <div class="code-box">
+                        <code>
+<span class="comment">&lt;!-- Clean HTML --&gt;</span>
+<span class="tag">&lt;form</span> <span class="property">id</span>=<span class="string">"myForm"</span><span class="tag">&gt;</span>
+  <span class="tag">&lt;input</span> <span class="property">id</span>=<span class="string">"email"</span> <span class="tag">/&gt;</span>
+  <span class="tag">&lt;button</span> <span class="property">id</span>=<span class="string">"submitBtn"</span><span class="tag">&gt;</span>Submit<span class="tag">&lt;/button&gt;</span>
+<span class="tag">&lt;/form&gt;</span>
+
+<span class="comment">// Organized JavaScript</span>
+form.<span class="function">addEventListener</span>(<span class="string">"submit"</span>, validateForm);
+email.<span class="function">addEventListener</span>(<span class="string">"change"</span>, validateEmail);
+email.<span class="function">addEventListener</span>(<span class="string">"focus"</span>, showHint);
+email.<span class="function">addEventListener</span>(<span class="string">"blur"</span>, hideHint);
+btn.<span class="function">addEventListener</span>(<span class="string">"click"</span>, submitForm);
+btn.<span class="function">addEventListener</span>(<span class="string">"mouseover"</span>, highlightBtn);
+                        </code>
+                    </div>
+                    <p>✓ Clean separation, easy to maintain</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 11: Best Practice Recommendation -->
+    <div class="slide-container">
+        <div class="slide-content">
+            <h1>Best Practice Recommendation</h1>
+
+            <div class="warning-box">
+                <h3>⚠️ Important</h3>
+                <p><span class="highlight">Inline event handlers are not recommended</span> for use in modern JavaScript.</p>
+                <p>So, it is <strong>best practice</strong> to stick with the <span class="inline-code">addEventListener()</span> method when working with events in JavaScript.</p>
+            </div>
+
+            <div class="success-box">
+                <h3>✓ Always Use addEventListener()</h3>
+                <p><strong>Reasons:</strong></p>
+                <p>✓ Allows multiple event listeners per element</p>
+                <p>✓ Keeps HTML and JavaScript separated</p>
+                <p>✓ Makes code easier to read and maintain</p>
+                <p>✓ Enables advanced event handling features</p>
+                <p>✓ Follows modern JavaScript standards</p>
+                <p>✓ Better for team collaboration</p>
+                <p>✓ Easier to debug and test</p>
+            </div>
+
+            <div class="concept-box">
+                <h2>The Modern Standard</h2>
+                <div class="code-box">
+                    <code>
+<span class="comment">// ✓ THIS is the way to handle events in modern JavaScript</span>
+<span class="keyword">const</span> button = <span class="keyword">document</span>.<span class="function">querySelector</span>(<span class="string">"button"</span>);
+button.<span class="function">addEventListener</span>(<span class="string">"click"</span>, () => {
+  <span class="comment">// Your event handling code here</span>
+});
+                    </code>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 12: Key Takeaways -->
+    <div class="slide-container">
+        <div class="slide-content">
+            <h1>Key Takeaways</h1>
+
+            <div class="concept-box">
+                <h2>What Are Inline Event Handlers?</h2>
+                <p>Special <span class="highlight">attributes</span> on HTML elements (like <span class="inline-code">onclick</span>) that execute JavaScript code when an event occurs.</p>
+            </div>
+
+            <div class="content-grid">
+                <div class="bad-practice">
+                    <h3>❌ Problems with Inline Handlers</h3>
+                    <p>1. <strong>Single listener limit:</strong> Only ONE per element</p>
+                    <p>2. <strong>Mixed code:</strong> HTML and JavaScript together</p>
+                    <p>3. <strong>Hard to maintain:</strong> Difficult to read and debug</p>
+                    <p>4. <strong>Not modern:</strong> Outdated approach</p>
+                </div>
+
+                <div class="good-practice">
+                    <h3>✓ Benefits of addEventListener()</h3>
+                    <p>1. <strong>Multiple listeners:</strong> Unlimited per element</p>
+                    <p>2. <strong>Separation:</strong> HTML and JavaScript separate</p>
+                    <p>3. <strong>Maintainable:</strong> Organized and clear</p>
+                    <p>4. <strong>Best practice:</strong> Modern standard</p>
+                </div>
+            </div>
+
+            <div class="success-box">
+                <h3>✓ Remember</h3>
+                <p><strong>Always use addEventListener() for event handling in modern JavaScript!</strong></p>
+                <div class="code-box">
+                    <code>
+<span class="comment">// The right way ✓</span>
+element.<span class="function">addEventListener</span>(<span class="string">"event"</span>, handler);
+
+<span class="comment">// Not recommended ❌</span>
+<span class="tag">&lt;element</span> <span class="attribute">onevent</span>=<span class="string">"handler()"</span><span class="tag">&gt;</span>
+                    </code>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Navigation -->
+    <div class="navigation">
+        <button class="nav-button" id="prevBtn" onclick="changeSlide(-1)">← Previous</button>
+        <div class="slide-counter">
+            <span id="currentSlide">1</span> / <span id="totalSlides">12</span>
+        </div>
+        <button class="nav-button" id="nextBtn" onclick="changeSlide(1)">Next →</button>
+    </div>
+
+    <script>
+        let currentSlide = 1;
+        const totalSlides = document.querySelectorAll('.slide-container').length;
+        
+        document.getElementById('totalSlides').textContent = totalSlides;
+        
+        function showSlide(n) {
+            const slides = document.querySelectorAll('.slide-container');
+            
+            if (n > totalSlides) {
+                currentSlide = totalSlides;
+            }
+            if (n < 1) {
+                currentSlide = 1;
+            }
+            
+            slides.forEach(slide => slide.classList.remove('active'));
+            slides[currentSlide - 1].classList.add('active');
+            
+            document.getElementById('currentSlide').textContent = currentSlide;
+            
+            // Update button states
+            document.getElementById('prevBtn').disabled = currentSlide === 1;
+            document.getElementById('nextBtn').disabled = currentSlide === totalSlides;
+            
+            // Scroll to top of page
+            window.scrollTo(0, 0);
+        }
+        
+        function changeSlide(direction) {
+            currentSlide += direction;
+            showSlide(currentSlide);
+        }
+        
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowLeft') {
+                changeSlide(-1);
+            } else if (e.key === 'ArrowRight') {
+                changeSlide(1);
+            }
+        });
+        
+        // Demo functions for inline handler examples
+        function changeDemoBackground() {
+            document.getElementById('color-demo').style.backgroundColor = 'lightblue';
+        }
+
+        function resetDemoBackground() {
+            document.getElementById('color-demo').style.backgroundColor = 'white';
+        }
+
+        // Multiple listeners demo
+        const multiBtn = document.getElementById('multi-listener-btn');
+        const output = document.getElementById('listener-output');
+        
+        if (multiBtn && output) {
+            let counter = 0;
+            
+            // Listener 1
+            multiBtn.addEventListener('click', () => {
+                counter++;
+                output.innerHTML = `<strong>Listener 1:</strong> Button clicked ${counter} time(s)<br>`;
+            });
+            
+            // Listener 2
+            multiBtn.addEventListener('click', () => {
+                output.innerHTML += `<strong>Listener 2:</strong> Logging to console...<br>`;
+                console.log('Multi-listener button clicked!');
+            });
+            
+            // Listener 3
+            multiBtn.addEventListener('click', () => {
+                output.innerHTML += `<strong>Listener 3:</strong> All three listeners ran successfully! ✓`;
+            });
+        }
+        
+        // Initialize
+        showSlide(currentSlide);
+    </script>
+</body>
+</html>

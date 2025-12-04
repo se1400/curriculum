@@ -1,0 +1,1020 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>requestAnimationFrame() API Presentation</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #f5f5f5 0%, #ffffff 100%);
+            color: #2d2d2d;
+            overflow-x: hidden;
+        }
+
+        .slide-container {
+            min-height: 100vh;
+            padding: 2rem 2rem 120px 2rem;
+            display: none;
+        }
+
+        .slide-container.active {
+            display: block;
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .slide-content {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            color: #881518;
+            font-size: clamp(1.8rem, 4vw, 3rem);
+            margin-bottom: 2rem;
+            border-bottom: 3px solid #881518;
+            padding-bottom: 1rem;
+        }
+
+        h2 {
+            color: #a81c1f;
+            font-size: clamp(1.4rem, 3vw, 2rem);
+            margin: 2rem 0 1rem 0;
+        }
+
+        h3 {
+            color: #c8575a;
+            font-size: clamp(1.2rem, 2.5vw, 1.5rem);
+            margin: 1.5rem 0 1rem 0;
+        }
+
+        p, li {
+            font-size: clamp(1rem, 2vw, 1.2rem);
+            line-height: 1.8;
+            margin-bottom: 1rem;
+            color: #333333;
+        }
+
+        .content-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+
+        @media (min-width: 768px) {
+            .content-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        .concept-box {
+            background: rgba(136, 21, 24, 0.05);
+            border-left: 4px solid #881518;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin: 1.5rem 0;
+        }
+
+        .code-box {
+            background: #f8f8f8;
+            border: 1px solid #d0d0d0;
+            border-radius: 8px;
+            padding: 1.5rem;
+            overflow-x: auto;
+            margin: 1rem 0;
+        }
+
+        code {
+            font-family: 'Courier New', Courier, monospace;
+            font-size: clamp(0.85rem, 1.5vw, 1rem);
+            color: #0066cc;
+        }
+
+        .keyword { color: #881518; }
+        .string { color: #2a8d2a; }
+        .function { color: #795e26; }
+        .comment { color: #008000; }
+        .property { color: #0066cc; }
+
+        .interactive-demo {
+            background: rgba(136, 21, 24, 0.03);
+            border: 2px dashed #881518;
+            border-radius: 8px;
+            padding: 2rem;
+            margin: 2rem 0;
+        }
+
+        .demo-button {
+            background: #881518;
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1.1rem;
+            font-weight: 600;
+            transition: all 0.3s;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            margin: 0.5rem;
+        }
+
+        .demo-button:hover {
+            background: #a81c1f;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(136, 21, 24, 0.3);
+        }
+
+        .demo-output {
+            background: white;
+            border: 2px solid #881518;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1rem 0;
+            min-height: 80px;
+        }
+
+        ul {
+            margin-left: 2rem;
+        }
+
+        .navigation {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(to top, #ffffff, rgba(255, 255, 255, 0.98));
+            padding: 1.5rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+            border-top: 2px solid #e0e0e0;
+        }
+
+        .nav-button {
+            background: #881518;
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: clamp(0.9rem, 2vw, 1.1rem);
+            font-weight: 600;
+            transition: all 0.3s;
+            min-width: 100px;
+        }
+
+        .nav-button:hover:not(:disabled) {
+            background: #a81c1f;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(136, 21, 24, 0.3);
+        }
+
+        .nav-button:disabled {
+            background: #cccccc;
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        .slide-counter {
+            color: #881518;
+            font-weight: 600;
+            font-size: clamp(1rem, 2vw, 1.2rem);
+        }
+
+        @media (max-width: 768px) {
+            .navigation {
+                padding: 1rem;
+            }
+
+            .nav-button {
+                padding: 0.75rem 1rem;
+                min-width: 80px;
+            }
+        }
+
+        .highlight {
+            background: rgba(136, 21, 24, 0.15);
+            padding: 0.2rem 0.4rem;
+            border-radius: 3px;
+            font-weight: 600;
+        }
+
+        .inline-code {
+            background: #f0f0f0;
+            padding: 0.2rem 0.5rem;
+            border-radius: 3px;
+            font-family: 'Courier New', Courier, monospace;
+            color: #881518;
+            font-size: 0.9em;
+        }
+
+        .success-box {
+            background: linear-gradient(135deg, #d4edda, #c3e6cb);
+            border: 2px solid #28a745;
+            border-left: 6px solid #1e7e34;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+        }
+
+        .success-box h3 {
+            color: #1e7e34;
+            margin-top: 0;
+        }
+
+        .info-box {
+            background: linear-gradient(135deg, #e3f2fd, #bbdefb);
+            border: 2px solid #2196f3;
+            border-left: 6px solid #1976d2;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+        }
+
+        .info-box h3 {
+            color: #1565c0;
+            margin-top: 0;
+        }
+
+        .animation-stage {
+            background: #ffffff;
+            border: 3px solid #881518;
+            border-radius: 8px;
+            height: 150px;
+            position: relative;
+            overflow: hidden;
+            margin: 2rem 0;
+        }
+
+        .animated-box {
+            position: absolute;
+            background: #881518;
+            color: white;
+            padding: 1rem 2rem;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 1.2rem;
+            white-space: nowrap;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        .fps-display {
+            background: #f8f8f8;
+            border: 2px solid #881518;
+            border-radius: 8px;
+            padding: 1rem;
+            margin: 1rem 0;
+            font-family: 'Courier New', Courier, monospace;
+            text-align: center;
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+
+        .method-signature {
+            background: rgba(136, 21, 24, 0.08);
+            border: 2px solid #881518;
+            border-radius: 8px;
+            padding: 1rem 1.5rem;
+            margin: 1rem 0;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: clamp(0.9rem, 2vw, 1.1rem);
+            font-weight: bold;
+            color: #881518;
+        }
+
+        .flow-diagram {
+            background: white;
+            border: 2px solid #881518;
+            border-radius: 8px;
+            padding: 2rem;
+            margin: 2rem 0;
+        }
+
+        .flow-step {
+            background: rgba(136, 21, 24, 0.08);
+            border: 2px solid #881518;
+            border-radius: 8px;
+            padding: 1rem;
+            margin: 1rem 0;
+            text-align: center;
+            font-weight: 600;
+        }
+
+        .flow-arrow {
+            text-align: center;
+            color: #881518;
+            font-size: 2rem;
+            font-weight: bold;
+            margin: 0.5rem 0;
+        }
+
+        .step-number {
+            display: inline-block;
+            background: #881518;
+            color: white;
+            width: 2.5rem;
+            height: 2.5rem;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 2.5rem;
+            font-weight: bold;
+            margin-right: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <!-- Slide 1: Introduction -->
+    <div class="slide-container active">
+        <div class="slide-content">
+            <h1>The requestAnimationFrame() API</h1>
+            
+            <div class="concept-box">
+                <h2>The Challenge</h2>
+                <p>Creating <span class="highlight">smooth animations</span> on a web page can be tricky, especially if you're not sure how to handle timing properly.</p>
+            </div>
+
+            <div class="success-box">
+                <h3>✓ The Solution</h3>
+                <p>The great news is that the <span class="inline-code">requestAnimationFrame()</span> API makes it easier!</p>
+            </div>
+
+            <div class="concept-box">
+                <h2>What is requestAnimationFrame()?</h2>
+                <p><span class="inline-code">requestAnimationFrame()</span> is a method that allows you to <span class="highlight">schedule the next step of your animation</span> before the next screen repaint, resulting in a <strong>fluid and visually appealing experience</strong>.</p>
+            </div>
+
+            <div class="content-grid">
+                <div class="info-box">
+                    <h3>Why Use It?</h3>
+                    <p>✓ Smooth animations</p>
+                    <p>✓ Better performance</p>
+                    <p>✓ Syncs with screen refresh</p>
+                    <p>✓ Battery efficient</p>
+                    <p>✓ Pauses when tab inactive</p>
+                </div>
+
+                <div class="info-box">
+                    <h3>Common Uses</h3>
+                    <p>🎨 Moving elements</p>
+                    <p>🎮 Game loops</p>
+                    <p>📊 Data visualizations</p>
+                    <p>🎭 Canvas animations</p>
+                    <p>🌟 Visual effects</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 2: Screen Repaint Concept -->
+    <div class="slide-container">
+        <div class="slide-content">
+            <h1>Understanding Screen Repaint</h1>
+
+            <div class="concept-box">
+                <h2>What is "Next Screen Repaint"?</h2>
+                <p>The <span class="highlight">next screen repaint</span> refers to the moment when the browser <strong>refreshes the visual display</strong> of the web page.</p>
+                <p>This happens multiple times per second, typically around <strong>60 times</strong> (or 60 frames per second) on most displays.</p>
+            </div>
+
+            <div class="info-box">
+                <h3>Frames Per Second (FPS)</h3>
+                <p>Most displays refresh at <strong>60 FPS</strong>, which means:</p>
+                <p>• The screen repaints 60 times every second</p>
+                <p>• Each frame lasts about 16.67 milliseconds</p>
+                <p>• Smooth animation needs to update each frame</p>
+            </div>
+
+            <div class="flow-diagram">
+                <h3 style="color: #881518; text-align: center; margin-bottom: 1rem;">Animation Frame Timeline</h3>
+                <div class="flow-step">Frame 1: Browser repaints (0ms)</div>
+                <div class="flow-arrow">↓ ~16.67ms</div>
+                <div class="flow-step">Frame 2: Browser repaints (16.67ms)</div>
+                <div class="flow-arrow">↓ ~16.67ms</div>
+                <div class="flow-step">Frame 3: Browser repaints (33.33ms)</div>
+                <div class="flow-arrow">↓ ~16.67ms</div>
+                <div class="flow-step">Frame 4: Browser repaints (50ms)</div>
+                <p style="text-align: center; margin-top: 1rem; font-style: italic; color: #666;">And so on... 60 times per second!</p>
+            </div>
+
+            <div class="success-box">
+                <h3>💡 Key Insight</h3>
+                <p><span class="inline-code">requestAnimationFrame()</span> schedules your animation code to run <strong>right before each repaint</strong>, ensuring smooth, synchronized updates!</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 3: Basic Syntax -->
+    <div class="slide-container">
+        <div class="slide-content">
+            <h1>Basic Syntax</h1>
+
+            <div class="concept-box">
+                <h2>Simple to Use</h2>
+                <p>To use the <span class="inline-code">requestAnimationFrame()</span> method, all you need to do is call it and pass a callback function into it:</p>
+            </div>
+
+            <div class="method-signature">
+                requestAnimationFrame(callback);
+            </div>
+
+            <div class="content-grid">
+                <div class="concept-box">
+                    <h3>Parameter</h3>
+                    <p><strong>callback:</strong> A function to call before the next repaint</p>
+                    <p>This function will be executed when the browser is ready to update the screen.</p>
+                </div>
+
+                <div class="concept-box">
+                    <h3>Return Value</h3>
+                    <p>Returns a <strong>request ID</strong> (number)</p>
+                    <p>You can use this ID to cancel the animation with <span class="inline-code">cancelAnimationFrame()</span>.</p>
+                </div>
+            </div>
+
+            <h3>Simple Example</h3>
+            <div class="code-box">
+                <code>
+<span class="comment">// Schedule a function to run before next repaint</span>
+<span class="function">requestAnimationFrame</span>(() => {
+  <span class="keyword">console</span>.<span class="function">log</span>(<span class="string">"Frame updated!"</span>);
+});
+                </code>
+            </div>
+
+            <div class="info-box">
+                <h3>📝 Note</h3>
+                <p>This only runs <strong>once</strong>. To create a continuous animation, you need to call <span class="inline-code">requestAnimationFrame()</span> repeatedly in a loop pattern.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 4: Animation Loop Pattern -->
+    <div class="slide-container">
+        <div class="slide-content">
+            <h1>Creating an Animation Loop</h1>
+
+            <div class="concept-box">
+                <h2>The Pattern</h2>
+                <p>Calling <span class="inline-code">requestAnimationFrame()</span> must first occur inside a function that handles the animation, such as <span class="inline-code">animate()</span>, along with a function to update the animation, traditionally called <span class="inline-code">update()</span>:</p>
+            </div>
+
+            <div class="code-box">
+                <code>
+<span class="keyword">function</span> <span class="function">animate</span>() {
+  <span class="comment">// Update the animation...</span>
+  <span class="comment">// for example, move an element, change a style, and more.</span>
+  <span class="function">update</span>();
+  
+  <span class="comment">// Request the next frame</span>
+  <span class="function">requestAnimationFrame</span>(animate);
+}
+                </code>
+            </div>
+
+            <div class="concept-box">
+                <h3>How It Works</h3>
+                <p><span class="step-number">1</span> <span class="inline-code">animate()</span> function is called</p>
+                <p><span class="step-number">2</span> <span class="inline-code">update()</span> makes changes to the animation</p>
+                <p><span class="step-number">3</span> <span class="inline-code">requestAnimationFrame(animate)</span> schedules the next frame</p>
+                <p><span class="step-number">4</span> Browser repaints the screen</p>
+                <p><span class="step-number">5</span> Loop repeats - <span class="inline-code">animate()</span> is called again!</p>
+            </div>
+
+            <div class="success-box">
+                <h3>✓ The Magic of Recursion</h3>
+                <p>The <span class="inline-code">animate()</span> function calls <span class="inline-code">requestAnimationFrame(animate)</span>, which schedules <span class="inline-code">animate()</span> to run again!</p>
+                <p>This creates a continuous loop that runs ~60 times per second.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 5: The update() Function -->
+    <div class="slide-container">
+        <div class="slide-content">
+            <h1>The update() Function</h1>
+
+            <div class="concept-box">
+                <h2>Where the Magic Happens</h2>
+                <p>The <span class="inline-code">update()</span> function is where the magic happens. Inside it, you get to <span class="highlight">change whatever you want to animate</span>.</p>
+                <p>For example, updating a style or changing the position of an element:</p>
+            </div>
+
+            <div class="code-box">
+                <code>
+<span class="keyword">function</span> <span class="function">update</span>() {
+  element.<span class="property">style</span>.<span class="property">transform</span> = <span class="string">`translateX(</span>${position}<span class="string">px)`</span>;
+  position += <span class="keyword">2</span>;
+}
+                </code>
+            </div>
+
+            <div class="concept-box">
+                <h3>What This Does</h3>
+                <p><strong>Line 2:</strong> Moves the element horizontally by <span class="inline-code">position</span> pixels</p>
+                <p><strong>Line 3:</strong> Increases <span class="inline-code">position</span> by 2 pixels for the next frame</p>
+                <p><strong>Result:</strong> Element moves 2px to the right each frame (smooth animation!)</p>
+            </div>
+
+            <div class="content-grid">
+                <div class="info-box">
+                    <h3>Common Updates</h3>
+                    <p>• Change position (transform)</p>
+                    <p>• Modify opacity</p>
+                    <p>• Rotate elements</p>
+                    <p>• Scale size</p>
+                    <p>• Update colors</p>
+                    <p>• Draw on canvas</p>
+                </div>
+
+                <div class="info-box">
+                    <h3>Example Updates</h3>
+                    <div class="code-box">
+                        <code>
+<span class="comment">// Move right</span>
+x += speed;
+
+<span class="comment">// Fade out</span>
+opacity -= <span class="keyword">0.01</span>;
+
+<span class="comment">// Rotate</span>
+rotation += <span class="keyword">1</span>;
+
+<span class="comment">// Scale</span>
+scale += <span class="keyword">0.01</span>;
+                        </code>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 6: Starting the Animation -->
+    <div class="slide-container">
+        <div class="slide-content">
+            <h1>Kicking Off the Animation</h1>
+
+            <div class="concept-box">
+                <h2>Starting the Loop</h2>
+                <p>What finally kicks off the animation is calling <span class="inline-code">requestAnimationFrame()</span> and passing in the <span class="inline-code">animate</span> function, this time <span class="highlight">outside</span> the animate function:</p>
+            </div>
+
+            <div class="code-box">
+                <code>
+<span class="comment">// Define your animation function</span>
+<span class="keyword">function</span> <span class="function">animate</span>() {
+  <span class="function">update</span>();
+  <span class="function">requestAnimationFrame</span>(animate);
+}
+
+<span class="comment">// Define your update function</span>
+<span class="keyword">function</span> <span class="function">update</span>() {
+  <span class="comment">// Make changes here</span>
+}
+
+<span class="comment">// 🚀 START THE ANIMATION!</span>
+<span class="function">requestAnimationFrame</span>(animate);
+                </code>
+            </div>
+
+            <div class="info-box">
+                <h3>📌 Important</h3>
+                <p>The <strong>first</strong> call to <span class="inline-code">requestAnimationFrame(animate)</span> happens <strong>outside</strong> the function to start the loop.</p>
+                <p>After that, <span class="inline-code">animate()</span> calls it again from inside, creating the continuous loop.</p>
+            </div>
+
+            <div class="concept-box">
+                <h3>The Loop Continues</h3>
+                <p>The loop will continue <span class="highlight">until you stop it</span>.</p>
+                <p>To stop an animation, you can use conditions or <span class="inline-code">cancelAnimationFrame()</span>.</p>
+            </div>
+
+            <div class="code-box">
+                <code>
+<span class="keyword">let</span> animationId;
+
+<span class="keyword">function</span> <span class="function">animate</span>() {
+  <span class="function">update</span>();
+  
+  <span class="comment">// Keep looping</span>
+  animationId = <span class="function">requestAnimationFrame</span>(animate);
+}
+
+<span class="comment">// Start animation</span>
+animationId = <span class="function">requestAnimationFrame</span>(animate);
+
+<span class="comment">// Stop animation later</span>
+<span class="function">cancelAnimationFrame</span>(animationId);
+                </code>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 7: Complete Example Setup -->
+    <div class="slide-container">
+        <div class="slide-content">
+            <h1>Complete Example: Moving Rectangle</h1>
+
+            <div class="concept-box">
+                <h2>The Example</h2>
+                <p>Let's look at a complete example. We have a div element with the text <strong>"freeCodeCamp is Awesome"</strong>.</p>
+                <p>The JavaScript code moves the rectangle <strong>2px to the right</strong> at every call of <span class="inline-code">requestAnimationFrame(animate)</span>.</p>
+            </div>
+
+            <h3>HTML</h3>
+            <div class="code-box">
+                <code>
+<span class="keyword">&lt;link</span> <span class="property">rel</span>=<span class="string">"stylesheet"</span> <span class="property">href</span>=<span class="string">"styles.css"</span> <span class="keyword">/&gt;</span>
+<span class="keyword">&lt;div</span> <span class="property">id</span>=<span class="string">"rect"</span> <span class="property">class</span>=<span class="string">"rect"</span><span class="keyword">&gt;</span>freeCodeCamp is Awesome<span class="keyword">&lt;/div&gt;</span>
+<span class="keyword">&lt;script</span> <span class="property">src</span>=<span class="string">"index.js"</span><span class="keyword">&gt;&lt;/script&gt;</span>
+                </code>
+            </div>
+
+            <h3>CSS</h3>
+            <div class="code-box">
+                <code>
+<span class="keyword">.rect</span> {
+  <span class="property">background</span>: <span class="string">#881518</span>;
+  <span class="property">color</span>: <span class="string">white</span>;
+  <span class="property">padding</span>: <span class="string">20px</span>;
+  <span class="property">font-weight</span>: <span class="string">bold</span>;
+  <span class="property">position</span>: <span class="string">absolute</span>;
+}
+                </code>
+            </div>
+
+            <h3>JavaScript</h3>
+            <div class="code-box">
+                <code>
+<span class="keyword">const</span> rect = <span class="keyword">document</span>.<span class="function">getElementById</span>(<span class="string">"rect"</span>);
+<span class="keyword">let</span> position = <span class="keyword">0</span>;
+
+<span class="keyword">function</span> <span class="function">update</span>() {
+  rect.<span class="property">style</span>.<span class="property">transform</span> = <span class="string">`translateX(</span>${position}<span class="string">px)`</span>;
+  position += <span class="keyword">2</span>;
+}
+
+<span class="keyword">function</span> <span class="function">animate</span>() {
+  <span class="function">update</span>();
+  <span class="function">requestAnimationFrame</span>(animate);
+}
+
+<span class="function">requestAnimationFrame</span>(animate);
+                </code>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 8: Interactive Demo 1 -->
+    <div class="slide-container">
+        <div class="slide-content">
+            <h1>See It In Action!</h1>
+
+            <div class="concept-box">
+                <h2>Result</h2>
+                <p>The result in the browser will be an <span class="highlight">animated title card floating across the screen</span>.</p>
+            </div>
+
+            <div class="interactive-demo">
+                <h3>Interactive Demo</h3>
+                <p>Click "Start Animation" to see the rectangle move:</p>
+                
+                <div style="text-align: center; margin: 1rem 0;">
+                    <button class="demo-button" onclick="startDemo1()">Start Animation</button>
+                    <button class="demo-button" onclick="stopDemo1()">Stop Animation</button>
+                    <button class="demo-button" onclick="resetDemo1()">Reset</button>
+                </div>
+
+                <div class="animation-stage">
+                    <div id="demo1-box" class="animated-box">freeCodeCamp is Awesome</div>
+                </div>
+
+                <div class="fps-display" id="demo1-fps">
+                    FPS: -- | Position: 0px
+                </div>
+
+                <div class="concept-box" style="margin-top: 1rem;">
+                    <p><strong>What's happening:</strong></p>
+                    <p>• The box moves 2px to the right each frame</p>
+                    <p>• At 60 FPS, that's 120 pixels per second!</p>
+                    <p>• The animation loops continuously</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 9: Advanced Demo with Controls -->
+    <div class="slide-container">
+        <div class="slide-content">
+            <h1>Advanced Animation Control</h1>
+
+            <div class="concept-box">
+                <h2>More Complex Example</h2>
+                <p>Let's see how we can control animation speed and add boundaries:</p>
+            </div>
+
+            <div class="interactive-demo">
+                <h3>Controllable Animation</h3>
+                
+                <div style="text-align: center; margin: 1rem 0;">
+                    <button class="demo-button" onclick="startDemo2()">Start</button>
+                    <button class="demo-button" onclick="pauseDemo2()">Pause</button>
+                    <button class="demo-button" onclick="resetDemo2()">Reset</button>
+                </div>
+
+                <div style="margin: 1rem 0;">
+                    <label style="font-weight: bold;">Speed: <span id="speed-value">2</span>px per frame</label><br>
+                    <input type="range" min="1" max="10" value="2" style="width: 100%; max-width: 400px;" oninput="updateSpeed(this.value)">
+                </div>
+
+                <div class="animation-stage">
+                    <div id="demo2-box" class="animated-box">Animated Box</div>
+                </div>
+
+                <div class="fps-display" id="demo2-fps">
+                    FPS: -- | Position: 0px | Speed: 2px/frame
+                </div>
+
+                <div class="code-box" style="margin-top: 1rem;">
+                    <code>
+<span class="keyword">let</span> speed = <span class="keyword">2</span>;
+<span class="keyword">let</span> animationId;
+
+<span class="keyword">function</span> <span class="function">animate</span>() {
+  position += speed;
+  
+  <span class="comment">// Wrap around when reaching edge</span>
+  <span class="keyword">if</span> (position > maxWidth) {
+    position = <span class="keyword">-boxWidth</span>;
+  }
+  
+  box.<span class="property">style</span>.<span class="property">transform</span> = <span class="string">`translateX(</span>${position}<span class="string">px)`</span>;
+  animationId = <span class="function">requestAnimationFrame</span>(animate);
+}
+                    </code>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 10: Key Takeaways -->
+    <div class="slide-container">
+        <div class="slide-content">
+            <h1>Key Takeaways</h1>
+
+            <div class="concept-box">
+                <h2>What is requestAnimationFrame()?</h2>
+                <p>A method that <span class="highlight">schedules the next step of your animation before the next screen repaint</span>, resulting in smooth, synchronized animations.</p>
+            </div>
+
+            <div class="method-signature">
+                requestAnimationFrame(callback);
+            </div>
+
+            <div class="content-grid">
+                <div class="success-box">
+                    <h3>✓ The Animation Pattern</h3>
+                    <div class="code-box">
+                        <code>
+<span class="keyword">function</span> <span class="function">animate</span>() {
+  <span class="function">update</span>();
+  <span class="function">requestAnimationFrame</span>(animate);
+}
+
+<span class="keyword">function</span> <span class="function">update</span>() {
+  <span class="comment">// Make changes here</span>
+}
+
+<span class="comment">// Start it!</span>
+<span class="function">requestAnimationFrame</span>(animate);
+                        </code>
+                    </div>
+                </div>
+
+                <div class="info-box">
+                    <h3>Key Points</h3>
+                    <p><strong>Screen Repaint:</strong> Browser refreshes display ~60 times/second</p>
+                    <p><strong>Smooth Animation:</strong> Update before each repaint</p>
+                    <p><strong>Loop Pattern:</strong> <span class="inline-code">animate()</span> calls itself recursively</p>
+                    <p><strong>update():</strong> Where you make changes</p>
+                    <p><strong>Start:</strong> Call once outside to begin</p>
+                </div>
+            </div>
+
+            <div class="success-box">
+                <h3>✓ Benefits</h3>
+                <p>✓ <strong>Smooth:</strong> Syncs with display refresh rate</p>
+                <p>✓ <strong>Efficient:</strong> Browser optimizes timing</p>
+                <p>✓ <strong>Battery-friendly:</strong> Pauses when tab inactive</p>
+                <p>✓ <strong>No jank:</strong> Better than setTimeout/setInterval</p>
+                <p>✓ <strong>Professional:</strong> Industry standard for animations</p>
+            </div>
+
+            <div class="concept-box">
+                <h3>Remember</h3>
+                <p>The loop continues <strong>until you stop it</strong> with <span class="inline-code">cancelAnimationFrame()</span> or a condition!</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Navigation -->
+    <div class="navigation">
+        <button class="nav-button" id="prevBtn" onclick="changeSlide(-1)">← Previous</button>
+        <div class="slide-counter">
+            <span id="currentSlide">1</span> / <span id="totalSlides">10</span>
+        </div>
+        <button class="nav-button" id="nextBtn" onclick="changeSlide(1)">Next →</button>
+    </div>
+
+    <script>
+        let currentSlide = 1;
+        const totalSlides = document.querySelectorAll('.slide-container').length;
+        
+        document.getElementById('totalSlides').textContent = totalSlides;
+        
+        function showSlide(n) {
+            const slides = document.querySelectorAll('.slide-container');
+            
+            if (n > totalSlides) {
+                currentSlide = totalSlides;
+            }
+            if (n < 1) {
+                currentSlide = 1;
+            }
+            
+            slides.forEach(slide => slide.classList.remove('active'));
+            slides[currentSlide - 1].classList.add('active');
+            
+            document.getElementById('currentSlide').textContent = currentSlide;
+            
+            // Update button states
+            document.getElementById('prevBtn').disabled = currentSlide === 1;
+            document.getElementById('nextBtn').disabled = currentSlide === totalSlides;
+            
+            // Scroll to top of page
+            window.scrollTo(0, 0);
+            
+            // Stop any running animations when changing slides
+            if (currentSlide !== 8) stopDemo1();
+            if (currentSlide !== 9) pauseDemo2();
+        }
+        
+        function changeSlide(direction) {
+            currentSlide += direction;
+            showSlide(currentSlide);
+        }
+        
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowLeft') {
+                changeSlide(-1);
+            } else if (e.key === 'ArrowRight') {
+                changeSlide(1);
+            }
+        });
+        
+        // Demo 1 - Simple moving box
+        let demo1AnimationId = null;
+        let demo1Position = 0;
+        let demo1LastTime = 0;
+        let demo1FrameCount = 0;
+        let demo1Fps = 0;
+        
+        function demo1Animate(currentTime) {
+            const box = document.getElementById('demo1-box');
+            const fpsDisplay = document.getElementById('demo1-fps');
+            
+            // Calculate FPS
+            if (demo1LastTime !== 0) {
+                const delta = currentTime - demo1LastTime;
+                demo1FrameCount++;
+                if (demo1FrameCount >= 10) {
+                    demo1Fps = Math.round(1000 / delta);
+                    demo1FrameCount = 0;
+                }
+            }
+            demo1LastTime = currentTime;
+            
+            // Update position
+            demo1Position += 2;
+            
+            // Reset if off screen
+            const stage = box.parentElement;
+            if (demo1Position > stage.offsetWidth) {
+                demo1Position = -box.offsetWidth;
+            }
+            
+            box.style.transform = `translateX(${demo1Position}px)`;
+            fpsDisplay.textContent = `FPS: ${demo1Fps} | Position: ${Math.round(demo1Position)}px`;
+            
+            demo1AnimationId = requestAnimationFrame(demo1Animate);
+        }
+        
+        function startDemo1() {
+            if (demo1AnimationId === null) {
+                demo1AnimationId = requestAnimationFrame(demo1Animate);
+            }
+        }
+        
+        function stopDemo1() {
+            if (demo1AnimationId !== null) {
+                cancelAnimationFrame(demo1AnimationId);
+                demo1AnimationId = null;
+            }
+        }
+        
+        function resetDemo1() {
+            stopDemo1();
+            demo1Position = 0;
+            demo1LastTime = 0;
+            demo1FrameCount = 0;
+            demo1Fps = 0;
+            document.getElementById('demo1-box').style.transform = 'translateX(0px)';
+            document.getElementById('demo1-fps').textContent = 'FPS: -- | Position: 0px';
+        }
+        
+        // Demo 2 - Controllable animation
+        let demo2AnimationId = null;
+        let demo2Position = 0;
+        let demo2Speed = 2;
+        let demo2LastTime = 0;
+        let demo2FrameCount = 0;
+        let demo2Fps = 0;
+        
+        function demo2Animate(currentTime) {
+            const box = document.getElementById('demo2-box');
+            const fpsDisplay = document.getElementById('demo2-fps');
+            
+            // Calculate FPS
+            if (demo2LastTime !== 0) {
+                const delta = currentTime - demo2LastTime;
+                demo2FrameCount++;
+                if (demo2FrameCount >= 10) {
+                    demo2Fps = Math.round(1000 / delta);
+                    demo2FrameCount = 0;
+                }
+            }
+            demo2LastTime = currentTime;
+            
+            // Update position
+            demo2Position += demo2Speed;
+            
+            // Wrap around when reaching edge
+            const stage = box.parentElement;
+            if (demo2Position > stage.offsetWidth) {
+                demo2Position = -box.offsetWidth;
+            }
+            
+            box.style.transform = `translateX(${demo2Position}px)`;
+            fpsDisplay.textContent = `FPS: ${demo2Fps} | Position: ${Math.round(demo2Position)}px | Speed: ${demo2Speed}px/frame`;
+            
+            demo2AnimationId = requestAnimationFrame(demo2Animate);
+        }
+        
+        function startDemo2() {
+            if (demo2AnimationId === null) {
+                demo2AnimationId = requestAnimationFrame(demo2Animate);
+            }
+        }
+        
+        function pauseDemo2() {
+            if (demo2AnimationId !== null) {
+                cancelAnimationFrame(demo2AnimationId);
+                demo2AnimationId = null;
+            }
+        }
+        
+        function resetDemo2() {
+            pauseDemo2();
+            demo2Position = 0;
+            demo2LastTime = 0;
+            demo2FrameCount = 0;
+            demo2Fps = 0;
+            document.getElementById('demo2-box').style.transform = 'translateX(0px)';
+            document.getElementById('demo2-fps').textContent = 'FPS: -- | Position: 0px | Speed: ' + demo2Speed + 'px/frame';
+        }
+        
+        function updateSpeed(value) {
+            demo2Speed = parseInt(value);
+            document.getElementById('speed-value').textContent = demo2Speed;
+        }
+        
+        // Initialize
+        showSlide(currentSlide);
+    </script>
+</body>
+</html>

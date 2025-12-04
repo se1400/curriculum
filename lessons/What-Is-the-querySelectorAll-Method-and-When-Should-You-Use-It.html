@@ -1,0 +1,687 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>querySelectorAll() Method Presentation</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #f5f5f5 0%, #ffffff 100%);
+            color: #2d2d2d;
+            overflow-x: hidden;
+        }
+
+        .slide-container {
+            min-height: 100vh;
+            padding: 2rem 2rem 120px 2rem;
+            display: none;
+        }
+
+        .slide-container.active {
+            display: block;
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .slide-content {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            color: #881518;
+            font-size: clamp(1.8rem, 4vw, 3rem);
+            margin-bottom: 2rem;
+            border-bottom: 3px solid #881518;
+            padding-bottom: 1rem;
+        }
+
+        h2 {
+            color: #a81c1f;
+            font-size: clamp(1.4rem, 3vw, 2rem);
+            margin: 2rem 0 1rem 0;
+        }
+
+        h3 {
+            color: #c8575a;
+            font-size: clamp(1.2rem, 2.5vw, 1.5rem);
+            margin: 1.5rem 0 1rem 0;
+        }
+
+        p, li {
+            font-size: clamp(1rem, 2vw, 1.2rem);
+            line-height: 1.8;
+            margin-bottom: 1rem;
+            color: #333333;
+        }
+
+        .content-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+
+        @media (min-width: 768px) {
+            .content-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        .concept-box {
+            background: rgba(136, 21, 24, 0.05);
+            border-left: 4px solid #881518;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin: 1.5rem 0;
+        }
+
+        .code-box {
+            background: #f8f8f8;
+            border: 1px solid #d0d0d0;
+            border-radius: 8px;
+            padding: 1.5rem;
+            overflow-x: auto;
+            margin: 1rem 0;
+        }
+
+        code {
+            font-family: 'Courier New', Courier, monospace;
+            font-size: clamp(0.85rem, 1.5vw, 1rem);
+            color: #0066cc;
+        }
+
+        .keyword { color: #881518; }
+        .string { color: #2a8d2a; }
+        .function { color: #795e26; }
+        .comment { color: #008000; }
+        .number { color: #098658; }
+
+        .example-output {
+            background: #f0f0f0;
+            border: 1px solid #881518;
+            border-radius: 8px;
+            padding: 1rem;
+            margin: 1rem 0;
+            font-family: 'Courier New', Courier, monospace;
+            color: #0066cc;
+        }
+
+        .interactive-demo {
+            background: rgba(136, 21, 24, 0.03);
+            border: 2px dashed #881518;
+            border-radius: 8px;
+            padding: 2rem;
+            margin: 2rem 0;
+        }
+
+        .interactive-demo button {
+            background: #881518;
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            margin: 0.5rem;
+            transition: background 0.3s;
+        }
+
+        .interactive-demo button:hover {
+            background: #a81c1f;
+        }
+
+        .demo-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .demo-list li {
+            background: rgba(136, 21, 24, 0.08);
+            padding: 0.5rem 1rem;
+            margin: 0.5rem 0;
+            border-radius: 5px;
+        }
+
+        ul {
+            margin-left: 2rem;
+        }
+
+        .navigation {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(to top, #ffffff, rgba(255, 255, 255, 0.98));
+            padding: 1.5rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+            border-top: 2px solid #e0e0e0;
+        }
+
+        .nav-button {
+            background: #881518;
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: clamp(0.9rem, 2vw, 1.1rem);
+            font-weight: 600;
+            transition: all 0.3s;
+            min-width: 100px;
+        }
+
+        .nav-button:hover:not(:disabled) {
+            background: #a81c1f;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(136, 21, 24, 0.3);
+        }
+
+        .nav-button:disabled {
+            background: #cccccc;
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        .slide-counter {
+            color: #881518;
+            font-weight: 600;
+            font-size: clamp(1rem, 2vw, 1.2rem);
+        }
+
+        @media (max-width: 768px) {
+            .navigation {
+                padding: 1rem;
+            }
+
+            .nav-button {
+                padding: 0.75rem 1rem;
+                min-width: 80px;
+            }
+        }
+
+        .highlight {
+            background: rgba(136, 21, 24, 0.15);
+            padding: 0.2rem 0.4rem;
+            border-radius: 3px;
+            font-weight: 600;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+        }
+
+        th, td {
+            padding: 1rem;
+            text-align: left;
+            border: 1px solid #d0d0d0;
+        }
+
+        th {
+            background: #881518;
+            color: white;
+        }
+
+        td {
+            background: #fafafa;
+        }
+    </style>
+</head>
+<body>
+    <!-- Slide 1: Introduction to querySelectorAll() -->
+    <div class="slide-container active">
+        <div class="slide-content">
+            <h1>The querySelectorAll() Method</h1>
+            
+            <div class="concept-box">
+                <h2>What is querySelectorAll()?</h2>
+                <p>A method that gets a list of all DOM elements matching a specific CSS selector.</p>
+            </div>
+
+            <div class="content-grid">
+                <div>
+                    <h3>Basic Syntax</h3>
+                    <div class="code-box">
+                        <code>
+<span class="keyword">document</span>.<span class="function">querySelectorAll</span>(selectors);
+                        </code>
+                    </div>
+                    <p>• Call it on the <span class="highlight">document</span> object</p>
+                    <p>• Pass a <span class="highlight">valid CSS selector</span> string as an argument</p>
+                    <p>• Invalid selectors throw a <span class="highlight">SyntaxError</span></p>
+                </div>
+
+                <div>
+                    <h3>Return Value</h3>
+                    <div class="code-box">
+                        <code>
+<span class="comment">// Returns a NodeList object</span>
+<span class="keyword">const</span> matches = <span class="keyword">document</span>.<span class="function">querySelectorAll</span>(<span class="string">".class"</span>);
+                        </code>
+                    </div>
+                    <p>• Returns a <span class="highlight">NodeList</span> object</p>
+                    <p>• Contains one Element object per match</p>
+                    <p>• Empty list if no matches found</p>
+                    <p>• Elements appear in HTML document order</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 2: Simple Selector Examples -->
+    <div class="slide-container">
+        <div class="slide-content">
+            <h1>Selector Examples</h1>
+
+            <h2>Common CSS Selectors</h2>
+
+            <div class="content-grid">
+                <div>
+                    <div class="concept-box">
+                        <h3>By Element Type</h3>
+                        <div class="code-box">
+                            <code><span class="keyword">document</span>.<span class="function">querySelectorAll</span>(<span class="string">"div"</span>);</code>
+                        </div>
+                        <p>Selects all <span class="highlight">&lt;div&gt;</span> elements</p>
+                    </div>
+
+                    <div class="concept-box">
+                        <h3>By Class Name</h3>
+                        <div class="code-box">
+                            <code><span class="keyword">document</span>.<span class="function">querySelectorAll</span>(<span class="string">".rounded"</span>);</code>
+                        </div>
+                        <p>Selects all elements with class <span class="highlight">"rounded"</span></p>
+                    </div>
+                </div>
+
+                <div>
+                    <div class="concept-box">
+                        <h3>By ID</h3>
+                        <div class="code-box">
+                            <code><span class="keyword">document</span>.<span class="function">querySelectorAll</span>(<span class="string">"#logo"</span>);</code>
+                        </div>
+                        <p>Selects all elements with id <span class="highlight">"logo"</span></p>
+                    </div>
+
+                    <div class="concept-box">
+                        <h3>By Attribute</h3>
+                        <div class="code-box">
+                            <code>
+<span class="keyword">document</span>.<span class="function">querySelectorAll</span>(
+  <span class="string">"a[href='https://www.freecodecamp.org/']"</span>
+);
+                            </code>
+                        </div>
+                        <p>Selects links with specific <span class="highlight">href</span> attribute</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 3: Complex Selectors -->
+    <div class="slide-container">
+        <div class="slide-content">
+            <h1>Complex CSS Selectors</h1>
+
+            <div class="concept-box">
+                <h2>Combining Selectors for Precise Targeting</h2>
+                <p>You can use complex CSS selectors to target specific elements within a hierarchy.</p>
+            </div>
+
+            <div class="content-grid">
+                <div>
+                    <h3>Descendant Selector Example</h3>
+                    <div class="code-box">
+                        <code>
+<span class="keyword">document</span>.<span class="function">querySelectorAll</span>(<span class="string">"ul.ingredients li"</span>);
+                        </code>
+                    </div>
+                    <p>Matches all <span class="highlight">&lt;li&gt;</span> elements within a <span class="highlight">&lt;ul&gt;</span> that has class <span class="highlight">"ingredients"</span></p>
+                </div>
+
+                <div>
+                    <h3>HTML Structure</h3>
+                    <div class="code-box">
+                        <code>
+<span class="keyword">&lt;ul</span> <span class="string">class</span>=<span class="string">"ingredients"</span><span class="keyword">&gt;</span>
+  <span class="keyword">&lt;li&gt;</span>Flour<span class="keyword">&lt;/li&gt;</span>
+  <span class="keyword">&lt;li&gt;</span>Cheese<span class="keyword">&lt;/li&gt;</span>
+  <span class="keyword">&lt;li&gt;</span>Water<span class="keyword">&lt;/li&gt;</span>
+<span class="keyword">&lt;/ul&gt;</span>
+                        </code>
+                    </div>
+                </div>
+            </div>
+
+            <div class="interactive-demo">
+                <h3>Interactive Demo</h3>
+                <ul class="demo-list ingredients">
+                    <li>Flour</li>
+                    <li>Cheese</li>
+                    <li>Water</li>
+                </ul>
+                <button onclick="demonstrateSelector()">Run querySelectorAll("ul.ingredients li")</button>
+                <div id="demo-output" class="example-output" style="display: none; margin-top: 1rem;"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 4: Working with NodeList -->
+    <div class="slide-container">
+        <div class="slide-content">
+            <h1>Working with the NodeList</h1>
+
+            <div class="concept-box">
+                <h2>Storing and Using Results</h2>
+                <p>Assign the returned NodeList to a variable to work with the collection.</p>
+            </div>
+
+            <div class="content-grid">
+                <div>
+                    <h3>Assigning to a Variable</h3>
+                    <div class="code-box">
+                        <code>
+<span class="keyword">const</span> matches = <span class="keyword">document</span>.<span class="function">querySelectorAll</span>(<span class="string">"ul.ingredients li"</span>);
+                        </code>
+                    </div>
+                </div>
+
+                <div>
+                    <h3>NodeList Structure</h3>
+                    <div class="code-box">
+                        <code>
+<span class="comment">// NodeList(3)</span>
+{
+  <span class="number">0</span>: <span class="string">`&lt;li&gt;Flour&lt;/li&gt;`</span>,
+  <span class="number">1</span>: <span class="string">`&lt;li&gt;Cheese&lt;/li&gt;`</span>,
+  <span class="number">2</span>: <span class="string">`&lt;li&gt;Water&lt;/li&gt;`</span>,
+  length: <span class="number">3</span>
+}
+                        </code>
+                    </div>
+                </div>
+            </div>
+
+            <div class="concept-box">
+                <h3>Key Points</h3>
+                <p>• NodeList is an <span class="highlight">array-like</span> collection of nodes</p>
+                <p>• Each node represents an element that matched the selector</p>
+                <p>• Work with it like a JavaScript array</p>
+                <p>• Nodes are indexed starting from 0</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 5: NodeList Properties and Access -->
+    <div class="slide-container">
+        <div class="slide-content">
+            <h1>Accessing NodeList Elements</h1>
+
+            <div class="content-grid">
+                <div>
+                    <div class="concept-box">
+                        <h2>Display the Collection</h2>
+                        <div class="code-box">
+                            <code>
+<span class="keyword">console</span>.<span class="function">log</span>(matches);
+                            </code>
+                        </div>
+                        <p>Shows the entire NodeList in the console</p>
+                    </div>
+
+                    <div class="concept-box">
+                        <h2>Check the Length</h2>
+                        <div class="code-box">
+                            <code>
+<span class="keyword">console</span>.<span class="function">log</span>(matches.<span class="keyword">length</span>);
+                            </code>
+                        </div>
+                        <div class="example-output">3</div>
+                        <p>Returns the number of elements in the collection</p>
+                    </div>
+                </div>
+
+                <div>
+                    <div class="concept-box">
+                        <h2>Access by Index</h2>
+                        <div class="code-box">
+                            <code>
+<span class="keyword">console</span>.<span class="function">log</span>(matches[<span class="number">0</span>]);
+<span class="keyword">console</span>.<span class="function">log</span>(matches[<span class="number">1</span>]);
+<span class="keyword">console</span>.<span class="function">log</span>(matches[<span class="number">2</span>]);
+                            </code>
+                        </div>
+                        <div class="example-output">
+&lt;li&gt;Flour&lt;/li&gt;<br>
+&lt;li&gt;Cheese&lt;/li&gt;<br>
+&lt;li&gt;Water&lt;/li&gt;
+                        </div>
+                        <p>Access individual elements using bracket notation</p>
+                        <p>• First element is at index <span class="highlight">0</span></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 6: Iterating Over Elements -->
+    <div class="slide-container">
+        <div class="slide-content">
+            <h1>Iterating Over NodeList Elements</h1>
+
+            <div class="concept-box">
+                <h2>Using a For Loop</h2>
+                <p>Loop through all elements in the NodeList to perform operations on each one.</p>
+            </div>
+
+            <div class="content-grid">
+                <div>
+                    <h3>For Loop Example</h3>
+                    <div class="code-box">
+                        <code>
+<span class="keyword">for</span> (<span class="keyword">let</span> i = <span class="number">0</span>; i &lt; matches.<span class="keyword">length</span>; i++) {
+  <span class="keyword">console</span>.<span class="function">log</span>(matches[i]);
+}
+                        </code>
+                    </div>
+                    <div class="example-output">
+&lt;li&gt;Flour&lt;/li&gt;<br>
+&lt;li&gt;Cheese&lt;/li&gt;<br>
+&lt;li&gt;Water&lt;/li&gt;
+                    </div>
+                </div>
+
+                <div>
+                    <h3>Why This is Powerful</h3>
+                    <p>• Process all matching elements at once</p>
+                    <p>• Modify content, styles, or attributes</p>
+                    <p>• Add event listeners to multiple elements</p>
+                    <p>• Extract data from multiple elements</p>
+                </div>
+            </div>
+
+            <div class="interactive-demo">
+                <h3>Try It Yourself</h3>
+                <ul class="demo-list test-list">
+                    <li>Item 1</li>
+                    <li>Item 2</li>
+                    <li>Item 3</li>
+                    <li>Item 4</li>
+                </ul>
+                <button onclick="highlightAll()">Highlight All Items</button>
+                <button onclick="countItems()">Count Items</button>
+                <button onclick="resetItems()">Reset</button>
+                <div id="iteration-output" class="example-output" style="display: none; margin-top: 1rem;"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 7: Key Takeaways -->
+    <div class="slide-container">
+        <div class="slide-content">
+            <h1>Key Takeaways</h1>
+
+            <div class="concept-box">
+                <h2>querySelectorAll() Summary</h2>
+                <p>A powerful tool for selecting multiple elements based on CSS selectors.</p>
+            </div>
+
+            <div style="margin: 2rem 0;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Feature</th>
+                            <th>Description</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Purpose</strong></td>
+                            <td>Select multiple DOM elements using CSS selectors</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Return Value</strong></td>
+                            <td>NodeList object containing matched elements</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Empty Result</strong></td>
+                            <td>Returns empty NodeList (not null or error)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Element Order</strong></td>
+                            <td>Matches appear in HTML document order</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Usage</strong></td>
+                            <td>Access by index, check length, iterate with loops</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="concept-box">
+                <h3>Remember</h3>
+                <p>• Must be a <span class="highlight">valid CSS selector</span> string</p>
+                <p>• Works with <span class="highlight">any CSS selector</span> (simple or complex)</p>
+                <p>• Returned NodeList is <span class="highlight">array-like</span> but not a true array</p>
+                <p>• Perfect for <span class="highlight">manipulating multiple elements</span> at once</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Navigation -->
+    <div class="navigation">
+        <button class="nav-button" id="prevBtn" onclick="changeSlide(-1)">← Previous</button>
+        <div class="slide-counter">
+            <span id="currentSlide">1</span> / <span id="totalSlides">7</span>
+        </div>
+        <button class="nav-button" id="nextBtn" onclick="changeSlide(1)">Next →</button>
+    </div>
+
+    <script>
+        let currentSlide = 1;
+        const totalSlides = document.querySelectorAll('.slide-container').length;
+        
+        document.getElementById('totalSlides').textContent = totalSlides;
+        
+        function showSlide(n) {
+            const slides = document.querySelectorAll('.slide-container');
+            
+            if (n > totalSlides) {
+                currentSlide = totalSlides;
+            }
+            if (n < 1) {
+                currentSlide = 1;
+            }
+            
+            slides.forEach(slide => slide.classList.remove('active'));
+            slides[currentSlide - 1].classList.add('active');
+            
+            document.getElementById('currentSlide').textContent = currentSlide;
+            
+            // Update button states
+            document.getElementById('prevBtn').disabled = currentSlide === 1;
+            document.getElementById('nextBtn').disabled = currentSlide === totalSlides;
+            
+            // Scroll to top of page
+            window.scrollTo(0, 0);
+        }
+        
+        function changeSlide(direction) {
+            currentSlide += direction;
+            showSlide(currentSlide);
+        }
+        
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowLeft') {
+                changeSlide(-1);
+            } else if (e.key === 'ArrowRight') {
+                changeSlide(1);
+            }
+        });
+        
+        // Interactive demo functions
+        function demonstrateSelector() {
+            const matches = document.querySelectorAll("ul.ingredients li");
+            const output = document.getElementById('demo-output');
+            output.style.display = 'block';
+            output.innerHTML = `Found ${matches.length} elements:<br>`;
+            matches.forEach((item, index) => {
+                output.innerHTML += `[${index}]: ${item.textContent}<br>`;
+            });
+        }
+        
+        function highlightAll() {
+            const items = document.querySelectorAll("ul.test-list li");
+            items.forEach(item => {
+                item.style.background = '#881518';
+                item.style.color = 'white';
+                item.style.fontWeight = 'bold';
+            });
+            const output = document.getElementById('iteration-output');
+            output.style.display = 'block';
+            output.textContent = `Highlighted ${items.length} items using querySelectorAll()`;
+        }
+        
+        function countItems() {
+            const items = document.querySelectorAll("ul.test-list li");
+            const output = document.getElementById('iteration-output');
+            output.style.display = 'block';
+            output.textContent = `items.length = ${items.length}`;
+        }
+        
+        function resetItems() {
+            const items = document.querySelectorAll("ul.test-list li");
+            items.forEach(item => {
+                item.style.background = 'rgba(136, 21, 24, 0.08)';
+                item.style.color = '#333333';
+                item.style.fontWeight = 'normal';
+            });
+            const output = document.getElementById('iteration-output');
+            output.style.display = 'none';
+        }
+        
+        // Initialize
+        showSlide(currentSlide);
+    </script>
+</body>
+</html>

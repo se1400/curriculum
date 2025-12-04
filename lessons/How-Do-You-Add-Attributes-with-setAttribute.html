@@ -1,0 +1,1009 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>setAttribute() Method Presentation</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #f5f5f5 0%, #ffffff 100%);
+            color: #2d2d2d;
+            overflow-x: hidden;
+        }
+
+        .slide-container {
+            min-height: 100vh;
+            padding: 2rem 2rem 120px 2rem;
+            display: none;
+        }
+
+        .slide-container.active {
+            display: block;
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .slide-content {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            color: #881518;
+            font-size: clamp(1.8rem, 4vw, 3rem);
+            margin-bottom: 2rem;
+            border-bottom: 3px solid #881518;
+            padding-bottom: 1rem;
+        }
+
+        h2 {
+            color: #a81c1f;
+            font-size: clamp(1.4rem, 3vw, 2rem);
+            margin: 2rem 0 1rem 0;
+        }
+
+        h3 {
+            color: #c8575a;
+            font-size: clamp(1.2rem, 2.5vw, 1.5rem);
+            margin: 1.5rem 0 1rem 0;
+        }
+
+        p, li {
+            font-size: clamp(1rem, 2vw, 1.2rem);
+            line-height: 1.8;
+            margin-bottom: 1rem;
+            color: #333333;
+        }
+
+        .content-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+
+        @media (min-width: 768px) {
+            .content-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        .concept-box {
+            background: rgba(136, 21, 24, 0.05);
+            border-left: 4px solid #881518;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin: 1.5rem 0;
+        }
+
+        .code-box {
+            background: #f8f8f8;
+            border: 1px solid #d0d0d0;
+            border-radius: 8px;
+            padding: 1.5rem;
+            overflow-x: auto;
+            margin: 1rem 0;
+        }
+
+        code {
+            font-family: 'Courier New', Courier, monospace;
+            font-size: clamp(0.85rem, 1.5vw, 1rem);
+            color: #0066cc;
+        }
+
+        .keyword { color: #881518; }
+        .tag { color: #881518; }
+        .string { color: #2a8d2a; }
+        .function { color: #795e26; }
+        .comment { color: #008000; }
+        .property { color: #0066cc; }
+
+        .interactive-demo {
+            background: rgba(136, 21, 24, 0.03);
+            border: 2px dashed #881518;
+            border-radius: 8px;
+            padding: 2rem;
+            margin: 2rem 0;
+        }
+
+        .interactive-demo button {
+            background: #881518;
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            margin: 0.5rem;
+            transition: background 0.3s;
+        }
+
+        .interactive-demo button:hover {
+            background: #a81c1f;
+        }
+
+        .demo-output {
+            background: white;
+            border: 2px solid #881518;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1rem 0;
+            min-height: 80px;
+        }
+
+        .step-number {
+            display: inline-block;
+            background: #881518;
+            color: white;
+            width: 2rem;
+            height: 2rem;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 2rem;
+            font-weight: bold;
+            margin-right: 0.5rem;
+        }
+
+        .method-signature {
+            background: rgba(136, 21, 24, 0.08);
+            border: 2px solid #881518;
+            border-radius: 8px;
+            padding: 1rem 1.5rem;
+            margin: 1rem 0;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: clamp(0.9rem, 2vw, 1.1rem);
+            font-weight: bold;
+            color: #881518;
+        }
+
+        .before-after {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        @media (min-width: 768px) {
+            .before-after {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        .before-box {
+            background: linear-gradient(135deg, #fff3cd, #ffe69c);
+            border: 2px solid #ffc107;
+            border-radius: 8px;
+            padding: 1.5rem;
+        }
+
+        .before-box h3 {
+            color: #ff6f00;
+            margin-top: 0;
+        }
+
+        .after-box {
+            background: linear-gradient(135deg, #d4edda, #c3e6cb);
+            border: 2px solid #28a745;
+            border-radius: 8px;
+            padding: 1.5rem;
+        }
+
+        .after-box h3 {
+            color: #1e7e34;
+            margin-top: 0;
+        }
+
+        .real-world-example {
+            background: linear-gradient(135deg, #f3e5f5, #e1bee7);
+            border: 2px solid #9c27b0;
+            border-left: 6px solid #7b1fa2;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1rem 0;
+        }
+
+        .real-world-example h3 {
+            color: #6a1b9a;
+            margin-top: 0;
+        }
+
+        ul {
+            margin-left: 2rem;
+        }
+
+        .navigation {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(to top, #ffffff, rgba(255, 255, 255, 0.98));
+            padding: 1.5rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+            border-top: 2px solid #e0e0e0;
+        }
+
+        .nav-button {
+            background: #881518;
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: clamp(0.9rem, 2vw, 1.1rem);
+            font-weight: 600;
+            transition: all 0.3s;
+            min-width: 100px;
+        }
+
+        .nav-button:hover:not(:disabled) {
+            background: #a81c1f;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(136, 21, 24, 0.3);
+        }
+
+        .nav-button:disabled {
+            background: #cccccc;
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        .slide-counter {
+            color: #881518;
+            font-weight: 600;
+            font-size: clamp(1rem, 2vw, 1.2rem);
+        }
+
+        @media (max-width: 768px) {
+            .navigation {
+                padding: 1rem;
+            }
+
+            .nav-button {
+                padding: 0.75rem 1rem;
+                min-width: 80px;
+            }
+        }
+
+        .highlight {
+            background: rgba(136, 21, 24, 0.15);
+            padding: 0.2rem 0.4rem;
+            border-radius: 3px;
+            font-weight: 600;
+        }
+
+        .inline-code {
+            background: #f0f0f0;
+            padding: 0.2rem 0.5rem;
+            border-radius: 3px;
+            font-family: 'Courier New', Courier, monospace;
+            color: #881518;
+            font-size: 0.9em;
+        }
+
+        .demo-element {
+            border: 2px dashed #881518;
+            padding: 1rem;
+            margin: 1rem 0;
+            border-radius: 8px;
+            background: white;
+        }
+
+        .attribute-display {
+            background: #f0f0f0;
+            border: 1px solid #881518;
+            border-radius: 5px;
+            padding: 0.5rem 1rem;
+            margin: 0.5rem 0;
+            font-family: 'Courier New', Courier, monospace;
+            color: #881518;
+            font-size: 0.9rem;
+        }
+
+        .pro-tip {
+            background: linear-gradient(135deg, #e3f2fd, #bbdefb);
+            border: 2px solid #2196f3;
+            border-left: 6px solid #1976d2;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+        }
+
+        .pro-tip h3 {
+            color: #1565c0;
+            margin-top: 0;
+        }
+
+        .visual-demo-box {
+            background: white;
+            border: 3px solid #881518;
+            border-radius: 8px;
+            padding: 2rem;
+            margin: 1.5rem 0;
+            text-align: center;
+        }
+
+        .demo-image {
+            max-width: 100%;
+            height: auto;
+            border: 2px solid #d0d0d0;
+            border-radius: 8px;
+            margin: 1rem 0;
+        }
+
+        .thumbnail-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+
+        .thumbnail {
+            cursor: pointer;
+            border: 3px solid transparent;
+            border-radius: 5px;
+            transition: all 0.3s;
+            padding: 0.5rem;
+            background: rgba(136, 21, 24, 0.05);
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .thumbnail:hover {
+            border-color: #881518;
+            transform: scale(1.05);
+        }
+
+        .thumbnail.active {
+            border-color: #881518;
+            background: rgba(136, 21, 24, 0.15);
+        }
+    </style>
+</head>
+<body>
+    <!-- Slide 1: Introduction -->
+    <div class="slide-container active">
+        <div class="slide-content">
+            <h1>Adding Attributes with setAttribute()</h1>
+            
+            <div class="concept-box">
+                <h2>Working with HTML Attributes in JavaScript</h2>
+                <p>You may be familiar with working with attributes in your HTML and CSS projects.</p>
+                <p><strong>But did you know that you can add attributes to your HTML elements in your JavaScript file?</strong></p>
+            </div>
+
+            <div class="content-grid">
+                <div class="concept-box">
+                    <h3>Common HTML Attributes</h3>
+                    <p>• <span class="inline-code">class</span> - CSS classes</p>
+                    <p>• <span class="inline-code">id</span> - Unique identifier</p>
+                    <p>• <span class="inline-code">src</span> - Source for images</p>
+                    <p>• <span class="inline-code">href</span> - Links for anchors</p>
+                    <p>• <span class="inline-code">disabled</span> - Form controls</p>
+                    <p>• <span class="inline-code">required</span> - Form validation</p>
+                </div>
+
+                <div class="concept-box">
+                    <h3>What You'll Learn</h3>
+                    <p>In this lesson, you will learn how to work with the <span class="highlight">setAttribute()</span> method to add attributes to your HTML elements.</p>
+                    <p>You'll be able to:</p>
+                    <p>✓ Add new attributes</p>
+                    <p>✓ Update existing attributes</p>
+                    <p>✓ Build dynamic interfaces</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 2: Basic Syntax -->
+    <div class="slide-container">
+        <div class="slide-content">
+            <h1>setAttribute() Basic Syntax</h1>
+
+            <div class="concept-box">
+                <h2>Method Overview</h2>
+                <p>The <span class="inline-code">setAttribute()</span> method allows you to add or update attributes on HTML elements.</p>
+            </div>
+
+            <div class="method-signature">
+                element.setAttribute(attribute, value);
+            </div>
+
+            <div class="content-grid">
+                <div class="concept-box">
+                    <h3>Parameters</h3>
+                    <p><strong>attribute:</strong> The name of the attribute (as a string)</p>
+                    <p><strong>value:</strong> The value to assign to the attribute (as a string)</p>
+                </div>
+
+                <div class="concept-box">
+                    <h3>Return Value</h3>
+                    <p>The method returns <span class="inline-code">undefined</span>.</p>
+                    <p>It modifies the element directly without returning anything.</p>
+                </div>
+            </div>
+
+            <h3>Simple Examples</h3>
+            <div class="code-box">
+                <code>
+<span class="comment">// Add a class attribute</span>
+element.<span class="function">setAttribute</span>(<span class="string">"class"</span>, <span class="string">"my-class"</span>);
+
+<span class="comment">// Add an id attribute</span>
+element.<span class="function">setAttribute</span>(<span class="string">"id"</span>, <span class="string">"main-header"</span>);
+
+<span class="comment">// Add a src attribute to an image</span>
+imgElement.<span class="function">setAttribute</span>(<span class="string">"src"</span>, <span class="string">"photo.jpg"</span>);
+
+<span class="comment">// Add a disabled attribute</span>
+buttonElement.<span class="function">setAttribute</span>(<span class="string">"disabled"</span>, <span class="string">"true"</span>);
+                </code>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 3: Example 1 - Setup -->
+    <div class="slide-container">
+        <div class="slide-content">
+            <h1>Example 1: Adding a New Attribute</h1>
+
+            <div class="concept-box">
+                <h2>Scenario: Adding a Class Attribute</h2>
+                <p>We have a paragraph element without a class attribute, and we want to add one using JavaScript.</p>
+            </div>
+
+            <h3>Starting HTML</h3>
+            <div class="code-box">
+                <code>
+<span class="tag">&lt;p</span> <span class="property">id</span>=<span class="string">"para"</span><span class="tag">&gt;</span>I am a paragraph<span class="tag">&lt;/p&gt;</span>
+                </code>
+            </div>
+
+            <div class="concept-box">
+                <h3>Current State</h3>
+                <p>The paragraph has an <span class="inline-code">id</span> attribute but <strong>no class attribute</strong>.</p>
+            </div>
+
+            <div class="concept-box">
+                <h3>Goal</h3>
+                <p>Add a <span class="inline-code">class</span> attribute with the value <span class="inline-code">"my-class"</span> to the paragraph element.</p>
+            </div>
+
+            <div class="visual-demo-box">
+                <div style="text-align: left;">
+                    <strong>Before:</strong>
+                    <div class="attribute-display">&lt;p id="para"&gt;I am a paragraph&lt;/p&gt;</div>
+                    <strong style="margin-top: 1rem; display: block;">After:</strong>
+                    <div class="attribute-display">&lt;p id="para" class="my-class"&gt;I am a paragraph&lt;/p&gt;</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 4: Example 1 - Step by Step -->
+    <div class="slide-container">
+        <div class="slide-content">
+            <h1>Example 1: Step-by-Step</h1>
+
+            <div class="concept-box">
+                <h3><span class="step-number">1</span> Access the Element</h3>
+                <div class="code-box">
+                    <code>
+<span class="keyword">const</span> para = <span class="keyword">document</span>.<span class="function">getElementById</span>(<span class="string">"para"</span>);
+                    </code>
+                </div>
+                <p>First, we need to access the paragraph element using <span class="inline-code">getElementById()</span>.</p>
+            </div>
+
+            <div class="concept-box">
+                <h3><span class="step-number">2</span> Use setAttribute()</h3>
+                <div class="code-box">
+                    <code>
+<span class="keyword">const</span> para = <span class="keyword">document</span>.<span class="function">getElementById</span>(<span class="string">"para"</span>);
+para.<span class="function">setAttribute</span>(<span class="string">"class"</span>, <span class="string">"my-class"</span>);
+                    </code>
+                </div>
+                <p>Call <span class="inline-code">setAttribute()</span> with two arguments:</p>
+                <p>• <strong>Attribute name:</strong> <span class="inline-code">"class"</span></p>
+                <p>• <strong>Attribute value:</strong> <span class="inline-code">"my-class"</span></p>
+            </div>
+
+            <div class="concept-box">
+                <h3><span class="step-number">3</span> Verify with outerHTML</h3>
+                <div class="code-box">
+                    <code>
+<span class="keyword">const</span> para = <span class="keyword">document</span>.<span class="function">getElementById</span>(<span class="string">"para"</span>);
+para.<span class="function">setAttribute</span>(<span class="string">"class"</span>, <span class="string">"my-class"</span>);
+<span class="keyword">console</span>.<span class="function">log</span>(para.<span class="property">outerHTML</span>);
+                    </code>
+                </div>
+                <p>We use <span class="inline-code">outerHTML</span> to log the <strong>entire HTML element</strong> including its attributes.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 5: Example 1 - Result -->
+    <div class="slide-container">
+        <div class="slide-content">
+            <h1>Example 1: Result</h1>
+
+            <div class="before-after">
+                <div class="before-box">
+                    <h3>Before setAttribute()</h3>
+                    <div class="code-box">
+                        <code>
+<span class="tag">&lt;p</span> <span class="property">id</span>=<span class="string">"para"</span><span class="tag">&gt;</span>
+  I am a paragraph
+<span class="tag">&lt;/p&gt;</span>
+                        </code>
+                    </div>
+                    <p><strong>Attributes:</strong> Only <span class="inline-code">id</span></p>
+                </div>
+
+                <div class="after-box">
+                    <h3>After setAttribute()</h3>
+                    <div class="code-box">
+                        <code>
+<span class="tag">&lt;p</span> <span class="property">id</span>=<span class="string">"para"</span> <span class="property">class</span>=<span class="string">"my-class"</span><span class="tag">&gt;</span>
+  I am a paragraph
+<span class="tag">&lt;/p&gt;</span>
+                        </code>
+                    </div>
+                    <p><strong>Attributes:</strong> Both <span class="inline-code">id</span> and <span class="inline-code">class</span></p>
+                </div>
+            </div>
+
+            <div class="concept-box">
+                <h2>Console Output</h2>
+                <div class="code-box">
+                    <code>
+<span class="string">"&lt;p id=\"para\" class=\"my-class\"&gt;I am a paragraph&lt;/p&gt;"</span>
+                    </code>
+                </div>
+                <p>The <span class="inline-code">class</span> attribute has been successfully added!</p>
+            </div>
+
+            <div class="pro-tip">
+                <h3>💡 About outerHTML</h3>
+                <p>The <span class="inline-code">outerHTML</span> property returns a string containing the HTML element <strong>including</strong> its opening and closing tags and all attributes.</p>
+                <p>This is different from <span class="inline-code">innerHTML</span>, which only returns the content <em>inside</em> the element.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 6: Example 2 - Updating Existing Attribute -->
+    <div class="slide-container">
+        <div class="slide-content">
+            <h1>Example 2: Updating an Existing Attribute</h1>
+
+            <div class="concept-box">
+                <h2>Key Feature</h2>
+                <p>If you have an <span class="highlight">existing attribute</span> on an HTML element, you can <strong>update its value</strong> using the <span class="inline-code">setAttribute()</span> method.</p>
+            </div>
+
+            <h3>Starting HTML</h3>
+            <div class="code-box">
+                <code>
+<span class="tag">&lt;div</span> <span class="property">class</span>=<span class="string">"my-class"</span><span class="tag">&gt;&lt;/div&gt;</span>
+                </code>
+            </div>
+
+            <p>We have a <span class="inline-code">div</span> element with a <span class="inline-code">class</span> attribute set to <span class="inline-code">"my-class"</span>.</p>
+
+            <div class="concept-box">
+                <h3>Goal</h3>
+                <p>Update the <span class="inline-code">class</span> attribute value from <span class="inline-code">"my-class"</span> to <span class="inline-code">"example"</span>.</p>
+            </div>
+
+            <div class="visual-demo-box">
+                <div style="text-align: left;">
+                    <strong>Before:</strong>
+                    <div class="attribute-display">&lt;div class="my-class"&gt;&lt;/div&gt;</div>
+                    <strong style="margin-top: 1rem; display: block;">After:</strong>
+                    <div class="attribute-display">&lt;div class="example"&gt;&lt;/div&gt;</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 7: Example 2 - Implementation and Result -->
+    <div class="slide-container">
+        <div class="slide-content">
+            <h1>Example 2: Implementation</h1>
+
+            <div class="concept-box">
+                <h2>The Code</h2>
+                <div class="code-box">
+                    <code>
+<span class="comment">// Select the div element</span>
+<span class="keyword">const</span> divElement = <span class="keyword">document</span>.<span class="function">querySelector</span>(<span class="string">"div"</span>);
+
+<span class="comment">// Update the class attribute value</span>
+divElement.<span class="function">setAttribute</span>(<span class="string">"class"</span>, <span class="string">"example"</span>);
+
+<span class="comment">// Log to see the result</span>
+<span class="keyword">console</span>.<span class="function">log</span>(divElement.<span class="property">outerHTML</span>);
+                    </code>
+                </div>
+            </div>
+
+            <div class="before-after">
+                <div class="before-box">
+                    <h3>Before</h3>
+                    <div class="code-box">
+                        <code>
+<span class="tag">&lt;div</span> <span class="property">class</span>=<span class="string">"my-class"</span><span class="tag">&gt;&lt;/div&gt;</span>
+                        </code>
+                    </div>
+                </div>
+
+                <div class="after-box">
+                    <h3>After</h3>
+                    <div class="code-box">
+                        <code>
+<span class="tag">&lt;div</span> <span class="property">class</span>=<span class="string">"example"</span><span class="tag">&gt;&lt;/div&gt;</span>
+                        </code>
+                    </div>
+                </div>
+            </div>
+
+            <div class="concept-box">
+                <h2>Console Output</h2>
+                <div class="code-box">
+                    <code>
+<span class="string">"&lt;div class=\"example\"&gt;&lt;/div&gt;"</span>
+                    </code>
+                </div>
+                <p>The existing <span class="inline-code">class</span> attribute value has been successfully updated!</p>
+            </div>
+
+            <div class="pro-tip">
+                <h3>💡 Important Note</h3>
+                <p>When you use <span class="inline-code">setAttribute()</span> on an existing attribute, it <strong>replaces</strong> the old value with the new value.</p>
+                <p>The old value (<span class="inline-code">"my-class"</span>) is completely replaced by the new value (<span class="inline-code">"example"</span>).</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 8: Interactive Demo -->
+    <div class="slide-container">
+        <div class="slide-content">
+            <h1>Interactive Demo</h1>
+
+            <div class="interactive-demo">
+                <h3>Experiment with setAttribute()</h3>
+                <p>Click the buttons below to see setAttribute() in action:</p>
+
+                <div style="margin: 1.5rem 0;">
+                    <button onclick="addClassAttribute()">Add Class "highlight"</button>
+                    <button onclick="changeClassAttribute()">Change Class to "special"</button>
+                    <button onclick="addIdAttribute()">Add ID "demo-para"</button>
+                    <button onclick="addTitleAttribute()">Add Title Attribute</button>
+                    <button onclick="resetDemo()">Reset</button>
+                </div>
+
+                <div class="demo-output">
+                    <p id="demo-paragraph" style="padding: 1rem; background: rgba(136, 21, 24, 0.05); border-radius: 5px;">
+                        This is a demo paragraph. Click the buttons above to modify my attributes!
+                    </p>
+                    <div style="margin-top: 1rem;">
+                        <strong>Current HTML:</strong>
+                        <div id="html-display" class="attribute-display" style="margin-top: 0.5rem; white-space: pre-wrap; word-wrap: break-word;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 9: Real-World Use Cases -->
+    <div class="slide-container">
+        <div class="slide-content">
+            <h1>Real-World Use Cases</h1>
+
+            <div class="concept-box">
+                <h2>When to Use setAttribute()</h2>
+                <p>What are some real-world examples of when to use the <span class="inline-code">setAttribute()</span> method?</p>
+            </div>
+
+            <div class="real-world-example">
+                <h3>🖼️ Dynamic Image Gallery</h3>
+                <p>If you're building a dynamic image gallery, you might need to update the <span class="inline-code">src</span> attribute of an image element when a user clicks on a thumbnail.</p>
+                <div class="code-box">
+                    <code>
+<span class="comment">// Update image source when thumbnail is clicked</span>
+<span class="keyword">const</span> mainImage = <span class="keyword">document</span>.<span class="function">getElementById</span>(<span class="string">"main-image"</span>);
+mainImage.<span class="function">setAttribute</span>(<span class="string">"src"</span>, <span class="string">"photos/sunset.jpg"</span>);
+mainImage.<span class="function">setAttribute</span>(<span class="string">"alt"</span>, <span class="string">"Beautiful sunset"</span>);
+                    </code>
+                </div>
+            </div>
+
+            <div class="real-world-example">
+                <h3>📝 Form Validation</h3>
+                <p>When dealing with form validation, you might need to add certain attributes like <span class="inline-code">required</span> or <span class="inline-code">minlength</span> to an input element.</p>
+                <div class="code-box">
+                    <code>
+<span class="comment">// Add validation attributes to input</span>
+<span class="keyword">const</span> emailInput = <span class="keyword">document</span>.<span class="function">getElementById</span>(<span class="string">"email"</span>);
+emailInput.<span class="function">setAttribute</span>(<span class="string">"required"</span>, <span class="string">"true"</span>);
+emailInput.<span class="function">setAttribute</span>(<span class="string">"minlength"</span>, <span class="string">"5"</span>);
+emailInput.<span class="function">setAttribute</span>(<span class="string">"type"</span>, <span class="string">"email"</span>);
+                    </code>
+                </div>
+            </div>
+
+            <div class="real-world-example">
+                <h3>♿ Accessibility Enhancements</h3>
+                <p>Add ARIA attributes to improve accessibility for screen readers.</p>
+                <div class="code-box">
+                    <code>
+<span class="comment">// Add accessibility attributes</span>
+<span class="keyword">const</span> button = <span class="keyword">document</span>.<span class="function">getElementById</span>(<span class="string">"submit-btn"</span>);
+button.<span class="function">setAttribute</span>(<span class="string">"aria-label"</span>, <span class="string">"Submit form"</span>);
+button.<span class="function">setAttribute</span>(<span class="string">"role"</span>, <span class="string">"button"</span>);
+                    </code>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 10: Image Gallery Interactive Demo -->
+    <div class="slide-container">
+        <div class="slide-content">
+            <h1>Image Gallery Demo</h1>
+
+            <div class="concept-box">
+                <h2>Real-World Example: Dynamic Image Viewer</h2>
+                <p>Click on the colored boxes below to see how <span class="inline-code">setAttribute()</span> changes the main display.</p>
+            </div>
+
+            <div class="interactive-demo">
+                <div class="visual-demo-box">
+                    <div id="gallery-display" style="padding: 3rem; background: #e3f2fd; border: 3px solid #2196f3; border-radius: 8px; font-size: 2rem; font-weight: bold; color: #1565c0;">
+                        Blue Theme
+                    </div>
+                    <div style="margin-top: 1rem;">
+                        <div id="gallery-attributes" class="attribute-display"></div>
+                    </div>
+                </div>
+
+                <h4 style="margin-top: 2rem;">Select a Theme:</h4>
+                <div class="thumbnail-grid">
+                    <div class="thumbnail active" onclick="changeGallery('blue', 'Blue Theme', this)">
+                        <div style="background: #2196f3; height: 60px; border-radius: 5px; margin-bottom: 0.5rem;"></div>
+                        Blue
+                    </div>
+                    <div class="thumbnail" onclick="changeGallery('red', 'Red Theme', this)">
+                        <div style="background: #f44336; height: 60px; border-radius: 5px; margin-bottom: 0.5rem;"></div>
+                        Red
+                    </div>
+                    <div class="thumbnail" onclick="changeGallery('green', 'Green Theme', this)">
+                        <div style="background: #4caf50; height: 60px; border-radius: 5px; margin-bottom: 0.5rem;"></div>
+                        Green
+                    </div>
+                    <div class="thumbnail" onclick="changeGallery('purple', 'Purple Theme', this)">
+                        <div style="background: #9c27b0; height: 60px; border-radius: 5px; margin-bottom: 0.5rem;"></div>
+                        Purple
+                    </div>
+                </div>
+
+                <div class="code-box" style="margin-top: 1rem;">
+                    <code>
+<span class="comment">// Code that runs when you click:</span>
+<span class="keyword">const</span> display = <span class="keyword">document</span>.<span class="function">getElementById</span>(<span class="string">"gallery-display"</span>);
+display.<span class="function">setAttribute</span>(<span class="string">"data-theme"</span>, themeName);
+display.<span class="function">setAttribute</span>(<span class="string">"style"</span>, newStyles);
+                    </code>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 11: Key Takeaways -->
+    <div class="slide-container">
+        <div class="slide-content">
+            <h1>Key Takeaways</h1>
+
+            <div class="concept-box">
+                <h2>What setAttribute() Does</h2>
+                <p>The <span class="inline-code">setAttribute()</span> method <span class="highlight">adds a new attribute</span> or <span class="highlight">updates the value</span> of an existing attribute on an HTML element.</p>
+            </div>
+
+            <div class="content-grid">
+                <div class="concept-box">
+                    <h3>Syntax</h3>
+                    <div class="method-signature">
+                        element.setAttribute(name, value)
+                    </div>
+                    <p>• <strong>name:</strong> Attribute name (string)</p>
+                    <p>• <strong>value:</strong> Attribute value (string)</p>
+                </div>
+
+                <div class="concept-box">
+                    <h3>Behavior</h3>
+                    <p>✓ Creates new attribute if it doesn't exist</p>
+                    <p>✓ Updates value if attribute exists</p>
+                    <p>✓ Always replaces old value completely</p>
+                    <p>✓ Both parameters must be strings</p>
+                </div>
+            </div>
+
+            <div class="real-world-example">
+                <h3>Common Use Cases</h3>
+                <p>🖼️ <strong>Image galleries:</strong> Update <span class="inline-code">src</span> and <span class="inline-code">alt</span> attributes</p>
+                <p>📝 <strong>Form validation:</strong> Add <span class="inline-code">required</span>, <span class="inline-code">minlength</span>, <span class="inline-code">maxlength</span></p>
+                <p>🎨 <strong>Dynamic styling:</strong> Change <span class="inline-code">class</span> attributes</p>
+                <p>♿ <strong>Accessibility:</strong> Add ARIA attributes like <span class="inline-code">aria-label</span></p>
+                <p>🔗 <strong>Links:</strong> Update <span class="inline-code">href</span> attributes dynamically</p>
+                <p>🔘 <strong>Buttons:</strong> Add/remove <span class="inline-code">disabled</span> attribute</p>
+            </div>
+
+            <div class="pro-tip">
+                <h3>💡 Pro Tip</h3>
+                <p>While <span class="inline-code">setAttribute()</span> works for all attributes, you can also access many common attributes directly:</p>
+                <div class="code-box">
+                    <code>
+<span class="comment">// Using setAttribute()</span>
+element.<span class="function">setAttribute</span>(<span class="string">"id"</span>, <span class="string">"my-id"</span>);
+
+<span class="comment">// Direct property access (also works)</span>
+element.<span class="property">id</span> = <span class="string">"my-id"</span>;
+                    </code>
+                </div>
+                <p>However, <span class="inline-code">setAttribute()</span> is more flexible and works with custom attributes!</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Navigation -->
+    <div class="navigation">
+        <button class="nav-button" id="prevBtn" onclick="changeSlide(-1)">← Previous</button>
+        <div class="slide-counter">
+            <span id="currentSlide">1</span> / <span id="totalSlides">11</span>
+        </div>
+        <button class="nav-button" id="nextBtn" onclick="changeSlide(1)">Next →</button>
+    </div>
+
+    <script>
+        let currentSlide = 1;
+        const totalSlides = document.querySelectorAll('.slide-container').length;
+        
+        document.getElementById('totalSlides').textContent = totalSlides;
+        
+        function showSlide(n) {
+            const slides = document.querySelectorAll('.slide-container');
+            
+            if (n > totalSlides) {
+                currentSlide = totalSlides;
+            }
+            if (n < 1) {
+                currentSlide = 1;
+            }
+            
+            slides.forEach(slide => slide.classList.remove('active'));
+            slides[currentSlide - 1].classList.add('active');
+            
+            document.getElementById('currentSlide').textContent = currentSlide;
+            
+            // Update button states
+            document.getElementById('prevBtn').disabled = currentSlide === 1;
+            document.getElementById('nextBtn').disabled = currentSlide === totalSlides;
+            
+            // Scroll to top of page
+            window.scrollTo(0, 0);
+        }
+        
+        function changeSlide(direction) {
+            currentSlide += direction;
+            showSlide(currentSlide);
+        }
+        
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowLeft') {
+                changeSlide(-1);
+            } else if (e.key === 'ArrowRight') {
+                changeSlide(1);
+            }
+        });
+        
+        // Interactive demo functions
+        function updateHTMLDisplay() {
+            const para = document.getElementById('demo-paragraph');
+            const display = document.getElementById('html-display');
+            display.textContent = para.outerHTML;
+        }
+
+        function addClassAttribute() {
+            const para = document.getElementById('demo-paragraph');
+            para.setAttribute('class', 'highlight');
+            para.style.background = '#fff3cd';
+            para.style.border = '2px solid #ffc107';
+            updateHTMLDisplay();
+        }
+
+        function changeClassAttribute() {
+            const para = document.getElementById('demo-paragraph');
+            para.setAttribute('class', 'special');
+            para.style.background = '#e1bee7';
+            para.style.border = '2px solid #9c27b0';
+            updateHTMLDisplay();
+        }
+
+        function addIdAttribute() {
+            const para = document.getElementById('demo-paragraph');
+            para.setAttribute('id', 'demo-para');
+            updateHTMLDisplay();
+        }
+
+        function addTitleAttribute() {
+            const para = document.getElementById('demo-paragraph');
+            para.setAttribute('title', 'This is a tooltip!');
+            alert('Hover over the paragraph to see the title attribute in action!');
+            updateHTMLDisplay();
+        }
+
+        function resetDemo() {
+            const para = document.getElementById('demo-paragraph');
+            para.removeAttribute('class');
+            para.removeAttribute('title');
+            para.setAttribute('id', 'demo-paragraph');
+            para.style.background = 'rgba(136, 21, 24, 0.05)';
+            para.style.border = 'none';
+            updateHTMLDisplay();
+        }
+
+        // Image gallery demo
+        function changeGallery(color, text, clickedElement) {
+            const display = document.getElementById('gallery-display');
+            const attrDisplay = document.getElementById('gallery-attributes');
+            
+            // Remove active class from all thumbnails
+            document.querySelectorAll('.thumbnail').forEach(t => t.classList.remove('active'));
+            // Add active class to clicked thumbnail
+            clickedElement.classList.add('active');
+            
+            // Color schemes
+            const schemes = {
+                blue: { bg: '#e3f2fd', border: '#2196f3', text: '#1565c0' },
+                red: { bg: '#ffebee', border: '#f44336', text: '#c62828' },
+                green: { bg: '#e8f5e9', border: '#4caf50', text: '#2e7d32' },
+                purple: { bg: '#f3e5f5', border: '#9c27b0', text: '#6a1b9a' }
+            };
+            
+            const scheme = schemes[color];
+            
+            // Update attributes using setAttribute
+            display.setAttribute('data-theme', color);
+            display.setAttribute('style', 
+                `padding: 3rem; background: ${scheme.bg}; border: 3px solid ${scheme.border}; border-radius: 8px; font-size: 2rem; font-weight: bold; color: ${scheme.text};`
+            );
+            display.textContent = text;
+            
+            // Show attributes
+            attrDisplay.textContent = `data-theme="${color}" style="..."`;
+        }
+
+        // Initialize demo display
+        updateHTMLDisplay();
+        document.getElementById('gallery-attributes').textContent = 'data-theme="blue" style="..."';
+        
+        // Initialize
+        showSlide(currentSlide);
+    </script>
+</body>
+</html>

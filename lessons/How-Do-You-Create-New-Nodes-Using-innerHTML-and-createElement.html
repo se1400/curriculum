@@ -1,0 +1,916 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Creating DOM Nodes Presentation</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #f5f5f5 0%, #ffffff 100%);
+            color: #2d2d2d;
+            overflow-x: hidden;
+        }
+
+        .slide-container {
+            min-height: 100vh;
+            padding: 2rem 2rem 120px 2rem;
+            display: none;
+        }
+
+        .slide-container.active {
+            display: block;
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .slide-content {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            color: #881518;
+            font-size: clamp(1.8rem, 4vw, 3rem);
+            margin-bottom: 2rem;
+            border-bottom: 3px solid #881518;
+            padding-bottom: 1rem;
+        }
+
+        h2 {
+            color: #a81c1f;
+            font-size: clamp(1.4rem, 3vw, 2rem);
+            margin: 2rem 0 1rem 0;
+        }
+
+        h3 {
+            color: #c8575a;
+            font-size: clamp(1.2rem, 2.5vw, 1.5rem);
+            margin: 1.5rem 0 1rem 0;
+        }
+
+        p, li {
+            font-size: clamp(1rem, 2vw, 1.2rem);
+            line-height: 1.8;
+            margin-bottom: 1rem;
+            color: #333333;
+        }
+
+        .content-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+
+        @media (min-width: 768px) {
+            .content-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        .concept-box {
+            background: rgba(136, 21, 24, 0.05);
+            border-left: 4px solid #881518;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin: 1.5rem 0;
+        }
+
+        .code-box {
+            background: #f8f8f8;
+            border: 1px solid #d0d0d0;
+            border-radius: 8px;
+            padding: 1.5rem;
+            overflow-x: auto;
+            margin: 1rem 0;
+        }
+
+        code {
+            font-family: 'Courier New', Courier, monospace;
+            font-size: clamp(0.85rem, 1.5vw, 1rem);
+            color: #0066cc;
+        }
+
+        .keyword { color: #881518; }
+        .tag { color: #881518; }
+        .string { color: #2a8d2a; }
+        .function { color: #795e26; }
+        .comment { color: #008000; }
+        .number { color: #098658; }
+        .property { color: #0066cc; }
+
+        .warning-box {
+            background: linear-gradient(135deg, #fff3cd, #ffe69c);
+            border: 2px solid #ffc107;
+            border-left: 6px solid #ff9800;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+        }
+
+        .warning-box h3 {
+            color: #ff6f00;
+            margin-top: 0;
+        }
+
+        .success-box {
+            background: linear-gradient(135deg, #d4edda, #c3e6cb);
+            border: 2px solid #28a745;
+            border-left: 6px solid #1e7e34;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+        }
+
+        .success-box h3 {
+            color: #1e7e34;
+            margin-top: 0;
+        }
+
+        .interactive-demo {
+            background: rgba(136, 21, 24, 0.03);
+            border: 2px dashed #881518;
+            border-radius: 8px;
+            padding: 2rem;
+            margin: 2rem 0;
+        }
+
+        .interactive-demo button {
+            background: #881518;
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            margin: 0.5rem;
+            transition: background 0.3s;
+        }
+
+        .interactive-demo button:hover {
+            background: #a81c1f;
+        }
+
+        .demo-output {
+            background: white;
+            border: 2px solid #881518;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1rem 0;
+            min-height: 60px;
+        }
+
+        .demo-output:empty::before {
+            content: '(Empty - click a button to see output)';
+            color: #999;
+            font-style: italic;
+        }
+
+        .step-number {
+            display: inline-block;
+            background: #881518;
+            color: white;
+            width: 2rem;
+            height: 2rem;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 2rem;
+            font-weight: bold;
+            margin-right: 0.5rem;
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 2rem 0;
+        }
+
+        .comparison-table th {
+            background: #881518;
+            color: white;
+            padding: 1rem;
+            text-align: left;
+            border: 1px solid #d0d0d0;
+        }
+
+        .comparison-table td {
+            background: #fafafa;
+            padding: 1rem;
+            border: 1px solid #d0d0d0;
+            vertical-align: top;
+        }
+
+        .comparison-table tr:nth-child(even) td {
+            background: #f5f5f5;
+        }
+
+        ul {
+            margin-left: 2rem;
+        }
+
+        .navigation {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(to top, #ffffff, rgba(255, 255, 255, 0.98));
+            padding: 1.5rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+            border-top: 2px solid #e0e0e0;
+        }
+
+        .nav-button {
+            background: #881518;
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: clamp(0.9rem, 2vw, 1.1rem);
+            font-weight: 600;
+            transition: all 0.3s;
+            min-width: 100px;
+        }
+
+        .nav-button:hover:not(:disabled) {
+            background: #a81c1f;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(136, 21, 24, 0.3);
+        }
+
+        .nav-button:disabled {
+            background: #cccccc;
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        .slide-counter {
+            color: #881518;
+            font-weight: 600;
+            font-size: clamp(1rem, 2vw, 1.2rem);
+        }
+
+        @media (max-width: 768px) {
+            .navigation {
+                padding: 1rem;
+            }
+
+            .nav-button {
+                padding: 0.75rem 1rem;
+                min-width: 80px;
+            }
+        }
+
+        .highlight {
+            background: rgba(136, 21, 24, 0.15);
+            padding: 0.2rem 0.4rem;
+            border-radius: 3px;
+            font-weight: 600;
+        }
+
+        .method-signature {
+            background: rgba(136, 21, 24, 0.08);
+            border: 2px solid #881518;
+            border-radius: 8px;
+            padding: 1rem 1.5rem;
+            margin: 1rem 0;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: clamp(0.9rem, 2vw, 1.1rem);
+            font-weight: bold;
+            color: #881518;
+        }
+
+        .pro-tip {
+            background: linear-gradient(135deg, #e3f2fd, #bbdefb);
+            border: 2px solid #2196f3;
+            border-left: 6px solid #1976d2;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+        }
+
+        .pro-tip h3 {
+            color: #1565c0;
+            margin-top: 0;
+        }
+
+        .inline-code {
+            background: #f0f0f0;
+            padding: 0.2rem 0.5rem;
+            border-radius: 3px;
+            font-family: 'Courier New', Courier, monospace;
+            color: #881518;
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+<body>
+    <!-- Slide 1: Introduction -->
+    <div class="slide-container active">
+        <div class="slide-content">
+            <h1>Creating New DOM Nodes</h1>
+            
+            <div class="concept-box">
+                <h2>Two Main Approaches</h2>
+                <p>JavaScript provides two primary methods for creating new nodes in the DOM:</p>
+            </div>
+
+            <div class="content-grid">
+                <div class="concept-box">
+                    <h3>1. innerHTML Property</h3>
+                    <p>Set HTML markup as a <span class="highlight">string</span></p>
+                    <p>✓ Quick and easy</p>
+                    <p>✓ Creates multiple elements at once</p>
+                    <p>⚠️ Security considerations</p>
+                </div>
+
+                <div class="concept-box">
+                    <h3>2. createElement() Method</h3>
+                    <p>Create elements <span class="highlight">programmatically</span></p>
+                    <p>✓ More control</p>
+                    <p>✓ Safer approach</p>
+                    <p>✓ Better for dynamic content</p>
+                </div>
+            </div>
+
+            <div class="concept-box">
+                <h2>Why Create Nodes Dynamically?</h2>
+                <p>Creating nodes with these techniques allows you to <span class="highlight">dynamically manipulate</span> the structure and content of your websites.</p>
+                <p>By combining these techniques, you can build <strong>interactive web applications</strong>.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 2: innerHTML Property -->
+    <div class="slide-container">
+        <div class="slide-content">
+            <h1>The innerHTML Property</h1>
+
+            <div class="concept-box">
+                <h2>What is innerHTML?</h2>
+                <p><span class="highlight">innerHTML</span> is a property of Element objects that you can use to set their HTML markup.</p>
+            </div>
+
+            <div class="method-signature">
+                element.innerHTML = "HTML string";
+            </div>
+
+            <div class="concept-box">
+                <h3>How It Works</h3>
+                <p>You can set the HTML structure of an existing element with a <span class="highlight">string</span>, creating all the necessary nodes.</p>
+                <p>Think of it as <strong>writing HTML within a string</strong>.</p>
+            </div>
+
+            <h3>Basic Example</h3>
+            <div class="code-box">
+                <code>
+<span class="comment">// Start with an empty div</span>
+<span class="tag">&lt;div</span> <span class="property">id</span>=<span class="string">"container"</span><span class="tag">&gt;</span>
+  <span class="comment">&lt;!-- Add new elements here --&gt;</span>
+<span class="tag">&lt;/div&gt;</span>
+
+<span class="comment">// Select the element</span>
+<span class="keyword">const</span> container = <span class="keyword">document</span>.<span class="function">getElementById</span>(<span class="string">"container"</span>);
+
+<span class="comment">// Set innerHTML to create new elements</span>
+container.<span class="property">innerHTML</span> = <span class="string">"&lt;p&gt;Hello World!&lt;/p&gt;"</span>;
+                </code>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 3: innerHTML Complete Example -->
+    <div class="slide-container">
+        <div class="slide-content">
+            <h1>Using innerHTML - Step by Step</h1>
+
+            <h2>Example: Adding a List of Pizza Ingredients</h2>
+
+            <div class="concept-box">
+                <h3><span class="step-number">1</span> Start with Empty Container</h3>
+                <div class="code-box">
+                    <code>
+<span class="tag">&lt;div</span> <span class="property">id</span>=<span class="string">"container"</span><span class="tag">&gt;&lt;/div&gt;</span>
+                    </code>
+                </div>
+            </div>
+
+            <div class="concept-box">
+                <h3><span class="step-number">2</span> Select the Element by ID</h3>
+                <div class="code-box">
+                    <code>
+<span class="keyword">const</span> container = <span class="keyword">document</span>.<span class="function">getElementById</span>(<span class="string">"container"</span>);
+                    </code>
+                </div>
+            </div>
+
+            <div class="concept-box">
+                <h3><span class="step-number">3</span> Set innerHTML with HTML String</h3>
+                <div class="code-box">
+                    <code>
+<span class="comment">// Create an unordered list with ingredients</span>
+container.<span class="property">innerHTML</span> = <span class="string">`
+  &lt;ul&gt;
+    &lt;li&gt;Cheese&lt;/li&gt;
+    &lt;li&gt;Tomato&lt;/li&gt;
+  &lt;/ul&gt;
+`</span>;
+                    </code>
+                </div>
+                <p>You can write the string on <span class="highlight">multiple lines</span> using template literals (backticks) to make it easier to understand.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 4: innerHTML Result -->
+    <div class="slide-container">
+        <div class="slide-content">
+            <h1>innerHTML Result</h1>
+
+            <div class="concept-box">
+                <h2>Before innerHTML</h2>
+                <div class="code-box">
+                    <code>
+<span class="tag">&lt;div</span> <span class="property">id</span>=<span class="string">"container"</span><span class="tag">&gt;&lt;/div&gt;</span>
+                    </code>
+                </div>
+            </div>
+
+            <div class="concept-box">
+                <h2>After innerHTML</h2>
+                <div class="code-box">
+                    <code>
+<span class="tag">&lt;div</span> <span class="property">id</span>=<span class="string">"container"</span><span class="tag">&gt;</span>
+  <span class="tag">&lt;ul&gt;</span>
+    <span class="tag">&lt;li&gt;</span>Cheese<span class="tag">&lt;/li&gt;</span>
+    <span class="tag">&lt;li&gt;</span>Tomato<span class="tag">&lt;/li&gt;</span>
+  <span class="tag">&lt;/ul&gt;</span>
+<span class="tag">&lt;/div&gt;</span>
+                    </code>
+                </div>
+            </div>
+
+            <div class="success-box">
+                <h3>✓ Dynamic Creation</h3>
+                <p>The new nodes were <span class="highlight">created and added dynamically</span> to the DOM after the string was parsed.</p>
+            </div>
+
+            <div class="interactive-demo">
+                <h3>Try It Yourself</h3>
+                <button onclick="demoInnerHTML()">Add Pizza Ingredients</button>
+                <button onclick="demoInnerHTML2()">Add Different Content</button>
+                <button onclick="clearDemo()">Clear</button>
+                <div id="demo-container" class="demo-output"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 5: innerHTML Security Risks -->
+    <div class="slide-container">
+        <div class="slide-content">
+            <h1>innerHTML Security Risks</h1>
+
+            <div class="warning-box">
+                <h3>⚠️ Security Warning</h3>
+                <p><strong>innerHTML has security risks that you should be familiar with.</strong></p>
+                <p>You shouldn't use it if you won't have <span class="highlight">full control over the string</span>.</p>
+            </div>
+
+            <h2>The Problem: User-Generated Content</h2>
+            <div class="concept-box">
+                <p>If the string will be <span class="highlight">entered by the user</span>, you shouldn't use innerHTML because the user might insert <strong>malicious content</strong> into your website.</p>
+            </div>
+
+            <h3>Dangerous Example</h3>
+            <div class="code-box">
+                <code>
+<span class="comment">// ❌ DANGEROUS - User input directly into innerHTML</span>
+<span class="keyword">const</span> userInput = <span class="keyword">document</span>.<span class="function">getElementById</span>(<span class="string">"user-text"</span>).<span class="property">value</span>;
+container.<span class="property">innerHTML</span> = userInput; <span class="comment">// Could contain malicious code!</span>
+                </code>
+            </div>
+
+            <div class="content-grid">
+                <div class="warning-box">
+                    <h3>What Could Go Wrong?</h3>
+                    <p>• Cross-site scripting (XSS) attacks</p>
+                    <p>• Malicious scripts executed</p>
+                    <p>• Stolen user data</p>
+                    <p>• Compromised website</p>
+                </div>
+
+                <div class="success-box">
+                    <h3>✓ Safe Alternative</h3>
+                    <p>Use <span class="inline-code">textContent</span> instead to insert <strong>plain text</strong>.</p>
+                    <div class="code-box">
+                        <code>
+<span class="comment">// ✓ SAFE - textContent for user input</span>
+container.<span class="property">textContent</span> = userInput;
+                        </code>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 6: createElement() Method -->
+    <div class="slide-container">
+        <div class="slide-content">
+            <h1>The createElement() Method</h1>
+
+            <div class="concept-box">
+                <h2>Creating Elements Programmatically</h2>
+                <p>Another way to create a new node is by using the <span class="highlight">createElement()</span> method.</p>
+                <p>You create a new element by specifying its <strong>tag name</strong>.</p>
+            </div>
+
+            <div class="method-signature">
+                document.createElement(tagName)
+            </div>
+
+            <h3>Basic Examples</h3>
+            <div class="content-grid">
+                <div>
+                    <div class="code-box">
+                        <code>
+<span class="comment">// Create an image element</span>
+<span class="keyword">document</span>.<span class="function">createElement</span>(<span class="string">"img"</span>);
+
+<span class="comment">// Create a paragraph element</span>
+<span class="keyword">document</span>.<span class="function">createElement</span>(<span class="string">"p"</span>);
+
+<span class="comment">// Create a div element</span>
+<span class="keyword">document</span>.<span class="function">createElement</span>(<span class="string">"div"</span>);
+                        </code>
+                    </div>
+                </div>
+
+                <div>
+                    <div class="code-box">
+                        <code>
+<span class="comment">// Assign to a variable</span>
+<span class="keyword">const</span> img = <span class="keyword">document</span>.<span class="function">createElement</span>(<span class="string">"img"</span>);
+
+<span class="comment">// Now you can modify it</span>
+img.<span class="property">src</span> = <span class="string">"photo.jpg"</span>;
+img.<span class="property">alt</span> = <span class="string">"Description"</span>;
+                        </code>
+                    </div>
+                </div>
+            </div>
+
+            <div class="concept-box">
+                <h3>Return Value</h3>
+                <p>The <span class="inline-code">createElement()</span> method returns:</p>
+                <p>• A new <span class="highlight">HTMLElement</span> object (if document is an HTMLDocument)</p>
+                <p>• Or an <span class="highlight">Element</span> object</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 7: Using createElement() -->
+    <div class="slide-container">
+        <div class="slide-content">
+            <h1>Using createElement() with appendChild()</h1>
+
+            <div class="concept-box">
+                <h2>Complete Process</h2>
+                <p>Once you have the new element ready, you need to <span class="highlight">add it to the DOM</span>.</p>
+            </div>
+
+            <h3>Step-by-Step Example</h3>
+            
+            <div class="concept-box">
+                <h4><span class="step-number">1</span> Create the Element</h4>
+                <div class="code-box">
+                    <code>
+<span class="keyword">const</span> newParagraph = <span class="keyword">document</span>.<span class="function">createElement</span>(<span class="string">"p"</span>);
+                    </code>
+                </div>
+            </div>
+
+            <div class="concept-box">
+                <h4><span class="step-number">2</span> Set Its Content and Attributes</h4>
+                <div class="code-box">
+                    <code>
+newParagraph.<span class="property">textContent</span> = <span class="string">"This is a new paragraph!"</span>;
+newParagraph.<span class="property">className</span> = <span class="string">"highlight"</span>;
+                    </code>
+                </div>
+            </div>
+
+            <div class="concept-box">
+                <h4><span class="step-number">3</span> Add to DOM with appendChild()</h4>
+                <div class="code-box">
+                    <code>
+<span class="keyword">const</span> container = <span class="keyword">document</span>.<span class="function">getElementById</span>(<span class="string">"container"</span>);
+container.<span class="function">appendChild</span>(newParagraph);
+                    </code>
+                </div>
+                <p>The <span class="inline-code">appendChild()</span> method adds the new element as a <strong>child</strong> of the container.</p>
+            </div>
+
+            <div class="pro-tip">
+                <h3>💡 Other Insertion Methods</h3>
+                <p>You can also insert elements at specific locations using:</p>
+                <p>• <span class="inline-code">insertBefore()</span> - Insert before another element</p>
+                <p>• <span class="inline-code">insertAdjacentElement()</span> - Insert at a specific position</p>
+                <p>• <span class="inline-code">prepend()</span> - Insert at the beginning</p>
+                <p>• <span class="inline-code">append()</span> - Insert at the end</p>
+                <p><strong>Choose the one that best fits your needs.</strong></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 8: Complete createElement() Example -->
+    <div class="slide-container">
+        <div class="slide-content">
+            <h1>createElement() Complete Example</h1>
+
+            <h2>Building a List Dynamically</h2>
+
+            <div class="code-box">
+                <code>
+<span class="comment">// Create the ul element</span>
+<span class="keyword">const</span> list = <span class="keyword">document</span>.<span class="function">createElement</span>(<span class="string">"ul"</span>);
+
+<span class="comment">// Create first li element</span>
+<span class="keyword">const</span> item1 = <span class="keyword">document</span>.<span class="function">createElement</span>(<span class="string">"li"</span>);
+item1.<span class="property">textContent</span> = <span class="string">"Cheese"</span>;
+
+<span class="comment">// Create second li element</span>
+<span class="keyword">const</span> item2 = <span class="keyword">document</span>.<span class="function">createElement</span>(<span class="string">"li"</span>);
+item2.<span class="property">textContent</span> = <span class="string">"Tomato"</span>;
+
+<span class="comment">// Add list items to the ul</span>
+list.<span class="function">appendChild</span>(item1);
+list.<span class="function">appendChild</span>(item2);
+
+<span class="comment">// Add the complete list to the container</span>
+<span class="keyword">const</span> container = <span class="keyword">document</span>.<span class="function">getElementById</span>(<span class="string">"container"</span>);
+container.<span class="function">appendChild</span>(list);
+                </code>
+            </div>
+
+            <div class="interactive-demo">
+                <h3>Try It Yourself</h3>
+                <button onclick="demoCreateElement()">Create List with createElement()</button>
+                <button onclick="demoCreateCard()">Create Card</button>
+                <button onclick="clearDemo2()">Clear</button>
+                <div id="demo-container2" class="demo-output"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 9: Comparison -->
+    <div class="slide-container">
+        <div class="slide-content">
+            <h1>innerHTML vs createElement()</h1>
+
+            <table class="comparison-table">
+                <thead>
+                    <tr>
+                        <th>Feature</th>
+                        <th>innerHTML</th>
+                        <th>createElement()</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Syntax</strong></td>
+                        <td>HTML string<br><span class="inline-code">element.innerHTML = "&lt;p&gt;Text&lt;/p&gt;"</span></td>
+                        <td>Method calls<br><span class="inline-code">document.createElement("p")</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Speed</strong></td>
+                        <td>Fast for simple structures</td>
+                        <td>Faster for complex manipulations</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Security</strong></td>
+                        <td>⚠️ Risk of XSS attacks<br>Only use with trusted content</td>
+                        <td>✓ Safe<br>No script execution risk</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Multiple Elements</strong></td>
+                        <td>✓ Create many at once easily</td>
+                        <td>Must create individually</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Control</strong></td>
+                        <td>Less control over individual elements</td>
+                        <td>✓ Full control over each element</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Event Listeners</strong></td>
+                        <td>Replaces content (removes listeners)</td>
+                        <td>✓ Preserves existing content</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Best For</strong></td>
+                        <td>Static HTML from trusted sources</td>
+                        <td>Dynamic content, user input, complex apps</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Slide 10: Best Practices -->
+    <div class="slide-container">
+        <div class="slide-content">
+            <h1>Best Practices and Key Takeaways</h1>
+
+            <div class="content-grid">
+                <div class="success-box">
+                    <h3>✓ When to Use innerHTML</h3>
+                    <p>• Content from <strong>trusted sources</strong></p>
+                    <p>• Static HTML markup</p>
+                    <p>• Simple structures</p>
+                    <p>• Template-based content</p>
+                    <p>• When you control the string completely</p>
+                </div>
+
+                <div class="success-box">
+                    <h3>✓ When to Use createElement()</h3>
+                    <p>• User-generated content</p>
+                    <p>• Dynamic applications</p>
+                    <p>• When you need precise control</p>
+                    <p>• Complex DOM manipulations</p>
+                    <p>• Building interactive components</p>
+                </div>
+            </div>
+
+            <div class="warning-box">
+                <h3>⚠️ Security First</h3>
+                <p><strong>Never use innerHTML with untrusted or user-provided content.</strong></p>
+                <p>Always use <span class="inline-code">textContent</span> or <span class="inline-code">createElement()</span> when dealing with user input.</p>
+            </div>
+
+            <div class="concept-box">
+                <h2>Key Takeaways</h2>
+                <p>✓ <strong>innerHTML:</strong> Quick way to set HTML from a string</p>
+                <p>✓ <strong>createElement():</strong> Programmatic, safe element creation</p>
+                <p>✓ <strong>Security matters:</strong> Use textContent for user input</p>
+                <p>✓ <strong>appendChild():</strong> Add created elements to the DOM</p>
+                <p>✓ <strong>Choose wisely:</strong> Pick the method that fits your needs</p>
+                <p style="margin-top: 1rem; font-weight: bold;">Both techniques enable you to build dynamic, interactive web applications!</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Navigation -->
+    <div class="navigation">
+        <button class="nav-button" id="prevBtn" onclick="changeSlide(-1)">← Previous</button>
+        <div class="slide-counter">
+            <span id="currentSlide">1</span> / <span id="totalSlides">10</span>
+        </div>
+        <button class="nav-button" id="nextBtn" onclick="changeSlide(1)">Next →</button>
+    </div>
+
+    <script>
+        let currentSlide = 1;
+        const totalSlides = document.querySelectorAll('.slide-container').length;
+        
+        document.getElementById('totalSlides').textContent = totalSlides;
+        
+        function showSlide(n) {
+            const slides = document.querySelectorAll('.slide-container');
+            
+            if (n > totalSlides) {
+                currentSlide = totalSlides;
+            }
+            if (n < 1) {
+                currentSlide = 1;
+            }
+            
+            slides.forEach(slide => slide.classList.remove('active'));
+            slides[currentSlide - 1].classList.add('active');
+            
+            document.getElementById('currentSlide').textContent = currentSlide;
+            
+            // Update button states
+            document.getElementById('prevBtn').disabled = currentSlide === 1;
+            document.getElementById('nextBtn').disabled = currentSlide === totalSlides;
+            
+            // Scroll to top of page
+            window.scrollTo(0, 0);
+        }
+        
+        function changeSlide(direction) {
+            currentSlide += direction;
+            showSlide(currentSlide);
+        }
+        
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowLeft') {
+                changeSlide(-1);
+            } else if (e.key === 'ArrowRight') {
+                changeSlide(1);
+            }
+        });
+        
+        // Interactive demo functions
+        function demoInnerHTML() {
+            const container = document.getElementById('demo-container');
+            container.innerHTML = `
+                <ul>
+                    <li>Cheese</li>
+                    <li>Tomato</li>
+                </ul>
+            `;
+        }
+
+        function demoInnerHTML2() {
+            const container = document.getElementById('demo-container');
+            container.innerHTML = `
+                <h3>Pizza Recipe</h3>
+                <p>A delicious homemade pizza!</p>
+                <ul>
+                    <li>Flour</li>
+                    <li>Water</li>
+                    <li>Yeast</li>
+                </ul>
+            `;
+        }
+
+        function clearDemo() {
+            document.getElementById('demo-container').innerHTML = '';
+        }
+
+        function demoCreateElement() {
+            const container = document.getElementById('demo-container2');
+            container.innerHTML = ''; // Clear first
+            
+            // Create ul element
+            const list = document.createElement('ul');
+            
+            // Create and add list items
+            const item1 = document.createElement('li');
+            item1.textContent = 'Cheese';
+            
+            const item2 = document.createElement('li');
+            item2.textContent = 'Tomato';
+            
+            list.appendChild(item1);
+            list.appendChild(item2);
+            
+            // Add to container
+            container.appendChild(list);
+        }
+
+        function demoCreateCard() {
+            const container = document.getElementById('demo-container2');
+            container.innerHTML = ''; // Clear first
+            
+            // Create card div
+            const card = document.createElement('div');
+            card.style.border = '2px solid #881518';
+            card.style.padding = '1rem';
+            card.style.borderRadius = '8px';
+            card.style.background = 'rgba(136, 21, 24, 0.05)';
+            
+            // Create heading
+            const heading = document.createElement('h3');
+            heading.textContent = 'Dynamic Card';
+            heading.style.color = '#881518';
+            heading.style.marginTop = '0';
+            
+            // Create paragraph
+            const para = document.createElement('p');
+            para.textContent = 'This card was created using createElement()!';
+            para.style.marginBottom = '0';
+            
+            // Assemble card
+            card.appendChild(heading);
+            card.appendChild(para);
+            
+            // Add to container
+            container.appendChild(card);
+        }
+
+        function clearDemo2() {
+            document.getElementById('demo-container2').innerHTML = '';
+        }
+        
+        // Initialize
+        showSlide(currentSlide);
+    </script>
+</body>
+</html>

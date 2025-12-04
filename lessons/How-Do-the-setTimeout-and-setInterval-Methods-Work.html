@@ -1,0 +1,822 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>setTimeout and setInterval Presentation</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            color: #2c3e50;
+            overflow-x: hidden;
+        }
+
+        .slide-container {
+            min-height: 100vh;
+            padding: 2rem;
+            padding-bottom: 100px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .slide {
+            display: none;
+            animation: fadeIn 0.5s ease-in;
+            background: white;
+            padding: 2.5rem;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        .slide.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        h1 {
+            color: #881518;
+            font-size: 2.5rem;
+            margin-bottom: 2rem;
+            border-bottom: 3px solid #881518;
+            padding-bottom: 0.5rem;
+        }
+
+        h2 {
+            color: #a81d21;
+            font-size: 2rem;
+            margin-bottom: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        h3 {
+            color: #c82428;
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        p {
+            font-size: 1.2rem;
+            line-height: 1.8;
+            margin-bottom: 1rem;
+            color: #34495e;
+        }
+
+        ul {
+            margin-left: 2rem;
+            margin-bottom: 1.5rem;
+        }
+
+        li {
+            font-size: 1.1rem;
+            line-height: 1.8;
+            margin-bottom: 0.8rem;
+            list-style-type: none;
+            position: relative;
+            padding-left: 1.5rem;
+            color: #34495e;
+        }
+
+        li:before {
+            content: "→";
+            color: #881518;
+            font-weight: bold;
+            position: absolute;
+            left: 0;
+        }
+
+        .concept-box {
+            background: linear-gradient(135deg, #fff5f5 0%, #ffe5e5 100%);
+            border-left: 4px solid #881518;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 8px;
+        }
+
+        .code-example {
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            overflow-x: auto;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        code {
+            color: #e83e8c;
+            font-family: 'Courier New', monospace;
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        .keyword {
+            color: #881518;
+            font-weight: 600;
+        }
+
+        .string {
+            color: #4caf50;
+        }
+
+        .comment {
+            color: #6c757d;
+            font-style: italic;
+        }
+
+        .highlight {
+            color: #881518;
+            font-weight: 600;
+            background: #fff5f5;
+            padding: 0.2rem 0.4rem;
+            border-radius: 3px;
+        }
+
+        .two-column {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+
+        .column {
+            background: #f8f9fa;
+            padding: 1.5rem;
+            border-radius: 8px;
+            border: 1px solid #e9ecef;
+        }
+
+        .nav-buttons {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(to top, rgba(255, 255, 255, 0.98) 0%, rgba(255, 255, 255, 0.95) 80%, transparent 100%);
+            padding: 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 1000;
+            box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        button {
+            background: #881518;
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            font-size: 1.1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            box-shadow: 0 4px 12px rgba(136, 21, 24, 0.2);
+        }
+
+        button:hover {
+            background: #a81d21;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(136, 21, 24, 0.3);
+        }
+
+        button:disabled {
+            background: #cbd5e0;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+            color: #a0aec0;
+        }
+
+        .slide-counter {
+            color: #718096;
+            font-size: 1rem;
+            font-weight: 600;
+        }
+
+        .example-box {
+            background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
+            border-left: 4px solid #4caf50;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 8px;
+        }
+
+        .info-box {
+            background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+            border-left: 4px solid #2196f3;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 8px;
+        }
+
+        .syntax-box {
+            background: #fff9e6;
+            border: 2px solid #ffd54f;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            font-family: 'Courier New', monospace;
+            font-size: 1.1rem;
+            text-align: center;
+            color: #f57f17;
+        }
+
+        .output-box {
+            background: #e3f2fd;
+            border: 2px solid #90caf9;
+            border-radius: 8px;
+            padding: 1rem;
+            margin: 1rem 0;
+            font-family: 'Courier New', monospace;
+            color: #1565c0;
+            font-size: 0.9rem;
+        }
+
+        strong {
+            color: #881518;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 1.8rem;
+            }
+
+            h2 {
+                font-size: 1.5rem;
+            }
+
+            h3 {
+                font-size: 1.3rem;
+            }
+
+            p, li {
+                font-size: 1rem;
+            }
+
+            .slide-container {
+                padding: 1rem;
+                padding-bottom: 100px;
+            }
+
+            .slide {
+                padding: 1.5rem;
+            }
+
+            .two-column {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+
+            button {
+                padding: 0.8rem 1.5rem;
+                font-size: 1rem;
+            }
+
+            .nav-buttons {
+                padding: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="slide-container">
+        <!-- Slide 1: Introduction -->
+        <div class="slide active">
+            <h1>setTimeout and setInterval</h1>
+            
+            <div class="concept-box">
+                <h3>Timing in JavaScript</h3>
+                <p>When building programs, you'll often want something to happen <span class="highlight">after a delay</span>, or <span class="highlight">repeat at regular intervals</span>.</p>
+            </div>
+
+            <h2>Two Essential Methods</h2>
+
+            <div class="two-column">
+                <div class="column">
+                    <h3>setTimeout()</h3>
+                    <p>Runs code <strong>once</strong> after a delay</p>
+                </div>
+
+                <div class="column">
+                    <h3>setInterval()</h3>
+                    <p>Runs code <strong>repeatedly</strong> at intervals</p>
+                </div>
+            </div>
+
+            <div class="info-box">
+                <h3>Common Parameters</h3>
+                <p>Both methods accept <strong>two parameters</strong>: a function and a delay (in milliseconds)</p>
+            </div>
+        </div>
+
+        <!-- Slide 2: setTimeout Overview -->
+        <div class="slide">
+            <h1>setTimeout() Method</h1>
+
+            <div class="concept-box">
+                <h3>What Does It Do?</h3>
+                <p><code>setTimeout()</code> lets you <span class="highlight">delay an action for a specified time</span>.</p>
+            </div>
+
+            <h2>Use Cases</h2>
+            <ul>
+                <li><strong>Display Messages:</strong> Show a notification after a delay</li>
+                <li><strong>Delayed Actions:</strong> Wait before triggering an operation</li>
+                <li><strong>Timeouts:</strong> Give users time to complete an action</li>
+                <li><strong>Animations:</strong> Start an effect after a pause</li>
+            </ul>
+
+            <div class="example-box">
+                <h3>One-Time Execution</h3>
+                <p>The function runs <strong>exactly once</strong> after the specified delay.</p>
+            </div>
+        </div>
+
+        <!-- Slide 3: setTimeout Syntax -->
+        <div class="slide">
+            <h1>setTimeout() Syntax</h1>
+
+            <div class="syntax-box">
+                setTimeout(functionToRun, delay);
+            </div>
+
+            <h2>Parameters</h2>
+
+            <div class="two-column">
+                <div class="column">
+                    <h3>functionToRun</h3>
+                    <p>The code you want to execute after the delay</p>
+                </div>
+
+                <div class="column">
+                    <h3>delay</h3>
+                    <p>The time in <strong>milliseconds</strong> to wait before running the function</p>
+                </div>
+            </div>
+
+            <div class="info-box">
+                <h3>Time Conversion</h3>
+                <ul>
+                    <li>1000 milliseconds = 1 second</li>
+                    <li>3000 milliseconds = 3 seconds</li>
+                    <li>60000 milliseconds = 1 minute</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Slide 4: setTimeout Example -->
+        <div class="slide">
+            <h1>setTimeout() Example</h1>
+
+            <h2>Using a Regular Function</h2>
+            <div class="code-example">
+                <code>
+setTimeout(<span class="keyword">function</span>() {<br>
+&nbsp;&nbsp;console.log(<span class="string">"This runs after 3 seconds"</span>);<br>
+}, <span class="string">3000</span>);
+                </code>
+            </div>
+
+            <h2>Result</h2>
+            <div class="output-box">
+                // Wait 3 seconds...<br>
+                This runs after 3 seconds
+            </div>
+
+            <div class="example-box">
+                <h3>What Happens?</h3>
+                <ul>
+                    <li>JavaScript waits for 3000 milliseconds (3 seconds)</li>
+                    <li>After the delay, the function executes</li>
+                    <li>The message is logged to the console</li>
+                    <li>The setTimeout completes and doesn't run again</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Slide 5: setTimeout with Arrow Function -->
+        <div class="slide">
+            <h1>setTimeout() with Arrow Function</h1>
+
+            <div class="concept-box">
+                <h3>Modern Syntax</h3>
+                <p>You can use an <span class="highlight">arrow function</span> for cleaner, more concise code.</p>
+            </div>
+
+            <h2>Arrow Function Syntax</h2>
+            <div class="code-example">
+                <code>
+setTimeout(() => {<br>
+&nbsp;&nbsp;console.log(<span class="string">"This runs after 3 seconds"</span>);<br>
+}, <span class="string">3000</span>);
+                </code>
+            </div>
+
+            <h2>Result</h2>
+            <div class="output-box">
+                // Wait 3 seconds...<br>
+                This runs after 3 seconds
+            </div>
+
+            <div class="info-box">
+                <p>Both regular functions and arrow functions work the same way. Arrow functions are just a more modern, concise syntax.</p>
+            </div>
+        </div>
+
+        <!-- Slide 6: setInterval Overview -->
+        <div class="slide">
+            <h1>setInterval() Method</h1>
+
+            <div class="concept-box">
+                <h3>What Does It Do?</h3>
+                <p><code>setInterval()</code> <span class="highlight">keeps repeating a function at a set interval</span>.</p>
+                <p>It's like having an alarm that goes off every few seconds.</p>
+            </div>
+
+            <h2>Use Cases</h2>
+            <ul>
+                <li><strong>Refreshing Data:</strong> Update information periodically</li>
+                <li><strong>Animations:</strong> Create continuous movement</li>
+                <li><strong>Clocks/Timers:</strong> Update time displays</li>
+                <li><strong>Polling:</strong> Check for updates regularly</li>
+                <li><strong>Auto-Save:</strong> Save user data at intervals</li>
+            </ul>
+
+            <div class="example-box">
+                <h3>Continuous Execution</h3>
+                <p>The function runs <strong>over and over</strong> at the specified interval until stopped.</p>
+            </div>
+        </div>
+
+        <!-- Slide 7: setInterval Syntax -->
+        <div class="slide">
+            <h1>setInterval() Syntax</h1>
+
+            <div class="syntax-box">
+                setInterval(functionToRun, delay);
+            </div>
+
+            <h2>Parameters</h2>
+
+            <div class="two-column">
+                <div class="column">
+                    <h3>functionToRun</h3>
+                    <p>The code you want to run <strong>repeatedly</strong></p>
+                </div>
+
+                <div class="column">
+                    <h3>delay</h3>
+                    <p>The time in milliseconds <strong>between each execution</strong></p>
+                </div>
+            </div>
+
+            <div class="info-box">
+                <h3>Important Difference</h3>
+                <p>Unlike <code>setTimeout()</code> which runs once, <code>setInterval()</code> keeps running until you explicitly stop it.</p>
+            </div>
+        </div>
+
+        <!-- Slide 8: setInterval Example -->
+        <div class="slide">
+            <h1>setInterval() Example</h1>
+
+            <h2>Code</h2>
+            <div class="code-example">
+                <code>
+setInterval(() => {<br>
+&nbsp;&nbsp;console.log(<span class="string">"This runs every 2 seconds"</span>);<br>
+}, <span class="string">2000</span>);
+                </code>
+            </div>
+
+            <h2>Result</h2>
+            <div class="output-box">
+                This runs every 2 seconds<br>
+                This runs every 2 seconds<br>
+                This runs every 2 seconds<br>
+                This runs every 2 seconds<br>
+                ...
+            </div>
+
+            <div class="concept-box">
+                <h3>What Happens?</h3>
+                <ul>
+                    <li>The function executes immediately, then waits 2 seconds</li>
+                    <li>After 2 seconds, it runs again</li>
+                    <li>This continues indefinitely</li>
+                    <li>It will keep running until you stop it with <code>clearInterval()</code></li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Slide 9: Stopping setInterval -->
+        <div class="slide">
+            <h1>Stopping setInterval with clearInterval()</h1>
+
+            <div class="concept-box">
+                <h3>Why Stop It?</h3>
+                <p>Since <code>setInterval()</code> keeps executing forever, you'll often want to <span class="highlight">stop it</span> at some point.</p>
+            </div>
+
+            <h2>The clearInterval() Method</h2>
+            <p>To stop an interval, use <code>clearInterval()</code> with the <strong>interval ID</strong>.</p>
+
+            <div class="info-box">
+                <h3>Getting the ID</h3>
+                <p><code>setInterval()</code> returns an ID that you can store in a variable:</p>
+            </div>
+
+            <div class="code-example">
+                <code>
+<span class="keyword">const</span> intervalID = setInterval(() => {<br>
+&nbsp;&nbsp;console.log(<span class="string">"Running..."</span>);<br>
+}, <span class="string">1000</span>);<br><br>
+<span class="comment">// Later, stop it:</span><br>
+clearInterval(intervalID);
+                </code>
+            </div>
+        </div>
+
+        <!-- Slide 10: Auto-Stop Example -->
+        <div class="slide">
+            <h1>Auto-Stop with setTimeout</h1>
+
+            <div class="concept-box">
+                <h3>Combining Methods</h3>
+                <p>You can use <code>setTimeout()</code> to automatically stop a <code>setInterval()</code> after a certain time.</p>
+            </div>
+
+            <h2>Example Code</h2>
+            <div class="code-example">
+                <code>
+<span class="keyword">const</span> intervalID = setInterval(() => {<br>
+&nbsp;&nbsp;console.log(<span class="string">"This will stop after 5 seconds"</span>);<br>
+}, <span class="string">1000</span>);<br><br>
+setTimeout(() => {<br>
+&nbsp;&nbsp;clearInterval(intervalID);<br>
+}, <span class="string">5000</span>);
+                </code>
+            </div>
+
+            <div class="example-box">
+                <h3>What Happens?</h3>
+                <ul>
+                    <li>The interval runs every 1 second (1000ms)</li>
+                    <li>After 5 seconds (5000ms), setTimeout triggers</li>
+                    <li>clearInterval stops the repeating function</li>
+                    <li>No more messages appear</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Slide 11: clearTimeout Method -->
+        <div class="slide">
+            <h1>Stopping setTimeout with clearTimeout()</h1>
+
+            <div class="concept-box">
+                <h3>Cancel Before It Runs</h3>
+                <p>You can also <span class="highlight">stop a timeout</span> before it executes using <code>clearTimeout()</code>.</p>
+            </div>
+
+            <h2>Example: Cancel Immediately</h2>
+            <div class="code-example">
+                <code>
+<span class="keyword">let</span> timeoutID = setTimeout(() => {<br>
+&nbsp;&nbsp;console.log(<span class="string">"This will not run"</span>);<br>
+}, <span class="string">5000</span>);<br><br>
+clearTimeout(timeoutID); <span class="comment">// Cancel it immediately</span>
+                </code>
+            </div>
+
+            <h2>Result</h2>
+            <div class="output-box">
+                // Nothing is logged - the timeout was cancelled
+            </div>
+
+            <div class="info-box">
+                <p>The <code>setTimeout()</code> will not run at all because it was cleared before the delay expired.</p>
+            </div>
+        </div>
+
+        <!-- Slide 12: clearTimeout with DOM -->
+        <div class="slide">
+            <h1>Practical clearTimeout Example</h1>
+
+            <div class="concept-box">
+                <h3>User-Controlled Cancellation</h3>
+                <p>A more practical approach: let users cancel a timeout by clicking a button.</p>
+            </div>
+
+            <h2>HTML</h2>
+            <div class="code-example">
+                <code>
+<span class="keyword">&lt;h1&gt;</span>Cancel Timeout Example<span class="keyword">&lt;/h1&gt;</span><br>
+<span class="keyword">&lt;button</span> id=<span class="string">"cancelButton"</span><span class="keyword">&gt;</span>Cancel Timeout<span class="keyword">&lt;/button&gt;</span>
+                </code>
+            </div>
+
+            <h2>JavaScript</h2>
+            <div class="code-example">
+                <code>
+<span class="keyword">let</span> timeoutID = setTimeout(() => {<br>
+&nbsp;&nbsp;console.log(<span class="string">"This runs after 5 seconds"</span>);<br>
+}, <span class="string">5000</span>);<br><br>
+<span class="keyword">const</span> cancelBtn = document.getElementById(<span class="string">"cancelButton"</span>);<br>
+cancelBtn.addEventListener(<span class="string">"click"</span>, () => {<br>
+&nbsp;&nbsp;clearTimeout(timeoutID);<br>
+&nbsp;&nbsp;console.log(<span class="string">"Timeout cancelled!"</span>);<br>
+});
+                </code>
+            </div>
+        </div>
+
+        <!-- Slide 13: Comparison -->
+        <div class="slide">
+            <h1>setTimeout vs setInterval</h1>
+
+            <div class="two-column">
+                <div class="column">
+                    <h3>setTimeout()</h3>
+                    <ul>
+                        <li>Runs <strong>once</strong></li>
+                        <li>After a <strong>delay</strong></li>
+                        <li>Then stops automatically</li>
+                        <li>Use for single delayed actions</li>
+                    </ul>
+                    <div class="code-example" style="margin-top: 1rem;">
+                        <code style="font-size: 0.85rem;">
+setTimeout(() => {<br>
+&nbsp;&nbsp;<span class="comment">// Runs once</span><br>
+}, <span class="string">3000</span>);
+                        </code>
+                    </div>
+                </div>
+
+                <div class="column">
+                    <h3>setInterval()</h3>
+                    <ul>
+                        <li>Runs <strong>repeatedly</strong></li>
+                        <li>At <strong>regular intervals</strong></li>
+                        <li>Continues until stopped</li>
+                        <li>Use for repeating actions</li>
+                    </ul>
+                    <div class="code-example" style="margin-top: 1rem;">
+                        <code style="font-size: 0.85rem;">
+setInterval(() => {<br>
+&nbsp;&nbsp;<span class="comment">// Runs forever</span><br>
+}, <span class="string">3000</span>);
+                        </code>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 14: Clearing Methods -->
+        <div class="slide">
+            <h1>Clearing Timers</h1>
+
+            <div class="two-column">
+                <div class="column">
+                    <h3>clearTimeout()</h3>
+                    <p>Cancels a <code>setTimeout()</code> before it executes</p>
+                    <div class="code-example" style="margin-top: 1rem;">
+                        <code style="font-size: 0.85rem;">
+<span class="keyword">let</span> id = setTimeout(...);<br>
+clearTimeout(id);
+                        </code>
+                    </div>
+                </div>
+
+                <div class="column">
+                    <h3>clearInterval()</h3>
+                    <p>Stops a <code>setInterval()</code> from continuing</p>
+                    <div class="code-example" style="margin-top: 1rem;">
+                        <code style="font-size: 0.85rem;">
+<span class="keyword">let</span> id = setInterval(...);<br>
+clearInterval(id);
+                        </code>
+                    </div>
+                </div>
+            </div>
+
+            <div class="concept-box" style="margin-top: 2rem;">
+                <h3>Remember the ID</h3>
+                <p>Both timer methods return an ID. <strong>Store this ID in a variable</strong> so you can clear the timer later.</p>
+            </div>
+        </div>
+
+        <!-- Slide 15: Summary -->
+        <div class="slide">
+            <h1>Summary</h1>
+
+            <h2>Key Concepts</h2>
+
+            <div class="concept-box">
+                <h3>setTimeout()</h3>
+                <ul>
+                    <li>Delays an action for a specified time</li>
+                    <li>Runs the function <strong>once</strong></li>
+                    <li>Cancel with <code>clearTimeout()</code></li>
+                </ul>
+            </div>
+
+            <div class="concept-box">
+                <h3>setInterval()</h3>
+                <ul>
+                    <li>Repeats a function at a set interval</li>
+                    <li>Runs <strong>continuously</strong> until stopped</li>
+                    <li>Stop with <code>clearInterval()</code></li>
+                </ul>
+            </div>
+
+            <div class="concept-box">
+                <h3>Both Methods Share</h3>
+                <ul>
+                    <li>Accept two parameters: function and delay (in milliseconds)</li>
+                    <li>Return an ID that can be used to cancel them</li>
+                    <li>Delay time is in milliseconds (1000ms = 1 second)</li>
+                </ul>
+            </div>
+
+            <div class="example-box">
+                <h3>Use Them Wisely</h3>
+                <p>These methods are essential for creating <strong>dynamic, time-based functionality</strong> in your web applications.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="nav-buttons">
+        <button id="prevBtn" onclick="changeSlide(-1)">Previous</button>
+        <span class="slide-counter">
+            <span id="currentSlide">1</span> / <span id="totalSlides">15</span>
+        </span>
+        <button id="nextBtn" onclick="changeSlide(1)">Next</button>
+    </div>
+
+    <script>
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.slide');
+        const totalSlides = slides.length;
+        
+        document.getElementById('totalSlides').textContent = totalSlides;
+
+        function showSlide(n) {
+            slides.forEach(slide => slide.classList.remove('active'));
+            
+            if (n >= totalSlides) {
+                currentSlide = totalSlides - 1;
+            } else if (n < 0) {
+                currentSlide = 0;
+            } else {
+                currentSlide = n;
+            }
+            
+            slides[currentSlide].classList.add('active');
+            document.getElementById('currentSlide').textContent = currentSlide + 1;
+            
+            // Update button states
+            document.getElementById('prevBtn').disabled = currentSlide === 0;
+            document.getElementById('nextBtn').disabled = currentSlide === totalSlides - 1;
+            
+            // Scroll to top when changing slides
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function changeSlide(direction) {
+            showSlide(currentSlide + direction);
+        }
+
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowLeft') {
+                changeSlide(-1);
+            } else if (e.key === 'ArrowRight') {
+                changeSlide(1);
+            }
+        });
+
+        // Initialize
+        showSlide(0);
+    </script>
+</body>
+</html>

@@ -1,0 +1,732 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Navigator, Window, and Document Presentation</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            color: #2c3e50;
+            overflow-x: hidden;
+        }
+
+        .slide-container {
+            min-height: 100vh;
+            padding: 2rem;
+            padding-bottom: 100px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .slide {
+            display: none;
+            animation: fadeIn 0.5s ease-in;
+            background: white;
+            padding: 2.5rem;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        .slide.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        h1 {
+            color: #881518;
+            font-size: 2.5rem;
+            margin-bottom: 2rem;
+            border-bottom: 3px solid #881518;
+            padding-bottom: 0.5rem;
+        }
+
+        h2 {
+            color: #a81d21;
+            font-size: 2rem;
+            margin-bottom: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        h3 {
+            color: #c82428;
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        p {
+            font-size: 1.2rem;
+            line-height: 1.8;
+            margin-bottom: 1rem;
+            color: #34495e;
+        }
+
+        ul {
+            margin-left: 2rem;
+            margin-bottom: 1.5rem;
+        }
+
+        li {
+            font-size: 1.1rem;
+            line-height: 1.8;
+            margin-bottom: 0.8rem;
+            list-style-type: none;
+            position: relative;
+            padding-left: 1.5rem;
+            color: #34495e;
+        }
+
+        li:before {
+            content: "→";
+            color: #881518;
+            font-weight: bold;
+            position: absolute;
+            left: 0;
+        }
+
+        .concept-box {
+            background: linear-gradient(135deg, #fff5f5 0%, #ffe5e5 100%);
+            border-left: 4px solid #881518;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 8px;
+        }
+
+        .code-example {
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            overflow-x: auto;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        code {
+            color: #e83e8c;
+            font-family: 'Courier New', monospace;
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        .keyword {
+            color: #881518;
+            font-weight: 600;
+        }
+
+        .string {
+            color: #4caf50;
+        }
+
+        .comment {
+            color: #6c757d;
+            font-style: italic;
+        }
+
+        .highlight {
+            color: #881518;
+            font-weight: 600;
+            background: #fff5f5;
+            padding: 0.2rem 0.4rem;
+            border-radius: 3px;
+        }
+
+        .three-column {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .two-column {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+
+        .column {
+            background: #f8f9fa;
+            padding: 1.5rem;
+            border-radius: 8px;
+            border: 1px solid #e9ecef;
+        }
+
+        .nav-buttons {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(to top, rgba(255, 255, 255, 0.98) 0%, rgba(255, 255, 255, 0.95) 80%, transparent 100%);
+            padding: 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 1000;
+            box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        button {
+            background: #881518;
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            font-size: 1.1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            box-shadow: 0 4px 12px rgba(136, 21, 24, 0.2);
+        }
+
+        button:hover {
+            background: #a81d21;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(136, 21, 24, 0.3);
+        }
+
+        button:disabled {
+            background: #cbd5e0;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+            color: #a0aec0;
+        }
+
+        .slide-counter {
+            color: #718096;
+            font-size: 1rem;
+            font-weight: 600;
+        }
+
+        .example-box {
+            background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
+            border-left: 4px solid #4caf50;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 8px;
+        }
+
+        .info-box {
+            background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+            border-left: 4px solid #2196f3;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 8px;
+        }
+
+        .output-box {
+            background: #e3f2fd;
+            border: 2px solid #90caf9;
+            border-radius: 8px;
+            padding: 1rem;
+            margin: 1rem 0;
+            font-family: 'Courier New', monospace;
+            color: #1565c0;
+            font-size: 0.9rem;
+        }
+
+        strong {
+            color: #881518;
+        }
+
+        @media (max-width: 968px) {
+            .three-column {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 1.8rem;
+            }
+
+            h2 {
+                font-size: 1.5rem;
+            }
+
+            h3 {
+                font-size: 1.3rem;
+            }
+
+            p, li {
+                font-size: 1rem;
+            }
+
+            .slide-container {
+                padding: 1rem;
+                padding-bottom: 100px;
+            }
+
+            .slide {
+                padding: 1.5rem;
+            }
+
+            .two-column {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+
+            button {
+                padding: 0.8rem 1.5rem;
+                font-size: 1rem;
+            }
+
+            .nav-buttons {
+                padding: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="slide-container">
+        <!-- Slide 1: Introduction -->
+        <div class="slide active">
+            <h1>Navigator, Window, and Document</h1>
+            
+            <div class="concept-box">
+                <h3>What is an Interface?</h3>
+                <p>An <span class="highlight">interface</span> is a collection of methods and properties that define a particular object.</p>
+            </div>
+
+            <h2>Three Important Interfaces</h2>
+
+            <div class="three-column">
+                <div class="column">
+                    <h3>Navigator</h3>
+                    <p>Browser environment information</p>
+                </div>
+
+                <div class="column">
+                    <h3>Window</h3>
+                    <p>Browser window control</p>
+                </div>
+
+                <div class="column">
+                    <h3>Document</h3>
+                    <p>DOM manipulation</p>
+                </div>
+            </div>
+
+            <div class="example-box">
+                <p>These interfaces are essential tools when working with the DOM. Let's explore how they work and how you can use them in your web applications.</p>
+            </div>
+        </div>
+
+        <!-- Slide 2: Navigator Interface Overview -->
+        <div class="slide">
+            <h1>Navigator Interface</h1>
+
+            <div class="concept-box">
+                <h3>What is the Navigator Interface?</h3>
+                <p>The <span class="highlight">Navigator</span> interface provides information about the browser environment.</p>
+            </div>
+
+            <h2>Types of Information Available</h2>
+            <ul>
+                <li><strong>User Agent String:</strong> Identifies the browser and operating system</li>
+                <li><strong>Platform:</strong> Information about the operating system</li>
+                <li><strong>Browser Version:</strong> Details about the browser version</li>
+                <li><strong>Language:</strong> The browser's preferred language</li>
+            </ul>
+
+            <div class="info-box">
+                <h3>User Agent String</h3>
+                <p>A <strong>user agent string</strong> is a text string that identifies the browser and operating system being used.</p>
+            </div>
+        </div>
+
+        <!-- Slide 3: navigator.userAgent -->
+        <div class="slide">
+            <h1>navigator.userAgent Property</h1>
+
+            <div class="concept-box">
+                <h3>Accessing Browser Information</h3>
+                <p>The <code>userAgent</code> property returns a string containing information about the browser and operating system.</p>
+            </div>
+
+            <h2>Example Code</h2>
+            <div class="code-example">
+                <code>
+console.log(navigator.userAgent);
+                </code>
+            </div>
+
+            <h2>Example Output</h2>
+            <div class="output-box">
+Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36
+            </div>
+
+            <div class="example-box">
+                <h3>Use Case</h3>
+                <p>This could be helpful if you want to <strong>display different content based on the user's browser or operating system</strong>.</p>
+            </div>
+        </div>
+
+        <!-- Slide 4: navigator.language -->
+        <div class="slide">
+            <h1>navigator.language Property</h1>
+
+            <div class="concept-box">
+                <h3>Language Detection</h3>
+                <p>The <code>language</code> property returns the language of the browser.</p>
+                <p>You can use this to <strong>display content in the user's preferred language</strong>.</p>
+            </div>
+
+            <h2>Example Code</h2>
+            <div class="code-example">
+                <code>
+console.log(navigator.language);
+                </code>
+            </div>
+
+            <h2>Example Output</h2>
+            <div class="output-box">
+en-US
+            </div>
+
+            <p>The result is a string containing the language code of the browser. If your preferred language is English, it will return <code>en-US</code>.</p>
+
+            <div class="example-box">
+                <h3>Practical Application</h3>
+                <p>Use this to automatically detect and display content in the appropriate language for your users.</p>
+            </div>
+        </div>
+
+        <!-- Slide 5: Window Interface Overview -->
+        <div class="slide">
+            <h1>Window Interface</h1>
+
+            <div class="concept-box">
+                <h3>What is the Window Interface?</h3>
+                <p>The <span class="highlight">Window</span> interface represents the browser window that contains the DOM document.</p>
+            </div>
+
+            <h2>Capabilities</h2>
+            <ul>
+                <li><strong>Window Resizing:</strong> Get or set window dimensions</li>
+                <li><strong>Opening New Windows:</strong> Create new browser windows or tabs</li>
+                <li><strong>Navigation:</strong> Navigate to different URLs</li>
+                <li><strong>Window Information:</strong> Access properties like width, height, and location</li>
+            </ul>
+
+            <div class="info-box">
+                <p>The Window interface provides methods and properties for <strong>interacting with the browser window</strong>.</p>
+            </div>
+        </div>
+
+        <!-- Slide 6: window.innerWidth -->
+        <div class="slide">
+            <h1>window.innerWidth Property</h1>
+
+            <div class="concept-box">
+                <h3>Getting Window Dimensions</h3>
+                <p>The <code>innerWidth</code> property returns the width of the browser window in pixels.</p>
+            </div>
+
+            <h2>Example Code</h2>
+            <div class="code-example">
+                <code>
+console.log(window.innerWidth);
+                </code>
+            </div>
+
+            <h2>Example Output</h2>
+            <div class="output-box">
+800
+            </div>
+
+            <p>If the browser window is 800 pixels wide, it will return <code>800</code>.</p>
+
+            <div class="example-box">
+                <h3>Use Cases</h3>
+                <ul>
+                    <li>Create responsive layouts</li>
+                    <li>Adjust content based on screen size</li>
+                    <li>Implement mobile-friendly designs</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Slide 7: window.location -->
+        <div class="slide">
+            <h1>window.location Property</h1>
+
+            <div class="concept-box">
+                <h3>URL Information</h3>
+                <p>The <code>location</code> property provides information about the current URL of the browser window.</p>
+            </div>
+
+            <h2>Example Code</h2>
+            <div class="code-example">
+                <code>
+console.log(window.location);
+                </code>
+            </div>
+
+            <h2>What You Get</h2>
+            <p>The result is an <strong>object</strong> that contains information about the current URL.</p>
+
+            <div class="two-column">
+                <div class="column">
+                    <h3>Available Properties</h3>
+                    <ul>
+                        <li>Protocol (http/https)</li>
+                        <li>Hostname</li>
+                        <li>Pathname</li>
+                    </ul>
+                </div>
+
+                <div class="column">
+                    <h3>Additional Info</h3>
+                    <ul>
+                        <li>Port number</li>
+                        <li>Search parameters</li>
+                        <li>Hash fragment</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 8: Window Global Scope -->
+        <div class="slide">
+            <h1>Window in Global Scope</h1>
+
+            <div class="concept-box">
+                <h3>Important Concept</h3>
+                <p>Most of the time you <strong>won't need to interact with the Window interface directly</strong>, as it is automatically available in the global scope of your JavaScript code.</p>
+            </div>
+
+            <h2>You Can Omit "window."</h2>
+            
+            <div class="two-column">
+                <div class="column">
+                    <h3>With window Object</h3>
+                    <div class="code-example">
+                        <code>
+console.log(window.location);
+                        </code>
+                    </div>
+                </div>
+
+                <div class="column">
+                    <h3>Without window Object</h3>
+                    <div class="code-example">
+                        <code>
+console.log(location);
+                        </code>
+                    </div>
+                </div>
+            </div>
+
+            <p style="text-align: center; font-size: 1.4rem; margin-top: 2rem;">Both produce the <span class="highlight">same result!</span></p>
+
+            <div class="info-box">
+                <h3>Best Practice</h3>
+                <p>You can access Window properties directly without using the <code>window.</code> prefix since they're in the global scope.</p>
+            </div>
+        </div>
+
+        <!-- Slide 9: Document Interface Overview -->
+        <div class="slide">
+            <h1>Document Interface</h1>
+
+            <div class="concept-box">
+                <h3>What is the Document Interface?</h3>
+                <p>The <span class="highlight">Document</span> interface represents the DOM document that is displayed in the browser window.</p>
+            </div>
+
+            <h2>Core Capabilities</h2>
+            <ul>
+                <li><strong>Select Elements:</strong> Find and access HTML elements</li>
+                <li><strong>Create Elements:</strong> Generate new HTML elements dynamically</li>
+                <li><strong>Modify Content:</strong> Change the content, styles, and attributes of elements</li>
+                <li><strong>DOM Manipulation:</strong> Add, remove, or rearrange elements</li>
+            </ul>
+
+            <div class="example-box">
+                <p>The Document interface provides the methods and properties you need for <strong>interacting with the DOM</strong>.</p>
+            </div>
+        </div>
+
+        <!-- Slide 10: document.children -->
+        <div class="slide">
+            <h1>document.children Property</h1>
+
+            <div class="concept-box">
+                <h3>Accessing Child Elements</h3>
+                <p>The <code>children</code> property returns all the child elements of the document.</p>
+            </div>
+
+            <h2>Example HTML</h2>
+            <div class="code-example">
+                <code>
+<span class="keyword">&lt;p&gt;</span>Hello, World!<span class="keyword">&lt;/p&gt;</span>
+                </code>
+            </div>
+
+            <h2>Example Code</h2>
+            <div class="code-example">
+                <code>
+console.log(document.children);
+                </code>
+            </div>
+
+            <h2>Result</h2>
+            <p>Returns an <span class="highlight">HTMLCollection</span> object that contains all the child elements of the document.</p>
+
+            <div class="info-box">
+                <h3>HTMLCollection</h3>
+                <p>An HTMLCollection is a live, array-like collection of HTML elements that you can iterate through.</p>
+            </div>
+        </div>
+
+        <!-- Slide 11: More to Explore -->
+        <div class="slide">
+            <h1>Beyond the Basics</h1>
+
+            <div class="concept-box">
+                <h3>Much More Available</h3>
+                <p>There are <strong>many more properties and methods</strong> available on the Document, Window, and Navigator interfaces.</p>
+            </div>
+
+            <h2>What You've Learned</h2>
+
+            <div class="three-column">
+                <div class="column">
+                    <h3>Navigator</h3>
+                    <ul>
+                        <li>userAgent</li>
+                        <li>language</li>
+                    </ul>
+                </div>
+
+                <div class="column">
+                    <h3>Window</h3>
+                    <ul>
+                        <li>innerWidth</li>
+                        <li>location</li>
+                        <li>Global scope</li>
+                    </ul>
+                </div>
+
+                <div class="column">
+                    <h3>Document</h3>
+                    <ul>
+                        <li>children</li>
+                        <li>DOM methods</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="example-box">
+                <h3>Foundation Built</h3>
+                <p>This lesson has provided you with a <strong>basic understanding</strong> of how these interfaces work and how to use them in your web applications.</p>
+            </div>
+        </div>
+
+        <!-- Slide 12: Summary -->
+        <div class="slide">
+            <h1>Summary</h1>
+
+            <h2>Key Takeaways</h2>
+
+            <div class="concept-box">
+                <h3>Navigator Interface</h3>
+                <p>Access <strong>browser environment information</strong> like user agent, platform, and language.</p>
+            </div>
+
+            <div class="concept-box">
+                <h3>Window Interface</h3>
+                <p>Control and interact with the <strong>browser window</strong>, including dimensions, location, and navigation.</p>
+                <p><em>Available in global scope - you often don't need the "window." prefix.</em></p>
+            </div>
+
+            <div class="concept-box">
+                <h3>Document Interface</h3>
+                <p>Manipulate the <strong>DOM document</strong> - select, create, and modify HTML elements.</p>
+            </div>
+
+            <div class="example-box" style="margin-top: 2rem;">
+                <h3>Moving Forward</h3>
+                <p>Understanding these three interfaces gives you powerful tools for building interactive, dynamic web applications that respond to the browser environment and user needs.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="nav-buttons">
+        <button id="prevBtn" onclick="changeSlide(-1)">Previous</button>
+        <span class="slide-counter">
+            <span id="currentSlide">1</span> / <span id="totalSlides">12</span>
+        </span>
+        <button id="nextBtn" onclick="changeSlide(1)">Next</button>
+    </div>
+
+    <script>
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.slide');
+        const totalSlides = slides.length;
+        
+        document.getElementById('totalSlides').textContent = totalSlides;
+
+        function showSlide(n) {
+            slides.forEach(slide => slide.classList.remove('active'));
+            
+            if (n >= totalSlides) {
+                currentSlide = totalSlides - 1;
+            } else if (n < 0) {
+                currentSlide = 0;
+            } else {
+                currentSlide = n;
+            }
+            
+            slides[currentSlide].classList.add('active');
+            document.getElementById('currentSlide').textContent = currentSlide + 1;
+            
+            // Update button states
+            document.getElementById('prevBtn').disabled = currentSlide === 0;
+            document.getElementById('nextBtn').disabled = currentSlide === totalSlides - 1;
+            
+            // Scroll to top when changing slides
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function changeSlide(direction) {
+            showSlide(currentSlide + direction);
+        }
+
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowLeft') {
+                changeSlide(-1);
+            } else if (e.key === 'ArrowRight') {
+                changeSlide(1);
+            }
+        });
+
+        // Initialize
+        showSlide(0);
+    </script>
+</body>
+</html>

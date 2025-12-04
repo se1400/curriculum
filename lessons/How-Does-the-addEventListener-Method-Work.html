@@ -1,0 +1,1122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>addEventListener() Method Presentation</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #f5f5f5 0%, #ffffff 100%);
+            color: #2d2d2d;
+            overflow-x: hidden;
+        }
+
+        .slide-container {
+            min-height: 100vh;
+            padding: 2rem 2rem 120px 2rem;
+            display: none;
+        }
+
+        .slide-container.active {
+            display: block;
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .slide-content {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            color: #881518;
+            font-size: clamp(1.8rem, 4vw, 3rem);
+            margin-bottom: 2rem;
+            border-bottom: 3px solid #881518;
+            padding-bottom: 1rem;
+        }
+
+        h2 {
+            color: #a81c1f;
+            font-size: clamp(1.4rem, 3vw, 2rem);
+            margin: 2rem 0 1rem 0;
+        }
+
+        h3 {
+            color: #c8575a;
+            font-size: clamp(1.2rem, 2.5vw, 1.5rem);
+            margin: 1.5rem 0 1rem 0;
+        }
+
+        p, li {
+            font-size: clamp(1rem, 2vw, 1.2rem);
+            line-height: 1.8;
+            margin-bottom: 1rem;
+            color: #333333;
+        }
+
+        .content-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+
+        @media (min-width: 768px) {
+            .content-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        .concept-box {
+            background: rgba(136, 21, 24, 0.05);
+            border-left: 4px solid #881518;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin: 1.5rem 0;
+        }
+
+        .code-box {
+            background: #f8f8f8;
+            border: 1px solid #d0d0d0;
+            border-radius: 8px;
+            padding: 1.5rem;
+            overflow-x: auto;
+            margin: 1rem 0;
+        }
+
+        code {
+            font-family: 'Courier New', Courier, monospace;
+            font-size: clamp(0.85rem, 1.5vw, 1rem);
+            color: #0066cc;
+        }
+
+        .keyword { color: #881518; }
+        .tag { color: #881518; }
+        .string { color: #2a8d2a; }
+        .function { color: #795e26; }
+        .comment { color: #008000; }
+        .property { color: #0066cc; }
+
+        .interactive-demo {
+            background: rgba(136, 21, 24, 0.03);
+            border: 2px dashed #881518;
+            border-radius: 8px;
+            padding: 2rem;
+            margin: 2rem 0;
+        }
+
+        .interactive-demo button {
+            background: #881518;
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            margin: 0.5rem;
+            transition: background 0.3s;
+        }
+
+        .interactive-demo button:hover {
+            background: #a81c1f;
+        }
+
+        .demo-output {
+            background: white;
+            border: 2px solid #881518;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1rem 0;
+            min-height: 80px;
+        }
+
+        .step-number {
+            display: inline-block;
+            background: #881518;
+            color: white;
+            width: 2rem;
+            height: 2rem;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 2rem;
+            font-weight: bold;
+            margin-right: 0.5rem;
+        }
+
+        .method-signature {
+            background: rgba(136, 21, 24, 0.08);
+            border: 2px solid #881518;
+            border-radius: 8px;
+            padding: 1rem 1.5rem;
+            margin: 1rem 0;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: clamp(0.9rem, 2vw, 1.1rem);
+            font-weight: bold;
+            color: #881518;
+        }
+
+        .event-box {
+            background: linear-gradient(135deg, #e3f2fd, #bbdefb);
+            border: 2px solid #2196f3;
+            border-left: 6px solid #1976d2;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1rem 0;
+        }
+
+        .event-box h3 {
+            color: #1565c0;
+            margin-top: 0;
+        }
+
+        ul {
+            margin-left: 2rem;
+        }
+
+        .navigation {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(to top, #ffffff, rgba(255, 255, 255, 0.98));
+            padding: 1.5rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+            border-top: 2px solid #e0e0e0;
+        }
+
+        .nav-button {
+            background: #881518;
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: clamp(0.9rem, 2vw, 1.1rem);
+            font-weight: 600;
+            transition: all 0.3s;
+            min-width: 100px;
+        }
+
+        .nav-button:hover:not(:disabled) {
+            background: #a81c1f;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(136, 21, 24, 0.3);
+        }
+
+        .nav-button:disabled {
+            background: #cccccc;
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        .slide-counter {
+            color: #881518;
+            font-weight: 600;
+            font-size: clamp(1rem, 2vw, 1.2rem);
+        }
+
+        @media (max-width: 768px) {
+            .navigation {
+                padding: 1rem;
+            }
+
+            .nav-button {
+                padding: 0.75rem 1rem;
+                min-width: 80px;
+            }
+        }
+
+        .highlight {
+            background: rgba(136, 21, 24, 0.15);
+            padding: 0.2rem 0.4rem;
+            border-radius: 3px;
+            font-weight: 600;
+        }
+
+        .inline-code {
+            background: #f0f0f0;
+            padding: 0.2rem 0.5rem;
+            border-radius: 3px;
+            font-family: 'Courier New', Courier, monospace;
+            color: #881518;
+            font-size: 0.9em;
+        }
+
+        .flow-diagram {
+            background: white;
+            border: 2px solid #881518;
+            border-radius: 8px;
+            padding: 2rem;
+            margin: 2rem 0;
+            text-align: center;
+        }
+
+        .flow-step {
+            background: rgba(136, 21, 24, 0.08);
+            border: 2px solid #881518;
+            border-radius: 8px;
+            padding: 1rem;
+            margin: 1rem auto;
+            max-width: 500px;
+            font-weight: 600;
+        }
+
+        .flow-arrow {
+            color: #881518;
+            font-size: 2rem;
+            font-weight: bold;
+            margin: 0.5rem 0;
+        }
+
+        .demo-button {
+            background: #881518;
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1.1rem;
+            font-weight: 600;
+            transition: all 0.3s;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+
+        .demo-button:hover {
+            background: #a81c1f;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(136, 21, 24, 0.3);
+        }
+
+        .demo-input {
+            padding: 0.75rem;
+            border: 2px solid #881518;
+            border-radius: 5px;
+            font-size: 1rem;
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .demo-input:focus {
+            outline: none;
+            border-color: #a81c1f;
+            box-shadow: 0 0 5px rgba(136, 21, 24, 0.3);
+        }
+
+        .log-output {
+            background: #f8f8f8;
+            border: 2px solid #881518;
+            border-radius: 8px;
+            padding: 1rem;
+            margin: 1rem 0;
+            font-family: 'Courier New', Courier, monospace;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .log-entry {
+            padding: 0.3rem 0;
+            color: #0066cc;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .log-entry:last-child {
+            border-bottom: none;
+        }
+
+        .event-types-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+
+        .event-type-card {
+            background: white;
+            border: 2px solid #881518;
+            border-radius: 8px;
+            padding: 1.5rem;
+            transition: all 0.3s;
+        }
+
+        .event-type-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 4px 8px rgba(136, 21, 24, 0.2);
+        }
+
+        .event-type-card h4 {
+            color: #881518;
+            margin-bottom: 0.5rem;
+            font-size: 1.2rem;
+        }
+
+        .comparison-box {
+            background: linear-gradient(135deg, #fff3cd, #ffe69c);
+            border: 2px solid #ffc107;
+            border-left: 6px solid #ff9800;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1rem 0;
+        }
+
+        .comparison-box h3 {
+            color: #ff6f00;
+            margin-top: 0;
+        }
+
+        .pro-tip {
+            background: linear-gradient(135deg, #d4edda, #c3e6cb);
+            border: 2px solid #28a745;
+            border-left: 6px solid #1e7e34;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+        }
+
+        .pro-tip h3 {
+            color: #1e7e34;
+            margin-top: 0;
+        }
+    </style>
+</head>
+<body>
+    <!-- Slide 1: Introduction to Events -->
+    <div class="slide-container active">
+        <div class="slide-content">
+            <h1>The addEventListener() Method</h1>
+            
+            <div class="concept-box">
+                <h2>What are Events?</h2>
+                <p>When a user clicks on a button or there is a change in a form, this is known as an <span class="highlight">event</span>.</p>
+                <p>In your programs, you will need to have a way to <strong>listen for these events</strong> and <strong>respond to them</strong>.</p>
+            </div>
+
+            <div class="content-grid">
+                <div class="event-box">
+                    <h3>Common User Events</h3>
+                    <p>🖱️ <strong>Click:</strong> User clicks an element</p>
+                    <p>⌨️ <strong>Keyboard:</strong> User types or presses keys</p>
+                    <p>📝 <strong>Input:</strong> Value changes in a form field</p>
+                    <p>🖐️ <strong>Mouse:</strong> Mouse moves over elements</p>
+                    <p>📤 <strong>Submit:</strong> User submits a form</p>
+                </div>
+
+                <div class="event-box">
+                    <h3>Why Listen for Events?</h3>
+                    <p>Events make your web pages <span class="highlight">interactive</span>!</p>
+                    <p>• Respond to user actions</p>
+                    <p>• Update content dynamically</p>
+                    <p>• Validate forms</p>
+                    <p>• Create engaging experiences</p>
+                </div>
+            </div>
+
+            <div class="concept-box">
+                <h2>The addEventListener() Method</h2>
+                <p>The <span class="inline-code">addEventListener()</span> method is used to <span class="highlight">listen for events</span>.</p>
+                <p>It takes two arguments: the <strong>event</strong> you want to listen for and a <strong>function</strong> that will be called when the event occurs.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 2: Basic Syntax -->
+    <div class="slide-container">
+        <div class="slide-content">
+            <h1>Basic Syntax</h1>
+
+            <div class="method-signature">
+                element.addEventListener(event, listener);
+            </div>
+
+            <div class="content-grid">
+                <div class="concept-box">
+                    <h3>Parameters</h3>
+                    <p><strong>element:</strong> The HTML element to monitor for events</p>
+                    <p><strong>event:</strong> The type of event to listen for (as a string)</p>
+                    <p><strong>listener:</strong> A function to call when the event occurs</p>
+                </div>
+
+                <div class="concept-box">
+                    <h3>Event Types (Strings)</h3>
+                    <p>• <span class="inline-code">"click"</span> - Click events</p>
+                    <p>• <span class="inline-code">"input"</span> - Input changes</p>
+                    <p>• <span class="inline-code">"mouseover"</span> - Mouse enters</p>
+                    <p>• <span class="inline-code">"keydown"</span> - Key pressed</p>
+                    <p>• <span class="inline-code">"submit"</span> - Form submitted</p>
+                </div>
+            </div>
+
+            <h3>What is a Listener?</h3>
+            <div class="concept-box">
+                <p>The <span class="highlight">listener</span> is an object that will receive the notification when the event occurs.</p>
+                <p>Most of the time, this will be a <strong>function</strong> that you define to handle the event.</p>
+            </div>
+
+            <div class="flow-diagram">
+                <h3>How It Works</h3>
+                <div class="flow-step">1. Select an element</div>
+                <div class="flow-arrow">↓</div>
+                <div class="flow-step">2. Add event listener with event type</div>
+                <div class="flow-arrow">↓</div>
+                <div class="flow-step">3. Define what happens when event occurs</div>
+                <div class="flow-arrow">↓</div>
+                <div class="flow-step">4. Function runs automatically when event fires</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 3: Function Syntax Options -->
+    <div class="slide-container">
+        <div class="slide-content">
+            <h1>Ways to Define the Listener Function</h1>
+
+            <div class="concept-box">
+                <h2>Option 1: Arrow Function (Inline)</h2>
+                <div class="code-box">
+                    <code>
+element.<span class="function">addEventListener</span>(<span class="string">"click"</span>, () => {
+  <span class="comment">// code to run when the click event occurs</span>
+  <span class="keyword">console</span>.<span class="function">log</span>(<span class="string">"Button clicked!"</span>);
+});
+                    </code>
+                </div>
+                <p>The function is defined directly as the second argument.</p>
+            </div>
+
+            <div class="concept-box">
+                <h2>Option 2: Function Reference</h2>
+                <div class="code-box">
+                    <code>
+<span class="keyword">function</span> <span class="function">handleClick</span>() {
+  <span class="comment">// code to run when the click event occurs</span>
+  <span class="keyword">console</span>.<span class="function">log</span>(<span class="string">"Button clicked!"</span>);
+}
+
+element.<span class="function">addEventListener</span>(<span class="string">"click"</span>, handleClick);
+                    </code>
+                </div>
+                <p>Create a separate function and pass its name (without parentheses!).</p>
+            </div>
+
+            <div class="comparison-box">
+                <h3>⚠️ Important Note</h3>
+                <p>When passing a function reference, do <strong>NOT</strong> include parentheses:</p>
+                <div class="code-box">
+                    <code>
+<span class="comment">// ✓ CORRECT - passes the function</span>
+element.<span class="function">addEventListener</span>(<span class="string">"click"</span>, handleClick);
+
+<span class="comment">// ❌ WRONG - calls the function immediately</span>
+element.<span class="function">addEventListener</span>(<span class="string">"click"</span>, handleClick());
+                    </code>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 4: When to Use Each Style -->
+    <div class="slide-container">
+        <div class="slide-content">
+            <h1>Choosing Your Function Style</h1>
+
+            <div class="content-grid">
+                <div class="pro-tip">
+                    <h3>✓ Use Arrow Functions When:</h3>
+                    <p>• The code is short and simple</p>
+                    <p>• You only use it once</p>
+                    <p>• It's closely related to the element</p>
+                    <div class="code-box">
+                        <code>
+button.<span class="function">addEventListener</span>(<span class="string">"click"</span>, () => {
+  <span class="keyword">console</span>.<span class="function">log</span>(<span class="string">"Clicked!"</span>);
+});
+                        </code>
+                    </div>
+                </div>
+
+                <div class="pro-tip">
+                    <h3>✓ Use Named Functions When:</h3>
+                    <p>• The code is longer or complex</p>
+                    <p>• You'll reuse the function</p>
+                    <p>• You want better code organization</p>
+                    <div class="code-box">
+                        <code>
+<span class="keyword">function</span> <span class="function">validateForm</span>() {
+  <span class="comment">// 20 lines of validation logic...</span>
+}
+
+form.<span class="function">addEventListener</span>(<span class="string">"submit"</span>, validateForm);
+                        </code>
+                    </div>
+                </div>
+            </div>
+
+            <div class="concept-box">
+                <h3>Why Use Separate Functions?</h3>
+                <p>Sometimes you may want to create a separate function to handle the event. This can make your code <span class="highlight">easier to read and maintain</span>.</p>
+                <p>Benefits:</p>
+                <p>✓ Can reuse the function for multiple elements</p>
+                <p>✓ Easier to test the function independently</p>
+                <p>✓ Makes code more organized and readable</p>
+                <p>✓ Can remove the listener later if needed</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 5: EventListener Interface -->
+    <div class="slide-container">
+        <div class="slide-content">
+            <h1>The EventListener Interface</h1>
+
+            <div class="concept-box">
+                <h2>Advanced Option (Rarely Used)</h2>
+                <p>The listener argument can also be:</p>
+                <p>• <span class="inline-code">null</span></p>
+                <p>• An object that uses the <span class="highlight">EventListener interface</span></p>
+            </div>
+
+            <div class="event-box">
+                <h3>What is the EventListener Interface?</h3>
+                <p>The EventListener interface defines a single method called <span class="inline-code">handleEvent()</span>.</p>
+                <p>This method is automatically called whenever the event you're listening for occurs.</p>
+                <p>Using this interface allows the same object to handle <strong>multiple events</strong> if needed.</p>
+            </div>
+
+            <h3>Example (Advanced)</h3>
+            <div class="code-box">
+                <code>
+<span class="keyword">const</span> eventHandler = {
+  <span class="function">handleEvent</span>(<span class="keyword">event</span>) {
+    <span class="keyword">console</span>.<span class="function">log</span>(<span class="string">"Event type:"</span>, <span class="keyword">event</span>.<span class="property">type</span>);
+  }
+};
+
+<span class="comment">// Can use the same object for multiple events</span>
+button.<span class="function">addEventListener</span>(<span class="string">"click"</span>, eventHandler);
+button.<span class="function">addEventListener</span>(<span class="string">"mouseover"</span>, eventHandler);
+                </code>
+            </div>
+
+            <div class="pro-tip">
+                <h3>💡 For Most Cases...</h3>
+                <p>Most of the time, you <strong>won't need to use this interface</strong>, and you can instead pass in a function that will be called when the event occurs.</p>
+                <p>Stick with regular functions or arrow functions for simplicity!</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 6: Click Event Example Setup -->
+    <div class="slide-container">
+        <div class="slide-content">
+            <h1>Example 1: Click Event</h1>
+
+            <div class="concept-box">
+                <h2>Scenario: Show Alert on Button Click</h2>
+                <p>Let's create a button that shows an alert when clicked.</p>
+            </div>
+
+            <h3>HTML</h3>
+            <div class="code-box">
+                <code>
+<span class="tag">&lt;button</span> <span class="property">id</span>=<span class="string">"btn"</span><span class="tag">&gt;</span>Show alert<span class="tag">&lt;/button&gt;</span>
+                </code>
+            </div>
+
+            <div class="concept-box">
+                <h3>Goal</h3>
+                <p>We want to listen for the <span class="inline-code">"click"</span> event on this button and show an alert when the button is clicked.</p>
+            </div>
+
+            <h3><span class="step-number">1</span> Access the Button Element</h3>
+            <div class="code-box">
+                <code>
+<span class="keyword">const</span> btn = <span class="keyword">document</span>.<span class="function">getElementById</span>(<span class="string">"btn"</span>);
+                </code>
+            </div>
+
+            <h3><span class="step-number">2</span> Add Event Listener</h3>
+            <div class="code-box">
+                <code>
+<span class="keyword">const</span> btn = <span class="keyword">document</span>.<span class="function">getElementById</span>(<span class="string">"btn"</span>);
+
+btn.<span class="function">addEventListener</span>(<span class="string">"click"</span>, () => {
+  <span class="function">alert</span>(<span class="string">"You clicked the button"</span>);
+});
+                </code>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 7: Click Event Interactive Demo -->
+    <div class="slide-container">
+        <div class="slide-content">
+            <h1>Click Event - Try It!</h1>
+
+            <div class="interactive-demo">
+                <h3>Interactive Demo</h3>
+                <p>Click the button below to see the event listener in action:</p>
+                
+                <div style="text-align: center; margin: 2rem 0;">
+                    <button class="demo-button" id="alert-button">Show alert</button>
+                </div>
+
+                <div class="demo-output">
+                    <p><strong>What happens:</strong></p>
+                    <p>1. You click the button</p>
+                    <p>2. The <span class="inline-code">"click"</span> event fires</p>
+                    <p>3. The event listener function runs</p>
+                    <p>4. An alert appears on the screen</p>
+                </div>
+
+                <h4 style="margin-top: 2rem;">The Code Behind This:</h4>
+                <div class="code-box">
+                    <code>
+<span class="keyword">const</span> btn = <span class="keyword">document</span>.<span class="function">getElementById</span>(<span class="string">"alert-button"</span>);
+
+btn.<span class="function">addEventListener</span>(<span class="string">"click"</span>, () => {
+  <span class="function">alert</span>(<span class="string">"You clicked the button"</span>);
+});
+                    </code>
+                </div>
+            </div>
+
+            <div class="concept-box">
+                <h3>Result</h3>
+                <p>Now each time the button is clicked, the user will see an alert message displayed on the screen.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 8: Input Event Example Setup -->
+    <div class="slide-container">
+        <div class="slide-content">
+            <h1>Example 2: Input Event</h1>
+
+            <div class="concept-box">
+                <h2>Another Event Type: "input"</h2>
+                <p>Another type of event that you can listen for is the <span class="inline-code">"input"</span> event.</p>
+                <p>This event is triggered when the <span class="highlight">value of an input element changes</span>.</p>
+            </div>
+
+            <h3>HTML</h3>
+            <div class="code-box">
+                <code>
+<span class="tag">&lt;input</span> <span class="property">type</span>=<span class="string">"text"</span> <span class="property">id</span>=<span class="string">"input"</span> <span class="property">placeholder</span>=<span class="string">"Type something"</span> <span class="tag">/&gt;</span>
+                </code>
+            </div>
+
+            <div class="concept-box">
+                <h3>Goal</h3>
+                <p>We want to listen for the input event on this input element and log the value to the console each time the user types something.</p>
+            </div>
+
+            <h3><span class="step-number">1</span> Access the Input Element</h3>
+            <div class="code-box">
+                <code>
+<span class="keyword">const</span> input = <span class="keyword">document</span>.<span class="function">getElementById</span>(<span class="string">"input"</span>);
+                </code>
+            </div>
+
+            <h3><span class="step-number">2</span> Add Event Listener</h3>
+            <div class="code-box">
+                <code>
+<span class="keyword">const</span> input = <span class="keyword">document</span>.<span class="function">getElementById</span>(<span class="string">"input"</span>);
+
+input.<span class="function">addEventListener</span>(<span class="string">"input"</span>, (<span class="keyword">event</span>) => {
+  <span class="keyword">console</span>.<span class="function">log</span>(<span class="keyword">event</span>.<span class="property">target</span>.<span class="property">value</span>);
+});
+                </code>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 9: Input Event Interactive Demo -->
+    <div class="slide-container">
+        <div class="slide-content">
+            <h1>Input Event - Try It!</h1>
+
+            <div class="interactive-demo">
+                <h3>Interactive Demo</h3>
+                <p>Type in the input field below and watch the log update in real-time:</p>
+                
+                <div style="margin: 2rem 0;">
+                    <input 
+                        type="text" 
+                        id="demo-input" 
+                        class="demo-input" 
+                        placeholder="Type something here..."
+                    />
+                </div>
+
+                <div class="demo-output">
+                    <h4>Console Log Output:</h4>
+                    <div id="log-display" class="log-output">
+                        <div style="color: #999; font-style: italic;">Start typing to see output...</div>
+                    </div>
+                    <button onclick="clearLog()" style="margin-top: 1rem; padding: 0.5rem 1rem; background: #881518; color: white; border: none; border-radius: 5px; cursor: pointer;">Clear Log</button>
+                </div>
+
+                <h4 style="margin-top: 2rem;">The Code Behind This:</h4>
+                <div class="code-box">
+                    <code>
+<span class="keyword">const</span> input = <span class="keyword">document</span>.<span class="function">getElementById</span>(<span class="string">"demo-input"</span>);
+
+input.<span class="function">addEventListener</span>(<span class="string">"input"</span>, (<span class="keyword">event</span>) => {
+  <span class="keyword">console</span>.<span class="function">log</span>(<span class="keyword">event</span>.<span class="property">target</span>.<span class="property">value</span>);
+});
+                    </code>
+                </div>
+            </div>
+
+            <div class="pro-tip">
+                <h3>💡 The Event Parameter</h3>
+                <p>The listener function receives an <span class="inline-code">event</span> parameter that contains information about the event.</p>
+                <p>• <span class="inline-code">event.target</span> - The element that triggered the event</p>
+                <p>• <span class="inline-code">event.target.value</span> - The current value of the input</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 10: Other Common Events -->
+    <div class="slide-container">
+        <div class="slide-content">
+            <h1>Other Common Events</h1>
+
+            <div class="concept-box">
+                <h2>Many More Event Types</h2>
+                <p>There are <span class="highlight">many more events</span> that you can listen for using the <span class="inline-code">addEventListener()</span> method.</p>
+                <p>Some common events include <span class="inline-code">mouseover</span>, <span class="inline-code">mouseout</span>, <span class="inline-code">keydown</span>, <span class="inline-code">keyup</span>, and <span class="inline-code">submit</span>.</p>
+            </div>
+
+            <div class="event-types-grid">
+                <div class="event-type-card">
+                    <h4>mouseover</h4>
+                    <p>Fires when the mouse pointer enters an element</p>
+                    <div class="code-box">
+                        <code>
+element.<span class="function">addEventListener</span>(
+  <span class="string">"mouseover"</span>, handler
+);
+                        </code>
+                    </div>
+                </div>
+
+                <div class="event-type-card">
+                    <h4>mouseout</h4>
+                    <p>Fires when the mouse pointer leaves an element</p>
+                    <div class="code-box">
+                        <code>
+element.<span class="function">addEventListener</span>(
+  <span class="string">"mouseout"</span>, handler
+);
+                        </code>
+                    </div>
+                </div>
+
+                <div class="event-type-card">
+                    <h4>keydown</h4>
+                    <p>Fires when a key is pressed down</p>
+                    <div class="code-box">
+                        <code>
+element.<span class="function">addEventListener</span>(
+  <span class="string">"keydown"</span>, handler
+);
+                        </code>
+                    </div>
+                </div>
+
+                <div class="event-type-card">
+                    <h4>keyup</h4>
+                    <p>Fires when a key is released</p>
+                    <div class="code-box">
+                        <code>
+element.<span class="function">addEventListener</span>(
+  <span class="string">"keyup"</span>, handler
+);
+                        </code>
+                    </div>
+                </div>
+
+                <div class="event-type-card">
+                    <h4>submit</h4>
+                    <p>Fires when a form is submitted</p>
+                    <div class="code-box">
+                        <code>
+form.<span class="function">addEventListener</span>(
+  <span class="string">"submit"</span>, handler
+);
+                        </code>
+                    </div>
+                </div>
+
+                <div class="event-type-card">
+                    <h4>focus</h4>
+                    <p>Fires when an element receives focus</p>
+                    <div class="code-box">
+                        <code>
+input.<span class="function">addEventListener</span>(
+  <span class="string">"focus"</span>, handler
+);
+                        </code>
+                    </div>
+                </div>
+            </div>
+
+            <div class="concept-box">
+                <h3>Future Lessons</h3>
+                <p>In future lessons, we will cover more events and how to use the <span class="inline-code">addEventListener()</span> method to listen for them.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 11: Interactive Multi-Event Demo -->
+    <div class="slide-container">
+        <div class="slide-content">
+            <h1>Multiple Events Demo</h1>
+
+            <div class="interactive-demo">
+                <h3>Try Different Events</h3>
+                <p>Interact with the elements below to see different events in action:</p>
+
+                <div class="demo-output">
+                    <div style="margin: 1.5rem 0;">
+                        <button class="demo-button" id="multi-button">Click Me</button>
+                    </div>
+
+                    <div style="margin: 1.5rem 0;">
+                        <div id="hover-box" style="padding: 2rem; background: rgba(136, 21, 24, 0.1); border: 2px dashed #881518; border-radius: 8px; text-align: center; font-weight: bold; cursor: pointer;">
+                            Hover Over Me
+                        </div>
+                    </div>
+
+                    <div style="margin: 1.5rem 0;">
+                        <input 
+                            type="text" 
+                            id="key-input" 
+                            class="demo-input" 
+                            placeholder="Type and press Enter..."
+                        />
+                    </div>
+
+                    <h4>Event Log:</h4>
+                    <div id="multi-log" class="log-output">
+                        <div style="color: #999; font-style: italic;">Interact with elements above to see events...</div>
+                    </div>
+                    <button onclick="clearMultiLog()" style="margin-top: 1rem; padding: 0.5rem 1rem; background: #881518; color: white; border: none; border-radius: 5px; cursor: pointer;">Clear Log</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 12: Key Takeaways -->
+    <div class="slide-container">
+        <div class="slide-content">
+            <h1>Key Takeaways</h1>
+
+            <div class="concept-box">
+                <h2>What We Learned</h2>
+                <p>The <span class="inline-code">addEventListener()</span> method allows you to <span class="highlight">listen for events</span> on HTML elements and <span class="highlight">respond</span> when they occur.</p>
+            </div>
+
+            <div class="method-signature">
+                element.addEventListener(event, listener);
+            </div>
+
+            <div class="content-grid">
+                <div class="concept-box">
+                    <h3>Parameters</h3>
+                    <p><strong>event:</strong> Type of event as a string</p>
+                    <p>Examples: <span class="inline-code">"click"</span>, <span class="inline-code">"input"</span>, <span class="inline-code">"mouseover"</span></p>
+                    <p><strong>listener:</strong> Function to execute</p>
+                    <p>Can be arrow function or named function</p>
+                </div>
+
+                <div class="concept-box">
+                    <h3>Function Options</h3>
+                    <p>✓ <strong>Arrow function:</strong> Short, inline code</p>
+                    <p>✓ <strong>Named function:</strong> Reusable, organized</p>
+                    <p>✓ <strong>Function reference:</strong> Pass without <span class="inline-code">()</span></p>
+                </div>
+            </div>
+
+            <div class="event-box">
+                <h3>Common Events</h3>
+                <p>🖱️ <span class="inline-code">click</span> - Element clicked</p>
+                <p>📝 <span class="inline-code">input</span> - Input value changed</p>
+                <p>🖐️ <span class="inline-code">mouseover</span> / <span class="inline-code">mouseout</span> - Mouse movement</p>
+                <p>⌨️ <span class="inline-code">keydown</span> / <span class="inline-code">keyup</span> - Keyboard input</p>
+                <p>📤 <span class="inline-code">submit</span> - Form submitted</p>
+            </div>
+
+            <div class="pro-tip">
+                <h3>💡 Remember</h3>
+                <p>• The event listener function is called <strong>automatically</strong> when the event fires</p>
+                <p>• You can add multiple listeners to the same element</p>
+                <p>• The <span class="inline-code">event</span> parameter provides useful information</p>
+                <p>• Events are the foundation of <strong>interactive web applications</strong></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Navigation -->
+    <div class="navigation">
+        <button class="nav-button" id="prevBtn" onclick="changeSlide(-1)">← Previous</button>
+        <div class="slide-counter">
+            <span id="currentSlide">1</span> / <span id="totalSlides">12</span>
+        </div>
+        <button class="nav-button" id="nextBtn" onclick="changeSlide(1)">Next →</button>
+    </div>
+
+    <script>
+        let currentSlide = 1;
+        const totalSlides = document.querySelectorAll('.slide-container').length;
+        
+        document.getElementById('totalSlides').textContent = totalSlides;
+        
+        function showSlide(n) {
+            const slides = document.querySelectorAll('.slide-container');
+            
+            if (n > totalSlides) {
+                currentSlide = totalSlides;
+            }
+            if (n < 1) {
+                currentSlide = 1;
+            }
+            
+            slides.forEach(slide => slide.classList.remove('active'));
+            slides[currentSlide - 1].classList.add('active');
+            
+            document.getElementById('currentSlide').textContent = currentSlide;
+            
+            // Update button states
+            document.getElementById('prevBtn').disabled = currentSlide === 1;
+            document.getElementById('nextBtn').disabled = currentSlide === totalSlides;
+            
+            // Scroll to top of page
+            window.scrollTo(0, 0);
+        }
+        
+        function changeSlide(direction) {
+            currentSlide += direction;
+            showSlide(currentSlide);
+        }
+        
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowLeft') {
+                changeSlide(-1);
+            } else if (e.key === 'ArrowRight') {
+                changeSlide(1);
+            }
+        });
+        
+        // Alert button demo
+        const alertButton = document.getElementById('alert-button');
+        if (alertButton) {
+            alertButton.addEventListener('click', () => {
+                alert('You clicked the button');
+            });
+        }
+
+        // Input demo
+        const demoInput = document.getElementById('demo-input');
+        const logDisplay = document.getElementById('log-display');
+        
+        if (demoInput && logDisplay) {
+            demoInput.addEventListener('input', (event) => {
+                const value = event.target.value;
+                const logEntry = document.createElement('div');
+                logEntry.className = 'log-entry';
+                logEntry.textContent = value || '(empty)';
+                
+                // Clear placeholder if exists
+                if (logDisplay.querySelector('[style*="italic"]')) {
+                    logDisplay.innerHTML = '';
+                }
+                
+                logDisplay.appendChild(logEntry);
+                logDisplay.scrollTop = logDisplay.scrollHeight;
+            });
+        }
+
+        function clearLog() {
+            const logDisplay = document.getElementById('log-display');
+            logDisplay.innerHTML = '<div style="color: #999; font-style: italic;">Start typing to see output...</div>';
+            document.getElementById('demo-input').value = '';
+        }
+
+        // Multi-event demo
+        const multiButton = document.getElementById('multi-button');
+        const hoverBox = document.getElementById('hover-box');
+        const keyInput = document.getElementById('key-input');
+        const multiLog = document.getElementById('multi-log');
+
+        function addMultiLog(message, color = '#0066cc') {
+            if (multiLog) {
+                // Clear placeholder if exists
+                if (multiLog.querySelector('[style*="italic"]')) {
+                    multiLog.innerHTML = '';
+                }
+                
+                const logEntry = document.createElement('div');
+                logEntry.className = 'log-entry';
+                logEntry.style.color = color;
+                logEntry.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+                multiLog.appendChild(logEntry);
+                multiLog.scrollTop = multiLog.scrollHeight;
+            }
+        }
+
+        if (multiButton) {
+            multiButton.addEventListener('click', () => {
+                addMultiLog('Button clicked!', '#881518');
+            });
+        }
+
+        if (hoverBox) {
+            hoverBox.addEventListener('mouseover', () => {
+                hoverBox.style.background = 'rgba(136, 21, 24, 0.3)';
+                addMultiLog('Mouse entered the hover box', '#2196f3');
+            });
+
+            hoverBox.addEventListener('mouseout', () => {
+                hoverBox.style.background = 'rgba(136, 21, 24, 0.1)';
+                addMultiLog('Mouse left the hover box', '#ff9800');
+            });
+        }
+
+        if (keyInput) {
+            keyInput.addEventListener('keydown', (event) => {
+                if (event.key === 'Enter') {
+                    addMultiLog(`Enter key pressed! Value: "${event.target.value}"`, '#4caf50');
+                    event.target.value = '';
+                }
+            });
+        }
+
+        function clearMultiLog() {
+            if (multiLog) {
+                multiLog.innerHTML = '<div style="color: #999; font-style: italic;">Interact with elements above to see events...</div>';
+            }
+        }
+        
+        // Initialize
+        showSlide(currentSlide);
+    </script>
+</body>
+</html>

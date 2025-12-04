@@ -1,0 +1,1004 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Adding and Removing DOM Nodes Presentation</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #f5f5f5 0%, #ffffff 100%);
+            color: #2d2d2d;
+            overflow-x: hidden;
+        }
+
+        .slide-container {
+            min-height: 100vh;
+            padding: 2rem 2rem 120px 2rem;
+            display: none;
+        }
+
+        .slide-container.active {
+            display: block;
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .slide-content {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            color: #881518;
+            font-size: clamp(1.8rem, 4vw, 3rem);
+            margin-bottom: 2rem;
+            border-bottom: 3px solid #881518;
+            padding-bottom: 1rem;
+        }
+
+        h2 {
+            color: #a81c1f;
+            font-size: clamp(1.4rem, 3vw, 2rem);
+            margin: 2rem 0 1rem 0;
+        }
+
+        h3 {
+            color: #c8575a;
+            font-size: clamp(1.2rem, 2.5vw, 1.5rem);
+            margin: 1.5rem 0 1rem 0;
+        }
+
+        p, li {
+            font-size: clamp(1rem, 2vw, 1.2rem);
+            line-height: 1.8;
+            margin-bottom: 1rem;
+            color: #333333;
+        }
+
+        .content-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+
+        @media (min-width: 768px) {
+            .content-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        .concept-box {
+            background: rgba(136, 21, 24, 0.05);
+            border-left: 4px solid #881518;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin: 1.5rem 0;
+        }
+
+        .code-box {
+            background: #f8f8f8;
+            border: 1px solid #d0d0d0;
+            border-radius: 8px;
+            padding: 1.5rem;
+            overflow-x: auto;
+            margin: 1rem 0;
+        }
+
+        code {
+            font-family: 'Courier New', Courier, monospace;
+            font-size: clamp(0.85rem, 1.5vw, 1rem);
+            color: #0066cc;
+        }
+
+        .keyword { color: #881518; }
+        .tag { color: #881518; }
+        .string { color: #2a8d2a; }
+        .function { color: #795e26; }
+        .comment { color: #008000; }
+        .property { color: #0066cc; }
+
+        .interactive-demo {
+            background: rgba(136, 21, 24, 0.03);
+            border: 2px dashed #881518;
+            border-radius: 8px;
+            padding: 2rem;
+            margin: 2rem 0;
+        }
+
+        .interactive-demo button {
+            background: #881518;
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            margin: 0.5rem;
+            transition: background 0.3s;
+        }
+
+        .interactive-demo button:hover {
+            background: #a81c1f;
+        }
+
+        .demo-output {
+            background: white;
+            border: 2px solid #881518;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1rem 0;
+            min-height: 80px;
+        }
+
+        .demo-list {
+            list-style: disc;
+            margin-left: 2rem;
+        }
+
+        .demo-list li {
+            padding: 0.5rem 0;
+            font-size: 1.1rem;
+        }
+
+        .step-number {
+            display: inline-block;
+            background: #881518;
+            color: white;
+            width: 2rem;
+            height: 2rem;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 2rem;
+            font-weight: bold;
+            margin-right: 0.5rem;
+        }
+
+        .method-signature {
+            background: rgba(136, 21, 24, 0.08);
+            border: 2px solid #881518;
+            border-radius: 8px;
+            padding: 1rem 1.5rem;
+            margin: 1rem 0;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: clamp(0.9rem, 2vw, 1.1rem);
+            font-weight: bold;
+            color: #881518;
+        }
+
+        .before-after {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        @media (min-width: 768px) {
+            .before-after {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        .before-box {
+            background: linear-gradient(135deg, #fff3cd, #ffe69c);
+            border: 2px solid #ffc107;
+            border-radius: 8px;
+            padding: 1.5rem;
+        }
+
+        .before-box h3 {
+            color: #ff6f00;
+            margin-top: 0;
+        }
+
+        .after-box {
+            background: linear-gradient(135deg, #d4edda, #c3e6cb);
+            border: 2px solid #28a745;
+            border-radius: 8px;
+            padding: 1.5rem;
+        }
+
+        .after-box h3 {
+            color: #1e7e34;
+            margin-top: 0;
+        }
+
+        .use-case-box {
+            background: linear-gradient(135deg, #e3f2fd, #bbdefb);
+            border: 2px solid #2196f3;
+            border-left: 6px solid #1976d2;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1rem 0;
+        }
+
+        .use-case-box h3 {
+            color: #1565c0;
+            margin-top: 0;
+        }
+
+        ul {
+            margin-left: 2rem;
+        }
+
+        .navigation {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(to top, #ffffff, rgba(255, 255, 255, 0.98));
+            padding: 1.5rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+            border-top: 2px solid #e0e0e0;
+        }
+
+        .nav-button {
+            background: #881518;
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: clamp(0.9rem, 2vw, 1.1rem);
+            font-weight: 600;
+            transition: all 0.3s;
+            min-width: 100px;
+        }
+
+        .nav-button:hover:not(:disabled) {
+            background: #a81c1f;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(136, 21, 24, 0.3);
+        }
+
+        .nav-button:disabled {
+            background: #cccccc;
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        .slide-counter {
+            color: #881518;
+            font-weight: 600;
+            font-size: clamp(1rem, 2vw, 1.2rem);
+        }
+
+        @media (max-width: 768px) {
+            .navigation {
+                padding: 1rem;
+            }
+
+            .nav-button {
+                padding: 0.75rem 1rem;
+                min-width: 80px;
+            }
+        }
+
+        .highlight {
+            background: rgba(136, 21, 24, 0.15);
+            padding: 0.2rem 0.4rem;
+            border-radius: 3px;
+            font-weight: 600;
+        }
+
+        .inline-code {
+            background: #f0f0f0;
+            padding: 0.2rem 0.5rem;
+            border-radius: 3px;
+            font-family: 'Courier New', Courier, monospace;
+            color: #881518;
+            font-size: 0.9em;
+        }
+
+        .flow-diagram {
+            background: white;
+            border: 2px solid #881518;
+            border-radius: 8px;
+            padding: 2rem;
+            margin: 2rem 0;
+            text-align: center;
+        }
+
+        .flow-step {
+            background: rgba(136, 21, 24, 0.08);
+            border: 2px solid #881518;
+            border-radius: 8px;
+            padding: 1rem;
+            margin: 1rem auto;
+            max-width: 500px;
+            font-weight: 600;
+        }
+
+        .flow-arrow {
+            color: #881518;
+            font-size: 2rem;
+            font-weight: bold;
+            margin: 0.5rem 0;
+        }
+
+        .demo-section {
+            background: white;
+            border: 2px solid #d0d0d0;
+            border-radius: 8px;
+            padding: 1rem;
+            margin: 1rem 0;
+        }
+
+        .demo-section h4 {
+            color: #881518;
+            margin-top: 0;
+        }
+
+        .real-world-example {
+            background: linear-gradient(135deg, #f3e5f5, #e1bee7);
+            border: 2px solid #9c27b0;
+            border-left: 6px solid #7b1fa2;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1rem 0;
+        }
+
+        .real-world-example h3 {
+            color: #6a1b9a;
+            margin-top: 0;
+        }
+    </style>
+</head>
+<body>
+    <!-- Slide 1: Introduction -->
+    <div class="slide-container active">
+        <div class="slide-content">
+            <h1>Adding and Removing DOM Nodes</h1>
+            
+            <div class="concept-box">
+                <h2>The Need for Dynamic DOM Manipulation</h2>
+                <p>There will be times where you need to <span class="highlight">add or remove nodes</span> from the DOM.</p>
+                <p>There are a couple of Web APIs you can use to accomplish this.</p>
+            </div>
+
+            <div class="content-grid">
+                <div class="concept-box">
+                    <h3>appendChild()</h3>
+                    <p>Adds a node to the <span class="highlight">end of the list</span> of children of a specified parent node.</p>
+                    <div class="method-signature">
+                        parentNode.appendChild(newNode)
+                    </div>
+                </div>
+
+                <div class="concept-box">
+                    <h3>removeChild()</h3>
+                    <p>Removes a node from the DOM by <span class="highlight">removing a child</span> from a specified parent node.</p>
+                    <div class="method-signature">
+                        parentNode.removeChild(childNode)
+                    </div>
+                </div>
+            </div>
+
+            <div class="concept-box">
+                <h2>What We'll Cover</h2>
+                <p>In this lesson, we will cover the <span class="inline-code">appendChild()</span> and <span class="inline-code">removeChild()</span> methods.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 2: appendChild() Overview -->
+    <div class="slide-container">
+        <div class="slide-content">
+            <h1>The appendChild() Method</h1>
+
+            <div class="concept-box">
+                <h2>Purpose</h2>
+                <p>The <span class="highlight">appendChild()</span> method is used to add a node to the <strong>end</strong> of the list of children of a specified parent node.</p>
+            </div>
+
+            <div class="method-signature">
+                parentNode.appendChild(newNode);
+            </div>
+
+            <div class="content-grid">
+                <div class="concept-box">
+                    <h3>Parameters</h3>
+                    <p><strong>parentNode:</strong> The element that will receive the new child</p>
+                    <p><strong>newNode:</strong> The element to be added as a child</p>
+                </div>
+
+                <div class="concept-box">
+                    <h3>Key Points</h3>
+                    <p>✓ Adds to the <span class="highlight">end</span> of children</p>
+                    <p>✓ Modifies the DOM immediately</p>
+                    <p>✓ Returns the appended child</p>
+                    <p>✓ Commonly used with <span class="inline-code">createElement()</span></p>
+                </div>
+            </div>
+
+            <div class="flow-diagram">
+                <h3>How appendChild() Works</h3>
+                <div class="flow-step">Select or create parent element</div>
+                <div class="flow-arrow">↓</div>
+                <div class="flow-step">Create new child element</div>
+                <div class="flow-arrow">↓</div>
+                <div class="flow-step">Use appendChild() to add it</div>
+                <div class="flow-arrow">↓</div>
+                <div class="flow-step">Child appears at end of parent's children</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 3: appendChild() Example - Starting HTML -->
+    <div class="slide-container">
+        <div class="slide-content">
+            <h1>appendChild() Example - Setup</h1>
+
+            <div class="concept-box">
+                <h2>Example: Adding Desserts to a List</h2>
+                <p>Let's see how to use appendChild() with a real example.</p>
+            </div>
+
+            <h3>Starting HTML</h3>
+            <div class="code-box">
+                <code>
+<span class="tag">&lt;ul</span> <span class="property">id</span>=<span class="string">"desserts"</span><span class="tag">&gt;</span>
+  <span class="tag">&lt;li&gt;</span>Cake<span class="tag">&lt;/li&gt;</span>
+  <span class="tag">&lt;li&gt;</span>Pie<span class="tag">&lt;/li&gt;</span>
+<span class="tag">&lt;/ul&gt;</span>
+                </code>
+            </div>
+
+            <p>We have an unordered list with an ID of <span class="inline-code">desserts</span> containing two list items: <strong>Cake</strong> and <strong>Pie</strong>.</p>
+
+            <div class="concept-box">
+                <h3>Goal</h3>
+                <p>We want to add a third dessert, <strong>Cookies</strong>, to the end of this list using JavaScript.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 4: appendChild() Step by Step -->
+    <div class="slide-container">
+        <div class="slide-content">
+            <h1>appendChild() Step-by-Step</h1>
+
+            <div class="concept-box">
+                <h3><span class="step-number">1</span> Access the Parent Element</h3>
+                <div class="code-box">
+                    <code>
+<span class="keyword">const</span> dessertsList = <span class="keyword">document</span>.<span class="function">getElementById</span>(<span class="string">"desserts"</span>);
+                    </code>
+                </div>
+                <p>Store the reference to the <span class="inline-code">&lt;ul&gt;</span> element in a variable called <span class="inline-code">dessertsList</span>.</p>
+            </div>
+
+            <div class="concept-box">
+                <h3><span class="step-number">2</span> Create a New List Item</h3>
+                <div class="code-box">
+                    <code>
+<span class="keyword">const</span> dessertsList = <span class="keyword">document</span>.<span class="function">getElementById</span>(<span class="string">"desserts"</span>);
+<span class="keyword">const</span> listItem = <span class="keyword">document</span>.<span class="function">createElement</span>(<span class="string">"li"</span>);
+                    </code>
+                </div>
+                <p>Create a new <span class="inline-code">&lt;li&gt;</span> element using <span class="inline-code">createElement()</span> and store it in <span class="inline-code">listItem</span>.</p>
+            </div>
+
+            <div class="concept-box">
+                <h3><span class="step-number">3</span> Append the New Node</h3>
+                <div class="code-box">
+                    <code>
+<span class="keyword">const</span> dessertsList = <span class="keyword">document</span>.<span class="function">getElementById</span>(<span class="string">"desserts"</span>);
+<span class="keyword">const</span> listItem = <span class="keyword">document</span>.<span class="function">createElement</span>(<span class="string">"li"</span>);
+dessertsList.<span class="function">appendChild</span>(listItem);
+                    </code>
+                </div>
+                <p>Use <span class="inline-code">appendChild()</span> to add the new list item to the end of the list.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 5: Adding Text Content -->
+    <div class="slide-container">
+        <div class="slide-content">
+            <h1>Adding Text Content</h1>
+
+            <div class="concept-box">
+                <h2>The Problem</h2>
+                <p>If you run the code from the previous slide, you'll see that a new list item element is added to the end of the list.</p>
+                <p><strong>But the new list item is empty!</strong></p>
+            </div>
+
+            <div class="before-after">
+                <div class="before-box">
+                    <h3>Before Adding Text</h3>
+                    <div class="code-box">
+                        <code>
+<span class="tag">&lt;ul</span> <span class="property">id</span>=<span class="string">"desserts"</span><span class="tag">&gt;</span>
+  <span class="tag">&lt;li&gt;</span>Cake<span class="tag">&lt;/li&gt;</span>
+  <span class="tag">&lt;li&gt;</span>Pie<span class="tag">&lt;/li&gt;</span>
+  <span class="tag">&lt;li&gt;&lt;/li&gt;</span>  <span class="comment">&lt;!-- Empty! --&gt;</span>
+<span class="tag">&lt;/ul&gt;</span>
+                        </code>
+                    </div>
+                </div>
+
+                <div class="after-box">
+                    <h3>After Adding Text</h3>
+                    <div class="code-box">
+                        <code>
+<span class="tag">&lt;ul</span> <span class="property">id</span>=<span class="string">"desserts"</span><span class="tag">&gt;</span>
+  <span class="tag">&lt;li&gt;</span>Cake<span class="tag">&lt;/li&gt;</span>
+  <span class="tag">&lt;li&gt;</span>Pie<span class="tag">&lt;/li&gt;</span>
+  <span class="tag">&lt;li&gt;</span>Cookies<span class="tag">&lt;/li&gt;</span>
+<span class="tag">&lt;/ul&gt;</span>
+                        </code>
+                    </div>
+                </div>
+            </div>
+
+            <div class="concept-box">
+                <h2>Solution: Use textContent</h2>
+                <p>To add text content to the new list item, use the <span class="highlight">textContent</span> property.</p>
+                <div class="code-box">
+                    <code>
+<span class="keyword">const</span> dessertsList = <span class="keyword">document</span>.<span class="function">getElementById</span>(<span class="string">"desserts"</span>);
+<span class="keyword">const</span> listItem = <span class="keyword">document</span>.<span class="function">createElement</span>(<span class="string">"li"</span>);
+listItem.<span class="property">textContent</span> = <span class="string">"Cookies"</span>;
+dessertsList.<span class="function">appendChild</span>(listItem);
+                    </code>
+                </div>
+                <p>Now the list will show <strong>Cake</strong>, <strong>Pie</strong>, and <strong>Cookies</strong>!</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 6: appendChild() Interactive Demo -->
+    <div class="slide-container">
+        <div class="slide-content">
+            <h1>appendChild() Interactive Demo</h1>
+
+            <div class="interactive-demo">
+                <h3>Try It Yourself!</h3>
+                <p>Click the buttons below to add items to the desserts list:</p>
+                
+                <button onclick="addDessert('Ice Cream')">Add Ice Cream</button>
+                <button onclick="addDessert('Brownies')">Add Brownies</button>
+                <button onclick="addDessert('Cupcakes')">Add Cupcakes</button>
+                <button onclick="resetDessertList()">Reset List</button>
+                
+                <div class="demo-output">
+                    <h4>Desserts List:</h4>
+                    <ul id="desserts-demo" class="demo-list">
+                        <li>Cake</li>
+                        <li>Pie</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="concept-box">
+                <h3>Code Behind the Demo</h3>
+                <div class="code-box">
+                    <code>
+<span class="keyword">function</span> <span class="function">addDessert</span>(dessertName) {
+  <span class="keyword">const</span> list = <span class="keyword">document</span>.<span class="function">getElementById</span>(<span class="string">"desserts-demo"</span>);
+  <span class="keyword">const</span> newItem = <span class="keyword">document</span>.<span class="function">createElement</span>(<span class="string">"li"</span>);
+  newItem.<span class="property">textContent</span> = dessertName;
+  list.<span class="function">appendChild</span>(newItem);
+}
+                    </code>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 7: removeChild() Overview -->
+    <div class="slide-container">
+        <div class="slide-content">
+            <h1>The removeChild() Method</h1>
+
+            <div class="concept-box">
+                <h2>Purpose</h2>
+                <p>To <span class="highlight">remove a node</span> from the DOM, you can use the <strong>removeChild()</strong> method.</p>
+            </div>
+
+            <div class="method-signature">
+                parentNode.removeChild(childNode);
+            </div>
+
+            <div class="content-grid">
+                <div class="concept-box">
+                    <h3>Parameters</h3>
+                    <p><strong>parentNode:</strong> The element containing the child to remove</p>
+                    <p><strong>childNode:</strong> The element to be removed</p>
+                </div>
+
+                <div class="concept-box">
+                    <h3>Key Points</h3>
+                    <p>✓ Requires reference to <span class="highlight">both parent and child</span></p>
+                    <p>✓ Removes the child from the DOM</p>
+                    <p>✓ Returns the removed node</p>
+                    <p>✓ Child must be a direct descendant</p>
+                </div>
+            </div>
+
+            <div class="flow-diagram">
+                <h3>How removeChild() Works</h3>
+                <div class="flow-step">Get reference to parent element</div>
+                <div class="flow-arrow">↓</div>
+                <div class="flow-step">Get reference to child to remove</div>
+                <div class="flow-arrow">↓</div>
+                <div class="flow-step">Use removeChild() on parent</div>
+                <div class="flow-arrow">↓</div>
+                <div class="flow-step">Child is removed from DOM</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 8: removeChild() Example Setup -->
+    <div class="slide-container">
+        <div class="slide-content">
+            <h1>removeChild() Example - Setup</h1>
+
+            <div class="concept-box">
+                <h2>Example: Removing Last Paragraph</h2>
+                <p>Let's remove the last paragraph element from a section element.</p>
+            </div>
+
+            <h3>Starting HTML</h3>
+            <div class="code-box">
+                <code>
+<span class="tag">&lt;section</span> <span class="property">id</span>=<span class="string">"example-section"</span><span class="tag">&gt;</span>
+  <span class="tag">&lt;h2&gt;</span>Example sub heading<span class="tag">&lt;/h2&gt;</span>
+  <span class="tag">&lt;p&gt;</span>first paragraph<span class="tag">&lt;/p&gt;</span>
+  <span class="tag">&lt;p&gt;</span>second paragraph<span class="tag">&lt;/p&gt;</span>
+<span class="tag">&lt;/section&gt;</span>
+                </code>
+            </div>
+
+            <div class="concept-box">
+                <h3>Goal</h3>
+                <p>Remove the <strong>second paragraph</strong> (last <span class="inline-code">&lt;p&gt;</span> element) from the section.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 9: removeChild() Step by Step -->
+    <div class="slide-container">
+        <div class="slide-content">
+            <h1>removeChild() Step-by-Step</h1>
+
+            <div class="concept-box">
+                <h3><span class="step-number">1</span> Access the Parent Element</h3>
+                <div class="code-box">
+                    <code>
+<span class="keyword">const</span> sectionEl = <span class="keyword">document</span>.<span class="function">getElementById</span>(<span class="string">"example-section"</span>);
+                    </code>
+                </div>
+                <p>Access the section element using <span class="inline-code">getElementById()</span>.</p>
+            </div>
+
+            <div class="concept-box">
+                <h3><span class="step-number">2</span> Select the Child to Remove</h3>
+                <div class="code-box">
+                    <code>
+<span class="keyword">const</span> sectionEl = <span class="keyword">document</span>.<span class="function">getElementById</span>(<span class="string">"example-section"</span>);
+<span class="keyword">const</span> lastParagraph = <span class="keyword">document</span>.<span class="function">querySelector</span>(<span class="string">"#example-section p:last-of-type"</span>);
+                    </code>
+                </div>
+                <p>Use <span class="inline-code">querySelector()</span> with the <span class="highlight">:last-of-type</span> pseudo-class to select the last paragraph.</p>
+            </div>
+
+            <div class="concept-box">
+                <h3><span class="step-number">3</span> Remove the Child</h3>
+                <div class="code-box">
+                    <code>
+<span class="keyword">const</span> sectionEl = <span class="keyword">document</span>.<span class="function">getElementById</span>(<span class="string">"example-section"</span>);
+<span class="keyword">const</span> lastParagraph = <span class="keyword">document</span>.<span class="function">querySelector</span>(<span class="string">"#example-section p:last-of-type"</span>);
+sectionEl.<span class="function">removeChild</span>(lastParagraph);
+                    </code>
+                </div>
+                <p>Now we have both the parent and child nodes, so we can use <span class="inline-code">removeChild()</span>.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 10: removeChild() Result -->
+    <div class="slide-container">
+        <div class="slide-content">
+            <h1>removeChild() Result</h1>
+
+            <div class="before-after">
+                <div class="before-box">
+                    <h3>Before removeChild()</h3>
+                    <div class="code-box">
+                        <code>
+<span class="tag">&lt;section</span> <span class="property">id</span>=<span class="string">"example-section"</span><span class="tag">&gt;</span>
+  <span class="tag">&lt;h2&gt;</span>Example sub heading<span class="tag">&lt;/h2&gt;</span>
+  <span class="tag">&lt;p&gt;</span>first paragraph<span class="tag">&lt;/p&gt;</span>
+  <span class="tag">&lt;p&gt;</span>second paragraph<span class="tag">&lt;/p&gt;</span>
+<span class="tag">&lt;/section&gt;</span>
+                        </code>
+                    </div>
+                </div>
+
+                <div class="after-box">
+                    <h3>After removeChild()</h3>
+                    <div class="code-box">
+                        <code>
+<span class="tag">&lt;section</span> <span class="property">id</span>=<span class="string">"example-section"</span><span class="tag">&gt;</span>
+  <span class="tag">&lt;h2&gt;</span>Example sub heading<span class="tag">&lt;/h2&gt;</span>
+  <span class="tag">&lt;p&gt;</span>first paragraph<span class="tag">&lt;/p&gt;</span>
+<span class="tag">&lt;/section&gt;</span>
+                        </code>
+                    </div>
+                </div>
+            </div>
+
+            <div class="concept-box">
+                <h3>The :last-of-type Pseudo-class</h3>
+                <p>We used <span class="inline-code">:last-of-type</span> to select the last paragraph element inside the section.</p>
+                <p>This CSS pseudo-class is very useful for selecting the <strong>last element of a specific type</strong> within a parent.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 11: removeChild() Interactive Demo -->
+    <div class="slide-container">
+        <div class="slide-content">
+            <h1>removeChild() Interactive Demo</h1>
+
+            <div class="interactive-demo">
+                <h3>Try It Yourself!</h3>
+                <p>Click the buttons below to remove elements from the section:</p>
+                
+                <button onclick="removeLastParagraph()">Remove Last Paragraph</button>
+                <button onclick="removeFirstParagraph()">Remove First Paragraph</button>
+                <button onclick="resetSection()">Reset Section</button>
+                
+                <div class="demo-output">
+                    <section id="demo-section" class="demo-section">
+                        <h4>Example sub heading</h4>
+                        <p>First paragraph</p>
+                        <p>Second paragraph</p>
+                        <p>Third paragraph</p>
+                    </section>
+                </div>
+            </div>
+
+            <div class="concept-box">
+                <h3>Code Behind the Demo</h3>
+                <div class="code-box">
+                    <code>
+<span class="keyword">function</span> <span class="function">removeLastParagraph</span>() {
+  <span class="keyword">const</span> section = <span class="keyword">document</span>.<span class="function">getElementById</span>(<span class="string">"demo-section"</span>);
+  <span class="keyword">const</span> lastP = section.<span class="function">querySelector</span>(<span class="string">"p:last-of-type"</span>);
+  <span class="keyword">if</span> (lastP) {
+    section.<span class="function">removeChild</span>(lastP);
+  }
+}
+                    </code>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 12: Real-World Use Cases -->
+    <div class="slide-container">
+        <div class="slide-content">
+            <h1>When to Use These Methods</h1>
+
+            <div class="concept-box">
+                <h2>Dynamic Content Scenarios</h2>
+                <p>When might you want to add or remove nodes from the DOM?</p>
+                <p>If you're working with <span class="highlight">dynamic content</span>, you might need to add or remove nodes from the DOM.</p>
+            </div>
+
+            <h2>Real-World Examples</h2>
+
+            <div class="real-world-example">
+                <h3>🛒 Shopping Carts</h3>
+                <p><strong>appendChild():</strong> Add items when user clicks "Add to Cart"</p>
+                <p><strong>removeChild():</strong> Remove items when user clicks "Remove"</p>
+                <div class="code-box">
+                    <code>
+<span class="comment">// Add product to cart</span>
+cartList.<span class="function">appendChild</span>(newProductElement);
+
+<span class="comment">// Remove product from cart</span>
+cartList.<span class="function">removeChild</span>(productToRemove);
+                    </code>
+                </div>
+            </div>
+
+            <div class="real-world-example">
+                <h3>✓ To-Do Lists</h3>
+                <p><strong>appendChild():</strong> Add new tasks when user submits form</p>
+                <p><strong>removeChild():</strong> Remove tasks when marked as complete</p>
+                <div class="code-box">
+                    <code>
+<span class="comment">// Add new task</span>
+taskList.<span class="function">appendChild</span>(newTaskElement);
+
+<span class="comment">// Remove completed task</span>
+taskList.<span class="function">removeChild</span>(completedTask);
+                    </code>
+                </div>
+            </div>
+
+            <div class="real-world-example">
+                <h3>📱 Social Media Feeds</h3>
+                <p><strong>appendChild():</strong> Add new posts as they load</p>
+                <p><strong>removeChild():</strong> Remove posts when user hides them</p>
+                <div class="code-box">
+                    <code>
+<span class="comment">// Add new post to feed</span>
+feed.<span class="function">appendChild</span>(newPostElement);
+
+<span class="comment">// Remove hidden post</span>
+feed.<span class="function">removeChild</span>(hiddenPost);
+                    </code>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 13: Key Takeaways -->
+    <div class="slide-container">
+        <div class="slide-content">
+            <h1>Key Takeaways</h1>
+
+            <div class="content-grid">
+                <div class="concept-box">
+                    <h2>appendChild()</h2>
+                    <p>✓ Adds node to <span class="highlight">end of children</span></p>
+                    <p>✓ Syntax: <span class="inline-code">parent.appendChild(child)</span></p>
+                    <p>✓ Use with <span class="inline-code">createElement()</span></p>
+                    <p>✓ Set <span class="inline-code">textContent</span> for text</p>
+                    <p>✓ Great for building lists dynamically</p>
+                </div>
+
+                <div class="concept-box">
+                    <h2>removeChild()</h2>
+                    <p>✓ Removes child from parent</p>
+                    <p>✓ Syntax: <span class="inline-code">parent.removeChild(child)</span></p>
+                    <p>✓ Needs <span class="highlight">both references</span></p>
+                    <p>✓ Use <span class="inline-code">querySelector()</span> to select</p>
+                    <p>✓ Perfect for removing list items</p>
+                </div>
+            </div>
+
+            <div class="use-case-box">
+                <h3>💡 Remember</h3>
+                <p>Both methods are essential for creating <strong>dynamic, interactive web applications</strong>.</p>
+                <p>Common use cases include:</p>
+                <ul>
+                    <li>Shopping carts</li>
+                    <li>To-do lists</li>
+                    <li>Social media feeds</li>
+                    <li>Comment sections</li>
+                    <li>Dynamic forms</li>
+                </ul>
+            </div>
+
+            <div class="concept-box">
+                <h3>Best Practice</h3>
+                <p>Always check if an element exists before trying to remove it to avoid errors:</p>
+                <div class="code-box">
+                    <code>
+<span class="keyword">if</span> (childElement) {
+  parentElement.<span class="function">removeChild</span>(childElement);
+}
+                    </code>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Navigation -->
+    <div class="navigation">
+        <button class="nav-button" id="prevBtn" onclick="changeSlide(-1)">← Previous</button>
+        <div class="slide-counter">
+            <span id="currentSlide">1</span> / <span id="totalSlides">13</span>
+        </div>
+        <button class="nav-button" id="nextBtn" onclick="changeSlide(1)">Next →</button>
+    </div>
+
+    <script>
+        let currentSlide = 1;
+        const totalSlides = document.querySelectorAll('.slide-container').length;
+        
+        document.getElementById('totalSlides').textContent = totalSlides;
+        
+        function showSlide(n) {
+            const slides = document.querySelectorAll('.slide-container');
+            
+            if (n > totalSlides) {
+                currentSlide = totalSlides;
+            }
+            if (n < 1) {
+                currentSlide = 1;
+            }
+            
+            slides.forEach(slide => slide.classList.remove('active'));
+            slides[currentSlide - 1].classList.add('active');
+            
+            document.getElementById('currentSlide').textContent = currentSlide;
+            
+            // Update button states
+            document.getElementById('prevBtn').disabled = currentSlide === 1;
+            document.getElementById('nextBtn').disabled = currentSlide === totalSlides;
+            
+            // Scroll to top of page
+            window.scrollTo(0, 0);
+        }
+        
+        function changeSlide(direction) {
+            currentSlide += direction;
+            showSlide(currentSlide);
+        }
+        
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowLeft') {
+                changeSlide(-1);
+            } else if (e.key === 'ArrowRight') {
+                changeSlide(1);
+            }
+        });
+        
+        // appendChild() demo functions
+        function addDessert(dessertName) {
+            const list = document.getElementById('desserts-demo');
+            const newItem = document.createElement('li');
+            newItem.textContent = dessertName;
+            list.appendChild(newItem);
+        }
+
+        function resetDessertList() {
+            const list = document.getElementById('desserts-demo');
+            list.innerHTML = '<li>Cake</li><li>Pie</li>';
+        }
+
+        // removeChild() demo functions
+        function removeLastParagraph() {
+            const section = document.getElementById('demo-section');
+            const lastP = section.querySelector('p:last-of-type');
+            if (lastP) {
+                section.removeChild(lastP);
+            }
+        }
+
+        function removeFirstParagraph() {
+            const section = document.getElementById('demo-section');
+            const firstP = section.querySelector('p');
+            if (firstP) {
+                section.removeChild(firstP);
+            }
+        }
+
+        function resetSection() {
+            const section = document.getElementById('demo-section');
+            section.innerHTML = `
+                <h4>Example sub heading</h4>
+                <p>First paragraph</p>
+                <p>Second paragraph</p>
+                <p>Third paragraph</p>
+            `;
+        }
+        
+        // Initialize
+        showSlide(currentSlide);
+    </script>
+</body>
+</html>

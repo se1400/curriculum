@@ -1,0 +1,974 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DOMContentLoaded Event Presentation</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #f5f5f5 0%, #ffffff 100%);
+            color: #2d2d2d;
+            overflow-x: hidden;
+        }
+
+        .slide-container {
+            min-height: 100vh;
+            padding: 2rem 2rem 120px 2rem;
+            display: none;
+        }
+
+        .slide-container.active {
+            display: block;
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .slide-content {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            color: #881518;
+            font-size: clamp(1.8rem, 4vw, 3rem);
+            margin-bottom: 2rem;
+            border-bottom: 3px solid #881518;
+            padding-bottom: 1rem;
+        }
+
+        h2 {
+            color: #a81c1f;
+            font-size: clamp(1.4rem, 3vw, 2rem);
+            margin: 2rem 0 1rem 0;
+        }
+
+        h3 {
+            color: #c8575a;
+            font-size: clamp(1.2rem, 2.5vw, 1.5rem);
+            margin: 1.5rem 0 1rem 0;
+        }
+
+        p, li {
+            font-size: clamp(1rem, 2vw, 1.2rem);
+            line-height: 1.8;
+            margin-bottom: 1rem;
+            color: #333333;
+        }
+
+        .content-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+
+        @media (min-width: 768px) {
+            .content-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        .concept-box {
+            background: rgba(136, 21, 24, 0.05);
+            border-left: 4px solid #881518;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin: 1.5rem 0;
+        }
+
+        .code-box {
+            background: #f8f8f8;
+            border: 1px solid #d0d0d0;
+            border-radius: 8px;
+            padding: 1.5rem;
+            overflow-x: auto;
+            margin: 1rem 0;
+        }
+
+        code {
+            font-family: 'Courier New', Courier, monospace;
+            font-size: clamp(0.85rem, 1.5vw, 1rem);
+            color: #0066cc;
+        }
+
+        .keyword { color: #881518; }
+        .string { color: #2a8d2a; }
+        .function { color: #795e26; }
+        .comment { color: #008000; }
+        .property { color: #0066cc; }
+
+        .interactive-demo {
+            background: rgba(136, 21, 24, 0.03);
+            border: 2px dashed #881518;
+            border-radius: 8px;
+            padding: 2rem;
+            margin: 2rem 0;
+        }
+
+        .demo-button {
+            background: #881518;
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1.1rem;
+            font-weight: 600;
+            transition: all 0.3s;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            margin: 0.5rem;
+        }
+
+        .demo-button:hover {
+            background: #a81c1f;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(136, 21, 24, 0.3);
+        }
+
+        .demo-output {
+            background: white;
+            border: 2px solid #881518;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1rem 0;
+            min-height: 80px;
+        }
+
+        .timeline-box {
+            background: linear-gradient(135deg, #e3f2fd, #bbdefb);
+            border: 2px solid #2196f3;
+            border-left: 6px solid #1976d2;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+        }
+
+        .timeline-box h3 {
+            color: #1565c0;
+            margin-top: 0;
+        }
+
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+
+        @media (min-width: 768px) {
+            .comparison-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        .event-card {
+            background: white;
+            border: 3px solid #881518;
+            border-radius: 8px;
+            padding: 2rem;
+            text-align: center;
+        }
+
+        .event-card h3 {
+            color: #881518;
+            margin-bottom: 1rem;
+        }
+
+        .event-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        ul {
+            margin-left: 2rem;
+        }
+
+        .navigation {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(to top, #ffffff, rgba(255, 255, 255, 0.98));
+            padding: 1.5rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+            border-top: 2px solid #e0e0e0;
+        }
+
+        .nav-button {
+            background: #881518;
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: clamp(0.9rem, 2vw, 1.1rem);
+            font-weight: 600;
+            transition: all 0.3s;
+            min-width: 100px;
+        }
+
+        .nav-button:hover:not(:disabled) {
+            background: #a81c1f;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(136, 21, 24, 0.3);
+        }
+
+        .nav-button:disabled {
+            background: #cccccc;
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        .slide-counter {
+            color: #881518;
+            font-weight: 600;
+            font-size: clamp(1rem, 2vw, 1.2rem);
+        }
+
+        @media (max-width: 768px) {
+            .navigation {
+                padding: 1rem;
+            }
+
+            .nav-button {
+                padding: 0.75rem 1rem;
+                min-width: 80px;
+            }
+        }
+
+        .highlight {
+            background: rgba(136, 21, 24, 0.15);
+            padding: 0.2rem 0.4rem;
+            border-radius: 3px;
+            font-weight: 600;
+        }
+
+        .inline-code {
+            background: #f0f0f0;
+            padding: 0.2rem 0.5rem;
+            border-radius: 3px;
+            font-family: 'Courier New', Courier, monospace;
+            color: #881518;
+            font-size: 0.9em;
+        }
+
+        .timeline {
+            position: relative;
+            padding: 2rem 0;
+            margin: 2rem 0;
+        }
+
+        .timeline-item {
+            padding: 1rem;
+            margin: 1rem 0;
+            background: rgba(136, 21, 24, 0.05);
+            border-left: 4px solid #881518;
+            border-radius: 8px;
+            position: relative;
+        }
+
+        .timeline-number {
+            display: inline-block;
+            background: #881518;
+            color: white;
+            width: 2.5rem;
+            height: 2.5rem;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 2.5rem;
+            font-weight: bold;
+            margin-right: 1rem;
+        }
+
+        .vs-divider {
+            text-align: center;
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #881518;
+            margin: 2rem 0;
+        }
+
+        .success-box {
+            background: linear-gradient(135deg, #d4edda, #c3e6cb);
+            border: 2px solid #28a745;
+            border-left: 6px solid #1e7e34;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+        }
+
+        .success-box h3 {
+            color: #1e7e34;
+            margin-top: 0;
+        }
+
+        .demo-image {
+            max-width: 300px;
+            height: auto;
+            border: 3px solid #881518;
+            border-radius: 8px;
+            display: block;
+            margin: 1rem auto;
+            transition: all 0.3s;
+        }
+
+        .log-output {
+            background: #f8f8f8;
+            border: 2px solid #881518;
+            border-radius: 8px;
+            padding: 1rem;
+            margin: 1rem 0;
+            font-family: 'Courier New', Courier, monospace;
+            max-height: 200px;
+            overflow-y: auto;
+            font-size: 0.9rem;
+        }
+
+        .log-entry {
+            padding: 0.3rem 0;
+            color: #0066cc;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .log-entry:last-child {
+            border-bottom: none;
+        }
+
+        .readystate-box {
+            background: white;
+            border: 2px solid #881518;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1rem 0;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 1.1rem;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        .step-box {
+            background: rgba(136, 21, 24, 0.08);
+            border: 2px solid #881518;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1rem 0;
+        }
+    </style>
+</head>
+<body>
+    <!-- Slide 1: Introduction -->
+    <div class="slide-container active">
+        <div class="slide-content">
+            <h1>The DOMContentLoaded Event</h1>
+            
+            <div class="concept-box">
+                <h2>What is DOMContentLoaded?</h2>
+                <p>The <span class="highlight">DOMContentLoaded</span> event is fired when everything in the HTML document has been <strong>loaded and parsed</strong>.</p>
+            </div>
+
+            <div class="content-grid">
+                <div class="timeline-box">
+                    <h3>✓ What It Waits For</h3>
+                    <p>• HTML document to be loaded</p>
+                    <p>• HTML to be fully parsed</p>
+                    <p>• DOM tree to be constructed</p>
+                </div>
+
+                <div class="timeline-box">
+                    <h3>✗ What It Doesn't Wait For</h3>
+                    <p>• External stylesheets</p>
+                    <p>• Images</p>
+                    <p>• Iframes</p>
+                    <p>• Other external resources</p>
+                </div>
+            </div>
+
+            <div class="concept-box">
+                <h2>Key Point</h2>
+                <p>If you have external stylesheets, or images, the <span class="inline-code">DOMContentLoaded</span> event will <strong>not wait</strong> for those to be loaded.</p>
+                <p>It will <span class="highlight">only wait for the HTML</span> to be loaded.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 2: DOMContentLoaded vs load -->
+    <div class="slide-container">
+        <div class="slide-content">
+            <h1>DOMContentLoaded vs load Event</h1>
+
+            <div class="concept-box">
+                <h2>Key Difference</h2>
+                <p>This differs from the <span class="inline-code">load</span> event, which waits for <strong>everything</strong> to be loaded, including external stylesheets, images, and so on.</p>
+            </div>
+
+            <div class="comparison-grid">
+                <div class="event-card">
+                    <div class="event-icon">⚡</div>
+                    <h3>DOMContentLoaded</h3>
+                    <p style="color: #881518; font-weight: bold; margin: 1rem 0;">FIRES EARLY</p>
+                    <p><strong>Waits for:</strong></p>
+                    <p>✓ HTML parsed</p>
+                    <p>✓ DOM tree ready</p>
+                    <p style="margin-top: 1rem;"><strong>Does NOT wait for:</strong></p>
+                    <p>✗ External stylesheets</p>
+                    <p>✗ Images</p>
+                    <p>✗ Other resources</p>
+                </div>
+
+                <div class="event-card">
+                    <div class="event-icon">🐢</div>
+                    <h3>load</h3>
+                    <p style="color: #881518; font-weight: bold; margin: 1rem 0;">FIRES LATER</p>
+                    <p><strong>Waits for:</strong></p>
+                    <p>✓ HTML parsed</p>
+                    <p>✓ DOM tree ready</p>
+                    <p>✓ External stylesheets</p>
+                    <p>✓ Images loaded</p>
+                    <p>✓ ALL resources</p>
+                </div>
+            </div>
+
+            <div class="timeline">
+                <h3 style="color: #881518; text-align: center; margin-bottom: 1rem;">Page Loading Timeline</h3>
+                <div class="timeline-item">
+                    <span class="timeline-number">1</span>
+                    <strong>HTML starts loading...</strong>
+                </div>
+                <div class="timeline-item">
+                    <span class="timeline-number">2</span>
+                    <strong>HTML fully parsed, DOM tree constructed</strong>
+                    <p style="margin-left: 3.5rem; color: #881518;">→ <strong>DOMContentLoaded fires here! ⚡</strong></p>
+                </div>
+                <div class="timeline-item">
+                    <span class="timeline-number">3</span>
+                    <strong>External resources still loading... (CSS, images, etc.)</strong>
+                </div>
+                <div class="timeline-item">
+                    <span class="timeline-number">4</span>
+                    <strong>All resources finished loading</strong>
+                    <p style="margin-left: 3.5rem; color: #881518;">→ <strong>load event fires here! 🐢</strong></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 3: Basic Syntax -->
+    <div class="slide-container">
+        <div class="slide-content">
+            <h1>Basic Syntax</h1>
+
+            <div class="concept-box">
+                <h2>How to Use DOMContentLoaded</h2>
+                <p>Here is the example syntax for using the <span class="inline-code">DOMContentLoaded</span> event:</p>
+            </div>
+
+            <div class="code-box">
+                <code>
+<span class="keyword">document</span>.<span class="function">addEventListener</span>(<span class="string">"DOMContentLoaded"</span>, <span class="keyword">function</span> () {
+  <span class="keyword">console</span>.<span class="function">log</span>(<span class="string">"DOM is loaded."</span>);
+});
+                </code>
+            </div>
+
+            <div class="concept-box">
+                <h3>What Happens</h3>
+                <p>Once the DOM is loaded, the function will be executed and the message <span class="inline-code">"DOM is loaded."</span> will be logged to the console.</p>
+            </div>
+
+            <div class="step-box">
+                <h3>Step-by-Step</h3>
+                <p><strong>1.</strong> Browser starts loading HTML</p>
+                <p><strong>2.</strong> Browser parses HTML and builds DOM tree</p>
+                <p><strong>3.</strong> DOMContentLoaded event fires</p>
+                <p><strong>4.</strong> Event listener function executes</p>
+                <p><strong>5.</strong> Console logs "DOM is loaded."</p>
+            </div>
+
+            <div class="interactive-demo">
+                <h3>Try It Yourself</h3>
+                <p>This page already has a DOMContentLoaded listener. Check the console to see when it fired!</p>
+                <div class="demo-output">
+                    <p><strong>When did DOMContentLoaded fire on this page?</strong></p>
+                    <div id="dom-status" class="readystate-box">
+                        Checking...
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 4: Example Setup -->
+    <div class="slide-container">
+        <div class="slide-content">
+            <h1>Example: Changing an Image</h1>
+
+            <div class="concept-box">
+                <h2>Scenario</h2>
+                <p>Let's take a look at another example using the <span class="inline-code">DOMContentLoaded</span> event.</p>
+                <p>In this example, we have an image inside the HTML. To update the image, we can create a function that changes the <span class="inline-code">src</span> and <span class="inline-code">alt</span> attributes.</p>
+            </div>
+
+            <h3>HTML</h3>
+            <div class="code-box">
+                <code>
+<span class="keyword">&lt;h1&gt;</span>Image Change on DOM Loaded<span class="keyword">&lt;/h1&gt;</span>
+<span class="keyword">&lt;img</span>
+  <span class="property">id</span>=<span class="string">"example-img"</span>
+  <span class="property">src</span>=<span class="string">"relaxing-cat.jpg"</span>
+  <span class="property">alt</span>=<span class="string">"Cat relaxing"</span>
+<span class="keyword">/&gt;</span>
+<span class="keyword">&lt;script</span> <span class="property">src</span>=<span class="string">"index.js"</span><span class="keyword">&gt;&lt;/script&gt;</span>
+                </code>
+            </div>
+
+            <h3>JavaScript Function</h3>
+            <div class="code-box">
+                <code>
+<span class="keyword">function</span> <span class="function">changeImg</span>() {
+  <span class="keyword">const</span> img = <span class="keyword">document</span>.<span class="function">getElementById</span>(<span class="string">"example-img"</span>);
+  img.<span class="property">src</span> = <span class="string">"different-cat.jpg"</span>;
+  img.<span class="property">alt</span> = <span class="string">"Different cat"</span>;
+  <span class="keyword">console</span>.<span class="function">log</span>(<span class="string">"image was just changed"</span>);
+}
+                </code>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 5: Checking readyState -->
+    <div class="slide-container">
+        <div class="slide-content">
+            <h1>Checking document.readyState</h1>
+
+            <div class="concept-box">
+                <h2>The Smart Way</h2>
+                <p>We can check if the DOM is still loading and add an event listener for the <span class="inline-code">DOMContentLoaded</span> event.</p>
+                <p>If the <span class="inline-code">DOMContentLoaded</span> event has already fired, we can call the function directly.</p>
+            </div>
+
+            <div class="code-box">
+                <code>
+<span class="keyword">if</span> (<span class="keyword">document</span>.<span class="property">readyState</span> === <span class="string">"loading"</span>) {
+  <span class="comment">// DOM is still loading, wait for DOMContentLoaded</span>
+  <span class="keyword">document</span>.<span class="function">addEventListener</span>(<span class="string">"DOMContentLoaded"</span>, changeImg);
+} <span class="keyword">else</span> {
+  <span class="comment">// DOM already loaded, run function immediately</span>
+  <span class="keyword">console</span>.<span class="function">log</span>(<span class="string">"DOMContentLoaded has already fired"</span>);
+  <span class="function">changeImg</span>();
+}
+                </code>
+            </div>
+
+            <div class="content-grid">
+                <div class="timeline-box">
+                    <h3>document.readyState Values</h3>
+                    <p><strong>"loading"</strong></p>
+                    <p>→ Document is still loading</p>
+                    <p style="margin-top: 1rem;"><strong>"interactive"</strong></p>
+                    <p>→ DOM is ready, DOMContentLoaded has fired</p>
+                    <p style="margin-top: 1rem;"><strong>"complete"</strong></p>
+                    <p>→ All resources loaded, load event fired</p>
+                </div>
+
+                <div class="success-box">
+                    <h3>Why Check readyState?</h3>
+                    <p>Sometimes your script might load <strong>after</strong> the DOM is already loaded.</p>
+                    <p>This check ensures your code runs either:</p>
+                    <p>• When DOMContentLoaded fires (if still loading)</p>
+                    <p>• Immediately (if already loaded)</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 6: Complete Example Walkthrough -->
+    <div class="slide-container">
+        <div class="slide-content">
+            <h1>Complete Example Flow</h1>
+
+            <div class="concept-box">
+                <h2>Putting It All Together</h2>
+            </div>
+
+            <div class="step-box">
+                <h3>Scenario 1: Script Runs While Page Loading</h3>
+                <p><strong>1.</strong> Script executes</p>
+                <p><strong>2.</strong> Check: <span class="inline-code">document.readyState === "loading"</span> → TRUE</p>
+                <p><strong>3.</strong> Add event listener for DOMContentLoaded</p>
+                <p><strong>4.</strong> Wait for DOM to finish loading...</p>
+                <p><strong>5.</strong> DOMContentLoaded fires</p>
+                <p><strong>6.</strong> <span class="inline-code">changeImg()</span> function runs</p>
+                <p><strong>7.</strong> Image changes!</p>
+            </div>
+
+            <div class="step-box">
+                <h3>Scenario 2: Script Runs After DOM Already Loaded</h3>
+                <p><strong>1.</strong> DOM already finished loading</p>
+                <p><strong>2.</strong> Script executes (late)</p>
+                <p><strong>3.</strong> Check: <span class="inline-code">document.readyState === "loading"</span> → FALSE</p>
+                <p><strong>4.</strong> Go to else branch</p>
+                <p><strong>5.</strong> Log "DOMContentLoaded has already fired"</p>
+                <p><strong>6.</strong> Call <span class="inline-code">changeImg()</span> immediately</p>
+                <p><strong>7.</strong> Image changes!</p>
+            </div>
+
+            <div class="success-box">
+                <h3>✓ Result</h3>
+                <p>Either way, the image changes! This pattern ensures your code works regardless of when the script loads.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 7: Visual Result -->
+    <div class="slide-container">
+        <div class="slide-content">
+            <h1>What You'll See</h1>
+
+            <div class="concept-box">
+                <h2>The Visual Effect</h2>
+                <p>If you were to run this code and refresh the page, you would see the image change to the new image after the DOM has loaded.</p>
+                <p>It happens <span class="highlight">pretty quickly</span>, but you will see a <strong>slight flicker</strong> as the image changes.</p>
+            </div>
+
+            <div class="interactive-demo">
+                <h3>Simulated Demo</h3>
+                <p>Click the button to see a simulated image change:</p>
+                <div style="text-align: center; margin: 2rem 0;">
+                    <button class="demo-button" onclick="simulateImageChange()">Simulate DOM Load & Image Change</button>
+                    <button class="demo-button" onclick="resetImage()">Reset</button>
+                </div>
+                <div class="demo-output" style="text-align: center;">
+                    <img id="demo-img" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='200'%3E%3Crect fill='%23e3f2fd' width='300' height='200'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-family='Arial' font-size='20' fill='%231976d2'%3EOriginal Image%3C/text%3E%3C/svg%3E" alt="Original image" class="demo-image">
+                    <p id="image-status" style="margin-top: 1rem; font-weight: bold; color: #881518;">Waiting for DOM...</p>
+                </div>
+
+                <div class="log-output" id="change-log">
+                    <div style="color: #999; font-style: italic;">Click the button to see the process...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 8: When to Use DOMContentLoaded -->
+    <div class="slide-container">
+        <div class="slide-content">
+            <h1>When to Use DOMContentLoaded</h1>
+
+            <div class="concept-box">
+                <h2>Perfect Use Cases</h2>
+                <p>The <span class="inline-code">DOMContentLoaded</span> event is useful when you want to run some JavaScript code <span class="highlight">as soon as the DOM is loaded</span>, but <strong>before</strong> all the external resources like images and stylesheets are loaded.</p>
+            </div>
+
+            <div class="content-grid">
+                <div class="success-box">
+                    <h3>✓ Good Use Cases</h3>
+                    <p><strong>1. Attaching Event Listeners</strong></p>
+                    <p>Set up click handlers, form listeners, etc.</p>
+                    <p style="margin-top: 1rem;"><strong>2. Manipulating the DOM</strong></p>
+                    <p>Add, remove, or modify elements</p>
+                    <p style="margin-top: 1rem;"><strong>3. Reading Element Properties</strong></p>
+                    <p>Get dimensions, positions, text content</p>
+                    <p style="margin-top: 1rem;"><strong>4. Initializing JavaScript Frameworks</strong></p>
+                    <p>Start React, Vue, or other frameworks</p>
+                </div>
+
+                <div class="timeline-box">
+                    <h3>💡 Why Not Just Use load?</h3>
+                    <p><strong>DOMContentLoaded is faster!</strong></p>
+                    <p>If you don't need images or stylesheets to be loaded, why wait?</p>
+                    <p style="margin-top: 1rem;"><strong>Better user experience:</strong></p>
+                    <p>Your page becomes interactive sooner</p>
+                    <p style="margin-top: 1rem;"><strong>Example:</strong></p>
+                    <p>A page with many large images - DOMContentLoaded fires seconds before load!</p>
+                </div>
+            </div>
+
+            <div class="code-box">
+                <code>
+<span class="comment">// Common pattern: Set up page once DOM is ready</span>
+<span class="keyword">document</span>.<span class="function">addEventListener</span>(<span class="string">"DOMContentLoaded"</span>, () => {
+  <span class="comment">// All these work because DOM is ready</span>
+  <span class="keyword">const</span> button = <span class="keyword">document</span>.<span class="function">querySelector</span>(<span class="string">"button"</span>);
+  button.<span class="function">addEventListener</span>(<span class="string">"click"</span>, handleClick);
+  
+  <span class="keyword">const</span> form = <span class="keyword">document</span>.<span class="function">querySelector</span>(<span class="string">"form"</span>);
+  form.<span class="function">addEventListener</span>(<span class="string">"submit"</span>, handleSubmit);
+  
+  <span class="function">initializeApp</span>();
+});
+                </code>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 9: Common Patterns -->
+    <div class="slide-container">
+        <div class="slide-content">
+            <h1>Common Patterns</h1>
+
+            <div class="concept-box">
+                <h2>Pattern 1: Simple Listener</h2>
+                <p>Most common pattern - just wait for DOM to be ready</p>
+            </div>
+            <div class="code-box">
+                <code>
+<span class="keyword">document</span>.<span class="function">addEventListener</span>(<span class="string">"DOMContentLoaded"</span>, () => {
+  <span class="comment">// Your initialization code here</span>
+  <span class="function">initApp</span>();
+});
+                </code>
+            </div>
+
+            <div class="concept-box">
+                <h2>Pattern 2: With readyState Check</h2>
+                <p>Safest pattern - handles both early and late script execution</p>
+            </div>
+            <div class="code-box">
+                <code>
+<span class="keyword">function</span> <span class="function">init</span>() {
+  <span class="comment">// Your initialization code</span>
+}
+
+<span class="keyword">if</span> (<span class="keyword">document</span>.<span class="property">readyState</span> === <span class="string">"loading"</span>) {
+  <span class="keyword">document</span>.<span class="function">addEventListener</span>(<span class="string">"DOMContentLoaded"</span>, init);
+} <span class="keyword">else</span> {
+  <span class="function">init</span>();
+}
+                </code>
+            </div>
+
+            <div class="concept-box">
+                <h2>Pattern 3: Arrow Function Inline</h2>
+                <p>Quick setup for short code blocks</p>
+            </div>
+            <div class="code-box">
+                <code>
+<span class="keyword">document</span>.<span class="function">addEventListener</span>(<span class="string">"DOMContentLoaded"</span>, () => {
+  <span class="keyword">document</span>.<span class="function">querySelector</span>(<span class="string">"#btn"</span>).<span class="function">addEventListener</span>(<span class="string">"click"</span>, () => {
+    <span class="function">alert</span>(<span class="string">"Button clicked!"</span>);
+  });
+});
+                </code>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 10: Key Takeaways -->
+    <div class="slide-container">
+        <div class="slide-content">
+            <h1>Key Takeaways</h1>
+
+            <div class="concept-box">
+                <h2>What is DOMContentLoaded?</h2>
+                <p>An event that fires when the <span class="highlight">HTML document has been fully loaded and parsed</span>.</p>
+            </div>
+
+            <div class="content-grid">
+                <div class="success-box">
+                    <h3>✓ DOMContentLoaded</h3>
+                    <p><strong>Fires when:</strong></p>
+                    <p>• HTML is fully parsed</p>
+                    <p>• DOM tree is constructed</p>
+                    <p><strong>Does NOT wait for:</strong></p>
+                    <p>• Stylesheets</p>
+                    <p>• Images</p>
+                    <p>• Subframes</p>
+                    <p style="margin-top: 1rem; font-weight: bold; color: #1e7e34;">⚡ Fires EARLY - Fast!</p>
+                </div>
+
+                <div class="timeline-box">
+                    <h3>🐢 load Event</h3>
+                    <p><strong>Fires when:</strong></p>
+                    <p>• HTML is fully parsed</p>
+                    <p>• DOM tree is constructed</p>
+                    <p>• Stylesheets loaded</p>
+                    <p>• Images loaded</p>
+                    <p>• ALL resources loaded</p>
+                    <p style="margin-top: 1rem; font-weight: bold; color: #1565c0;">🐢 Fires LATE - Slower</p>
+                </div>
+            </div>
+
+            <div class="concept-box">
+                <h2>Basic Usage</h2>
+                <div class="code-box">
+                    <code>
+<span class="keyword">document</span>.<span class="function">addEventListener</span>(<span class="string">"DOMContentLoaded"</span>, () => {
+  <span class="comment">// DOM is ready - manipulate elements here!</span>
+});
+                    </code>
+                </div>
+            </div>
+
+            <div class="concept-box">
+                <h2>Safe Pattern with readyState</h2>
+                <div class="code-box">
+                    <code>
+<span class="keyword">if</span> (<span class="keyword">document</span>.<span class="property">readyState</span> === <span class="string">"loading"</span>) {
+  <span class="keyword">document</span>.<span class="function">addEventListener</span>(<span class="string">"DOMContentLoaded"</span>, init);
+} <span class="keyword">else</span> {
+  <span class="function">init</span>();
+}
+                    </code>
+                </div>
+            </div>
+
+            <div class="success-box">
+                <h3>💡 Remember</h3>
+                <p>Use <span class="inline-code">DOMContentLoaded</span> when you need to manipulate the DOM but don't need to wait for images or stylesheets!</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Navigation -->
+    <div class="navigation">
+        <button class="nav-button" id="prevBtn" onclick="changeSlide(-1)">← Previous</button>
+        <div class="slide-counter">
+            <span id="currentSlide">1</span> / <span id="totalSlides">10</span>
+        </div>
+        <button class="nav-button" id="nextBtn" onclick="changeSlide(1)">Next →</button>
+    </div>
+
+    <script>
+        let currentSlide = 1;
+        const totalSlides = document.querySelectorAll('.slide-container').length;
+        
+        document.getElementById('totalSlides').textContent = totalSlides;
+        
+        // Track when DOMContentLoaded actually fired
+        let domLoadedTime = null;
+        document.addEventListener('DOMContentLoaded', () => {
+            domLoadedTime = new Date();
+            console.log('DOMContentLoaded fired at:', domLoadedTime);
+            updateDOMStatus();
+        });
+        
+        function updateDOMStatus() {
+            const statusEl = document.getElementById('dom-status');
+            if (statusEl) {
+                if (domLoadedTime) {
+                    statusEl.textContent = `DOMContentLoaded fired at: ${domLoadedTime.toLocaleTimeString()}`;
+                    statusEl.style.color = '#1e7e34';
+                } else {
+                    statusEl.textContent = `Current readyState: ${document.readyState}`;
+                }
+            }
+        }
+        
+        function showSlide(n) {
+            const slides = document.querySelectorAll('.slide-container');
+            
+            if (n > totalSlides) {
+                currentSlide = totalSlides;
+            }
+            if (n < 1) {
+                currentSlide = 1;
+            }
+            
+            slides.forEach(slide => slide.classList.remove('active'));
+            slides[currentSlide - 1].classList.add('active');
+            
+            document.getElementById('currentSlide').textContent = currentSlide;
+            
+            // Update button states
+            document.getElementById('prevBtn').disabled = currentSlide === 1;
+            document.getElementById('nextBtn').disabled = currentSlide === totalSlides;
+            
+            // Scroll to top of page
+            window.scrollTo(0, 0);
+            
+            // Update DOM status if on that slide
+            if (currentSlide === 3) {
+                updateDOMStatus();
+            }
+        }
+        
+        function changeSlide(direction) {
+            currentSlide += direction;
+            showSlide(currentSlide);
+        }
+        
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowLeft') {
+                changeSlide(-1);
+            } else if (e.key === 'ArrowRight') {
+                changeSlide(1);
+            }
+        });
+        
+        // Image change demo
+        function addLog(message) {
+            const log = document.getElementById('change-log');
+            if (log) {
+                const entry = document.createElement('div');
+                entry.className = 'log-entry';
+                entry.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+                log.appendChild(entry);
+                log.scrollTop = log.scrollHeight;
+            }
+        }
+        
+        function simulateImageChange() {
+            const log = document.getElementById('change-log');
+            log.innerHTML = '';
+            
+            const status = document.getElementById('image-status');
+            const img = document.getElementById('demo-img');
+            
+            addLog('Checking document.readyState...');
+            status.textContent = 'Checking readyState...';
+            
+            setTimeout(() => {
+                addLog('readyState: "interactive" (DOM loaded)');
+                addLog('DOMContentLoaded has already fired');
+                status.textContent = 'DOM already loaded!';
+                
+                setTimeout(() => {
+                    addLog('Calling changeImg() function...');
+                    status.textContent = 'Changing image...';
+                    
+                    setTimeout(() => {
+                        img.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='200'%3E%3Crect fill='%23d4edda' width='300' height='200'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-family='Arial' font-size='20' fill='%231e7e34'%3EChanged Image!%3C/text%3E%3C/svg%3E";
+                        img.alt = "Changed image";
+                        addLog('✓ Image src changed');
+                        addLog('✓ Image alt changed');
+                        addLog('"image was just changed"');
+                        status.textContent = '✓ Image changed successfully!';
+                        status.style.color = '#1e7e34';
+                    }, 500);
+                }, 500);
+            }, 500);
+        }
+        
+        function resetImage() {
+            const img = document.getElementById('demo-img');
+            const status = document.getElementById('image-status');
+            const log = document.getElementById('change-log');
+            
+            img.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='200'%3E%3Crect fill='%23e3f2fd' width='300' height='200'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-family='Arial' font-size='20' fill='%231976d2'%3EOriginal Image%3C/text%3E%3C/svg%3E";
+            img.alt = "Original image";
+            status.textContent = 'Waiting for DOM...';
+            status.style.color = '#881518';
+            log.innerHTML = '<div style="color: #999; font-style: italic;">Click the button to see the process...</div>';
+        }
+        
+        // Initialize
+        showSlide(currentSlide);
+    </script>
+</body>
+</html>
