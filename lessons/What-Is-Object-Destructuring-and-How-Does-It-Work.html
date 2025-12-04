@@ -1,0 +1,802 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Object Destructuring</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #881518 0%, #a91d20 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .slide-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+            padding-bottom: 100px;
+            min-height: 100vh;
+        }
+
+        .slide {
+            display: none;
+            background: white;
+            border-radius: 12px;
+            padding: 2.5rem;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        .slide.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        h2 {
+            color: #881518;
+            font-size: 2rem;
+            margin-bottom: 1.5rem;
+            border-bottom: 3px solid #881518;
+            padding-bottom: 0.5rem;
+        }
+
+        .concept {
+            margin-bottom: 2rem;
+        }
+
+        .concept h3 {
+            color: #333;
+            font-size: 1.4rem;
+            margin-bottom: 1rem;
+        }
+
+        .concept-text {
+            color: #555;
+            font-size: 1.1rem;
+            line-height: 1.6;
+            margin-bottom: 1rem;
+        }
+
+        .code-example {
+            background: #f8f9fa;
+            border-left: 4px solid #881518;
+            padding: 1.5rem;
+            border-radius: 6px;
+            margin: 1rem 0;
+            overflow-x: auto;
+        }
+
+        .code-example pre {
+            margin: 0;
+            font-family: 'Courier New', monospace;
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+
+        .code-example code {
+            color: #333;
+        }
+
+        .keyword {
+            color: #0066cc;
+            font-weight: bold;
+        }
+
+        .string {
+            color: #22863a;
+        }
+
+        .comment {
+            color: #6a737d;
+            font-style: italic;
+        }
+
+        .output {
+            background: #e8f4f8;
+            border-left: 4px solid #0066cc;
+            padding: 1rem;
+            margin-top: 0.5rem;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+        }
+
+        .highlight {
+            background: #fff3cd;
+            padding: 0.2rem 0.4rem;
+            border-radius: 3px;
+            font-weight: 600;
+        }
+
+        .info-box {
+            background: #e7f3ff;
+            border-left: 4px solid #0066cc;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 4px;
+        }
+
+        .info-box strong {
+            color: #004085;
+        }
+
+        .warning-box {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 4px;
+        }
+
+        .warning-box strong {
+            color: #856404;
+        }
+
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            margin: 1.5rem 0;
+        }
+
+        .comparison-box {
+            background: #f8f9fa;
+            padding: 1.5rem;
+            border-radius: 8px;
+            border: 2px solid #881518;
+        }
+
+        .comparison-box h4 {
+            color: #881518;
+            margin-bottom: 1rem;
+            font-size: 1.2rem;
+        }
+
+        .visual-demo {
+            background: #f8f9fa;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin: 1.5rem 0;
+            border: 2px solid #881518;
+        }
+
+        .arrow-down {
+            text-align: center;
+            font-size: 2rem;
+            color: #881518;
+            margin: 1rem 0;
+            font-weight: bold;
+        }
+
+        .navigation {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0, 0, 0, 0.9);
+            padding: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.3);
+            z-index: 1000;
+        }
+
+        .nav-button {
+            background: #881518;
+            color: white;
+            border: none;
+            padding: 0.8rem 2rem;
+            font-size: 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+        }
+
+        .nav-button:hover {
+            background: #a91d20;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(136, 21, 24, 0.4);
+        }
+
+        .nav-button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .slide-counter {
+            color: white;
+            font-size: 1rem;
+            font-weight: 600;
+        }
+
+        @media (max-width: 768px) {
+            .slide-container {
+                padding: 1rem;
+                padding-bottom: 100px;
+            }
+
+            .slide {
+                padding: 1.5rem;
+            }
+
+            h2 {
+                font-size: 1.5rem;
+            }
+
+            .concept h3 {
+                font-size: 1.2rem;
+            }
+
+            .concept-text {
+                font-size: 1rem;
+            }
+
+            .nav-button {
+                padding: 0.7rem 1.2rem;
+                font-size: 0.9rem;
+            }
+
+            .comparison-grid {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+
+            .code-example {
+                padding: 1rem;
+            }
+
+            .code-example pre {
+                font-size: 0.85rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .navigation {
+                padding: 0.8rem;
+            }
+
+            .nav-button {
+                padding: 0.6rem 1rem;
+                font-size: 0.85rem;
+            }
+
+            .slide-counter {
+                font-size: 0.9rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="slide-container">
+        <!-- Slide 1: Introduction -->
+        <div class="slide active">
+            <h2>Object Destructuring</h2>
+            
+            <div class="concept">
+                <h3>What Is Object Destructuring?</h3>
+                <p class="concept-text">
+                    <span class="highlight">Object destructuring</span> is a powerful feature in JavaScript that allows you to <strong>extract values from objects</strong> and assign them to variables in a more concise and readable way.
+                </p>
+            </div>
+
+            <div class="concept">
+                <h3>Why Use Destructuring?</h3>
+                <div style="background: #f8f9fa; padding: 1.5rem; border-radius: 8px; border-left: 4px solid #881518;">
+                    <ul style="color: #555; font-size: 1.1rem; line-height: 1.8; margin-left: 1.5rem;">
+                        <li><strong>Concise:</strong> Extract multiple properties in one statement</li>
+                        <li><strong>Readable:</strong> Cleaner code that's easier to understand</li>
+                        <li><strong>Efficient:</strong> No need to access properties one by one</li>
+                        <li><strong>Modern:</strong> Part of ES6 (ECMAScript 2015) specification</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="concept">
+                <h3>The Core Concept</h3>
+                <p class="concept-text">
+                    At its core, object destructuring is about <span class="highlight">unpacking values</span> from objects into distinct variables. Instead of accessing object properties one by one, you can extract multiple properties in a single statement.
+                </p>
+            </div>
+
+            <div class="info-box">
+                <strong>Essential Tool:</strong>
+                <p style="margin-top: 0.5rem; color: #555;">
+                    Destructuring has become an essential tool for JavaScript developers, especially when working with complex objects or when you need to extract multiple values at once.
+                </p>
+            </div>
+        </div>
+
+        <!-- Slide 2: Basic Destructuring -->
+        <div class="slide">
+            <h2>Basic Destructuring Syntax</h2>
+            
+            <div class="concept">
+                <h3>Traditional Way vs Destructuring</h3>
+            </div>
+
+            <div class="comparison-grid">
+                <div class="comparison-box" style="border-color: #dc3545;">
+                    <h4 style="color: #dc3545;">❌ Traditional Way</h4>
+                    <div class="code-example" style="margin: 0; border-left-color: #dc3545;">
+                        <pre><code><span class="keyword">const</span> person = {
+    name: <span class="string">"Alice"</span>,
+    age: 30,
+    city: <span class="string">"New York"</span>
+};
+
+<span class="comment">// One by one...</span>
+<span class="keyword">const</span> name = person.name;
+<span class="keyword">const</span> age = person.age;
+
+console.log(name); <span class="comment">// "Alice"</span>
+console.log(age);  <span class="comment">// 30</span></code></pre>
+                    </div>
+                    <p style="margin-top: 1rem; color: #555;">Repetitive and verbose</p>
+                </div>
+
+                <div class="comparison-box" style="border-color: #28a745;">
+                    <h4 style="color: #28a745;">✓ With Destructuring</h4>
+                    <div class="code-example" style="margin: 0; border-left-color: #28a745;">
+                        <pre><code><span class="keyword">const</span> person = {
+    name: <span class="string">"Alice"</span>,
+    age: 30,
+    city: <span class="string">"New York"</span>
+};
+
+<span class="comment">// Extract in one line!</span>
+<span class="keyword">const</span> { name, age } = person;
+
+console.log(name); <span class="comment">// "Alice"</span>
+console.log(age);  <span class="comment">// 30</span></code></pre>
+                    </div>
+                    <p style="margin-top: 1rem; color: #555;">Clean and concise!</p>
+                </div>
+            </div>
+
+            <div class="visual-demo">
+                <h4 style="color: #881518; margin-bottom: 1rem;">How It Works</h4>
+                <div style="font-family: 'Courier New', monospace; line-height: 2.5; color: #333;">
+                    <div style="padding: 1rem; background: white; margin: 0.5rem 0; border-radius: 6px; border-left: 4px solid #881518;">
+                        <strong>Object:</strong> { name: "Alice", age: 30, city: "New York" }
+                    </div>
+                    <div class="arrow-down">↓ Destructure</div>
+                    <div style="padding: 1rem; background: white; margin: 0.5rem 0; border-radius: 6px; border-left: 4px solid #28a745;">
+                        <strong>Creates:</strong><br>
+                        • name = "Alice"<br>
+                        • age = 30
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 3: Renaming Variables -->
+        <div class="slide">
+            <h2>Renaming Variables</h2>
+            
+            <div class="concept">
+                <h3>Assigning to Different Variable Names</h3>
+                <p class="concept-text">
+                    One powerful aspect of object destructuring is that you can <span class="highlight">assign extracted values to variables with different names</span>. This is useful when:
+                </p>
+                <ul style="margin-left: 2rem; color: #555; font-size: 1.1rem; line-height: 1.8;">
+                    <li>Property names might conflict with existing variables</li>
+                    <li>You want to use more descriptive variable names</li>
+                    <li>Working with abbreviated property names</li>
+                </ul>
+            </div>
+
+            <div class="concept">
+                <h3>Syntax: { propertyName: newVariableName }</h3>
+                
+                <div class="code-example">
+                    <pre><code><span class="keyword">let</span> person = {
+    name: <span class="string">"Alice"</span>,
+    age: 30,
+    city: <span class="string">"New York"</span>
+};
+
+<span class="comment">// Rename during destructuring</span>
+<span class="keyword">let</span> { name: personName, age: personAge } = person;
+
+console.log(personName); <span class="comment">// "Alice"</span>
+console.log(personAge);  <span class="comment">// 30</span></code></pre>
+                    <div class="output">"Alice"<br>30</div>
+                </div>
+            </div>
+
+            <div class="visual-demo">
+                <h4 style="color: #881518; margin-bottom: 1rem;">Renaming Process</h4>
+                <div style="font-family: 'Courier New', monospace; line-height: 2; color: #333;">
+                    <div style="padding: 1rem; background: white; margin: 0.5rem 0; border-radius: 6px; border-left: 4px solid #881518;">
+                        <strong>Property:</strong> name: "Alice"
+                    </div>
+                    <div class="arrow-down">↓ { name: personName }</div>
+                    <div style="padding: 1rem; background: white; margin: 0.5rem 0; border-radius: 6px; border-left: 4px solid #28a745;">
+                        <strong>New Variable:</strong> personName = "Alice"
+                    </div>
+                </div>
+                <p style="margin-top: 1rem; color: #555; text-align: center;">
+                    Extract <strong>name</strong> property, store in <strong>personName</strong> variable
+                </p>
+            </div>
+
+            <div class="info-box">
+                <strong>Syntax Note:</strong>
+                <p style="margin-top: 0.5rem; color: #555; font-family: 'Courier New', monospace;">
+                    { objectProperty: newVariableName } = object
+                </p>
+            </div>
+        </div>
+
+        <!-- Slide 4: Default Values -->
+        <div class="slide">
+            <h2>Setting Default Values</h2>
+            
+            <div class="concept">
+                <h3>Fallback Values for Missing Properties</h3>
+                <p class="concept-text">
+                    Object destructuring allows you to <span class="highlight">set default values</span>. If a property doesn't exist in the object you're destructuring, you can specify a fallback value.
+                </p>
+                
+                <div class="code-example">
+                    <pre><code><span class="keyword">let</span> person = {
+    name: <span class="string">"Alice"</span>,
+    age: 30,
+    city: <span class="string">"New York"</span>
+};
+
+<span class="comment">// country doesn't exist, use default</span>
+<span class="keyword">let</span> { name, age, country = <span class="string">"Unknown"</span> } = person;
+
+console.log(name);    <span class="comment">// "Alice"</span>
+console.log(age);     <span class="comment">// 30</span>
+console.log(country); <span class="comment">// "Unknown"</span></code></pre>
+                    <div class="output">"Alice"<br>30<br>"Unknown"</div>
+                </div>
+            </div>
+
+            <div class="concept">
+                <h3>How Default Values Work</h3>
+                <div class="visual-demo">
+                    <div style="font-family: 'Courier New', monospace; line-height: 2; color: #333;">
+                        <div style="padding: 1rem; background: white; margin: 0.5rem 0; border-radius: 6px; border-left: 4px solid #881518;">
+                            <strong>Object:</strong> { name: "Alice", age: 30, city: "New York" }
+                        </div>
+                        <div style="padding: 1rem; background: white; margin: 0.5rem 0; border-radius: 6px; border-left: 4px solid #ffc107;">
+                            <strong>Destructure:</strong> { name, age, country = "Unknown" }
+                        </div>
+                        <div class="arrow-down">↓</div>
+                        <div style="padding: 1rem; background: white; margin: 0.5rem 0; border-radius: 6px; border-left: 4px solid #28a745;">
+                            <strong>Results:</strong><br>
+                            • name = "Alice" (from object)<br>
+                            • age = 30 (from object)<br>
+                            • country = "Unknown" (default used!)
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="concept">
+                <h3>Combining Renaming and Defaults</h3>
+                <div class="code-example">
+                    <pre><code><span class="keyword">let</span> user = { id: 101, username: <span class="string">"john_doe"</span> };
+
+<span class="comment">// Rename AND set default</span>
+<span class="keyword">let</span> { 
+    id: userId, 
+    username: name, 
+    role = <span class="string">"guest"</span> 
+} = user;
+
+console.log(userId); <span class="comment">// 101</span>
+console.log(name);   <span class="comment">// "john_doe"</span>
+console.log(role);   <span class="comment">// "guest"</span></code></pre>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 5: Shorthand Object Notation -->
+        <div class="slide">
+            <h2>Shorthand Object Notation</h2>
+            
+            <div class="concept">
+                <h3>Creating Objects Concisely</h3>
+                <p class="concept-text">
+                    When creating objects, if <span class="highlight">property names match variable names</span>, you can use a shorthand syntax.
+                </p>
+            </div>
+
+            <div class="comparison-grid">
+                <div class="comparison-box" style="border-color: #dc3545;">
+                    <h4 style="color: #dc3545;">Traditional Syntax</h4>
+                    <div class="code-example" style="margin: 0; border-left-color: #dc3545;">
+                        <pre><code><span class="keyword">let</span> name = <span class="string">"Bob"</span>;
+<span class="keyword">let</span> age = 25;
+
+<span class="comment">// Repeat names</span>
+<span class="keyword">let</span> person = {
+    name: name,
+    age: age
+};
+
+console.log(person);
+<span class="comment">// { name: "Bob", age: 25 }</span></code></pre>
+                    </div>
+                </div>
+
+                <div class="comparison-box" style="border-color: #28a745;">
+                    <h4 style="color: #28a745;">Shorthand Syntax</h4>
+                    <div class="code-example" style="margin: 0; border-left-color: #28a745;">
+                        <pre><code><span class="keyword">let</span> name = <span class="string">"Bob"</span>;
+<span class="keyword">let</span> age = 25;
+
+<span class="comment">// Much simpler!</span>
+<span class="keyword">let</span> person = {
+    name,
+    age
+};
+
+console.log(person);
+<span class="comment">// { name: "Bob", age: 25 }</span></code></pre>
+                    </div>
+                </div>
+            </div>
+
+            <div class="visual-demo">
+                <h4 style="color: #881518; margin-bottom: 1rem;">How Shorthand Works</h4>
+                <div style="font-family: 'Courier New', monospace; line-height: 2; color: #333;">
+                    <div style="padding: 1rem; background: white; margin: 0.5rem 0; border-radius: 6px; border-left: 4px solid #881518;">
+                        <strong>Variables:</strong><br>
+                        • name = "Bob"<br>
+                        • age = 25
+                    </div>
+                    <div class="arrow-down">↓ { name, age }</div>
+                    <div style="padding: 1rem; background: white; margin: 0.5rem 0; border-radius: 6px; border-left: 4px solid #28a745;">
+                        <strong>Creates Object:</strong><br>
+                        { name: "Bob", age: 25 }
+                    </div>
+                </div>
+                <p style="margin-top: 1rem; color: #555; text-align: center;">
+                    Properties automatically get variable names and values!
+                </p>
+            </div>
+        </div>
+
+        <!-- Slide 6: Practical Examples -->
+        <div class="slide">
+            <h2>Practical Use Cases</h2>
+            
+            <div class="concept">
+                <h3>Functions with Object Parameters</h3>
+                <div class="code-example">
+                    <pre><code><span class="comment">// Destructure in function parameter</span>
+<span class="keyword">function</span> displayPerson({ name, age, city }) {
+    console.log(<span class="string">`</span><span class="string">${name}</span><span class="string"> is </span><span class="string">${age}</span><span class="string"> years old and lives in </span><span class="string">${city}</span><span class="string">`</span>);
+}
+
+<span class="keyword">const</span> person = {
+    name: <span class="string">"Alice"</span>,
+    age: 30,
+    city: <span class="string">"New York"</span>
+};
+
+displayPerson(person);
+<span class="comment">// "Alice is 30 years old and lives in New York"</span></code></pre>
+                </div>
+            </div>
+
+            <div class="concept">
+                <h3>Returning Objects from Functions</h3>
+                <div class="code-example">
+                    <pre><code><span class="comment">// Using shorthand notation</span>
+<span class="keyword">function</span> createPerson(name, age) {
+    <span class="keyword">return</span> { name, age }; <span class="comment">// Shorthand!</span>
+}
+
+<span class="keyword">let</span> person = createPerson(<span class="string">"Charlie"</span>, 35);
+console.log(person);
+<span class="comment">// { name: "Charlie", age: 35 }</span></code></pre>
+                </div>
+            </div>
+
+            <div class="concept">
+                <h3>API Response Handling</h3>
+                <div class="code-example">
+                    <pre><code><span class="comment">// Extract just what you need from API response</span>
+<span class="keyword">const</span> apiResponse = {
+    status: 200,
+    data: {
+        user: {
+            id: 1,
+            username: <span class="string">"john_doe"</span>,
+            email: <span class="string">"john@example.com"</span>,
+            profile: { bio: <span class="string">"Developer"</span> }
+        }
+    },
+    timestamp: <span class="string">"2024-01-01"</span>
+};
+
+<span class="comment">// Extract nested data</span>
+<span class="keyword">const</span> {
+    data: {
+        user: { username, email }
+    }
+} = apiResponse;
+
+console.log(username); <span class="comment">// "john_doe"</span>
+console.log(email);    <span class="comment">// "john@example.com"</span></code></pre>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 7: Summary -->
+        <div class="slide">
+            <h2>Summary & Best Practices</h2>
+            
+            <div class="concept">
+                <h3>Key Concepts</h3>
+                <table style="width: 100%; border-collapse: collapse; margin: 1.5rem 0;">
+                    <thead>
+                        <tr style="background: #881518; color: white;">
+                            <th style="padding: 0.8rem; text-align: left; border: 1px solid #ddd;">Technique</th>
+                            <th style="padding: 0.8rem; text-align: left; border: 1px solid #ddd;">Syntax</th>
+                            <th style="padding: 0.8rem; text-align: left; border: 1px solid #ddd;">Use Case</th>
+                        </tr>
+                    </thead>
+                    <tbody style="background: white;">
+                        <tr>
+                            <td style="padding: 0.8rem; border: 1px solid #ddd;"><strong>Basic</strong></td>
+                            <td style="padding: 0.8rem; border: 1px solid #ddd; font-family: 'Courier New', monospace; font-size: 0.9rem;">{ name, age } = obj</td>
+                            <td style="padding: 0.8rem; border: 1px solid #ddd;">Extract properties</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 0.8rem; border: 1px solid #ddd;"><strong>Rename</strong></td>
+                            <td style="padding: 0.8rem; border: 1px solid #ddd; font-family: 'Courier New', monospace; font-size: 0.9rem;">{ name: n } = obj</td>
+                            <td style="padding: 0.8rem; border: 1px solid #ddd;">Assign to different variable</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 0.8rem; border: 1px solid #ddd;"><strong>Default</strong></td>
+                            <td style="padding: 0.8rem; border: 1px solid #ddd; font-family: 'Courier New', monospace; font-size: 0.9rem;">{ x = 5 } = obj</td>
+                            <td style="padding: 0.8rem; border: 1px solid #ddd;">Fallback for missing props</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 0.8rem; border: 1px solid #ddd;"><strong>Shorthand</strong></td>
+                            <td style="padding: 0.8rem; border: 1px solid #ddd; font-family: 'Courier New', monospace; font-size: 0.9rem;">{ name, age }</td>
+                            <td style="padding: 0.8rem; border: 1px solid #ddd;">Create object from variables</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="concept">
+                <h3>Complete Example</h3>
+                <div class="code-example">
+                    <pre><code><span class="comment">// Object with data</span>
+<span class="keyword">const</span> user = {
+    firstName: <span class="string">"Alice"</span>,
+    lastName: <span class="string">"Johnson"</span>,
+    age: 28
+};
+
+<span class="comment">// Extract with renaming and default</span>
+<span class="keyword">const</span> {
+    firstName: first,
+    lastName: last,
+    age,
+    country = <span class="string">"USA"</span>
+} = user;
+
+<span class="comment">// Create new object with shorthand</span>
+<span class="keyword">const</span> newUser = {
+    first,
+    last,
+    age,
+    country
+};
+
+console.log(newUser);
+<span class="comment">// { first: "Alice", last: "Johnson", age: 28, country: "USA" }</span></code></pre>
+                </div>
+            </div>
+
+            <div class="concept">
+                <h3>When to Use Destructuring</h3>
+                <div style="background: #f8f9fa; padding: 1.5rem; border-radius: 8px; border-left: 4px solid #881518;">
+                    <ul style="color: #555; font-size: 1.1rem; line-height: 1.8; margin-left: 1.5rem;">
+                        <li>Working with <strong>complex data structures</strong></li>
+                        <li>Extracting data from <strong>API responses</strong></li>
+                        <li>Passing <strong>multiple parameters</strong> to functions</li>
+                        <li>Creating objects with <strong>many properties</strong></li>
+                        <li>Making code more <strong>readable and concise</strong></li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="info-box">
+                <strong>Benefits:</strong>
+                <p style="margin-top: 0.5rem; color: #555; line-height: 1.6;">
+                    Object destructuring and shorthand notation are powerful features that make your code more <strong>concise</strong> and <strong>easier to read</strong>. As you continue to work with JavaScript, you'll find many situations where these techniques can simplify your code and make it more expressive!
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div class="navigation">
+        <button class="nav-button" id="prevBtn" onclick="changeSlide(-1)">← Previous</button>
+        <span class="slide-counter">
+            <span id="currentSlide">1</span> / <span id="totalSlides">7</span>
+        </span>
+        <button class="nav-button" id="nextBtn" onclick="changeSlide(1)">Next →</button>
+    </div>
+
+    <script>
+        let currentSlide = 1;
+        const totalSlides = document.querySelectorAll('.slide').length;
+        
+        document.getElementById('totalSlides').textContent = totalSlides;
+        
+        function showSlide(n) {
+            const slides = document.querySelectorAll('.slide');
+            
+            if (n > totalSlides) {
+                currentSlide = totalSlides;
+            }
+            if (n < 1) {
+                currentSlide = 1;
+            }
+            
+            slides.forEach(slide => {
+                slide.classList.remove('active');
+            });
+            
+            slides[currentSlide - 1].classList.add('active');
+            
+            document.getElementById('currentSlide').textContent = currentSlide;
+            
+            // Update button states
+            document.getElementById('prevBtn').disabled = currentSlide === 1;
+            document.getElementById('nextBtn').disabled = currentSlide === totalSlides;
+            
+            // Scroll to top of slide
+            window.scrollTo(0, 0);
+        }
+        
+        function changeSlide(direction) {
+            currentSlide += direction;
+            showSlide(currentSlide);
+        }
+        
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowLeft') {
+                changeSlide(-1);
+            } else if (e.key === 'ArrowRight') {
+                changeSlide(1);
+            }
+        });
+        
+        // Initialize
+        showSlide(currentSlide);
+    </script>
+</body>
+</html>
