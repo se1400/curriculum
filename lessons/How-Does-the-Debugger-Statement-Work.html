@@ -1,0 +1,770 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debugger Statement Presentation</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            color: #2c3e50;
+            overflow-x: hidden;
+        }
+
+        .slide-container {
+            min-height: 100vh;
+            padding: 2rem;
+            padding-bottom: 100px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .slide {
+            display: none;
+            animation: fadeIn 0.5s ease-in;
+            background: white;
+            padding: 2.5rem;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        .slide.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        h1 {
+            color: #881518;
+            font-size: 2.5rem;
+            margin-bottom: 2rem;
+            border-bottom: 3px solid #881518;
+            padding-bottom: 0.5rem;
+        }
+
+        h2 {
+            color: #a81d21;
+            font-size: 2rem;
+            margin-bottom: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        h3 {
+            color: #c82428;
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        p {
+            font-size: 1.2rem;
+            line-height: 1.8;
+            margin-bottom: 1rem;
+            color: #34495e;
+        }
+
+        ul {
+            margin-left: 2rem;
+            margin-bottom: 1.5rem;
+        }
+
+        li {
+            font-size: 1.1rem;
+            line-height: 1.8;
+            margin-bottom: 0.8rem;
+            list-style-type: none;
+            position: relative;
+            padding-left: 1.5rem;
+            color: #34495e;
+        }
+
+        li:before {
+            content: "→";
+            color: #881518;
+            font-weight: bold;
+            position: absolute;
+            left: 0;
+        }
+
+        .concept-box {
+            background: linear-gradient(135deg, #fff5f5 0%, #ffe5e5 100%);
+            border-left: 4px solid #881518;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 8px;
+        }
+
+        .code-example {
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            overflow-x: auto;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        code {
+            color: #e83e8c;
+            font-family: 'Courier New', monospace;
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        .keyword {
+            color: #881518;
+            font-weight: 600;
+        }
+
+        .string {
+            color: #4caf50;
+        }
+
+        .comment {
+            color: #6c757d;
+            font-style: italic;
+        }
+
+        .highlight {
+            color: #881518;
+            font-weight: 600;
+            background: #fff5f5;
+            padding: 0.2rem 0.4rem;
+            border-radius: 3px;
+        }
+
+        .two-column {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+
+        .column {
+            background: #f8f9fa;
+            padding: 1.5rem;
+            border-radius: 8px;
+            border: 1px solid #e9ecef;
+        }
+
+        .nav-buttons {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(to top, rgba(255, 255, 255, 0.98) 0%, rgba(255, 255, 255, 0.95) 80%, transparent 100%);
+            padding: 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 1000;
+            box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        button {
+            background: #881518;
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            font-size: 1.1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            box-shadow: 0 4px 12px rgba(136, 21, 24, 0.2);
+        }
+
+        button:hover {
+            background: #a81d21;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(136, 21, 24, 0.3);
+        }
+
+        button:disabled {
+            background: #cbd5e0;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+            color: #a0aec0;
+        }
+
+        .slide-counter {
+            color: #718096;
+            font-size: 1rem;
+            font-weight: 600;
+        }
+
+        .example-box {
+            background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
+            border-left: 4px solid #4caf50;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 8px;
+        }
+
+        .info-box {
+            background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+            border-left: 4px solid #2196f3;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 8px;
+        }
+
+        .warning-box {
+            background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%);
+            border-left: 4px solid #ff9800;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 8px;
+        }
+
+        strong {
+            color: #881518;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 1.8rem;
+            }
+
+            h2 {
+                font-size: 1.5rem;
+            }
+
+            h3 {
+                font-size: 1.3rem;
+            }
+
+            p, li {
+                font-size: 1rem;
+            }
+
+            .slide-container {
+                padding: 1rem;
+                padding-bottom: 100px;
+            }
+
+            .slide {
+                padding: 1.5rem;
+            }
+
+            .two-column {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+
+            button {
+                padding: 0.8rem 1.5rem;
+                font-size: 1rem;
+            }
+
+            .nav-buttons {
+                padding: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="slide-container">
+        <!-- Slide 1: Introduction -->
+        <div class="slide active">
+            <h1>The debugger Statement</h1>
+            
+            <div class="concept-box">
+                <h3>What is the debugger Statement?</h3>
+                <p>The <span class="highlight">debugger statement</span> is a powerful JavaScript tool that lets you <strong>pause your code at a specific line</strong> to investigate what's going on in the program.</p>
+            </div>
+
+            <h2>Why Use It?</h2>
+            <p>When used correctly, the debugger statement can <strong>save you a lot of time</strong> trying to figure out why something is not working as it should.</p>
+
+            <div class="example-box">
+                <h3>What Can You Do?</h3>
+                <ul>
+                    <li>Inspect variables at a specific point</li>
+                    <li>Check function values</li>
+                    <li>Understand the flow of code</li>
+                    <li>See exactly what's going right or wrong</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Slide 2: How JavaScript Executes -->
+        <div class="slide">
+            <h1>How JavaScript Executes Code</h1>
+
+            <div class="concept-box">
+                <h3>Normal Execution</h3>
+                <p>JavaScript executes your code <span class="highlight">from top to bottom</span>.</p>
+            </div>
+
+            <h2>What Happens with debugger?</h2>
+            <p>When JavaScript executes your code and hits a <code>debugger</code> statement, it <strong>immediately pauses execution</strong> at that line.</p>
+
+            <div class="example-box">
+                <h3>The Pause</h3>
+                <p>This pause gives you the chance to:</p>
+                <ul>
+                    <li>Inspect variables at that exact moment</li>
+                    <li>Check function values</li>
+                    <li>Examine the flow of code in general</li>
+                    <li>See exactly what is going right or wrong</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Slide 3: Important Requirement -->
+        <div class="slide">
+            <h1>Important Requirement</h1>
+
+            <div class="warning-box">
+                <h3>⚠️ Developer Tools Must Be Open</h3>
+                <p>The debugger statement <strong>only works if your browser's developer tools are open</strong>.</p>
+            </div>
+
+            <h2>Two Scenarios</h2>
+
+            <div class="two-column">
+                <div class="column">
+                    <h3>Developer Tools Open</h3>
+                    <ul>
+                        <li>Code execution <strong>pauses</strong></li>
+                        <li>You can inspect variables</li>
+                        <li>You can step through code</li>
+                        <li>debugger is active</li>
+                    </ul>
+                </div>
+
+                <div class="column">
+                    <h3>Developer Tools Closed</h3>
+                    <ul>
+                        <li>debugger is <strong>ignored</strong></li>
+                        <li>Code continues normally</li>
+                        <li>No pause occurs</li>
+                        <li>No debugging happens</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="info-box">
+                <p><strong>Tip:</strong> Open developer tools with F12 (Windows/Linux) or Cmd+Option+I (Mac)</p>
+            </div>
+        </div>
+
+        <!-- Slide 4: Modern Browser Behavior -->
+        <div class="slide">
+            <h1>Modern Browser Behavior</h1>
+
+            <div class="concept-box">
+                <h3>What Modern Browsers Do</h3>
+                <p>When you use the debugger statement, modern browsers will:</p>
+            </div>
+
+            <h2>Browser Actions</h2>
+            <ul>
+                <li><strong>Pause code execution</strong> at the specified line</li>
+                <li><strong>Highlight the line</strong> where execution stopped</li>
+                <li><strong>Show variable values</strong> in the scope</li>
+                <li><strong>Provide a play button</strong> to resume execution</li>
+                <li><strong>Keep the page active</strong> (no automatic reload)</li>
+            </ul>
+
+            <div class="info-box">
+                <h3>Resuming Execution</h3>
+                <p>You can resume execution by clicking the <strong>play button</strong> in the developer tools.</p>
+                <p>The page itself does <strong>not automatically reload</strong> unless manually triggered.</p>
+            </div>
+        </div>
+
+        <!-- Slide 5: How to Use debugger -->
+        <div class="slide">
+            <h1>How to Use the debugger Statement</h1>
+
+            <div class="concept-box">
+                <h3>Simple Usage</h3>
+                <p>To use the debugger statement, place it at the line where you want code execution to pause.</p>
+            </div>
+
+            <h2>Syntax</h2>
+            <div class="code-example">
+                <code>
+debugger;
+                </code>
+            </div>
+
+            <div class="example-box">
+                <h3>Placement Strategy</h3>
+                <ul>
+                    <li>Place it <strong>before</strong> the code you want to inspect</li>
+                    <li>Put it where you suspect the bug might be</li>
+                    <li>Use it at the start of a function to check inputs</li>
+                    <li>Add it before critical calculations</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Slide 6: Simple Example -->
+        <div class="slide">
+            <h1>Simple Example</h1>
+
+            <div class="concept-box">
+                <h3>Basic Variable Inspection</h3>
+                <p>Let's see a simple example of using the debugger statement.</p>
+            </div>
+
+            <h2>Code</h2>
+            <div class="code-example">
+                <code>
+<span class="keyword">let</span> firstNumber = <span class="string">5</span>;<br>
+<span class="keyword">let</span> secondNumber = <span class="string">10</span>;<br>
+debugger; <span class="comment">// Code execution pauses here</span><br>
+<span class="keyword">let</span> sum = firstNumber + secondNumber;<br>
+console.log(sum);
+                </code>
+            </div>
+
+            <div class="info-box">
+                <h3>What Happens?</h3>
+                <p>When the code reaches the <code>debugger</code> line, execution pauses. At this point:</p>
+                <ul>
+                    <li><code>firstNumber</code> is 5</li>
+                    <li><code>secondNumber</code> is 10</li>
+                    <li><code>sum</code> hasn't been calculated yet</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Slide 7: Simple Example Behavior -->
+        <div class="slide">
+            <h1>Simple Example: Behavior</h1>
+
+            <h2>Console Closed Scenario</h2>
+            <div class="example-box">
+                <p>If you <strong>don't have the console open</strong> before the code runs and you eventually open it, you'll see <code>15</code> in the console.</p>
+                <p>The debugger statement was <strong>ignored</strong> because dev tools weren't open.</p>
+            </div>
+
+            <h2>Console Open Scenario</h2>
+            <div class="example-box">
+                <p>If the <strong>console is open</strong> and you reload the page:</p>
+                <ul>
+                    <li>Execution <strong>pauses</strong> at the debugger line</li>
+                    <li>You can inspect <code>firstNumber</code> and <code>secondNumber</code></li>
+                    <li>You can see that <code>sum</code> doesn't exist yet</li>
+                    <li>Click play to continue and see <code>15</code> logged</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Slide 8: Complex Example -->
+        <div class="slide">
+            <h1>More Complex Example</h1>
+
+            <div class="concept-box">
+                <h3>Function with debugger</h3>
+                <p>Let's look at a more complex example with a function.</p>
+            </div>
+
+            <h2>Code</h2>
+            <div class="code-example">
+                <code style="font-size: 0.85rem;">
+<span class="keyword">function</span> calculateTotalPrice(price, discountPercentage) {<br>
+&nbsp;&nbsp;debugger; <span class="comment">// Pauses when function is called</span><br>
+&nbsp;&nbsp;<span class="keyword">let</span> discountAmount = (price * discountPercentage) / <span class="string">100</span>;<br>
+&nbsp;&nbsp;<span class="keyword">let</span> totalPrice = price - discountAmount;<br>
+&nbsp;&nbsp;console.log(<span class="string">`Original Price: ${price}`</span>);<br>
+&nbsp;&nbsp;console.log(<span class="string">`Discount Amount: ${discountAmount}`</span>);<br>
+&nbsp;&nbsp;console.log(<span class="string">`Total Price after Discount: ${totalPrice}`</span>);<br>
+&nbsp;&nbsp;<span class="keyword">return</span> totalPrice;<br>
+}
+                </code>
+            </div>
+        </div>
+
+        <!-- Slide 9: Complex Example - Calling the Function -->
+        <div class="slide">
+            <h1>Complex Example: Function Call</h1>
+
+            <h2>Calling the Function</h2>
+            <div class="code-example">
+                <code>
+<span class="keyword">let</span> price = <span class="string">100</span>;<br>
+<span class="keyword">let</span> discount = <span class="string">15</span>;<br>
+<span class="keyword">let</span> finalPrice = calculateTotalPrice(price, discount);<br>
+console.log(<span class="string">`Final Price: ${finalPrice}`</span>);
+                </code>
+            </div>
+
+            <div class="concept-box">
+                <h3>When Pause Occurs</h3>
+                <p>The debugger statement is placed at the <strong>top of the calculateTotalPrice function</strong>.</p>
+                <p>When the function is called, execution will be <strong>paused</strong> immediately.</p>
+            </div>
+        </div>
+
+        <!-- Slide 10: Complex Example - Inspection -->
+        <div class="slide">
+            <h1>Complex Example: What You Can Inspect</h1>
+
+            <div class="concept-box">
+                <h3>When Paused</h3>
+                <p>When execution pauses at the debugger statement, you can inspect:</p>
+            </div>
+
+            <h2>Available Information</h2>
+
+            <div class="example-box">
+                <h3>Function Parameters</h3>
+                <ul>
+                    <li><code>price</code> = 100</li>
+                    <li><code>discountPercentage</code> = 15</li>
+                </ul>
+            </div>
+
+            <div class="info-box">
+                <h3>Variables Not Yet Created</h3>
+                <ul>
+                    <li><code>discountAmount</code> - not calculated yet</li>
+                    <li><code>totalPrice</code> - not calculated yet</li>
+                </ul>
+            </div>
+
+            <p>You can then step through the code line by line to watch these variables get created and calculated.</p>
+        </div>
+
+        <!-- Slide 11: Page Reloading Behavior -->
+        <div class="slide">
+            <h1>Page Reloading Behavior</h1>
+
+            <div class="concept-box">
+                <h3>Continuous Execution</h3>
+                <p>If you reload the page with the console opened, you'll notice something interesting.</p>
+            </div>
+
+            <h2>What You'll See</h2>
+            <div class="info-box">
+                <p>The page keeps <strong>reloading</strong>, confirming that the execution of the code is only <strong>paused, not stopped</strong>.</p>
+            </div>
+
+            <h2>To Continue Execution</h2>
+            <div class="example-box">
+                <h3>Resume Button</h3>
+                <p>If you want execution to continue, you can click the <strong>play button</strong> in the developer tools.</p>
+                <ul>
+                    <li>Usually labeled "Resume script execution"</li>
+                    <li>Often has a play/triangle icon</li>
+                    <li>Keyboard shortcut: F8 (in most browsers)</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Slide 12: Debugging Workflow -->
+        <div class="slide">
+            <h1>Typical Debugging Workflow</h1>
+
+            <div class="concept-box">
+                <h3>Step-by-Step Process</h3>
+            </div>
+
+            <h2>1. Add debugger Statement</h2>
+            <p>Place <code>debugger;</code> where you want to pause</p>
+
+            <h2>2. Open Developer Tools</h2>
+            <p>Press F12 or Cmd+Option+I</p>
+
+            <h2>3. Run or Reload Page</h2>
+            <p>Execute the code that contains the debugger</p>
+
+            <h2>4. Inspect Variables</h2>
+            <p>Examine values in the scope panel</p>
+
+            <h2>5. Step Through Code</h2>
+            <p>Use step buttons to execute line by line</p>
+
+            <h2>6. Resume or Stop</h2>
+            <p>Click play to continue or stop debugging</p>
+        </div>
+
+        <!-- Slide 13: Benefits of Using debugger -->
+        <div class="slide">
+            <h1>Benefits of Using debugger</h1>
+
+            <div class="concept-box">
+                <h3>Why Use debugger Over console.log?</h3>
+            </div>
+
+            <h2>Advantages</h2>
+
+            <div class="example-box">
+                <h3>✓ Better Control</h3>
+                <ul>
+                    <li>Pause execution at exact points</li>
+                    <li>Step through code line by line</li>
+                    <li>Inspect the entire scope</li>
+                </ul>
+            </div>
+
+            <div class="example-box">
+                <h3>✓ See Everything</h3>
+                <ul>
+                    <li>View all variables in scope</li>
+                    <li>Examine the call stack</li>
+                    <li>Check function arguments</li>
+                </ul>
+            </div>
+
+            <div class="example-box">
+                <h3>✓ Save Time</h3>
+                <ul>
+                    <li>No need to add multiple console.log statements</li>
+                    <li>Real-time variable inspection</li>
+                    <li>Quickly identify issues</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Slide 14: Best Practices -->
+        <div class="slide">
+            <h1>Best Practices</h1>
+
+            <h2>Do's</h2>
+            <div class="example-box">
+                <ul>
+                    <li><strong>Use during development</strong> to understand code flow</li>
+                    <li><strong>Place strategically</strong> where you suspect issues</li>
+                    <li><strong>Combine with breakpoints</strong> in dev tools</li>
+                    <li><strong>Inspect variables</strong> to verify values</li>
+                    <li><strong>Step through code</strong> to trace execution</li>
+                </ul>
+            </div>
+
+            <h2>Don'ts</h2>
+            <div class="warning-box">
+                <ul>
+                    <li><strong>Don't leave in production code</strong> - remove before deployment</li>
+                    <li><strong>Don't add too many</strong> - can slow down debugging</li>
+                    <li><strong>Don't forget dev tools</strong> - must be open to work</li>
+                    <li><strong>Don't rely solely on it</strong> - use with other debugging tools</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Slide 15: Summary -->
+        <div class="slide">
+            <h1>Summary</h1>
+
+            <h2>Key Concepts</h2>
+
+            <div class="concept-box">
+                <h3>What is debugger?</h3>
+                <p>A statement that <strong>pauses code execution</strong> at a specific line to help you investigate what's happening in your program.</p>
+            </div>
+
+            <div class="concept-box">
+                <h3>Requirements</h3>
+                <ul>
+                    <li><strong>Developer tools must be open</strong> for it to work</li>
+                    <li>Otherwise, the statement is ignored</li>
+                </ul>
+            </div>
+
+            <div class="concept-box">
+                <h3>Usage</h3>
+                <div class="code-example" style="margin-top: 1rem;">
+                    <code>
+debugger; <span class="comment">// Place where you want to pause</span>
+                    </code>
+                </div>
+            </div>
+
+            <div class="concept-box">
+                <h3>Benefits</h3>
+                <ul>
+                    <li>Understand the flow of execution</li>
+                    <li>Inspect variables in real-time</li>
+                    <li>Quickly identify where things are going wrong</li>
+                    <li>Save time debugging</li>
+                </ul>
+            </div>
+
+            <div class="warning-box">
+                <h3>Remember</h3>
+                <p><strong>Always remove debugger statements before deploying to production!</strong></p>
+            </div>
+        </div>
+    </div>
+
+    <div class="nav-buttons">
+        <button id="prevBtn" onclick="changeSlide(-1)">Previous</button>
+        <span class="slide-counter">
+            <span id="currentSlide">1</span> / <span id="totalSlides">15</span>
+        </span>
+        <button id="nextBtn" onclick="changeSlide(1)">Next</button>
+    </div>
+
+    <script>
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.slide');
+        const totalSlides = slides.length;
+        
+        document.getElementById('totalSlides').textContent = totalSlides;
+
+        function showSlide(n) {
+            slides.forEach(slide => slide.classList.remove('active'));
+            
+            if (n >= totalSlides) {
+                currentSlide = totalSlides - 1;
+            } else if (n < 0) {
+                currentSlide = 0;
+            } else {
+                currentSlide = n;
+            }
+            
+            slides[currentSlide].classList.add('active');
+            document.getElementById('currentSlide').textContent = currentSlide + 1;
+            
+            // Update button states
+            document.getElementById('prevBtn').disabled = currentSlide === 0;
+            document.getElementById('nextBtn').disabled = currentSlide === totalSlides - 1;
+            
+            // Scroll to top when changing slides
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function changeSlide(direction) {
+            showSlide(currentSlide + direction);
+        }
+
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowLeft') {
+                changeSlide(-1);
+            } else if (e.key === 'ArrowRight') {
+                changeSlide(1);
+            }
+        });
+
+        // Initialize
+        showSlide(0);
+    </script>
+</body>
+</html>

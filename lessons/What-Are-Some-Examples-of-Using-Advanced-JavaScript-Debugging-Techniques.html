@@ -1,0 +1,1250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced JavaScript Debugging Presentation</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #f5f5f5 0%, #ffffff 100%);
+            color: #2d2d2d;
+            overflow-x: hidden;
+        }
+
+        .slide-container {
+            min-height: 100vh;
+            padding: 2rem 2rem 120px 2rem;
+            display: none;
+        }
+
+        .slide-container.active {
+            display: block;
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .slide-content {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            color: #881518;
+            font-size: clamp(1.8rem, 4vw, 3rem);
+            margin-bottom: 2rem;
+            border-bottom: 3px solid #881518;
+            padding-bottom: 1rem;
+        }
+
+        h2 {
+            color: #a81c1f;
+            font-size: clamp(1.4rem, 3vw, 2rem);
+            margin: 2rem 0 1rem 0;
+        }
+
+        h3 {
+            color: #c8575a;
+            font-size: clamp(1.2rem, 2.5vw, 1.5rem);
+            margin: 1.5rem 0 1rem 0;
+        }
+
+        p, li {
+            font-size: clamp(1rem, 2vw, 1.2rem);
+            line-height: 1.8;
+            margin-bottom: 1rem;
+            color: #333333;
+        }
+
+        .content-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+
+        @media (min-width: 768px) {
+            .content-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        .concept-box {
+            background: rgba(136, 21, 24, 0.05);
+            border-left: 4px solid #881518;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin: 1.5rem 0;
+        }
+
+        .code-box {
+            background: #f8f8f8;
+            border: 1px solid #d0d0d0;
+            border-radius: 8px;
+            padding: 1.5rem;
+            overflow-x: auto;
+            margin: 1rem 0;
+        }
+
+        code {
+            font-family: 'Courier New', Courier, monospace;
+            font-size: clamp(0.85rem, 1.5vw, 1rem);
+            color: #0066cc;
+        }
+
+        .keyword { color: #881518; }
+        .string { color: #2a8d2a; }
+        .function { color: #795e26; }
+        .comment { color: #008000; }
+        .property { color: #0066cc; }
+
+        .interactive-demo {
+            background: rgba(136, 21, 24, 0.03);
+            border: 2px dashed #881518;
+            border-radius: 8px;
+            padding: 2rem;
+            margin: 2rem 0;
+        }
+
+        .demo-button {
+            background: #881518;
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1.1rem;
+            font-weight: 600;
+            transition: all 0.3s;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            margin: 0.5rem;
+        }
+
+        .demo-button:hover {
+            background: #a81c1f;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(136, 21, 24, 0.3);
+        }
+
+        .demo-output {
+            background: white;
+            border: 2px solid #881518;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1rem 0;
+            min-height: 80px;
+        }
+
+        ul {
+            margin-left: 2rem;
+        }
+
+        .navigation {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(to top, #ffffff, rgba(255, 255, 255, 0.98));
+            padding: 1.5rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+            border-top: 2px solid #e0e0e0;
+        }
+
+        .nav-button {
+            background: #881518;
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: clamp(0.9rem, 2vw, 1.1rem);
+            font-weight: 600;
+            transition: all 0.3s;
+            min-width: 100px;
+        }
+
+        .nav-button:hover:not(:disabled) {
+            background: #a81c1f;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(136, 21, 24, 0.3);
+        }
+
+        .nav-button:disabled {
+            background: #cccccc;
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        .slide-counter {
+            color: #881518;
+            font-weight: 600;
+            font-size: clamp(1rem, 2vw, 1.2rem);
+        }
+
+        @media (max-width: 768px) {
+            .navigation {
+                padding: 1rem;
+            }
+
+            .nav-button {
+                padding: 0.75rem 1rem;
+                min-width: 80px;
+            }
+        }
+
+        .highlight {
+            background: rgba(136, 21, 24, 0.15);
+            padding: 0.2rem 0.4rem;
+            border-radius: 3px;
+            font-weight: 600;
+        }
+
+        .inline-code {
+            background: #f0f0f0;
+            padding: 0.2rem 0.5rem;
+            border-radius: 3px;
+            font-family: 'Courier New', Courier, monospace;
+            color: #881518;
+            font-size: 0.9em;
+        }
+
+        .success-box {
+            background: linear-gradient(135deg, #d4edda, #c3e6cb);
+            border: 2px solid #28a745;
+            border-left: 6px solid #1e7e34;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+        }
+
+        .success-box h3 {
+            color: #1e7e34;
+            margin-top: 0;
+        }
+
+        .info-box {
+            background: linear-gradient(135deg, #e3f2fd, #bbdefb);
+            border: 2px solid #2196f3;
+            border-left: 6px solid #1976d2;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+        }
+
+        .info-box h3 {
+            color: #1565c0;
+            margin-top: 0;
+        }
+
+        .warning-box {
+            background: linear-gradient(135deg, #fff3cd, #ffe69c);
+            border: 2px solid #ffc107;
+            border-left: 6px solid #ff9800;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+        }
+
+        .warning-box h3 {
+            color: #ff6f00;
+            margin-top: 0;
+        }
+
+        .step-number {
+            display: inline-block;
+            background: #881518;
+            color: white;
+            width: 2.5rem;
+            height: 2.5rem;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 2.5rem;
+            font-weight: bold;
+            margin-right: 1rem;
+        }
+
+        .devtools-mockup {
+            background: #2d2d2d;
+            border: 2px solid #881518;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1rem 0;
+            color: #e0e0e0;
+            font-family: 'Courier New', Courier, monospace;
+        }
+
+        .devtools-tab {
+            background: #3a3a3a;
+            padding: 0.5rem 1rem;
+            border-radius: 5px 5px 0 0;
+            display: inline-block;
+            margin-right: 0.5rem;
+            font-weight: bold;
+        }
+
+        .devtools-tab.active {
+            background: #881518;
+            color: white;
+        }
+
+        .console-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1rem 0;
+            background: white;
+        }
+
+        .console-table th {
+            background: #881518;
+            color: white;
+            padding: 0.75rem;
+            text-align: left;
+            border: 1px solid #d0d0d0;
+        }
+
+        .console-table td {
+            padding: 0.75rem;
+            border: 1px solid #d0d0d0;
+        }
+
+        .console-table tr:nth-child(even) {
+            background: #f8f8f8;
+        }
+
+        .dir-output {
+            background: white;
+            border: 2px solid #881518;
+            border-radius: 8px;
+            padding: 1rem;
+            margin: 1rem 0;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.9rem;
+        }
+
+        .expandable {
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .expandable::before {
+            content: '▶ ';
+            display: inline-block;
+            transition: transform 0.2s;
+        }
+
+        .expandable.expanded::before {
+            transform: rotate(90deg);
+        }
+
+        .nested {
+            margin-left: 1.5rem;
+            display: none;
+        }
+
+        .nested.visible {
+            display: block;
+        }
+
+        .technique-card {
+            background: white;
+            border: 2px solid #881518;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1rem 0;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .technique-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(136, 21, 24, 0.3);
+        }
+
+        .technique-card h4 {
+            color: #881518;
+            margin-bottom: 0.5rem;
+            font-size: 1.3rem;
+        }
+
+        .screenshot-placeholder {
+            background: #f0f0f0;
+            border: 2px dashed #881518;
+            border-radius: 8px;
+            padding: 3rem;
+            text-align: center;
+            color: #666;
+            font-style: italic;
+            margin: 1rem 0;
+        }
+    </style>
+</head>
+<body>
+    <!-- Slide 1: Introduction -->
+    <div class="slide-container active">
+        <div class="slide-content">
+            <h1>Advanced JavaScript Debugging Techniques</h1>
+            
+            <div class="concept-box">
+                <h2>Beyond console.log()</h2>
+                <p>Debugging your JavaScript programs goes <span class="highlight">beyond using console.log()</span> statements in your code.</p>
+                <p>There are more advanced techniques that make debugging a breeze once you get used to them.</p>
+            </div>
+
+            <div class="success-box">
+                <h3>✓ Five Advanced Techniques</h3>
+                <p>1. <strong>Breakpoints</strong> - Pause execution at specific lines</p>
+                <p>2. <strong>Watch Expressions</strong> - Monitor variable values</p>
+                <p>3. <strong>Profiling</strong> - Identify performance bottlenecks</p>
+                <p>4. <strong>Network Inspection</strong> - Debug API requests</p>
+                <p>5. <strong>Console Methods</strong> - console.table() and console.dir()</p>
+            </div>
+
+            <div class="info-box">
+                <h3>Why Learn These Techniques?</h3>
+                <p>Let's go through those more advanced techniques so you'll be <span class="highlight">happy to debug</span> your JavaScript program once you run into errors.</p>
+                <p>• Faster debugging</p>
+                <p>• Better understanding of code flow</p>
+                <p>• Identify performance issues</p>
+                <p>• Solve complex problems efficiently</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 2: Breakpoints Introduction -->
+    <div class="slide-container">
+        <div class="slide-content">
+            <h1>Breakpoints</h1>
+
+            <div class="concept-box">
+                <h2>Pause and Inspect</h2>
+                <p>The first concept we will take a look at is working with <span class="highlight">breakpoints</span>.</p>
+                <p>Breakpoints let you <strong>pause the execution</strong> of your code at a specific line of your choice.</p>
+            </div>
+
+            <div class="info-box">
+                <h3>What You Can Do After Pause</h3>
+                <p>After the pause, you can:</p>
+                <p>• <strong>Inspect variables</strong> - See current values</p>
+                <p>• <strong>Evaluate expressions</strong> - Test code snippets</p>
+                <p>• <strong>Examine the call stack</strong> - See how you got there</p>
+            </div>
+
+            <div class="success-box">
+                <h3>✓ Why Use Breakpoints?</h3>
+                <p>Instead of guessing where the problem is with console.log(), breakpoints let you:</p>
+                <p>• Stop exactly where you need to investigate</p>
+                <p>• See the state of your program at that moment</p>
+                <p>• Step through code line by line</p>
+                <p>• Understand the flow of execution</p>
+            </div>
+
+            <div class="warning-box">
+                <h3>💡 Much Better Than console.log()</h3>
+                <p>Breakpoints are more powerful because you can inspect <strong>everything</strong> at that moment in time, not just what you remembered to log!</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 3: How to Add Breakpoints -->
+    <div class="slide-container">
+        <div class="slide-content">
+            <h1>Adding Breakpoints in Chrome</h1>
+
+            <div class="concept-box">
+                <h2>Step-by-Step Instructions</h2>
+                <p>To add a breakpoint to any line in your code in the Chrome browser:</p>
+            </div>
+
+            <div class="info-box">
+                <h3>Steps</h3>
+                <p><span class="step-number">1</span> Open the <strong>Developer Tools</strong> (F12 or Right-click → Inspect)</p>
+                <p><span class="step-number">2</span> Navigate to the <span class="highlight">Sources tab</span></p>
+                <p><span class="step-number">3</span> Open the JavaScript file you want to debug</p>
+                <p><span class="step-number">4</span> Click on a <strong>line number</strong> to set a breakpoint</p>
+            </div>
+
+            <div class="screenshot-placeholder">
+                📸 Chrome DevTools - Sources Tab
+                <br>Click line numbers to add breakpoints
+                <br>Blue marker appears when breakpoint is set
+            </div>
+
+            <div class="success-box">
+                <h3>✓ What Happens Next?</h3>
+                <p>After the execution reaches the breakpoint and stops, you can <strong>step through the code</strong> by using the icons on the top right corner.</p>
+                <p>Common controls:</p>
+                <p>• <strong>Resume (F8):</strong> Continue execution</p>
+                <p>• <strong>Step Over (F10):</strong> Execute current line</p>
+                <p>• <strong>Step Into (F11):</strong> Go into function calls</p>
+                <p>• <strong>Step Out (Shift+F11):</strong> Exit current function</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 4: Conditional Breakpoints -->
+    <div class="slide-container">
+        <div class="slide-content">
+            <h1>Conditional Breakpoints</h1>
+
+            <div class="concept-box">
+                <h2>Break Only When Condition is True</h2>
+                <p>You can also add a <span class="highlight">conditional breakpoint</span> by right-clicking on a line and selecting <strong>"Add conditional breakpoint..."</strong></p>
+            </div>
+
+            <div class="info-box">
+                <h3>Why Use Conditional Breakpoints?</h3>
+                <p>Sometimes you only want to pause when a specific condition is met:</p>
+                <p>• When a variable equals a certain value</p>
+                <p>• When an error condition occurs</p>
+                <p>• During a specific iteration of a loop</p>
+                <p>• When a particular user action happens</p>
+            </div>
+
+            <h3>Example Conditions</h3>
+            <div class="code-box">
+                <code>
+<span class="comment">// Break when user ID is 123</span>
+userId === <span class="keyword">123</span>
+
+<span class="comment">// Break when array is empty</span>
+arr.length === <span class="keyword">0</span>
+
+<span class="comment">// Break on 5th iteration</span>
+i === <span class="keyword">5</span>
+
+<span class="comment">// Break when error occurs</span>
+response.status >= <span class="keyword">400</span>
+
+<span class="comment">// Break when data is null or undefined</span>
+data == <span class="keyword">null</span>
+                </code>
+            </div>
+
+            <div class="success-box">
+                <h3>✓ Super Useful!</h3>
+                <p>Conditional breakpoints save time by only pausing when you actually need to investigate, instead of pausing on every execution.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 5: Watch Expressions -->
+    <div class="slide-container">
+        <div class="slide-content">
+            <h1>Watch Expressions</h1>
+
+            <div class="concept-box">
+                <h2>Monitor Variables</h2>
+                <p>Now, let's move on to <span class="highlight">watching expressions</span>.</p>
+                <p>Watch expressions lets you <strong>monitor the values</strong> of variables or expressions as the code runs <span class="highlight">even if they are out of the current scope</span>.</p>
+            </div>
+
+            <div class="info-box">
+                <h3>How to Add Watch Expressions</h3>
+                <p><span class="step-number">1</span> Navigate to the <strong>Sources tab</strong> of the developer tools</p>
+                <p><span class="step-number">2</span> Look for the <strong>Watch panel</strong> on the right</p>
+                <p><span class="step-number">3</span> Click the <strong>plus (+) icon</strong> to add it</p>
+            </div>
+
+            <h3>What You Can Watch</h3>
+            <div class="code-box">
+                <code>
+<span class="comment">// Watch a simple variable</span>
+userName
+
+<span class="comment">// Watch an object property</span>
+user.email
+
+<span class="comment">// Watch an expression</span>
+users.length > <span class="keyword">10</span>
+
+<span class="comment">// Watch a calculation</span>
+totalPrice * <span class="keyword">0.9</span>
+
+<span class="comment">// Watch array element</span>
+items[<span class="keyword">0</span>].price
+                </code>
+            </div>
+
+            <div class="success-box">
+                <h3>✓ Key Advantage</h3>
+                <p>Watch expressions update <strong>in real-time</strong> as you step through your code, showing you how values change!</p>
+                <p>You can watch variables <span class="highlight">even when they're not in the current scope</span>, making it easy to track important values throughout your program.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 6: Profiling -->
+    <div class="slide-container">
+        <div class="slide-content">
+            <h1>Profiling</h1>
+
+            <div class="concept-box">
+                <h2>Find Performance Bottlenecks</h2>
+                <p>The next concept we will look at is <span class="highlight">profiling</span>.</p>
+                <p>Profiling helps you <strong>identify performance bottlenecks</strong> by letting you capture screenshots and record CPU usage, function calls, and execution time.</p>
+            </div>
+
+            <div class="info-box">
+                <h3>How to Profile Your Code</h3>
+                <p><span class="step-number">1</span> Open the <strong>Performance tab</strong> in DevTools</p>
+                <p><span class="step-number">2</span> Click <strong>record</strong> (red circle button)</p>
+                <p><span class="step-number">3</span> Perform the action you want to profile</p>
+                <p><span class="step-number">4</span> Stop the recording to analyze the results</p>
+            </div>
+
+            <div class="success-box">
+                <h3>✓ What You Can Find</h3>
+                <p>This could be useful if your application is <span class="highlight">lagging during certain operations</span>.</p>
+                <p>With the profiler, you can see:</p>
+                <p>• Which function consumes the most resources</p>
+                <p>• How long each operation takes</p>
+                <p>• CPU usage over time</p>
+                <p>• Memory allocation patterns</p>
+                <p>• Rendering performance</p>
+            </div>
+
+            <div class="warning-box">
+                <h3>💡 Use Case</h3>
+                <p>If your page is slow or unresponsive, profiling shows you <strong>exactly where</strong> the performance problems are!</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 7: Network Inspection -->
+    <div class="slide-container">
+        <div class="slide-content">
+            <h1>Inspecting Network Requests</h1>
+
+            <div class="concept-box">
+                <h2>Debug API Issues</h2>
+                <p>Now, let's move onto <span class="highlight">inspecting network requests</span>.</p>
+                <p>Inspecting network requests can help you debug issues related to <strong>API requests</strong> such as parameter errors, address errors, or server errors.</p>
+            </div>
+
+            <div class="info-box">
+                <h3>How to Use the Network Tab</h3>
+                <p><span class="step-number">1</span> Open the developer tools</p>
+                <p><span class="step-number">2</span> Head over to the <strong>Network tab</strong></p>
+                <p><span class="step-number">3</span> Perform actions that make requests</p>
+                <p><span class="step-number">4</span> Click on individual requests to see details</p>
+            </div>
+
+            <div class="success-box">
+                <h3>✓ What You Can See</h3>
+                <p>Click on individual requests to see details like:</p>
+                <p>• <strong>Headers:</strong> Request and response headers</p>
+                <p>• <strong>Response:</strong> The data returned from the server</p>
+                <p>• <strong>Payloads:</strong> Data sent with the request</p>
+                <p>• <strong>Timing:</strong> How long the request took</p>
+                <p>• <strong>Status Code:</strong> Success (200) or errors (404, 500, etc.)</p>
+            </div>
+
+            <div class="screenshot-placeholder">
+                📸 Chrome DevTools - Network Tab
+                <br>List of all HTTP requests
+                <br>Click any request for detailed information
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 8: console.table() -->
+    <div class="slide-container">
+        <div class="slide-content">
+            <h1>console.table()</h1>
+
+            <div class="concept-box">
+                <h2>Display Data as a Table</h2>
+                <p>For the last portion of this lesson, we will focus on <span class="inline-code">console.table</span> and <span class="inline-code">console.dir</span>.</p>
+                <p><span class="inline-code">console.table()</span> displays <span class="highlight">tabular data as a table</span> in the console.</p>
+            </div>
+
+            <div class="info-box">
+                <h3>Syntax</h3>
+                <p>It takes one <strong>mandatory argument</strong>, which must be an array or an object, and one <strong>optional argument</strong> to specify which properties or columns to display.</p>
+            </div>
+
+            <h3>Example with Array of Objects</h3>
+            <div class="code-box">
+                <code>
+<span class="keyword">const</span> users = [
+  { id: <span class="keyword">1</span>, name: <span class="string">"Alice"</span>, age: <span class="keyword">25</span>, city: <span class="string">"NYC"</span> },
+  { id: <span class="keyword">2</span>, name: <span class="string">"Bob"</span>, age: <span class="keyword">30</span>, city: <span class="string">"LA"</span> },
+  { id: <span class="keyword">3</span>, name: <span class="string">"Charlie"</span>, age: <span class="keyword">35</span>, city: <span class="string">"Chicago"</span> }
+];
+
+<span class="keyword">console</span>.<span class="function">table</span>(users);
+                </code>
+            </div>
+
+            <h3>Result in Console</h3>
+            <table class="console-table">
+                <thead>
+                    <tr>
+                        <th>(index)</th>
+                        <th>id</th>
+                        <th>name</th>
+                        <th>age</th>
+                        <th>city</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>0</td>
+                        <td>1</td>
+                        <td>Alice</td>
+                        <td>25</td>
+                        <td>NYC</td>
+                    </tr>
+                    <tr>
+                        <td>1</td>
+                        <td>2</td>
+                        <td>Bob</td>
+                        <td>30</td>
+                        <td>LA</td>
+                    </tr>
+                    <tr>
+                        <td>2</td>
+                        <td>3</td>
+                        <td>Charlie</td>
+                        <td>35</td>
+                        <td>Chicago</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="success-box">
+                <h3>✓ Much Easier to Read!</h3>
+                <p>Instead of seeing a long array of objects in the console, you get a nice, organized table!</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 9: console.table() Demo -->
+    <div class="slide-container">
+        <div class="slide-content">
+            <h1>Try console.table()</h1>
+
+            <div class="interactive-demo">
+                <h3>Interactive Demo</h3>
+                <p>Click the buttons to see console.table() in action:</p>
+                
+                <div style="text-align: center; margin: 1rem 0;">
+                    <button class="demo-button" onclick="showTableUsers()">Users Array</button>
+                    <button class="demo-button" onclick="showTableProducts()">Products Array</button>
+                    <button class="demo-button" onclick="showTableSelected()">Selected Columns</button>
+                </div>
+
+                <div class="demo-output" id="table-output">
+                    <p style="color: #999; font-style: italic;">Click a button to see the table...</p>
+                </div>
+
+                <div class="concept-box" style="margin-top: 1rem;">
+                    <h4>Code Used</h4>
+                    <div id="table-code" class="code-box">
+                        <code style="color: #999;">Click a button to see the code...</code>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 10: console.dir() -->
+    <div class="slide-container">
+        <div class="slide-content">
+            <h1>console.dir()</h1>
+
+            <div class="concept-box">
+                <h2>Interactive Object Inspector</h2>
+                <p><span class="inline-code">console.dir()</span> on the other hand lets you display an <span class="highlight">interactive list of the properties</span> of a specified JavaScript object.</p>
+                <p>It outputs a <strong>hierarchical listing</strong> that can be expanded to see all nested properties.</p>
+            </div>
+
+            <h3>Example</h3>
+            <div class="code-box">
+                <code>
+<span class="keyword">const</span> user = {
+  name: <span class="string">"Alice"</span>,
+  age: <span class="keyword">25</span>,
+  address: {
+    street: <span class="string">"123 Main St"</span>,
+    city: <span class="string">"NYC"</span>,
+    zip: <span class="string">"10001"</span>
+  },
+  hobbies: [<span class="string">"reading"</span>, <span class="string">"coding"</span>, <span class="string">"hiking"</span>]
+};
+
+<span class="keyword">console</span>.<span class="function">dir</span>(user);
+                </code>
+            </div>
+
+            <div class="success-box">
+                <h3>✓ console.log() vs console.dir()</h3>
+                <p><strong>console.log():</strong> Shows a string representation</p>
+                <p><strong>console.dir():</strong> Shows an interactive tree of properties you can expand/collapse</p>
+            </div>
+
+            <div class="info-box">
+                <h3>Best For</h3>
+                <p>• Exploring complex objects</p>
+                <p>• Seeing all methods and properties</p>
+                <p>• Inspecting DOM elements as objects</p>
+                <p>• Understanding object structure</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 11: console.dir() Demo -->
+    <div class="slide-container">
+        <div class="slide-content">
+            <h1>Try console.dir()</h1>
+
+            <div class="interactive-demo">
+                <h3>Interactive Demo</h3>
+                <p>Click the buttons to explore objects with console.dir():</p>
+                
+                <div style="text-align: center; margin: 1rem 0;">
+                    <button class="demo-button" onclick="showDirSimple()">Simple Object</button>
+                    <button class="demo-button" onclick="showDirNested()">Nested Object</button>
+                    <button class="demo-button" onclick="showDirArray()">Array with Objects</button>
+                </div>
+
+                <div class="demo-output" id="dir-output">
+                    <p style="color: #999; font-style: italic;">Click a button to explore...</p>
+                </div>
+
+                <div class="concept-box" style="margin-top: 1rem;">
+                    <p><strong>Click the triangles (▶)</strong> to expand and see nested properties!</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 12: Comparison of Techniques -->
+    <div class="slide-container">
+        <div class="slide-content">
+            <h1>Debugging Techniques Comparison</h1>
+
+            <div class="content-grid">
+                <div class="technique-card">
+                    <h4>Breakpoints</h4>
+                    <p><strong>Use for:</strong> Pausing execution to inspect state</p>
+                    <p><strong>Best when:</strong> You need to see what's happening at a specific point</p>
+                    <p><strong>Location:</strong> Sources tab</p>
+                </div>
+
+                <div class="technique-card">
+                    <h4>Watch Expressions</h4>
+                    <p><strong>Use for:</strong> Monitoring variable values</p>
+                    <p><strong>Best when:</strong> Tracking how values change over time</p>
+                    <p><strong>Location:</strong> Sources tab (Watch panel)</p>
+                </div>
+
+                <div class="technique-card">
+                    <h4>Profiling</h4>
+                    <p><strong>Use for:</strong> Finding performance bottlenecks</p>
+                    <p><strong>Best when:</strong> App is slow or unresponsive</p>
+                    <p><strong>Location:</strong> Performance tab</p>
+                </div>
+
+                <div class="technique-card">
+                    <h4>Network Inspection</h4>
+                    <p><strong>Use for:</strong> Debugging API requests</p>
+                    <p><strong>Best when:</strong> Requests fail or return wrong data</p>
+                    <p><strong>Location:</strong> Network tab</p>
+                </div>
+
+                <div class="technique-card">
+                    <h4>console.table()</h4>
+                    <p><strong>Use for:</strong> Viewing arrays/objects as tables</p>
+                    <p><strong>Best when:</strong> Working with structured data</p>
+                    <p><strong>Location:</strong> Console tab</p>
+                </div>
+
+                <div class="technique-card">
+                    <h4>console.dir()</h4>
+                    <p><strong>Use for:</strong> Exploring object properties</p>
+                    <p><strong>Best when:</strong> Need to see all properties interactively</p>
+                    <p><strong>Location:</strong> Console tab</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 13: DevTools Tabs Reference -->
+    <div class="slide-container">
+        <div class="slide-content">
+            <h1>Chrome DevTools Tabs Quick Reference</h1>
+
+            <div class="content-grid">
+                <div class="info-box">
+                    <h3>Sources Tab</h3>
+                    <p>✓ Set breakpoints</p>
+                    <p>✓ Add watch expressions</p>
+                    <p>✓ Step through code</p>
+                    <p>✓ View call stack</p>
+                    <p>✓ Conditional breakpoints</p>
+                </div>
+
+                <div class="info-box">
+                    <h3>Console Tab</h3>
+                    <p>✓ console.log()</p>
+                    <p>✓ console.table()</p>
+                    <p>✓ console.dir()</p>
+                    <p>✓ console.error()</p>
+                    <p>✓ Execute JavaScript</p>
+                </div>
+
+                <div class="info-box">
+                    <h3>Network Tab</h3>
+                    <p>✓ View all requests</p>
+                    <p>✓ Inspect headers</p>
+                    <p>✓ See responses</p>
+                    <p>✓ Check timing</p>
+                    <p>✓ Filter by type</p>
+                </div>
+
+                <div class="info-box">
+                    <h3>Performance Tab</h3>
+                    <p>✓ Record performance</p>
+                    <p>✓ CPU profiling</p>
+                    <p>✓ Memory usage</p>
+                    <p>✓ Screenshots</p>
+                    <p>✓ Frame analysis</p>
+                </div>
+            </div>
+
+            <div class="devtools-mockup">
+                <div class="devtools-tab">Elements</div>
+                <div class="devtools-tab">Console</div>
+                <div class="devtools-tab active">Sources</div>
+                <div class="devtools-tab">Network</div>
+                <div class="devtools-tab">Performance</div>
+                <div style="margin-top: 1rem; padding: 1rem; background: #1e1e1e;">
+                    <p>📍 Press F12 or Right-click → Inspect to open DevTools</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 14: Best Practices -->
+    <div class="slide-container">
+        <div class="slide-content">
+            <h1>Debugging Best Practices</h1>
+
+            <div class="success-box">
+                <h3>✓ Do</h3>
+                <p>• Use breakpoints instead of console.log() for complex issues</p>
+                <p>• Set conditional breakpoints for specific scenarios</p>
+                <p>• Use console.table() for arrays and objects</p>
+                <p>• Profile performance issues before optimizing</p>
+                <p>• Check the Network tab for API problems</p>
+                <p>• Use watch expressions to track important variables</p>
+                <p>• Step through code to understand flow</p>
+            </div>
+
+            <div class="warning-box">
+                <h3>⚠️ Remember</h3>
+                <p>• Remove or disable breakpoints when done debugging</p>
+                <p>• Clear console regularly to avoid clutter</p>
+                <p>• Use appropriate console methods (error, warn, info, table, dir)</p>
+                <p>• Profile realistic scenarios, not artificial tests</p>
+                <p>• Check network requests in the Network tab, not just console</p>
+            </div>
+
+            <div class="info-box">
+                <h3>Pro Tips</h3>
+                <p>💡 Use <span class="inline-code">debugger;</span> statement in code to create programmatic breakpoint</p>
+                <p>💡 Right-click on variables while paused to add them to watch</p>
+                <p>💡 Use <span class="inline-code">console.trace()</span> to see call stack</p>
+                <p>💡 Use <span class="inline-code">console.time()</span> and <span class="inline-code">console.timeEnd()</span> to measure execution time</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 15: Key Takeaways -->
+    <div class="slide-container">
+        <div class="slide-content">
+            <h1>Key Takeaways</h1>
+
+            <div class="concept-box">
+                <h2>Your Expanded Debugging Toolkit</h2>
+                <p>Now that you have an <span class="highlight">expanded toolkit of debugging techniques</span>, put these new skills to the test in your upcoming JavaScript projects.</p>
+            </div>
+
+            <div class="success-box">
+                <h3>✓ Five Powerful Techniques</h3>
+                <p><strong>1. Breakpoints (Sources tab)</strong> - Pause execution and inspect state</p>
+                <p><strong>2. Watch Expressions (Sources tab)</strong> - Monitor values in real-time</p>
+                <p><strong>3. Profiling (Performance tab)</strong> - Find performance bottlenecks</p>
+                <p><strong>4. Network Inspection (Network tab)</strong> - Debug API requests</p>
+                <p><strong>5. Console Methods</strong> - table() for data, dir() for objects</p>
+            </div>
+
+            <div class="info-box">
+                <h3>Benefits</h3>
+                <p>By applying these strategies, you'll be able to:</p>
+                <p>• <strong>Identify</strong> issues more efficiently</p>
+                <p>• <strong>Resolve</strong> problems faster</p>
+                <p>• <strong>Understand</strong> code flow better</p>
+                <p>• <strong>Produce</strong> cleaner, more reliable code</p>
+            </div>
+
+            <div class="success-box">
+                <h3>✓ Remember</h3>
+                <p>These techniques lead to <span class="highlight">cleaner, more reliable code</span> and make you a more effective developer!</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Navigation -->
+    <div class="navigation">
+        <button class="nav-button" id="prevBtn" onclick="changeSlide(-1)">← Previous</button>
+        <div class="slide-counter">
+            <span id="currentSlide">1</span> / <span id="totalSlides">15</span>
+        </div>
+        <button class="nav-button" id="nextBtn" onclick="changeSlide(1)">Next →</button>
+    </div>
+
+    <script>
+        let currentSlide = 1;
+        const totalSlides = document.querySelectorAll('.slide-container').length;
+        
+        document.getElementById('totalSlides').textContent = totalSlides;
+        
+        function showSlide(n) {
+            const slides = document.querySelectorAll('.slide-container');
+            
+            if (n > totalSlides) {
+                currentSlide = totalSlides;
+            }
+            if (n < 1) {
+                currentSlide = 1;
+            }
+            
+            slides.forEach(slide => slide.classList.remove('active'));
+            slides[currentSlide - 1].classList.add('active');
+            
+            document.getElementById('currentSlide').textContent = currentSlide;
+            
+            // Update button states
+            document.getElementById('prevBtn').disabled = currentSlide === 1;
+            document.getElementById('nextBtn').disabled = currentSlide === totalSlides;
+            
+            // Scroll to top of page
+            window.scrollTo(0, 0);
+        }
+        
+        function changeSlide(direction) {
+            currentSlide += direction;
+            showSlide(currentSlide);
+        }
+        
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowLeft') {
+                changeSlide(-1);
+            } else if (e.key === 'ArrowRight') {
+                changeSlide(1);
+            }
+        });
+        
+        // console.table() demos
+        function showTableUsers() {
+            const output = document.getElementById('table-output');
+            const code = document.getElementById('table-code');
+            
+            code.innerHTML = `<code><span class="keyword">const</span> users = [
+  { id: <span class="keyword">1</span>, name: <span class="string">"Alice"</span>, age: <span class="keyword">25</span>, city: <span class="string">"NYC"</span> },
+  { id: <span class="keyword">2</span>, name: <span class="string">"Bob"</span>, age: <span class="keyword">30</span>, city: <span class="string">"LA"</span> },
+  { id: <span class="keyword">3</span>, name: <span class="string">"Charlie"</span>, age: <span class="keyword">35</span>, city: <span class="string">"Chicago"</span> }
+];
+
+<span class="keyword">console</span>.<span class="function">table</span>(users);</code>`;
+            
+            output.innerHTML = `
+                <table class="console-table">
+                    <thead>
+                        <tr>
+                            <th>(index)</th>
+                            <th>id</th>
+                            <th>name</th>
+                            <th>age</th>
+                            <th>city</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>0</td><td>1</td><td>Alice</td><td>25</td><td>NYC</td></tr>
+                        <tr><td>1</td><td>2</td><td>Bob</td><td>30</td><td>LA</td></tr>
+                        <tr><td>2</td><td>3</td><td>Charlie</td><td>35</td><td>Chicago</td></tr>
+                    </tbody>
+                </table>
+            `;
+        }
+        
+        function showTableProducts() {
+            const output = document.getElementById('table-output');
+            const code = document.getElementById('table-code');
+            
+            code.innerHTML = `<code><span class="keyword">const</span> products = [
+  { id: <span class="keyword">101</span>, name: <span class="string">"Laptop"</span>, price: <span class="keyword">999</span>, stock: <span class="keyword">50</span> },
+  { id: <span class="keyword">102</span>, name: <span class="string">"Mouse"</span>, price: <span class="keyword">25</span>, stock: <span class="keyword">200</span> },
+  { id: <span class="keyword">103</span>, name: <span class="string">"Keyboard"</span>, price: <span class="keyword">75</span>, stock: <span class="keyword">150</span> }
+];
+
+<span class="keyword">console</span>.<span class="function">table</span>(products);</code>`;
+            
+            output.innerHTML = `
+                <table class="console-table">
+                    <thead>
+                        <tr>
+                            <th>(index)</th>
+                            <th>id</th>
+                            <th>name</th>
+                            <th>price</th>
+                            <th>stock</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>0</td><td>101</td><td>Laptop</td><td>999</td><td>50</td></tr>
+                        <tr><td>1</td><td>102</td><td>Mouse</td><td>25</td><td>200</td></tr>
+                        <tr><td>2</td><td>103</td><td>Keyboard</td><td>75</td><td>150</td></tr>
+                    </tbody>
+                </table>
+            `;
+        }
+        
+        function showTableSelected() {
+            const output = document.getElementById('table-output');
+            const code = document.getElementById('table-code');
+            
+            code.innerHTML = `<code><span class="keyword">const</span> users = [
+  { id: <span class="keyword">1</span>, name: <span class="string">"Alice"</span>, age: <span class="keyword">25</span>, city: <span class="string">"NYC"</span> },
+  { id: <span class="keyword">2</span>, name: <span class="string">"Bob"</span>, age: <span class="keyword">30</span>, city: <span class="string">"LA"</span> }
+];
+
+<span class="comment">// Only show name and age columns</span>
+<span class="keyword">console</span>.<span class="function">table</span>(users, [<span class="string">"name"</span>, <span class="string">"age"</span>]);</code>`;
+            
+            output.innerHTML = `
+                <table class="console-table">
+                    <thead>
+                        <tr>
+                            <th>(index)</th>
+                            <th>name</th>
+                            <th>age</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>0</td><td>Alice</td><td>25</td></tr>
+                        <tr><td>1</td><td>Bob</td><td>30</td></tr>
+                    </tbody>
+                </table>
+                <p style="margin-top: 1rem; color: #1e7e34;">✓ Only selected columns displayed!</p>
+            `;
+        }
+        
+        // console.dir() demos
+        function showDirSimple() {
+            const output = document.getElementById('dir-output');
+            
+            output.innerHTML = `
+                <div class="dir-output">
+                    <div class="expandable expanded" onclick="toggleExpand(this)">Object</div>
+                    <div class="nested visible">
+                        <div style="margin-left: 1rem;">
+                            <p>name: <span style="color: #2a8d2a;">"Alice"</span></p>
+                            <p>age: <span style="color: #881518;">25</span></p>
+                            <p>email: <span style="color: #2a8d2a;">"alice@example.com"</span></p>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+        
+        function showDirNested() {
+            const output = document.getElementById('dir-output');
+            
+            output.innerHTML = `
+                <div class="dir-output">
+                    <div class="expandable expanded" onclick="toggleExpand(this)">Object</div>
+                    <div class="nested visible">
+                        <div style="margin-left: 1rem;">
+                            <p>name: <span style="color: #2a8d2a;">"Alice"</span></p>
+                            <p>age: <span style="color: #881518;">25</span></p>
+                            <div class="expandable" onclick="toggleExpand(this)">address: Object</div>
+                            <div class="nested">
+                                <div style="margin-left: 1rem;">
+                                    <p>street: <span style="color: #2a8d2a;">"123 Main St"</span></p>
+                                    <p>city: <span style="color: #2a8d2a;">"NYC"</span></p>
+                                    <p>zip: <span style="color: #2a8d2a;">"10001"</span></p>
+                                </div>
+                            </div>
+                            <div class="expandable" onclick="toggleExpand(this)">hobbies: Array(3)</div>
+                            <div class="nested">
+                                <div style="margin-left: 1rem;">
+                                    <p>0: <span style="color: #2a8d2a;">"reading"</span></p>
+                                    <p>1: <span style="color: #2a8d2a;">"coding"</span></p>
+                                    <p>2: <span style="color: #2a8d2a;">"hiking"</span></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+        
+        function showDirArray() {
+            const output = document.getElementById('dir-output');
+            
+            output.innerHTML = `
+                <div class="dir-output">
+                    <div class="expandable expanded" onclick="toggleExpand(this)">Array(2)</div>
+                    <div class="nested visible">
+                        <div style="margin-left: 1rem;">
+                            <div class="expandable" onclick="toggleExpand(this)">0: Object</div>
+                            <div class="nested">
+                                <div style="margin-left: 1rem;">
+                                    <p>name: <span style="color: #2a8d2a;">"Alice"</span></p>
+                                    <p>role: <span style="color: #2a8d2a;">"Developer"</span></p>
+                                </div>
+                            </div>
+                            <div class="expandable" onclick="toggleExpand(this)">1: Object</div>
+                            <div class="nested">
+                                <div style="margin-left: 1rem;">
+                                    <p>name: <span style="color: #2a8d2a;">"Bob"</span></p>
+                                    <p>role: <span style="color: #2a8d2a;">"Designer"</span></p>
+                                </div>
+                            </div>
+                            <p>length: <span style="color: #881518;">2</span></p>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+        
+        function toggleExpand(element) {
+            element.classList.toggle('expanded');
+            const next = element.nextElementSibling;
+            if (next && next.classList.contains('nested')) {
+                next.classList.toggle('visible');
+            }
+        }
+        
+        // Initialize
+        showSlide(currentSlide);
+    </script>
+</body>
+</html>

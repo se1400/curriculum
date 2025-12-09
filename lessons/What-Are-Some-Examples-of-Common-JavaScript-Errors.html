@@ -1,0 +1,1181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Common JavaScript Errors Presentation</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #f5f5f5 0%, #ffffff 100%);
+            color: #2d2d2d;
+            overflow-x: hidden;
+        }
+
+        .slide-container {
+            min-height: 100vh;
+            padding: 2rem 2rem 120px 2rem;
+            display: none;
+        }
+
+        .slide-container.active {
+            display: block;
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .slide-content {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            color: #881518;
+            font-size: clamp(1.8rem, 4vw, 3rem);
+            margin-bottom: 2rem;
+            border-bottom: 3px solid #881518;
+            padding-bottom: 1rem;
+        }
+
+        h2 {
+            color: #a81c1f;
+            font-size: clamp(1.4rem, 3vw, 2rem);
+            margin: 2rem 0 1rem 0;
+        }
+
+        h3 {
+            color: #c8575a;
+            font-size: clamp(1.2rem, 2.5vw, 1.5rem);
+            margin: 1.5rem 0 1rem 0;
+        }
+
+        p, li {
+            font-size: clamp(1rem, 2vw, 1.2rem);
+            line-height: 1.8;
+            margin-bottom: 1rem;
+            color: #333333;
+        }
+
+        .content-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+
+        @media (min-width: 768px) {
+            .content-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        .concept-box {
+            background: rgba(136, 21, 24, 0.05);
+            border-left: 4px solid #881518;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin: 1.5rem 0;
+        }
+
+        .code-box {
+            background: #f8f8f8;
+            border: 1px solid #d0d0d0;
+            border-radius: 8px;
+            padding: 1.5rem;
+            overflow-x: auto;
+            margin: 1rem 0;
+        }
+
+        code {
+            font-family: 'Courier New', Courier, monospace;
+            font-size: clamp(0.85rem, 1.5vw, 1rem);
+            color: #0066cc;
+        }
+
+        .keyword { color: #881518; }
+        .string { color: #2a8d2a; }
+        .function { color: #795e26; }
+        .comment { color: #008000; }
+        .property { color: #0066cc; }
+
+        .interactive-demo {
+            background: rgba(136, 21, 24, 0.03);
+            border: 2px dashed #881518;
+            border-radius: 8px;
+            padding: 2rem;
+            margin: 2rem 0;
+        }
+
+        .demo-button {
+            background: #881518;
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1.1rem;
+            font-weight: 600;
+            transition: all 0.3s;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            margin: 0.5rem;
+        }
+
+        .demo-button:hover {
+            background: #a81c1f;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(136, 21, 24, 0.3);
+        }
+
+        .demo-output {
+            background: white;
+            border: 2px solid #881518;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1rem 0;
+            min-height: 80px;
+        }
+
+        ul {
+            margin-left: 2rem;
+        }
+
+        .navigation {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(to top, #ffffff, rgba(255, 255, 255, 0.98));
+            padding: 1.5rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+            border-top: 2px solid #e0e0e0;
+        }
+
+        .nav-button {
+            background: #881518;
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: clamp(0.9rem, 2vw, 1.1rem);
+            font-weight: 600;
+            transition: all 0.3s;
+            min-width: 100px;
+        }
+
+        .nav-button:hover:not(:disabled) {
+            background: #a81c1f;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(136, 21, 24, 0.3);
+        }
+
+        .nav-button:disabled {
+            background: #cccccc;
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        .slide-counter {
+            color: #881518;
+            font-weight: 600;
+            font-size: clamp(1rem, 2vw, 1.2rem);
+        }
+
+        @media (max-width: 768px) {
+            .navigation {
+                padding: 1rem;
+            }
+
+            .nav-button {
+                padding: 0.75rem 1rem;
+                min-width: 80px;
+            }
+        }
+
+        .highlight {
+            background: rgba(136, 21, 24, 0.15);
+            padding: 0.2rem 0.4rem;
+            border-radius: 3px;
+            font-weight: 600;
+        }
+
+        .inline-code {
+            background: #f0f0f0;
+            padding: 0.2rem 0.5rem;
+            border-radius: 3px;
+            font-family: 'Courier New', Courier, monospace;
+            color: #881518;
+            font-size: 0.9em;
+        }
+
+        .success-box {
+            background: linear-gradient(135deg, #d4edda, #c3e6cb);
+            border: 2px solid #28a745;
+            border-left: 6px solid #1e7e34;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+        }
+
+        .success-box h3 {
+            color: #1e7e34;
+            margin-top: 0;
+        }
+
+        .info-box {
+            background: linear-gradient(135deg, #e3f2fd, #bbdefb);
+            border: 2px solid #2196f3;
+            border-left: 6px solid #1976d2;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+        }
+
+        .info-box h3 {
+            color: #1565c0;
+            margin-top: 0;
+        }
+
+        .warning-box {
+            background: linear-gradient(135deg, #fff3cd, #ffe69c);
+            border: 2px solid #ffc107;
+            border-left: 6px solid #ff9800;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+        }
+
+        .warning-box h3 {
+            color: #ff6f00;
+            margin-top: 0;
+        }
+
+        .error-box {
+            background: linear-gradient(135deg, #f8d7da, #f5c6cb);
+            border: 2px solid #f44336;
+            border-left: 6px solid #d32f2f;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+        }
+
+        .error-box h3 {
+            color: #c62828;
+            margin-top: 0;
+        }
+
+        .error-display {
+            background: #fff5f5;
+            border: 2px solid #f44336;
+            border-radius: 8px;
+            padding: 1rem;
+            margin: 1rem 0;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.95rem;
+            color: #d32f2f;
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+
+        .error-type {
+            display: inline-block;
+            background: #881518;
+            color: white;
+            padding: 0.3rem 0.8rem;
+            border-radius: 5px;
+            font-weight: bold;
+            margin: 0.5rem 0;
+        }
+
+        .step-number {
+            display: inline-block;
+            background: #881518;
+            color: white;
+            width: 2.5rem;
+            height: 2.5rem;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 2.5rem;
+            font-weight: bold;
+            margin-right: 1rem;
+        }
+
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+
+        @media (min-width: 768px) {
+            .comparison-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (min-width: 1024px) {
+            .comparison-grid {
+                grid-template-columns: repeat(4, 1fr);
+            }
+        }
+
+        .error-card {
+            background: white;
+            border: 2px solid #881518;
+            border-radius: 8px;
+            padding: 1.5rem;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .error-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(136, 21, 24, 0.3);
+        }
+
+        .error-card h4 {
+            color: #881518;
+            margin-bottom: 0.5rem;
+            font-size: 1.3rem;
+        }
+    </style>
+</head>
+<body>
+    <!-- Slide 1: Introduction -->
+    <div class="slide-container active">
+        <div class="slide-content">
+            <h1>Common JavaScript Errors</h1>
+            
+            <div class="concept-box">
+                <h2>Understanding Error Messages</h2>
+                <p>As you've been programming in JavaScript, you've inevitably run into <span class="highlight">error messages</span>.</p>
+                <p>Understanding common error messages will help you <strong>debug more effectively</strong> and develop into a stronger programmer.</p>
+            </div>
+
+            <div class="success-box">
+                <h3>✓ Four Common Error Types</h3>
+                <p>The four common types of error messages are:</p>
+                <p><span class="error-type">SyntaxError</span> Writing code incorrectly</p>
+                <p><span class="error-type">ReferenceError</span> Accessing undefined variables</p>
+                <p><span class="error-type">TypeError</span> Wrong type operations</p>
+                <p><span class="error-type">RangeError</span> Values outside valid range</p>
+            </div>
+
+            <div class="comparison-grid">
+                <div class="error-card">
+                    <h4>SyntaxError</h4>
+                    <p>Grammar mistakes in your code</p>
+                </div>
+                <div class="error-card">
+                    <h4>ReferenceError</h4>
+                    <p>Variable doesn't exist or not accessible</p>
+                </div>
+                <div class="error-card">
+                    <h4>TypeError</h4>
+                    <p>Operation on wrong data type</p>
+                </div>
+                <div class="error-card">
+                    <h4>RangeError</h4>
+                    <p>Value outside acceptable range</p>
+                </div>
+            </div>
+
+            <div class="info-box">
+                <h3>Why Learn About Errors?</h3>
+                <p>Understanding these errors will help you:</p>
+                <p>• Debug faster</p>
+                <p>• Write better code</p>
+                <p>• Prevent common mistakes</p>
+                <p>• Understand what went wrong</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 2: SyntaxError -->
+    <div class="slide-container">
+        <div class="slide-content">
+            <h1>SyntaxError</h1>
+
+            <div class="concept-box">
+                <h2>Grammar Mistakes in Code</h2>
+                <p>A <span class="error-type">SyntaxError</span> happens when you write something <span class="highlight">incorrectly</span> in your code, like missing a parenthesis, or a bracket.</p>
+                <p>Think of it like a <strong>grammar mistake in a sentence</strong>.</p>
+            </div>
+
+            <div class="info-box">
+                <h3>Common Example: Missing Comma in Array</h3>
+                <p>Here is a common mistake developers make when creating arrays:</p>
+            </div>
+
+            <h3>❌ Incorrect Code</h3>
+            <div class="code-box">
+                <code>
+<span class="keyword">const</span> arr = [<span class="string">"Beau"</span>, <span class="string">"Quincy"</span> <span class="string">"Tom"</span>];
+                </code>
+            </div>
+
+            <div class="error-box">
+                <h3>Error Message</h3>
+                <div class="error-display">SyntaxError: Unexpected string</div>
+            </div>
+
+            <div class="concept-box">
+                <h3>The Problem</h3>
+                <p>Each array element needs to be <span class="highlight">separated by a comma</span> otherwise it will result in an error message.</p>
+                <p>Missing the comma between <span class="inline-code">"Quincy"</span> and <span class="inline-code">"Tom"</span> causes JavaScript to not understand what you mean.</p>
+            </div>
+
+            <h3>✓ Correct Code</h3>
+            <div class="code-box">
+                <code>
+<span class="keyword">const</span> arr = [<span class="string">"Beau"</span>, <span class="string">"Quincy"</span>, <span class="string">"Tom"</span>];
+<span class="keyword">console</span>.<span class="function">log</span>(arr); <span class="comment">// ["Beau", "Quincy", "Tom"]</span>
+                </code>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 3: More SyntaxError Examples -->
+    <div class="slide-container">
+        <div class="slide-content">
+            <h1>More SyntaxError Examples</h1>
+
+            <div class="content-grid">
+                <div>
+                    <h3>❌ Missing Closing Brace</h3>
+                    <div class="code-box">
+                        <code>
+<span class="keyword">if</span> (<span class="keyword">true</span>) {
+  <span class="keyword">console</span>.<span class="function">log</span>(<span class="string">"Hello"</span>);
+<span class="comment">// Missing closing brace!</span>
+                        </code>
+                    </div>
+                    <div class="error-display">SyntaxError: Unexpected end of input</div>
+                </div>
+
+                <div>
+                    <h3>❌ Missing Closing Parenthesis</h3>
+                    <div class="code-box">
+                        <code>
+<span class="keyword">console</span>.<span class="function">log</span>(<span class="string">"Hello World"</span>;
+<span class="comment">// Missing closing parenthesis!</span>
+                        </code>
+                    </div>
+                    <div class="error-display">SyntaxError: missing ) after argument list</div>
+                </div>
+
+                <div>
+                    <h3>❌ Missing Closing Quote</h3>
+                    <div class="code-box">
+                        <code>
+<span class="keyword">const</span> message = <span class="string">"Hello World;</span>
+<span class="comment">// Missing closing quote!</span>
+                        </code>
+                    </div>
+                    <div class="error-display">SyntaxError: Invalid or unexpected token</div>
+                </div>
+
+                <div>
+                    <h3>❌ Missing Closing Bracket</h3>
+                    <div class="code-box">
+                        <code>
+<span class="keyword">const</span> numbers = [<span class="keyword">1</span>, <span class="keyword">2</span>, <span class="keyword">3</span>;
+<span class="comment">// Missing closing bracket!</span>
+                        </code>
+                    </div>
+                    <div class="error-display">SyntaxError: missing ] after element list</div>
+                </div>
+            </div>
+
+            <div class="success-box">
+                <h3>💡 How to Fix</h3>
+                <p>• Carefully check all opening and closing symbols</p>
+                <p>• Use a code editor with syntax highlighting</p>
+                <p>• Pay attention to the error line number</p>
+                <p>• Count your brackets, braces, parentheses, and quotes</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 4: Interactive SyntaxError Demo -->
+    <div class="slide-container">
+        <div class="slide-content">
+            <h1>Try It: SyntaxError</h1>
+
+            <div class="interactive-demo">
+                <h3>Test Your Understanding</h3>
+                <p>Click each button to trigger a different SyntaxError:</p>
+                
+                <div style="text-align: center; margin: 1rem 0;">
+                    <button class="demo-button" onclick="triggerSyntaxError1()">Missing Comma</button>
+                    <button class="demo-button" onclick="triggerSyntaxError2()">Missing Brace</button>
+                    <button class="demo-button" onclick="triggerSyntaxError3()">Invalid Token</button>
+                </div>
+
+                <div class="demo-output">
+                    <h4>Error Console:</h4>
+                    <div id="syntax-error-output" style="font-family: monospace; color: #d32f2f;">
+                        <p style="color: #999; font-style: italic;">Click a button to see the error...</p>
+                    </div>
+                </div>
+
+                <div class="concept-box" style="margin-top: 1rem;">
+                    <p><strong>Note:</strong> These are simulated errors showing what you'd see in a real console.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 5: ReferenceError - Not Defined -->
+    <div class="slide-container">
+        <div class="slide-content">
+            <h1>ReferenceError: Not Defined</h1>
+
+            <div class="concept-box">
+                <h2>Variable Doesn't Exist</h2>
+                <p>The second common JavaScript error is a <span class="error-type">ReferenceError</span>.</p>
+                <p>There are several types of <span class="inline-code">ReferenceError</span>s, triggered in different ways.</p>
+            </div>
+
+            <div class="info-box">
+                <h3>Type 1: Not Defined Variables</h3>
+                <p>The first type of ReferenceError would be <span class="highlight">not defined variables</span>.</p>
+            </div>
+
+            <h3>❌ Incorrect Code</h3>
+            <div class="code-box">
+                <code>
+<span class="keyword">console</span>.<span class="function">log</span>(price);
+<span class="comment">// Trying to use 'price' but it doesn't exist!</span>
+                </code>
+            </div>
+
+            <div class="error-box">
+                <h3>Error Message</h3>
+                <div class="error-display">ReferenceError: price is not defined</div>
+            </div>
+
+            <div class="concept-box">
+                <h3>The Problem</h3>
+                <p>In this example, we are trying to log the <span class="inline-code">price</span> variable to the console but it <span class="highlight">hasn't been defined</span>.</p>
+                <p>This will result in a <span class="inline-code">ReferenceError</span>.</p>
+            </div>
+
+            <h3>✓ Correct Code</h3>
+            <div class="code-box">
+                <code>
+<span class="keyword">const</span> price = <span class="keyword">29.99</span>;
+<span class="keyword">console</span>.<span class="function">log</span>(price); <span class="comment">// 29.99</span>
+                </code>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 6: ReferenceError - Before Initialization -->
+    <div class="slide-container">
+        <div class="slide-content">
+            <h1>ReferenceError: Before Initialization</h1>
+
+            <div class="info-box">
+                <h3>Type 2: Accessing Before Declaration</h3>
+                <p>Another example of a ReferenceError is trying to access a variable, declared with <span class="inline-code">let</span> or <span class="inline-code">const</span>, <span class="highlight">before it has been defined</span>.</p>
+            </div>
+
+            <h3>❌ Incorrect Code</h3>
+            <div class="code-box">
+                <code>
+<span class="keyword">console</span>.<span class="function">log</span>(b);
+<span class="keyword">const</span> b = <span class="keyword">50</span>;
+                </code>
+            </div>
+
+            <div class="error-box">
+                <h3>Error Message</h3>
+                <div class="error-display">ReferenceError: Cannot access 'b' before initialization</div>
+            </div>
+
+            <div class="concept-box">
+                <h3>The Problem</h3>
+                <p>The example above will result in a <strong>"Cannot access 'b' before initialization"</strong> error.</p>
+                <p>Variables declared with <span class="inline-code">let</span> and <span class="inline-code">const</span> are in a <span class="highlight">"temporal dead zone"</span> until the line where they're declared is executed.</p>
+            </div>
+
+            <h3>✓ Correct Code</h3>
+            <div class="code-box">
+                <code>
+<span class="keyword">const</span> b = <span class="keyword">50</span>;
+<span class="keyword">console</span>.<span class="function">log</span>(b); <span class="comment">// 50</span>
+                </code>
+            </div>
+
+            <div class="warning-box">
+                <h3>⚠️ Important</h3>
+                <p>Always declare and initialize variables <strong>before</strong> you try to use them!</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 7: Interactive ReferenceError Demo -->
+    <div class="slide-container">
+        <div class="slide-content">
+            <h1>Try It: ReferenceError</h1>
+
+            <div class="interactive-demo">
+                <h3>Test Your Understanding</h3>
+                <p>Click each button to trigger a different ReferenceError:</p>
+                
+                <div style="text-align: center; margin: 1rem 0;">
+                    <button class="demo-button" onclick="triggerReferenceError1()">Not Defined</button>
+                    <button class="demo-button" onclick="triggerReferenceError2()">Before Initialization</button>
+                </div>
+
+                <div class="demo-output">
+                    <h4>Error Console:</h4>
+                    <div id="reference-error-output" style="font-family: monospace; color: #d32f2f;">
+                        <p style="color: #999; font-style: italic;">Click a button to see the error...</p>
+                    </div>
+                </div>
+
+                <div class="concept-box" style="margin-top: 1rem;">
+                    <p><strong>Common Causes:</strong></p>
+                    <p>• Typos in variable names</p>
+                    <p>• Forgetting to declare a variable</p>
+                    <p>• Using a variable before it's declared</p>
+                    <p>• Wrong scope (variable not accessible)</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 8: TypeError -->
+    <div class="slide-container">
+        <div class="slide-content">
+            <h1>TypeError</h1>
+
+            <div class="concept-box">
+                <h2>Wrong Type Operations</h2>
+                <p>The third common error would be a <span class="error-type">TypeError</span>.</p>
+                <p>These errors occur when you try to <span class="highlight">perform an operation on the wrong type</span>.</p>
+            </div>
+
+            <div class="info-box">
+                <h3>Common Example: Array Method on Object</h3>
+                <p>Here is an example of trying to use the <span class="inline-code">map</span> method on an object:</p>
+            </div>
+
+            <h3>❌ Incorrect Code</h3>
+            <div class="code-box">
+                <code>
+<span class="keyword">const</span> developerObj = {
+  name: <span class="string">"Jessica"</span>,
+  country: <span class="string">"USA"</span>,
+  isEmployed: <span class="keyword">true</span>
+};
+
+developerObj.<span class="function">map</span>(); <span class="comment">// Trying to use array method on object!</span>
+                </code>
+            </div>
+
+            <div class="error-box">
+                <h3>Error Message</h3>
+                <div class="error-display">TypeError: developerObj.map is not a function</div>
+            </div>
+
+            <div class="concept-box">
+                <h3>The Problem</h3>
+                <p>This example will result in a <strong>"developerObj.map is not a function"</strong> error because the <span class="inline-code">map</span> method is used for <span class="highlight">arrays</span> and not <span class="highlight">objects</span>.</p>
+            </div>
+
+            <h3>✓ Correct Code</h3>
+            <div class="code-box">
+                <code>
+<span class="keyword">const</span> developerArray = [
+  { name: <span class="string">"Jessica"</span>, country: <span class="string">"USA"</span> },
+  { name: <span class="string">"Tom"</span>, country: <span class="string">"UK"</span> }
+];
+
+<span class="keyword">const</span> names = developerArray.<span class="function">map</span>(<span class="keyword">dev</span> => <span class="keyword">dev</span>.name);
+<span class="keyword">console</span>.<span class="function">log</span>(names); <span class="comment">// ["Jessica", "Tom"]</span>
+                </code>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 9: More TypeError Examples -->
+    <div class="slide-container">
+        <div class="slide-content">
+            <h1>More TypeError Examples</h1>
+
+            <div class="content-grid">
+                <div>
+                    <h3>❌ Calling Non-Function</h3>
+                    <div class="code-box">
+                        <code>
+<span class="keyword">const</span> age = <span class="keyword">25</span>;
+age(); <span class="comment">// Number is not a function!</span>
+                        </code>
+                    </div>
+                    <div class="error-display">TypeError: age is not a function</div>
+                </div>
+
+                <div>
+                    <h3>❌ Property of Undefined</h3>
+                    <div class="code-box">
+                        <code>
+<span class="keyword">let</span> user;
+<span class="keyword">console</span>.<span class="function">log</span>(user.name);
+<span class="comment">// Can't read property of undefined!</span>
+                        </code>
+                    </div>
+                    <div class="error-display">TypeError: Cannot read property 'name' of undefined</div>
+                </div>
+
+                <div>
+                    <h3>❌ Assignment to Constant</h3>
+                    <div class="code-box">
+                        <code>
+<span class="keyword">const</span> PI = <span class="keyword">3.14</span>;
+PI = <span class="keyword">3.15</span>;
+<span class="comment">// Can't reassign const!</span>
+                        </code>
+                    </div>
+                    <div class="error-display">TypeError: Assignment to constant variable</div>
+                </div>
+
+                <div>
+                    <h3>❌ Property of Null</h3>
+                    <div class="code-box">
+                        <code>
+<span class="keyword">const</span> data = <span class="keyword">null</span>;
+<span class="keyword">console</span>.<span class="function">log</span>(data.length);
+<span class="comment">// Can't read property of null!</span>
+                        </code>
+                    </div>
+                    <div class="error-display">TypeError: Cannot read property 'length' of null</div>
+                </div>
+            </div>
+
+            <div class="success-box">
+                <h3>💡 How to Prevent</h3>
+                <p>• Check data types before operations</p>
+                <p>• Use <span class="inline-code">typeof</span> to verify types</p>
+                <p>• Check if variables exist before accessing properties</p>
+                <p>• Use correct methods for each data type</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 10: Interactive TypeError Demo -->
+    <div class="slide-container">
+        <div class="slide-content">
+            <h1>Try It: TypeError</h1>
+
+            <div class="interactive-demo">
+                <h3>Test Your Understanding</h3>
+                <p>Click each button to trigger a different TypeError:</p>
+                
+                <div style="text-align: center; margin: 1rem 0;">
+                    <button class="demo-button" onclick="triggerTypeError1()">Not a Function</button>
+                    <button class="demo-button" onclick="triggerTypeError2()">Wrong Method</button>
+                    <button class="demo-button" onclick="triggerTypeError3()">Property of Undefined</button>
+                </div>
+
+                <div class="demo-output">
+                    <h4>Error Console:</h4>
+                    <div id="type-error-output" style="font-family: monospace; color: #d32f2f;">
+                        <p style="color: #999; font-style: italic;">Click a button to see the error...</p>
+                    </div>
+                </div>
+
+                <div class="concept-box" style="margin-top: 1rem;">
+                    <p><strong>Remember:</strong> Always check your data types and make sure you're using the right methods for each type!</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 11: RangeError -->
+    <div class="slide-container">
+        <div class="slide-content">
+            <h1>RangeError</h1>
+
+            <div class="concept-box">
+                <h2>Values Outside Valid Range</h2>
+                <p>The last common error we will look at is the <span class="error-type">RangeError</span>.</p>
+                <p>A <span class="inline-code">RangeError</span> happens when your code tries to use a value that's <span class="highlight">outside the range</span> of what JavaScript can handle.</p>
+            </div>
+
+            <div class="info-box">
+                <h3>Common Example: Invalid Array Length</h3>
+                <p>Here is an example of assigning an invalid value to an array's length:</p>
+            </div>
+
+            <h3>❌ Incorrect Code</h3>
+            <div class="code-box">
+                <code>
+<span class="keyword">const</span> arr = [];
+arr.length = <span class="keyword">-1</span>; <span class="comment">// Negative length is invalid!</span>
+                </code>
+            </div>
+
+            <div class="error-box">
+                <h3>Error Message</h3>
+                <div class="error-display">RangeError: Invalid array length</div>
+            </div>
+
+            <div class="concept-box">
+                <h3>The Problem</h3>
+                <p>Since an array's length has to be a <span class="highlight">non-negative integer</span>, setting it to <strong>-1</strong> triggers a <span class="inline-code">RangeError</span>.</p>
+                <p>Array length must be between 0 and 2<sup>32</sup>-1 (4,294,967,295).</p>
+            </div>
+
+            <h3>✓ Correct Code</h3>
+            <div class="code-box">
+                <code>
+<span class="keyword">const</span> arr = [];
+arr.length = <span class="keyword">5</span>; <span class="comment">// Valid positive length</span>
+<span class="keyword">console</span>.<span class="function">log</span>(arr.length); <span class="comment">// 5</span>
+                </code>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 12: More RangeError Examples -->
+    <div class="slide-container">
+        <div class="slide-content">
+            <h1>More RangeError Examples</h1>
+
+            <div class="content-grid">
+                <div>
+                    <h3>❌ Invalid toFixed Argument</h3>
+                    <div class="code-box">
+                        <code>
+<span class="keyword">const</span> num = <span class="keyword">3.14159</span>;
+num.<span class="function">toFixed</span>(<span class="keyword">101</span>);
+<span class="comment">// toFixed accepts 0-100!</span>
+                        </code>
+                    </div>
+                    <div class="error-display">RangeError: toFixed() digits argument must be between 0 and 100</div>
+                </div>
+
+                <div>
+                    <h3>❌ Invalid toPrecision Argument</h3>
+                    <div class="code-box">
+                        <code>
+<span class="keyword">const</span> num = <span class="keyword">123.456</span>;
+num.<span class="function">toPrecision</span>(<span class="keyword">0</span>);
+<span class="comment">// Must be between 1-100!</span>
+                        </code>
+                    </div>
+                    <div class="error-display">RangeError: toPrecision() argument must be between 1 and 100</div>
+                </div>
+
+                <div>
+                    <h3>❌ Maximum Call Stack</h3>
+                    <div class="code-box">
+                        <code>
+<span class="keyword">function</span> <span class="function">infiniteLoop</span>() {
+  <span class="function">infiniteLoop</span>();
+}
+<span class="function">infiniteLoop</span>(); <span class="comment">// Never stops!</span>
+                        </code>
+                    </div>
+                    <div class="error-display">RangeError: Maximum call stack size exceeded</div>
+                </div>
+
+                <div>
+                    <h3>❌ Invalid String Repeat</h3>
+                    <div class="code-box">
+                        <code>
+<span class="string">"Hi"</span>.<span class="function">repeat</span>(<span class="keyword">-1</span>);
+<span class="comment">// Can't repeat negative times!</span>
+                        </code>
+                    </div>
+                    <div class="error-display">RangeError: Invalid count value</div>
+                </div>
+            </div>
+
+            <div class="success-box">
+                <h3>💡 How to Prevent</h3>
+                <p>• Check parameter ranges before method calls</p>
+                <p>• Ensure array lengths are non-negative</p>
+                <p>• Avoid infinite recursion</p>
+                <p>• Validate numeric inputs</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 13: Interactive RangeError Demo -->
+    <div class="slide-container">
+        <div class="slide-content">
+            <h1>Try It: RangeError</h1>
+
+            <div class="interactive-demo">
+                <h3>Test Your Understanding</h3>
+                <p>Click each button to trigger a different RangeError:</p>
+                
+                <div style="text-align: center; margin: 1rem 0;">
+                    <button class="demo-button" onclick="triggerRangeError1()">Invalid Array Length</button>
+                    <button class="demo-button" onclick="triggerRangeError2()">Invalid toFixed</button>
+                    <button class="demo-button" onclick="triggerRangeError3()">Invalid Repeat</button>
+                </div>
+
+                <div class="demo-output">
+                    <h4>Error Console:</h4>
+                    <div id="range-error-output" style="font-family: monospace; color: #d32f2f;">
+                        <p style="color: #999; font-style: italic;">Click a button to see the error...</p>
+                    </div>
+                </div>
+
+                <div class="concept-box" style="margin-top: 1rem;">
+                    <p><strong>Key Takeaway:</strong> RangeErrors happen when values are outside acceptable ranges. Always validate your numbers!</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 14: Summary Comparison -->
+    <div class="slide-container">
+        <div class="slide-content">
+            <h1>Error Types Summary</h1>
+
+            <div class="comparison-grid">
+                <div class="error-card">
+                    <h4>SyntaxError</h4>
+                    <p><strong>When:</strong> Code written incorrectly</p>
+                    <p><strong>Example:</strong> Missing comma, brace, parenthesis</p>
+                    <p><strong>Fix:</strong> Check syntax and punctuation</p>
+                </div>
+
+                <div class="error-card">
+                    <h4>ReferenceError</h4>
+                    <p><strong>When:</strong> Variable doesn't exist or not accessible</p>
+                    <p><strong>Example:</strong> Undefined variable, used before declaration</p>
+                    <p><strong>Fix:</strong> Declare variables before use</p>
+                </div>
+
+                <div class="error-card">
+                    <h4>TypeError</h4>
+                    <p><strong>When:</strong> Operation on wrong type</p>
+                    <p><strong>Example:</strong> Calling number as function, array method on object</p>
+                    <p><strong>Fix:</strong> Check data types</p>
+                </div>
+
+                <div class="error-card">
+                    <h4>RangeError</h4>
+                    <p><strong>When:</strong> Value outside valid range</p>
+                    <p><strong>Example:</strong> Negative array length, invalid method arguments</p>
+                    <p><strong>Fix:</strong> Validate numeric values</p>
+                </div>
+            </div>
+
+            <div class="success-box">
+                <h3>✓ Debugging Tips</h3>
+                <p>• Read error messages carefully</p>
+                <p>• Check the line number in the error</p>
+                <p>• Use console.log to inspect values</p>
+                <p>• Use browser developer tools</p>
+                <p>• Search for the error message online</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 15: Key Takeaways -->
+    <div class="slide-container">
+        <div class="slide-content">
+            <h1>Key Takeaways</h1>
+
+            <div class="concept-box">
+                <h2>Four Common Error Types</h2>
+                <p>As you continue to program in JavaScript, just be aware of these different types of errors you will probably encounter and <span class="highlight">why they are happening</span>.</p>
+            </div>
+
+            <div class="content-grid">
+                <div class="error-box">
+                    <h3>SyntaxError</h3>
+                    <p>Writing something <strong>incorrectly</strong> in your code, like missing a parenthesis or semicolon.</p>
+                </div>
+
+                <div class="error-box">
+                    <h3>ReferenceError</h3>
+                    <p>Trying to access a variable that <strong>doesn't exist</strong> or hasn't been initialized yet.</p>
+                </div>
+
+                <div class="error-box">
+                    <h3>TypeError</h3>
+                    <p>Performing an operation on the <strong>wrong type</strong>, like calling a number as a function.</p>
+                </div>
+
+                <div class="error-box">
+                    <h3>RangeError</h3>
+                    <p>Using a value that's <strong>outside the valid range</strong>, like setting array length to -1.</p>
+                </div>
+            </div>
+
+            <div class="success-box">
+                <h3>✓ Become a Better Debugger</h3>
+                <p>Understanding these error types will help you:</p>
+                <p>• <strong>Identify</strong> problems faster</p>
+                <p>• <strong>Fix</strong> bugs more efficiently</p>
+                <p>• <strong>Prevent</strong> common mistakes</p>
+                <p>• <strong>Grow</strong> as a developer</p>
+            </div>
+
+            <div class="info-box">
+                <h3>Keep Learning!</h3>
+                <p>The more you code, the more familiar these errors will become. Don't be afraid of errors - they're learning opportunities!</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Navigation -->
+    <div class="navigation">
+        <button class="nav-button" id="prevBtn" onclick="changeSlide(-1)">← Previous</button>
+        <div class="slide-counter">
+            <span id="currentSlide">1</span> / <span id="totalSlides">15</span>
+        </div>
+        <button class="nav-button" id="nextBtn" onclick="changeSlide(1)">Next →</button>
+    </div>
+
+    <script>
+        let currentSlide = 1;
+        const totalSlides = document.querySelectorAll('.slide-container').length;
+        
+        document.getElementById('totalSlides').textContent = totalSlides;
+        
+        function showSlide(n) {
+            const slides = document.querySelectorAll('.slide-container');
+            
+            if (n > totalSlides) {
+                currentSlide = totalSlides;
+            }
+            if (n < 1) {
+                currentSlide = 1;
+            }
+            
+            slides.forEach(slide => slide.classList.remove('active'));
+            slides[currentSlide - 1].classList.add('active');
+            
+            document.getElementById('currentSlide').textContent = currentSlide;
+            
+            // Update button states
+            document.getElementById('prevBtn').disabled = currentSlide === 1;
+            document.getElementById('nextBtn').disabled = currentSlide === totalSlides;
+            
+            // Scroll to top of page
+            window.scrollTo(0, 0);
+        }
+        
+        function changeSlide(direction) {
+            currentSlide += direction;
+            showSlide(currentSlide);
+        }
+        
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowLeft') {
+                changeSlide(-1);
+            } else if (e.key === 'ArrowRight') {
+                changeSlide(1);
+            }
+        });
+        
+        // SyntaxError demos
+        function triggerSyntaxError1() {
+            const output = document.getElementById('syntax-error-output');
+            output.innerHTML = `<p><strong>Code:</strong> const arr = ["Beau", "Quincy" "Tom"];</p>
+<p style="color: #d32f2f; font-weight: bold; margin-top: 1rem;">❌ SyntaxError: Unexpected string</p>
+<p style="margin-top: 1rem;">Missing comma between "Quincy" and "Tom"</p>`;
+        }
+        
+        function triggerSyntaxError2() {
+            const output = document.getElementById('syntax-error-output');
+            output.innerHTML = `<p><strong>Code:</strong> if (true) { console.log("Hello"); </p>
+<p style="color: #d32f2f; font-weight: bold; margin-top: 1rem;">❌ SyntaxError: Unexpected end of input</p>
+<p style="margin-top: 1rem;">Missing closing brace }</p>`;
+        }
+        
+        function triggerSyntaxError3() {
+            const output = document.getElementById('syntax-error-output');
+            output.innerHTML = `<p><strong>Code:</strong> const message = "Hello World;</p>
+<p style="color: #d32f2f; font-weight: bold; margin-top: 1rem;">❌ SyntaxError: Invalid or unexpected token</p>
+<p style="margin-top: 1rem;">Missing closing quote "</p>`;
+        }
+        
+        // ReferenceError demos
+        function triggerReferenceError1() {
+            const output = document.getElementById('reference-error-output');
+            output.innerHTML = `<p><strong>Code:</strong> console.log(price);</p>
+<p style="color: #d32f2f; font-weight: bold; margin-top: 1rem;">❌ ReferenceError: price is not defined</p>
+<p style="margin-top: 1rem;">Variable 'price' was never declared</p>`;
+        }
+        
+        function triggerReferenceError2() {
+            const output = document.getElementById('reference-error-output');
+            output.innerHTML = `<p><strong>Code:</strong> console.log(b); const b = 50;</p>
+<p style="color: #d32f2f; font-weight: bold; margin-top: 1rem;">❌ ReferenceError: Cannot access 'b' before initialization</p>
+<p style="margin-top: 1rem;">Trying to use 'b' before it's declared</p>`;
+        }
+        
+        // TypeError demos
+        function triggerTypeError1() {
+            const output = document.getElementById('type-error-output');
+            output.innerHTML = `<p><strong>Code:</strong> const age = 25; age();</p>
+<p style="color: #d32f2f; font-weight: bold; margin-top: 1rem;">❌ TypeError: age is not a function</p>
+<p style="margin-top: 1rem;">Trying to call a number as a function</p>`;
+        }
+        
+        function triggerTypeError2() {
+            const output = document.getElementById('type-error-output');
+            output.innerHTML = `<p><strong>Code:</strong> const obj = { name: "John" }; obj.map();</p>
+<p style="color: #d32f2f; font-weight: bold; margin-top: 1rem;">❌ TypeError: obj.map is not a function</p>
+<p style="margin-top: 1rem;">map() is an array method, not for objects</p>`;
+        }
+        
+        function triggerTypeError3() {
+            const output = document.getElementById('type-error-output');
+            output.innerHTML = `<p><strong>Code:</strong> let user; console.log(user.name);</p>
+<p style="color: #d32f2f; font-weight: bold; margin-top: 1rem;">❌ TypeError: Cannot read property 'name' of undefined</p>
+<p style="margin-top: 1rem;">user is undefined, cannot access properties</p>`;
+        }
+        
+        // RangeError demos
+        function triggerRangeError1() {
+            const output = document.getElementById('range-error-output');
+            output.innerHTML = `<p><strong>Code:</strong> const arr = []; arr.length = -1;</p>
+<p style="color: #d32f2f; font-weight: bold; margin-top: 1rem;">❌ RangeError: Invalid array length</p>
+<p style="margin-top: 1rem;">Array length must be non-negative</p>`;
+        }
+        
+        function triggerRangeError2() {
+            const output = document.getElementById('range-error-output');
+            output.innerHTML = `<p><strong>Code:</strong> const num = 3.14159; num.toFixed(101);</p>
+<p style="color: #d32f2f; font-weight: bold; margin-top: 1rem;">❌ RangeError: toFixed() digits must be between 0 and 100</p>
+<p style="margin-top: 1rem;">toFixed accepts 0-100 only</p>`;
+        }
+        
+        function triggerRangeError3() {
+            const output = document.getElementById('range-error-output');
+            output.innerHTML = `<p><strong>Code:</strong> "Hi".repeat(-1);</p>
+<p style="color: #d32f2f; font-weight: bold; margin-top: 1rem;">❌ RangeError: Invalid count value</p>
+<p style="margin-top: 1rem;">Cannot repeat a negative number of times</p>`;
+        }
+        
+        // Initialize
+        showSlide(currentSlide);
+    </script>
+</body>
+</html>
