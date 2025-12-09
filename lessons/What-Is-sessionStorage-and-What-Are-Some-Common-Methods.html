@@ -1,0 +1,1285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>sessionStorage Presentation</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #f5f5f5 0%, #ffffff 100%);
+            color: #2d2d2d;
+            overflow-x: hidden;
+        }
+
+        .slide-container {
+            min-height: 100vh;
+            padding: 2rem 2rem 120px 2rem;
+            display: none;
+        }
+
+        .slide-container.active {
+            display: block;
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .slide-content {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            color: #881518;
+            font-size: clamp(1.8rem, 4vw, 3rem);
+            margin-bottom: 2rem;
+            border-bottom: 3px solid #881518;
+            padding-bottom: 1rem;
+        }
+
+        h2 {
+            color: #a81c1f;
+            font-size: clamp(1.4rem, 3vw, 2rem);
+            margin: 2rem 0 1rem 0;
+        }
+
+        h3 {
+            color: #c8575a;
+            font-size: clamp(1.2rem, 2.5vw, 1.5rem);
+            margin: 1.5rem 0 1rem 0;
+        }
+
+        p, li {
+            font-size: clamp(1rem, 2vw, 1.2rem);
+            line-height: 1.8;
+            margin-bottom: 1rem;
+            color: #333333;
+        }
+
+        .content-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+
+        @media (min-width: 768px) {
+            .content-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        .concept-box {
+            background: rgba(136, 21, 24, 0.05);
+            border-left: 4px solid #881518;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin: 1.5rem 0;
+        }
+
+        .code-box {
+            background: #f8f8f8;
+            border: 1px solid #d0d0d0;
+            border-radius: 8px;
+            padding: 1.5rem;
+            overflow-x: auto;
+            margin: 1rem 0;
+        }
+
+        code {
+            font-family: 'Courier New', Courier, monospace;
+            font-size: clamp(0.85rem, 1.5vw, 1rem);
+            color: #0066cc;
+        }
+
+        .keyword { color: #881518; }
+        .string { color: #2a8d2a; }
+        .function { color: #795e26; }
+        .comment { color: #008000; }
+        .property { color: #0066cc; }
+
+        .interactive-demo {
+            background: rgba(136, 21, 24, 0.03);
+            border: 2px dashed #881518;
+            border-radius: 8px;
+            padding: 2rem;
+            margin: 2rem 0;
+        }
+
+        .demo-button {
+            background: #881518;
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1.1rem;
+            font-weight: 600;
+            transition: all 0.3s;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            margin: 0.5rem;
+        }
+
+        .demo-button:hover {
+            background: #a81c1f;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(136, 21, 24, 0.3);
+        }
+
+        .demo-output {
+            background: white;
+            border: 2px solid #881518;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1rem 0;
+            min-height: 80px;
+        }
+
+        .demo-input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid #881518;
+            border-radius: 8px;
+            font-size: 1rem;
+            margin: 0.5rem 0;
+        }
+
+        ul {
+            margin-left: 2rem;
+        }
+
+        .navigation {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(to top, #ffffff, rgba(255, 255, 255, 0.98));
+            padding: 1.5rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+            border-top: 2px solid #e0e0e0;
+        }
+
+        .nav-button {
+            background: #881518;
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: clamp(0.9rem, 2vw, 1.1rem);
+            font-weight: 600;
+            transition: all 0.3s;
+            min-width: 100px;
+        }
+
+        .nav-button:hover:not(:disabled) {
+            background: #a81c1f;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(136, 21, 24, 0.3);
+        }
+
+        .nav-button:disabled {
+            background: #cccccc;
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        .slide-counter {
+            color: #881518;
+            font-weight: 600;
+            font-size: clamp(1rem, 2vw, 1.2rem);
+        }
+
+        @media (max-width: 768px) {
+            .navigation {
+                padding: 1rem;
+            }
+
+            .nav-button {
+                padding: 0.75rem 1rem;
+                min-width: 80px;
+            }
+        }
+
+        .highlight {
+            background: rgba(136, 21, 24, 0.15);
+            padding: 0.2rem 0.4rem;
+            border-radius: 3px;
+            font-weight: 600;
+        }
+
+        .inline-code {
+            background: #f0f0f0;
+            padding: 0.2rem 0.5rem;
+            border-radius: 3px;
+            font-family: 'Courier New', Courier, monospace;
+            color: #881518;
+            font-size: 0.9em;
+        }
+
+        .success-box {
+            background: linear-gradient(135deg, #d4edda, #c3e6cb);
+            border: 2px solid #28a745;
+            border-left: 6px solid #1e7e34;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+        }
+
+        .success-box h3 {
+            color: #1e7e34;
+            margin-top: 0;
+        }
+
+        .info-box {
+            background: linear-gradient(135deg, #e3f2fd, #bbdefb);
+            border: 2px solid #2196f3;
+            border-left: 6px solid #1976d2;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+        }
+
+        .info-box h3 {
+            color: #1565c0;
+            margin-top: 0;
+        }
+
+        .warning-box {
+            background: linear-gradient(135deg, #fff3cd, #ffe69c);
+            border: 2px solid #ffc107;
+            border-left: 6px solid #ff9800;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+        }
+
+        .warning-box h3 {
+            color: #ff6f00;
+            margin-top: 0;
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 2rem 0;
+            background: white;
+        }
+
+        .comparison-table th {
+            background: #881518;
+            color: white;
+            padding: 1rem;
+            text-align: left;
+            border: 1px solid #d0d0d0;
+        }
+
+        .comparison-table td {
+            padding: 1rem;
+            border: 1px solid #d0d0d0;
+        }
+
+        .comparison-table tr:nth-child(even) {
+            background: #f8f8f8;
+        }
+
+        .method-card {
+            background: white;
+            border: 2px solid #881518;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1rem 0;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .method-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(136, 21, 24, 0.3);
+        }
+
+        .method-card h4 {
+            color: #881518;
+            margin-bottom: 0.5rem;
+            font-size: 1.3rem;
+        }
+
+        .step-number {
+            display: inline-block;
+            background: #881518;
+            color: white;
+            width: 2.5rem;
+            height: 2.5rem;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 2.5rem;
+            font-weight: bold;
+            margin-right: 1rem;
+        }
+
+        .storage-viewer {
+            background: white;
+            border: 2px solid #881518;
+            border-radius: 8px;
+            padding: 1rem;
+            margin: 1rem 0;
+            font-family: 'Courier New', Courier, monospace;
+            min-height: 100px;
+        }
+
+        .storage-item {
+            background: #f8f8f8;
+            padding: 0.75rem;
+            margin: 0.5rem 0;
+            border-radius: 5px;
+            border-left: 4px solid #881518;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .storage-key {
+            color: #881518;
+            font-weight: bold;
+        }
+
+        .storage-value {
+            color: #2a8d2a;
+        }
+    </style>
+</head>
+<body>
+    <!-- Slide 1: Introduction -->
+    <div class="slide-container active">
+        <div class="slide-content">
+            <h1>sessionStorage</h1>
+            
+            <div class="concept-box">
+                <h2>What is sessionStorage?</h2>
+                <p>In the previous lesson, we learned about working with <span class="inline-code">localStorage</span> and were briefly introduced to <span class="highlight">sessionStorage</span>.</p>
+            </div>
+
+            <div class="info-box">
+                <h3>Key Characteristic</h3>
+                <p>Recall, that <span class="inline-code">sessionStorage</span> is when the <span class="highlight">data is cleared as soon as the user closes the tab or window</span> in which the web application is running.</p>
+            </div>
+
+            <div class="success-box">
+                <h3>✓ When to Use sessionStorage</h3>
+                <p>It's ideal for situations where data only needs to persist for the <span class="highlight">length of a single session</span>, such as:</p>
+                <p>• Maintaining form data during navigation</p>
+                <p>• Storing temporary state information during a checkout process</p>
+                <p>• Keeping track of user actions within one session</p>
+            </div>
+
+            <div class="warning-box">
+                <h3>⚠️ Important Difference</h3>
+                <p><strong>sessionStorage:</strong> Cleared when tab closes</p>
+                <p><strong>localStorage:</strong> Persists indefinitely</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 2: Key-Value Pairs -->
+    <div class="slide-container">
+        <div class="slide-content">
+            <h1>Key-Value Storage</h1>
+
+            <div class="concept-box">
+                <h2>How sessionStorage Works</h2>
+                <p>Much like <span class="inline-code">localStorage</span>, <span class="inline-code">sessionStorage</span> uses <span class="highlight">key-value pairs</span> to store and retrieve data.</p>
+            </div>
+
+            <div class="info-box">
+                <h3>Same Methods as localStorage</h3>
+                <p>The methods used with <span class="inline-code">sessionStorage</span> are also the <strong>same as localStorage</strong>, with the only real difference being <span class="highlight">how long the data is stored</span>.</p>
+            </div>
+
+            <h3>Key-Value Pair Structure</h3>
+            <div class="code-box">
+                <code>
+<span class="comment">// Key: a string identifier</span>
+<span class="comment">// Value: the data to store (always stored as a string)</span>
+
+<span class="keyword">sessionStorage</span>.<span class="function">setItem</span>(<span class="string">'key'</span>, <span class="string">'value'</span>);
+                </code>
+            </div>
+
+            <div class="content-grid">
+                <div class="method-card">
+                    <h4>Example Keys</h4>
+                    <p>• <span class="inline-code">'username'</span></p>
+                    <p>• <span class="inline-code">'cart'</span></p>
+                    <p>• <span class="inline-code">'currentPage'</span></p>
+                    <p>• <span class="inline-code">'formData'</span></p>
+                </div>
+
+                <div class="method-card">
+                    <h4>Example Values</h4>
+                    <p>• <span class="inline-code">'JohnDoe'</span></p>
+                    <p>• <span class="inline-code">'3 items'</span></p>
+                    <p>• <span class="inline-code">'2'</span></p>
+                    <p>• <span class="inline-code">'{"name":"Alice"}'</span></p>
+                </div>
+            </div>
+
+            <div class="success-box">
+                <h3>✓ Remember</h3>
+                <p>All values are stored as <strong>strings</strong>. If you need to store objects or arrays, use <span class="inline-code">JSON.stringify()</span> when storing and <span class="inline-code">JSON.parse()</span> when retrieving!</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 3: setItem() Method -->
+    <div class="slide-container">
+        <div class="slide-content">
+            <h1>setItem() Method</h1>
+
+            <div class="concept-box">
+                <h2>Storing Data</h2>
+                <p><span class="inline-code">sessionStorage.setItem()</span> stores a <span class="highlight">key-value pair</span> in sessionStorage.</p>
+            </div>
+
+            <h3>Syntax</h3>
+            <div class="code-box">
+                <code>
+<span class="keyword">sessionStorage</span>.<span class="function">setItem</span>(key, value);
+                </code>
+            </div>
+
+            <h3>Example</h3>
+            <div class="code-box">
+                <code>
+<span class="keyword">sessionStorage</span>.<span class="function">setItem</span>(<span class="string">'cart'</span>, <span class="string">'3 items'</span>);
+                </code>
+            </div>
+
+            <div class="info-box">
+                <h3>Parameters</h3>
+                <p><strong>key</strong> (string): The name of the key to create/update</p>
+                <p><strong>value</strong> (string): The value to store</p>
+            </div>
+
+            <h3>More Examples</h3>
+            <div class="code-box">
+                <code>
+<span class="comment">// Store a username</span>
+<span class="keyword">sessionStorage</span>.<span class="function">setItem</span>(<span class="string">'currentUser'</span>, <span class="string">'JohnDoe'</span>);
+
+<span class="comment">// Store a number (converted to string)</span>
+<span class="keyword">sessionStorage</span>.<span class="function">setItem</span>(<span class="string">'pageNumber'</span>, <span class="string">'5'</span>);
+
+<span class="comment">// Store JSON data</span>
+<span class="keyword">const</span> user = { name: <span class="string">'Alice'</span>, age: <span class="keyword">25</span> };
+<span class="keyword">sessionStorage</span>.<span class="function">setItem</span>(<span class="string">'userData'</span>, <span class="keyword">JSON</span>.<span class="function">stringify</span>(user));
+                </code>
+            </div>
+
+            <div class="success-box">
+                <h3>✓ Key Point</h3>
+                <p>If a key already exists, <span class="inline-code">setItem()</span> will <strong>update</strong> its value. If it doesn't exist, it will <strong>create</strong> it.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 4: getItem() Method -->
+    <div class="slide-container">
+        <div class="slide-content">
+            <h1>getItem() Method</h1>
+
+            <div class="concept-box">
+                <h2>Retrieving Data</h2>
+                <p><span class="inline-code">sessionStorage.getItem()</span> retrieves the <span class="highlight">value of a given key</span> from sessionStorage.</p>
+            </div>
+
+            <h3>Syntax</h3>
+            <div class="code-box">
+                <code>
+<span class="keyword">const</span> value = <span class="keyword">sessionStorage</span>.<span class="function">getItem</span>(key);
+                </code>
+            </div>
+
+            <h3>Example</h3>
+            <div class="code-box">
+                <code>
+<span class="keyword">let</span> cart = <span class="keyword">sessionStorage</span>.<span class="function">getItem</span>(<span class="string">'cart'</span>);
+<span class="keyword">console</span>.<span class="function">log</span>(cart); <span class="comment">// Outputs: '3 items'</span>
+                </code>
+            </div>
+
+            <div class="info-box">
+                <h3>Return Value</h3>
+                <p>Returns the <strong>value</strong> associated with the key, or <span class="inline-code">null</span> if the key doesn't exist.</p>
+            </div>
+
+            <h3>More Examples</h3>
+            <div class="code-box">
+                <code>
+<span class="comment">// Retrieve a username</span>
+<span class="keyword">const</span> user = <span class="keyword">sessionStorage</span>.<span class="function">getItem</span>(<span class="string">'currentUser'</span>);
+<span class="keyword">console</span>.<span class="function">log</span>(user); <span class="comment">// 'JohnDoe'</span>
+
+<span class="comment">// Retrieve and parse JSON data</span>
+<span class="keyword">const</span> userDataString = <span class="keyword">sessionStorage</span>.<span class="function">getItem</span>(<span class="string">'userData'</span>);
+<span class="keyword">const</span> userData = <span class="keyword">JSON</span>.<span class="function">parse</span>(userDataString);
+<span class="keyword">console</span>.<span class="function">log</span>(userData.name); <span class="comment">// 'Alice'</span>
+
+<span class="comment">// Check if key exists</span>
+<span class="keyword">const</span> value = <span class="keyword">sessionStorage</span>.<span class="function">getItem</span>(<span class="string">'nonexistent'</span>);
+<span class="keyword">console</span>.<span class="function">log</span>(value); <span class="comment">// null</span>
+                </code>
+            </div>
+
+            <div class="warning-box">
+                <h3>⚠️ Remember</h3>
+                <p>Always check if the returned value is <span class="inline-code">null</span> before using it!</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 5: removeItem() Method -->
+    <div class="slide-container">
+        <div class="slide-content">
+            <h1>removeItem() Method</h1>
+
+            <div class="concept-box">
+                <h2>Removing Specific Data</h2>
+                <p><span class="inline-code">sessionStorage.removeItem()</span> removes a <span class="highlight">specific item</span> from sessionStorage using its key.</p>
+            </div>
+
+            <h3>Syntax</h3>
+            <div class="code-box">
+                <code>
+<span class="keyword">sessionStorage</span>.<span class="function">removeItem</span>(key);
+                </code>
+            </div>
+
+            <h3>Example</h3>
+            <div class="code-box">
+                <code>
+<span class="keyword">sessionStorage</span>.<span class="function">removeItem</span>(<span class="string">'cart'</span>);
+                </code>
+            </div>
+
+            <div class="info-box">
+                <h3>What It Does</h3>
+                <p>Deletes the key-value pair with the specified key from sessionStorage.</p>
+                <p>If the key doesn't exist, nothing happens (no error is thrown).</p>
+            </div>
+
+            <h3>Complete Example</h3>
+            <div class="code-box">
+                <code>
+<span class="comment">// Store data</span>
+<span class="keyword">sessionStorage</span>.<span class="function">setItem</span>(<span class="string">'tempData'</span>, <span class="string">'temporary value'</span>);
+
+<span class="comment">// Check it exists</span>
+<span class="keyword">console</span>.<span class="function">log</span>(<span class="keyword">sessionStorage</span>.<span class="function">getItem</span>(<span class="string">'tempData'</span>)); <span class="comment">// 'temporary value'</span>
+
+<span class="comment">// Remove it</span>
+<span class="keyword">sessionStorage</span>.<span class="function">removeItem</span>(<span class="string">'tempData'</span>);
+
+<span class="comment">// Try to get it again</span>
+<span class="keyword">console</span>.<span class="function">log</span>(<span class="keyword">sessionStorage</span>.<span class="function">getItem</span>(<span class="string">'tempData'</span>)); <span class="comment">// null</span>
+                </code>
+            </div>
+
+            <div class="success-box">
+                <h3>✓ Use Case</h3>
+                <p>Use <span class="inline-code">removeItem()</span> when you want to delete <strong>one specific piece</strong> of data but keep everything else.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 6: clear() Method -->
+    <div class="slide-container">
+        <div class="slide-content">
+            <h1>clear() Method</h1>
+
+            <div class="concept-box">
+                <h2>Removing All Data</h2>
+                <p><span class="inline-code">sessionStorage.clear()</span> clears <span class="highlight">all data stored</span> in sessionStorage.</p>
+            </div>
+
+            <h3>Syntax</h3>
+            <div class="code-box">
+                <code>
+<span class="keyword">sessionStorage</span>.<span class="function">clear</span>();
+                </code>
+            </div>
+
+            <h3>Example</h3>
+            <div class="code-box">
+                <code>
+<span class="keyword">sessionStorage</span>.<span class="function">clear</span>();
+                </code>
+            </div>
+
+            <div class="warning-box">
+                <h3>⚠️ Important</h3>
+                <p>This removes <strong>ALL</strong> items from sessionStorage at once!</p>
+                <p>Use this carefully - it cannot be undone.</p>
+            </div>
+
+            <h3>Complete Example</h3>
+            <div class="code-box">
+                <code>
+<span class="comment">// Store multiple items</span>
+<span class="keyword">sessionStorage</span>.<span class="function">setItem</span>(<span class="string">'user'</span>, <span class="string">'JohnDoe'</span>);
+<span class="keyword">sessionStorage</span>.<span class="function">setItem</span>(<span class="string">'cart'</span>, <span class="string">'3 items'</span>);
+<span class="keyword">sessionStorage</span>.<span class="function">setItem</span>(<span class="string">'page'</span>, <span class="string">'5'</span>);
+
+<span class="comment">// Clear everything</span>
+<span class="keyword">sessionStorage</span>.<span class="function">clear</span>();
+
+<span class="comment">// All items are now gone</span>
+<span class="keyword">console</span>.<span class="function">log</span>(<span class="keyword">sessionStorage</span>.<span class="function">getItem</span>(<span class="string">'user'</span>));  <span class="comment">// null</span>
+<span class="keyword">console</span>.<span class="function">log</span>(<span class="keyword">sessionStorage</span>.<span class="function">getItem</span>(<span class="string">'cart'</span>));  <span class="comment">// null</span>
+<span class="keyword">console</span>.<span class="function">log</span>(<span class="keyword">sessionStorage</span>.<span class="function">getItem</span>(<span class="string">'page'</span>));  <span class="comment">// null</span>
+                </code>
+            </div>
+
+            <div class="success-box">
+                <h3>✓ Use Case</h3>
+                <p>Use <span class="inline-code">clear()</span> when you want to reset the session completely, such as when a user logs out or completes a multi-step process.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 7: Complete Example -->
+    <div class="slide-container">
+        <div class="slide-content">
+            <h1>Complete Example</h1>
+
+            <div class="concept-box">
+                <h2>All Methods Together</h2>
+                <p>Let's look at an example where we store data in sessionStorage which <span class="highlight">only lasts as long as the browser tab or window is open</span>:</p>
+            </div>
+
+            <div class="code-box">
+                <code>
+<span class="comment">// Store data in sessionStorage</span>
+<span class="keyword">sessionStorage</span>.<span class="function">setItem</span>(<span class="string">'currentUser'</span>, <span class="string">'JohnDoe'</span>);
+
+<span class="comment">// Retrieve the stored data</span>
+<span class="keyword">const</span> user = <span class="keyword">sessionStorage</span>.<span class="function">getItem</span>(<span class="string">'currentUser'</span>);
+<span class="keyword">console</span>.<span class="function">log</span>(user); <span class="comment">// 'JohnDoe'</span>
+
+<span class="comment">// Remove a specific key from sessionStorage</span>
+<span class="keyword">sessionStorage</span>.<span class="function">removeItem</span>(<span class="string">'currentUser'</span>);
+
+<span class="comment">// Clear all sessionStorage data</span>
+<span class="keyword">sessionStorage</span>.<span class="function">clear</span>();
+                </code>
+            </div>
+
+            <div class="info-box">
+                <h3>In this example, we:</h3>
+                <p><span class="step-number">1</span> Store the current user's name (<span class="inline-code">JohnDoe</span>) in sessionStorage.</p>
+                <p><span class="step-number">2</span> Retrieve and display it.</p>
+                <p><span class="step-number">3</span> Remove the item associated with the key <span class="inline-code">currentUser</span>.</p>
+                <p><span class="step-number">4</span> Clear all sessionStorage data.</p>
+            </div>
+
+            <div class="warning-box">
+                <h3>⚠️ Key Difference</h3>
+                <p>The key difference from localStorage is that <span class="highlight">as soon as the user closes the tab</span>, all stored session data will be lost.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 8: Interactive Demo 1 -->
+    <div class="slide-container">
+        <div class="slide-content">
+            <h1>Try It: Basic sessionStorage Operations</h1>
+
+            <div class="interactive-demo">
+                <h3>Interactive Demo</h3>
+                <p>Try storing and retrieving data from sessionStorage:</p>
+                
+                <div style="margin: 1rem 0;">
+                    <input type="text" id="demo1-key" class="demo-input" placeholder="Enter key (e.g., 'username')">
+                    <input type="text" id="demo1-value" class="demo-input" placeholder="Enter value (e.g., 'JohnDoe')">
+                </div>
+
+                <div style="text-align: center; margin: 1rem 0;">
+                    <button class="demo-button" onclick="demo1SetItem()">setItem()</button>
+                    <button class="demo-button" onclick="demo1GetItem()">getItem()</button>
+                    <button class="demo-button" onclick="demo1RemoveItem()">removeItem()</button>
+                    <button class="demo-button" onclick="demo1Clear()">clear()</button>
+                </div>
+
+                <div class="demo-output" id="demo1-output">
+                    <h4>Current sessionStorage:</h4>
+                    <div id="demo1-storage" class="storage-viewer">
+                        <p style="color: #999; font-style: italic;">No items in sessionStorage</p>
+                    </div>
+                </div>
+
+                <div class="concept-box" style="margin-top: 1rem;">
+                    <p><strong>Note:</strong> This demo actually uses sessionStorage! Data will persist as you navigate through slides, but will be cleared when you close this tab.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 9: Interactive Demo 2 -->
+    <div class="slide-container">
+        <div class="slide-content">
+            <h1>Try It: Session Shopping Cart</h1>
+
+            <div class="interactive-demo">
+                <h3>Shopping Cart Demo</h3>
+                <p>Add items to a shopping cart stored in sessionStorage:</p>
+                
+                <div style="margin: 1rem 0;">
+                    <input type="text" id="cart-item" class="demo-input" placeholder="Enter item name...">
+                    <button class="demo-button" onclick="addToCart()">Add to Cart</button>
+                    <button class="demo-button" onclick="clearCart()">Clear Cart</button>
+                </div>
+
+                <div class="demo-output">
+                    <h4>Shopping Cart:</h4>
+                    <div id="cart-display" class="storage-viewer">
+                        <p style="color: #999; font-style: italic;">Cart is empty</p>
+                    </div>
+                    <p id="cart-count" style="margin-top: 1rem; font-weight: bold; color: #881518;">Items: 0</p>
+                </div>
+
+                <div class="warning-box" style="margin-top: 1rem;">
+                    <p><strong>Try this:</strong> Add items, navigate to other slides, then come back - items will still be here! But close this tab and reopen, and the cart will be empty.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 10: Use Cases -->
+    <div class="slide-container">
+        <div class="slide-content">
+            <h1>When to Use sessionStorage</h1>
+
+            <div class="concept-box">
+                <h2>Ideal Scenarios</h2>
+                <p>sessionStorage is particularly useful in scenarios like:</p>
+            </div>
+
+            <div class="content-grid">
+                <div class="method-card">
+                    <h4>1. Multi-Page Forms</h4>
+                    <p>Storing temporary data such as <span class="highlight">form entries during a multi-page form process</span>.</p>
+                    <p>Example: A checkout process spanning multiple pages</p>
+                </div>
+
+                <div class="method-card">
+                    <h4>2. Temporary Preferences</h4>
+                    <p>Storing <span class="highlight">temporary selections or preferences</span> that don't need to persist across sessions.</p>
+                    <p>Example: Filter selections, sort order</p>
+                </div>
+
+                <div class="method-card">
+                    <h4>3. Single-Page Apps</h4>
+                    <p><span class="highlight">Maintaining state on a single-page application</span> that doesn't need to be remembered once the tab is closed.</p>
+                    <p>Example: Current view, temporary settings</p>
+                </div>
+
+                <div class="method-card">
+                    <h4>4. Session-Based Data</h4>
+                    <p>Any data that should only exist for one browsing session.</p>
+                    <p>Example: Shopping cart, current game state</p>
+                </div>
+            </div>
+
+            <div class="success-box">
+                <h3>✓ Key Benefit</h3>
+                <p>sessionStorage ensures that once the user leaves the page, the session data is cleared, which is great for scenarios where you <span class="highlight">don't want to hold onto information beyond the current session</span>.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 11: localStorage vs sessionStorage -->
+    <div class="slide-container">
+        <div class="slide-content">
+            <h1>localStorage vs sessionStorage</h1>
+
+            <div class="concept-box">
+                <h2>Key Differences</h2>
+                <p>Both use the same methods, but differ in data persistence:</p>
+            </div>
+
+            <table class="comparison-table">
+                <thead>
+                    <tr>
+                        <th>Feature</th>
+                        <th>sessionStorage</th>
+                        <th>localStorage</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Data Persistence</strong></td>
+                        <td>Until tab/window closes</td>
+                        <td>Indefinitely (until manually cleared)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Scope</strong></td>
+                        <td>Per tab/window</td>
+                        <td>Shared across all tabs/windows</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Use Case</strong></td>
+                        <td>Temporary session data</td>
+                        <td>Long-term user preferences</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Storage Limit</strong></td>
+                        <td>~5-10MB</td>
+                        <td>~5-10MB</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Methods</strong></td>
+                        <td>setItem, getItem, removeItem, clear</td>
+                        <td>setItem, getItem, removeItem, clear</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Shared Between Tabs</strong></td>
+                        <td>No</td>
+                        <td>Yes</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="info-box">
+                <h3>Choose Based on Your Needs</h3>
+                <p><strong>Use sessionStorage when:</strong> Data should be temporary and session-specific</p>
+                <p><strong>Use localStorage when:</strong> Data should persist across sessions and browser restarts</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 12: Real-World Examples -->
+    <div class="slide-container">
+        <div class="slide-content">
+            <h1>Real-World Examples</h1>
+
+            <h3>1. Multi-Step Form</h3>
+            <div class="code-box">
+                <code>
+<span class="comment">// Save form data on each step</span>
+<span class="keyword">function</span> <span class="function">saveFormStep</span>(step, data) {
+  <span class="keyword">sessionStorage</span>.<span class="function">setItem</span>(<span class="string">`formStep</span>${step}<span class="string">`</span>, <span class="keyword">JSON</span>.<span class="function">stringify</span>(data));
+}
+
+<span class="comment">// Retrieve form data</span>
+<span class="keyword">function</span> <span class="function">getFormStep</span>(step) {
+  <span class="keyword">const</span> data = <span class="keyword">sessionStorage</span>.<span class="function">getItem</span>(<span class="string">`formStep</span>${step}<span class="string">`</span>);
+  <span class="keyword">return</span> data ? <span class="keyword">JSON</span>.<span class="function">parse</span>(data) : <span class="keyword">null</span>;
+}
+                </code>
+            </div>
+
+            <h3>2. Shopping Cart</h3>
+            <div class="code-box">
+                <code>
+<span class="comment">// Add item to cart</span>
+<span class="keyword">function</span> <span class="function">addToCart</span>(item) {
+  <span class="keyword">let</span> cart = <span class="keyword">JSON</span>.<span class="function">parse</span>(<span class="keyword">sessionStorage</span>.<span class="function">getItem</span>(<span class="string">'cart'</span>)) || [];
+  cart.<span class="function">push</span>(item);
+  <span class="keyword">sessionStorage</span>.<span class="function">setItem</span>(<span class="string">'cart'</span>, <span class="keyword">JSON</span>.<span class="function">stringify</span>(cart));
+}
+
+<span class="comment">// Get cart items</span>
+<span class="keyword">function</span> <span class="function">getCart</span>() {
+  <span class="keyword">return</span> <span class="keyword">JSON</span>.<span class="function">parse</span>(<span class="keyword">sessionStorage</span>.<span class="function">getItem</span>(<span class="string">'cart'</span>)) || [];
+}
+                </code>
+            </div>
+
+            <h3>3. Current Page State</h3>
+            <div class="code-box">
+                <code>
+<span class="comment">// Save current state</span>
+<span class="keyword">function</span> <span class="function">saveState</span>(state) {
+  <span class="keyword">sessionStorage</span>.<span class="function">setItem</span>(<span class="string">'appState'</span>, <span class="keyword">JSON</span>.<span class="function">stringify</span>(state));
+}
+
+<span class="comment">// Restore state on page load</span>
+<span class="keyword">window</span>.<span class="function">addEventListener</span>(<span class="string">'load'</span>, () => {
+  <span class="keyword">const</span> savedState = <span class="keyword">sessionStorage</span>.<span class="function">getItem</span>(<span class="string">'appState'</span>);
+  <span class="keyword">if</span> (savedState) {
+    <span class="keyword">const</span> state = <span class="keyword">JSON</span>.<span class="function">parse</span>(savedState);
+    <span class="function">restoreApp</span>(state);
+  }
+});
+                </code>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 13: Best Practices -->
+    <div class="slide-container">
+        <div class="slide-content">
+            <h1>Best Practices</h1>
+
+            <div class="success-box">
+                <h3>✓ Do</h3>
+                <p>• Use sessionStorage for temporary, session-specific data</p>
+                <p>• Always check if data exists before using it</p>
+                <p>• Use JSON.stringify() for objects and arrays</p>
+                <p>• Use JSON.parse() when retrieving objects</p>
+                <p>• Clear sensitive data when no longer needed</p>
+                <p>• Validate data after retrieving from storage</p>
+            </div>
+
+            <div class="warning-box">
+                <h3>⚠️ Don't</h3>
+                <p>• Don't store sensitive information (passwords, credit cards)</p>
+                <p>• Don't rely on sessionStorage for critical data persistence</p>
+                <p>• Don't store very large amounts of data</p>
+                <p>• Don't forget to handle the case when storage is full</p>
+                <p>• Don't assume data will persist across tabs</p>
+            </div>
+
+            <div class="info-box">
+                <h3>Security Considerations</h3>
+                <p>• sessionStorage is accessible via JavaScript</p>
+                <p>• Data is not encrypted</p>
+                <p>• Vulnerable to XSS attacks</p>
+                <p>• Never store passwords or tokens</p>
+            </div>
+
+            <div class="code-box">
+                <code>
+<span class="comment">// Good: Check before using</span>
+<span class="keyword">const</span> data = <span class="keyword">sessionStorage</span>.<span class="function">getItem</span>(<span class="string">'myData'</span>);
+<span class="keyword">if</span> (data) {
+  <span class="keyword">const</span> parsed = <span class="keyword">JSON</span>.<span class="function">parse</span>(data);
+  <span class="function">useData</span>(parsed);
+}
+                </code>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 14: Common Patterns -->
+    <div class="slide-container">
+        <div class="slide-content">
+            <h1>Common Patterns</h1>
+
+            <h3>Helper Function for Safe Storage</h3>
+            <div class="code-box">
+                <code>
+<span class="comment">// Safe set with error handling</span>
+<span class="keyword">function</span> <span class="function">safeSetItem</span>(key, value) {
+  <span class="keyword">try</span> {
+    <span class="keyword">sessionStorage</span>.<span class="function">setItem</span>(key, <span class="keyword">JSON</span>.<span class="function">stringify</span>(value));
+    <span class="keyword">return</span> <span class="keyword">true</span>;
+  } <span class="keyword">catch</span> (error) {
+    <span class="keyword">console</span>.<span class="function">error</span>(<span class="string">'Storage error:'</span>, error);
+    <span class="keyword">return</span> <span class="keyword">false</span>;
+  }
+}
+
+<span class="comment">// Safe get with default value</span>
+<span class="keyword">function</span> <span class="function">safeGetItem</span>(key, defaultValue = <span class="keyword">null</span>) {
+  <span class="keyword">try</span> {
+    <span class="keyword">const</span> item = <span class="keyword">sessionStorage</span>.<span class="function">getItem</span>(key);
+    <span class="keyword">return</span> item ? <span class="keyword">JSON</span>.<span class="function">parse</span>(item) : defaultValue;
+  } <span class="keyword">catch</span> (error) {
+    <span class="keyword">console</span>.<span class="function">error</span>(<span class="string">'Parse error:'</span>, error);
+    <span class="keyword">return</span> defaultValue;
+  }
+}
+                </code>
+            </div>
+
+            <h3>Checking Storage Availability</h3>
+            <div class="code-box">
+                <code>
+<span class="keyword">function</span> <span class="function">isSessionStorageAvailable</span>() {
+  <span class="keyword">try</span> {
+    <span class="keyword">const</span> test = <span class="string">'__test__'</span>;
+    <span class="keyword">sessionStorage</span>.<span class="function">setItem</span>(test, test);
+    <span class="keyword">sessionStorage</span>.<span class="function">removeItem</span>(test);
+    <span class="keyword">return</span> <span class="keyword">true</span>;
+  } <span class="keyword">catch</span> (e) {
+    <span class="keyword">return</span> <span class="keyword">false</span>;
+  }
+}
+
+<span class="keyword">if</span> (<span class="function">isSessionStorageAvailable</span>()) {
+  <span class="comment">// Use sessionStorage</span>
+} <span class="keyword">else</span> {
+  <span class="comment">// Fallback to alternative storage</span>
+}
+                </code>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 15: Key Takeaways -->
+    <div class="slide-container">
+        <div class="slide-content">
+            <h1>Key Takeaways</h1>
+
+            <div class="concept-box">
+                <h2>sessionStorage Essentials</h2>
+                <p>sessionStorage provides <span class="highlight">temporary storage</span> that lasts only for the duration of the browser session.</p>
+            </div>
+
+            <div class="content-grid">
+                <div class="method-card">
+                    <h4>setItem(key, value)</h4>
+                    <p>Store data</p>
+                </div>
+
+                <div class="method-card">
+                    <h4>getItem(key)</h4>
+                    <p>Retrieve data</p>
+                </div>
+
+                <div class="method-card">
+                    <h4>removeItem(key)</h4>
+                    <p>Delete specific item</p>
+                </div>
+
+                <div class="method-card">
+                    <h4>clear()</h4>
+                    <p>Delete all items</p>
+                </div>
+            </div>
+
+            <div class="success-box">
+                <h3>✓ Remember</h3>
+                <p>• Data clears when tab/window closes</p>
+                <p>• Perfect for temporary, session-specific data</p>
+                <p>• Same methods as localStorage</p>
+                <p>• Not shared between tabs</p>
+                <p>• Always stored as strings</p>
+            </div>
+
+            <div class="info-box">
+                <h3>When to Use</h3>
+                <p>Use sessionStorage when you need to:</p>
+                <p>• Store temporary form data</p>
+                <p>• Maintain state during a session</p>
+                <p>• Keep data isolated to one tab</p>
+                <p>• Automatically clean up when done</p>
+            </div>
+
+            <div class="warning-box">
+                <h3>Key Difference</h3>
+                <p>The main difference from localStorage: <span class="highlight">data is automatically cleared when the tab closes</span>!</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Navigation -->
+    <div class="navigation">
+        <button class="nav-button" id="prevBtn" onclick="changeSlide(-1)">← Previous</button>
+        <div class="slide-counter">
+            <span id="currentSlide">1</span> / <span id="totalSlides">15</span>
+        </div>
+        <button class="nav-button" id="nextBtn" onclick="changeSlide(1)">Next →</button>
+    </div>
+
+    <script>
+        let currentSlide = 1;
+        const totalSlides = document.querySelectorAll('.slide-container').length;
+        
+        document.getElementById('totalSlides').textContent = totalSlides;
+        
+        function showSlide(n) {
+            const slides = document.querySelectorAll('.slide-container');
+            
+            if (n > totalSlides) {
+                currentSlide = totalSlides;
+            }
+            if (n < 1) {
+                currentSlide = 1;
+            }
+            
+            slides.forEach(slide => slide.classList.remove('active'));
+            slides[currentSlide - 1].classList.add('active');
+            
+            document.getElementById('currentSlide').textContent = currentSlide;
+            
+            // Update button states
+            document.getElementById('prevBtn').disabled = currentSlide === 1;
+            document.getElementById('nextBtn').disabled = currentSlide === totalSlides;
+            
+            // Scroll to top of page
+            window.scrollTo(0, 0);
+            
+            // Update storage viewers if on demo slides
+            if (currentSlide === 8) {
+                updateDemo1Display();
+            } else if (currentSlide === 9) {
+                displayCart();
+            }
+        }
+        
+        function changeSlide(direction) {
+            currentSlide += direction;
+            showSlide(currentSlide);
+        }
+        
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowLeft') {
+                changeSlide(-1);
+            } else if (e.key === 'ArrowRight') {
+                changeSlide(1);
+            }
+        });
+        
+        // Demo 1: Basic Operations
+        function updateDemo1Display() {
+            const container = document.getElementById('demo1-storage');
+            const keys = Object.keys(sessionStorage);
+            
+            if (keys.length === 0) {
+                container.innerHTML = '<p style="color: #999; font-style: italic;">No items in sessionStorage</p>';
+                return;
+            }
+            
+            container.innerHTML = '';
+            keys.forEach(key => {
+                const value = sessionStorage.getItem(key);
+                const item = document.createElement('div');
+                item.className = 'storage-item';
+                item.innerHTML = `
+                    <span><span class="storage-key">${key}</span>: <span class="storage-value">"${value}"</span></span>
+                `;
+                container.appendChild(item);
+            });
+        }
+        
+        function demo1SetItem() {
+            const key = document.getElementById('demo1-key').value.trim();
+            const value = document.getElementById('demo1-value').value.trim();
+            
+            if (!key || !value) {
+                alert('Please enter both key and value!');
+                return;
+            }
+            
+            sessionStorage.setItem(key, value);
+            updateDemo1Display();
+            alert(`✓ Set "${key}" to "${value}"`);
+        }
+        
+        function demo1GetItem() {
+            const key = document.getElementById('demo1-key').value.trim();
+            
+            if (!key) {
+                alert('Please enter a key!');
+                return;
+            }
+            
+            const value = sessionStorage.getItem(key);
+            if (value === null) {
+                alert(`Key "${key}" not found!`);
+            } else {
+                alert(`Value for "${key}": "${value}"`);
+            }
+        }
+        
+        function demo1RemoveItem() {
+            const key = document.getElementById('demo1-key').value.trim();
+            
+            if (!key) {
+                alert('Please enter a key!');
+                return;
+            }
+            
+            sessionStorage.removeItem(key);
+            updateDemo1Display();
+            alert(`✓ Removed "${key}"`);
+        }
+        
+        function demo1Clear() {
+            if (confirm('Clear all sessionStorage?')) {
+                sessionStorage.clear();
+                updateDemo1Display();
+                alert('✓ Cleared all sessionStorage');
+            }
+        }
+        
+        // Demo 2: Shopping Cart
+        function addToCart() {
+            const input = document.getElementById('cart-item');
+            const itemName = input.value.trim();
+            
+            if (!itemName) {
+                alert('Please enter an item name!');
+                return;
+            }
+            
+            let cart = JSON.parse(sessionStorage.getItem('demoCart')) || [];
+            cart.push({
+                id: Date.now(),
+                name: itemName,
+                addedAt: new Date().toLocaleTimeString()
+            });
+            
+            sessionStorage.setItem('demoCart', JSON.stringify(cart));
+            input.value = '';
+            displayCart();
+        }
+        
+        function displayCart() {
+            const container = document.getElementById('cart-display');
+            const countEl = document.getElementById('cart-count');
+            const cart = JSON.parse(sessionStorage.getItem('demoCart')) || [];
+            
+            countEl.textContent = `Items: ${cart.length}`;
+            
+            if (cart.length === 0) {
+                container.innerHTML = '<p style="color: #999; font-style: italic;">Cart is empty</p>';
+                return;
+            }
+            
+            container.innerHTML = '';
+            cart.forEach((item, index) => {
+                const itemDiv = document.createElement('div');
+                itemDiv.className = 'storage-item';
+                itemDiv.innerHTML = `
+                    <span><strong>${item.name}</strong> <small style="color: #666;">(added at ${item.addedAt})</small></span>
+                    <button onclick="removeFromCart(${index})" style="background: #dc3545; color: white; border: none; padding: 0.5rem 1rem; border-radius: 5px; cursor: pointer;">Remove</button>
+                `;
+                container.appendChild(itemDiv);
+            });
+        }
+        
+        function removeFromCart(index) {
+            let cart = JSON.parse(sessionStorage.getItem('demoCart')) || [];
+            cart.splice(index, 1);
+            sessionStorage.setItem('demoCart', JSON.stringify(cart));
+            displayCart();
+        }
+        
+        function clearCart() {
+            if (confirm('Clear shopping cart?')) {
+                sessionStorage.removeItem('demoCart');
+                displayCart();
+            }
+        }
+        
+        // Initialize
+        showSlide(currentSlide);
+    </script>
+</body>
+</html>

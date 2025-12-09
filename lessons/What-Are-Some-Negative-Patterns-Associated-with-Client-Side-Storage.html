@@ -1,0 +1,741 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Negative Patterns in Client-Side Storage Presentation</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            color: #2c3e50;
+            overflow-x: hidden;
+        }
+
+        .slide-container {
+            min-height: 100vh;
+            padding: 2rem;
+            padding-bottom: 100px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .slide {
+            display: none;
+            animation: fadeIn 0.5s ease-in;
+            background: white;
+            padding: 2.5rem;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        .slide.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        h1 {
+            color: #881518;
+            font-size: 2.5rem;
+            margin-bottom: 2rem;
+            border-bottom: 3px solid #881518;
+            padding-bottom: 0.5rem;
+        }
+
+        h2 {
+            color: #a81d21;
+            font-size: 2rem;
+            margin-bottom: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        h3 {
+            color: #c82428;
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        p {
+            font-size: 1.2rem;
+            line-height: 1.8;
+            margin-bottom: 1rem;
+            color: #34495e;
+        }
+
+        ul {
+            margin-left: 2rem;
+            margin-bottom: 1.5rem;
+        }
+
+        li {
+            font-size: 1.1rem;
+            line-height: 1.8;
+            margin-bottom: 0.8rem;
+            list-style-type: none;
+            position: relative;
+            padding-left: 1.5rem;
+            color: #34495e;
+        }
+
+        li:before {
+            content: "→";
+            color: #881518;
+            font-weight: bold;
+            position: absolute;
+            left: 0;
+        }
+
+        .concept-box {
+            background: linear-gradient(135deg, #fff5f5 0%, #ffe5e5 100%);
+            border-left: 4px solid #881518;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 8px;
+        }
+
+        .code-example {
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            overflow-x: auto;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        code {
+            color: #e83e8c;
+            font-family: 'Courier New', monospace;
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        .keyword {
+            color: #881518;
+            font-weight: 600;
+        }
+
+        .string {
+            color: #4caf50;
+        }
+
+        .comment {
+            color: #6c757d;
+            font-style: italic;
+        }
+
+        .highlight {
+            color: #881518;
+            font-weight: 600;
+            background: #fff5f5;
+            padding: 0.2rem 0.4rem;
+            border-radius: 3px;
+        }
+
+        .two-column {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+
+        .column {
+            background: #f8f9fa;
+            padding: 1.5rem;
+            border-radius: 8px;
+            border: 1px solid #e9ecef;
+        }
+
+        .nav-buttons {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(to top, rgba(255, 255, 255, 0.98) 0%, rgba(255, 255, 255, 0.95) 80%, transparent 100%);
+            padding: 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 1000;
+            box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        button {
+            background: #881518;
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            font-size: 1.1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            box-shadow: 0 4px 12px rgba(136, 21, 24, 0.2);
+        }
+
+        button:hover {
+            background: #a81d21;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(136, 21, 24, 0.3);
+        }
+
+        button:disabled {
+            background: #cbd5e0;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+            color: #a0aec0;
+        }
+
+        .slide-counter {
+            color: #718096;
+            font-size: 1rem;
+            font-weight: 600;
+        }
+
+        .example-box {
+            background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
+            border-left: 4px solid #4caf50;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 8px;
+        }
+
+        .info-box {
+            background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+            border-left: 4px solid #2196f3;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 8px;
+        }
+
+        .warning-box {
+            background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%);
+            border-left: 4px solid #ff9800;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 8px;
+        }
+
+        .danger-box {
+            background: linear-gradient(135deg, #ffebee 0%, #ffcdd2 100%);
+            border-left: 4px solid #f44336;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 8px;
+        }
+
+        strong {
+            color: #881518;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 1.8rem;
+            }
+
+            h2 {
+                font-size: 1.5rem;
+            }
+
+            h3 {
+                font-size: 1.3rem;
+            }
+
+            p, li {
+                font-size: 1rem;
+            }
+
+            .slide-container {
+                padding: 1rem;
+                padding-bottom: 100px;
+            }
+
+            .slide {
+                padding: 1.5rem;
+            }
+
+            .two-column {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+
+            button {
+                padding: 0.8rem 1.5rem;
+                font-size: 1rem;
+            }
+
+            .nav-buttons {
+                padding: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="slide-container">
+        <!-- Slide 1: Introduction -->
+        <div class="slide active">
+            <h1>Negative Patterns in Client-Side Storage</h1>
+            
+            <div class="concept-box">
+                <h3>What is Client-Side Storage?</h3>
+                <p><span class="highlight">Client-side storage</span> allows websites to store data on a <strong>user's device</strong>.</p>
+            </div>
+
+            <h2>The Problem</h2>
+            <p>Like many technologies, client-side storage <strong>can be misused</strong>.</p>
+
+            <div class="warning-box">
+                <h3>Areas of Concern</h3>
+                <p>This lesson explores negative patterns associated with client-side storage, focusing on:</p>
+                <ul>
+                    <li>Cookies and their misuse for tracking</li>
+                    <li>Browser fingerprinting</li>
+                    <li>Insecure storage of sensitive data</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Slide 2: Review - What Are Cookies? -->
+        <div class="slide">
+            <h1>Quick Review: Cookies</h1>
+
+            <div class="concept-box">
+                <h3>What Are Cookies?</h3>
+                <p>In an earlier lesson, you learned that <span class="highlight">cookies</span> are data stored on a user's device when they visit a web app.</p>
+            </div>
+
+            <h2>Legitimate Uses of Cookies</h2>
+            <div class="example-box">
+                <ul>
+                    <li><strong>Session Management:</strong> Keep users logged in</li>
+                    <li><strong>Personalization:</strong> Remember user preferences</li>
+                    <li><strong>Shopping Carts:</strong> Track items users want to purchase</li>
+                    <li><strong>Analytics:</strong> Understand how users interact with the site</li>
+                </ul>
+            </div>
+
+            <div class="info-box">
+                <h3>The Issue</h3>
+                <p>However, cookies can also be <strong>misused</strong> in ways that compromise user privacy.</p>
+            </div>
+        </div>
+
+        <!-- Slide 3: Excessive Tracking -->
+        <div class="slide">
+            <h1>Negative Pattern: Excessive Tracking</h1>
+
+            <div class="danger-box">
+                <h3>Cookie Misuse #1</h3>
+                <p>A common misuse of cookies is <span class="highlight">excessive tracking</span>.</p>
+            </div>
+
+            <h2>How It Works</h2>
+            <p>Websites use cookies to <strong>track a user's interactions</strong> with a web app, creating a history of their digital activities.</p>
+
+            <h2>The Purpose</h2>
+            <div class="info-box">
+                <p>This is primarily done for <strong>targeted advertising</strong>, but it raises significant <strong>privacy concerns</strong>.</p>
+            </div>
+
+            <div class="warning-box">
+                <h3>Privacy Impact</h3>
+                <p>Users often don't know the extent to which their online behavior is being monitored and recorded.</p>
+            </div>
+        </div>
+
+        <!-- Slide 4: Tracking Cookie Example -->
+        <div class="slide">
+            <h1>Tracking Cookie Example</h1>
+
+            <div class="concept-box">
+                <h3>Real-World Scenario</h3>
+                <p>A shopping website might use a tracking cookie like this:</p>
+            </div>
+
+            <h2>Code Example</h2>
+            <div class="code-example">
+                <code>
+document.cookie = <span class="string">"userID=123; path=/; expires=Thu, 18 Dec 2024 6:00:00 UTC"</span>;
+                </code>
+            </div>
+
+            <h2>What This Does</h2>
+            <ul>
+                <li>Sets a cookie named <code>userID</code> with value <code>123</code></li>
+                <li>Cookie is sent with <strong>every request</strong> to the website</li>
+                <li>Allows the site to <strong>track the user's actions</strong></li>
+                <li>Persists until the expiration date</li>
+            </ul>
+        </div>
+
+        <!-- Slide 5: The Bigger Picture -->
+        <div class="slide">
+            <h1>The Bigger Picture</h1>
+
+            <div class="concept-box">
+                <h3>Why It Matters</h3>
+                <p>While a single tracking cookie might seem harmless...</p>
+            </div>
+
+            <h2>The Reality</h2>
+            <div class="danger-box">
+                <h3>⚠️ Extensive Tracking</h3>
+                <p>Imagine <strong>hundreds of websites</strong> sharing this information.</p>
+                <p>They could create a <strong>very detailed picture</strong> of your online life and choices:</p>
+                <ul>
+                    <li>What you browse</li>
+                    <li>What you buy</li>
+                    <li>Where you go online</li>
+                    <li>Your interests and habits</li>
+                    <li>Your political views</li>
+                    <li>Your health concerns</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Slide 6: Browser Fingerprinting Intro -->
+        <div class="slide">
+            <h1>Browser Fingerprinting</h1>
+
+            <div class="danger-box">
+                <h3>Another Concerning Practice</h3>
+                <p><span class="highlight">Browser fingerprinting</span> is a technique used to uniquely identify users.</p>
+            </div>
+
+            <h2>How It Works</h2>
+            <p>This technique uses <strong>client-side information</strong> to create a unique "fingerprint" of a user's browser.</p>
+
+            <div class="info-box">
+                <h3>Data Collection</h3>
+                <p>Websites can gather information about:</p>
+                <ul>
+                    <li>Browser version</li>
+                    <li>Installed plugins</li>
+                    <li>Screen resolution</li>
+                    <li>System fonts</li>
+                    <li>Time zone</li>
+                    <li>Language settings</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Slide 7: Fingerprinting Example -->
+        <div class="slide">
+            <h1>Fingerprinting Code Example</h1>
+
+            <div class="concept-box">
+                <h3>Simple Example</h3>
+                <p>Here's a basic example of how a website can create a fingerprint:</p>
+            </div>
+
+            <h2>Code</h2>
+            <div class="code-example">
+                <code>
+<span class="keyword">let</span> fingerprintExample = navigator.userAgent + screen.width + screen.height;<br>
+console.log(fingerprintExample);
+                </code>
+            </div>
+
+            <h2>Output Example</h2>
+            <div class="code-example">
+                <code style="font-size: 0.85rem;">
+<span class="string">"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.3625601440"</span>
+                </code>
+            </div>
+        </div>
+
+        <!-- Slide 8: Fingerprinting Breakdown -->
+        <div class="slide">
+            <h1>Fingerprinting Breakdown</h1>
+
+            <h2>What the Code Does</h2>
+
+            <div class="concept-box">
+                <h3>Combines Three Pieces</h3>
+            </div>
+
+            <div class="info-box">
+                <h3>1. navigator.userAgent</h3>
+                <p>Browser type and version, operating system</p>
+                <p>Example: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)..."</p>
+            </div>
+
+            <div class="info-box">
+                <h3>2. screen.width</h3>
+                <p>Screen width in pixels</p>
+                <p>Example: 2560</p>
+            </div>
+
+            <div class="info-box">
+                <h3>3. screen.height</h3>
+                <p>Screen height in pixels</p>
+                <p>Example: 1440</p>
+            </div>
+        </div>
+
+        <!-- Slide 9: Real Fingerprinting Complexity -->
+        <div class="slide">
+            <h1>Real Fingerprinting is More Complex</h1>
+
+            <div class="warning-box">
+                <h3>⚠️ This is Just the Beginning</h3>
+                <p>While the previous example is basic, <strong>real fingerprinting methods are much more complex</strong> and can be highly accurate in identifying users.</p>
+            </div>
+
+            <h2>Advanced Fingerprinting Includes</h2>
+            <ul>
+                <li><strong>Canvas Fingerprinting:</strong> How browser renders graphics</li>
+                <li><strong>WebGL Fingerprinting:</strong> Graphics card information</li>
+                <li><strong>Audio Fingerprinting:</strong> How audio is processed</li>
+                <li><strong>Font Detection:</strong> Installed system fonts</li>
+                <li><strong>Plugin Detection:</strong> Browser extensions and plugins</li>
+                <li><strong>Battery Status:</strong> Device battery level</li>
+                <li><strong>Hardware Concurrency:</strong> Number of CPU cores</li>
+            </ul>
+        </div>
+
+        <!-- Slide 10: Why Fingerprinting is Concerning -->
+        <div class="slide">
+            <h1>Why Fingerprinting is Concerning</h1>
+
+            <div class="danger-box">
+                <h3>Privacy Implications</h3>
+            </div>
+
+            <h2>Key Concerns</h2>
+
+            <div class="concept-box">
+                <h3>1. Can't Be Easily Cleared</h3>
+                <p>Unlike cookies, you can't just "clear" your browser fingerprint</p>
+            </div>
+
+            <div class="concept-box">
+                <h3>2. Users Are Unaware</h3>
+                <p>Most users don't know they're being fingerprinted</p>
+            </div>
+
+            <div class="concept-box">
+                <h3>3. Tracks Across Sessions</h3>
+                <p>Can identify you even in private/incognito mode</p>
+            </div>
+
+            <div class="concept-box">
+                <h3>4. Highly Accurate</h3>
+                <p>Can uniquely identify users with high precision</p>
+            </div>
+        </div>
+
+        <!-- Slide 11: localStorage Misuse -->
+        <div class="slide">
+            <h1>localStorage Misuse</h1>
+
+            <div class="danger-box">
+                <h3>Insecure Data Storage</h3>
+                <p><code>localStorage</code> can be misused when websites store <strong>sensitive information insecurely</strong>.</p>
+            </div>
+
+            <h2>Bad Example</h2>
+            <div class="code-example">
+                <code>
+localStorage.setItem(<span class="string">'userPassword'</span>, <span class="string">'someonesPasswordHere'</span>);
+                </code>
+            </div>
+
+            <div class="warning-box">
+                <h3>⚠️ Critical Security Risk</h3>
+                <p>This code stores a user's password in localStorage. This is a <strong>serious security risk</strong>!</p>
+            </div>
+        </div>
+
+        <!-- Slide 12: Why This is Dangerous -->
+        <div class="slide">
+            <h1>Why Storing Passwords in localStorage is Dangerous</h1>
+
+            <h2>Security Problems</h2>
+
+            <div class="danger-box">
+                <h3>1. Not Encrypted</h3>
+                <p>Data in localStorage is <strong>not encrypted</strong> - it's stored as plain text</p>
+            </div>
+
+            <div class="danger-box">
+                <h3>2. Easy to Access</h3>
+                <p>Anyone with access to the browser can read localStorage</p>
+                <ul>
+                    <li>Open developer tools</li>
+                    <li>Go to Application/Storage tab</li>
+                    <li>View all localStorage data</li>
+                </ul>
+            </div>
+
+            <div class="danger-box">
+                <h3>3. Vulnerable to XSS</h3>
+                <p>Cross-Site Scripting attacks can steal data from localStorage</p>
+            </div>
+        </div>
+
+        <!-- Slide 13: What Should Never Be Stored -->
+        <div class="slide">
+            <h1>What Should Never Be Stored</h1>
+
+            <div class="concept-box">
+                <h3>Sensitive Information</h3>
+                <p>The following should <strong>NEVER</strong> be stored in client-side storage:</p>
+            </div>
+
+            <h2>Prohibited Data</h2>
+
+            <div class="danger-box">
+                <ul>
+                    <li><strong>Passwords:</strong> Never store passwords client-side</li>
+                    <li><strong>Credit Card Numbers:</strong> Payment data must be secure</li>
+                    <li><strong>Social Security Numbers:</strong> Highly sensitive personal data</li>
+                    <li><strong>API Keys/Secrets:</strong> Should be server-side only</li>
+                    <li><strong>Authentication Tokens:</strong> Use httpOnly cookies instead</li>
+                    <li><strong>Private User Data:</strong> Medical records, financial info, etc.</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Slide 14: Responsible Development -->
+        <div class="slide">
+            <h1>Responsible Development</h1>
+
+            <div class="concept-box">
+                <h3>Your Responsibility as a Developer</h3>
+                <p>While client-side storage offers many benefits, it's crucial to <span class="highlight">use it responsibly</span>.</p>
+            </div>
+
+            <h2>Best Practices</h2>
+
+            <div class="example-box">
+                <h3>✓ Do This</h3>
+                <ul>
+                    <li>Store only non-sensitive data</li>
+                    <li>Be transparent about data collection</li>
+                    <li>Follow privacy regulations (GDPR, CCPA)</li>
+                    <li>Give users control over their data</li>
+                    <li>Minimize data collection</li>
+                    <li>Implement proper security measures</li>
+                </ul>
+            </div>
+
+            <div class="danger-box">
+                <h3>✗ Don't Do This</h3>
+                <ul>
+                    <li>Track users without consent</li>
+                    <li>Store sensitive information insecurely</li>
+                    <li>Implement browser fingerprinting</li>
+                    <li>Share user data without permission</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Slide 15: Summary -->
+        <div class="slide">
+            <h1>Summary</h1>
+
+            <h2>Key Takeaways</h2>
+
+            <div class="concept-box">
+                <h3>Negative Patterns to Avoid</h3>
+            </div>
+
+            <div class="warning-box">
+                <h3>1. Excessive Tracking</h3>
+                <p>Using cookies to track users across multiple sites without proper consent</p>
+            </div>
+
+            <div class="warning-box">
+                <h3>2. Browser Fingerprinting</h3>
+                <p>Creating unique user identifiers using browser and system characteristics</p>
+            </div>
+
+            <div class="danger-box">
+                <h3>3. Insecure Storage</h3>
+                <p>Storing sensitive information like passwords in localStorage or other client-side storage</p>
+            </div>
+
+            <div class="example-box">
+                <h3>Your Commitment</h3>
+                <p>As you continue your web development journey, <strong>always consider the privacy and security</strong> of your users' data on the client side.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="nav-buttons">
+        <button id="prevBtn" onclick="changeSlide(-1)">Previous</button>
+        <span class="slide-counter">
+            <span id="currentSlide">1</span> / <span id="totalSlides">15</span>
+        </span>
+        <button id="nextBtn" onclick="changeSlide(1)">Next</button>
+    </div>
+
+    <script>
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.slide');
+        const totalSlides = slides.length;
+        
+        document.getElementById('totalSlides').textContent = totalSlides;
+
+        function showSlide(n) {
+            slides.forEach(slide => slide.classList.remove('active'));
+            
+            if (n >= totalSlides) {
+                currentSlide = totalSlides - 1;
+            } else if (n < 0) {
+                currentSlide = 0;
+            } else {
+                currentSlide = n;
+            }
+            
+            slides[currentSlide].classList.add('active');
+            document.getElementById('currentSlide').textContent = currentSlide + 1;
+            
+            // Update button states
+            document.getElementById('prevBtn').disabled = currentSlide === 0;
+            document.getElementById('nextBtn').disabled = currentSlide === totalSlides - 1;
+            
+            // Scroll to top when changing slides
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function changeSlide(direction) {
+            showSlide(currentSlide + direction);
+        }
+
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowLeft') {
+                changeSlide(-1);
+            } else if (e.key === 'ArrowRight') {
+                changeSlide(1);
+            }
+        });
+
+        // Initialize
+        showSlide(0);
+    </script>
+</body>
+</html>

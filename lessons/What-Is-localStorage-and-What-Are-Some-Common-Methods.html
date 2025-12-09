@@ -1,0 +1,808 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>localStorage Presentation</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            color: #2c3e50;
+            overflow-x: hidden;
+        }
+
+        .slide-container {
+            min-height: 100vh;
+            padding: 2rem;
+            padding-bottom: 100px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .slide {
+            display: none;
+            animation: fadeIn 0.5s ease-in;
+            background: white;
+            padding: 2.5rem;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        .slide.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        h1 {
+            color: #881518;
+            font-size: 2.5rem;
+            margin-bottom: 2rem;
+            border-bottom: 3px solid #881518;
+            padding-bottom: 0.5rem;
+        }
+
+        h2 {
+            color: #a81d21;
+            font-size: 2rem;
+            margin-bottom: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        h3 {
+            color: #c82428;
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        p {
+            font-size: 1.2rem;
+            line-height: 1.8;
+            margin-bottom: 1rem;
+            color: #34495e;
+        }
+
+        ul {
+            margin-left: 2rem;
+            margin-bottom: 1.5rem;
+        }
+
+        li {
+            font-size: 1.1rem;
+            line-height: 1.8;
+            margin-bottom: 0.8rem;
+            list-style-type: none;
+            position: relative;
+            padding-left: 1.5rem;
+            color: #34495e;
+        }
+
+        li:before {
+            content: "→";
+            color: #881518;
+            font-weight: bold;
+            position: absolute;
+            left: 0;
+        }
+
+        .concept-box {
+            background: linear-gradient(135deg, #fff5f5 0%, #ffe5e5 100%);
+            border-left: 4px solid #881518;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 8px;
+        }
+
+        .code-example {
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            overflow-x: auto;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        code {
+            color: #e83e8c;
+            font-family: 'Courier New', monospace;
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        .keyword {
+            color: #881518;
+            font-weight: 600;
+        }
+
+        .string {
+            color: #4caf50;
+        }
+
+        .comment {
+            color: #6c757d;
+            font-style: italic;
+        }
+
+        .highlight {
+            color: #881518;
+            font-weight: 600;
+            background: #fff5f5;
+            padding: 0.2rem 0.4rem;
+            border-radius: 3px;
+        }
+
+        .two-column {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+
+        .column {
+            background: #f8f9fa;
+            padding: 1.5rem;
+            border-radius: 8px;
+            border: 1px solid #e9ecef;
+        }
+
+        .nav-buttons {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(to top, rgba(255, 255, 255, 0.98) 0%, rgba(255, 255, 255, 0.95) 80%, transparent 100%);
+            padding: 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 1000;
+            box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        button {
+            background: #881518;
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            font-size: 1.1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            box-shadow: 0 4px 12px rgba(136, 21, 24, 0.2);
+        }
+
+        button:hover {
+            background: #a81d21;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(136, 21, 24, 0.3);
+        }
+
+        button:disabled {
+            background: #cbd5e0;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+            color: #a0aec0;
+        }
+
+        .slide-counter {
+            color: #718096;
+            font-size: 1rem;
+            font-weight: 600;
+        }
+
+        .example-box {
+            background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
+            border-left: 4px solid #4caf50;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 8px;
+        }
+
+        .info-box {
+            background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+            border-left: 4px solid #2196f3;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 8px;
+        }
+
+        .warning-box {
+            background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%);
+            border-left: 4px solid #ff9800;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 8px;
+        }
+
+        strong {
+            color: #881518;
+        }
+
+        .method-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin: 1.5rem 0;
+        }
+
+        .method-item {
+            background: #f8f9fa;
+            padding: 1rem;
+            border-radius: 6px;
+            border-left: 3px solid #881518;
+            text-align: center;
+            font-family: 'Courier New', monospace;
+            font-weight: 500;
+            color: #881518;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 1.8rem;
+            }
+
+            h2 {
+                font-size: 1.5rem;
+            }
+
+            h3 {
+                font-size: 1.3rem;
+            }
+
+            p, li {
+                font-size: 1rem;
+            }
+
+            .slide-container {
+                padding: 1rem;
+                padding-bottom: 100px;
+            }
+
+            .slide {
+                padding: 1.5rem;
+            }
+
+            .two-column {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+
+            button {
+                padding: 0.8rem 1.5rem;
+                font-size: 1rem;
+            }
+
+            .nav-buttons {
+                padding: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="slide-container">
+        <!-- Slide 1: Introduction to Web Storage API -->
+        <div class="slide active">
+            <h1>localStorage and Web Storage API</h1>
+            
+            <div class="concept-box">
+                <h3>What is the Web Storage API?</h3>
+                <p>The Web Storage API provides a mechanism for browsers to <span class="highlight">store key-value pairs right within the browser</span>.</p>
+            </div>
+
+            <h2>What Can You Do?</h2>
+            <p>The API allows developers to store information that can be used across:</p>
+            <ul>
+                <li><strong>Different page reloads</strong></li>
+                <li><strong>Multiple sessions</strong></li>
+                <li><strong>Various pages of the same site</strong></li>
+            </ul>
+
+            <div class="info-box">
+                <h3>Data Storage</h3>
+                <p>All data is stored <strong>in the browser</strong>, making it accessible without server requests.</p>
+            </div>
+        </div>
+
+        <!-- Slide 2: Two Main Components -->
+        <div class="slide">
+            <h1>Two Main Components</h1>
+
+            <div class="concept-box">
+                <h3>Web Storage API Components</h3>
+                <p>The two main components in the Web Storage API are <code>localStorage</code> and <code>sessionStorage</code>.</p>
+            </div>
+
+            <div class="two-column">
+                <div class="column">
+                    <h3>localStorage</h3>
+                    <ul>
+                        <li>Data persists permanently</li>
+                        <li>Survives browser close</li>
+                        <li>Survives page refresh</li>
+                        <li>Remains until deleted</li>
+                    </ul>
+                </div>
+
+                <div class="column">
+                    <h3>sessionStorage</h3>
+                    <ul>
+                        <li>Data for page session only</li>
+                        <li>Cleared on tab close</li>
+                        <li>Cleared on window close</li>
+                        <li>Temporary storage</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="info-box">
+                <p>This lesson focuses on <code>localStorage</code>. You'll learn about <code>sessionStorage</code> in the next lesson.</p>
+            </div>
+        </div>
+
+        <!-- Slide 3: What is localStorage? -->
+        <div class="slide">
+            <h1>What is localStorage?</h1>
+
+            <div class="concept-box">
+                <h3>Definition</h3>
+                <p><span class="highlight">localStorage</span> is the part of the Web Storage API that allows data to <strong>persist even after the browser window is closed</strong> or the page is refreshed.</p>
+            </div>
+
+            <h2>Data Persistence</h2>
+            <p>This data remains available until it is <strong>explicitly removed</strong> by:</p>
+            <ul>
+                <li>The application (using JavaScript)</li>
+                <li>The user (clearing browser data)</li>
+            </ul>
+
+            <div class="example-box">
+                <h3>Key Characteristic</h3>
+                <p><strong>Permanent storage</strong> - Data stays in the browser indefinitely unless removed.</p>
+            </div>
+        </div>
+
+        <!-- Slide 4: What is sessionStorage? -->
+        <div class="slide">
+            <h1>What is sessionStorage?</h1>
+
+            <div class="concept-box">
+                <h3>Definition</h3>
+                <p><span class="highlight">sessionStorage</span> stores data for the <strong>duration of the page session</strong>, meaning the data is available as long as the browser tab or window is open.</p>
+            </div>
+
+            <h2>Key Difference</h2>
+            <div class="warning-box">
+                <p>Unlike <code>localStorage</code>, the data in <code>sessionStorage</code> is <strong>cleared when the tab or window is closed</strong>.</p>
+            </div>
+
+            <h2>When It's Cleared</h2>
+            <ul>
+                <li>Tab is closed</li>
+                <li>Window is closed</li>
+                <li>Browser session ends</li>
+            </ul>
+
+            <div class="info-box">
+                <p>You will learn more about <code>sessionStorage</code> in the next lesson.</p>
+            </div>
+        </div>
+
+        <!-- Slide 5: Common Use Cases -->
+        <div class="slide">
+            <h1>Common Use Cases for localStorage</h1>
+
+            <div class="concept-box">
+                <h3>When to Use localStorage</h3>
+            </div>
+
+            <h2>Typical Applications</h2>
+
+            <div class="example-box">
+                <h3>1. User Settings</h3>
+                <p>Store preferences like themes or language choices</p>
+            </div>
+
+            <div class="example-box">
+                <h3>2. Form Data</h3>
+                <p>Remember form data across browser sessions (draft emails, form inputs)</p>
+            </div>
+
+            <div class="example-box">
+                <h3>3. Caching</h3>
+                <p>Cache small pieces of information to improve the performance of web apps</p>
+            </div>
+
+            <div class="example-box">
+                <h3>4. User Experience</h3>
+                <p>Remember user choices like "don't show this again" preferences</p>
+            </div>
+        </div>
+
+        <!-- Slide 6: What is Caching? -->
+        <div class="slide">
+            <h1>What is Caching?</h1>
+
+            <div class="concept-box">
+                <h3>Definition</h3>
+                <p><span class="highlight">Caching</span> refers to storing frequently accessed data in a temporary storage location, known as a <strong>cache</strong>.</p>
+            </div>
+
+            <h2>How It Works</h2>
+            <p>Subsequent requests for that data can be served more quickly without having to:</p>
+            <ul>
+                <li>Recompute the data</li>
+                <li>Fetch it from a slower data source</li>
+                <li>Query a database</li>
+                <li>Contact an external server</li>
+            </ul>
+
+            <div class="example-box">
+                <h3>Benefits</h3>
+                <ul>
+                    <li><strong>Faster Load Times:</strong> Data is retrieved instantly from local storage</li>
+                    <li><strong>Reduced Server Load:</strong> Fewer requests to the server</li>
+                    <li><strong>Better Performance:</strong> Improved user experience</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Slide 7: Common localStorage Methods -->
+        <div class="slide">
+            <h1>Common localStorage Methods</h1>
+
+            <div class="concept-box">
+                <h3>Four Main Methods</h3>
+                <p>localStorage provides four essential methods for managing stored data.</p>
+            </div>
+
+            <h2>The Methods</h2>
+            <div class="method-grid">
+                <div class="method-item">setItem()</div>
+                <div class="method-item">getItem()</div>
+                <div class="method-item">removeItem()</div>
+                <div class="method-item">clear()</div>
+            </div>
+
+            <div class="info-box">
+                <h3>What They Do</h3>
+                <ul>
+                    <li><strong>setItem():</strong> Store a key-value pair</li>
+                    <li><strong>getItem():</strong> Retrieve a value by key</li>
+                    <li><strong>removeItem():</strong> Delete a specific item</li>
+                    <li><strong>clear():</strong> Remove all stored data</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Slide 8: setItem() Method -->
+        <div class="slide">
+            <h1>setItem() Method</h1>
+
+            <div class="concept-box">
+                <h3>Storing Data</h3>
+                <p>The <code>setItem()</code> method <span class="highlight">stores a key-value pair</span> in localStorage.</p>
+            </div>
+
+            <h2>Syntax</h2>
+            <div class="code-example">
+                <code>
+localStorage.setItem(key, value);
+                </code>
+            </div>
+
+            <h2>Example</h2>
+            <div class="code-example">
+                <code>
+localStorage.setItem(<span class="string">'username'</span>, <span class="string">'JaneDoe'</span>);
+                </code>
+            </div>
+
+            <div class="example-box">
+                <h3>What Happens?</h3>
+                <ul>
+                    <li><strong>Key:</strong> 'username'</li>
+                    <li><strong>Value:</strong> 'JaneDoe'</li>
+                    <li>This data is now stored in the browser</li>
+                    <li>It persists even after closing the browser</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Slide 9: getItem() Method -->
+        <div class="slide">
+            <h1>getItem() Method</h1>
+
+            <div class="concept-box">
+                <h3>Retrieving Data</h3>
+                <p>The <code>getItem()</code> method <span class="highlight">retrieves the value</span> of a given key from localStorage.</p>
+            </div>
+
+            <h2>Syntax</h2>
+            <div class="code-example">
+                <code>
+localStorage.getItem(key);
+                </code>
+            </div>
+
+            <h2>Example</h2>
+            <div class="code-example">
+                <code>
+<span class="keyword">let</span> username = localStorage.getItem(<span class="string">'username'</span>);<br>
+console.log(username); <span class="comment">// JaneDoe</span>
+                </code>
+            </div>
+
+            <div class="example-box">
+                <h3>What Happens?</h3>
+                <ul>
+                    <li>Retrieves the value associated with key 'username'</li>
+                    <li>Returns 'JaneDoe' (the stored value)</li>
+                    <li>If the key doesn't exist, returns <code>null</code></li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Slide 10: removeItem() Method -->
+        <div class="slide">
+            <h1>removeItem() Method</h1>
+
+            <div class="concept-box">
+                <h3>Removing Data</h3>
+                <p>The <code>removeItem()</code> method <span class="highlight">removes an item</span> from localStorage using its key.</p>
+            </div>
+
+            <h2>Syntax</h2>
+            <div class="code-example">
+                <code>
+localStorage.removeItem(key);
+                </code>
+            </div>
+
+            <h2>Example</h2>
+            <div class="code-example">
+                <code>
+localStorage.removeItem(<span class="string">'username'</span>);
+                </code>
+            </div>
+
+            <div class="example-box">
+                <h3>What Happens?</h3>
+                <ul>
+                    <li>Finds the item with key 'username'</li>
+                    <li>Deletes it from localStorage</li>
+                    <li>Future <code>getItem('username')</code> calls will return <code>null</code></li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Slide 11: clear() Method -->
+        <div class="slide">
+            <h1>clear() Method</h1>
+
+            <div class="concept-box">
+                <h3>Clearing All Data</h3>
+                <p>The <code>clear()</code> method <span class="highlight">removes all data</span> from localStorage.</p>
+            </div>
+
+            <h2>Syntax</h2>
+            <div class="code-example">
+                <code>
+localStorage.clear();
+                </code>
+            </div>
+
+            <div class="warning-box">
+                <h3>⚠️ Warning</h3>
+                <p>This method removes <strong>ALL items</strong> from localStorage for your domain. Use with caution!</p>
+            </div>
+
+            <div class="example-box">
+                <h3>What Happens?</h3>
+                <ul>
+                    <li>Every key-value pair is deleted</li>
+                    <li>localStorage becomes empty</li>
+                    <li>Cannot be undone</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Slide 12: Complete Example - User Theme -->
+        <div class="slide">
+            <h1>Complete Example: User Theme</h1>
+
+            <div class="concept-box">
+                <h3>Storing Theme Preference</h3>
+                <p>Let's look at a complete example using localStorage to store a user's preferred theme.</p>
+            </div>
+
+            <h2>Full Code</h2>
+            <div class="code-example">
+                <code>
+<span class="comment">// Store the user's theme preference</span><br>
+localStorage.setItem(<span class="string">'theme'</span>, <span class="string">'dark'</span>);<br><br>
+<span class="comment">// Retrieve the stored theme preference</span><br>
+<span class="keyword">const</span> userTheme = localStorage.getItem(<span class="string">'theme'</span>);<br>
+console.log(userTheme); <span class="comment">// 'dark'</span><br><br>
+<span class="comment">// Remove the theme preference</span><br>
+localStorage.removeItem(<span class="string">'theme'</span>);<br><br>
+<span class="comment">// Clear all localStorage data</span><br>
+localStorage.clear();
+                </code>
+            </div>
+        </div>
+
+        <!-- Slide 13: Example Breakdown -->
+        <div class="slide">
+            <h1>Example Breakdown</h1>
+
+            <h2>Step-by-Step Explanation</h2>
+
+            <div class="concept-box">
+                <h3>1. Store Theme</h3>
+                <div class="code-example" style="margin-top: 1rem;">
+                    <code>
+localStorage.setItem(<span class="string">'theme'</span>, <span class="string">'dark'</span>);
+                    </code>
+                </div>
+                <p>We store a theme choice (<code>'dark'</code>) for the user</p>
+            </div>
+
+            <div class="concept-box">
+                <h3>2. Retrieve Theme</h3>
+                <div class="code-example" style="margin-top: 1rem;">
+                    <code>
+<span class="keyword">const</span> userTheme = localStorage.getItem(<span class="string">'theme'</span>);
+                    </code>
+                </div>
+                <p>We retrieve that theme and output it to the console</p>
+            </div>
+
+            <div class="concept-box">
+                <h3>3. Remove or Clear</h3>
+                <p>We demonstrate how to remove a specific item or clear all stored data</p>
+            </div>
+        </div>
+
+        <!-- Slide 14: Security Considerations -->
+        <div class="slide">
+            <h1>Security Considerations</h1>
+
+            <div class="warning-box">
+                <h3>⚠️ Important Security Warning</h3>
+                <p><code>localStorage</code> should <strong>NOT be used to store sensitive information</strong>, such as passwords, because it can pose security risks.</p>
+            </div>
+
+            <h2>Why Not Secure?</h2>
+            <ul>
+                <li><strong>No Encryption:</strong> Data is stored in plain text</li>
+                <li><strong>Accessible via JavaScript:</strong> Any script can read it</li>
+                <li><strong>XSS Vulnerability:</strong> Cross-site scripting attacks can access it</li>
+                <li><strong>Permanent Storage:</strong> Data persists even if compromised</li>
+            </ul>
+
+            <div class="example-box">
+                <h3>What NOT to Store</h3>
+                <ul>
+                    <li>Passwords</li>
+                    <li>API keys</li>
+                    <li>Credit card information</li>
+                    <li>Personal identification numbers</li>
+                    <li>Authentication tokens (use httpOnly cookies instead)</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Slide 15: Summary -->
+        <div class="slide">
+            <h1>Summary</h1>
+
+            <h2>Key Concepts</h2>
+
+            <div class="concept-box">
+                <h3>Web Storage API</h3>
+                <p>Provides a mechanism to <strong>store key-value pairs in the browser</strong>.</p>
+            </div>
+
+            <div class="concept-box">
+                <h3>localStorage vs sessionStorage</h3>
+                <ul>
+                    <li><strong>localStorage:</strong> Persists across sessions (permanent)</li>
+                    <li><strong>sessionStorage:</strong> Cleared when tab closes (temporary)</li>
+                </ul>
+            </div>
+
+            <div class="concept-box">
+                <h3>Four Main Methods</h3>
+                <ul>
+                    <li><code>setItem(key, value)</code> - Store data</li>
+                    <li><code>getItem(key)</code> - Retrieve data</li>
+                    <li><code>removeItem(key)</code> - Delete specific item</li>
+                    <li><code>clear()</code> - Delete all items</li>
+                </ul>
+            </div>
+
+            <div class="warning-box">
+                <h3>Security Reminder</h3>
+                <p><strong>Never store sensitive data</strong> like passwords in localStorage!</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="nav-buttons">
+        <button id="prevBtn" onclick="changeSlide(-1)">Previous</button>
+        <span class="slide-counter">
+            <span id="currentSlide">1</span> / <span id="totalSlides">15</span>
+        </span>
+        <button id="nextBtn" onclick="changeSlide(1)">Next</button>
+    </div>
+
+    <script>
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.slide');
+        const totalSlides = slides.length;
+        
+        document.getElementById('totalSlides').textContent = totalSlides;
+
+        function showSlide(n) {
+            slides.forEach(slide => slide.classList.remove('active'));
+            
+            if (n >= totalSlides) {
+                currentSlide = totalSlides - 1;
+            } else if (n < 0) {
+                currentSlide = 0;
+            } else {
+                currentSlide = n;
+            }
+            
+            slides[currentSlide].classList.add('active');
+            document.getElementById('currentSlide').textContent = currentSlide + 1;
+            
+            // Update button states
+            document.getElementById('prevBtn').disabled = currentSlide === 0;
+            document.getElementById('nextBtn').disabled = currentSlide === totalSlides - 1;
+            
+            // Scroll to top when changing slides
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function changeSlide(direction) {
+            showSlide(currentSlide + direction);
+        }
+
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowLeft') {
+                changeSlide(-1);
+            } else if (e.key === 'ArrowRight') {
+                changeSlide(1);
+            }
+        });
+
+        // Initialize
+        showSlide(0);
+    </script>
+</body>
+</html>

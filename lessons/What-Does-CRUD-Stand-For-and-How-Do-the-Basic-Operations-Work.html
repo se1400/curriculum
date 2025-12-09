@@ -1,0 +1,1232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CRUD Operations Presentation</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #f5f5f5 0%, #ffffff 100%);
+            color: #2d2d2d;
+            overflow-x: hidden;
+        }
+
+        .slide-container {
+            min-height: 100vh;
+            padding: 2rem 2rem 120px 2rem;
+            display: none;
+        }
+
+        .slide-container.active {
+            display: block;
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .slide-content {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            color: #881518;
+            font-size: clamp(1.8rem, 4vw, 3rem);
+            margin-bottom: 2rem;
+            border-bottom: 3px solid #881518;
+            padding-bottom: 1rem;
+        }
+
+        h2 {
+            color: #a81c1f;
+            font-size: clamp(1.4rem, 3vw, 2rem);
+            margin: 2rem 0 1rem 0;
+        }
+
+        h3 {
+            color: #c8575a;
+            font-size: clamp(1.2rem, 2.5vw, 1.5rem);
+            margin: 1.5rem 0 1rem 0;
+        }
+
+        p, li {
+            font-size: clamp(1rem, 2vw, 1.2rem);
+            line-height: 1.8;
+            margin-bottom: 1rem;
+            color: #333333;
+        }
+
+        .content-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+
+        @media (min-width: 768px) {
+            .content-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        .concept-box {
+            background: rgba(136, 21, 24, 0.05);
+            border-left: 4px solid #881518;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin: 1.5rem 0;
+        }
+
+        .code-box {
+            background: #f8f8f8;
+            border: 1px solid #d0d0d0;
+            border-radius: 8px;
+            padding: 1.5rem;
+            overflow-x: auto;
+            margin: 1rem 0;
+        }
+
+        code {
+            font-family: 'Courier New', Courier, monospace;
+            font-size: clamp(0.85rem, 1.5vw, 1rem);
+            color: #0066cc;
+        }
+
+        .keyword { color: #881518; }
+        .string { color: #2a8d2a; }
+        .function { color: #795e26; }
+        .comment { color: #008000; }
+        .property { color: #0066cc; }
+
+        .interactive-demo {
+            background: rgba(136, 21, 24, 0.03);
+            border: 2px dashed #881518;
+            border-radius: 8px;
+            padding: 2rem;
+            margin: 2rem 0;
+        }
+
+        .demo-button {
+            background: #881518;
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1.1rem;
+            font-weight: 600;
+            transition: all 0.3s;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            margin: 0.5rem;
+        }
+
+        .demo-button:hover {
+            background: #a81c1f;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(136, 21, 24, 0.3);
+        }
+
+        .demo-button.create-btn { background: #28a745; }
+        .demo-button.create-btn:hover { background: #218838; }
+        .demo-button.read-btn { background: #007bff; }
+        .demo-button.read-btn:hover { background: #0056b3; }
+        .demo-button.update-btn { background: #ffc107; color: #333; }
+        .demo-button.update-btn:hover { background: #e0a800; }
+        .demo-button.delete-btn { background: #dc3545; }
+        .demo-button.delete-btn:hover { background: #c82333; }
+
+        .demo-output {
+            background: white;
+            border: 2px solid #881518;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1rem 0;
+            min-height: 80px;
+        }
+
+        .demo-input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid #881518;
+            border-radius: 8px;
+            font-size: 1rem;
+            margin: 0.5rem 0;
+        }
+
+        ul {
+            margin-left: 2rem;
+        }
+
+        .navigation {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(to top, #ffffff, rgba(255, 255, 255, 0.98));
+            padding: 1.5rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+            border-top: 2px solid #e0e0e0;
+        }
+
+        .nav-button {
+            background: #881518;
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: clamp(0.9rem, 2vw, 1.1rem);
+            font-weight: 600;
+            transition: all 0.3s;
+            min-width: 100px;
+        }
+
+        .nav-button:hover:not(:disabled) {
+            background: #a81c1f;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(136, 21, 24, 0.3);
+        }
+
+        .nav-button:disabled {
+            background: #cccccc;
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        .slide-counter {
+            color: #881518;
+            font-weight: 600;
+            font-size: clamp(1rem, 2vw, 1.2rem);
+        }
+
+        @media (max-width: 768px) {
+            .navigation {
+                padding: 1rem;
+            }
+
+            .nav-button {
+                padding: 0.75rem 1rem;
+                min-width: 80px;
+            }
+        }
+
+        .highlight {
+            background: rgba(136, 21, 24, 0.15);
+            padding: 0.2rem 0.4rem;
+            border-radius: 3px;
+            font-weight: 600;
+        }
+
+        .inline-code {
+            background: #f0f0f0;
+            padding: 0.2rem 0.5rem;
+            border-radius: 3px;
+            font-family: 'Courier New', Courier, monospace;
+            color: #881518;
+            font-size: 0.9em;
+        }
+
+        .success-box {
+            background: linear-gradient(135deg, #d4edda, #c3e6cb);
+            border: 2px solid #28a745;
+            border-left: 6px solid #1e7e34;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+        }
+
+        .success-box h3 {
+            color: #1e7e34;
+            margin-top: 0;
+        }
+
+        .info-box {
+            background: linear-gradient(135deg, #e3f2fd, #bbdefb);
+            border: 2px solid #2196f3;
+            border-left: 6px solid #1976d2;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+        }
+
+        .info-box h3 {
+            color: #1565c0;
+            margin-top: 0;
+        }
+
+        .warning-box {
+            background: linear-gradient(135deg, #fff3cd, #ffe69c);
+            border: 2px solid #ffc107;
+            border-left: 6px solid #ff9800;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+        }
+
+        .warning-box h3 {
+            color: #ff6f00;
+            margin-top: 0;
+        }
+
+        .crud-card {
+            background: white;
+            border: 2px solid #881518;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1rem 0;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .crud-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(136, 21, 24, 0.3);
+        }
+
+        .crud-card h4 {
+            color: #881518;
+            margin-bottom: 0.5rem;
+            font-size: 1.3rem;
+        }
+
+        .crud-card.create { border-left: 6px solid #28a745; }
+        .crud-card.read { border-left: 6px solid #007bff; }
+        .crud-card.update { border-left: 6px solid #ffc107; }
+        .crud-card.delete { border-left: 6px solid #dc3545; }
+
+        .http-method {
+            display: inline-block;
+            padding: 0.3rem 0.8rem;
+            border-radius: 5px;
+            font-weight: bold;
+            margin: 0.5rem 0.5rem 0.5rem 0;
+            font-family: 'Courier New', Courier, monospace;
+        }
+
+        .http-post { background: #28a745; color: white; }
+        .http-get { background: #007bff; color: white; }
+        .http-put { background: #ffc107; color: #333; }
+        .http-patch { background: #ff9800; color: white; }
+        .http-delete { background: #dc3545; color: white; }
+
+        .item-list {
+            background: white;
+            border: 2px solid #881518;
+            border-radius: 8px;
+            padding: 1rem;
+            min-height: 150px;
+            margin: 1rem 0;
+        }
+
+        .item {
+            background: #f8f8f8;
+            padding: 0.75rem;
+            margin: 0.5rem 0;
+            border-radius: 5px;
+            border-left: 4px solid #881518;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .item-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .small-btn {
+            padding: 0.5rem 1rem;
+            font-size: 0.9rem;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .small-btn:hover {
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body>
+    <!-- Slide 1: Introduction -->
+    <div class="slide-container active">
+        <div class="slide-content">
+            <h1>CRUD Operations</h1>
+            
+            <div class="concept-box">
+                <h2>What is CRUD?</h2>
+                <p><span class="highlight">CRUD</span> is an acronym that stands for <strong>Create, Read, Update, and Delete</strong>.</p>
+                <p>These are the <span class="highlight">four operations of persistent storage</span>.</p>
+            </div>
+
+            <div class="content-grid">
+                <div class="crud-card create">
+                    <h4>C - Create</h4>
+                    <p>Add new data</p>
+                </div>
+                <div class="crud-card read">
+                    <h4>R - Read</h4>
+                    <p>Retrieve existing data</p>
+                </div>
+                <div class="crud-card update">
+                    <h4>U - Update</h4>
+                    <p>Modify existing data</p>
+                </div>
+                <div class="crud-card delete">
+                    <h4>D - Delete</h4>
+                    <p>Remove data</p>
+                </div>
+            </div>
+
+            <div class="info-box">
+                <h3>Persistent Storage</h3>
+                <p>Persistent storage refers to <span class="highlight">saving data in a way that makes it available even after the power is turned off or the device is restarted</span>.</p>
+            </div>
+
+            <div class="success-box">
+                <h3>✓ Why CRUD Matters</h3>
+                <p>Understanding how the basic operation of CRUD works is <span class="highlight">crucial to web development</span> because it forms the foundation for:</p>
+                <p>• Working with databases</p>
+                <p>• Building applications where users can add, view, modify, and delete data</p>
+                <p>• Understanding RESTful APIs</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 2: Create Operation -->
+    <div class="slide-container">
+        <div class="slide-content">
+            <h1>Create Operation</h1>
+
+            <div class="concept-box">
+                <h2>Adding New Data</h2>
+                <p><strong>Create</strong> refers to the process of <span class="highlight">creating new data</span>.</p>
+                <p>For example, in a web app, this could be when a user adds a new post to a blog.</p>
+            </div>
+
+            <div class="info-box">
+                <h3>Real-World Examples</h3>
+                <p>• Adding a new blog post</p>
+                <p>• Registering a new user account</p>
+                <p>• Creating a new product listing</p>
+                <p>• Posting a new comment</p>
+                <p>• Uploading a new photo</p>
+            </div>
+
+            <h3>HTTP Method</h3>
+            <div class="concept-box">
+                <p><span class="http-method http-post">POST</span> is used to <span class="highlight">create a new resource</span>.</p>
+            </div>
+
+            <h3>JavaScript Example</h3>
+            <div class="code-box">
+                <code>
+<span class="keyword">let</span> items = [];
+
+<span class="comment">// Create operation</span>
+<span class="keyword">function</span> <span class="function">createItem</span>(item) {
+  items.<span class="function">push</span>(item);
+}
+
+<span class="comment">// Example usage</span>
+<span class="function">createItem</span>(<span class="string">'Book'</span>);
+<span class="keyword">console</span>.<span class="function">log</span>(items); <span class="comment">// ['Book']</span>
+                </code>
+            </div>
+
+            <div class="success-box">
+                <h3>✓ Key Point</h3>
+                <p>Create operations <strong>add new data</strong> to your storage. The data didn't exist before!</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 3: Read Operation -->
+    <div class="slide-container">
+        <div class="slide-content">
+            <h1>Read Operation</h1>
+
+            <div class="concept-box">
+                <h2>Retrieving Data</h2>
+                <p><strong>Read</strong> is the operation where <span class="highlight">data is retrieved from a database</span>.</p>
+                <p>For instance, when you visit a blog post or view your profile on a website, you're performing a read operation to fetch and display data stored in the database.</p>
+            </div>
+
+            <div class="info-box">
+                <h3>Real-World Examples</h3>
+                <p>• Viewing a blog post</p>
+                <p>• Loading your profile page</p>
+                <p>• Displaying a list of products</p>
+                <p>• Reading comments on a post</p>
+                <p>• Viewing search results</p>
+            </div>
+
+            <h3>HTTP Method</h3>
+            <div class="concept-box">
+                <p><span class="http-method http-get">GET</span> is used to <span class="highlight">retrieve or read data</span>.</p>
+            </div>
+
+            <h3>JavaScript Example</h3>
+            <div class="code-box">
+                <code>
+<span class="keyword">let</span> items = [<span class="string">'Book'</span>, <span class="string">'Pen'</span>, <span class="string">'Notebook'</span>];
+
+<span class="comment">// Read operation</span>
+<span class="keyword">function</span> <span class="function">readItems</span>() {
+  <span class="keyword">return</span> items;
+}
+
+<span class="comment">// Example usage</span>
+<span class="keyword">const</span> allItems = <span class="function">readItems</span>();
+<span class="keyword">console</span>.<span class="function">log</span>(allItems); <span class="comment">// ['Book', 'Pen', 'Notebook']</span>
+                </code>
+            </div>
+
+            <div class="success-box">
+                <h3>✓ Key Point</h3>
+                <p>Read operations <strong>don't change</strong> the data - they just retrieve and display it!</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 4: Update Operation -->
+    <div class="slide-container">
+        <div class="slide-content">
+            <h1>Update Operation</h1>
+
+            <div class="concept-box">
+                <h2>Modifying Existing Data</h2>
+                <p><strong>Update</strong> involves <span class="highlight">modifying existing data</span> in the database.</p>
+                <p>An example would be editing a blog post or updating your profile information.</p>
+            </div>
+
+            <div class="info-box">
+                <h3>Real-World Examples</h3>
+                <p>• Editing a blog post</p>
+                <p>• Updating profile information</p>
+                <p>• Changing a product price</p>
+                <p>• Modifying a comment</p>
+                <p>• Updating account settings</p>
+            </div>
+
+            <h3>HTTP Methods</h3>
+            <div class="concept-box">
+                <p><span class="http-method http-put">PUT</span> is used to <span class="highlight">update a resource by replacing it entirely</span>.</p>
+                <p><span class="http-method http-patch">PATCH</span> is used to <span class="highlight">partially update a resource</span>.</p>
+            </div>
+
+            <h3>JavaScript Example</h3>
+            <div class="code-box">
+                <code>
+<span class="keyword">let</span> items = [<span class="string">'Book'</span>, <span class="string">'Pen'</span>, <span class="string">'Notebook'</span>];
+
+<span class="comment">// Update operation</span>
+<span class="keyword">function</span> <span class="function">updateItem</span>(index, newItem) {
+  items[index] = newItem;
+}
+
+<span class="comment">// Example usage</span>
+<span class="function">updateItem</span>(<span class="keyword">0</span>, <span class="string">'Magazine'</span>);
+<span class="keyword">console</span>.<span class="function">log</span>(items); <span class="comment">// ['Magazine', 'Pen', 'Notebook']</span>
+                </code>
+            </div>
+
+            <div class="warning-box">
+                <h3>PUT vs PATCH</h3>
+                <p><strong>PUT:</strong> Replace the entire resource</p>
+                <p><strong>PATCH:</strong> Update only specific fields</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 5: Delete Operation -->
+    <div class="slide-container">
+        <div class="slide-content">
+            <h1>Delete Operation</h1>
+
+            <div class="concept-box">
+                <h2>Removing Data</h2>
+                <p><strong>Delete</strong> is the operation that <span class="highlight">removes data from a database</span>.</p>
+                <p>For instance, when you delete a blog post or account, you're performing a delete operation.</p>
+            </div>
+
+            <div class="info-box">
+                <h3>Real-World Examples</h3>
+                <p>• Deleting a blog post</p>
+                <p>• Removing a user account</p>
+                <p>• Deleting a product listing</p>
+                <p>• Removing a comment</p>
+                <p>• Deleting uploaded files</p>
+            </div>
+
+            <h3>HTTP Method</h3>
+            <div class="concept-box">
+                <p><span class="http-method http-delete">DELETE</span> is used to <span class="highlight">remove a resource</span>.</p>
+            </div>
+
+            <h3>JavaScript Example</h3>
+            <div class="code-box">
+                <code>
+<span class="keyword">let</span> items = [<span class="string">'Book'</span>, <span class="string">'Pen'</span>, <span class="string">'Notebook'</span>];
+
+<span class="comment">// Delete operation</span>
+<span class="keyword">function</span> <span class="function">deleteItem</span>(index) {
+  items.<span class="function">splice</span>(index, <span class="keyword">1</span>);
+}
+
+<span class="comment">// Example usage</span>
+<span class="function">deleteItem</span>(<span class="keyword">0</span>);
+<span class="keyword">console</span>.<span class="function">log</span>(items); <span class="comment">// ['Pen', 'Notebook']</span>
+                </code>
+            </div>
+
+            <div class="warning-box">
+                <h3>⚠️ Important</h3>
+                <p>Delete operations are <strong>permanent</strong>! Always confirm before deleting important data.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 6: HTTP Methods Summary -->
+    <div class="slide-container">
+        <div class="slide-content">
+            <h1>CRUD and HTTP Methods</h1>
+
+            <div class="concept-box">
+                <h2>RESTful APIs</h2>
+                <p>CRUD is used when working with databases, the UI, and <span class="highlight">RESTful APIs</span>.</p>
+                <p>RESTful APIs are a set of conventions for building web services that allow the client to interact with a database or backend system by performing CRUD operations through <strong>standard HTTP methods</strong>.</p>
+            </div>
+
+            <div class="info-box">
+                <h3>HTTP - Hypertext Transfer Protocol</h3>
+                <p>HTTP stands for Hypertext Transfer Protocol and it is the <span class="highlight">foundation for data communication on the web</span>.</p>
+                <p>There are HTTP methods which define the actions that can be performed on resources over the web.</p>
+            </div>
+
+            <h3>CRUD to HTTP Mapping</h3>
+            <div class="content-grid">
+                <div class="crud-card create">
+                    <h4>Create</h4>
+                    <p><span class="http-method http-post">POST</span></p>
+                    <p>Create a new resource</p>
+                </div>
+
+                <div class="crud-card read">
+                    <h4>Read</h4>
+                    <p><span class="http-method http-get">GET</span></p>
+                    <p>Retrieve or read data</p>
+                </div>
+
+                <div class="crud-card update">
+                    <h4>Update</h4>
+                    <p><span class="http-method http-put">PUT</span> <span class="http-method http-patch">PATCH</span></p>
+                    <p>PUT: Replace entirely<br>PATCH: Partial update</p>
+                </div>
+
+                <div class="crud-card delete">
+                    <h4>Delete</h4>
+                    <p><span class="http-method http-delete">DELETE</span></p>
+                    <p>Remove a resource</p>
+                </div>
+            </div>
+
+            <div class="success-box">
+                <h3>✓ Remember</h3>
+                <p>You will learn more about RESTful APIs and HTTP in future lessons!</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 7: Complete Code Example -->
+    <div class="slide-container">
+        <div class="slide-content">
+            <h1>Complete CRUD Example</h1>
+
+            <div class="concept-box">
+                <h2>All Operations Together</h2>
+                <p>Here's an example of how CRUD operations might be represented in code using a simple array in JavaScript:</p>
+            </div>
+
+            <div class="code-box">
+                <code>
+<span class="keyword">let</span> items = [];
+
+<span class="comment">// Create</span>
+<span class="keyword">function</span> <span class="function">createItem</span>(item) {
+  items.<span class="function">push</span>(item);
+}
+
+<span class="comment">// Read</span>
+<span class="keyword">function</span> <span class="function">readItems</span>() {
+  <span class="keyword">return</span> items;
+}
+
+<span class="comment">// Update</span>
+<span class="keyword">function</span> <span class="function">updateItem</span>(index, newItem) {
+  items[index] = newItem;
+}
+
+<span class="comment">// Delete</span>
+<span class="keyword">function</span> <span class="function">deleteItem</span>(index) {
+  items.<span class="function">splice</span>(index, <span class="keyword">1</span>);
+}
+                </code>
+            </div>
+
+            <h3>Example Usage</h3>
+            <div class="code-box">
+                <code>
+<span class="function">createItem</span>(<span class="string">'Book'</span>);
+<span class="keyword">console</span>.<span class="function">log</span>(<span class="function">readItems</span>()); <span class="comment">// ['Book']</span>
+
+<span class="function">updateItem</span>(<span class="keyword">0</span>, <span class="string">'Magazine'</span>);
+<span class="keyword">console</span>.<span class="function">log</span>(<span class="function">readItems</span>()); <span class="comment">// ['Magazine']</span>
+
+<span class="function">deleteItem</span>(<span class="keyword">0</span>);
+<span class="keyword">console</span>.<span class="function">log</span>(<span class="function">readItems</span>()); <span class="comment">// []</span>
+                </code>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 8: Understanding the Example -->
+    <div class="slide-container">
+        <div class="slide-content">
+            <h1>Breaking Down the Example</h1>
+
+            <div class="concept-box">
+                <h2>In this example:</h2>
+            </div>
+
+            <div class="content-grid">
+                <div class="crud-card create">
+                    <h4>Create</h4>
+                    <p>We <strong>create an item</strong> by pushing it into an array.</p>
+                    <div class="code-box">
+                        <code>items.<span class="function">push</span>(item);</code>
+                    </div>
+                </div>
+
+                <div class="crud-card read">
+                    <h4>Read</h4>
+                    <p>We <strong>read the items</strong> by returning the array.</p>
+                    <div class="code-box">
+                        <code><span class="keyword">return</span> items;</code>
+                    </div>
+                </div>
+
+                <div class="crud-card update">
+                    <h4>Update</h4>
+                    <p>We <strong>update an item</strong> by modifying the array element at a given index.</p>
+                    <div class="code-box">
+                        <code>items[index] = newItem;</code>
+                    </div>
+                </div>
+
+                <div class="crud-card delete">
+                    <h4>Delete</h4>
+                    <p>We <strong>delete an item</strong> by removing it from the array using splice().</p>
+                    <div class="code-box">
+                        <code>items.<span class="function">splice</span>(index, <span class="keyword">1</span>);</code>
+                    </div>
+                </div>
+            </div>
+
+            <div class="info-box">
+                <h3>Conceptual Level</h3>
+                <p>This is a <span class="highlight">basic representation</span> of how CRUD operations work at a conceptual level.</p>
+                <p>In real applications, these operations would interact with databases, but the concepts remain the same!</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 9: Interactive CRUD Demo 1 -->
+    <div class="slide-container">
+        <div class="slide-content">
+            <h1>Try It: Basic CRUD Operations</h1>
+
+            <div class="interactive-demo">
+                <h3>Interactive CRUD Demo</h3>
+                <p>Use the buttons to perform CRUD operations:</p>
+                
+                <div style="text-align: center; margin: 1rem 0;">
+                    <button class="demo-button create-btn" onclick="demoCreate()">Create</button>
+                    <button class="demo-button read-btn" onclick="demoRead()">Read</button>
+                    <button class="demo-button update-btn" onclick="demoUpdate()">Update</button>
+                    <button class="demo-button delete-btn" onclick="demoDelete()">Delete</button>
+                </div>
+
+                <div class="demo-output" id="demo1-output">
+                    <h4>Current Array:</h4>
+                    <p id="array-display" style="font-family: monospace; font-size: 1.1rem;">[]</p>
+                    <h4>Operation Log:</h4>
+                    <div id="log-display" style="font-family: monospace; color: #666;">
+                        <p>Click a button to perform an operation...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 10: Interactive CRUD Demo 2 -->
+    <div class="slide-container">
+        <div class="slide-content">
+            <h1>Try It: Advanced CRUD Interface</h1>
+
+            <div class="interactive-demo">
+                <h3>Full CRUD Application</h3>
+                <p>Create, read, update, and delete items in a list:</p>
+                
+                <div style="margin: 1rem 0;">
+                    <input type="text" id="item-input" class="demo-input" placeholder="Enter item name...">
+                    <button class="demo-button create-btn" onclick="addItem()">Add Item</button>
+                </div>
+
+                <div class="item-list" id="item-list">
+                    <p style="color: #999; font-style: italic;">No items yet. Add your first item above!</p>
+                </div>
+
+                <div style="margin-top: 1rem;">
+                    <button class="demo-button read-btn" onclick="showAllItems()">Show All Items</button>
+                    <button class="demo-button delete-btn" onclick="clearAllItems()">Clear All</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 11: Where CRUD is Used -->
+    <div class="slide-container">
+        <div class="slide-content">
+            <h1>Where CRUD is Used</h1>
+
+            <div class="concept-box">
+                <h2>Three Main Areas</h2>
+                <p>CRUD is used when working with:</p>
+            </div>
+
+            <div class="content-grid">
+                <div class="info-box">
+                    <h3>1. Databases</h3>
+                    <p>• SQL databases (MySQL, PostgreSQL)</p>
+                    <p>• NoSQL databases (MongoDB, Firebase)</p>
+                    <p>• Direct data storage and retrieval</p>
+                    <p>• Query operations</p>
+                </div>
+
+                <div class="info-box">
+                    <h3>2. User Interface (UI)</h3>
+                    <p>• Forms for creating data</p>
+                    <p>• Displaying lists and details</p>
+                    <p>• Edit buttons and forms</p>
+                    <p>• Delete confirmations</p>
+                </div>
+
+                <div class="info-box">
+                    <h3>3. RESTful APIs</h3>
+                    <p>• HTTP POST for Create</p>
+                    <p>• HTTP GET for Read</p>
+                    <p>• HTTP PUT/PATCH for Update</p>
+                    <p>• HTTP DELETE for Delete</p>
+                </div>
+            </div>
+
+            <div class="success-box">
+                <h3>✓ Foundation of Web Development</h3>
+                <p>CRUD operations form the <span class="highlight">foundation</span> for almost every web application!</p>
+                <p>Understanding CRUD is essential for:</p>
+                <p>• Backend development</p>
+                <p>• Frontend development</p>
+                <p>• API design</p>
+                <p>• Database management</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 12: Real-World Application Examples -->
+    <div class="slide-container">
+        <div class="slide-content">
+            <h1>Real-World Applications</h1>
+
+            <div class="content-grid">
+                <div class="crud-card">
+                    <h4>Blog Platform</h4>
+                    <p><strong>Create:</strong> Write new blog post</p>
+                    <p><strong>Read:</strong> View blog posts</p>
+                    <p><strong>Update:</strong> Edit existing post</p>
+                    <p><strong>Delete:</strong> Remove old post</p>
+                </div>
+
+                <div class="crud-card">
+                    <h4>E-Commerce Site</h4>
+                    <p><strong>Create:</strong> Add product to cart</p>
+                    <p><strong>Read:</strong> Browse products</p>
+                    <p><strong>Update:</strong> Change quantity</p>
+                    <p><strong>Delete:</strong> Remove from cart</p>
+                </div>
+
+                <div class="crud-card">
+                    <h4>Social Media</h4>
+                    <p><strong>Create:</strong> Post new content</p>
+                    <p><strong>Read:</strong> View feed</p>
+                    <p><strong>Update:</strong> Edit profile</p>
+                    <p><strong>Delete:</strong> Delete posts</p>
+                </div>
+
+                <div class="crud-card">
+                    <h4>Task Manager</h4>
+                    <p><strong>Create:</strong> Add new task</p>
+                    <p><strong>Read:</strong> View task list</p>
+                    <p><strong>Update:</strong> Mark complete</p>
+                    <p><strong>Delete:</strong> Remove task</p>
+                </div>
+            </div>
+
+            <div class="info-box">
+                <h3>Every Application Uses CRUD</h3>
+                <p>Can you think of any web application that doesn't use at least some CRUD operations?</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 13: Best Practices -->
+    <div class="slide-container">
+        <div class="slide-content">
+            <h1>CRUD Best Practices</h1>
+
+            <div class="success-box">
+                <h3>✓ Do</h3>
+                <p>• Validate data before Create or Update operations</p>
+                <p>• Use appropriate HTTP methods for each operation</p>
+                <p>• Confirm before Delete operations</p>
+                <p>• Handle errors gracefully</p>
+                <p>• Provide user feedback for each operation</p>
+                <p>• Use meaningful variable and function names</p>
+            </div>
+
+            <div class="warning-box">
+                <h3>⚠️ Remember</h3>
+                <p>• Create: Check for duplicates</p>
+                <p>• Read: Handle empty results</p>
+                <p>• Update: Verify item exists before updating</p>
+                <p>• Delete: Always confirm destructive actions</p>
+                <p>• Security: Validate all user input</p>
+                <p>• Performance: Index frequently queried fields</p>
+            </div>
+
+            <div class="info-box">
+                <h3>Security Considerations</h3>
+                <p>• Never trust user input</p>
+                <p>• Implement proper authentication and authorization</p>
+                <p>• Sanitize data to prevent SQL injection</p>
+                <p>• Use HTTPS for API calls</p>
+                <p>• Log operations for audit trails</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 14: Common HTTP Status Codes -->
+    <div class="slide-container">
+        <div class="slide-content">
+            <h1>HTTP Status Codes for CRUD</h1>
+
+            <div class="concept-box">
+                <h2>Understanding Response Codes</h2>
+                <p>When working with APIs, you'll encounter various HTTP status codes indicating success or failure.</p>
+            </div>
+
+            <div class="content-grid">
+                <div class="success-box">
+                    <h3>✓ Success Codes (2xx)</h3>
+                    <p><strong>200 OK:</strong> Read/Update successful</p>
+                    <p><strong>201 Created:</strong> Create successful</p>
+                    <p><strong>204 No Content:</strong> Delete successful</p>
+                </div>
+
+                <div class="warning-box">
+                    <h3>⚠️ Client Error (4xx)</h3>
+                    <p><strong>400 Bad Request:</strong> Invalid data</p>
+                    <p><strong>404 Not Found:</strong> Resource doesn't exist</p>
+                    <p><strong>401 Unauthorized:</strong> Authentication required</p>
+                    <p><strong>403 Forbidden:</strong> No permission</p>
+                </div>
+
+                <div class="info-box">
+                    <h3>❌ Server Error (5xx)</h3>
+                    <p><strong>500 Internal Server Error:</strong> Server problem</p>
+                    <p><strong>503 Service Unavailable:</strong> Server down</p>
+                </div>
+            </div>
+
+            <div class="code-box">
+                <code>
+<span class="comment">// Example API response handling</span>
+<span class="keyword">fetch</span>(<span class="string">'/api/items'</span>, {
+  method: <span class="string">'POST'</span>,
+  body: <span class="keyword">JSON</span>.<span class="function">stringify</span>({ name: <span class="string">'Book'</span> })
+})
+.<span class="function">then</span>(<span class="keyword">response</span> => {
+  <span class="keyword">if</span> (response.status === <span class="keyword">201</span>) {
+    <span class="keyword">console</span>.<span class="function">log</span>(<span class="string">'Created successfully!'</span>);
+  }
+});
+                </code>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 15: Key Takeaways -->
+    <div class="slide-container">
+        <div class="slide-content">
+            <h1>Key Takeaways</h1>
+
+            <div class="concept-box">
+                <h2>CRUD Operations</h2>
+                <p>CRUD is an acronym for <span class="highlight">Create, Read, Update, Delete</span> - the four operations of persistent storage.</p>
+            </div>
+
+            <div class="content-grid">
+                <div class="crud-card create">
+                    <h4>Create</h4>
+                    <p><span class="http-method http-post">POST</span></p>
+                    <p>Add new data to storage</p>
+                </div>
+
+                <div class="crud-card read">
+                    <h4>Read</h4>
+                    <p><span class="http-method http-get">GET</span></p>
+                    <p>Retrieve data from storage</p>
+                </div>
+
+                <div class="crud-card update">
+                    <h4>Update</h4>
+                    <p><span class="http-method http-put">PUT</span> / <span class="http-method http-patch">PATCH</span></p>
+                    <p>Modify existing data</p>
+                </div>
+
+                <div class="crud-card delete">
+                    <h4>Delete</h4>
+                    <p><span class="http-method http-delete">DELETE</span></p>
+                    <p>Remove data from storage</p>
+                </div>
+            </div>
+
+            <div class="success-box">
+                <h3>✓ Why It Matters</h3>
+                <p>• Foundation of web development</p>
+                <p>• Essential for working with databases</p>
+                <p>• Core concept in RESTful APIs</p>
+                <p>• Used in virtually every web application</p>
+                <p>• Critical for building interactive user interfaces</p>
+            </div>
+
+            <div class="info-box">
+                <h3>Remember</h3>
+                <p>Understanding CRUD operations is <span class="highlight">crucial</span> because they form the foundation for building applications where users can <strong>add, view, modify, and delete data</strong>!</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Navigation -->
+    <div class="navigation">
+        <button class="nav-button" id="prevBtn" onclick="changeSlide(-1)">← Previous</button>
+        <div class="slide-counter">
+            <span id="currentSlide">1</span> / <span id="totalSlides">15</span>
+        </div>
+        <button class="nav-button" id="nextBtn" onclick="changeSlide(1)">Next →</button>
+    </div>
+
+    <script>
+        let currentSlide = 1;
+        const totalSlides = document.querySelectorAll('.slide-container').length;
+        
+        document.getElementById('totalSlides').textContent = totalSlides;
+        
+        function showSlide(n) {
+            const slides = document.querySelectorAll('.slide-container');
+            
+            if (n > totalSlides) {
+                currentSlide = totalSlides;
+            }
+            if (n < 1) {
+                currentSlide = 1;
+            }
+            
+            slides.forEach(slide => slide.classList.remove('active'));
+            slides[currentSlide - 1].classList.add('active');
+            
+            document.getElementById('currentSlide').textContent = currentSlide;
+            
+            // Update button states
+            document.getElementById('prevBtn').disabled = currentSlide === 1;
+            document.getElementById('nextBtn').disabled = currentSlide === totalSlides;
+            
+            // Scroll to top of page
+            window.scrollTo(0, 0);
+        }
+        
+        function changeSlide(direction) {
+            currentSlide += direction;
+            showSlide(currentSlide);
+        }
+        
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowLeft') {
+                changeSlide(-1);
+            } else if (e.key === 'ArrowRight') {
+                changeSlide(1);
+            }
+        });
+        
+        // Demo 1: Basic CRUD Operations
+        let demoItems = [];
+        let operationCount = 0;
+        
+        function updateDisplay1() {
+            document.getElementById('array-display').textContent = JSON.stringify(demoItems);
+        }
+        
+        function addLog(message) {
+            const logDisplay = document.getElementById('log-display');
+            operationCount++;
+            const timestamp = new Date().toLocaleTimeString();
+            logDisplay.innerHTML += `<p>${operationCount}. [${timestamp}] ${message}</p>`;
+        }
+        
+        function demoCreate() {
+            const items = ['Book', 'Pen', 'Notebook', 'Laptop', 'Phone'];
+            const randomItem = items[Math.floor(Math.random() * items.length)];
+            demoItems.push(randomItem);
+            updateDisplay1();
+            addLog(`<span style="color: #28a745;">✓ CREATE:</span> Added "${randomItem}"`);
+        }
+        
+        function demoRead() {
+            const count = demoItems.length;
+            updateDisplay1();
+            addLog(`<span style="color: #007bff;">📖 READ:</span> Retrieved ${count} item(s)`);
+        }
+        
+        function demoUpdate() {
+            if (demoItems.length === 0) {
+                addLog(`<span style="color: #ff9800;">⚠ UPDATE:</span> No items to update. Create one first!`);
+                return;
+            }
+            const index = Math.floor(Math.random() * demoItems.length);
+            const oldItem = demoItems[index];
+            const newItems = ['Magazine', 'Tablet', 'Camera', 'Watch'];
+            const newItem = newItems[Math.floor(Math.random() * newItems.length)];
+            demoItems[index] = newItem;
+            updateDisplay1();
+            addLog(`<span style="color: #ffc107;">✏ UPDATE:</span> Changed "${oldItem}" to "${newItem}" at index ${index}`);
+        }
+        
+        function demoDelete() {
+            if (demoItems.length === 0) {
+                addLog(`<span style="color: #dc3545;">⚠ DELETE:</span> No items to delete!`);
+                return;
+            }
+            const index = Math.floor(Math.random() * demoItems.length);
+            const deletedItem = demoItems[index];
+            demoItems.splice(index, 1);
+            updateDisplay1();
+            addLog(`<span style="color: #dc3545;">✗ DELETE:</span> Removed "${deletedItem}" from index ${index}`);
+        }
+        
+        // Demo 2: Full CRUD Application
+        let appItems = [];
+        let nextId = 1;
+        
+        function addItem() {
+            const input = document.getElementById('item-input');
+            const itemName = input.value.trim();
+            
+            if (!itemName) {
+                alert('Please enter an item name!');
+                return;
+            }
+            
+            const item = { id: nextId++, name: itemName };
+            appItems.push(item);
+            input.value = '';
+            renderItems();
+        }
+        
+        function renderItems() {
+            const container = document.getElementById('item-list');
+            
+            if (appItems.length === 0) {
+                container.innerHTML = '<p style="color: #999; font-style: italic;">No items yet. Add your first item above!</p>';
+                return;
+            }
+            
+            container.innerHTML = '';
+            appItems.forEach((item, index) => {
+                const itemDiv = document.createElement('div');
+                itemDiv.className = 'item';
+                itemDiv.innerHTML = `
+                    <span><strong>#${item.id}</strong> - ${item.name}</span>
+                    <div class="item-actions">
+                        <button class="small-btn" style="background: #ffc107; color: #333;" onclick="editItem(${index})">Edit</button>
+                        <button class="small-btn" style="background: #dc3545; color: white;" onclick="deleteItemById(${index})">Delete</button>
+                    </div>
+                `;
+                container.appendChild(itemDiv);
+            });
+        }
+        
+        function editItem(index) {
+            const newName = prompt('Enter new name:', appItems[index].name);
+            if (newName && newName.trim()) {
+                appItems[index].name = newName.trim();
+                renderItems();
+            }
+        }
+        
+        function deleteItemById(index) {
+            if (confirm(`Delete "${appItems[index].name}"?`)) {
+                appItems.splice(index, 1);
+                renderItems();
+            }
+        }
+        
+        function showAllItems() {
+            if (appItems.length === 0) {
+                alert('No items to show!');
+                return;
+            }
+            const itemNames = appItems.map(item => `#${item.id}: ${item.name}`).join('\n');
+            alert(`All Items (${appItems.length}):\n\n${itemNames}`);
+        }
+        
+        function clearAllItems() {
+            if (appItems.length === 0) {
+                alert('Nothing to clear!');
+                return;
+            }
+            if (confirm(`Delete all ${appItems.length} items?`)) {
+                appItems = [];
+                renderItems();
+            }
+        }
+        
+        // Initialize
+        showSlide(currentSlide);
+    </script>
+</body>
+</html>
