@@ -1,0 +1,777 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Async and Defer Attributes Presentation</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            color: #2c3e50;
+            overflow-x: hidden;
+        }
+
+        .slide-container {
+            min-height: 100vh;
+            padding: 2rem;
+            padding-bottom: 100px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .slide {
+            display: none;
+            animation: fadeIn 0.5s ease-in;
+            background: white;
+            padding: 2.5rem;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        .slide.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        h1 {
+            color: #881518;
+            font-size: 2.5rem;
+            margin-bottom: 2rem;
+            border-bottom: 3px solid #881518;
+            padding-bottom: 0.5rem;
+        }
+
+        h2 {
+            color: #a81d21;
+            font-size: 2rem;
+            margin-bottom: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        h3 {
+            color: #c82428;
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        p {
+            font-size: 1.2rem;
+            line-height: 1.8;
+            margin-bottom: 1rem;
+            color: #34495e;
+        }
+
+        ul {
+            margin-left: 2rem;
+            margin-bottom: 1.5rem;
+        }
+
+        li {
+            font-size: 1.1rem;
+            line-height: 1.8;
+            margin-bottom: 0.8rem;
+            list-style-type: none;
+            position: relative;
+            padding-left: 1.5rem;
+            color: #34495e;
+        }
+
+        li:before {
+            content: "→";
+            color: #881518;
+            font-weight: bold;
+            position: absolute;
+            left: 0;
+        }
+
+        .concept-box {
+            background: linear-gradient(135deg, #fff5f5 0%, #ffe5e5 100%);
+            border-left: 4px solid #881518;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 8px;
+        }
+
+        .code-example {
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            overflow-x: auto;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        code {
+            color: #e83e8c;
+            font-family: 'Courier New', monospace;
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        .keyword {
+            color: #881518;
+            font-weight: 600;
+        }
+
+        .string {
+            color: #4caf50;
+        }
+
+        .comment {
+            color: #6c757d;
+            font-style: italic;
+        }
+
+        .highlight {
+            color: #881518;
+            font-weight: 600;
+            background: #fff5f5;
+            padding: 0.2rem 0.4rem;
+            border-radius: 3px;
+        }
+
+        .two-column {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+
+        .three-column {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .column {
+            background: #f8f9fa;
+            padding: 1.5rem;
+            border-radius: 8px;
+            border: 1px solid #e9ecef;
+        }
+
+        .nav-buttons {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(to top, rgba(255, 255, 255, 0.98) 0%, rgba(255, 255, 255, 0.95) 80%, transparent 100%);
+            padding: 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 1000;
+            box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        button {
+            background: #881518;
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            font-size: 1.1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            box-shadow: 0 4px 12px rgba(136, 21, 24, 0.2);
+        }
+
+        button:hover {
+            background: #a81d21;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(136, 21, 24, 0.3);
+        }
+
+        button:disabled {
+            background: #cbd5e0;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+            color: #a0aec0;
+        }
+
+        .slide-counter {
+            color: #718096;
+            font-size: 1rem;
+            font-weight: 600;
+        }
+
+        .example-box {
+            background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
+            border-left: 4px solid #4caf50;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 8px;
+        }
+
+        .info-box {
+            background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+            border-left: 4px solid #2196f3;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 8px;
+        }
+
+        .warning-box {
+            background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%);
+            border-left: 4px solid #ff9800;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 8px;
+        }
+
+        strong {
+            color: #881518;
+        }
+
+        .flow-step {
+            background: #f8f9fa;
+            padding: 1rem;
+            margin: 0.5rem 0;
+            border-radius: 6px;
+            border-left: 3px solid #881518;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 1.8rem;
+            }
+
+            h2 {
+                font-size: 1.5rem;
+            }
+
+            h3 {
+                font-size: 1.3rem;
+            }
+
+            p, li {
+                font-size: 1rem;
+            }
+
+            .slide-container {
+                padding: 1rem;
+                padding-bottom: 100px;
+            }
+
+            .slide {
+                padding: 1.5rem;
+            }
+
+            .two-column, .three-column {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+
+            button {
+                padding: 0.8rem 1.5rem;
+                font-size: 1rem;
+            }
+
+            .nav-buttons {
+                padding: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="slide-container">
+        <!-- Slide 1: Introduction -->
+        <div class="slide active">
+            <h1>async and defer Attributes</h1>
+            
+            <div class="concept-box">
+                <h3>Script Loading Attributes</h3>
+                <p>The <span class="highlight">async</span> and <span class="highlight">defer</span> attributes in HTML script elements play a crucial role in how JavaScript files are loaded and executed in web pages.</p>
+            </div>
+
+            <h2>Why They Matter</h2>
+            <p>Understanding these attributes can <strong>improve your website's performance</strong> and user experience.</p>
+
+            <div class="example-box">
+                <h3>What You'll Learn</h3>
+                <ul>
+                    <li>How normal script loading works (blocking)</li>
+                    <li>How the async attribute works</li>
+                    <li>How the defer attribute works</li>
+                    <li>When to use each one</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Slide 2: Normal Script Loading -->
+        <div class="slide">
+            <h1>Normal Script Loading</h1>
+
+            <div class="concept-box">
+                <h3>Default Behavior</h3>
+                <p>When you include a script in your HTML file, it looks like this:</p>
+            </div>
+
+            <h2>HTML Code</h2>
+            <div class="code-example">
+                <code>
+<span class="keyword">&lt;script</span> src=<span class="string">"example.js"</span><span class="keyword">&gt;&lt;/script&gt;</span>
+                </code>
+            </div>
+
+            <div class="info-box">
+                <h3>What Happens?</h3>
+                <p>When the browser finds this script tag:</p>
+                <ol style="margin-left: 2rem;">
+                    <li>It <strong>stops parsing the HTML</strong></li>
+                    <li>It downloads the script</li>
+                    <li>It executes the script</li>
+                    <li>Then it continues parsing the HTML</li>
+                </ol>
+            </div>
+        </div>
+
+        <!-- Slide 3: The Problem with Normal Loading -->
+        <div class="slide">
+            <h1>The Problem with Normal Loading</h1>
+
+            <div class="warning-box">
+                <h3>⚠️ Blocking Behavior</h3>
+                <p>This <strong>blocking behavior</strong> can slow down the loading of your web page, especially if you have large scripts.</p>
+            </div>
+
+            <h2>Visual Flow</h2>
+            <div class="flow-step">
+                <strong>1.</strong> Browser parsing HTML...
+            </div>
+            <div class="flow-step">
+                <strong>2.</strong> ❌ STOPS at &lt;script&gt; tag
+            </div>
+            <div class="flow-step">
+                <strong>3.</strong> Downloads script (network delay)
+            </div>
+            <div class="flow-step">
+                <strong>4.</strong> Executes script
+            </div>
+            <div class="flow-step">
+                <strong>5.</strong> ✓ Resumes parsing HTML
+            </div>
+
+            <div class="info-box">
+                <p>The page appears to freeze during script download and execution.</p>
+            </div>
+        </div>
+
+        <!-- Slide 4: The Solution -->
+        <div class="slide">
+            <h1>The Solution: async and defer</h1>
+
+            <div class="concept-box">
+                <h3>Better Script Loading</h3>
+                <p>The <code>async</code> and <code>defer</code> attributes provide ways to <span class="highlight">load scripts more efficiently</span>.</p>
+            </div>
+
+            <h2>Two Attributes, Two Approaches</h2>
+
+            <div class="two-column">
+                <div class="column">
+                    <h3>async</h3>
+                    <p>Downloads in parallel, executes immediately when ready</p>
+                </div>
+
+                <div class="column">
+                    <h3>defer</h3>
+                    <p>Downloads in parallel, executes after HTML parsing completes</p>
+                </div>
+            </div>
+
+            <div class="example-box">
+                <h3>Key Benefit</h3>
+                <p>Both allow the browser to <strong>continue parsing HTML</strong> while scripts download in the background.</p>
+            </div>
+        </div>
+
+        <!-- Slide 5: The async Attribute -->
+        <div class="slide">
+            <h1>The async Attribute</h1>
+
+            <div class="concept-box">
+                <h3>Asynchronous Script Loading</h3>
+                <p>The <code>async</code> attribute makes scripts download and execute asynchronously.</p>
+            </div>
+
+            <h2>Syntax</h2>
+            <div class="code-example">
+                <code>
+<span class="keyword">&lt;script</span> src=<span class="string">"example.js"</span> async<span class="keyword">&gt;&lt;/script&gt;</span>
+                </code>
+            </div>
+
+            <div class="example-box">
+                <h3>What Happens?</h3>
+                <p>By adding the <code>async</code> attribute to a script tag:</p>
+                <ul>
+                    <li>The browser <strong>continues parsing HTML</strong> while the script downloads</li>
+                    <li>Once downloaded, the browser <strong>pauses HTML parsing</strong></li>
+                    <li>Executes the script</li>
+                    <li>Resumes HTML parsing</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Slide 6: async Flow Diagram -->
+        <div class="slide">
+            <h1>async Loading Flow</h1>
+
+            <h2>Step-by-Step Process</h2>
+
+            <div class="flow-step">
+                <strong>1.</strong> Browser parsing HTML...
+            </div>
+            <div class="flow-step">
+                <strong>2.</strong> ✓ Encounters &lt;script async&gt; - starts download
+            </div>
+            <div class="flow-step">
+                <strong>3.</strong> ✓ Continues parsing HTML (non-blocking!)
+            </div>
+            <div class="flow-step">
+                <strong>4.</strong> Script finishes downloading
+            </div>
+            <div class="flow-step">
+                <strong>5.</strong> ❌ PAUSES HTML parsing
+            </div>
+            <div class="flow-step">
+                <strong>6.</strong> Executes script
+            </div>
+            <div class="flow-step">
+                <strong>7.</strong> ✓ Resumes HTML parsing
+            </div>
+        </div>
+
+        <!-- Slide 7: async Performance Benefit -->
+        <div class="slide">
+            <h1>async Performance Benefit</h1>
+
+            <div class="example-box">
+                <h3>Speed Improvement</h3>
+                <p>Using <code>async</code> can <strong>significantly speed up page loading</strong> because:</p>
+            </div>
+
+            <h2>Key Advantages</h2>
+            <ul>
+                <li><strong>Parallel Download:</strong> Script downloads while HTML continues parsing</li>
+                <li><strong>Non-Blocking:</strong> User sees content appear faster</li>
+                <li><strong>Faster Perceived Load:</strong> Page becomes interactive sooner</li>
+            </ul>
+
+            <div class="info-box">
+                <h3>Example</h3>
+                <p>Instead of waiting 3 seconds for a script to download before showing content, the content appears immediately while the script downloads in the background.</p>
+            </div>
+        </div>
+
+        <!-- Slide 8: async Caveat - Execution Order -->
+        <div class="slide">
+            <h1>Important: async Execution Order</h1>
+
+            <div class="warning-box">
+                <h3>⚠️ Order Not Guaranteed</h3>
+                <p>It's important to note that <span class="highlight">async scripts are executed as soon as they're downloaded</span>, which means they might not run in the correct order.</p>
+            </div>
+
+            <h2>Example Problem</h2>
+            <div class="code-example">
+                <code>
+<span class="keyword">&lt;script</span> src=<span class="string">"library.js"</span> async<span class="keyword">&gt;&lt;/script&gt;</span><br>
+<span class="keyword">&lt;script</span> src=<span class="string">"app.js"</span> async<span class="keyword">&gt;&lt;/script&gt;</span> <span class="comment">&lt;!-- Needs library.js --&gt;</span>
+                </code>
+            </div>
+
+            <div class="info-box">
+                <p>If <code>app.js</code> downloads faster than <code>library.js</code>, it will execute first and might cause errors!</p>
+            </div>
+        </div>
+
+        <!-- Slide 9: The defer Attribute -->
+        <div class="slide">
+            <h1>The defer Attribute</h1>
+
+            <div class="concept-box">
+                <h3>Deferred Script Execution</h3>
+                <p>The <code>defer</code> attribute provides a solution when script order matters.</p>
+            </div>
+
+            <h2>Syntax</h2>
+            <div class="code-example">
+                <code>
+<span class="keyword">&lt;script</span> src=<span class="string">"example.js"</span> defer<span class="keyword">&gt;&lt;/script&gt;</span>
+                </code>
+            </div>
+
+            <div class="example-box">
+                <h3>Key Difference</h3>
+                <p>The <code>defer</code> attribute is similar to <code>async</code>. However, <strong>defer scripts are NOT executed immediately</strong> after they're downloaded.</p>
+            </div>
+        </div>
+
+        <!-- Slide 10: defer Behavior -->
+        <div class="slide">
+            <h1>How defer Works</h1>
+
+            <div class="concept-box">
+                <h3>Delayed Execution</h3>
+                <p>defer scripts <strong>wait until HTML parsing is complete</strong> before executing.</p>
+            </div>
+
+            <h2>Two Important Behaviors</h2>
+
+            <div class="example-box">
+                <h3>1. Waits for HTML Parsing</h3>
+                <p>Script executes <strong>after</strong> the entire HTML document has been parsed</p>
+            </div>
+
+            <div class="example-box">
+                <h3>2. Maintains Order</h3>
+                <p>defer scripts execute <strong>in the order they appear</strong> in the HTML code</p>
+            </div>
+
+            <div class="info-box">
+                <p>This makes defer perfect for scripts that depend on other scripts or need to interact with the DOM.</p>
+            </div>
+        </div>
+
+        <!-- Slide 11: defer Flow Diagram -->
+        <div class="slide">
+            <h1>defer Loading Flow</h1>
+
+            <h2>Step-by-Step Process</h2>
+
+            <div class="flow-step">
+                <strong>1.</strong> Browser parsing HTML...
+            </div>
+            <div class="flow-step">
+                <strong>2.</strong> ✓ Encounters &lt;script defer&gt; - starts download
+            </div>
+            <div class="flow-step">
+                <strong>3.</strong> ✓ Continues parsing HTML (non-blocking!)
+            </div>
+            <div class="flow-step">
+                <strong>4.</strong> Script finishes downloading (but doesn't execute yet)
+            </div>
+            <div class="flow-step">
+                <strong>5.</strong> ✓ Continues parsing HTML
+            </div>
+            <div class="flow-step">
+                <strong>6.</strong> HTML parsing complete
+            </div>
+            <div class="flow-step">
+                <strong>7.</strong> Executes all defer scripts in order
+            </div>
+        </div>
+
+        <!-- Slide 12: Comparison Table -->
+        <div class="slide">
+            <h1>async vs defer Comparison</h1>
+
+            <div class="three-column">
+                <div class="column">
+                    <h3>Normal</h3>
+                    <ul>
+                        <li>Blocks HTML parsing</li>
+                        <li>Downloads synchronously</li>
+                        <li>Executes immediately</li>
+                        <li>Order guaranteed</li>
+                    </ul>
+                </div>
+
+                <div class="column">
+                    <h3>async</h3>
+                    <ul>
+                        <li>✓ Non-blocking download</li>
+                        <li>❌ Blocks on execution</li>
+                        <li>Executes ASAP</li>
+                        <li>Order NOT guaranteed</li>
+                    </ul>
+                </div>
+
+                <div class="column">
+                    <h3>defer</h3>
+                    <ul>
+                        <li>✓ Non-blocking download</li>
+                        <li>✓ Non-blocking execution</li>
+                        <li>Executes after parsing</li>
+                        <li>✓ Order guaranteed</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 13: When to Use Each -->
+        <div class="slide">
+            <h1>When to Use Each Attribute</h1>
+
+            <div class="concept-box">
+                <h3>Choosing the Right Attribute</h3>
+            </div>
+
+            <div class="example-box">
+                <h3>Use async When:</h3>
+                <ul>
+                    <li>Script is <strong>independent</strong> (doesn't depend on other scripts)</li>
+                    <li>Order of execution <strong>doesn't matter</strong></li>
+                    <li>Script doesn't need the DOM to be fully loaded</li>
+                    <li>Examples: Analytics, ads, tracking scripts</li>
+                </ul>
+            </div>
+
+            <div class="example-box">
+                <h3>Use defer When:</h3>
+                <ul>
+                    <li>Script <strong>depends on other scripts</strong></li>
+                    <li>You need scripts to run <strong>in a specific order</strong></li>
+                    <li>Script needs to access the full DOM</li>
+                    <li>Examples: Application code, libraries with dependencies</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Slide 14: Real-World Example -->
+        <div class="slide">
+            <h1>Real-World Example</h1>
+
+            <h2>Typical Website Setup</h2>
+            <div class="code-example">
+                <code>
+<span class="comment">&lt;!-- Analytics - independent, async --&gt;</span><br>
+<span class="keyword">&lt;script</span> src=<span class="string">"analytics.js"</span> async<span class="keyword">&gt;&lt;/script&gt;</span><br><br>
+<span class="comment">&lt;!-- jQuery library - needed by app, defer --&gt;</span><br>
+<span class="keyword">&lt;script</span> src=<span class="string">"jquery.js"</span> defer<span class="keyword">&gt;&lt;/script&gt;</span><br><br>
+<span class="comment">&lt;!-- App code - needs jQuery, defer --&gt;</span><br>
+<span class="keyword">&lt;script</span> src=<span class="string">"app.js"</span> defer<span class="keyword">&gt;&lt;/script&gt;</span>
+                </code>
+            </div>
+
+            <div class="info-box">
+                <h3>Why This Works</h3>
+                <ul>
+                    <li>Analytics runs independently whenever it's ready</li>
+                    <li>jQuery and app.js download in parallel</li>
+                    <li>Both execute after HTML parsing, in order</li>
+                    <li>app.js can safely use jQuery</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Slide 15: Summary -->
+        <div class="slide">
+            <h1>Summary</h1>
+
+            <h2>Key Takeaways</h2>
+
+            <div class="concept-box">
+                <h3>Normal Script Loading</h3>
+                <p>Blocks HTML parsing while downloading and executing - <strong>slowest option</strong></p>
+            </div>
+
+            <div class="concept-box">
+                <h3>async Attribute</h3>
+                <ul>
+                    <li>Downloads in parallel with HTML parsing</li>
+                    <li>Executes <strong>as soon as downloaded</strong></li>
+                    <li>Execution order <strong>not guaranteed</strong></li>
+                    <li>Use for independent scripts</li>
+                </ul>
+            </div>
+
+            <div class="concept-box">
+                <h3>defer Attribute</h3>
+                <ul>
+                    <li>Downloads in parallel with HTML parsing</li>
+                    <li>Executes <strong>after HTML parsing completes</strong></li>
+                    <li>Execution order <strong>guaranteed</strong></li>
+                    <li>Use when order matters</li>
+                </ul>
+            </div>
+
+            <div class="example-box">
+                <h3>Performance Boost</h3>
+                <p>Both attributes can <strong>significantly improve page load times</strong> by allowing the browser to continue parsing HTML while scripts download in the background.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="nav-buttons">
+        <button id="prevBtn" onclick="changeSlide(-1)">Previous</button>
+        <span class="slide-counter">
+            <span id="currentSlide">1</span> / <span id="totalSlides">15</span>
+        </span>
+        <button id="nextBtn" onclick="changeSlide(1)">Next</button>
+    </div>
+
+    <script>
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.slide');
+        const totalSlides = slides.length;
+        
+        document.getElementById('totalSlides').textContent = totalSlides;
+
+        function showSlide(n) {
+            slides.forEach(slide => slide.classList.remove('active'));
+            
+            if (n >= totalSlides) {
+                currentSlide = totalSlides - 1;
+            } else if (n < 0) {
+                currentSlide = 0;
+            } else {
+                currentSlide = n;
+            }
+            
+            slides[currentSlide].classList.add('active');
+            document.getElementById('currentSlide').textContent = currentSlide + 1;
+            
+            // Update button states
+            document.getElementById('prevBtn').disabled = currentSlide === 0;
+            document.getElementById('nextBtn').disabled = currentSlide === totalSlides - 1;
+            
+            // Scroll to top when changing slides
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function changeSlide(direction) {
+            showSlide(currentSlide + direction);
+        }
+
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowLeft') {
+                changeSlide(-1);
+            } else if (e.key === 'ArrowRight') {
+                changeSlide(1);
+            }
+        });
+
+        // Initialize
+        showSlide(0);
+    </script>
+</body>
+</html>

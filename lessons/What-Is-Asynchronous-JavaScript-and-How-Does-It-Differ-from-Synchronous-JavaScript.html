@@ -1,0 +1,1197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Asynchronous JavaScript Presentation</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #f5f5f5 0%, #ffffff 100%);
+            color: #2d2d2d;
+            overflow-x: hidden;
+        }
+
+        .slide-container {
+            min-height: 100vh;
+            padding: 2rem 2rem 120px 2rem;
+            display: none;
+        }
+
+        .slide-container.active {
+            display: block;
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .slide-content {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            color: #881518;
+            font-size: clamp(1.8rem, 4vw, 3rem);
+            margin-bottom: 2rem;
+            border-bottom: 3px solid #881518;
+            padding-bottom: 1rem;
+        }
+
+        h2 {
+            color: #a81c1f;
+            font-size: clamp(1.4rem, 3vw, 2rem);
+            margin: 2rem 0 1rem 0;
+        }
+
+        h3 {
+            color: #c8575a;
+            font-size: clamp(1.2rem, 2.5vw, 1.5rem);
+            margin: 1.5rem 0 1rem 0;
+        }
+
+        p, li {
+            font-size: clamp(1rem, 2vw, 1.2rem);
+            line-height: 1.8;
+            margin-bottom: 1rem;
+            color: #333333;
+        }
+
+        .content-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+
+        @media (min-width: 768px) {
+            .content-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        .concept-box {
+            background: rgba(136, 21, 24, 0.05);
+            border-left: 4px solid #881518;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin: 1.5rem 0;
+        }
+
+        .code-box {
+            background: #f8f8f8;
+            border: 1px solid #d0d0d0;
+            border-radius: 8px;
+            padding: 1.5rem;
+            overflow-x: auto;
+            margin: 1rem 0;
+        }
+
+        code {
+            font-family: 'Courier New', Courier, monospace;
+            font-size: clamp(0.85rem, 1.5vw, 1rem);
+            color: #0066cc;
+        }
+
+        .keyword { color: #881518; }
+        .string { color: #2a8d2a; }
+        .function { color: #795e26; }
+        .comment { color: #008000; }
+        .property { color: #0066cc; }
+
+        .interactive-demo {
+            background: rgba(136, 21, 24, 0.03);
+            border: 2px dashed #881518;
+            border-radius: 8px;
+            padding: 2rem;
+            margin: 2rem 0;
+        }
+
+        .demo-button {
+            background: #881518;
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1.1rem;
+            font-weight: 600;
+            transition: all 0.3s;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            margin: 0.5rem;
+        }
+
+        .demo-button:hover {
+            background: #a81c1f;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(136, 21, 24, 0.3);
+        }
+
+        .demo-button:disabled {
+            background: #cccccc;
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        .demo-output {
+            background: white;
+            border: 2px solid #881518;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1rem 0;
+            min-height: 80px;
+            font-family: 'Courier New', Courier, monospace;
+        }
+
+        ul {
+            margin-left: 2rem;
+        }
+
+        .navigation {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(to top, #ffffff, rgba(255, 255, 255, 0.98));
+            padding: 1.5rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+            border-top: 2px solid #e0e0e0;
+        }
+
+        .nav-button {
+            background: #881518;
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: clamp(0.9rem, 2vw, 1.1rem);
+            font-weight: 600;
+            transition: all 0.3s;
+            min-width: 100px;
+        }
+
+        .nav-button:hover:not(:disabled) {
+            background: #a81c1f;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(136, 21, 24, 0.3);
+        }
+
+        .nav-button:disabled {
+            background: #cccccc;
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        .slide-counter {
+            color: #881518;
+            font-weight: 600;
+            font-size: clamp(1rem, 2vw, 1.2rem);
+        }
+
+        @media (max-width: 768px) {
+            .navigation {
+                padding: 1rem;
+            }
+
+            .nav-button {
+                padding: 0.75rem 1rem;
+                min-width: 80px;
+            }
+        }
+
+        .highlight {
+            background: rgba(136, 21, 24, 0.15);
+            padding: 0.2rem 0.4rem;
+            border-radius: 3px;
+            font-weight: 600;
+        }
+
+        .inline-code {
+            background: #f0f0f0;
+            padding: 0.2rem 0.5rem;
+            border-radius: 3px;
+            font-family: 'Courier New', Courier, monospace;
+            color: #881518;
+            font-size: 0.9em;
+        }
+
+        .success-box {
+            background: linear-gradient(135deg, #d4edda, #c3e6cb);
+            border: 2px solid #28a745;
+            border-left: 6px solid #1e7e34;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+        }
+
+        .success-box h3 {
+            color: #1e7e34;
+            margin-top: 0;
+        }
+
+        .info-box {
+            background: linear-gradient(135deg, #e3f2fd, #bbdefb);
+            border: 2px solid #2196f3;
+            border-left: 6px solid #1976d2;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+        }
+
+        .info-box h3 {
+            color: #1565c0;
+            margin-top: 0;
+        }
+
+        .warning-box {
+            background: linear-gradient(135deg, #fff3cd, #ffe69c);
+            border: 2px solid #ffc107;
+            border-left: 6px solid #ff9800;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+        }
+
+        .warning-box h3 {
+            color: #ff6f00;
+            margin-top: 0;
+        }
+
+        .comparison-card {
+            background: white;
+            border: 2px solid #881518;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1rem 0;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .comparison-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(136, 21, 24, 0.3);
+        }
+
+        .comparison-card h4 {
+            color: #881518;
+            margin-bottom: 0.5rem;
+            font-size: 1.3rem;
+        }
+
+        .comparison-card.sync {
+            border-left: 6px solid #007bff;
+        }
+
+        .comparison-card.async {
+            border-left: 6px solid #28a745;
+        }
+
+        .step-number {
+            display: inline-block;
+            background: #881518;
+            color: white;
+            width: 2.5rem;
+            height: 2.5rem;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 2.5rem;
+            font-weight: bold;
+            margin-right: 1rem;
+        }
+
+        .execution-log {
+            background: #2d2d2d;
+            color: #00ff00;
+            padding: 1rem;
+            border-radius: 8px;
+            font-family: 'Courier New', Courier, monospace;
+            margin: 1rem 0;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .log-line {
+            margin: 0.25rem 0;
+        }
+
+        .log-sync { color: #4dabf7; }
+        .log-async { color: #51cf66; }
+        .log-complete { color: #ffd43b; }
+
+        .visual-timeline {
+            background: white;
+            border: 2px solid #881518;
+            border-radius: 8px;
+            padding: 2rem;
+            margin: 2rem 0;
+        }
+
+        .timeline-bar {
+            height: 40px;
+            border-radius: 5px;
+            margin: 1rem 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: white;
+            animation: slideIn 0.5s ease-out;
+        }
+
+        @keyframes slideIn {
+            from { width: 0; opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .bar-sync { background: #007bff; }
+        .bar-async { background: #28a745; }
+        .bar-waiting { background: #ffc107; color: #333; }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 2rem 0;
+            background: white;
+        }
+
+        .comparison-table th {
+            background: #881518;
+            color: white;
+            padding: 1rem;
+            text-align: left;
+            border: 1px solid #d0d0d0;
+        }
+
+        .comparison-table td {
+            padding: 1rem;
+            border: 1px solid #d0d0d0;
+        }
+
+        .comparison-table tr:nth-child(even) {
+            background: #f8f8f8;
+        }
+
+        .loading-spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #881518;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            display: inline-block;
+            margin: 0 1rem;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <!-- Slide 1: Introduction -->
+    <div class="slide-container active">
+        <div class="slide-content">
+            <h1>Asynchronous JavaScript</h1>
+            
+            <div class="concept-box">
+                <h2>What is Asynchronous JavaScript?</h2>
+                <p>Let's learn about <span class="highlight">asynchronous JavaScript</span>.</p>
+                <p>Asynchronous events occur at <span class="highlight">different times</span>, independently from each other.</p>
+            </div>
+
+            <div class="info-box">
+                <h3>Definition</h3>
+                <p>In the context of software development, <strong>"asynchronous"</strong> refers to tasks that <span class="highlight">run in the background</span>, independently from the main flow of the program.</p>
+            </div>
+
+            <div class="success-box">
+                <h3>✓ Main Advantage</h3>
+                <p>The main advantage of asynchronous processes is that they <span class="highlight">don't block the execution</span> of the main program.</p>
+                <p>That's particularly helpful for tasks that may take a long time to run, such as:</p>
+                <p>• Fetching data from a remote server</p>
+                <p>• Processing large files</p>
+                <p>• Handling user input</p>
+                <p>• Performing complex calculations</p>
+            </div>
+
+            <div class="concept-box">
+                <h3>Asynchronous Programming</h3>
+                <p>This is what we know as <span class="highlight">asynchronous programming</span>.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 2: Synchronous Programming -->
+    <div class="slide-container">
+        <div class="slide-content">
+            <h1>Synchronous Programming</h1>
+
+            <div class="concept-box">
+                <h2>Traditional Approach</h2>
+                <p>This approach contrasts with the <span class="highlight">traditional synchronous programming</span> technique that you have been working with so far.</p>
+            </div>
+
+            <div class="info-box">
+                <h3>Predictable Execution</h3>
+                <p>When you write multiple lines of code, you can usually <strong>predict what will happen and when it will happen</strong>.</p>
+                <p>The first line will be executed, then the second line, and so on in the <span class="highlight">order that you write them</span>.</p>
+            </div>
+
+            <h3>Example</h3>
+            <div class="code-box">
+                <code>
+<span class="keyword">const</span> topic = <span class="string">"JavaScript"</span>;
+<span class="keyword">const</span> learning = <span class="string">`I'm learning ${topic}!`</span>;
+<span class="keyword">console</span>.<span class="function">log</span>(learning);
+                </code>
+            </div>
+
+            <div class="concept-box">
+                <h3>Sequential Execution</h3>
+                <p>In this example, the first line where you define the variable will be executed first, then the second line, and finally the third line where the string is logged to the console.</p>
+                <p>Everything is <span class="highlight">sequential and predictable</span>. Each line is completed before the next one starts.</p>
+            </div>
+
+            <div class="info-box">
+                <h3>Single-Threaded</h3>
+                <p>This type of JavaScript program is known as <span class="highlight">single-threaded</span>.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 3: Understanding Threads -->
+    <div class="slide-container">
+        <div class="slide-content">
+            <h1>Understanding Threads</h1>
+
+            <div class="concept-box">
+                <h2>What is a Thread?</h2>
+                <p>The concept of <span class="highlight">threads</span> is very important.</p>
+                <p>A thread is a <strong>unit of execution within a process</strong>. It's like a separate flow of control within the program.</p>
+            </div>
+
+            <div class="content-grid">
+                <div class="comparison-card sync">
+                    <h4>Synchronous Threading</h4>
+                    <p>In synchronous programming, threads execute <span class="highlight">sequentially</span>, one after the other.</p>
+                    <p>If a thread is blocked, like waiting for user input, the <strong>entire process is blocked</strong> until the thread is completed.</p>
+                </div>
+
+                <div class="comparison-card async">
+                    <h4>Asynchronous Threading</h4>
+                    <p>In asynchronous programming, threads can be executed <span class="highlight">concurrently</span>, running multiple threads at the same time.</p>
+                    <p>This way, the program can continue running multiple tasks simultaneously without making the main program unresponsive, even if one of the threads is blocked.</p>
+                </div>
+            </div>
+
+            <div class="warning-box">
+                <h3>⚠️ Key Difference</h3>
+                <p><strong>Synchronous:</strong> One task at a time, blocking</p>
+                <p><strong>Asynchronous:</strong> Multiple tasks concurrently, non-blocking</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 4: Comparison -->
+    <div class="slide-container">
+        <div class="slide-content">
+            <h1>Synchronous vs Asynchronous</h1>
+
+            <table class="comparison-table">
+                <thead>
+                    <tr>
+                        <th>Aspect</th>
+                        <th>Synchronous</th>
+                        <th>Asynchronous</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Execution</strong></td>
+                        <td>Sequential (line by line)</td>
+                        <td>Concurrent (multiple at once)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Blocking</strong></td>
+                        <td>Blocks until complete</td>
+                        <td>Non-blocking</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Order</strong></td>
+                        <td>Predictable order</td>
+                        <td>Unpredictable order</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Use Case</strong></td>
+                        <td>Simple, quick operations</td>
+                        <td>Long-running operations</td>
+                    </tr>
+                    <tr>
+                        <td><strong>User Experience</strong></td>
+                        <td>May freeze UI</td>
+                        <td>Keeps UI responsive</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Examples</strong></td>
+                        <td>Variable assignment, calculations</td>
+                        <td>API calls, file reading, timers</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="success-box">
+                <h3>✓ Primary Difference</h3>
+                <p><strong>Synchronous code executes sequentially</strong>, while <strong>asynchronous code executes concurrently</strong>.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 5: Interactive Demo - Synchronous -->
+    <div class="slide-container">
+        <div class="slide-content">
+            <h1>Demo: Synchronous Execution</h1>
+
+            <div class="interactive-demo">
+                <h3>Blocking Synchronous Code</h3>
+                <p>Click to run synchronous code that blocks the main thread:</p>
+                
+                <div style="text-align: center; margin: 1rem 0;">
+                    <button class="demo-button" id="sync-btn" onclick="runSyncDemo()">Run Synchronous Code</button>
+                </div>
+
+                <div class="execution-log" id="sync-log">
+                    <div class="log-line">Console output will appear here...</div>
+                </div>
+
+                <div class="warning-box" style="margin-top: 1rem;">
+                    <p><strong>Notice:</strong> The button will be disabled while the code runs. The UI is <span class="highlight">blocked</span> during execution!</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 6: Interactive Demo - Asynchronous -->
+    <div class="slide-container">
+        <div class="slide-content">
+            <h1>Demo: Asynchronous Execution</h1>
+
+            <div class="interactive-demo">
+                <h3>Non-Blocking Asynchronous Code</h3>
+                <p>Click to run asynchronous code that doesn't block:</p>
+                
+                <div style="text-align: center; margin: 1rem 0;">
+                    <button class="demo-button" onclick="runAsyncDemo()">Run Asynchronous Code</button>
+                    <button class="demo-button" onclick="clearAsyncLog()">Clear Log</button>
+                </div>
+
+                <div class="execution-log" id="async-log">
+                    <div class="log-line">Console output will appear here...</div>
+                </div>
+
+                <div class="success-box" style="margin-top: 1rem;">
+                    <p><strong>Notice:</strong> The button stays enabled! You can click multiple times. The UI remains <span class="highlight">responsive</span>!</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 7: Callbacks -->
+    <div class="slide-container">
+        <div class="slide-content">
+            <h1>Callbacks</h1>
+
+            <div class="concept-box">
+                <h2>The Traditional Way</h2>
+                <p>Asynchronous programming often involves <span class="highlight">callbacks</span>, promises, or async/await to handle non-blocking operations.</p>
+            </div>
+
+            <div class="info-box">
+                <h3>What is a Callback?</h3>
+                <p>As you learned in earlier lessons, a callback is a <span class="highlight">function that you pass to another function</span> to be called later.</p>
+                <p>Event handlers are a particular type of callback that you've worked with before.</p>
+            </div>
+
+            <h3>Example</h3>
+            <div class="code-box">
+                <code>
+<span class="comment">// Callback example with setTimeout</span>
+<span class="keyword">console</span>.<span class="function">log</span>(<span class="string">"Start"</span>);
+
+<span class="function">setTimeout</span>(() => {
+  <span class="keyword">console</span>.<span class="function">log</span>(<span class="string">"This runs after 2 seconds"</span>);
+}, <span class="keyword">2000</span>);
+
+<span class="keyword">console</span>.<span class="function">log</span>(<span class="string">"End"</span>);
+
+<span class="comment">// Output:</span>
+<span class="comment">// Start</span>
+<span class="comment">// End</span>
+<span class="comment">// This runs after 2 seconds</span>
+                </code>
+            </div>
+
+            <div class="warning-box">
+                <h3>⚠️ Callback Hell</h3>
+                <p>They used to be the most common way to implement asynchronous functions in JavaScript.</p>
+                <p>However, if the callback function also takes other callback functions, the code and logic can <span class="highlight">get quite complicated very quickly</span>.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 8: Promises -->
+    <div class="slide-container">
+        <div class="slide-content">
+            <h1>Promises</h1>
+
+            <div class="concept-box">
+                <h2>Modern Approach</h2>
+                <p>Currently, the most commonly used technique for implementing asynchronous programming in JavaScript is the <span class="highlight">promise</span>.</p>
+            </div>
+
+            <div class="info-box">
+                <h3>What is a Promise?</h3>
+                <p>A Promise is an <span class="highlight">object that represents the eventual completion (or failure)</span> of an asynchronous process and its value.</p>
+            </div>
+
+            <div class="concept-box">
+                <h3>Unknown Value</h3>
+                <p>The value of a promise is <strong>not known</strong> when the promise is created.</p>
+                <p>It's only known when the asynchronous process is completed.</p>
+            </div>
+
+            <h3>Example</h3>
+            <div class="code-box">
+                <code>
+<span class="comment">// Creating a promise</span>
+<span class="keyword">const</span> myPromise = <span class="keyword">new</span> <span class="function">Promise</span>((resolve, reject) => {
+  <span class="function">setTimeout</span>(() => {
+    resolve(<span class="string">"Data received!"</span>);
+  }, <span class="keyword">2000</span>);
+});
+
+<span class="comment">// Using the promise</span>
+myPromise
+  .<span class="function">then</span>(<span class="keyword">data</span> => {
+    <span class="keyword">console</span>.<span class="function">log</span>(data); <span class="comment">// "Data received!"</span>
+  })
+  .<span class="function">catch</span>(<span class="keyword">error</span> => {
+    <span class="keyword">console</span>.<span class="function">error</span>(error);
+  });
+                </code>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 9: Promise Use Case -->
+    <div class="slide-container">
+        <div class="slide-content">
+            <h1>Real-World Promise Example</h1>
+
+            <div class="concept-box">
+                <h2>Fetching Data</h2>
+                <p>For example, the process of <span class="highlight">fetching data from a remote API</span> for your web application may take some time.</p>
+                <p>Meanwhile, you want your users to have a nice user experience, right?</p>
+            </div>
+
+            <div class="success-box">
+                <h3>✓ Implementation</h3>
+                <p>To implement this, you could create a promise to keep the user interface <span class="highlight">active and interactive</span> while the asynchronous process is running.</p>
+                <p>When the process is completed, the promise will contain the data that was sent back by the API, so the application can handle it or render it appropriately when it's available.</p>
+            </div>
+
+            <h3>Example: API Call</h3>
+            <div class="code-box">
+                <code>
+<span class="comment">// Show loading indicator</span>
+<span class="function">showLoader</span>();
+
+<span class="comment">// Fetch data from API</span>
+<span class="function">fetch</span>(<span class="string">'https://api.example.com/data'</span>)
+  .<span class="function">then</span>(<span class="keyword">response</span> => response.<span class="function">json</span>())
+  .<span class="function">then</span>(<span class="keyword">data</span> => {
+    <span class="comment">// Data is ready! Render it</span>
+    <span class="function">renderData</span>(data);
+    <span class="function">hideLoader</span>();
+  })
+  .<span class="function">catch</span>(<span class="keyword">error</span> => {
+    <span class="comment">// Handle error</span>
+    <span class="function">showError</span>(error);
+    <span class="function">hideLoader</span>();
+  });
+
+<span class="comment">// UI remains responsive during fetch!</span>
+                </code>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 10: Interactive Promise Demo -->
+    <div class="slide-container">
+        <div class="slide-content">
+            <h1>Demo: Promises in Action</h1>
+
+            <div class="interactive-demo">
+                <h3>Simulated API Call</h3>
+                <p>Click to fetch data using a Promise (simulated 2-second delay):</p>
+                
+                <div style="text-align: center; margin: 1rem 0;">
+                    <button class="demo-button" onclick="fetchWithPromise()">Fetch Data</button>
+                    <button class="demo-button" onclick="fetchWithError()">Fetch (Error)</button>
+                    <button class="demo-button" onclick="clearPromiseDemo()">Clear</button>
+                </div>
+
+                <div class="demo-output" id="promise-output">
+                    <div style="color: #999;">Click "Fetch Data" to start...</div>
+                </div>
+
+                <div class="concept-box" style="margin-top: 1rem;">
+                    <p><strong>Notice:</strong> You can click other buttons while waiting! The UI stays responsive.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 11: Visual Timeline Comparison -->
+    <div class="slide-container">
+        <div class="slide-content">
+            <h1>Visual Comparison</h1>
+
+            <div class="visual-timeline">
+                <h3 style="color: #881518; margin-bottom: 1rem;">Synchronous Execution (Blocking)</h3>
+                <div class="timeline-bar bar-sync" style="width: 100%;">Task 1 (2s) - BLOCKS everything</div>
+                <div class="timeline-bar bar-sync" style="width: 100%;">Task 2 (2s) - Waits for Task 1</div>
+                <div class="timeline-bar bar-sync" style="width: 100%;">Task 3 (2s) - Waits for Task 2</div>
+                <p style="margin-top: 1rem; color: #666;"><strong>Total Time:</strong> 6 seconds (sequential)</p>
+            </div>
+
+            <div class="visual-timeline">
+                <h3 style="color: #881518; margin-bottom: 1rem;">Asynchronous Execution (Non-Blocking)</h3>
+                <div class="timeline-bar bar-async" style="width: 100%;">Task 1 starts (background)</div>
+                <div class="timeline-bar bar-async" style="width: 100%;">Task 2 starts (background)</div>
+                <div class="timeline-bar bar-async" style="width: 100%;">Task 3 starts (background)</div>
+                <p style="margin-top: 1rem; color: #666;"><strong>Total Time:</strong> ~2 seconds (concurrent)</p>
+            </div>
+
+            <div class="success-box">
+                <h3>✓ Key Benefit</h3>
+                <p>Asynchronous code allows multiple operations to run <span class="highlight">at the same time</span>, significantly improving performance!</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 12: Techniques for Async -->
+    <div class="slide-container">
+        <div class="slide-content">
+            <h1>Techniques for Asynchronous Programming</h1>
+
+            <div class="concept-box">
+                <h2>Three Main Approaches</h2>
+            </div>
+
+            <div class="content-grid">
+                <div class="comparison-card">
+                    <h4>1. Callbacks</h4>
+                    <p><strong>When:</strong> Event handlers, simple async operations</p>
+                    <div class="code-box">
+                        <code>
+<span class="function">setTimeout</span>(() => {
+  <span class="keyword">console</span>.<span class="function">log</span>(<span class="string">"Done!"</span>);
+}, <span class="keyword">1000</span>);
+                        </code>
+                    </div>
+                    <p><strong>Issue:</strong> Callback hell with nested callbacks</p>
+                </div>
+
+                <div class="comparison-card">
+                    <h4>2. Promises</h4>
+                    <p><strong>When:</strong> API calls, file operations</p>
+                    <div class="code-box">
+                        <code>
+<span class="function">fetch</span>(url)
+  .<span class="function">then</span>(<span class="keyword">res</span> => res.<span class="function">json</span>())
+  .<span class="function">then</span>(<span class="keyword">data</span> => <span class="keyword">console</span>.<span class="function">log</span>(data));
+                        </code>
+                    </div>
+                    <p><strong>Better:</strong> Chainable, cleaner than callbacks</p>
+                </div>
+
+                <div class="comparison-card">
+                    <h4>3. Async/Await</h4>
+                    <p><strong>When:</strong> Modern async code</p>
+                    <div class="code-box">
+                        <code>
+<span class="keyword">async</span> <span class="keyword">function</span> <span class="function">getData</span>() {
+  <span class="keyword">const</span> data = <span class="keyword">await</span> <span class="function">fetch</span>(url);
+  <span class="keyword">console</span>.<span class="function">log</span>(data);
+}
+                        </code>
+                    </div>
+                    <p><strong>Best:</strong> Looks synchronous, easiest to read</p>
+                </div>
+
+                <div class="comparison-card">
+                    <h4>Event Listeners</h4>
+                    <p><strong>When:</strong> User interactions</p>
+                    <div class="code-box">
+                        <code>
+button.<span class="function">addEventListener</span>(<span class="string">'click'</span>, () => {
+  <span class="keyword">console</span>.<span class="function">log</span>(<span class="string">"Clicked!"</span>);
+});
+                        </code>
+                    </div>
+                    <p><strong>Special:</strong> Responds to user events</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 13: Advantages -->
+    <div class="slide-container">
+        <div class="slide-content">
+            <h1>Advantages of Asynchronous Programming</h1>
+
+            <div class="success-box">
+                <h3>✓ Increased Responsiveness</h3>
+                <p>The primary advantage of using asynchronous programming is <span class="highlight">increased responsiveness of applications</span>.</p>
+                <p>Your UI stays interactive even during long-running operations!</p>
+            </div>
+
+            <div class="content-grid">
+                <div class="comparison-card">
+                    <h4>Better User Experience</h4>
+                    <p>• UI never freezes</p>
+                    <p>• Users can continue interacting</p>
+                    <p>• Loading states keep users informed</p>
+                    <p>• Smoother, more professional feel</p>
+                </div>
+
+                <div class="comparison-card">
+                    <h4>Improved Performance</h4>
+                    <p>• Multiple operations at once</p>
+                    <p>• Better resource utilization</p>
+                    <p>• Faster overall execution</p>
+                    <p>• Handles many concurrent users</p>
+                </div>
+
+                <div class="comparison-card">
+                    <h4>Scalability</h4>
+                    <p>• Handle more requests</p>
+                    <p>• Better for I/O operations</p>
+                    <p>• Efficient network calls</p>
+                    <p>• Works well at scale</p>
+                </div>
+
+                <div class="comparison-card">
+                    <h4>Real-World Ready</h4>
+                    <p>• Essential for APIs</p>
+                    <p>• Required for modern web apps</p>
+                    <p>• Handles delays gracefully</p>
+                    <p>• Industry standard</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 14: When to Use Each -->
+    <div class="slide-container">
+        <div class="slide-content">
+            <h1>When to Use Synchronous vs Asynchronous</h1>
+
+            <div class="content-grid">
+                <div class="comparison-card sync">
+                    <h4>Use Synchronous When:</h4>
+                    <p>✓ Operations are quick (< 1ms)</p>
+                    <p>✓ Order matters absolutely</p>
+                    <p>✓ Simple calculations</p>
+                    <p>✓ Variable assignments</p>
+                    <p>✓ Array operations (map, filter)</p>
+                    <p>✓ String manipulations</p>
+                    <p><strong>Example:</strong> Math calculations, data transformations</p>
+                </div>
+
+                <div class="comparison-card async">
+                    <h4>Use Asynchronous When:</h4>
+                    <p>✓ Network requests (API calls)</p>
+                    <p>✓ File reading/writing</p>
+                    <p>✓ Database queries</p>
+                    <p>✓ Timers and delays</p>
+                    <p>✓ User input waiting</p>
+                    <p>✓ Any I/O operations</p>
+                    <p><strong>Example:</strong> Fetching user data from server</p>
+                </div>
+            </div>
+
+            <div class="info-box">
+                <h3>Rule of Thumb</h3>
+                <p>If an operation might take more than a few milliseconds or depends on external factors (network, user, file system), use <span class="highlight">asynchronous</span> programming!</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 15: Key Takeaways -->
+    <div class="slide-container">
+        <div class="slide-content">
+            <h1>Key Takeaways</h1>
+
+            <div class="concept-box">
+                <h2>Understanding Async vs Sync</h2>
+                <p>Asynchronous programming is a <span class="highlight">powerful tool</span> for building efficient JavaScript applications.</p>
+                <p>By understanding the differences between synchronous and asynchronous programming, you can <strong>choose the right approach</strong> for your application and write more efficient code.</p>
+            </div>
+
+            <div class="content-grid">
+                <div class="comparison-card sync">
+                    <h4>Synchronous</h4>
+                    <p><strong>Execution:</strong> Sequential, line-by-line</p>
+                    <p><strong>Blocking:</strong> Yes, waits for completion</p>
+                    <p><strong>Use Case:</strong> Quick operations</p>
+                    <p><strong>Example:</strong> Variable assignment</p>
+                </div>
+
+                <div class="comparison-card async">
+                    <h4>Asynchronous</h4>
+                    <p><strong>Execution:</strong> Concurrent, non-blocking</p>
+                    <p><strong>Blocking:</strong> No, continues running</p>
+                    <p><strong>Use Case:</strong> Long operations</p>
+                    <p><strong>Example:</strong> API calls, file I/O</p>
+                </div>
+            </div>
+
+            <div class="success-box">
+                <h3>✓ Three Techniques</h3>
+                <p>1. <strong>Callbacks</strong> - Traditional, can get messy</p>
+                <p>2. <strong>Promises</strong> - Modern, chainable</p>
+                <p>3. <strong>Async/Await</strong> - Cleanest, most readable</p>
+            </div>
+
+            <div class="info-box">
+                <h3>Primary Benefit</h3>
+                <p>Asynchronous programming provides <span class="highlight">increased responsiveness</span>, keeping your applications fast and user-friendly even during long-running operations!</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Navigation -->
+    <div class="navigation">
+        <button class="nav-button" id="prevBtn" onclick="changeSlide(-1)">← Previous</button>
+        <div class="slide-counter">
+            <span id="currentSlide">1</span> / <span id="totalSlides">15</span>
+        </div>
+        <button class="nav-button" id="nextBtn" onclick="changeSlide(1)">Next →</button>
+    </div>
+
+    <script>
+        let currentSlide = 1;
+        const totalSlides = document.querySelectorAll('.slide-container').length;
+        
+        document.getElementById('totalSlides').textContent = totalSlides;
+        
+        function showSlide(n) {
+            const slides = document.querySelectorAll('.slide-container');
+            
+            if (n > totalSlides) {
+                currentSlide = totalSlides;
+            }
+            if (n < 1) {
+                currentSlide = 1;
+            }
+            
+            slides.forEach(slide => slide.classList.remove('active'));
+            slides[currentSlide - 1].classList.add('active');
+            
+            document.getElementById('currentSlide').textContent = currentSlide;
+            
+            // Update button states
+            document.getElementById('prevBtn').disabled = currentSlide === 1;
+            document.getElementById('nextBtn').disabled = currentSlide === totalSlides;
+            
+            // Scroll to top of page
+            window.scrollTo(0, 0);
+        }
+        
+        function changeSlide(direction) {
+            currentSlide += direction;
+            showSlide(currentSlide);
+        }
+        
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowLeft') {
+                changeSlide(-1);
+            } else if (e.key === 'ArrowRight') {
+                changeSlide(1);
+            }
+        });
+        
+        // Synchronous Demo
+        function runSyncDemo() {
+            const log = document.getElementById('sync-log');
+            const btn = document.getElementById('sync-btn');
+            
+            log.innerHTML = '';
+            btn.disabled = true;
+            
+            function addLog(message, className = '') {
+                const line = document.createElement('div');
+                line.className = `log-line ${className}`;
+                line.textContent = message;
+                log.appendChild(line);
+            }
+            
+            addLog('▶ Starting synchronous execution...', 'log-sync');
+            
+            // Simulate blocking operation
+            const start = Date.now();
+            addLog('⏳ Task 1: Processing... (this blocks!)', 'log-sync');
+            
+            // Blocking for 2 seconds
+            while (Date.now() - start < 2000) {
+                // Intentionally blocking the thread
+            }
+            
+            addLog('✓ Task 1: Complete', 'log-complete');
+            addLog('⏳ Task 2: Processing...', 'log-sync');
+            
+            // Another blocking operation
+            const start2 = Date.now();
+            while (Date.now() - start2 < 1000) {
+                // Blocking again
+            }
+            
+            addLog('✓ Task 2: Complete', 'log-complete');
+            addLog('✓ All tasks finished!', 'log-complete');
+            addLog('', '');
+            addLog('Notice: The button was disabled the whole time!', 'log-sync');
+            addLog('The UI was BLOCKED and unresponsive.', 'log-sync');
+            
+            btn.disabled = false;
+        }
+        
+        // Asynchronous Demo
+        function runAsyncDemo() {
+            const log = document.getElementById('async-log');
+            
+            function addLog(message, className = '') {
+                const line = document.createElement('div');
+                line.className = `log-line ${className}`;
+                line.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+                log.appendChild(line);
+                log.scrollTop = log.scrollHeight;
+            }
+            
+            addLog('▶ Starting asynchronous execution...', 'log-async');
+            addLog('⏳ Task started (running in background)', 'log-async');
+            
+            setTimeout(() => {
+                addLog('✓ Task 1 complete after 1 second', 'log-complete');
+            }, 1000);
+            
+            setTimeout(() => {
+                addLog('✓ Task 2 complete after 2 seconds', 'log-complete');
+            }, 2000);
+            
+            setTimeout(() => {
+                addLog('✓ Task 3 complete after 3 seconds', 'log-complete');
+            }, 3000);
+            
+            addLog('✓ Main thread continues immediately!', 'log-async');
+            addLog('💡 UI stays responsive - try clicking again!', 'log-async');
+        }
+        
+        function clearAsyncLog() {
+            document.getElementById('async-log').innerHTML = '<div class="log-line">Console output will appear here...</div>';
+        }
+        
+        // Promise Demo
+        function fetchWithPromise() {
+            const output = document.getElementById('promise-output');
+            
+            output.innerHTML = `
+                <div style="color: #007bff;">
+                    <div class="loading-spinner"></div>
+                    <span style="vertical-align: middle;">Fetching data from API...</span>
+                </div>
+                <p style="margin-top: 1rem; color: #666;">Please wait 2 seconds...</p>
+            `;
+            
+            // Simulate API call with Promise
+            const fakeAPI = new Promise((resolve) => {
+                setTimeout(() => {
+                    resolve({
+                        status: 'success',
+                        data: {
+                            users: 42,
+                            products: 156,
+                            timestamp: new Date().toLocaleTimeString()
+                        }
+                    });
+                }, 2000);
+            });
+            
+            fakeAPI.then(response => {
+                output.innerHTML = `
+                    <div style="color: #28a745;">
+                        <strong>✓ Success!</strong>
+                    </div>
+                    <div style="margin-top: 1rem;">
+                        <strong>Response Data:</strong>
+                        <pre style="background: #f8f8f8; padding: 1rem; border-radius: 5px; margin-top: 0.5rem;">${JSON.stringify(response, null, 2)}</pre>
+                    </div>
+                `;
+            });
+        }
+        
+        function fetchWithError() {
+            const output = document.getElementById('promise-output');
+            
+            output.innerHTML = `
+                <div style="color: #007bff;">
+                    <div class="loading-spinner"></div>
+                    <span style="vertical-align: middle;">Fetching data from API...</span>
+                </div>
+                <p style="margin-top: 1rem; color: #666;">Please wait 2 seconds...</p>
+            `;
+            
+            // Simulate API call that fails
+            const fakeAPI = new Promise((resolve, reject) => {
+                setTimeout(() => {
+                    reject(new Error('Network error: Failed to fetch data'));
+                }, 2000);
+            });
+            
+            fakeAPI.catch(error => {
+                output.innerHTML = `
+                    <div style="color: #dc3545;">
+                        <strong>✗ Error!</strong>
+                    </div>
+                    <div style="margin-top: 1rem;">
+                        <strong>Error Message:</strong>
+                        <pre style="background: #fff5f5; padding: 1rem; border-radius: 5px; margin-top: 0.5rem; color: #d32f2f;">${error.message}</pre>
+                    </div>
+                `;
+            });
+        }
+        
+        function clearPromiseDemo() {
+            document.getElementById('promise-output').innerHTML = '<div style="color: #999;">Click "Fetch Data" to start...</div>';
+        }
+        
+        // Initialize
+        showSlide(currentSlide);
+    </script>
+</body>
+</html>

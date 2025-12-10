@@ -1,0 +1,1204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fetch API Presentation</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #f5f5f5 0%, #ffffff 100%);
+            color: #2d2d2d;
+            overflow-x: hidden;
+        }
+
+        .slide-container {
+            min-height: 100vh;
+            padding: 2rem 2rem 120px 2rem;
+            display: none;
+        }
+
+        .slide-container.active {
+            display: block;
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .slide-content {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            color: #881518;
+            font-size: clamp(1.8rem, 4vw, 3rem);
+            margin-bottom: 2rem;
+            border-bottom: 3px solid #881518;
+            padding-bottom: 1rem;
+        }
+
+        h2 {
+            color: #a81c1f;
+            font-size: clamp(1.4rem, 3vw, 2rem);
+            margin: 2rem 0 1rem 0;
+        }
+
+        h3 {
+            color: #c8575a;
+            font-size: clamp(1.2rem, 2.5vw, 1.5rem);
+            margin: 1.5rem 0 1rem 0;
+        }
+
+        p, li {
+            font-size: clamp(1rem, 2vw, 1.2rem);
+            line-height: 1.8;
+            margin-bottom: 1rem;
+            color: #333333;
+        }
+
+        .content-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+
+        @media (min-width: 768px) {
+            .content-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        .concept-box {
+            background: rgba(136, 21, 24, 0.05);
+            border-left: 4px solid #881518;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin: 1.5rem 0;
+        }
+
+        .code-box {
+            background: #f8f8f8;
+            border: 1px solid #d0d0d0;
+            border-radius: 8px;
+            padding: 1.5rem;
+            overflow-x: auto;
+            margin: 1rem 0;
+        }
+
+        code {
+            font-family: 'Courier New', Courier, monospace;
+            font-size: clamp(0.85rem, 1.5vw, 1rem);
+            color: #0066cc;
+        }
+
+        .keyword { color: #881518; }
+        .string { color: #2a8d2a; }
+        .function { color: #795e26; }
+        .comment { color: #008000; }
+        .property { color: #0066cc; }
+
+        .interactive-demo {
+            background: rgba(136, 21, 24, 0.03);
+            border: 2px dashed #881518;
+            border-radius: 8px;
+            padding: 2rem;
+            margin: 2rem 0;
+        }
+
+        .demo-button {
+            background: #881518;
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1.1rem;
+            font-weight: 600;
+            transition: all 0.3s;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            margin: 0.5rem;
+        }
+
+        .demo-button:hover {
+            background: #a81c1f;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(136, 21, 24, 0.3);
+        }
+
+        .demo-button:disabled {
+            background: #cccccc;
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        .demo-output {
+            background: white;
+            border: 2px solid #881518;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1rem 0;
+            min-height: 80px;
+        }
+
+        ul {
+            margin-left: 2rem;
+        }
+
+        .navigation {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(to top, #ffffff, rgba(255, 255, 255, 0.98));
+            padding: 1.5rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+            border-top: 2px solid #e0e0e0;
+        }
+
+        .nav-button {
+            background: #881518;
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: clamp(0.9rem, 2vw, 1.1rem);
+            font-weight: 600;
+            transition: all 0.3s;
+            min-width: 100px;
+        }
+
+        .nav-button:hover:not(:disabled) {
+            background: #a81c1f;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(136, 21, 24, 0.3);
+        }
+
+        .nav-button:disabled {
+            background: #cccccc;
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        .slide-counter {
+            color: #881518;
+            font-weight: 600;
+            font-size: clamp(1rem, 2vw, 1.2rem);
+        }
+
+        @media (max-width: 768px) {
+            .navigation {
+                padding: 1rem;
+            }
+
+            .nav-button {
+                padding: 0.75rem 1rem;
+                min-width: 80px;
+            }
+        }
+
+        .highlight {
+            background: rgba(136, 21, 24, 0.15);
+            padding: 0.2rem 0.4rem;
+            border-radius: 3px;
+            font-weight: 600;
+        }
+
+        .inline-code {
+            background: #f0f0f0;
+            padding: 0.2rem 0.5rem;
+            border-radius: 3px;
+            font-family: 'Courier New', Courier, monospace;
+            color: #881518;
+            font-size: 0.9em;
+        }
+
+        .success-box {
+            background: linear-gradient(135deg, #d4edda, #c3e6cb);
+            border: 2px solid #28a745;
+            border-left: 6px solid #1e7e34;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+        }
+
+        .success-box h3 {
+            color: #1e7e34;
+            margin-top: 0;
+        }
+
+        .info-box {
+            background: linear-gradient(135deg, #e3f2fd, #bbdefb);
+            border: 2px solid #2196f3;
+            border-left: 6px solid #1976d2;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+        }
+
+        .info-box h3 {
+            color: #1565c0;
+            margin-top: 0;
+        }
+
+        .warning-box {
+            background: linear-gradient(135deg, #fff3cd, #ffe69c);
+            border: 2px solid #ffc107;
+            border-left: 6px solid #ff9800;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+        }
+
+        .warning-box h3 {
+            color: #ff6f00;
+            margin-top: 0;
+        }
+
+        .resource-card {
+            background: white;
+            border: 2px solid #881518;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1rem 0;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .resource-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(136, 21, 24, 0.3);
+        }
+
+        .resource-card h4 {
+            color: #881518;
+            margin-bottom: 0.5rem;
+            font-size: 1.3rem;
+        }
+
+        .loading-spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #881518;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            display: inline-block;
+            margin: 0 1rem;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .data-display {
+            background: #f8f8f8;
+            border: 1px solid #d0d0d0;
+            border-radius: 8px;
+            padding: 1rem;
+            margin: 1rem 0;
+            font-family: 'Courier New', Courier, monospace;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .json-key {
+            color: #881518;
+            font-weight: bold;
+        }
+
+        .json-value {
+            color: #2a8d2a;
+        }
+
+        .image-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+
+        .fetched-image {
+            max-width: 200px;
+            border-radius: 8px;
+            border: 2px solid #881518;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+
+        .method-badge {
+            display: inline-block;
+            padding: 0.3rem 0.8rem;
+            border-radius: 5px;
+            font-weight: bold;
+            margin: 0.5rem 0.5rem 0.5rem 0;
+            font-family: 'Courier New', Courier, monospace;
+            background: #007bff;
+            color: white;
+        }
+
+        .step-box {
+            background: white;
+            border: 2px solid #881518;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1rem 0;
+        }
+
+        .step-number {
+            display: inline-block;
+            background: #881518;
+            color: white;
+            width: 2.5rem;
+            height: 2.5rem;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 2.5rem;
+            font-weight: bold;
+            margin-right: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <!-- Slide 1: Introduction -->
+    <div class="slide-container active">
+        <div class="slide-content">
+            <h1>The Fetch API</h1>
+            
+            <div class="concept-box">
+                <h2>What is the Fetch API?</h2>
+                <p>The Fetch API allows web apps to <span class="highlight">make network requests</span>, typically to retrieve or send data to the server.</p>
+            </div>
+
+            <div class="info-box">
+                <h3>The fetch() Method</h3>
+                <p>This API provides a <span class="inline-code">fetch()</span> method that you can use to make these requests.</p>
+            </div>
+
+            <div class="success-box">
+                <h3>✓ Primary Purpose</h3>
+                <p>The primary purpose of the Fetch API in JavaScript is to <span class="highlight">make network requests and retrieve resources</span>.</p>
+                <p>This allows your web applications to:</p>
+                <p>• Communicate with servers</p>
+                <p>• Retrieve data from APIs</p>
+                <p>• Send data to servers</p>
+                <p>• Load resources dynamically</p>
+            </div>
+
+            <div class="warning-box">
+                <h3>Asynchronous Nature</h3>
+                <p>The Fetch API is <strong>asynchronous</strong> - it returns a Promise that resolves to the response!</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 2: Basic Syntax -->
+    <div class="slide-container">
+        <div class="slide-content">
+            <h1>Basic fetch() Syntax</h1>
+
+            <div class="concept-box">
+                <h2>Simple Example</h2>
+                <p>Let's look at a basic example of how to use <span class="inline-code">fetch</span>:</p>
+            </div>
+
+            <div class="code-box">
+                <code>
+<span class="function">fetch</span>(<span class="string">'https://api.example.com/data'</span>)
+                </code>
+            </div>
+
+            <div class="info-box">
+                <h3>What This Does</h3>
+                <p>In this example, we're making a <span class="method-badge">GET</span> request to <span class="inline-code">https://api.example.com/data</span>.</p>
+                <p>This will then return us some data that we need to <span class="highlight">convert to JSON format</span> and can use anywhere we want to.</p>
+            </div>
+
+            <h3>Complete Example with JSON Conversion</h3>
+            <div class="code-box">
+                <code>
+<span class="function">fetch</span>(<span class="string">'https://api.example.com/data'</span>)
+  .<span class="function">then</span>(<span class="keyword">response</span> => response.<span class="function">json</span>())
+  .<span class="function">then</span>(<span class="keyword">data</span> => {
+    <span class="keyword">console</span>.<span class="function">log</span>(data); <span class="comment">// Use the data</span>
+  })
+  .<span class="function">catch</span>(<span class="keyword">error</span> => {
+    <span class="keyword">console</span>.<span class="function">error</span>(<span class="string">'Error:'</span>, error);
+  });
+                </code>
+            </div>
+
+            <div class="concept-box">
+                <h3>Default Method</h3>
+                <p>By default, the Fetch API uses the <span class="highlight">GET method</span> to retrieve data.</p>
+                <p>This will be covered in the next lesson, along with other common HTTP request methods.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 3: The Response Process -->
+    <div class="slide-container">
+        <div class="slide-content">
+            <h1>Understanding the Response</h1>
+
+            <div class="concept-box">
+                <h2>Two-Step Process</h2>
+                <p>Working with fetch involves two main steps:</p>
+            </div>
+
+            <div class="step-box">
+                <p><span class="step-number">1</span> <strong>Get the Response</strong></p>
+                <p>The first <span class="inline-code">.then()</span> receives the Response object.</p>
+                <div class="code-box">
+                    <code>.<span class="function">then</span>(<span class="keyword">response</span> => response.<span class="function">json</span>())</code>
+                </div>
+            </div>
+
+            <div class="step-box">
+                <p><span class="step-number">2</span> <strong>Extract the Data</strong></p>
+                <p>The second <span class="inline-code">.then()</span> receives the actual parsed data.</p>
+                <div class="code-box">
+                    <code>.<span class="function">then</span>(<span class="keyword">data</span> => <span class="keyword">console</span>.<span class="function">log</span>(data))</code>
+                </div>
+            </div>
+
+            <h3>Complete Flow</h3>
+            <div class="code-box">
+                <code>
+<span class="function">fetch</span>(url)
+  .<span class="function">then</span>(<span class="keyword">response</span> => {
+    <span class="comment">// Step 1: Check if request was successful</span>
+    <span class="keyword">if</span> (!response.ok) {
+      <span class="keyword">throw new</span> <span class="function">Error</span>(<span class="string">'Network response was not ok'</span>);
+    }
+    <span class="comment">// Step 2: Parse response as JSON</span>
+    <span class="keyword">return</span> response.<span class="function">json</span>();
+  })
+  .<span class="function">then</span>(<span class="keyword">data</span> => {
+    <span class="comment">// Step 3: Use the data</span>
+    <span class="keyword">console</span>.<span class="function">log</span>(data);
+  })
+  .<span class="function">catch</span>(<span class="keyword">error</span> => {
+    <span class="comment">// Handle any errors</span>
+    <span class="keyword">console</span>.<span class="function">error</span>(<span class="string">'Error:'</span>, error);
+  });
+                </code>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 4: Common Resource Types -->
+    <div class="slide-container">
+        <div class="slide-content">
+            <h1>Common Resources Fetched</h1>
+
+            <div class="concept-box">
+                <h2>What Can We Fetch?</h2>
+                <p>Now, let's discuss some <span class="highlight">common types of resources</span> that are fetched from the network.</p>
+            </div>
+
+            <div class="content-grid">
+                <div class="resource-card">
+                    <h4>1. JSON Data</h4>
+                    <p>Most common format for APIs</p>
+                    <p>• User information</p>
+                    <p>• Product listings</p>
+                    <p>• Configuration data</p>
+                    <p>• API responses</p>
+                </div>
+
+                <div class="resource-card">
+                    <h4>2. Images</h4>
+                    <p>Visual content</p>
+                    <p>• Profile pictures</p>
+                    <p>• Product photos</p>
+                    <p>• Icons and flags</p>
+                    <p>• Dynamic graphics</p>
+                </div>
+
+                <div class="resource-card">
+                    <h4>3. Text Files</h4>
+                    <p>Plain text content</p>
+                    <p>• Configuration files</p>
+                    <p>• Log files</p>
+                    <p>• Documents</p>
+                    <p>• CSV data</p>
+                </div>
+
+                <div class="resource-card">
+                    <h4>4. HTML Content</h4>
+                    <p>Web page fragments</p>
+                    <p>• Templates</p>
+                    <p>• Partial views</p>
+                    <p>• Dynamic content</p>
+                    <p>• Components</p>
+                </div>
+
+                <div class="resource-card">
+                    <h4>5. Audio Files</h4>
+                    <p>Sound content</p>
+                    <p>• Music tracks</p>
+                    <p>• Sound effects</p>
+                    <p>• Podcasts</p>
+                    <p>• Voice recordings</p>
+                </div>
+
+                <div class="resource-card">
+                    <h4>6. Video Files</h4>
+                    <p>Video content</p>
+                    <p>• Video streams</p>
+                    <p>• Movie clips</p>
+                    <p>• Tutorials</p>
+                    <p>• Live feeds</p>
+                </div>
+            </div>
+
+            <div class="warning-box">
+                <h3>⚠️ Note</h3>
+                <p><strong>JavaScript functions</strong> are NOT a common type of resource fetched from the network!</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 5: JSON Data -->
+    <div class="slide-container">
+        <div class="slide-content">
+            <h1>Fetching JSON Data</h1>
+
+            <div class="concept-box">
+                <h2>Most Common Format</h2>
+                <p>What type of data is commonly received from a fetch request to an API? <span class="highlight">JSON</span></p>
+            </div>
+
+            <div class="info-box">
+                <h3>Common JSON Data Types</h3>
+                <p>In our web apps, we need some common data like:</p>
+                <p>• Weather data</p>
+                <p>• Professions list data</p>
+                <p>• Country names list</p>
+                <p>• Country code or country flag icons/images</p>
+                <p>Using these data we can make our app <span class="highlight">more informative and interactive</span>.</p>
+            </div>
+
+            <h3>Example: Fetching Weather Data</h3>
+            <div class="code-box">
+                <code>
+<span class="function">fetch</span>(<span class="string">'https://api.weather.com/current'</span>)
+  .<span class="function">then</span>(<span class="keyword">response</span> => response.<span class="function">json</span>())
+  .<span class="function">then</span>(<span class="keyword">weather</span> => {
+    <span class="keyword">console</span>.<span class="function">log</span>(<span class="string">`Temperature: ${weather.temp}°F`</span>);
+    <span class="keyword">console</span>.<span class="function">log</span>(<span class="string">`Conditions: ${weather.conditions}`</span>);
+  });
+                </code>
+            </div>
+
+            <div class="success-box">
+                <h3>✓ Why JSON?</h3>
+                <p>JSON (JavaScript Object Notation) is:</p>
+                <p>• Easy to parse in JavaScript</p>
+                <p>• Lightweight and efficient</p>
+                <p>• Human-readable</p>
+                <p>• Universal standard for APIs</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 6: Interactive JSON Demo -->
+    <div class="slide-container">
+        <div class="slide-content">
+            <h1>Demo: Fetching JSON Data</h1>
+
+            <div class="interactive-demo">
+                <h3>Random User API</h3>
+                <p>Click to fetch random user data from a real API:</p>
+                
+                <div style="text-align: center; margin: 1rem 0;">
+                    <button class="demo-button" onclick="fetchRandomUser()">Fetch Random User</button>
+                    <button class="demo-button" onclick="clearUserData()">Clear</button>
+                </div>
+
+                <div class="demo-output" id="user-output">
+                    <p style="color: #999; font-style: italic;">Click "Fetch Random User" to get data from https://randomuser.me/api/</p>
+                </div>
+            </div>
+
+            <div class="concept-box">
+                <p><strong>API Used:</strong> RandomUser.me - A free, open-source API for generating random user data</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 7: Fetching Images -->
+    <div class="slide-container">
+        <div class="slide-content">
+            <h1>Fetching Images</h1>
+
+            <div class="concept-box">
+                <h2>Visual Resources</h2>
+                <p>Images are some <span class="highlight">frequently fetched resources</span>.</p>
+                <p>You might use fetch to load images statically or <strong>dynamically based on user actions</strong>, and display them on your web app.</p>
+            </div>
+
+            <h3>Example: Fetching an Image</h3>
+            <div class="code-box">
+                <code>
+<span class="function">fetch</span>(<span class="string">'https://example.com/image.jpg'</span>)
+  .<span class="function">then</span>(<span class="keyword">response</span> => response.<span class="function">blob</span>())
+  .<span class="function">then</span>(<span class="keyword">blob</span> => {
+    <span class="keyword">const</span> imageUrl = <span class="keyword">URL</span>.<span class="function">createObjectURL</span>(blob);
+    <span class="keyword">const</span> img = <span class="keyword">document</span>.<span class="function">createElement</span>(<span class="string">'img'</span>);
+    img.src = imageUrl;
+    <span class="keyword">document</span>.body.<span class="function">appendChild</span>(img);
+  });
+                </code>
+            </div>
+
+            <div class="info-box">
+                <h3>Common Image Use Cases</h3>
+                <p>• Profile pictures from user APIs</p>
+                <p>• Product images in e-commerce</p>
+                <p>• Country flags and icons</p>
+                <p>• Gallery images loaded on demand</p>
+                <p>• Thumbnails and previews</p>
+            </div>
+
+            <div class="success-box">
+                <h3>✓ Image Formats</h3>
+                <p>Can fetch: JPG, PNG, GIF, WebP, SVG, and more!</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 8: Interactive Image Demo -->
+    <div class="slide-container">
+        <div class="slide-content">
+            <h1>Demo: Fetching Images</h1>
+
+            <div class="interactive-demo">
+                <h3>Random Dog Images</h3>
+                <p>Click to fetch random dog images from a real API:</p>
+                
+                <div style="text-align: center; margin: 1rem 0;">
+                    <button class="demo-button" onclick="fetchDogImage()">Fetch Dog Image</button>
+                    <button class="demo-button" onclick="clearDogImages()">Clear</button>
+                </div>
+
+                <div class="demo-output" id="dog-output">
+                    <p style="color: #999; font-style: italic;">Click "Fetch Dog Image" to load images from https://dog.ceo/api/</p>
+                </div>
+            </div>
+
+            <div class="concept-box">
+                <p><strong>API Used:</strong> Dog CEO's Dog API - Random dog images</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 9: Fetching Text Files -->
+    <div class="slide-container">
+        <div class="slide-content">
+            <h1>Fetching Text Files</h1>
+
+            <div class="concept-box">
+                <h2>Plain Text Resources</h2>
+                <p>Text files are another type of resource often fetched.</p>
+                <p>This could include <span class="highlight">configuration files</span>, <span class="highlight">log files</span>, or even entire documents that you want to display on your webpage.</p>
+            </div>
+
+            <h3>Example: Fetching a Text File</h3>
+            <div class="code-box">
+                <code>
+<span class="function">fetch</span>(<span class="string">'https://example.com/config.txt'</span>)
+  .<span class="function">then</span>(<span class="keyword">response</span> => response.<span class="function">text</span>())
+  .<span class="function">then</span>(<span class="keyword">text</span> => {
+    <span class="keyword">console</span>.<span class="function">log</span>(text);
+    <span class="keyword">document</span>.<span class="function">getElementById</span>(<span class="string">'output'</span>).textContent = text;
+  });
+                </code>
+            </div>
+
+            <div class="info-box">
+                <h3>Common Text File Use Cases</h3>
+                <p>• Configuration files (.txt, .conf)</p>
+                <p>• Log files for debugging</p>
+                <p>• README documentation</p>
+                <p>• CSV data files</p>
+                <p>• Plain text documents</p>
+                <p>• Code files (.js, .css, .html)</p>
+            </div>
+
+            <div class="warning-box">
+                <h3>Note</h3>
+                <p>Use <span class="inline-code">.text()</span> instead of <span class="inline-code">.json()</span> for plain text files!</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 10: Interactive Text Demo -->
+    <div class="slide-container">
+        <div class="slide-content">
+            <h1>Demo: Fetching Text Content</h1>
+
+            <div class="interactive-demo">
+                <h3>Random Quote</h3>
+                <p>Click to fetch a random inspirational quote:</p>
+                
+                <div style="text-align: center; margin: 1rem 0;">
+                    <button class="demo-button" onclick="fetchQuote()">Fetch Quote</button>
+                    <button class="demo-button" onclick="clearQuote()">Clear</button>
+                </div>
+
+                <div class="demo-output" id="quote-output">
+                    <p style="color: #999; font-style: italic;">Click "Fetch Quote" to load a random quote</p>
+                </div>
+            </div>
+
+            <div class="concept-box">
+                <p><strong>API Used:</strong> Quotable - Random quotes API</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 11: Audio and Video -->
+    <div class="slide-container">
+        <div class="slide-content">
+            <h1>Fetching Audio and Video</h1>
+
+            <div class="concept-box">
+                <h2>Media Resources</h2>
+                <p>In some cases, you might fetch <span class="highlight">audio or video files</span>.</p>
+                <p>The Fetch API can handle these types of resources as well, allowing you to work with a <strong>wide variety of data types</strong>.</p>
+            </div>
+
+            <h3>Example: Fetching Audio</h3>
+            <div class="code-box">
+                <code>
+<span class="function">fetch</span>(<span class="string">'https://example.com/audio.mp3'</span>)
+  .<span class="function">then</span>(<span class="keyword">response</span> => response.<span class="function">blob</span>())
+  .<span class="function">then</span>(<span class="keyword">blob</span> => {
+    <span class="keyword">const</span> audioUrl = <span class="keyword">URL</span>.<span class="function">createObjectURL</span>(blob);
+    <span class="keyword">const</span> audio = <span class="keyword">new</span> <span class="function">Audio</span>(audioUrl);
+    audio.<span class="function">play</span>();
+  });
+                </code>
+            </div>
+
+            <h3>Example: Fetching Video</h3>
+            <div class="code-box">
+                <code>
+<span class="function">fetch</span>(<span class="string">'https://example.com/video.mp4'</span>)
+  .<span class="function">then</span>(<span class="keyword">response</span> => response.<span class="function">blob</span>())
+  .<span class="function">then</span>(<span class="keyword">blob</span> => {
+    <span class="keyword">const</span> videoUrl = <span class="keyword">URL</span>.<span class="function">createObjectURL</span>(blob);
+    <span class="keyword">const</span> video = <span class="keyword">document</span>.<span class="function">createElement</span>(<span class="string">'video'</span>);
+    video.src = videoUrl;
+    video.controls = <span class="keyword">true</span>;
+    <span class="keyword">document</span>.body.<span class="function">appendChild</span>(video);
+  });
+                </code>
+            </div>
+
+            <div class="info-box">
+                <h3>Use Cases</h3>
+                <p>• Music streaming services</p>
+                <p>• Podcast players</p>
+                <p>• Video streaming platforms</p>
+                <p>• Audio previews</p>
+                <p>• Video tutorials</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 12: Response Methods -->
+    <div class="slide-container">
+        <div class="slide-content">
+            <h1>Response Methods</h1>
+
+            <div class="concept-box">
+                <h2>Different Data Types</h2>
+                <p>The Response object has different methods for different data types:</p>
+            </div>
+
+            <div class="content-grid">
+                <div class="resource-card">
+                    <h4>.json()</h4>
+                    <p>For JSON data (most common)</p>
+                    <div class="code-box">
+                        <code>response.<span class="function">json</span>()</code>
+                    </div>
+                    <p>Returns: JavaScript object/array</p>
+                </div>
+
+                <div class="resource-card">
+                    <h4>.text()</h4>
+                    <p>For plain text</p>
+                    <div class="code-box">
+                        <code>response.<span class="function">text</span>()</code>
+                    </div>
+                    <p>Returns: String</p>
+                </div>
+
+                <div class="resource-card">
+                    <h4>.blob()</h4>
+                    <p>For images, audio, video</p>
+                    <div class="code-box">
+                        <code>response.<span class="function">blob</span>()</code>
+                    </div>
+                    <p>Returns: Blob (binary data)</p>
+                </div>
+
+                <div class="resource-card">
+                    <h4>.arrayBuffer()</h4>
+                    <p>For raw binary data</p>
+                    <div class="code-box">
+                        <code>response.<span class="function">arrayBuffer</span>()</code>
+                    </div>
+                    <p>Returns: ArrayBuffer</p>
+                </div>
+
+                <div class="resource-card">
+                    <h4>.formData()</h4>
+                    <p>For form data</p>
+                    <div class="code-box">
+                        <code>response.<span class="function">formData</span>()</code>
+                    </div>
+                    <p>Returns: FormData object</p>
+                </div>
+            </div>
+
+            <div class="success-box">
+                <h3>✓ Choose the Right Method</h3>
+                <p>Use the appropriate response method based on the type of data you're fetching!</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 13: Error Handling -->
+    <div class="slide-container">
+        <div class="slide-content">
+            <h1>Error Handling with Fetch</h1>
+
+            <div class="concept-box">
+                <h2>Always Handle Errors</h2>
+                <p>Network requests can fail for many reasons. Always include error handling!</p>
+            </div>
+
+            <h3>Complete Example with Error Handling</h3>
+            <div class="code-box">
+                <code>
+<span class="function">fetch</span>(<span class="string">'https://api.example.com/data'</span>)
+  .<span class="function">then</span>(<span class="keyword">response</span> => {
+    <span class="comment">// Check if response is OK (status 200-299)</span>
+    <span class="keyword">if</span> (!response.ok) {
+      <span class="keyword">throw new</span> <span class="function">Error</span>(<span class="string">`HTTP error! status: ${response.status}`</span>);
+    }
+    <span class="keyword">return</span> response.<span class="function">json</span>();
+  })
+  .<span class="function">then</span>(<span class="keyword">data</span> => {
+    <span class="keyword">console</span>.<span class="function">log</span>(<span class="string">'Success!'</span>, data);
+  })
+  .<span class="function">catch</span>(<span class="keyword">error</span> => {
+    <span class="comment">// Handle network errors, HTTP errors, parse errors</span>
+    <span class="keyword">console</span>.<span class="function">error</span>(<span class="string">'Fetch error:'</span>, error);
+  });
+                </code>
+            </div>
+
+            <div class="warning-box">
+                <h3>⚠️ Common Errors</h3>
+                <p>• Network connection failed</p>
+                <p>• Server returned error status (404, 500, etc.)</p>
+                <p>• Invalid JSON parsing</p>
+                <p>• CORS policy blocking</p>
+                <p>• Request timeout</p>
+            </div>
+
+            <div class="info-box">
+                <h3>Best Practices</h3>
+                <p>✓ Always check <span class="inline-code">response.ok</span></p>
+                <p>✓ Include <span class="inline-code">.catch()</span> block</p>
+                <p>✓ Provide user feedback on errors</p>
+                <p>✓ Log errors for debugging</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 14: Benefits of Fetch API -->
+    <div class="slide-container">
+        <div class="slide-content">
+            <h1>Why Use the Fetch API?</h1>
+
+            <div class="success-box">
+                <h3>✓ Advantages</h3>
+            </div>
+
+            <div class="content-grid">
+                <div class="resource-card">
+                    <h4>Modern & Clean</h4>
+                    <p>• Promise-based (cleaner than callbacks)</p>
+                    <p>• Works with async/await</p>
+                    <p>• More readable code</p>
+                    <p>• Industry standard</p>
+                </div>
+
+                <div class="resource-card">
+                    <h4>Powerful</h4>
+                    <p>• Handle any data type</p>
+                    <p>• Custom headers and options</p>
+                    <p>• Supports all HTTP methods</p>
+                    <p>• Stream responses</p>
+                </div>
+
+                <div class="resource-card">
+                    <h4>Built-in</h4>
+                    <p>• Native browser API</p>
+                    <p>• No external libraries needed</p>
+                    <p>• Well-supported</p>
+                    <p>• Lightweight</p>
+                </div>
+
+                <div class="resource-card">
+                    <h4>Flexible</h4>
+                    <p>• Works with any API</p>
+                    <p>• RESTful API support</p>
+                    <p>• CORS handling</p>
+                    <p>• Custom configurations</p>
+                </div>
+            </div>
+
+            <div class="info-box">
+                <h3>Real-World Impact</h3>
+                <p>Thanks to Fetch API, we can get these resources from the network and make our apps <span class="highlight">more informative and interactive</span>!</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 15: Key Takeaways -->
+    <div class="slide-container">
+        <div class="slide-content">
+            <h1>Key Takeaways</h1>
+
+            <div class="concept-box">
+                <h2>The Fetch API</h2>
+                <p>The Fetch API is a modern way to <span class="highlight">make network requests</span> in JavaScript.</p>
+            </div>
+
+            <div class="success-box">
+                <h3>✓ Essential Facts</h3>
+                <p>• Uses <span class="inline-code">fetch()</span> method</p>
+                <p>• Returns a Promise (asynchronous)</p>
+                <p>• Default method is GET</p>
+                <p>• Response needs to be parsed (.json(), .text(), .blob())</p>
+                <p>• Always include error handling</p>
+            </div>
+
+            <div class="info-box">
+                <h3>Common Resources Fetched</h3>
+                <p>1. <strong>JSON data</strong> - API responses (most common)</p>
+                <p>2. <strong>Images</strong> - Photos, icons, flags</p>
+                <p>3. <strong>Text files</strong> - Configuration, logs, documents</p>
+                <p>4. <strong>HTML content</strong> - Templates, partials</p>
+                <p>5. <strong>Audio/Video</strong> - Media files</p>
+            </div>
+
+            <div class="concept-box">
+                <h3>Basic Pattern</h3>
+                <div class="code-box">
+                    <code>
+<span class="function">fetch</span>(url)
+  .<span class="function">then</span>(<span class="keyword">response</span> => response.<span class="function">json</span>())
+  .<span class="function">then</span>(<span class="keyword">data</span> => <span class="comment">/* use data */</span>)
+  .<span class="function">catch</span>(<span class="keyword">error</span> => <span class="comment">/* handle error */</span>);
+                    </code>
+                </div>
+            </div>
+
+            <div class="warning-box">
+                <h3>Remember</h3>
+                <p>The Fetch API makes it easy to create <span class="highlight">informative and interactive</span> web applications by retrieving data from servers and APIs!</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Navigation -->
+    <div class="navigation">
+        <button class="nav-button" id="prevBtn" onclick="changeSlide(-1)">← Previous</button>
+        <div class="slide-counter">
+            <span id="currentSlide">1</span> / <span id="totalSlides">15</span>
+        </div>
+        <button class="nav-button" id="nextBtn" onclick="changeSlide(1)">Next →</button>
+    </div>
+
+    <script>
+        let currentSlide = 1;
+        const totalSlides = document.querySelectorAll('.slide-container').length;
+        
+        document.getElementById('totalSlides').textContent = totalSlides;
+        
+        function showSlide(n) {
+            const slides = document.querySelectorAll('.slide-container');
+            
+            if (n > totalSlides) {
+                currentSlide = totalSlides;
+            }
+            if (n < 1) {
+                currentSlide = 1;
+            }
+            
+            slides.forEach(slide => slide.classList.remove('active'));
+            slides[currentSlide - 1].classList.add('active');
+            
+            document.getElementById('currentSlide').textContent = currentSlide;
+            
+            // Update button states
+            document.getElementById('prevBtn').disabled = currentSlide === 1;
+            document.getElementById('nextBtn').disabled = currentSlide === totalSlides;
+            
+            // Scroll to top of page
+            window.scrollTo(0, 0);
+        }
+        
+        function changeSlide(direction) {
+            currentSlide += direction;
+            showSlide(currentSlide);
+        }
+        
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowLeft') {
+                changeSlide(-1);
+            } else if (e.key === 'ArrowRight') {
+                changeSlide(1);
+            }
+        });
+        
+        // Demo 1: Fetch Random User
+        function fetchRandomUser() {
+            const output = document.getElementById('user-output');
+            
+            output.innerHTML = `
+                <div style="color: #007bff;">
+                    <div class="loading-spinner"></div>
+                    <span style="vertical-align: middle;">Fetching user data...</span>
+                </div>
+            `;
+            
+            fetch('https://randomuser.me/api/')
+                .then(response => response.json())
+                .then(data => {
+                    const user = data.results[0];
+                    output.innerHTML = `
+                        <div style="display: flex; align-items: center; gap: 1.5rem;">
+                            <img src="${user.picture.large}" style="border-radius: 50%; width: 100px; height: 100px; border: 3px solid #881518;">
+                            <div>
+                                <h3 style="color: #881518; margin-bottom: 0.5rem;">${user.name.first} ${user.name.last}</h3>
+                                <p style="margin: 0.25rem 0;"><strong>Email:</strong> ${user.email}</p>
+                                <p style="margin: 0.25rem 0;"><strong>Location:</strong> ${user.location.city}, ${user.location.country}</p>
+                                <p style="margin: 0.25rem 0;"><strong>Phone:</strong> ${user.phone}</p>
+                            </div>
+                        </div>
+                    `;
+                })
+                .catch(error => {
+                    output.innerHTML = `
+                        <div style="color: #dc3545;">
+                            <strong>✗ Error:</strong> ${error.message}
+                        </div>
+                    `;
+                });
+        }
+        
+        function clearUserData() {
+            document.getElementById('user-output').innerHTML = '<p style="color: #999; font-style: italic;">Click "Fetch Random User" to get data</p>';
+        }
+        
+        // Demo 2: Fetch Dog Images
+        let dogCount = 0;
+        
+        function fetchDogImage() {
+            const output = document.getElementById('dog-output');
+            
+            if (dogCount === 0) {
+                output.innerHTML = '<div style="color: #007bff;"><div class="loading-spinner"></div><span style="vertical-align: middle;">Fetching dog image...</span></div>';
+            }
+            
+            fetch('https://dog.ceo/api/breeds/image/random')
+                .then(response => response.json())
+                .then(data => {
+                    if (dogCount === 0) {
+                        output.innerHTML = '';
+                    }
+                    
+                    const img = document.createElement('img');
+                    img.src = data.message;
+                    img.className = 'fetched-image';
+                    img.style.animation = 'fadeIn 0.5s ease-in';
+                    output.appendChild(img);
+                    
+                    dogCount++;
+                })
+                .catch(error => {
+                    output.innerHTML = `<div style="color: #dc3545;"><strong>✗ Error:</strong> ${error.message}</div>`;
+                });
+        }
+        
+        function clearDogImages() {
+            document.getElementById('dog-output').innerHTML = '<p style="color: #999; font-style: italic;">Click "Fetch Dog Image" to load images</p>';
+            dogCount = 0;
+        }
+        
+        // Demo 3: Fetch Quote
+        function fetchQuote() {
+            const output = document.getElementById('quote-output');
+            
+            output.innerHTML = `
+                <div style="color: #007bff;">
+                    <div class="loading-spinner"></div>
+                    <span style="vertical-align: middle;">Fetching quote...</span>
+                </div>
+            `;
+            
+            fetch('https://api.quotable.io/random')
+                .then(response => response.json())
+                .then(data => {
+                    output.innerHTML = `
+                        <div style="font-style: italic; font-size: 1.3rem; color: #333; line-height: 1.8;">
+                            "${data.content}"
+                        </div>
+                        <div style="text-align: right; margin-top: 1rem; color: #881518; font-weight: bold;">
+                            — ${data.author}
+                        </div>
+                    `;
+                })
+                .catch(error => {
+                    output.innerHTML = `
+                        <div style="color: #dc3545;">
+                            <strong>✗ Error:</strong> ${error.message}
+                        </div>
+                    `;
+                });
+        }
+        
+        function clearQuote() {
+            document.getElementById('quote-output').innerHTML = '<p style="color: #999; font-style: italic;">Click "Fetch Quote" to load a random quote</p>';
+        }
+        
+        // Initialize
+        showSlide(currentSlide);
+    </script>
+</body>
+</html>
