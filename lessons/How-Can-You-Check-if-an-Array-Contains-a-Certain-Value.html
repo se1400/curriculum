@@ -1,0 +1,1213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Array includes() Method Presentation</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #f5f5f5 0%, #ffffff 100%);
+            color: #2d2d2d;
+            overflow-x: hidden;
+        }
+
+        .slide-container {
+            min-height: 100vh;
+            padding: 2rem 2rem 120px 2rem;
+            display: none;
+        }
+
+        .slide-container.active {
+            display: block;
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .slide-content {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            color: #881518;
+            font-size: clamp(1.8rem, 4vw, 3rem);
+            margin-bottom: 2rem;
+            border-bottom: 3px solid #881518;
+            padding-bottom: 1rem;
+        }
+
+        h2 {
+            color: #a81c1f;
+            font-size: clamp(1.4rem, 3vw, 2rem);
+            margin: 2rem 0 1rem 0;
+        }
+
+        h3 {
+            color: #c8575a;
+            font-size: clamp(1.2rem, 2.5vw, 1.5rem);
+            margin: 1.5rem 0 1rem 0;
+        }
+
+        p, li {
+            font-size: clamp(1rem, 2vw, 1.2rem);
+            line-height: 1.8;
+            margin-bottom: 1rem;
+            color: #333333;
+        }
+
+        .content-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+
+        @media (min-width: 768px) {
+            .content-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        .concept-box {
+            background: rgba(136, 21, 24, 0.05);
+            border-left: 4px solid #881518;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin: 1.5rem 0;
+        }
+
+        .code-box {
+            background: #f8f8f8;
+            border: 1px solid #d0d0d0;
+            border-radius: 8px;
+            padding: 1.5rem;
+            overflow-x: auto;
+            margin: 1rem 0;
+        }
+
+        code {
+            font-family: 'Courier New', Courier, monospace;
+            font-size: clamp(0.85rem, 1.5vw, 1rem);
+            color: #0066cc;
+        }
+
+        .keyword { color: #881518; }
+        .string { color: #2a8d2a; }
+        .function { color: #795e26; }
+        .comment { color: #008000; }
+        .property { color: #0066cc; }
+
+        .interactive-demo {
+            background: rgba(136, 21, 24, 0.03);
+            border: 2px dashed #881518;
+            border-radius: 8px;
+            padding: 2rem;
+            margin: 2rem 0;
+        }
+
+        .demo-button {
+            background: #881518;
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1.1rem;
+            font-weight: 600;
+            transition: all 0.3s;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            margin: 0.5rem;
+        }
+
+        .demo-button:hover {
+            background: #a81c1f;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(136, 21, 24, 0.3);
+        }
+
+        .demo-button.true-btn {
+            background: #28a745;
+        }
+
+        .demo-button.true-btn:hover {
+            background: #218838;
+        }
+
+        .demo-button.false-btn {
+            background: #dc3545;
+        }
+
+        .demo-button.false-btn:hover {
+            background: #c82333;
+        }
+
+        .demo-output {
+            background: white;
+            border: 2px solid #881518;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1rem 0;
+            min-height: 80px;
+            font-family: 'Courier New', Courier, monospace;
+        }
+
+        .demo-input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid #881518;
+            border-radius: 8px;
+            font-size: 1rem;
+            margin: 0.5rem 0;
+            font-family: 'Courier New', Courier, monospace;
+        }
+
+        ul {
+            margin-left: 2rem;
+        }
+
+        .navigation {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(to top, #ffffff, rgba(255, 255, 255, 0.98));
+            padding: 1.5rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+            border-top: 2px solid #e0e0e0;
+        }
+
+        .nav-button {
+            background: #881518;
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: clamp(0.9rem, 2vw, 1.1rem);
+            font-weight: 600;
+            transition: all 0.3s;
+            min-width: 100px;
+        }
+
+        .nav-button:hover:not(:disabled) {
+            background: #a81c1f;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(136, 21, 24, 0.3);
+        }
+
+        .nav-button:disabled {
+            background: #cccccc;
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        .slide-counter {
+            color: #881518;
+            font-weight: 600;
+            font-size: clamp(1rem, 2vw, 1.2rem);
+        }
+
+        @media (max-width: 768px) {
+            .navigation {
+                padding: 1rem;
+            }
+
+            .nav-button {
+                padding: 0.75rem 1rem;
+                min-width: 80px;
+            }
+        }
+
+        .highlight {
+            background: rgba(136, 21, 24, 0.15);
+            padding: 0.2rem 0.4rem;
+            border-radius: 3px;
+            font-weight: 600;
+        }
+
+        .inline-code {
+            background: #f0f0f0;
+            padding: 0.2rem 0.5rem;
+            border-radius: 3px;
+            font-family: 'Courier New', Courier, monospace;
+            color: #881518;
+            font-size: 0.9em;
+        }
+
+        .success-box {
+            background: linear-gradient(135deg, #d4edda, #c3e6cb);
+            border: 2px solid #28a745;
+            border-left: 6px solid #1e7e34;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+        }
+
+        .success-box h3 {
+            color: #1e7e34;
+            margin-top: 0;
+        }
+
+        .info-box {
+            background: linear-gradient(135deg, #e3f2fd, #bbdefb);
+            border: 2px solid #2196f3;
+            border-left: 6px solid #1976d2;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+        }
+
+        .info-box h3 {
+            color: #1565c0;
+            margin-top: 0;
+        }
+
+        .warning-box {
+            background: linear-gradient(135deg, #fff3cd, #ffe69c);
+            border: 2px solid #ffc107;
+            border-left: 6px solid #ff9800;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+        }
+
+        .warning-box h3 {
+            color: #ff6f00;
+            margin-top: 0;
+        }
+
+        .result-badge {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 1.2rem;
+            margin: 0.5rem;
+        }
+
+        .result-true {
+            background: #28a745;
+            color: white;
+        }
+
+        .result-false {
+            background: #dc3545;
+            color: white;
+        }
+
+        .array-visual {
+            display: flex;
+            gap: 0.5rem;
+            margin: 1rem 0;
+            flex-wrap: wrap;
+        }
+
+        .array-item {
+            background: #f8f8f8;
+            border: 2px solid #881518;
+            border-radius: 5px;
+            padding: 1rem;
+            min-width: 80px;
+            text-align: center;
+            font-family: 'Courier New', Courier, monospace;
+            font-weight: bold;
+        }
+
+        .array-item.highlight {
+            background: #ffd43b;
+            border-color: #ff9800;
+        }
+
+        .array-item.found {
+            background: #d4edda;
+            border-color: #28a745;
+        }
+
+        .array-item.not-checked {
+            opacity: 0.3;
+        }
+
+        .comparison-card {
+            background: white;
+            border: 2px solid #881518;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1rem 0;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .comparison-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(136, 21, 24, 0.3);
+        }
+
+        .comparison-card h4 {
+            color: #881518;
+            margin-bottom: 0.5rem;
+            font-size: 1.3rem;
+        }
+
+        .step-number {
+            display: inline-block;
+            background: #881518;
+            color: white;
+            width: 2.5rem;
+            height: 2.5rem;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 2.5rem;
+            font-weight: bold;
+            margin-right: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <!-- Slide 1: Introduction -->
+    <div class="slide-container active">
+        <div class="slide-content">
+            <h1>Array includes() Method</h1>
+            
+            <div class="concept-box">
+                <h2>Checking Array Contents</h2>
+                <p>In JavaScript, the <span class="inline-code">includes()</span> method is a <span class="highlight">simple and efficient way</span> to check if an array contains a specific value.</p>
+            </div>
+
+            <div class="info-box">
+                <h3>What It Returns</h3>
+                <p>This method returns a <span class="highlight">boolean value</span>:</p>
+                <p>• <span class="result-badge result-true">true</span> if the array contains the specified element</p>
+                <p>• <span class="result-badge result-false">false</span> otherwise</p>
+            </div>
+
+            <div class="success-box">
+                <h3>✓ When to Use</h3>
+                <p>The <span class="inline-code">includes()</span> method is particularly useful when you need to <span class="highlight">quickly verify the presence of an element</span> in an array without needing to know its exact position.</p>
+            </div>
+
+            <h3>Basic Syntax</h3>
+            <div class="code-box">
+                <code>
+<span class="keyword">array</span>.<span class="function">includes</span>(searchElement)
+<span class="keyword">array</span>.<span class="function">includes</span>(searchElement, fromIndex)
+                </code>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 2: Basic Usage -->
+    <div class="slide-container">
+        <div class="slide-content">
+            <h1>Basic Usage</h1>
+
+            <div class="concept-box">
+                <h2>Simple Example</h2>
+                <p>Let's start with an example of how to use the <span class="inline-code">includes()</span> method:</p>
+            </div>
+
+            <div class="code-box">
+                <code>
+<span class="keyword">let</span> fruits = [<span class="string">"apple"</span>, <span class="string">"banana"</span>, <span class="string">"orange"</span>, <span class="string">"mango"</span>];
+
+<span class="keyword">console</span>.<span class="function">log</span>(fruits.<span class="function">includes</span>(<span class="string">"banana"</span>)); <span class="comment">// true</span>
+<span class="keyword">console</span>.<span class="function">log</span>(fruits.<span class="function">includes</span>(<span class="string">"grape"</span>));  <span class="comment">// false</span>
+                </code>
+            </div>
+
+            <div class="info-box">
+                <h3>Explanation</h3>
+                <p>In this example, we have an array of fruits.</p>
+                <p>• We use the <span class="inline-code">includes()</span> method to check if <span class="inline-code">"banana"</span> is in the array. It returns <span class="result-badge result-true">true</span> because banana is indeed present.</p>
+                <p>• We then check for <span class="inline-code">"grape"</span>, which returns <span class="result-badge result-false">false</span> because it's not in the array.</p>
+            </div>
+
+            <h3>Visual Representation</h3>
+            <div class="array-visual">
+                <div class="array-item">apple</div>
+                <div class="array-item found">banana ✓</div>
+                <div class="array-item">orange</div>
+                <div class="array-item">mango</div>
+            </div>
+            <p style="text-align: center; color: #666;">Searching for "banana" → <span class="result-badge result-true">true</span></p>
+        </div>
+    </div>
+
+    <!-- Slide 3: Case Sensitivity -->
+    <div class="slide-container">
+        <div class="slide-content">
+            <h1>Case Sensitivity</h1>
+
+            <div class="warning-box">
+                <h3>⚠️ Important</h3>
+                <p>The <span class="inline-code">includes()</span> method is <span class="highlight">case-sensitive</span> when dealing with strings.</p>
+                <p>This means that <span class="inline-code">"Banana"</span> with a capital B and <span class="inline-code">"banana"</span> with all lowercase letters are considered <strong>different values</strong>.</p>
+            </div>
+
+            <h3>Example</h3>
+            <div class="code-box">
+                <code>
+<span class="keyword">let</span> fruits = [<span class="string">"apple"</span>, <span class="string">"banana"</span>, <span class="string">"orange"</span>];
+
+<span class="keyword">console</span>.<span class="function">log</span>(fruits.<span class="function">includes</span>(<span class="string">"banana"</span>)); <span class="comment">// true</span>
+<span class="keyword">console</span>.<span class="function">log</span>(fruits.<span class="function">includes</span>(<span class="string">"Banana"</span>)); <span class="comment">// false</span>
+                </code>
+            </div>
+
+            <div class="info-box">
+                <h3>Explanation</h3>
+                <p>In this case, <span class="inline-code">"banana"</span> (all in lowercase) is found in the array, but <span class="inline-code">"Banana"</span> (with the first letter capitalized) is not, so the second <span class="inline-code">includes()</span> call returns <span class="result-badge result-false">false</span>.</p>
+            </div>
+
+            <div class="content-grid">
+                <div class="comparison-card">
+                    <h4>✓ Found</h4>
+                    <div class="code-box">
+                        <code><span class="string">"banana"</span> === <span class="string">"banana"</span></code>
+                    </div>
+                    <p><span class="result-badge result-true">true</span></p>
+                </div>
+
+                <div class="comparison-card">
+                    <h4>✗ Not Found</h4>
+                    <div class="code-box">
+                        <code><span class="string">"banana"</span> === <span class="string">"Banana"</span></code>
+                    </div>
+                    <p><span class="result-badge result-false">false</span></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 4: Interactive Case Sensitivity Demo -->
+    <div class="slide-container">
+        <div class="slide-content">
+            <h1>Demo: Case Sensitivity</h1>
+
+            <div class="interactive-demo">
+                <h3>Test Case Sensitivity</h3>
+                <p>Array: <span class="inline-code">["apple", "banana", "orange", "mango"]</span></p>
+                
+                <div style="margin: 1rem 0;">
+                    <button class="demo-button" onclick="testCase('banana')">Test "banana"</button>
+                    <button class="demo-button" onclick="testCase('Banana')">Test "Banana"</button>
+                    <button class="demo-button" onclick="testCase('BANANA')">Test "BANANA"</button>
+                    <button class="demo-button" onclick="testCase('BaNaNa')">Test "BaNaNa"</button>
+                </div>
+
+                <div class="demo-output" id="case-output">
+                    <p style="color: #999;">Click a button to test case sensitivity...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 5: Starting Position Parameter -->
+    <div class="slide-container">
+        <div class="slide-content">
+            <h1>Starting Position Parameter</h1>
+
+            <div class="concept-box">
+                <h2>Optional Second Parameter</h2>
+                <p>The <span class="inline-code">includes()</span> method can also accept an <span class="highlight">optional second parameter</span> that specifies the position in the array to start the search.</p>
+                <p>This is useful if you want to check for an element's presence in a specific part of the array.</p>
+            </div>
+
+            <h3>Syntax</h3>
+            <div class="code-box">
+                <code>
+<span class="keyword">array</span>.<span class="function">includes</span>(searchElement, fromIndex)
+                </code>
+            </div>
+
+            <h3>Example</h3>
+            <div class="code-box">
+                <code>
+<span class="keyword">let</span> numbers = [<span class="keyword">10</span>, <span class="keyword">20</span>, <span class="keyword">30</span>, <span class="keyword">40</span>, <span class="keyword">50</span>, <span class="keyword">30</span>, <span class="keyword">60</span>];
+
+<span class="keyword">console</span>.<span class="function">log</span>(numbers.<span class="function">includes</span>(<span class="keyword">30</span>, <span class="keyword">3</span>)); <span class="comment">// true</span>
+<span class="keyword">console</span>.<span class="function">log</span>(numbers.<span class="function">includes</span>(<span class="keyword">30</span>, <span class="keyword">4</span>)); <span class="comment">// true</span>
+                </code>
+            </div>
+
+            <div class="info-box">
+                <h3>Explanation</h3>
+                <p>For the first <span class="inline-code">console.log</span>, we are looking for the number <span class="inline-code">30</span> starting at <strong>index 3</strong>. In this case, there is a number <span class="inline-code">30</span> that appears after index 3, so the <span class="inline-code">includes()</span> method returns <span class="result-badge result-true">true</span>.</p>
+                <p>The same is true for the second <span class="inline-code">console.log</span>. We are looking for the number <span class="inline-code">30</span> starting at <strong>index 4</strong>. Since the number <span class="inline-code">30</span> does appear after that index, then it will return <span class="result-badge result-true">true</span>.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 6: Starting Position Visual -->
+    <div class="slide-container">
+        <div class="slide-content">
+            <h1>Starting Position Visualization</h1>
+
+            <div class="concept-box">
+                <h2>Array: [10, 20, 30, 40, 50, 30, 60]</h2>
+            </div>
+
+            <h3>Example 1: includes(30, 3)</h3>
+            <div class="array-visual">
+                <div class="array-item not-checked">10<br><small>index 0</small></div>
+                <div class="array-item not-checked">20<br><small>index 1</small></div>
+                <div class="array-item not-checked">30<br><small>index 2</small></div>
+                <div class="array-item highlight">40<br><small>index 3<br>START</small></div>
+                <div class="array-item">50<br><small>index 4</small></div>
+                <div class="array-item found">30 ✓<br><small>index 5<br>FOUND!</small></div>
+                <div class="array-item">60<br><small>index 6</small></div>
+            </div>
+            <p style="text-align: center; color: #666; margin-top: 1rem;">
+                Starts searching from index 3 → Finds 30 at index 5 → <span class="result-badge result-true">true</span>
+            </p>
+
+            <h3>Example 2: includes(30, 4)</h3>
+            <div class="array-visual">
+                <div class="array-item not-checked">10<br><small>index 0</small></div>
+                <div class="array-item not-checked">20<br><small>index 1</small></div>
+                <div class="array-item not-checked">30<br><small>index 2</small></div>
+                <div class="array-item not-checked">40<br><small>index 3</small></div>
+                <div class="array-item highlight">50<br><small>index 4<br>START</small></div>
+                <div class="array-item found">30 ✓<br><small>index 5<br>FOUND!</small></div>
+                <div class="array-item">60<br><small>index 6</small></div>
+            </div>
+            <p style="text-align: center; color: #666; margin-top: 1rem;">
+                Starts searching from index 4 → Finds 30 at index 5 → <span class="result-badge result-true">true</span>
+            </p>
+        </div>
+    </div>
+
+    <!-- Slide 7: Interactive Starting Position Demo -->
+    <div class="slide-container">
+        <div class="slide-content">
+            <h1>Demo: Starting Position</h1>
+
+            <div class="interactive-demo">
+                <h3>Interactive Starting Position Test</h3>
+                <p>Array: <span class="inline-code">[10, 20, 30, 40, 50, 30, 60]</span></p>
+                
+                <div style="margin: 1rem 0;">
+                    <label style="display: block; margin-bottom: 0.5rem;">Search for value:</label>
+                    <input type="number" id="search-value" class="demo-input" value="30" style="width: 200px;">
+                </div>
+
+                <div style="margin: 1rem 0;">
+                    <label style="display: block; margin-bottom: 0.5rem;">Start from index:</label>
+                    <input type="number" id="start-index" class="demo-input" value="0" min="0" max="6" style="width: 200px;">
+                </div>
+
+                <div style="text-align: center; margin: 1rem 0;">
+                    <button class="demo-button" onclick="testStartPosition()">Test includes()</button>
+                </div>
+
+                <div class="demo-output" id="position-output">
+                    <p style="color: #999;">Enter values and click "Test includes()" to see results...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 8: Type Checking -->
+    <div class="slide-container">
+        <div class="slide-content">
+            <h1>Strict Equality (Type Checking)</h1>
+
+            <div class="warning-box">
+                <h3>⚠️ Important</h3>
+                <p>It's worth noting that <span class="inline-code">includes()</span> uses the <span class="highlight">strict equality comparison (===)</span>, which means it can distinguish between different types.</p>
+            </div>
+
+            <h3>Example</h3>
+            <div class="code-box">
+                <code>
+<span class="keyword">let</span> mixedArray = [<span class="keyword">1</span>, <span class="string">"2"</span>, <span class="keyword">3</span>, <span class="string">"4"</span>, <span class="keyword">5</span>];
+
+<span class="keyword">console</span>.<span class="function">log</span>(mixedArray.<span class="function">includes</span>(<span class="keyword">2</span>));    <span class="comment">// false</span>
+<span class="keyword">console</span>.<span class="function">log</span>(mixedArray.<span class="function">includes</span>(<span class="string">"2"</span>));  <span class="comment">// true</span>
+                </code>
+            </div>
+
+            <div class="info-box">
+                <h3>Explanation</h3>
+                <p>In this case, the number <span class="inline-code">2</span> and the string <span class="inline-code">"2"</span> are considered <span class="highlight">different data types</span>.</p>
+                <p>So, the first <span class="inline-code">console.log</span> will return <span class="result-badge result-false">false</span>, while the second <span class="inline-code">console.log</span> will return <span class="result-badge result-true">true</span>.</p>
+            </div>
+
+            <div class="content-grid">
+                <div class="comparison-card">
+                    <h4>Number 2</h4>
+                    <div class="code-box">
+                        <code><span class="keyword">2</span> (number)</code>
+                    </div>
+                    <p>Type: number</p>
+                    <p><span class="result-badge result-false">false</span></p>
+                </div>
+
+                <div class="comparison-card">
+                    <h4>String "2"</h4>
+                    <div class="code-box">
+                        <code><span class="string">"2"</span> (string)</code>
+                    </div>
+                    <p>Type: string</p>
+                    <p><span class="result-badge result-true">true</span></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 9: Interactive Type Demo -->
+    <div class="slide-container">
+        <div class="slide-content">
+            <h1>Demo: Type Checking</h1>
+
+            <div class="interactive-demo">
+                <h3>Test Type Differences</h3>
+                <p>Array: <span class="inline-code">[1, "2", 3, "4", 5]</span></p>
+                
+                <div style="margin: 1rem 0;">
+                    <button class="demo-button" onclick="testType(2, 'number')">Search for 2 (number)</button>
+                    <button class="demo-button" onclick="testType('2', 'string')">Search for "2" (string)</button>
+                    <button class="demo-button" onclick="testType(3, 'number')">Search for 3 (number)</button>
+                    <button class="demo-button" onclick="testType('3', 'string')">Search for "3" (string)</button>
+                </div>
+
+                <div class="demo-output" id="type-output">
+                    <p style="color: #999;">Click a button to test type differences...</p>
+                </div>
+            </div>
+
+            <div class="concept-box" style="margin-top: 1rem;">
+                <p><strong>Remember:</strong> <span class="inline-code">includes()</span> uses <span class="inline-code">===</span> comparison, so types must match exactly!</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 10: Quiz Questions -->
+    <div class="slide-container">
+        <div class="slide-content">
+            <h1>Practice Questions</h1>
+
+            <div class="concept-box">
+                <h2>Test Your Understanding</h2>
+            </div>
+
+            <h3>Question 1</h3>
+            <div class="code-box">
+                <code>
+<span class="keyword">let</span> arr = [<span class="keyword">1</span>, <span class="keyword">2</span>, <span class="keyword">3</span>, <span class="keyword">4</span>, <span class="keyword">5</span>];
+<span class="keyword">console</span>.<span class="function">log</span>(arr.<span class="function">includes</span>(<span class="keyword">3</span>, <span class="keyword">3</span>));
+                </code>
+            </div>
+            <div class="interactive-demo">
+                <button class="demo-button true-btn" onclick="checkAnswer(1, false, true)">true</button>
+                <button class="demo-button false-btn" onclick="checkAnswer(1, false, false)">false</button>
+                <div class="demo-output" id="q1-output" style="margin-top: 1rem; display: none;"></div>
+            </div>
+
+            <h3>Question 2</h3>
+            <div class="code-box">
+                <code>
+<span class="keyword">let</span> arr = [<span class="string">"a"</span>, <span class="string">"b"</span>, <span class="string">"c"</span>, <span class="string">"d"</span>, <span class="string">"e"</span>];
+<span class="keyword">console</span>.<span class="function">log</span>(arr.<span class="function">includes</span>(<span class="string">"C"</span>));
+                </code>
+            </div>
+            <div class="interactive-demo">
+                <button class="demo-button true-btn" onclick="checkAnswer(2, false, true)">true</button>
+                <button class="demo-button false-btn" onclick="checkAnswer(2, false, false)">false</button>
+                <div class="demo-output" id="q2-output" style="margin-top: 1rem; display: none;"></div>
+            </div>
+
+            <h3>Question 3</h3>
+            <div class="code-box">
+                <code>
+<span class="keyword">let</span> arr = [<span class="keyword">1</span>, <span class="string">"2"</span>, <span class="keyword">3</span>, <span class="string">"4"</span>, <span class="keyword">5</span>];
+<span class="keyword">console</span>.<span class="function">log</span>(arr.<span class="function">includes</span>(<span class="string">"3"</span>));
+                </code>
+            </div>
+            <div class="interactive-demo">
+                <button class="demo-button true-btn" onclick="checkAnswer(3, false, true)">true</button>
+                <button class="demo-button false-btn" onclick="checkAnswer(3, false, false)">false</button>
+                <div class="demo-output" id="q3-output" style="margin-top: 1rem; display: none;"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 11: Common Use Cases -->
+    <div class="slide-container">
+        <div class="slide-content">
+            <h1>Common Use Cases</h1>
+
+            <div class="content-grid">
+                <div class="comparison-card">
+                    <h4>1. Validation</h4>
+                    <div class="code-box">
+                        <code>
+<span class="keyword">const</span> allowedRoles = [<span class="string">'admin'</span>, <span class="string">'editor'</span>];
+<span class="keyword">if</span> (allowedRoles.<span class="function">includes</span>(userRole)) {
+  <span class="comment">// Grant access</span>
+}
+                        </code>
+                    </div>
+                    <p>Check if user has permission</p>
+                </div>
+
+                <div class="comparison-card">
+                    <h4>2. Filtering</h4>
+                    <div class="code-box">
+                        <code>
+<span class="keyword">const</span> exclude = [<span class="string">'spam'</span>, <span class="string">'deleted'</span>];
+<span class="keyword">const</span> filtered = emails.<span class="function">filter</span>(
+  <span class="keyword">email</span> => !exclude.<span class="function">includes</span>(email.status)
+);
+                        </code>
+                    </div>
+                    <p>Filter out unwanted items</p>
+                </div>
+
+                <div class="comparison-card">
+                    <h4>3. Membership Testing</h4>
+                    <div class="code-box">
+                        <code>
+<span class="keyword">const</span> premium = [<span class="string">'gold'</span>, <span class="string">'platinum'</span>];
+<span class="keyword">if</span> (premium.<span class="function">includes</span>(subscription)) {
+  <span class="function">showPremiumFeatures</span>();
+}
+                        </code>
+                    </div>
+                    <p>Check membership in a group</p>
+                </div>
+
+                <div class="comparison-card">
+                    <h4>4. Avoiding Duplicates</h4>
+                    <div class="code-box">
+                        <code>
+<span class="keyword">if</span> (!cart.<span class="function">includes</span>(item)) {
+  cart.<span class="function">push</span>(item);
+}
+                        </code>
+                    </div>
+                    <p>Add only if not already present</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 12: Interactive Playground -->
+    <div class="slide-container">
+        <div class="slide-content">
+            <h1>Interactive Playground</h1>
+
+            <div class="interactive-demo">
+                <h3>Create Your Own Test</h3>
+                
+                <div style="margin: 1rem 0;">
+                    <label style="display: block; margin-bottom: 0.5rem;">Array (comma-separated):</label>
+                    <input type="text" id="custom-array" class="demo-input" value="apple, banana, orange, mango" placeholder="apple, banana, orange">
+                </div>
+
+                <div style="margin: 1rem 0;">
+                    <label style="display: block; margin-bottom: 0.5rem;">Search for:</label>
+                    <input type="text" id="custom-search" class="demo-input" value="banana" placeholder="banana">
+                </div>
+
+                <div style="margin: 1rem 0;">
+                    <label style="display: block; margin-bottom: 0.5rem;">Start index (optional):</label>
+                    <input type="number" id="custom-index" class="demo-input" value="" placeholder="0" style="width: 200px;">
+                </div>
+
+                <div style="text-align: center; margin: 1rem 0;">
+                    <button class="demo-button" onclick="runCustomTest()">Run Test</button>
+                    <button class="demo-button" onclick="clearCustomTest()">Clear</button>
+                </div>
+
+                <div class="demo-output" id="custom-output">
+                    <p style="color: #999;">Enter your array and search value, then click "Run Test"...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 13: Advantages -->
+    <div class="slide-container">
+        <div class="slide-content">
+            <h1>Why Use includes()?</h1>
+
+            <div class="success-box">
+                <h3>✓ Advantages</h3>
+            </div>
+
+            <div class="content-grid">
+                <div class="comparison-card">
+                    <h4>Simple & Readable</h4>
+                    <p>Clear and concise syntax</p>
+                    <div class="code-box">
+                        <code>arr.<span class="function">includes</span>(<span class="string">'value'</span>)</code>
+                    </div>
+                    <p style="color: #666; margin-top: 0.5rem;">vs <span class="inline-code">arr.indexOf('value') !== -1</span></p>
+                </div>
+
+                <div class="comparison-card">
+                    <h4>Efficient</h4>
+                    <p>Fast performance</p>
+                    <p>• Optimized by JavaScript engines</p>
+                    <p>• Stops when item found</p>
+                    <p>• No unnecessary iterations</p>
+                </div>
+
+                <div class="comparison-card">
+                    <h4>Flexible</h4>
+                    <p>Works with any type</p>
+                    <p>• Strings</p>
+                    <p>• Numbers</p>
+                    <p>• Booleans</p>
+                    <p>• Objects (by reference)</p>
+                </div>
+
+                <div class="comparison-card">
+                    <h4>No Complex Logic</h4>
+                    <p>Saves you from writing loops</p>
+                    <div class="code-box">
+                        <code>
+<span class="comment">// No need for:</span>
+<span class="keyword">for</span> (<span class="keyword">let</span> item <span class="keyword">of</span> arr) {
+  <span class="keyword">if</span> (item === value) ...
+}
+                        </code>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 14: Best Practices -->
+    <div class="slide-container">
+        <div class="slide-content">
+            <h1>Best Practices</h1>
+
+            <div class="success-box">
+                <h3>✓ Do</h3>
+                <p>• Use <span class="inline-code">includes()</span> for simple existence checks</p>
+                <p>• Remember case sensitivity with strings</p>
+                <p>• Be aware of type differences (number vs string)</p>
+                <p>• Use the second parameter to search from a specific position</p>
+                <p>• Prefer <span class="inline-code">includes()</span> over <span class="inline-code">indexOf() !== -1</span></p>
+            </div>
+
+            <div class="warning-box">
+                <h3>⚠️ Be Careful</h3>
+                <p>• Case sensitivity: <span class="inline-code">"Apple"</span> ≠ <span class="inline-code">"apple"</span></p>
+                <p>• Type checking: <span class="inline-code">2</span> ≠ <span class="inline-code">"2"</span></p>
+                <p>• Object references: Checks reference equality, not value equality</p>
+                <p>• NaN handling: <span class="inline-code">includes()</span> can find NaN, <span class="inline-code">indexOf()</span> cannot</p>
+            </div>
+
+            <div class="info-box">
+                <h3>When Not to Use</h3>
+                <p>• If you need the index position → use <span class="inline-code">indexOf()</span></p>
+                <p>• If you need to find an object by property → use <span class="inline-code">find()</span></p>
+                <p>• For complex conditions → use <span class="inline-code">some()</span></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 15: Key Takeaways -->
+    <div class="slide-container">
+        <div class="slide-content">
+            <h1>Key Takeaways</h1>
+
+            <div class="concept-box">
+                <h2>The includes() Method</h2>
+                <p>The <span class="inline-code">includes()</span> method is a <span class="highlight">powerful tool</span> for checking the presence of elements in arrays.</p>
+            </div>
+
+            <div class="success-box">
+                <h3>✓ Essential Facts</h3>
+                <p>• Returns <span class="inline-code">true</span> or <span class="inline-code">false</span></p>
+                <p>• Case-sensitive for strings</p>
+                <p>• Uses strict equality (===)</p>
+                <p>• Optional starting position parameter</p>
+                <p>• Simple, efficient, and readable</p>
+            </div>
+
+            <div class="info-box">
+                <h3>Syntax</h3>
+                <div class="code-box">
+                    <code>
+<span class="keyword">array</span>.<span class="function">includes</span>(searchElement)
+<span class="keyword">array</span>.<span class="function">includes</span>(searchElement, fromIndex)
+                    </code>
+                </div>
+            </div>
+
+            <div class="warning-box">
+                <h3>Remember</h3>
+                <p>It's simple to use, efficient, and can save you from writing more complex loops or conditions to search through arrays.</p>
+                <p>Whether you're working with <strong>strings, numbers, or mixed data types</strong>, <span class="inline-code">includes()</span> provides a straightforward way to verify if a value exists in your array.</p>
+            </div>
+
+            <div class="concept-box">
+                <h3>Quick Reference</h3>
+                <div class="code-box">
+                    <code>
+[<span class="string">"a"</span>, <span class="string">"b"</span>, <span class="string">"c"</span>].<span class="function">includes</span>(<span class="string">"b"</span>)           <span class="comment">// true</span>
+[<span class="string">"a"</span>, <span class="string">"b"</span>, <span class="string">"c"</span>].<span class="function">includes</span>(<span class="string">"B"</span>)           <span class="comment">// false (case-sensitive)</span>
+[<span class="keyword">1</span>, <span class="keyword">2</span>, <span class="keyword">3</span>].<span class="function">includes</span>(<span class="keyword">2</span>)                 <span class="comment">// true</span>
+[<span class="keyword">1</span>, <span class="keyword">2</span>, <span class="keyword">3</span>].<span class="function">includes</span>(<span class="string">"2"</span>)               <span class="comment">// false (type matters)</span>
+[<span class="keyword">1</span>, <span class="keyword">2</span>, <span class="keyword">3</span>, <span class="keyword">4</span>, <span class="keyword">5</span>].<span class="function">includes</span>(<span class="keyword">3</span>, <span class="keyword">3</span>)      <span class="comment">// false (starts at index 3)</span>
+                    </code>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Navigation -->
+    <div class="navigation">
+        <button class="nav-button" id="prevBtn" onclick="changeSlide(-1)">← Previous</button>
+        <div class="slide-counter">
+            <span id="currentSlide">1</span> / <span id="totalSlides">15</span>
+        </div>
+        <button class="nav-button" id="nextBtn" onclick="changeSlide(1)">Next →</button>
+    </div>
+
+    <script>
+        let currentSlide = 1;
+        const totalSlides = document.querySelectorAll('.slide-container').length;
+        
+        document.getElementById('totalSlides').textContent = totalSlides;
+        
+        function showSlide(n) {
+            const slides = document.querySelectorAll('.slide-container');
+            
+            if (n > totalSlides) {
+                currentSlide = totalSlides;
+            }
+            if (n < 1) {
+                currentSlide = 1;
+            }
+            
+            slides.forEach(slide => slide.classList.remove('active'));
+            slides[currentSlide - 1].classList.add('active');
+            
+            document.getElementById('currentSlide').textContent = currentSlide;
+            
+            // Update button states
+            document.getElementById('prevBtn').disabled = currentSlide === 1;
+            document.getElementById('nextBtn').disabled = currentSlide === totalSlides;
+            
+            // Scroll to top of page
+            window.scrollTo(0, 0);
+        }
+        
+        function changeSlide(direction) {
+            currentSlide += direction;
+            showSlide(currentSlide);
+        }
+        
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowLeft') {
+                changeSlide(-1);
+            } else if (e.key === 'ArrowRight') {
+                changeSlide(1);
+            }
+        });
+        
+        // Case Sensitivity Demo
+        function testCase(searchTerm) {
+            const fruits = ["apple", "banana", "orange", "mango"];
+            const result = fruits.includes(searchTerm);
+            const output = document.getElementById('case-output');
+            
+            output.innerHTML = `
+                <div style="margin-bottom: 1rem;">
+                    <strong>Array:</strong> <span class="inline-code">["apple", "banana", "orange", "mango"]</span>
+                </div>
+                <div style="margin-bottom: 1rem;">
+                    <strong>Searching for:</strong> <span class="inline-code">"${searchTerm}"</span>
+                </div>
+                <div style="margin-bottom: 1rem;">
+                    <strong>Code:</strong> <span class="inline-code">fruits.includes("${searchTerm}")</span>
+                </div>
+                <div style="font-size: 1.5rem; text-align: center; margin-top: 1.5rem;">
+                    Result: <span class="result-badge ${result ? 'result-true' : 'result-false'}">${result}</span>
+                </div>
+                <div style="margin-top: 1rem; color: #666;">
+                    ${result ? 
+                        `✓ Found! "${searchTerm}" matches "banana" exactly.` : 
+                        `✗ Not found! "${searchTerm}" doesn't match any item (case-sensitive).`
+                    }
+                </div>
+            `;
+        }
+        
+        // Starting Position Demo
+        function testStartPosition() {
+            const numbers = [10, 20, 30, 40, 50, 30, 60];
+            const searchValue = parseInt(document.getElementById('search-value').value);
+            const startIndex = parseInt(document.getElementById('start-index').value) || 0;
+            const result = numbers.includes(searchValue, startIndex);
+            const output = document.getElementById('position-output');
+            
+            output.innerHTML = `
+                <div style="margin-bottom: 1rem;">
+                    <strong>Array:</strong> <span class="inline-code">[10, 20, 30, 40, 50, 30, 60]</span>
+                </div>
+                <div style="margin-bottom: 1rem;">
+                    <strong>Searching for:</strong> <span class="inline-code">${searchValue}</span>
+                </div>
+                <div style="margin-bottom: 1rem;">
+                    <strong>Starting from index:</strong> <span class="inline-code">${startIndex}</span>
+                </div>
+                <div style="margin-bottom: 1rem;">
+                    <strong>Code:</strong> <span class="inline-code">numbers.includes(${searchValue}, ${startIndex})</span>
+                </div>
+                <div style="font-size: 1.5rem; text-align: center; margin-top: 1.5rem;">
+                    Result: <span class="result-badge ${result ? 'result-true' : 'result-false'}">${result}</span>
+                </div>
+                <div style="margin-top: 1rem; color: #666;">
+                    ${result ? 
+                        `✓ Found ${searchValue} after index ${startIndex}` : 
+                        `✗ ${searchValue} not found after index ${startIndex}`
+                    }
+                </div>
+            `;
+        }
+        
+        // Type Demo
+        function testType(searchValue, type) {
+            const mixedArray = [1, "2", 3, "4", 5];
+            const result = mixedArray.includes(searchValue);
+            const output = document.getElementById('type-output');
+            
+            output.innerHTML = `
+                <div style="margin-bottom: 1rem;">
+                    <strong>Array:</strong> <span class="inline-code">[1, "2", 3, "4", 5]</span>
+                </div>
+                <div style="margin-bottom: 1rem;">
+                    <strong>Searching for:</strong> <span class="inline-code">${type === 'string' ? `"${searchValue}"` : searchValue}</span> (${type})
+                </div>
+                <div style="margin-bottom: 1rem;">
+                    <strong>Code:</strong> <span class="inline-code">mixedArray.includes(${type === 'string' ? `"${searchValue}"` : searchValue})</span>
+                </div>
+                <div style="font-size: 1.5rem; text-align: center; margin-top: 1.5rem;">
+                    Result: <span class="result-badge ${result ? 'result-true' : 'result-false'}">${result}</span>
+                </div>
+                <div style="margin-top: 1rem; color: #666;">
+                    ${result ? 
+                        `✓ Found! Type matches (${type}).` : 
+                        `✗ Not found! Type mismatch - looking for ${type}, but array has ${type === 'string' ? 'number' : 'string'}.`
+                    }
+                </div>
+            `;
+        }
+        
+        // Quiz Questions
+        function checkAnswer(questionNum, correctAnswer, userAnswer) {
+            const output = document.getElementById(`q${questionNum}-output`);
+            output.style.display = 'block';
+            
+            const isCorrect = userAnswer === correctAnswer;
+            
+            let explanation = '';
+            if (questionNum === 1) {
+                explanation = correctAnswer ? 
+                    'Starts at index 3 (value 4), finds 5 at index 4. Returns true.' :
+                    'Starts at index 3 (value 4), searches [4, 5]. Value 3 is before index 3, so returns false.';
+            } else if (questionNum === 2) {
+                explanation = correctAnswer ?
+                    'Array contains "c", searches for "C". Returns true.' :
+                    'Array contains "c" (lowercase), but searches for "C" (uppercase). Case-sensitive! Returns false.';
+            } else if (questionNum === 3) {
+                explanation = correctAnswer ?
+                    'Array contains number 3, searches for string "3". Returns true.' :
+                    'Array contains number 3, but searches for string "3". Uses === so types must match! Returns false.';
+            }
+            
+            output.innerHTML = `
+                <div style="padding: 1rem; background: ${isCorrect ? '#d4edda' : '#fff5f5'}; border-radius: 5px;">
+                    <div style="font-size: 1.3rem; font-weight: bold; color: ${isCorrect ? '#1e7e34' : '#d32f2f'}; margin-bottom: 0.5rem;">
+                        ${isCorrect ? '✓ Correct!' : '✗ Incorrect'}
+                    </div>
+                    <div style="color: #333;">
+                        <strong>Correct answer:</strong> <span class="result-badge ${correctAnswer ? 'result-true' : 'result-false'}">${correctAnswer}</span>
+                    </div>
+                    <div style="margin-top: 0.5rem; color: #666;">
+                        ${explanation}
+                    </div>
+                </div>
+            `;
+        }
+        
+        // Custom Test
+        function runCustomTest() {
+            const arrayInput = document.getElementById('custom-array').value;
+            const searchInput = document.getElementById('custom-search').value.trim();
+            const indexInput = document.getElementById('custom-index').value;
+            const output = document.getElementById('custom-output');
+            
+            // Parse array
+            let array = arrayInput.split(',').map(item => {
+                item = item.trim();
+                // Try to convert to number if it looks like a number
+                const num = Number(item);
+                return !isNaN(num) && item !== '' ? num : item;
+            });
+            
+            // Parse search value (try number first)
+            let searchValue = searchInput;
+            const num = Number(searchInput);
+            if (!isNaN(num) && searchInput !== '') {
+                searchValue = num;
+            }
+            
+            // Run includes
+            const startIndex = indexInput ? parseInt(indexInput) : undefined;
+            const result = startIndex !== undefined ? 
+                array.includes(searchValue, startIndex) : 
+                array.includes(searchValue);
+            
+            const searchType = typeof searchValue;
+            
+            output.innerHTML = `
+                <div style="margin-bottom: 1rem;">
+                    <strong>Array:</strong> <span class="inline-code">[${array.map(v => typeof v === 'string' ? `"${v}"` : v).join(', ')}]</span>
+                </div>
+                <div style="margin-bottom: 1rem;">
+                    <strong>Searching for:</strong> <span class="inline-code">${searchType === 'string' ? `"${searchValue}"` : searchValue}</span> (${searchType})
+                </div>
+                ${startIndex !== undefined ? `
+                <div style="margin-bottom: 1rem;">
+                    <strong>Starting from index:</strong> <span class="inline-code">${startIndex}</span>
+                </div>
+                ` : ''}
+                <div style="margin-bottom: 1rem;">
+                    <strong>Code:</strong> <span class="inline-code">array.includes(${searchType === 'string' ? `"${searchValue}"` : searchValue}${startIndex !== undefined ? `, ${startIndex}` : ''})</span>
+                </div>
+                <div style="font-size: 1.5rem; text-align: center; margin-top: 1.5rem;">
+                    Result: <span class="result-badge ${result ? 'result-true' : 'result-false'}">${result}</span>
+                </div>
+            `;
+        }
+        
+        function clearCustomTest() {
+            document.getElementById('custom-output').innerHTML = '<p style="color: #999;">Enter your array and search value, then click "Run Test"...</p>';
+        }
+        
+        // Initialize
+        showSlide(currentSlide);
+    </script>
+</body>
+</html>
