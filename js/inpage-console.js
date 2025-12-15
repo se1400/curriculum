@@ -47,6 +47,8 @@
       };
     });
 
+
+    
     window.addEventListener('error', function (evt) {
       writeLine('error', [evt.message]);
     });
