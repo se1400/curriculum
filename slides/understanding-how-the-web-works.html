@@ -1,0 +1,1075 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Understanding How the Web Works</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --accent-color: #e74c3c;
+            --light-bg: #ecf0f1;
+            --text-color: #2c3e50;
+            --code-bg: #1e1e1e;
+            --code-text: #d4d4d4;
+        }
+
+        html, body {
+            height: 100%;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--primary-color);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .slideshow-container {
+            width: 100%;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .slide {
+            display: none;
+            flex: 1;
+            padding: 2rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            overflow-y: auto;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        .slide.active {
+            display: flex;
+            flex-direction: column;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateX(20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        .slide-content {
+            max-width: 1200px;
+            width: 100%;
+            margin: 0 auto;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        h1 {
+            font-size: clamp(1.8rem, 5vw, 3rem);
+            margin-bottom: 1.5rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+            line-height: 1.2;
+        }
+
+        h2 {
+            font-size: clamp(1.4rem, 4vw, 2.2rem);
+            margin-bottom: 1rem;
+            color: #ffeaa7;
+        }
+
+        h3 {
+            font-size: clamp(1.1rem, 3vw, 1.5rem);
+            margin: 1rem 0 0.5rem;
+            color: #81ecec;
+        }
+
+        p {
+            font-size: clamp(1rem, 2.5vw, 1.3rem);
+            line-height: 1.6;
+            margin-bottom: 1rem;
+        }
+
+        ul, ol {
+            font-size: clamp(0.95rem, 2.2vw, 1.2rem);
+            line-height: 1.8;
+            margin-left: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        li {
+            margin-bottom: 0.5rem;
+        }
+
+        a {
+            color: #ffeaa7;
+            text-decoration: underline;
+        }
+
+        a:hover {
+            color: #fdcb6e;
+        }
+
+        code {
+            background: rgba(0,0,0,0.3);
+            padding: 0.2em 0.5em;
+            border-radius: 4px;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 0.9em;
+        }
+
+        pre {
+            background: var(--code-bg);
+            color: var(--code-text);
+            padding: 1rem;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 1rem 0;
+            font-size: clamp(0.8rem, 1.8vw, 1rem);
+        }
+
+        pre code {
+            background: none;
+            padding: 0;
+        }
+
+        .highlight {
+            background: rgba(255,255,255,0.15);
+            padding: 1rem;
+            border-radius: 8px;
+            border-left: 4px solid #ffeaa7;
+            margin: 1rem 0;
+        }
+
+        .note {
+            background: rgba(46, 204, 113, 0.2);
+            padding: 1rem;
+            border-radius: 8px;
+            border-left: 4px solid #2ecc71;
+            margin: 1rem 0;
+        }
+
+        .two-column {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            align-items: start;
+        }
+
+        @media (max-width: 768px) {
+            .two-column {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .image-container {
+            text-align: center;
+            margin: 1rem 0;
+        }
+
+        .image-container img {
+            max-width: 100%;
+            max-height: 40vh;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        }
+
+        .image-caption {
+            font-size: 0.9rem;
+            font-style: italic;
+            margin-top: 0.5rem;
+            opacity: 0.8;
+        }
+
+        /* Navigation */
+        .nav-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 2rem;
+            background: rgba(0,0,0,0.3);
+            backdrop-filter: blur(10px);
+            flex-shrink: 0;
+        }
+
+        .nav-btn {
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: white;
+            padding: 0.8rem 1.5rem;
+            font-size: 1rem;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .nav-btn:hover:not(:disabled) {
+            background: rgba(255,255,255,0.3);
+            transform: scale(1.05);
+        }
+
+        .nav-btn:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+
+        .progress-container {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .progress-bar {
+            width: 150px;
+            height: 6px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: #ffeaa7;
+            transition: width 0.3s ease;
+        }
+
+        .slide-counter {
+            font-size: 0.9rem;
+            color: rgba(255,255,255,0.8);
+        }
+
+        /* Slide-specific styles */
+        .title-slide {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            text-align: center;
+        }
+
+        .title-slide h1 {
+            font-size: clamp(2rem, 6vw, 4rem);
+            margin-bottom: 2rem;
+        }
+
+        .title-slide .subtitle {
+            font-size: clamp(1rem, 2.5vw, 1.5rem);
+            opacity: 0.8;
+        }
+
+        .learning-objectives {
+            background: linear-gradient(135deg, #0f4c75 0%, #1b262c 100%);
+        }
+
+        .browser-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+
+        .browser-item {
+            background: rgba(255,255,255,0.1);
+            padding: 1rem;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .codepen-container {
+            width: 100%;
+            margin: 1rem 0;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .codepen-container iframe {
+            width: 100%;
+            border: none;
+        }
+
+        /* Touch/swipe support indicator */
+        .touch-hint {
+            position: fixed;
+            bottom: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0,0,0,0.5);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .touch-hint.show {
+            opacity: 1;
+        }
+
+        /* Keyboard shortcuts hint */
+        .keyboard-hint {
+            font-size: 0.8rem;
+            opacity: 0.6;
+            text-align: center;
+            margin-top: 0.5rem;
+        }
+
+        @media (max-width: 600px) {
+            .slide {
+                padding: 1rem;
+            }
+
+            .nav-container {
+                padding: 0.8rem 1rem;
+            }
+
+            .nav-btn {
+                padding: 0.6rem 1rem;
+                font-size: 0.9rem;
+            }
+
+            .progress-bar {
+                width: 80px;
+            }
+
+            ul, ol {
+                margin-left: 1rem;
+            }
+        }
+
+        /* Slide themes */
+        .slide:nth-child(odd) {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .slide:nth-child(even) {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+        }
+
+        .slide:nth-child(3n) {
+            background: linear-gradient(135deg, #ee0979 0%, #ff6a00 100%);
+        }
+
+        .slide:nth-child(4n) {
+            background: linear-gradient(135deg, #2193b0 0%, #6dd5ed 100%);
+        }
+
+        .slide:nth-child(5n) {
+            background: linear-gradient(135deg, #c31432 0%, #240b36 100%);
+        }
+    </style>
+</head>
+<body>
+    <div class="slideshow-container">
+        <!-- Slide 1: Title -->
+        <div class="slide title-slide active">
+            <div class="slide-content">
+                <h1>Understanding How the Web Works</h1>
+                <p class="subtitle">From Browser Requests to Web Servers</p>
+                <p class="keyboard-hint">Use arrow keys, swipe, or click buttons to navigate</p>
+            </div>
+        </div>
+
+        <!-- Slide 2: Learning Objectives -->
+        <div class="slide learning-objectives">
+            <div class="slide-content">
+                <h1>What You'll Learn</h1>
+                <ul>
+                    <li>A brief history of the World Wide Web</li>
+                    <li>What "web content" means vs. "web pages"</li>
+                    <li>How content travels from your computer to browsers</li>
+                    <li>How to select a web hosting provider</li>
+                    <li>Testing across browsers and devices</li>
+                    <li>Using FTP to transfer files</li>
+                    <li>File organization on web servers</li>
+                    <li>Alternative publishing methods</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Slide 3: Brief History -->
+        <div class="slide">
+            <div class="slide-content">
+                <h1>A Brief History of HTML & the Web</h1>
+                <div class="two-column">
+                    <div>
+                        <h3>Key Milestones</h3>
+                        <ul>
+                            <li><strong>Pre-1990:</strong> Internet existed but was technical and difficult to use</li>
+                            <li><strong>1990:</strong> Tim Berners-Lee created HTML for easy cross-referencing</li>
+                            <li><strong>1993:</strong> ~100 web servers existed worldwide</li>
+                            <li><strong>Today:</strong> Billions of websites serve billions of files</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h3>Key Terms</h3>
+                        <div class="highlight">
+                            <p><strong>Hypertext:</strong> Text with cross-reference links between pages</p>
+                            <p><strong>HTML:</strong> Hypertext Markup Language - describes how content is organized and linked</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="note">
+                    <p>Learn more: <a href="http://en.wikipedia.org/wiki/History_of_the_Web" target="_blank">Wikipedia: History of the Web</a></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 4: Creating Web Content -->
+        <div class="slide">
+            <div class="slide-content">
+                <h1>Creating Web Content</h1>
+                <p>The term <strong>"web content"</strong> is more accurate than "web page" because multiple file types work together:</p>
+                <div class="two-column">
+                    <div>
+                        <h3>The Three Core Technologies</h3>
+                        <ul>
+                            <li><strong>HTML</strong> - Structure (headings, paragraphs, lists)</li>
+                            <li><strong>CSS</strong> - Presentation (colors, fonts, layout)</li>
+                            <li><strong>JavaScript</strong> - Behavior (interactions, animations)</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <div class="highlight">
+                            <p><strong>HTML</strong> = What content is</p>
+                            <p><strong>CSS</strong> = How it looks</p>
+                            <p><strong>JavaScript</strong> = How it behaves</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="note">
+                    <p>Writing standards-compliant code ensures your content works across all browsers and devices!</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 5: Web Content Delivery Overview -->
+        <div class="slide">
+            <div class="slide-content">
+                <h1>Understanding Web Content Delivery</h1>
+                <div class="image-container">
+                    <img src="assets/fig-1.1.jpg" alt="Browser request and server response diagram">
+                    <p class="image-caption">A browser request and server response</p>
+                </div>
+                <div class="highlight">
+                    <p><strong>Basic Flow:</strong></p>
+                    <ol>
+                        <li>Browser sends a <strong>request</strong> to the web server</li>
+                        <li>Server finds the requested file</li>
+                        <li>Server sends a <strong>response</strong> back to the browser</li>
+                        <li>Browser renders the content for display</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 6: Content Delivery Process Detail -->
+        <div class="slide">
+            <div class="slide-content">
+                <h1>The Content Delivery Process</h1>
+                <div class="two-column">
+                    <div>
+                        <p>When you visit <code>www.google.com</code>:</p>
+                        <ol>
+                            <li>Browser requests <code>index.html</code></li>
+                            <li>Server finds and sends HTML file</li>
+                            <li>Browser reads HTML, finds image tag:
+                                <pre><code>&lt;img alt="Google" src="/images/logo.png"&gt;</code></pre>
+                            </li>
+                            <li>Browser requests the image separately</li>
+                            <li>Server sends the image</li>
+                            <li>Browser assembles and displays everything</li>
+                        </ol>
+                    </div>
+                    <div>
+                        <div class="image-container">
+                            <img src="assets/fig-1.2.jpg" alt="Google.com in a web browser">
+                            <p class="image-caption">Visiting www.google.com</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="note">
+                    <p>Browsers do more than display - they <strong>assemble</strong> content from multiple requests!</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 7: Local vs Remote -->
+        <div class="slide">
+            <div class="slide-content">
+                <h1>Local vs. Remote Viewing</h1>
+                <div class="two-column">
+                    <div>
+                        <h3>Local Viewing</h3>
+                        <ul>
+                            <li>Files on your own hard drive</li>
+                            <li>No web server needed</li>
+                            <li>Only you can see the content</li>
+                            <li>Great for development/testing</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h3>Remote Viewing</h3>
+                        <ul>
+                            <li>Files on a web server</li>
+                            <li>Accessible to anyone online</li>
+                            <li>Requires hosting account</li>
+                            <li>Needed to share your work</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="highlight">
+                    <p>You can complete all lessons locally, but you'll need a web server for others to see your work.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 8: Selecting a Hosting Provider -->
+        <div class="slide">
+            <div class="slide-content">
+                <h1>Selecting a Web Hosting Provider</h1>
+                <h2>Key Selection Criteria</h2>
+                <div class="two-column">
+                    <div>
+                        <ul>
+                            <li><strong>Reliability/Uptime</strong> - Is your site always accessible?</li>
+                            <li><strong>Customer Service</strong> - Phone, email, chat support</li>
+                            <li><strong>Server Space</strong> - Room for your files</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <ul>
+                            <li><strong>Bandwidth</strong> - Handle your traffic load</li>
+                            <li><strong>Domain Management</strong> - Include domain name?</li>
+                            <li><strong>Price</strong> - Don't overpay! ~$75/year max for basic hosting</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 9: Recommended Hosts -->
+        <div class="slide">
+            <div class="slide-content">
+                <h1>Recommended Hosting Providers</h1>
+                <div class="browser-list">
+                    <div class="browser-item">
+                        <h3>SetraHost</h3>
+                        <p>Inexpensive, solid shared hosting</p>
+                        <a href="https://www.setrahost.com" target="_blank">setrahost.com</a>
+                    </div>
+                    <div class="browser-item">
+                        <h3>Namecheap</h3>
+                        <p>Full-featured and reliable</p>
+                        <a href="https://www.namecheap.com" target="_blank">namecheap.com</a>
+                    </div>
+                    <div class="browser-item">
+                        <h3>Bluehost</h3>
+                        <p>More features, higher price</p>
+                        <a href="https://www.bluehost.com" target="_blank">bluehost.com</a>
+                    </div>
+                </div>
+                <div class="image-container">
+                    <img src="assets/fig-1.3.jpg" alt="SetraHost control panel example">
+                    <p class="image-caption">Example of a web hosting control panel (cPanel)</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 10: Testing with Multiple Browsers -->
+        <div class="slide">
+            <div class="slide-content">
+                <h1>Testing with Multiple Browsers</h1>
+                <div class="highlight">
+                    <p><strong>Important:</strong> Every visitor may use different hardware, software, screen sizes, and browsers. You cannot control how others view your site!</p>
+                </div>
+                <h2>Test with these browsers:</h2>
+                <div class="browser-list">
+                    <div class="browser-item">
+                        <strong>Safari</strong>
+                        <p><a href="https://www.apple.com/safari/" target="_blank">Mac</a></p>
+                    </div>
+                    <div class="browser-item">
+                        <strong>Chrome</strong>
+                        <p><a href="https://www.google.com/chrome/" target="_blank">All platforms</a></p>
+                    </div>
+                    <div class="browser-item">
+                        <strong>Firefox</strong>
+                        <p><a href="https://www.mozilla.com/firefox/" target="_blank">All platforms</a></p>
+                    </div>
+                    <div class="browser-item">
+                        <strong>Edge</strong>
+                        <p><a href="https://www.microsoft.com/edge/" target="_blank">Windows</a></p>
+                    </div>
+                    <div class="browser-item">
+                        <strong>Opera</strong>
+                        <p><a href="https://www.opera.com" target="_blank">All platforms</a></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 11: Responsive Design Note -->
+        <div class="slide">
+            <div class="slide-content">
+                <h1>Why Testing Matters</h1>
+                <div class="two-column">
+                    <div>
+                        <h3>Variables You Can't Control</h3>
+                        <ul>
+                            <li>Device type (desktop, tablet, phone)</li>
+                            <li>Operating system (Windows, Mac, iOS, Android)</li>
+                            <li>Screen resolution & window size</li>
+                            <li>Browser type and version</li>
+                            <li>Connection speed</li>
+                            <li>User-defined fonts and colors</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <div class="highlight">
+                            <p><strong>Don't spend hours</strong> designing something that looks perfect only on YOUR computer!</p>
+                        </div>
+                        <div class="note">
+                            <p>Later lessons cover <strong>Responsive Web Design</strong> - where layouts adapt automatically to different screen sizes.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 12: Creating a Sample File -->
+        <div class="slide">
+            <div class="slide-content">
+                <h1>Creating a Sample File</h1>
+                <p>Here's a simple HTML file that displays "Hello World!":</p>
+                <div class="codepen-container">
+                    <iframe style="width: 100%;" title="LISTING 1.1 Our Sample HTML File" src="https://codepen.io/mattkearl/embed/WbxOOQa?default-tab=html%2Cresult&editable=true" height="400" loading="lazy"></iframe>
+                </div>
+                <div class="note">
+                    <p>Save this as <code>sample.html</code> - the <code>.html</code> extension tells browsers it's an HTML file.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 13: Code Editors -->
+        <div class="slide">
+            <div class="slide-content">
+                <h1>Choosing a Code Editor</h1>
+                <p>Don't use Word or WordPad - use a proper code editor!</p>
+                <div class="two-column">
+                    <div>
+                        <h3>Recommended: VS Code</h3>
+                        <ul>
+                            <li>Free and open-source</li>
+                            <li>Works on all platforms</li>
+                            <li>Industry standard</li>
+                            <li>Thousands of extensions</li>
+                            <li>Built-in Git & terminal</li>
+                        </ul>
+                        <p><a href="https://code.visualstudio.com" target="_blank">Download VS Code</a></p>
+                    </div>
+                    <div>
+                        <h3>Other Options</h3>
+                        <ul>
+                            <li><a href="https://sublimetext.com" target="_blank">Sublime Text</a> - Fast, lightweight</li>
+                            <li><a href="https://notepad-plus-plus.org" target="_blank">Notepad++</a> - Free, Windows only</li>
+                        </ul>
+                        <div class="highlight">
+                            <p>These editors provide syntax highlighting, auto-completion, and debugging tools.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 14: Using FTP -->
+        <div class="slide">
+            <div class="slide-content">
+                <h1>Using FTP to Transfer Files</h1>
+                <p><strong>FTP</strong> (File Transfer Protocol) or <strong>SFTP</strong> (Secure FTP) moves files from your computer to your web server.</p>
+                <h3>You'll need from your hosting provider:</h3>
+                <ul>
+                    <li><strong>Hostname</strong> - The server address (e.g., ftp.yourdomain.com)</li>
+                    <li><strong>Username</strong> - Your account name</li>
+                    <li><strong>Password</strong> - Your account password</li>
+                </ul>
+                <div class="note">
+                    <p><strong>Tip:</strong> Use SFTP when available - it encrypts your connection for security!</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 15: FTP Clients -->
+        <div class="slide">
+            <div class="slide-content">
+                <h1>FTP/SFTP Clients</h1>
+                <div class="browser-list">
+                    <div class="browser-item">
+                        <strong>FileZilla</strong>
+                        <p>All platforms</p>
+                        <a href="https://filezilla-project.org" target="_blank">Download</a>
+                    </div>
+                    <div class="browser-item">
+                        <strong>Cyberduck</strong>
+                        <p>Mac & Windows</p>
+                        <a href="https://cyberduck.io" target="_blank">Download</a>
+                    </div>
+                    <div class="browser-item">
+                        <strong>WinSCP</strong>
+                        <p>Windows</p>
+                        <a href="https://winscp.net" target="_blank">Download</a>
+                    </div>
+                    <div class="browser-item">
+                        <strong>Transmit</strong>
+                        <p>Mac</p>
+                        <a href="https://panic.com/transmit" target="_blank">Download</a>
+                    </div>
+                </div>
+                <div class="image-container">
+                    <img src="assets/fig-1.5.jpg" alt="FTP client connection screen">
+                    <p class="image-caption">Connecting to a new site in Transmit</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 16: FTP Process -->
+        <div class="slide">
+            <div class="slide-content">
+                <h1>Using an FTP Client</h1>
+                <ol>
+                    <li>Open your FTP client and enter connection details</li>
+                    <li>Connect to your server</li>
+                    <li>Navigate to the <strong>document root</strong> (<code>public_html</code>, <code>www</code>, or <code>htdocs</code>)</li>
+                    <li>Drag files from your computer (left) to server (right)</li>
+                    <li>Disconnect when finished</li>
+                </ol>
+                <div class="image-container">
+                    <img src="assets/fig-1.6.jpg" alt="Connected FTP client showing local and remote files">
+                    <p class="image-caption">Local files on left, remote server files on right</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 17: Document Root -->
+        <div class="slide">
+            <div class="slide-content">
+                <h1>Understanding the Document Root</h1>
+                <p>The <strong>document root</strong> is the starting point for your website files.</p>
+                <div class="two-column">
+                    <div>
+                        <h3>File Location = URL</h3>
+                        <p>If <code>sample.html</code> is in document root:</p>
+                        <pre><code>http://yourdomain.com/sample.html</code></pre>
+                        <p>If it's in a subdirectory:</p>
+                        <pre><code>http://yourdomain.com/newdir/sample.html</code></pre>
+                        <div class="highlight">
+                            <p><strong>Important:</strong> Files outside the document root are NOT accessible via web browser!</p>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="image-container">
+                            <img src="assets/fig-1.7.jpg" alt="sample.html file accessed via web browser">
+                            <p class="image-caption">The sample.html file accessed via web browser</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 18: File Organization -->
+        <div class="slide">
+            <div class="slide-content">
+                <h1>File Organization Best Practices</h1>
+                <h3>Common Directory Structure</h3>
+                <pre><code>document_root/
+    index.html
+    images/
+        logo.png
+        banner.jpg
+    css/
+        styles.css
+    js/
+        script.js
+    downloads/
+        portfolio.zip</code></pre>
+                <h3>Linking to Files</h3>
+                <pre><code>&lt;a href="/downloads/artfolio.zip"&gt;Download my art portfolio!&lt;/a&gt;</code></pre>
+            </div>
+        </div>
+
+        <!-- Slide 19: Index Page -->
+        <div class="slide">
+            <div class="slide-content">
+                <h1>Using an Index Page</h1>
+                <p>The <code>index.html</code> file is the default page for any directory.</p>
+                <div class="two-column">
+                    <div>
+                        <h3>Both URLs show same page:</h3>
+                        <pre><code>http://apple.com/iphone/
+http://apple.com/iphone/index.html</code></pre>
+                    </div>
+                    <div>
+                        <div class="highlight">
+                            <p><strong>Without index.html:</strong></p>
+                            <ul>
+                                <li>Directory listing shown, OR</li>
+                                <li>"Directory Listing Denied" error</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="note">
+                    <p><strong>Always name your home page <code>index.html</code></strong> and place it in the document root!</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 20: Modern Deployment -->
+        <div class="slide">
+            <div class="slide-content">
+                <h1>Modern Deployment: Git & GitHub</h1>
+                <p>While FTP works, modern development often uses <strong>version control</strong>:</p>
+                <div class="two-column">
+                    <div>
+                        <h3>What is Git?</h3>
+                        <ul>
+                            <li>Tracks changes to files over time</li>
+                            <li>See what changed, when, and by whom</li>
+                            <li>Roll back to previous versions</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h3>What is GitHub?</h3>
+                        <ul>
+                            <li>Hosts Git repositories online</li>
+                            <li>Easy collaboration</li>
+                            <li><strong>GitHub Pages</strong> - Free web hosting!</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="highlight">
+                    <p><strong>Continuous Deployment:</strong> Push to GitHub, your site updates automatically. Used by Netlify, Vercel, Cloudflare Pages.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 21: Content Without Server -->
+        <div class="slide">
+            <div class="slide-content">
+                <h1>Distributing Content Without a Server</h1>
+                <h2>Local Sites</h2>
+                <p>HTML content can be distributed without the internet:</p>
+                <ul>
+                    <li><strong>USB drives</strong> at trade shows with marketing materials</li>
+                    <li><strong>Training materials</strong> on removable media</li>
+                    <li>Same hyperlinked browsing experience, just local</li>
+                </ul>
+                <div class="note">
+                    <p><strong>Tip:</strong> You can even include a portable browser (like Portable Firefox) on the USB drive! See <a href="https://portableapps.com/" target="_blank">portableapps.com</a></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 22: Blog Publishing -->
+        <div class="slide">
+            <div class="slide-content">
+                <h1>Publishing on Blogs</h1>
+                <p>Blog platforms let you publish without knowing HTML:</p>
+                <div class="browser-list">
+                    <div class="browser-item">
+                        <strong>WordPress</strong>
+                        <p>Most popular CMS</p>
+                        <a href="https://wordpress.com" target="_blank">wordpress.com</a>
+                    </div>
+                    <div class="browser-item">
+                        <strong>Wix</strong>
+                        <p>Drag-and-drop builder</p>
+                        <a href="https://www.wix.com" target="_blank">wix.com</a>
+                    </div>
+                    <div class="browser-item">
+                        <strong>Squarespace</strong>
+                        <p>Beautiful templates</p>
+                        <a href="https://www.squarespace.com" target="_blank">squarespace.com</a>
+                    </div>
+                </div>
+                <div class="highlight">
+                    <p>These offer <strong>visual editors</strong> - but knowing HTML/CSS gives you more control and flexibility!</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 23: Summary -->
+        <div class="slide">
+            <div class="slide-content">
+                <h1>Summary</h1>
+                <div class="two-column">
+                    <div>
+                        <h3>Key Takeaways</h3>
+                        <ul>
+                            <li>HTML, CSS, and JavaScript create web content</li>
+                            <li>Browsers request files from web servers</li>
+                            <li>Web servers deliver files to browsers</li>
+                            <li>FTP/SFTP transfers files to servers</li>
+                            <li>Document root is your website's starting point</li>
+                            <li><code>index.html</code> is the default page</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h3>Best Practices</h3>
+                        <ul>
+                            <li>Test in multiple browsers</li>
+                            <li>Write standards-compliant code</li>
+                            <li>Organize files in logical directories</li>
+                            <li>Consider Git for version control</li>
+                            <li>Use SFTP for secure transfers</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 24: Resources -->
+        <div class="slide title-slide">
+            <div class="slide-content">
+                <h1>Additional Resources</h1>
+                <div class="browser-list">
+                    <div class="browser-item">
+                        <strong>W3Schools</strong>
+                        <p>HTML/CSS/JS tutorials</p>
+                        <a href="https://www.w3schools.com" target="_blank">w3schools.com</a>
+                    </div>
+                    <div class="browser-item">
+                        <strong>MDN Web Docs</strong>
+                        <p>Comprehensive documentation</p>
+                        <a href="https://developer.mozilla.org" target="_blank">developer.mozilla.org</a>
+                    </div>
+                    <div class="browser-item">
+                        <strong>GitHub Pages</strong>
+                        <p>Free web hosting</p>
+                        <a href="https://pages.github.com" target="_blank">pages.github.com</a>
+                    </div>
+                    <div class="browser-item">
+                        <strong>CodePen</strong>
+                        <p>Online code playground</p>
+                        <a href="https://codepen.io" target="_blank">codepen.io</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Navigation -->
+    <div class="nav-container">
+        <button class="nav-btn" id="prevBtn" onclick="changeSlide(-1)">
+            <span>&#8592;</span> Previous
+        </button>
+        <div class="progress-container">
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+            <span class="slide-counter" id="slideCounter">1 / 24</span>
+        </div>
+        <button class="nav-btn" id="nextBtn" onclick="changeSlide(1)">
+            Next <span>&#8594;</span>
+        </button>
+    </div>
+
+    <div class="touch-hint" id="touchHint">Swipe left/right to navigate</div>
+
+    <script>
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.slide');
+        const totalSlides = slides.length;
+        let touchStartX = 0;
+        let touchEndX = 0;
+
+        function showSlide(n) {
+            // Handle wrapping
+            if (n >= totalSlides) currentSlide = 0;
+            else if (n < 0) currentSlide = totalSlides - 1;
+            else currentSlide = n;
+
+            // Hide all slides and show current
+            slides.forEach((slide, index) => {
+                slide.classList.remove('active');
+                if (index === currentSlide) {
+                    slide.classList.add('active');
+                }
+            });
+
+            // Update progress
+            const progress = ((currentSlide + 1) / totalSlides) * 100;
+            document.getElementById('progressFill').style.width = progress + '%';
+            document.getElementById('slideCounter').textContent = `${currentSlide + 1} / ${totalSlides}`;
+
+            // Update button states
+            document.getElementById('prevBtn').disabled = currentSlide === 0;
+            document.getElementById('nextBtn').disabled = currentSlide === totalSlides - 1;
+        }
+
+        function changeSlide(direction) {
+            showSlide(currentSlide + direction);
+        }
+
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'Enter') {
+                e.preventDefault();
+                changeSlide(1);
+            } else if (e.key === 'ArrowLeft' || e.key === 'Backspace') {
+                e.preventDefault();
+                changeSlide(-1);
+            } else if (e.key === 'Home') {
+                e.preventDefault();
+                showSlide(0);
+            } else if (e.key === 'End') {
+                e.preventDefault();
+                showSlide(totalSlides - 1);
+            }
+        });
+
+        // Touch/swipe support
+        document.addEventListener('touchstart', (e) => {
+            touchStartX = e.changedTouches[0].screenX;
+        }, { passive: true });
+
+        document.addEventListener('touchend', (e) => {
+            touchEndX = e.changedTouches[0].screenX;
+            handleSwipe();
+        }, { passive: true });
+
+        function handleSwipe() {
+            const swipeThreshold = 50;
+            const diff = touchStartX - touchEndX;
+
+            if (Math.abs(diff) > swipeThreshold) {
+                if (diff > 0) {
+                    changeSlide(1); // Swipe left = next
+                } else {
+                    changeSlide(-1); // Swipe right = previous
+                }
+            }
+        }
+
+        // Show touch hint on mobile
+        if ('ontouchstart' in window) {
+            const hint = document.getElementById('touchHint');
+            hint.classList.add('show');
+            setTimeout(() => {
+                hint.classList.remove('show');
+            }, 3000);
+        }
+
+        // Initialize
+        showSlide(0);
+
+        // Handle window resize for responsive adjustments
+        window.addEventListener('resize', () => {
+            // Recalculate any dynamic elements if needed
+        });
+    </script>
+</body>
+</html>
