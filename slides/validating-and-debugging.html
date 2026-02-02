@@ -1,0 +1,1209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lesson 5: Validating and Debugging Your Code</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --accent-color: #e74c3c;
+            --light-bg: #ecf0f1;
+            --text-color: #2c3e50;
+            --code-bg: #1e1e1e;
+            --code-text: #d4d4d4;
+        }
+
+        html, body {
+            height: 100%;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--primary-color);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .slideshow-container {
+            width: 100%;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .slide {
+            display: none;
+            flex: 1;
+            padding: 2rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            overflow-y: auto;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        .slide.active {
+            display: flex;
+            flex-direction: column;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateX(20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        .slide-content {
+            max-width: 1200px;
+            width: 100%;
+            margin: 0 auto;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        h1 {
+            font-size: clamp(1.8rem, 5vw, 3rem);
+            margin-bottom: 1.5rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+            line-height: 1.2;
+        }
+
+        h2 {
+            font-size: clamp(1.4rem, 4vw, 2.2rem);
+            margin-bottom: 1rem;
+            color: #ffeaa7;
+        }
+
+        h3 {
+            font-size: clamp(1.1rem, 3vw, 1.5rem);
+            margin: 1rem 0 0.5rem;
+            color: #81ecec;
+        }
+
+        p {
+            font-size: clamp(1rem, 2.5vw, 1.3rem);
+            line-height: 1.6;
+            margin-bottom: 1rem;
+        }
+
+        ul, ol {
+            font-size: clamp(0.95rem, 2.2vw, 1.2rem);
+            line-height: 1.8;
+            margin-left: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        li {
+            margin-bottom: 0.5rem;
+        }
+
+        a {
+            color: #ffeaa7;
+            text-decoration: underline;
+        }
+
+        a:hover {
+            color: #fdcb6e;
+        }
+
+        code {
+            background: rgba(0,0,0,0.3);
+            padding: 0.2em 0.5em;
+            border-radius: 4px;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 0.9em;
+        }
+
+        pre {
+            background: var(--code-bg);
+            color: var(--code-text);
+            padding: 1rem;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 1rem 0;
+            font-size: clamp(0.75rem, 1.6vw, 0.95rem);
+            line-height: 1.5;
+        }
+
+        pre code {
+            background: none;
+            padding: 0;
+        }
+
+        .highlight {
+            background: rgba(255,255,255,0.15);
+            padding: 1rem;
+            border-radius: 8px;
+            border-left: 4px solid #ffeaa7;
+            margin: 1rem 0;
+        }
+
+        .note {
+            background: rgba(46, 204, 113, 0.2);
+            padding: 1rem;
+            border-radius: 8px;
+            border-left: 4px solid #2ecc71;
+            margin: 1rem 0;
+        }
+
+        .caution {
+            background: rgba(231, 76, 60, 0.2);
+            padding: 1rem;
+            border-radius: 8px;
+            border-left: 4px solid #e74c3c;
+            margin: 1rem 0;
+        }
+
+        .two-column {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            align-items: start;
+        }
+
+        .three-column {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.5rem;
+            align-items: start;
+        }
+
+        @media (max-width: 900px) {
+            .three-column {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .two-column, .three-column {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .image-container {
+            text-align: center;
+            margin: 1rem 0;
+        }
+
+        .image-container img {
+            max-width: 100%;
+            max-height: 45vh;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        }
+
+        .image-caption {
+            font-size: 0.9rem;
+            font-style: italic;
+            margin-top: 0.5rem;
+            opacity: 0.8;
+        }
+
+        /* Navigation */
+        .nav-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 2rem;
+            background: rgba(0,0,0,0.3);
+            backdrop-filter: blur(10px);
+            flex-shrink: 0;
+        }
+
+        .nav-btn {
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: white;
+            padding: 0.8rem 1.5rem;
+            font-size: 1rem;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .nav-btn:hover:not(:disabled) {
+            background: rgba(255,255,255,0.3);
+            transform: scale(1.05);
+        }
+
+        .nav-btn:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+
+        .progress-container {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .progress-bar {
+            width: 150px;
+            height: 6px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: #ffeaa7;
+            transition: width 0.3s ease;
+        }
+
+        .slide-counter {
+            font-size: 0.9rem;
+            color: rgba(255,255,255,0.8);
+        }
+
+        /* Slide-specific styles */
+        .title-slide {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            text-align: center;
+        }
+
+        .title-slide h1 {
+            font-size: clamp(2rem, 6vw, 4rem);
+            margin-bottom: 2rem;
+        }
+
+        .title-slide .subtitle {
+            font-size: clamp(1rem, 2.5vw, 1.5rem);
+            opacity: 0.8;
+        }
+
+        .learning-objectives {
+            background: linear-gradient(135deg, #0f4c75 0%, #1b262c 100%);
+        }
+
+        .tool-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+
+        .tool-item {
+            background: rgba(255,255,255,0.1);
+            padding: 1rem;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .tool-item code {
+            display: block;
+            font-size: 1.1em;
+            margin-bottom: 0.5rem;
+            color: #ffeaa7;
+        }
+
+        .touch-hint {
+            position: fixed;
+            bottom: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0,0,0,0.5);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .touch-hint.show {
+            opacity: 1;
+        }
+
+        .keyboard-hint {
+            font-size: 0.8rem;
+            opacity: 0.6;
+            text-align: center;
+            margin-top: 0.5rem;
+        }
+
+        @media (max-width: 600px) {
+            .slide {
+                padding: 1rem;
+            }
+
+            .nav-container {
+                padding: 0.8rem 1rem;
+            }
+
+            .nav-btn {
+                padding: 0.6rem 1rem;
+                font-size: 0.9rem;
+            }
+
+            .progress-bar {
+                width: 80px;
+            }
+
+            ul, ol {
+                margin-left: 1rem;
+            }
+
+            pre {
+                font-size: 0.7rem;
+                padding: 0.75rem;
+            }
+        }
+
+        /* Slide themes */
+        .slide:nth-child(odd) {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .slide:nth-child(even) {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+        }
+
+        .slide:nth-child(3n) {
+            background: linear-gradient(135deg, #ee0979 0%, #ff6a00 100%);
+        }
+
+        .slide:nth-child(4n) {
+            background: linear-gradient(135deg, #2193b0 0%, #6dd5ed 100%);
+        }
+
+        .slide:nth-child(5n) {
+            background: linear-gradient(135deg, #c31432 0%, #240b36 100%);
+        }
+
+        /* Step list styling */
+        .steps {
+            counter-reset: step-counter;
+            list-style: none;
+            margin-left: 0;
+        }
+
+        .steps li {
+            counter-increment: step-counter;
+            position: relative;
+            padding-left: 2.5rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .steps li::before {
+            content: counter(step-counter);
+            position: absolute;
+            left: 0;
+            top: 0;
+            background: rgba(255,255,255,0.2);
+            border-radius: 50%;
+            width: 1.8rem;
+            height: 1.8rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="slideshow-container">
+        <!-- Slide 1: Title -->
+        <div class="slide title-slide active">
+            <div class="slide-content">
+                <h1>Validating and Debugging Your Code</h1>
+                <p class="subtitle">Lesson 5: Finding and Fixing Errors in HTML, CSS, and JavaScript</p>
+                <p class="keyboard-hint">Use arrow keys, swipe, or click buttons to navigate</p>
+            </div>
+        </div>
+
+        <!-- Slide 2: Learning Objectives -->
+        <div class="slide learning-objectives">
+            <div class="slide-content">
+                <h1>What You'll Learn</h1>
+                <div class="two-column">
+                    <ul>
+                        <li>How to validate your HTML and CSS</li>
+                        <li>How to use Developer Tools to debug HTML and CSS</li>
+                        <li>How to use the JavaScript Console</li>
+                    </ul>
+                    <ul>
+                        <li>Modern debugging techniques and tools</li>
+                        <li>How to debug on mobile devices</li>
+                        <li>Using breakpoints to step through code</li>
+                    </ul>
+                </div>
+                <div class="highlight">
+                    <p>Bugs happen to everyone. Don't worry about them—just learn to find and fix them!</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 3: Why Validation Matters -->
+        <div class="slide">
+            <div class="slide-content">
+                <h1>Why Validation Matters</h1>
+                <div class="two-column">
+                    <div>
+                        <h3>What is Validation?</h3>
+                        <p>Testing your pages with a special application that:</p>
+                        <ul>
+                            <li>Searches for errors in your code</li>
+                            <li>Ensures pages adhere to HTML/CSS standards</li>
+                            <li>Catches issues before users see them</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h3>Benefits</h3>
+                        <ul>
+                            <li>Consistent display across browsers</li>
+                            <li>Better accessibility</li>
+                            <li>Easier debugging</li>
+                            <li>Professional quality code</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 4: W3C Validators -->
+        <div class="slide">
+            <div class="slide-content">
+                <h1>W3C Validation Services</h1>
+                <div class="two-column">
+                    <div>
+                        <h3>HTML Validator</h3>
+                        <p><a href="https://validator.w3.org" target="_blank">validator.w3.org</a></p>
+                        <ul>
+                            <li><strong>Validate by URI</strong> - Enter a URL</li>
+                            <li><strong>Validate by File Upload</strong> - Upload local files</li>
+                            <li><strong>Validate by Direct Input</strong> - Paste code</li>
+                        </ul>
+                        <h3>CSS Validator</h3>
+                        <p><a href="https://jigsaw.w3.org/css-validator/" target="_blank">jigsaw.w3.org/css-validator</a></p>
+                    </div>
+                    <div class="image-container">
+                        <img src="assets/fig-5.1-w3c-validator.png" alt="W3C Markup Validation Service interface showing the three validation options">
+                    </div>
+                </div>
+                <div class="note">
+                    <p><strong>Tip:</strong> Fix errors in order—one fix often resolves multiple reported issues!</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 5: Modern Validation Tools -->
+        <div class="slide">
+            <div class="slide-content">
+                <h1>Modern Validation Tools</h1>
+                <div class="tool-grid">
+                    <div class="tool-item">
+                        <code>Code Editors</code>
+                        <p>VS Code, Sublime Text have built-in validation as you type</p>
+                    </div>
+                    <div class="tool-item">
+                        <code>Browser Extensions</code>
+                        <p>HTML Validator, CSS Validator extensions for in-browser checking</p>
+                    </div>
+                    <div class="tool-item">
+                        <code>Build Tools</code>
+                        <p>HTMLHint, ESLint, Stylelint for automated validation</p>
+                    </div>
+                </div>
+                <div class="highlight">
+                    <p>Modern editors catch many errors in real-time before you even save the file!</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 6: Accessibility Validation -->
+        <div class="slide">
+            <div class="slide-content">
+                <h1>Accessibility Validation</h1>
+                <p>Beyond syntax—ensure your pages work for everyone:</p>
+                <div class="tool-grid">
+                    <div class="tool-item">
+                        <code>axe DevTools</code>
+                        <p>Browser extension with detailed accessibility reports</p>
+                    </div>
+                    <div class="tool-item">
+                        <code>WAVE</code>
+                        <p><a href="https://wave.webaim.org/" target="_blank">wave.webaim.org</a> - Visual accessibility feedback</p>
+                    </div>
+                    <div class="tool-item">
+                        <code>Lighthouse</code>
+                        <p>Built into Chrome DevTools - audits accessibility, SEO, performance</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 7: Opening Developer Tools -->
+        <div class="slide">
+            <div class="slide-content">
+                <h1>Opening Developer Tools</h1>
+                <div class="two-column">
+                    <div>
+                        <h3>Keyboard Shortcuts</h3>
+                        <ul>
+                            <li><strong>Windows/Linux:</strong> F12 or Ctrl+Shift+I</li>
+                            <li><strong>Mac:</strong> Cmd+Option+I</li>
+                        </ul>
+                        <h3>Right-Click Method</h3>
+                        <p>Right-click any element → "Inspect" or "Inspect Element"</p>
+                    </div>
+                    <div>
+                        <h3>Menu Method</h3>
+                        <ul>
+                            <li><strong>Chrome:</strong> Menu → More Tools → Developer Tools</li>
+                            <li><strong>Firefox:</strong> Menu → More Tools → Web Developer Tools</li>
+                            <li><strong>Safari:</strong> Develop → Show Web Inspector</li>
+                            <li><strong>Edge:</strong> Menu → More Tools → Developer Tools</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 8: DevTools Panels Overview -->
+        <div class="slide">
+            <div class="slide-content">
+                <h1>Developer Tools Panels</h1>
+                <div class="tool-grid">
+                    <div class="tool-item">
+                        <code>Elements</code>
+                        <p>Inspect and edit HTML and CSS in real-time</p>
+                    </div>
+                    <div class="tool-item">
+                        <code>Console</code>
+                        <p>View errors, warnings, and log messages</p>
+                    </div>
+                    <div class="tool-item">
+                        <code>Sources</code>
+                        <p>Debug JavaScript with breakpoints</p>
+                    </div>
+                    <div class="tool-item">
+                        <code>Network</code>
+                        <p>Monitor resource loading and API calls</p>
+                    </div>
+                    <div class="tool-item">
+                        <code>Performance</code>
+                        <p>Identify bottlenecks and optimize speed</p>
+                    </div>
+                    <div class="tool-item">
+                        <code>Lighthouse</code>
+                        <p>Audit accessibility, SEO, and performance</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 9: Debugging HTML with Inspector -->
+        <div class="slide">
+            <div class="slide-content">
+                <h1>Debugging HTML with the Inspector</h1>
+                <div class="two-column">
+                    <div>
+                        <h3>Common HTML Errors</h3>
+                        <ul>
+                            <li>Unclosed tags: <code>&lt;i&gt;</code> without <code>&lt;/i&gt;</code></li>
+                            <li>Typos in tags: <code>&lt;ll&gt;</code> instead of <code>&lt;li&gt;</code></li>
+                            <li>Mismatched tags</li>
+                            <li>Missing required attributes</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h3>How to Debug</h3>
+                        <ol class="steps">
+                            <li>Right-click → Inspect Element</li>
+                            <li>Expand nodes in Elements panel</li>
+                            <li>Compare DOM to your source</li>
+                            <li>Look for unexpected elements</li>
+                            <li>Fix in source file and refresh</li>
+                        </ol>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 10: HTML Debug Example -->
+        <div class="slide">
+            <div class="slide-content">
+                <h1>HTML Debug Example</h1>
+                <div class="two-column">
+                    <div>
+                        <h3>Buggy Code</h3>
+                        <pre><code>&lt;h1&gt;&lt;i&gt;Favorite&lt;i&gt; Movies&lt;/h1&gt;
+&lt;ul&gt;
+  &lt;ll&gt;Lord of the Rings&lt;/li&gt;
+  &lt;li&gt;Harry Potter&lt;/li&gt;
+&lt;/ul&gt;</code></pre>
+                        <p>Problems: Missing <code>/</code> in closing <code>&lt;/i&gt;</code> and typo <code>&lt;ll&gt;</code></p>
+                    </div>
+                    <div>
+                        <h3>Fixed Code</h3>
+                        <pre><code>&lt;h1&gt;&lt;i&gt;Favorite&lt;/i&gt; Movies&lt;/h1&gt;
+&lt;ul&gt;
+  &lt;li&gt;Lord of the Rings&lt;/li&gt;
+  &lt;li&gt;Harry Potter&lt;/li&gt;
+&lt;/ul&gt;</code></pre>
+                        <p>The inspector shows the DOM as the browser interprets it—differences reveal errors!</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 11: Debugging CSS with Inspector -->
+        <div class="slide">
+            <div class="slide-content">
+                <h1>Debugging CSS with the Inspector</h1>
+                <div class="two-column">
+                    <div>
+                        <h3>What You Can Do</h3>
+                        <ul>
+                            <li>See all styles applied to an element</li>
+                            <li>View inherited styles</li>
+                            <li>Toggle styles on/off with checkboxes</li>
+                            <li>Edit values in real-time</li>
+                            <li>Add new styles to test</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h3>Useful Features</h3>
+                        <ul>
+                            <li><strong>Computed tab:</strong> Final calculated values</li>
+                            <li><strong>Box Model:</strong> Visual margin/padding/border</li>
+                            <li><strong>Grid Inspector:</strong> Debug CSS Grid layouts</li>
+                            <li><strong>Flexbox Inspector:</strong> Debug Flexbox layouts</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="note">
+                    <p>Changes in DevTools are temporary—copy working changes to your source file!</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 12: The Console Panel -->
+        <div class="slide">
+            <div class="slide-content">
+                <h1>The Console Panel</h1>
+                <div class="two-column">
+                    <div>
+                        <h3>What It Shows</h3>
+                        <ul>
+                            <li><strong style="color: #e74c3c;">Errors</strong> - Red, with stack trace</li>
+                            <li><strong style="color: #f39c12;">Warnings</strong> - Yellow background</li>
+                            <li><strong style="color: #3498db;">Info</strong> - Blue/gray messages</li>
+                            <li><strong>Logs</strong> - Your console.log() output</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h3>Error Messages Include</h3>
+                        <ul>
+                            <li>Error type (SyntaxError, ReferenceError, etc.)</li>
+                            <li>Description of what went wrong</li>
+                            <li>File name and line number (clickable!)</li>
+                            <li>Stack trace showing call history</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 13: Console Methods -->
+        <div class="slide">
+            <div class="slide-content" style="max-width: 100%; padding: 0 1rem;">
+                <h1 style="text-align: center; margin-bottom: 0.5rem;">Console Methods for Debugging</h1>
+                <p style="text-align: center; margin-bottom: 0.5rem;">Try different console methods and open DevTools (F12) to see the output.</p>
+                <div class="codepen-container" style="flex: 1; min-height: 500px; width: 100%;">
+                    <iframe title="Console Methods Demo" src="https://codepen.io/mattkearl/embed/GgqvZar?default-tab=js%2Cresult&editable=true" loading="lazy" style="width: 100%; height: 100%; min-height: 500px;"></iframe>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 14: Common JavaScript Errors -->
+        <div class="slide">
+            <div class="slide-content">
+                <h1>Common JavaScript Errors</h1>
+                <div class="tool-grid">
+                    <div class="tool-item">
+                        <code>SyntaxError</code>
+                        <p>Invalid syntax - missing brackets, typos</p>
+                        <pre><code>console.log("Hi"  // Missing )</code></pre>
+                    </div>
+                    <div class="tool-item">
+                        <code>ReferenceError</code>
+                        <p>Variable not defined</p>
+                        <pre><code>console.log(undefinedVar);</code></pre>
+                    </div>
+                    <div class="tool-item">
+                        <code>TypeError</code>
+                        <p>Wrong type or calling non-function</p>
+                        <pre><code>null.toString();</code></pre>
+                    </div>
+                </div>
+                <div class="highlight">
+                    <p><strong>Remember:</strong> JavaScript is case-sensitive! <code>countIt()</code> ≠ <code>countit()</code></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 15: The Sources Panel -->
+        <div class="slide">
+            <div class="slide-content">
+                <h1>The Sources Panel (Debugger)</h1>
+                <div class="two-column">
+                    <div>
+                        <h3>Key Features</h3>
+                        <ul>
+                            <li>View all loaded JavaScript files</li>
+                            <li>Set breakpoints to pause execution</li>
+                            <li>Step through code line by line</li>
+                            <li>Watch variable values change</li>
+                            <li>View the call stack</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h3>Debugging Controls</h3>
+                        <ul>
+                            <li><strong>Resume/Pause:</strong> Continue or pause execution</li>
+                            <li><strong>Step Over:</strong> Execute current line, skip into functions</li>
+                            <li><strong>Step Into:</strong> Enter the function being called</li>
+                            <li><strong>Step Out:</strong> Finish current function, return to caller</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 16: Setting Breakpoints -->
+        <div class="slide">
+            <div class="slide-content">
+                <h1>Setting Breakpoints</h1>
+                <div class="two-column">
+                    <div>
+                        <h3>In DevTools</h3>
+                        <ol class="steps">
+                            <li>Open Sources panel</li>
+                            <li>Find your JavaScript file</li>
+                            <li>Click the line number to set breakpoint</li>
+                            <li>Blue marker appears</li>
+                            <li>Click again to remove</li>
+                        </ol>
+                    </div>
+                    <div>
+                        <h3>In Your Code</h3>
+                        <pre><code>function calculate() {
+  debugger; // Pauses here!
+  const result = a + b;
+  return result;
+}</code></pre>
+                        <p>The <code>debugger</code> keyword pauses execution when DevTools is open.</p>
+                    </div>
+                </div>
+                <div class="caution">
+                    <p>Remove <code>debugger</code> statements before deploying to production!</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 17: Watching Variables -->
+        <div class="slide">
+            <div class="slide-content">
+                <h1>Watching Variables</h1>
+                <div class="two-column">
+                    <div>
+                        <h3>Scope Panel</h3>
+                        <p>When paused at a breakpoint:</p>
+                        <ul>
+                            <li><strong>Local:</strong> Variables in current function</li>
+                            <li><strong>Closure:</strong> Variables from outer scopes</li>
+                            <li><strong>Global:</strong> Window/global object properties</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h3>Watch Expressions</h3>
+                        <p>Add custom expressions to monitor:</p>
+                        <ul>
+                            <li>Click + in Watch panel</li>
+                            <li>Type any expression: <code>count > 5</code></li>
+                            <li>See value update as you step</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="highlight">
+                    <p>Hover over any variable in the source code while paused to see its current value!</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 18: Debug Example -->
+        <div class="slide">
+            <div class="slide-content">
+                <h1>Debugging Example: Counter Not Working</h1>
+                <div class="two-column">
+                    <div>
+                        <h3>Buggy Code</h3>
+                        <pre><code>function incCount() {
+  var count = 0;  // Problem!
+  count += 1;
+  return count;
+}
+// Always returns 1!</code></pre>
+                        <p><strong>Issue:</strong> <code>count</code> resets to 0 every time the function is called.</p>
+                    </div>
+                    <div>
+                        <h3>Fixed Code</h3>
+                        <pre><code>var count = 0;  // Moved outside
+
+function incCount() {
+  count += 1;
+  return count;
+}
+// Now increments properly!</code></pre>
+                        <p><strong>Fix:</strong> Declare <code>count</code> outside the function so it persists.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 19: Network Panel -->
+        <div class="slide">
+            <div class="slide-content">
+                <h1>The Network Panel</h1>
+                <div class="two-column">
+                    <div>
+                        <h3>What It Shows</h3>
+                        <ul>
+                            <li>All resources loaded by the page</li>
+                            <li>HTTP status codes (200, 404, 500...)</li>
+                            <li>Request/response headers and bodies</li>
+                            <li>Load times for each resource</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h3>Useful For</h3>
+                        <ul>
+                            <li>Finding missing files (404 errors)</li>
+                            <li>Debugging API calls</li>
+                            <li>Identifying slow resources</li>
+                            <li>Checking CORS errors</li>
+                            <li>Verifying data sent/received</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 20: Source Maps -->
+        <div class="slide">
+            <div class="slide-content">
+                <h1>Understanding Source Maps</h1>
+                <div class="two-column">
+                    <div>
+                        <h3>The Problem</h3>
+                        <p>Production code is often:</p>
+                        <ul>
+                            <li><strong>Minified:</strong> Whitespace removed, short variable names</li>
+                            <li><strong>Transpiled:</strong> Modern JS converted for older browsers</li>
+                            <li><strong>Bundled:</strong> Multiple files combined into one</li>
+                        </ul>
+                        <p>This makes debugging nearly impossible!</p>
+                    </div>
+                    <div>
+                        <h3>The Solution</h3>
+                        <p>Source maps provide a mapping between:</p>
+                        <ul>
+                            <li>Transformed code → Original source</li>
+                            <li>Allows debugging original code</li>
+                            <li>Shows original variable names</li>
+                            <li>Generated automatically by build tools</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 21: Mobile Debugging -->
+        <div class="slide">
+            <div class="slide-content">
+                <h1>Debugging on Mobile Devices</h1>
+                <p>Desktop testing isn't enough—real devices reveal unique issues:</p>
+                <div class="two-column">
+                    <div>
+                        <h3>Android (Chrome)</h3>
+                        <ol class="steps">
+                            <li>Enable Developer Options on device</li>
+                            <li>Enable USB Debugging</li>
+                            <li>Connect via USB</li>
+                            <li>Open <code>chrome://inspect</code></li>
+                            <li>Click "Inspect" on your page</li>
+                        </ol>
+                    </div>
+                    <div>
+                        <h3>iOS (Safari)</h3>
+                        <ol class="steps">
+                            <li>Settings → Safari → Advanced → Web Inspector</li>
+                            <li>Connect to Mac via USB</li>
+                            <li>Open Safari on Mac</li>
+                            <li>Develop menu → Your device</li>
+                            <li>Select page to inspect</li>
+                        </ol>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 22: Device Mode -->
+        <div class="slide">
+            <div class="slide-content">
+                <h1>Device Mode in DevTools</h1>
+                <div class="two-column">
+                    <div>
+                        <h3>How to Enable</h3>
+                        <ul>
+                            <li>Click device icon in DevTools toolbar</li>
+                            <li>Or press Ctrl+Shift+M (Cmd+Shift+M on Mac)</li>
+                        </ul>
+                        <h3>Features</h3>
+                        <ul>
+                            <li>Simulate different screen sizes</li>
+                            <li>Test touch events</li>
+                            <li>Throttle network speed</li>
+                            <li>Emulate device pixel ratio</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <div class="note">
+                            <p><strong>Important:</strong> Device mode is useful for quick testing, but always verify on real devices before launching!</p>
+                        </div>
+                        <h3>Also Consider</h3>
+                        <ul>
+                            <li><strong>BrowserStack:</strong> Test on real cloud devices</li>
+                            <li><strong>Sauce Labs:</strong> Automated cross-browser testing</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 23: Debugging Best Practices -->
+        <div class="slide">
+            <div class="slide-content">
+                <h1>Debugging Best Practices</h1>
+                <div class="two-column">
+                    <ul>
+                        <li><strong>Validate first</strong> - Run through W3C validators</li>
+                        <li><strong>Check the Console</strong> - Look for red errors</li>
+                        <li><strong>Use breakpoints</strong> - Step through problem code</li>
+                        <li><strong>Test multiple times</strong> - Don't stop at one successful test</li>
+                        <li><strong>Isolate the problem</strong> - Comment out code to find the issue</li>
+                    </ul>
+                    <ul>
+                        <li><strong>Read error messages</strong> - They often tell you exactly what's wrong</li>
+                        <li><strong>Check Network panel</strong> - For missing resources</li>
+                        <li><strong>Test in multiple browsers</strong> - Don't assume consistency</li>
+                        <li><strong>Test on real devices</strong> - Desktop simulation isn't perfect</li>
+                        <li><strong>Keep console clean</strong> - Remove debug code before production</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 24: Summary -->
+        <div class="slide">
+            <div class="slide-content">
+                <h1>Summary</h1>
+                <div class="two-column">
+                    <div>
+                        <h3>Validation Tools</h3>
+                        <ul>
+                            <li>W3C HTML Validator</li>
+                            <li>W3C CSS Validator</li>
+                            <li>Code editor built-in validation</li>
+                            <li>Accessibility tools (axe, WAVE, Lighthouse)</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h3>Developer Tools</h3>
+                        <ul>
+                            <li><strong>Elements:</strong> Inspect/edit HTML & CSS</li>
+                            <li><strong>Console:</strong> View errors and logs</li>
+                            <li><strong>Sources:</strong> Debug with breakpoints</li>
+                            <li><strong>Network:</strong> Monitor resources</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="highlight">
+                    <p>The methods you learned will save countless hours of frustration. Bugs happen—now you know how to find and fix them!</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 25: Q&A -->
+        <div class="slide">
+            <div class="slide-content">
+                <h1>Q&A</h1>
+                <div class="two-column">
+                    <div>
+                        <h3>Q: Do I need the <code>&lt;!doctype&gt;</code> tag?</h3>
+                        <p>A: Yes! Without it, browsers guess which standard to follow, which can cause display issues.</p>
+
+                        <h3>Q: When should I use <code>debugger</code> vs manual breakpoints?</h3>
+                        <p>A: Manual breakpoints for quick sessions. Use <code>debugger</code> in code for complex paths or page load issues. Always remove before production.</p>
+                    </div>
+                    <div>
+                        <h3>Q: Should I worry about all Console warnings?</h3>
+                        <p>A: Focus on errors (red) first. Warnings (yellow) should be addressed but may not break your page. Aim for a clean console in production.</p>
+
+                        <h3>Q: How do I debug mobile-only issues?</h3>
+                        <p>A: Use remote debugging to connect your device to desktop DevTools via USB.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 26: Resources -->
+        <div class="slide title-slide">
+            <div class="slide-content">
+                <h1>Additional Resources</h1>
+                <div class="tool-grid">
+                    <div class="tool-item">
+                        <strong>W3C HTML Validator</strong>
+                        <p><a href="https://validator.w3.org" target="_blank">validator.w3.org</a></p>
+                    </div>
+                    <div class="tool-item">
+                        <strong>W3C CSS Validator</strong>
+                        <p><a href="https://jigsaw.w3.org/css-validator/" target="_blank">jigsaw.w3.org/css-validator</a></p>
+                    </div>
+                    <div class="tool-item">
+                        <strong>Chrome DevTools Docs</strong>
+                        <p><a href="https://developers.google.com/web/tools/chrome-devtools/" target="_blank">Chrome DevTools</a></p>
+                    </div>
+                    <div class="tool-item">
+                        <strong>Firefox DevTools</strong>
+                        <p><a href="https://developer.mozilla.org/en-US/docs/Tools" target="_blank">MDN Web Docs</a></p>
+                    </div>
+                    <div class="tool-item">
+                        <strong>WAVE Accessibility</strong>
+                        <p><a href="https://wave.webaim.org/" target="_blank">wave.webaim.org</a></p>
+                    </div>
+                    <div class="tool-item">
+                        <strong>axe DevTools</strong>
+                        <p><a href="https://www.deque.com/axe/devtools/" target="_blank">deque.com/axe</a></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Navigation -->
+    <div class="nav-container">
+        <button class="nav-btn" id="prevBtn" onclick="changeSlide(-1)">
+            <span>&#8592;</span> Previous
+        </button>
+        <div class="progress-container">
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+            <span class="slide-counter" id="slideCounter">1 / 26</span>
+        </div>
+        <button class="nav-btn" id="nextBtn" onclick="changeSlide(1)">
+            Next <span>&#8594;</span>
+        </button>
+    </div>
+
+    <div class="touch-hint" id="touchHint">Swipe left/right to navigate</div>
+
+    <script>
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.slide');
+        const totalSlides = slides.length;
+        let touchStartX = 0;
+        let touchEndX = 0;
+
+        function showSlide(n) {
+            if (n >= totalSlides) currentSlide = 0;
+            else if (n < 0) currentSlide = totalSlides - 1;
+            else currentSlide = n;
+
+            slides.forEach((slide, index) => {
+                slide.classList.remove('active');
+                if (index === currentSlide) {
+                    slide.classList.add('active');
+                }
+            });
+
+            const progress = ((currentSlide + 1) / totalSlides) * 100;
+            document.getElementById('progressFill').style.width = progress + '%';
+            document.getElementById('slideCounter').textContent = `${currentSlide + 1} / ${totalSlides}`;
+
+            document.getElementById('prevBtn').disabled = currentSlide === 0;
+            document.getElementById('nextBtn').disabled = currentSlide === totalSlides - 1;
+        }
+
+        function changeSlide(direction) {
+            showSlide(currentSlide + direction);
+        }
+
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'Enter') {
+                e.preventDefault();
+                changeSlide(1);
+            } else if (e.key === 'ArrowLeft' || e.key === 'Backspace') {
+                e.preventDefault();
+                changeSlide(-1);
+            } else if (e.key === 'Home') {
+                e.preventDefault();
+                showSlide(0);
+            } else if (e.key === 'End') {
+                e.preventDefault();
+                showSlide(totalSlides - 1);
+            }
+        });
+
+        // Touch/swipe support
+        document.addEventListener('touchstart', (e) => {
+            touchStartX = e.changedTouches[0].screenX;
+        }, { passive: true });
+
+        document.addEventListener('touchend', (e) => {
+            touchEndX = e.changedTouches[0].screenX;
+            handleSwipe();
+        }, { passive: true });
+
+        function handleSwipe() {
+            const swipeThreshold = 50;
+            const diff = touchStartX - touchEndX;
+
+            if (Math.abs(diff) > swipeThreshold) {
+                if (diff > 0) {
+                    changeSlide(1);
+                } else {
+                    changeSlide(-1);
+                }
+            }
+        }
+
+        // Show touch hint on mobile
+        if ('ontouchstart' in window) {
+            const hint = document.getElementById('touchHint');
+            hint.classList.add('show');
+            setTimeout(() => {
+                hint.classList.remove('show');
+            }, 3000);
+        }
+
+        // Initialize
+        showSlide(0);
+    </script>
+</body>
+</html>
