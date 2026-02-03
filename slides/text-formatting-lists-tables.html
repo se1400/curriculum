@@ -558,6 +558,83 @@
             margin-top: 0;
         }
 
+        /* Table Styling Playground */
+        .table-playground {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .table-controls-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1.5rem;
+            background: rgba(0,0,0,0.2);
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            align-items: center;
+        }
+
+        .table-control {
+            display: flex;
+            flex-direction: column;
+            gap: 0.3rem;
+        }
+
+        .table-control > label {
+            font-size: 0.85rem;
+            color: #81ecec;
+        }
+
+        .table-control input[type="range"] {
+            width: 120px;
+            height: 8px;
+            cursor: pointer;
+        }
+
+        .table-control input[type="checkbox"] {
+            margin-right: 0.5rem;
+            cursor: pointer;
+        }
+
+        .table-preview-area {
+            background: rgba(255,255,255,0.95);
+            padding: 1.5rem;
+            border-radius: 8px;
+            overflow-x: auto;
+        }
+
+        .styled-demo-table {
+            width: 100%;
+            border-collapse: collapse;
+            color: #333;
+        }
+
+        .styled-demo-table th,
+        .styled-demo-table td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+
+        .styled-demo-table th {
+            background-color: #4a5568;
+            color: white;
+        }
+
+        .styled-demo-table.zebra tbody tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        .styled-demo-table.hover-enabled tbody tr:hover {
+            background-color: #e2e8f0;
+        }
+
+        .table-playground .code-output {
+            font-size: 0.8rem;
+        }
+
         @media (max-width: 600px) {
             .slide {
                 padding: 1rem;
@@ -1155,32 +1232,63 @@ p  { font-weight: 320; }</code></pre>
             </div>
         </div>
 
-        <!-- Slide 24: Styling Tables -->
+        <!-- Slide 24: Interactive Table Styling -->
         <div class="slide">
             <div class="slide-content">
-                <h1>Styling Tables with CSS</h1>
-                <div class="tool-grid">
-                    <div class="tool-item">
-                        <code>border-collapse</code>
-                        <p><code>collapse</code> merges borders; <code>separate</code> keeps gaps</p>
+                <h1>Table Styling Playground</h1>
+                <p>Toggle the options to see how CSS properties affect table appearance.</p>
+                <div class="table-playground">
+                    <div class="table-controls-row">
+                        <div class="table-control">
+                            <label>border-collapse</label>
+                            <div class="btn-group">
+                                <button class="active" onclick="setTableOption('collapse', 'collapse', this)">collapse</button>
+                                <button onclick="setTableOption('collapse', 'separate', this)">separate</button>
+                            </div>
+                        </div>
+                        <div class="table-control">
+                            <label>cell padding: <span id="cellPaddingValue">8px</span></label>
+                            <input type="range" id="cellPadding" min="0" max="20" value="8" onchange="updateTableStyle()">
+                        </div>
+                        <div class="table-control">
+                            <label>
+                                <input type="checkbox" id="zebraStripes" checked onchange="updateTableStyle()"> Zebra striping
+                            </label>
+                        </div>
+                        <div class="table-control">
+                            <label>
+                                <input type="checkbox" id="hoverEffect" checked onchange="updateTableStyle()"> Hover effect
+                            </label>
+                        </div>
                     </div>
-                    <div class="tool-item">
-                        <code>padding</code>
-                        <p>Add space inside cells</p>
+                    <div class="table-preview-area">
+                        <table id="demoTable" class="styled-demo-table">
+                            <thead>
+                                <tr><th>Product</th><th>Category</th><th>Price</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>Laptop</td><td>Electronics</td><td>$999</td></tr>
+                                <tr><td>Headphones</td><td>Electronics</td><td>$149</td></tr>
+                                <tr><td>Desk Chair</td><td>Furniture</td><td>$299</td></tr>
+                                <tr><td>Notebook</td><td>Office</td><td>$12</td></tr>
+                            </tbody>
+                        </table>
                     </div>
-                    <div class="tool-item">
-                        <code>text-align</code>
-                        <p>Align cell content</p>
-                    </div>
-                    <div class="tool-item">
-                        <code>nth-child</code>
-                        <p>Zebra striping for rows</p>
-                    </div>
+                    <div class="code-output" id="tableCode">table {
+  border-collapse: collapse;
+  width: 100%;
+}
+th, td {
+  border: 1px solid #ddd;
+  padding: 8px;
+}
+tr:nth-child(even) {
+  background-color: #f9f9f9;
+}
+tr:hover {
+  background-color: #f1f1f1;
+}</div>
                 </div>
-                <pre><code>table { border-collapse: collapse; width: 100%; }
-th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
-tr:nth-child(even) { background-color: #f9f9f9; }
-tr:hover { background-color: #f1f1f1; }</code></pre>
             </div>
         </div>
 
@@ -1501,6 +1609,96 @@ tr:hover { background-color: #f1f1f1; }</code></pre>
   column-rule: ${rule};
 }`;
         }
+
+        // ===== Table Styling Functions =====
+        let tableOptions = {
+            collapse: 'collapse',
+            padding: 8,
+            zebra: true,
+            hover: true
+        };
+
+        function setTableOption(option, value, btn) {
+            tableOptions[option] = value;
+
+            // Update button states
+            if (btn) {
+                btn.parentElement.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+            }
+
+            updateTableStyle();
+        }
+
+        function updateTableStyle() {
+            const table = document.getElementById('demoTable');
+            const padding = document.getElementById('cellPadding').value;
+            const zebra = document.getElementById('zebraStripes').checked;
+            const hover = document.getElementById('hoverEffect').checked;
+
+            tableOptions.padding = padding;
+            tableOptions.zebra = zebra;
+            tableOptions.hover = hover;
+
+            // Update padding display
+            document.getElementById('cellPaddingValue').textContent = padding + 'px';
+
+            // Update table styles
+            table.style.borderCollapse = tableOptions.collapse;
+
+            // Update cell padding
+            table.querySelectorAll('th, td').forEach(cell => {
+                cell.style.padding = padding + 'px';
+            });
+
+            // Toggle zebra class
+            if (zebra) {
+                table.classList.add('zebra');
+            } else {
+                table.classList.remove('zebra');
+            }
+
+            // Toggle hover class
+            if (hover) {
+                table.classList.add('hover-enabled');
+            } else {
+                table.classList.remove('hover-enabled');
+            }
+
+            // Update code output
+            let code = `table {
+  border-collapse: ${tableOptions.collapse};
+  width: 100%;
+}
+th, td {
+  border: 1px solid #ddd;
+  padding: ${padding}px;
+}`;
+
+            if (zebra) {
+                code += `
+tr:nth-child(even) {
+  background-color: #f9f9f9;
+}`;
+            }
+
+            if (hover) {
+                code += `
+tr:hover {
+  background-color: #f1f1f1;
+}`;
+            }
+
+            document.getElementById('tableCode').textContent = code;
+        }
+
+        // Initialize table with default classes
+        document.addEventListener('DOMContentLoaded', function() {
+            const table = document.getElementById('demoTable');
+            if (table) {
+                table.classList.add('zebra', 'hover-enabled');
+            }
+        });
     </script>
 </body>
 </html>
