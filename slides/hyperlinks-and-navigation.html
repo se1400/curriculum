@@ -1,0 +1,1761 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lesson 7: Hyperlinks and Navigation</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --accent-color: #e74c3c;
+            --light-bg: #ecf0f1;
+            --text-color: #2c3e50;
+            --code-bg: #1e1e1e;
+            --code-text: #d4d4d4;
+        }
+
+        html, body {
+            height: 100%;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--primary-color);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .slideshow-container {
+            width: 100%;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .slide {
+            display: none;
+            flex: 1;
+            padding: 2rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            overflow-y: auto;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        .slide.active {
+            display: flex;
+            flex-direction: column;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateX(20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        .slide-content {
+            max-width: 1200px;
+            width: 100%;
+            margin: 0 auto;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        h1 {
+            font-size: clamp(1.8rem, 5vw, 3rem);
+            margin-bottom: 1.5rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+            line-height: 1.2;
+        }
+
+        h2 {
+            font-size: clamp(1.4rem, 4vw, 2.2rem);
+            margin-bottom: 1rem;
+            color: #ffeaa7;
+        }
+
+        h3 {
+            font-size: clamp(1.1rem, 3vw, 1.5rem);
+            margin: 1rem 0 0.5rem;
+            color: #81ecec;
+        }
+
+        p {
+            font-size: clamp(1rem, 2.5vw, 1.3rem);
+            line-height: 1.6;
+            margin-bottom: 1rem;
+        }
+
+        ul, ol {
+            font-size: clamp(0.95rem, 2.2vw, 1.2rem);
+            line-height: 1.8;
+            margin-left: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        li {
+            margin-bottom: 0.5rem;
+        }
+
+        a {
+            color: #ffeaa7;
+            text-decoration: underline;
+        }
+
+        a:hover {
+            color: #fdcb6e;
+        }
+
+        code {
+            background: rgba(0,0,0,0.3);
+            padding: 0.2em 0.5em;
+            border-radius: 4px;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 0.9em;
+        }
+
+        pre {
+            background: var(--code-bg);
+            color: var(--code-text);
+            padding: 1rem;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 1rem 0;
+            font-size: clamp(0.75rem, 1.6vw, 0.95rem);
+            line-height: 1.5;
+        }
+
+        pre code {
+            background: none;
+            padding: 0;
+        }
+
+        .highlight {
+            background: rgba(255,255,255,0.15);
+            padding: 1rem;
+            border-radius: 8px;
+            border-left: 4px solid #ffeaa7;
+            margin: 1rem 0;
+        }
+
+        .note {
+            background: rgba(46, 204, 113, 0.2);
+            padding: 1rem;
+            border-radius: 8px;
+            border-left: 4px solid #2ecc71;
+            margin: 1rem 0;
+        }
+
+        .caution {
+            background: rgba(231, 76, 60, 0.2);
+            padding: 1rem;
+            border-radius: 8px;
+            border-left: 4px solid #e74c3c;
+            margin: 1rem 0;
+        }
+
+        .two-column {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            align-items: start;
+        }
+
+        .three-column {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.5rem;
+            align-items: start;
+        }
+
+        @media (max-width: 900px) {
+            .three-column {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .two-column, .three-column {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .image-container {
+            text-align: center;
+            margin: 1rem 0;
+        }
+
+        .image-container img {
+            max-width: 100%;
+            max-height: 45vh;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        }
+
+        .codepen-container {
+            width: 100%;
+            min-height: 400px;
+            border-radius: 8px;
+            overflow: hidden;
+            margin: 1rem 0;
+            flex: 1;
+        }
+
+        .codepen-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            min-height: 400px;
+        }
+
+        table.demo-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1rem 0;
+            font-size: clamp(0.8rem, 1.8vw, 1rem);
+        }
+
+        table.demo-table th,
+        table.demo-table td {
+            border: 1px solid rgba(255,255,255,0.3);
+            padding: 0.5rem;
+            text-align: left;
+        }
+
+        table.demo-table th {
+            background: rgba(0,0,0,0.2);
+        }
+
+        .navigation {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem;
+            background: var(--primary-color);
+            flex-wrap: wrap;
+        }
+
+        .nav-btn {
+            padding: 0.75rem 1.5rem;
+            font-size: 1rem;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: var(--secondary-color);
+            color: white;
+        }
+
+        .nav-btn:hover {
+            background: #2980b9;
+            transform: translateY(-2px);
+        }
+
+        .nav-btn:disabled {
+            background: #7f8c8d;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .slide-counter {
+            color: white;
+            font-size: 1rem;
+            min-width: 100px;
+            text-align: center;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 4px;
+            background: rgba(255,255,255,0.2);
+        }
+
+        .progress {
+            height: 100%;
+            background: var(--secondary-color);
+            transition: width 0.3s ease;
+        }
+
+        /* Interactive playground styles */
+        .playground {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            margin-top: 1rem;
+        }
+
+        @media (max-width: 800px) {
+            .playground {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .controls {
+            background: rgba(0,0,0,0.2);
+            padding: 1.5rem;
+            border-radius: 8px;
+        }
+
+        .control-group {
+            margin-bottom: 1rem;
+        }
+
+        .control-group label {
+            display: block;
+            font-size: 0.9rem;
+            margin-bottom: 0.3rem;
+            color: #81ecec;
+        }
+
+        .control-group select,
+        .control-group input[type="range"],
+        .control-group input[type="color"],
+        .control-group input[type="text"],
+        .control-group input[type="number"] {
+            width: 100%;
+            padding: 0.5rem;
+            border-radius: 4px;
+            border: 1px solid rgba(255,255,255,0.3);
+            background: rgba(255,255,255,0.9);
+            color: #333;
+            font-size: 1rem;
+        }
+
+        .control-group input[type="range"] {
+            padding: 0;
+            height: 8px;
+            cursor: pointer;
+        }
+
+        .control-group input[type="color"] {
+            height: 40px;
+            padding: 2px;
+            cursor: pointer;
+        }
+
+        .control-value {
+            font-size: 0.85rem;
+            color: #ffeaa7;
+            margin-top: 0.2rem;
+        }
+
+        .preview-area {
+            background: rgba(255,255,255,0.95);
+            color: #333;
+            padding: 1.5rem;
+            border-radius: 8px;
+            min-height: 200px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .code-output {
+            background: var(--code-bg);
+            color: var(--code-text);
+            padding: 1rem;
+            border-radius: 8px;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 0.85rem;
+            margin-top: 1rem;
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            margin: 0.5rem 0;
+        }
+
+        .btn-group button {
+            padding: 0.5rem 1rem;
+            border: 2px solid rgba(255,255,255,0.3);
+            background: rgba(255,255,255,0.1);
+            color: white;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+        }
+
+        .btn-group button:hover {
+            background: rgba(255,255,255,0.2);
+        }
+
+        .btn-group button.active {
+            background: var(--secondary-color);
+            border-color: var(--secondary-color);
+        }
+
+        /* Slide themes - alternating colors */
+        .slide:nth-child(odd) {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .slide:nth-child(even) {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+        }
+
+        .slide:nth-child(3n) {
+            background: linear-gradient(135deg, #ee0979 0%, #ff6a00 100%);
+        }
+
+        .slide:nth-child(4n) {
+            background: linear-gradient(135deg, #2193b0 0%, #6dd5ed 100%);
+        }
+
+        .slide:nth-child(5n) {
+            background: linear-gradient(135deg, #c31432 0%, #240b36 100%);
+        }
+
+        /* Address type cards */
+        .address-card {
+            background: rgba(255,255,255,0.1);
+            padding: 1.2rem;
+            border-radius: 8px;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .address-card h3 {
+            margin-top: 0;
+            font-size: 1.1rem;
+        }
+
+        .address-card pre {
+            font-size: clamp(0.7rem, 1.4vw, 0.85rem);
+            margin: 0.5rem 0;
+        }
+
+        .address-card p {
+            font-size: 0.95rem;
+            margin: 0;
+        }
+
+        /* Folder tree visualization */
+        .folder-tree {
+            background: rgba(0,0,0,0.25);
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: clamp(0.8rem, 1.6vw, 1rem);
+            line-height: 1.6;
+            margin: 1rem 0;
+        }
+
+        .folder-tree .folder { color: #ffeaa7; }
+        .folder-tree .file { color: #81ecec; }
+        .folder-tree .current { color: #55efc4; font-weight: bold; }
+
+        /* LoVe HAte visual */
+        .lovehate-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+
+        .lovehate-card {
+            background: rgba(0,0,0,0.2);
+            padding: 1rem;
+            border-radius: 8px;
+            text-align: center;
+            border: 2px solid rgba(255,255,255,0.2);
+        }
+
+        .lovehate-card .letter {
+            font-size: 2.5rem;
+            font-weight: bold;
+            display: block;
+            margin-bottom: 0.3rem;
+        }
+
+        .lovehate-card .pseudo {
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 1rem;
+            color: #81ecec;
+            display: block;
+            margin-bottom: 0.3rem;
+        }
+
+        .lovehate-card .desc {
+            font-size: 0.85rem;
+            opacity: 0.9;
+        }
+
+        @media (max-width: 600px) {
+            .lovehate-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        /* Mailto builder */
+        .mailto-output {
+            background: rgba(0,0,0,0.3);
+            padding: 1rem;
+            border-radius: 8px;
+            font-family: 'Consolas', 'Monaco', monospace;
+            word-break: break-all;
+            margin-top: 1rem;
+            font-size: clamp(0.75rem, 1.5vw, 0.9rem);
+        }
+
+        /* Link preview boxes */
+        .link-demo-box {
+            background: rgba(255,255,255,0.95);
+            color: #333;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+            font-size: 1.1rem;
+            line-height: 1.8;
+        }
+
+        .link-demo-box a {
+            color: #0066cc;
+        }
+
+        .link-demo-box a:visited {
+            color: #551a8b;
+        }
+
+        .link-demo-box a:hover {
+            color: #e74c3c;
+        }
+
+        .link-demo-box a:active {
+            color: #c0392b;
+        }
+
+        /* Security badge */
+        .security-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: rgba(46, 204, 113, 0.2);
+            padding: 0.4rem 0.8rem;
+            border-radius: 20px;
+            border: 1px solid #2ecc71;
+            font-size: 0.9rem;
+        }
+
+        .security-badge.danger {
+            background: rgba(231, 76, 60, 0.2);
+            border-color: #e74c3c;
+        }
+
+        /* Skip link demo */
+        .skip-link-demo {
+            background: rgba(255,255,255,0.95);
+            color: #333;
+            border-radius: 8px;
+            overflow: hidden;
+            margin: 1rem 0;
+            position: relative;
+            max-height: 300px;
+        }
+
+        .skip-link-demo .demo-nav {
+            background: #2c3e50;
+            color: white;
+            padding: 0.75rem 1rem;
+            display: flex;
+            gap: 1rem;
+            font-size: 0.9rem;
+        }
+
+        .skip-link-demo .demo-nav span {
+            cursor: pointer;
+            opacity: 0.8;
+        }
+
+        .skip-link-demo .demo-main {
+            padding: 1rem;
+        }
+
+        .skip-link-demo .skip-btn {
+            position: absolute;
+            top: -100px;
+            left: 0;
+            background: #3498db;
+            color: white;
+            padding: 0.5rem 1rem;
+            z-index: 10;
+            transition: top 0.3s;
+            border: none;
+            font-size: 1rem;
+            cursor: pointer;
+        }
+
+        .skip-link-demo:focus-within .skip-btn:focus {
+            top: 0;
+        }
+
+        /* Best practices cards */
+        .practice-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+
+        .practice-card {
+            background: rgba(0,0,0,0.2);
+            padding: 1rem;
+            border-radius: 8px;
+            border-left: 4px solid #2ecc71;
+        }
+
+        .practice-card.bad {
+            border-left-color: #e74c3c;
+        }
+
+        .practice-card h3 {
+            margin-top: 0;
+            font-size: 1rem;
+        }
+
+        .practice-card code {
+            font-size: 0.85em;
+        }
+
+        @media (max-width: 768px) {
+            .practice-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .slide {
+                padding: 1rem;
+            }
+
+            .navigation {
+                padding: 0.75rem;
+            }
+
+            .nav-btn {
+                padding: 0.5rem 1rem;
+                font-size: 0.9rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="progress-bar">
+        <div class="progress" id="progress"></div>
+    </div>
+
+    <div class="slideshow-container">
+
+        <!-- Slide 1: Title -->
+        <div class="slide active">
+            <div class="slide-content" style="text-align: center;">
+                <h1>Lesson 7: Hyperlinks and Navigation</h1>
+                <p style="font-size: clamp(1.2rem, 3vw, 1.8rem); opacity: 0.9;">The Foundation of the Web</p>
+                <div style="margin: 2rem 0;">
+                    <svg viewBox="0 0 400 200" style="max-width: 400px; margin: 0 auto; display: block;">
+                        <!-- Globe with connected nodes -->
+                        <circle cx="200" cy="100" r="60" fill="none" stroke="rgba(255,255,255,0.3)" stroke-width="2"/>
+                        <ellipse cx="200" cy="100" rx="60" ry="25" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="1"/>
+                        <ellipse cx="200" cy="100" rx="25" ry="60" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="1"/>
+                        <!-- Link nodes -->
+                        <circle cx="80" cy="60" r="12" fill="#3498db" opacity="0.8"/>
+                        <circle cx="320" cy="60" r="12" fill="#e74c3c" opacity="0.8"/>
+                        <circle cx="80" cy="140" r="12" fill="#2ecc71" opacity="0.8"/>
+                        <circle cx="320" cy="140" r="12" fill="#f39c12" opacity="0.8"/>
+                        <!-- Connection lines -->
+                        <line x1="92" y1="60" x2="140" y2="80" stroke="#3498db" stroke-width="2" opacity="0.6"/>
+                        <line x1="308" y1="60" x2="260" y2="80" stroke="#e74c3c" stroke-width="2" opacity="0.6"/>
+                        <line x1="92" y1="140" x2="140" y2="120" stroke="#2ecc71" stroke-width="2" opacity="0.6"/>
+                        <line x1="308" y1="140" x2="260" y2="120" stroke="#f39c12" stroke-width="2" opacity="0.6"/>
+                        <!-- Center link icon -->
+                        <text x="200" y="108" text-anchor="middle" fill="white" font-size="36" font-family="serif">&#128279;</text>
+                    </svg>
+                </div>
+                <p style="opacity: 0.7;">Use arrow keys, buttons, or swipe to navigate</p>
+            </div>
+        </div>
+
+        <!-- Slide 2: What Are Hyperlinks? -->
+        <div class="slide">
+            <div class="slide-content">
+                <h2>What Are Hyperlinks?</h2>
+                <ul>
+                    <li>Hyperlinks are the <strong>defining feature</strong> of the World Wide Web</li>
+                    <li>They connect documents, pages, and resources across the internet</li>
+                    <li>Created with the <code>&lt;a&gt;</code> (anchor) element</li>
+                    <li>The <code>href</code> attribute specifies the destination</li>
+                </ul>
+                <pre><code>&lt;a href="https://example.com"&gt;Visit Example&lt;/a&gt;</code></pre>
+                <div class="highlight">
+                    <strong>Fun fact:</strong> "Hypertext" in HTML stands for text with links &mdash; the ability to jump from one document to another is what made the web revolutionary.
+                </div>
+                <h3>Key Attributes</h3>
+                <ul>
+                    <li><code>href</code> &mdash; the URL or path to link to</li>
+                    <li><code>target</code> &mdash; where to open the link</li>
+                    <li><code>title</code> &mdash; tooltip text on hover</li>
+                    <li><code>download</code> &mdash; forces a file download</li>
+                    <li><code>rel</code> &mdash; relationship to the linked resource</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Slide 3: Types of Web Addresses -->
+        <div class="slide">
+            <div class="slide-content">
+                <h2>Types of Web Addresses</h2>
+                <p>There are three ways to specify a link destination:</p>
+                <div class="three-column">
+                    <div class="address-card">
+                        <h3>Relative</h3>
+                        <pre><code>href="about.html"
+href="../images/pic.jpg"
+href="pages/contact.html"</code></pre>
+                        <p>Relative to the <em>current file's</em> location</p>
+                    </div>
+                    <div class="address-card">
+                        <h3>Relative-Root</h3>
+                        <pre><code>href="/about.html"
+href="/images/pic.jpg"
+href="/pages/contact.html"</code></pre>
+                        <p>Starts from the <em>website root</em> (leading <code>/</code>)</p>
+                    </div>
+                    <div class="address-card">
+                        <h3>Absolute (FQDN)</h3>
+                        <pre><code>href="https://example.com"
+href="https://example.com/about"
+href="http://api.example.com"</code></pre>
+                        <p>Full URL including <em>protocol and domain</em></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 4: Understanding Relative Paths -->
+        <div class="slide">
+            <div class="slide-content">
+                <h2>Understanding Relative Paths</h2>
+                <div class="two-column">
+                    <div>
+                        <div class="folder-tree">
+                            <span class="folder">mywebsite/</span><br>
+                            &nbsp;&nbsp;<span class="file">index.html</span><br>
+                            &nbsp;&nbsp;<span class="folder">pages/</span><br>
+                            &nbsp;&nbsp;&nbsp;&nbsp;<span class="current">about.html</span> &larr; you are here<br>
+                            &nbsp;&nbsp;&nbsp;&nbsp;<span class="file">contact.html</span><br>
+                            &nbsp;&nbsp;<span class="folder">images/</span><br>
+                            &nbsp;&nbsp;&nbsp;&nbsp;<span class="file">logo.png</span><br>
+                            &nbsp;&nbsp;<span class="folder">css/</span><br>
+                            &nbsp;&nbsp;&nbsp;&nbsp;<span class="file">style.css</span>
+                        </div>
+                    </div>
+                    <div>
+                        <h3>From <code>pages/about.html</code>:</h3>
+                        <table class="demo-table">
+                            <tr>
+                                <th>Target</th>
+                                <th>Path</th>
+                            </tr>
+                            <tr>
+                                <td>contact.html</td>
+                                <td><code>contact.html</code></td>
+                            </tr>
+                            <tr>
+                                <td>index.html</td>
+                                <td><code>../index.html</code></td>
+                            </tr>
+                            <tr>
+                                <td>logo.png</td>
+                                <td><code>../images/logo.png</code></td>
+                            </tr>
+                            <tr>
+                                <td>style.css</td>
+                                <td><code>../css/style.css</code></td>
+                            </tr>
+                        </table>
+                        <div class="note">
+                            <code>..</code> means "go up one directory"
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 5: Relative-Root vs Absolute -->
+        <div class="slide">
+            <div class="slide-content">
+                <h2>Relative-Root vs Absolute Paths</h2>
+                <div class="two-column">
+                    <div>
+                        <h3>Relative-Root (starts with <code>/</code>)</h3>
+                        <pre><code>&lt;!-- Always from website root --&gt;
+&lt;a href="/about.html"&gt;About&lt;/a&gt;
+&lt;a href="/pages/contact.html"&gt;Contact&lt;/a&gt;
+&lt;img src="/images/logo.png"&gt;</code></pre>
+                        <div class="note">
+                            Works the same no matter what page you're on. Great for site navigation.
+                        </div>
+                        <div class="caution">
+                            Won't work opening files directly with <code>file://</code> protocol &mdash; needs a web server.
+                        </div>
+                    </div>
+                    <div>
+                        <h3>Absolute (Full URL)</h3>
+                        <pre><code>&lt;!-- Complete web address --&gt;
+&lt;a href="https://www.google.com"&gt;
+  Google
+&lt;/a&gt;
+
+&lt;a href="https://example.com/page"&gt;
+  External Page
+&lt;/a&gt;</code></pre>
+                        <div class="highlight">
+                            Use absolute URLs when linking to <strong>external websites</strong>. Use relative or relative-root paths for your <strong>own content</strong>.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 6: Linking Within a Page -->
+        <div class="slide">
+            <div class="slide-content">
+                <h2>Linking Within a Page (Anchor Links)</h2>
+                <p>Use the <code>#</code> symbol with an element's <code>id</code> to jump to a specific section:</p>
+                <div class="two-column">
+                    <div>
+                        <h3>Step 1: Add IDs to sections</h3>
+                        <pre><code>&lt;h2 id="introduction"&gt;Introduction&lt;/h2&gt;
+&lt;p&gt;Welcome to my page...&lt;/p&gt;
+
+&lt;h2 id="chapter1"&gt;Chapter 1&lt;/h2&gt;
+&lt;p&gt;This is the first chapter...&lt;/p&gt;
+
+&lt;h2 id="conclusion"&gt;Conclusion&lt;/h2&gt;
+&lt;p&gt;In summary...&lt;/p&gt;</code></pre>
+                    </div>
+                    <div>
+                        <h3>Step 2: Link to those IDs</h3>
+                        <pre><code>&lt;!-- Table of contents --&gt;
+&lt;nav&gt;
+  &lt;a href="#introduction"&gt;Intro&lt;/a&gt;
+  &lt;a href="#chapter1"&gt;Chapter 1&lt;/a&gt;
+  &lt;a href="#conclusion"&gt;Conclusion&lt;/a&gt;
+&lt;/nav&gt;
+
+&lt;!-- Back to top link --&gt;
+&lt;a href="#top"&gt;Back to Top&lt;/a&gt;</code></pre>
+                        <div class="note">
+                            The browser scrolls smoothly (or jumps) to the element with the matching <code>id</code>.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 7: Anchor Links CodePen -->
+        <div class="slide">
+            <div class="slide-content">
+                <h2>Anchor Links in Action</h2>
+                <p>Explore this interactive example of anchor links creating a table of contents:</p>
+                <div class="codepen-container">
+                    <iframe height="400" scrolling="no" title="Anchor Links - Shakespearean Sonnets" src="https://codepen.io/mattkearl/embed/GgqGWJb?default-tab=html%2Cresult&editable=true" frameborder="no" loading="lazy" allowtransparency="true" allowfullscreen="true">
+                    </iframe>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 8: Fragment Identifiers in Modern Web -->
+        <div class="slide">
+            <div class="slide-content">
+                <h2>Fragment Identifiers in Modern Web Dev</h2>
+                <p>The <code>#</code> fragment is used far beyond simple page jumps:</p>
+                <div class="three-column">
+                    <div class="address-card">
+                        <h3>Scroll-to Sections</h3>
+                        <pre><code>scroll-behavior: smooth;</code></pre>
+                        <p>Add CSS smooth scrolling for a polished UX when navigating sections.</p>
+                    </div>
+                    <div class="address-card">
+                        <h3>Single Page Apps (SPAs)</h3>
+                        <pre><code>https://app.com/#/dashboard
+https://app.com/#/settings</code></pre>
+                        <p>SPAs use hash-based routing to simulate multiple pages without reloading.</p>
+                    </div>
+                    <div class="address-card">
+                        <h3>Deep Linking</h3>
+                        <pre><code>https://docs.com/api#auth
+https://wiki.com/page#section3</code></pre>
+                        <p>Share links that go directly to a specific section of a document.</p>
+                    </div>
+                </div>
+                <div class="highlight">
+                    <strong>Pro tip:</strong> Add <code>scroll-behavior: smooth</code> to your CSS for animated scrolling when users click anchor links.
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 9: Linking Between Your Own Content -->
+        <div class="slide">
+            <div class="slide-content">
+                <h2>Linking Between Your Own Pages</h2>
+                <div class="two-column">
+                    <div>
+                        <div class="folder-tree">
+                            <span class="folder">mysite/</span><br>
+                            &nbsp;&nbsp;<span class="current">index.html</span><br>
+                            &nbsp;&nbsp;<span class="folder">pages/</span><br>
+                            &nbsp;&nbsp;&nbsp;&nbsp;<span class="file">historyquiz.html</span><br>
+                            &nbsp;&nbsp;&nbsp;&nbsp;<span class="file">historyanswers.html</span><br>
+                            &nbsp;&nbsp;<span class="folder">images/</span><br>
+                            &nbsp;&nbsp;&nbsp;&nbsp;<span class="file">banner.jpg</span>
+                        </div>
+                        <pre><code>&lt;!-- In index.html --&gt;
+&lt;a href="pages/historyquiz.html"&gt;
+  Take the History Quiz
+&lt;/a&gt;
+
+&lt;!-- In historyquiz.html --&gt;
+&lt;a href="historyanswers.html"&gt;
+  See Answers
+&lt;/a&gt;
+&lt;a href="../index.html"&gt;
+  Back to Home
+&lt;/a&gt;</code></pre>
+                    </div>
+                    <div>
+                        <h3>Navigation Pattern</h3>
+                        <div style="margin: 1rem 0;">
+                            <svg viewBox="0 0 300 220" style="width: 100%; max-width: 350px;">
+                                <!-- Page boxes -->
+                                <rect x="90" y="10" width="120" height="50" rx="8" fill="rgba(52,152,219,0.3)" stroke="#3498db" stroke-width="2"/>
+                                <text x="150" y="40" text-anchor="middle" fill="white" font-size="13">index.html</text>
+                                <!-- Quiz page -->
+                                <rect x="10" y="120" width="120" height="50" rx="8" fill="rgba(46,204,113,0.3)" stroke="#2ecc71" stroke-width="2"/>
+                                <text x="70" y="150" text-anchor="middle" fill="white" font-size="12">historyquiz.html</text>
+                                <!-- Answers page -->
+                                <rect x="170" y="120" width="120" height="50" rx="8" fill="rgba(241,196,15,0.3)" stroke="#f1c40f" stroke-width="2"/>
+                                <text x="230" y="145" text-anchor="middle" fill="white" font-size="11">historyanswers</text>
+                                <text x="230" y="160" text-anchor="middle" fill="white" font-size="11">.html</text>
+                                <!-- Arrows -->
+                                <line x1="130" y1="60" x2="80" y2="120" stroke="#3498db" stroke-width="2" marker-end="url(#arrowBlue)"/>
+                                <line x1="130" y1="145" x2="170" y2="145" stroke="#2ecc71" stroke-width="2" marker-end="url(#arrowGreen)"/>
+                                <line x1="60" y1="120" x2="130" y2="60" stroke="#e74c3c" stroke-width="1.5" stroke-dasharray="5,3" marker-end="url(#arrowRed)"/>
+                                <!-- Arrow markers -->
+                                <defs>
+                                    <marker id="arrowBlue" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6" fill="#3498db"/></marker>
+                                    <marker id="arrowGreen" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6" fill="#2ecc71"/></marker>
+                                    <marker id="arrowRed" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6" fill="#e74c3c"/></marker>
+                                </defs>
+                            </svg>
+                        </div>
+                        <div class="note">
+                            Use <strong>relative paths</strong> for your own content so the site works when moved to a different server or folder.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 10: Linking to Non-HTML Files -->
+        <div class="slide">
+            <div class="slide-content">
+                <h2>Linking to Non-HTML Files</h2>
+                <p>Links can point to any file type &mdash; PDFs, images, documents, and more.</p>
+                <div class="two-column">
+                    <div>
+                        <h3>The <code>download</code> Attribute</h3>
+                        <pre><code>&lt;!-- Opens in browser (default) --&gt;
+&lt;a href="report.pdf"&gt;
+  View Report
+&lt;/a&gt;
+
+&lt;!-- Forces download --&gt;
+&lt;a href="report.pdf" download&gt;
+  Download Report
+&lt;/a&gt;
+
+&lt;!-- Download with custom filename --&gt;
+&lt;a href="report-v3-final.pdf"
+   download="Annual-Report.pdf"&gt;
+  Download Report
+&lt;/a&gt;</code></pre>
+                    </div>
+                    <div>
+                        <h3>Common File Types</h3>
+                        <table class="demo-table">
+                            <tr><th>Type</th><th>Browser Behavior</th></tr>
+                            <tr><td>PDF</td><td>Usually opens in viewer</td></tr>
+                            <tr><td>Images</td><td>Displays directly</td></tr>
+                            <tr><td>ZIP/RAR</td><td>Auto-downloads</td></tr>
+                            <tr><td>DOCX/XLSX</td><td>Usually downloads</td></tr>
+                            <tr><td>MP3/MP4</td><td>May play in browser</td></tr>
+                        </table>
+                        <div class="highlight">
+                            The <code>download</code> attribute lets you <strong>override</strong> the default behavior and force a file download.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 11: Linking to External Content -->
+        <div class="slide">
+            <div class="slide-content">
+                <h2>Linking to External Websites</h2>
+                <p>Use fully qualified domain names (FQDNs) &mdash; complete URLs including the protocol:</p>
+                <pre><code>&lt;!-- Always include the protocol (https://) --&gt;
+&lt;a href="https://www.w3schools.com"&gt;W3Schools&lt;/a&gt;
+&lt;a href="https://developer.mozilla.org"&gt;MDN Web Docs&lt;/a&gt;
+&lt;a href="https://github.com"&gt;GitHub&lt;/a&gt;</code></pre>
+                <div class="two-column">
+                    <div class="caution">
+                        <h3>Don't forget the protocol!</h3>
+                        <pre><code>&lt;!-- WRONG - treated as relative path --&gt;
+&lt;a href="www.google.com"&gt;Google&lt;/a&gt;
+
+&lt;!-- CORRECT --&gt;
+&lt;a href="https://www.google.com"&gt;
+  Google
+&lt;/a&gt;</code></pre>
+                    </div>
+                    <div class="note">
+                        <h3>HTTPS vs HTTP</h3>
+                        <ul style="margin-left: 1rem; font-size: 0.95rem;">
+                            <li><code>https://</code> &mdash; Encrypted, secure (preferred)</li>
+                            <li><code>http://</code> &mdash; Unencrypted, insecure</li>
+                        </ul>
+                        <p style="font-size: 0.95rem;">Always use <code>https://</code> when available.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 12: Mailto Links Builder -->
+        <div class="slide">
+            <div class="slide-content">
+                <h2>Linking to Email Addresses</h2>
+                <p>The <code>mailto:</code> protocol opens the user's email client:</p>
+                <div class="playground">
+                    <div class="controls">
+                        <div class="control-group">
+                            <label>Email Address</label>
+                            <input type="text" id="mailTo" value="info@example.com" oninput="updateMailto()">
+                        </div>
+                        <div class="control-group">
+                            <label>Subject (optional)</label>
+                            <input type="text" id="mailSubject" value="Hello there!" oninput="updateMailto()">
+                        </div>
+                        <div class="control-group">
+                            <label>CC (optional)</label>
+                            <input type="text" id="mailCC" value="" placeholder="cc@example.com" oninput="updateMailto()">
+                        </div>
+                        <div class="control-group">
+                            <label>BCC (optional)</label>
+                            <input type="text" id="mailBCC" value="" placeholder="bcc@example.com" oninput="updateMailto()">
+                        </div>
+                        <div class="control-group">
+                            <label>Body (optional)</label>
+                            <input type="text" id="mailBody" value="" placeholder="Message body..." oninput="updateMailto()">
+                        </div>
+                    </div>
+                    <div>
+                        <div class="preview-area" style="min-height: auto;">
+                            <p style="color: #333; font-size: 0.95rem; margin-bottom: 0.5rem;"><strong>Preview:</strong></p>
+                            <div id="mailtoPreview" style="font-size: 1.1rem;"></div>
+                        </div>
+                        <div class="code-output" id="mailtoCode"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 13: Opening Links in New Windows -->
+        <div class="slide">
+            <div class="slide-content">
+                <h2>Opening Links in New Windows</h2>
+                <p>The <code>target</code> attribute controls where the link opens:</p>
+                <div class="two-column">
+                    <div>
+                        <h3>Common <code>target</code> values</h3>
+                        <table class="demo-table">
+                            <tr><th>Value</th><th>Behavior</th></tr>
+                            <tr><td><code>_self</code></td><td>Same tab (default)</td></tr>
+                            <tr><td><code>_blank</code></td><td>New tab/window</td></tr>
+                            <tr><td><code>_parent</code></td><td>Parent frame</td></tr>
+                            <tr><td><code>_top</code></td><td>Top-level frame</td></tr>
+                        </table>
+                        <pre><code>&lt;a href="https://google.com"
+   target="_blank"&gt;
+  Open Google in new tab
+&lt;/a&gt;</code></pre>
+                    </div>
+                    <div>
+                        <h3>When to use <code>target="_blank"</code></h3>
+                        <ul>
+                            <li>External links (leaving your site)</li>
+                            <li>PDF documents</li>
+                            <li>Help documentation</li>
+                            <li>Media that shouldn't interrupt the flow</li>
+                        </ul>
+                        <div class="caution">
+                            <strong>Warning:</strong> Always add security attributes when using <code>target="_blank"</code>! (See next slide)
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 14: Link Security -->
+        <div class="slide">
+            <div class="slide-content">
+                <h2>Link Security: Protecting Your Users</h2>
+                <p>When using <code>target="_blank"</code>, the opened page can access your page via <code>window.opener</code>:</p>
+                <div class="two-column">
+                    <div>
+                        <h3 style="color: #e74c3c;">The Risk</h3>
+                        <pre><code>&lt;!-- INSECURE --&gt;
+&lt;a href="https://example.com"
+   target="_blank"&gt;
+  Click here
+&lt;/a&gt;</code></pre>
+                        <p><span class="security-badge danger">Vulnerable</span></p>
+                        <ul style="font-size: 0.95rem;">
+                            <li>External page can read <code>window.opener</code></li>
+                            <li>Could redirect your page to a phishing site</li>
+                            <li>Known as <strong>tabnapping</strong></li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h3 style="color: #2ecc71;">The Fix</h3>
+                        <pre><code>&lt;!-- SECURE --&gt;
+&lt;a href="https://example.com"
+   target="_blank"
+   rel="noopener noreferrer"&gt;
+  Click here
+&lt;/a&gt;</code></pre>
+                        <p><span class="security-badge">Secure</span></p>
+                        <ul style="font-size: 0.95rem;">
+                            <li><code>noopener</code> &mdash; Prevents <code>window.opener</code> access</li>
+                            <li><code>noreferrer</code> &mdash; Hides the referring URL</li>
+                            <li>Modern browsers auto-add <code>noopener</code>, but include both for compatibility</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 15: Link Titles -->
+        <div class="slide">
+            <div class="slide-content">
+                <h2>Giving Titles to Links</h2>
+                <p>The <code>title</code> attribute provides additional context as a tooltip:</p>
+                <pre><code>&lt;a href="https://developer.mozilla.org"
+   title="Mozilla Developer Network - Web documentation"&gt;
+  MDN Web Docs
+&lt;/a&gt;</code></pre>
+                <div class="link-demo-box">
+                    <p>Hover over the link below to see the tooltip:</p>
+                    <p><a href="https://developer.mozilla.org" target="_blank" rel="noopener noreferrer" title="Mozilla Developer Network - Comprehensive web development documentation and tutorials">MDN Web Docs</a></p>
+                </div>
+                <div class="two-column" style="margin-top: 1rem;">
+                    <div class="note">
+                        <h3>Good use cases</h3>
+                        <ul style="font-size: 0.9rem; margin-left: 1rem;">
+                            <li>Describing where a link goes</li>
+                            <li>Adding file size info for downloads</li>
+                            <li>Providing context for abbreviations</li>
+                        </ul>
+                    </div>
+                    <div class="caution">
+                        <h3>Don't rely on titles for</h3>
+                        <ul style="font-size: 0.9rem; margin-left: 1rem;">
+                            <li>Critical information (not accessible on mobile)</li>
+                            <li>Tooltips don't appear on touch devices</li>
+                            <li>Screen readers may not announce them</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 16: Styling Links with CSS -->
+        <div class="slide">
+            <div class="slide-content">
+                <h2>Styling Links with CSS</h2>
+                <p>Links have special <strong>pseudo-class selectors</strong> that respond to user interaction:</p>
+                <table class="demo-table" style="margin-bottom: 1rem;">
+                    <tr>
+                        <th>Pseudo-class</th>
+                        <th>When it applies</th>
+                        <th>Example</th>
+                    </tr>
+                    <tr>
+                        <td><code>a:link</code></td>
+                        <td>Unvisited link</td>
+                        <td style="color: #0066cc;">Blue link</td>
+                    </tr>
+                    <tr>
+                        <td><code>a:visited</code></td>
+                        <td>Previously visited link</td>
+                        <td style="color: #551a8b;">Purple link</td>
+                    </tr>
+                    <tr>
+                        <td><code>a:hover</code></td>
+                        <td>Mouse cursor is over it</td>
+                        <td style="color: #e74c3c;">Red on hover</td>
+                    </tr>
+                    <tr>
+                        <td><code>a:active</code></td>
+                        <td>Being clicked (mouse down)</td>
+                        <td style="color: #c0392b;">Dark red</td>
+                    </tr>
+                    <tr>
+                        <td><code>a:focus</code></td>
+                        <td>Has keyboard focus (Tab key)</td>
+                        <td style="outline: 2px solid #3498db; padding: 2px 4px;">Outlined</td>
+                    </tr>
+                </table>
+                <pre><code>a:link    { color: blue; }
+a:visited { color: purple; }
+a:hover   { color: red; text-decoration: none; }
+a:active  { color: darkred; }
+a:focus   { outline: 2px solid blue; }</code></pre>
+            </div>
+        </div>
+
+        <!-- Slide 17: The LoVe HAte Rule -->
+        <div class="slide">
+            <div class="slide-content">
+                <h2>The LoVe HAte Rule</h2>
+                <p>CSS pseudo-classes for links <strong>must be declared in a specific order</strong> to work correctly:</p>
+                <div class="lovehate-grid">
+                    <div class="lovehate-card" style="border-color: #3498db;">
+                        <span class="letter" style="color: #3498db;">L</span>
+                        <span class="pseudo">:link</span>
+                        <span class="desc">Unvisited links</span>
+                    </div>
+                    <div class="lovehate-card" style="border-color: #9b59b6;">
+                        <span class="letter" style="color: #9b59b6;">V</span>
+                        <span class="pseudo">:visited</span>
+                        <span class="desc">Visited links</span>
+                    </div>
+                    <div class="lovehate-card" style="border-color: #e74c3c;">
+                        <span class="letter" style="color: #e74c3c;">H</span>
+                        <span class="pseudo">:hover</span>
+                        <span class="desc">Mouse over</span>
+                    </div>
+                    <div class="lovehate-card" style="border-color: #f39c12;">
+                        <span class="letter" style="color: #f39c12;">A</span>
+                        <span class="pseudo">:active</span>
+                        <span class="desc">Being clicked</span>
+                    </div>
+                </div>
+                <div style="text-align: center; margin: 1rem 0;">
+                    <p style="font-size: 1.8rem; letter-spacing: 0.1em;"><strong style="color: #e74c3c;">Lo</strong><strong style="color: #9b59b6;">V</strong><strong style="color: #e74c3c;">e</strong> &nbsp; <strong style="color: #f39c12;">H</strong><strong style="color: #e74c3c;">A</strong><strong style="color: #f39c12;">te</strong></p>
+                </div>
+                <div class="highlight">
+                    <strong>Why does order matter?</strong> CSS specificity rules mean later declarations override earlier ones of equal specificity. If <code>:hover</code> comes before <code>:visited</code>, the visited style will override the hover effect.
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 18: Styled Links CodePen -->
+        <div class="slide">
+            <div class="slide-content">
+                <h2>CSS Styled Links in Action</h2>
+                <p>Explore different link styling techniques in this interactive example:</p>
+                <div class="codepen-container">
+                    <iframe height="400" scrolling="no" title="CSS Styled Links" src="https://codepen.io/mattkearl/embed/QwEVOOJ?default-tab=css%2Cresult&editable=true" frameborder="no" loading="lazy" allowtransparency="true" allowfullscreen="true">
+                    </iframe>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 19: Visited Link Privacy -->
+        <div class="slide">
+            <div class="slide-content">
+                <h2>Visited Link Privacy</h2>
+                <p>Browsers <strong>limit what CSS properties</strong> can be changed for <code>:visited</code> links to protect user privacy:</p>
+                <div class="two-column">
+                    <div>
+                        <h3 style="color: #2ecc71;">Allowed properties</h3>
+                        <ul>
+                            <li><code>color</code></li>
+                            <li><code>background-color</code></li>
+                            <li><code>border-color</code></li>
+                            <li><code>outline-color</code></li>
+                            <li><code>column-rule-color</code></li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h3 style="color: #e74c3c;">NOT allowed</h3>
+                        <ul>
+                            <li><code>font-size</code></li>
+                            <li><code>padding</code> / <code>margin</code></li>
+                            <li><code>background-image</code></li>
+                            <li><code>display</code></li>
+                            <li>Any property that changes layout</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="highlight" style="margin-top: 1rem;">
+                    <strong>Why?</strong> Without these restrictions, a malicious site could use JavaScript to check the computed styles of links, determining which sites you've visited &mdash; a serious privacy concern. This protection has been in place since about 2010.
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 20: Link Styling Playground -->
+        <div class="slide">
+            <div class="slide-content">
+                <h2>Link Styling Playground</h2>
+                <div class="playground">
+                    <div class="controls">
+                        <div class="control-group">
+                            <label>Link Color</label>
+                            <input type="color" id="linkColor" value="#0066cc" oninput="updateLinkDemo()">
+                        </div>
+                        <div class="control-group">
+                            <label>Visited Color</label>
+                            <input type="color" id="visitedColor" value="#551a8b" oninput="updateLinkDemo()">
+                        </div>
+                        <div class="control-group">
+                            <label>Hover Color</label>
+                            <input type="color" id="hoverColor" value="#e74c3c" oninput="updateLinkDemo()">
+                        </div>
+                        <div class="control-group">
+                            <label>Active Color</label>
+                            <input type="color" id="activeColor" value="#c0392b" oninput="updateLinkDemo()">
+                        </div>
+                        <div class="control-group">
+                            <label>Text Decoration</label>
+                            <select id="linkDecoration" onchange="updateLinkDemo()">
+                                <option value="underline">underline</option>
+                                <option value="none">none</option>
+                                <option value="overline">overline</option>
+                                <option value="line-through">line-through</option>
+                            </select>
+                        </div>
+                        <div class="control-group">
+                            <label>Hover Decoration</label>
+                            <select id="hoverDecoration" onchange="updateLinkDemo()">
+                                <option value="none">none</option>
+                                <option value="underline">underline</option>
+                                <option value="overline">overline</option>
+                                <option value="line-through">line-through</option>
+                            </select>
+                        </div>
+                        <div class="control-group">
+                            <label>Font Weight</label>
+                            <select id="linkWeight" onchange="updateLinkDemo()">
+                                <option value="normal">normal</option>
+                                <option value="bold">bold</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="preview-area" id="linkPreview" style="min-height: 200px;">
+                            <p style="margin-bottom: 0.5rem; font-size: 0.9rem;"><strong>Preview:</strong> Hover over and click the links below</p>
+                            <p><a href="#" class="styled-demo-link" onclick="return false">Home Page</a></p>
+                            <p><a href="#" class="styled-demo-link" onclick="return false">About Us</a></p>
+                            <p><a href="#" class="styled-demo-link" onclick="return false">Contact Form</a></p>
+                            <p><a href="#" class="styled-demo-link" onclick="return false">Blog Posts</a></p>
+                        </div>
+                        <div class="code-output" id="linkStyleCode"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 21: Skip Links for Accessibility -->
+        <div class="slide">
+            <div class="slide-content">
+                <h2>Skip Links for Accessibility</h2>
+                <p>Skip links let keyboard and screen reader users <strong>bypass navigation</strong> and jump to main content:</p>
+                <pre><code>&lt;body&gt;
+  &lt;a href="#main-content" class="skip-link"&gt;
+    Skip to main content
+  &lt;/a&gt;
+  &lt;nav&gt;...long navigation...&lt;/nav&gt;
+  &lt;main id="main-content"&gt;
+    ...page content...
+  &lt;/main&gt;
+&lt;/body&gt;</code></pre>
+                <div class="two-column" style="margin-top: 1rem;">
+                    <div>
+                        <h3>CSS for Skip Links</h3>
+                        <pre><code>.skip-link {
+  position: absolute;
+  top: -100px;
+  left: 0;
+  background: #000;
+  color: #fff;
+  padding: 8px 16px;
+  z-index: 100;
+}
+
+.skip-link:focus {
+  top: 0;  /* Appears on Tab */
+}</code></pre>
+                    </div>
+                    <div>
+                        <h3>Why Skip Links Matter</h3>
+                        <ul>
+                            <li>Required by <strong>WCAG 2.1 Level A</strong></li>
+                            <li>Keyboard users would otherwise Tab through every nav link</li>
+                            <li>Screen readers announce navigation on every page</li>
+                            <li>Hidden visually until focused via Tab key</li>
+                        </ul>
+                        <div class="note" style="font-size: 0.9rem;">
+                            Try pressing <strong>Tab</strong> on any major website &mdash; you'll often see a "Skip to content" link appear!
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 22: Using Links Effectively -->
+        <div class="slide">
+            <div class="slide-content">
+                <h2>Using Links Effectively</h2>
+                <div class="practice-grid">
+                    <div class="practice-card">
+                        <h3 style="color: #2ecc71;">Use descriptive link text</h3>
+                        <pre><code>&lt;a href="report.pdf"&gt;
+  Download the 2024 Annual Report
+&lt;/a&gt;</code></pre>
+                    </div>
+                    <div class="practice-card bad">
+                        <h3 style="color: #e74c3c;">Avoid vague text</h3>
+                        <pre><code>&lt;a href="report.pdf"&gt;
+  Click here
+&lt;/a&gt;</code></pre>
+                    </div>
+                    <div class="practice-card">
+                        <h3 style="color: #2ecc71;">Keep links concise</h3>
+                        <pre><code>&lt;a href="/pricing"&gt;
+  View pricing plans
+&lt;/a&gt;</code></pre>
+                    </div>
+                    <div class="practice-card bad">
+                        <h3 style="color: #e74c3c;">Don't make entire paragraphs links</h3>
+                        <pre><code>&lt;a href="/pricing"&gt;
+  Our pricing page has all the
+  information about plans and
+  pricing for every tier we offer
+&lt;/a&gt;</code></pre>
+                    </div>
+                    <div class="practice-card">
+                        <h3 style="color: #2ecc71;">Warn about external links</h3>
+                        <pre><code>&lt;a href="https://example.com"
+   target="_blank"
+   rel="noopener noreferrer"&gt;
+  Visit Example (opens new tab)
+&lt;/a&gt;</code></pre>
+                    </div>
+                    <div class="practice-card bad">
+                        <h3 style="color: #e74c3c;">Don't surprise users</h3>
+                        <pre><code>&lt;!-- No warning about behavior --&gt;
+&lt;a href="https://example.com"
+   target="_blank"&gt;
+  Example
+&lt;/a&gt;</code></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 23: Link Builder Playground -->
+        <div class="slide">
+            <div class="slide-content">
+                <h2>Link Builder Playground</h2>
+                <div class="playground">
+                    <div class="controls">
+                        <div class="control-group">
+                            <label>Link Text</label>
+                            <input type="text" id="lbText" value="Visit Example" oninput="updateLinkBuilder()">
+                        </div>
+                        <div class="control-group">
+                            <label>URL / Path</label>
+                            <input type="text" id="lbHref" value="https://example.com" oninput="updateLinkBuilder()">
+                        </div>
+                        <div class="control-group">
+                            <label>Target</label>
+                            <select id="lbTarget" onchange="updateLinkBuilder()">
+                                <option value="">Default (same tab)</option>
+                                <option value="_blank">_blank (new tab)</option>
+                                <option value="_parent">_parent</option>
+                                <option value="_top">_top</option>
+                            </select>
+                        </div>
+                        <div class="control-group">
+                            <label>Title (tooltip)</label>
+                            <input type="text" id="lbTitle" value="" placeholder="Hover tooltip text" oninput="updateLinkBuilder()">
+                        </div>
+                        <div class="control-group" style="display: flex; align-items: center; gap: 0.5rem;">
+                            <input type="checkbox" id="lbDownload" onchange="updateLinkBuilder()" style="width: auto;">
+                            <label for="lbDownload" style="margin: 0; color: white;">Add <code>download</code> attribute</label>
+                        </div>
+                        <div class="control-group" style="display: flex; align-items: center; gap: 0.5rem;">
+                            <input type="checkbox" id="lbNoopener" onchange="updateLinkBuilder()" style="width: auto;" checked>
+                            <label for="lbNoopener" style="margin: 0; color: white;">Add <code>rel="noopener noreferrer"</code></label>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="preview-area" style="min-height: auto;">
+                            <p style="color: #333; font-size: 0.9rem; margin-bottom: 0.5rem;"><strong>Live Preview:</strong></p>
+                            <div id="lbPreview" style="font-size: 1.1rem;"></div>
+                        </div>
+                        <div class="code-output" id="lbCode"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 24: Key Takeaways -->
+        <div class="slide">
+            <div class="slide-content">
+                <h2>Key Takeaways</h2>
+                <div class="two-column">
+                    <div>
+                        <h3>Linking Basics</h3>
+                        <ul>
+                            <li>Use <strong>relative paths</strong> for your own content</li>
+                            <li>Use <strong>absolute URLs</strong> for external sites</li>
+                            <li>Use <code>#id</code> for in-page navigation</li>
+                            <li>Add <code>download</code> to force file downloads</li>
+                            <li>Use <code>mailto:</code> for email links</li>
+                        </ul>
+                        <h3>Security &amp; Accessibility</h3>
+                        <ul>
+                            <li>Always add <code>rel="noopener noreferrer"</code> with <code>target="_blank"</code></li>
+                            <li>Include <strong>skip links</strong> for keyboard users</li>
+                            <li>Write <strong>descriptive link text</strong></li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h3>Styling</h3>
+                        <ul>
+                            <li>Remember <strong>LoVe HAte</strong> order for pseudo-classes</li>
+                            <li>Visited link styling is limited for privacy</li>
+                            <li>Always style <code>:focus</code> for keyboard users</li>
+                        </ul>
+                        <h3>Resources</h3>
+                        <ul>
+                            <li><a href="https://www.w3schools.com/html/html_links.asp" target="_blank" rel="noopener noreferrer">W3Schools: HTML Links</a></li>
+                            <li><a href="https://developer.mozilla.org/en-US/docs/Web/HTML/Element/a" target="_blank" rel="noopener noreferrer">MDN: The Anchor Element</a></li>
+                            <li><a href="https://www.w3schools.com/css/css_link.asp" target="_blank" rel="noopener noreferrer">W3Schools: CSS Links</a></li>
+                            <li><a href="https://webaim.org/techniques/skipnav/" target="_blank" rel="noopener noreferrer">WebAIM: Skip Navigation Links</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="navigation">
+        <button class="nav-btn" id="prevBtn" onclick="changeSlide(-1)">&larr; Previous</button>
+        <span class="slide-counter"><span id="currentSlide">1</span> / <span id="totalSlides">24</span></span>
+        <button class="nav-btn" id="nextBtn" onclick="changeSlide(1)">Next &rarr;</button>
+    </div>
+
+    <script>
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.slide');
+        const totalSlides = slides.length;
+
+        document.getElementById('totalSlides').textContent = totalSlides;
+
+        function showSlide(n) {
+            slides[currentSlide].classList.remove('active');
+            currentSlide = (n + totalSlides) % totalSlides;
+            slides[currentSlide].classList.add('active');
+
+            document.getElementById('currentSlide').textContent = currentSlide + 1;
+            document.getElementById('prevBtn').disabled = currentSlide === 0;
+            document.getElementById('nextBtn').disabled = currentSlide === totalSlides - 1;
+
+            const progress = ((currentSlide + 1) / totalSlides) * 100;
+            document.getElementById('progress').style.width = progress + '%';
+        }
+
+        function changeSlide(direction) {
+            showSlide(currentSlide + direction);
+        }
+
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'ArrowRight' || e.key === ' ') {
+                e.preventDefault();
+                if (currentSlide < totalSlides - 1) changeSlide(1);
+            } else if (e.key === 'ArrowLeft') {
+                e.preventDefault();
+                if (currentSlide > 0) changeSlide(-1);
+            } else if (e.key === 'Home') {
+                e.preventDefault();
+                showSlide(0);
+            } else if (e.key === 'End') {
+                e.preventDefault();
+                showSlide(totalSlides - 1);
+            }
+        });
+
+        let touchStartX = 0;
+        let touchEndX = 0;
+
+        document.addEventListener('touchstart', function(e) {
+            touchStartX = e.changedTouches[0].screenX;
+        }, false);
+
+        document.addEventListener('touchend', function(e) {
+            touchEndX = e.changedTouches[0].screenX;
+            handleSwipe();
+        }, false);
+
+        function handleSwipe() {
+            const swipeThreshold = 50;
+            const diff = touchStartX - touchEndX;
+
+            if (Math.abs(diff) > swipeThreshold) {
+                if (diff > 0 && currentSlide < totalSlides - 1) {
+                    changeSlide(1);
+                } else if (diff < 0 && currentSlide > 0) {
+                    changeSlide(-1);
+                }
+            }
+        }
+
+        showSlide(0);
+
+        // ===== Mailto Builder =====
+        function updateMailto() {
+            const to = document.getElementById('mailTo').value;
+            const subject = document.getElementById('mailSubject').value;
+            const cc = document.getElementById('mailCC').value;
+            const bcc = document.getElementById('mailBCC').value;
+            const body = document.getElementById('mailBody').value;
+
+            const params = [];
+            if (subject) params.push('subject=' + encodeURIComponent(subject));
+            if (cc) params.push('cc=' + encodeURIComponent(cc));
+            if (bcc) params.push('bcc=' + encodeURIComponent(bcc));
+            if (body) params.push('body=' + encodeURIComponent(body));
+
+            let mailto = 'mailto:' + encodeURIComponent(to);
+            if (params.length > 0) mailto += '?' + params.join('&');
+
+            const preview = document.getElementById('mailtoPreview');
+            preview.innerHTML = '<a href="' + mailto + '" style="color: #0066cc; font-size: 1.1rem;">' + (to || 'email@example.com') + '</a>';
+
+            let code = '&lt;a href="mailto:' + to;
+            if (params.length > 0) {
+                code += '?' + params.join('&amp;');
+            }
+            code += '"&gt;\n  Email Us\n&lt;/a&gt;';
+
+            document.getElementById('mailtoCode').innerHTML = code;
+        }
+
+        // ===== Link Styling Playground =====
+        function updateLinkDemo() {
+            const linkColor = document.getElementById('linkColor').value;
+            const visitedColor = document.getElementById('visitedColor').value;
+            const hoverColor = document.getElementById('hoverColor').value;
+            const activeColor = document.getElementById('activeColor').value;
+            const decoration = document.getElementById('linkDecoration').value;
+            const hoverDec = document.getElementById('hoverDecoration').value;
+            const weight = document.getElementById('linkWeight').value;
+
+            // Update preview links
+            const links = document.querySelectorAll('.styled-demo-link');
+            links.forEach(link => {
+                link.style.color = linkColor;
+                link.style.textDecoration = decoration;
+                link.style.fontWeight = weight;
+                link.onmouseenter = function() {
+                    this.style.color = hoverColor;
+                    this.style.textDecoration = hoverDec;
+                };
+                link.onmouseleave = function() {
+                    this.style.color = linkColor;
+                    this.style.textDecoration = decoration;
+                };
+                link.onmousedown = function() {
+                    this.style.color = activeColor;
+                };
+                link.onmouseup = function() {
+                    this.style.color = hoverColor;
+                };
+            });
+
+            // Update code output
+            const code = `a:link {
+  color: ${linkColor};
+  text-decoration: ${decoration};
+  font-weight: ${weight};
+}
+
+a:visited {
+  color: ${visitedColor};
+}
+
+a:hover {
+  color: ${hoverColor};
+  text-decoration: ${hoverDec};
+}
+
+a:active {
+  color: ${activeColor};
+}`;
+
+            document.getElementById('linkStyleCode').textContent = code;
+        }
+
+        // ===== Link Builder Playground =====
+        function updateLinkBuilder() {
+            const text = document.getElementById('lbText').value || 'Link Text';
+            const href = document.getElementById('lbHref').value || '#';
+            const target = document.getElementById('lbTarget').value;
+            const title = document.getElementById('lbTitle').value;
+            const download = document.getElementById('lbDownload').checked;
+            const noopener = document.getElementById('lbNoopener').checked;
+
+            // Preview
+            const preview = document.getElementById('lbPreview');
+            let previewHtml = '<a href="' + href + '"';
+            if (target) previewHtml += ' target="' + target + '"';
+            if (title) previewHtml += ' title="' + title + '"';
+            if (noopener && target === '_blank') previewHtml += ' rel="noopener noreferrer"';
+            previewHtml += ' style="color: #0066cc; font-size: 1.1rem;"';
+            previewHtml += '>' + text + '</a>';
+            preview.innerHTML = previewHtml;
+
+            // Code
+            let code = '&lt;a href="' + href + '"';
+            if (target) code += '\n   target="' + target + '"';
+            if (noopener && target === '_blank') code += '\n   rel="noopener noreferrer"';
+            if (title) code += '\n   title="' + title + '"';
+            if (download) code += '\n   download';
+            code += '&gt;\n  ' + text + '\n&lt;/a&gt;';
+
+            document.getElementById('lbCode').innerHTML = code;
+        }
+
+        // Initialize playgrounds
+        updateMailto();
+        updateLinkDemo();
+        updateLinkBuilder();
+    </script>
+</body>
+</html>
