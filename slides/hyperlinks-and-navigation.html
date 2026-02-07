@@ -1091,10 +1091,10 @@ https://wiki.com/page#section3</code></pre>
                         <h3>Common <code>target</code> values</h3>
                         <table class="demo-table">
                             <tr><th>Value</th><th>Behavior</th></tr>
-                            <tr><td><code>_self</code></td><td>Same tab (default)</td></tr>
-                            <tr><td><code>_blank</code></td><td>New tab/window</td></tr>
-                            <tr><td><code>_parent</code></td><td>Parent frame</td></tr>
-                            <tr><td><code>_top</code></td><td>Top-level frame</td></tr>
+                            <tr><td><code>_self</code></td><td>Opens in the <strong>same tab</strong> you're already in (this is the default if you don't specify a target)</td></tr>
+                            <tr><td><code>_blank</code></td><td>Opens in a <strong>brand new tab</strong> (or window), keeping your current page open behind it</td></tr>
+                            <tr><td><code>_parent</code></td><td>Used with <strong>iframes</strong>: opens in the page that <em>contains</em> the iframe. If there's no iframe, behaves like <code>_self</code></td></tr>
+                            <tr><td><code>_top</code></td><td>Used with <strong>nested iframes</strong>: breaks out of <em>all</em> iframe layers and loads in the full browser window. If no iframes, behaves like <code>_self</code></td></tr>
                         </table>
                         <pre><code>&lt;a href="https://google.com"
    target="_blank"&gt;
@@ -1121,21 +1121,24 @@ https://wiki.com/page#section3</code></pre>
         <div class="slide">
             <div class="slide-content">
                 <h2>Link Security: Protecting Your Users</h2>
-                <p>When using <code>target="_blank"</code>, the opened page can access your page via <code>window.opener</code>:</p>
-                <div class="two-column">
+                <div class="highlight">
+                    <strong>What is <code>window.opener</code>?</strong> When you open a link with <code>target="_blank"</code>, the <em>new</em> tab gets a JavaScript reference back to your page called <code>window.opener</code>. This means the external site's code can run <code>window.opener.location = "https://evil-phishing-site.com"</code> &mdash; silently redirecting your original tab to a fake login page while the user isn't looking.
+                </div>
+                <div class="two-column" style="margin-top: 1rem;">
                     <div>
-                        <h3 style="color: #e74c3c;">The Risk</h3>
+                        <h3 style="color: #e74c3c;">The Attack ("Tabnapping")</h3>
                         <pre><code>&lt;!-- INSECURE --&gt;
 &lt;a href="https://example.com"
    target="_blank"&gt;
   Click here
 &lt;/a&gt;</code></pre>
                         <p><span class="security-badge danger">Vulnerable</span></p>
-                        <ul style="font-size: 0.95rem;">
-                            <li>External page can read <code>window.opener</code></li>
-                            <li>Could redirect your page to a phishing site</li>
-                            <li>Known as <strong>tabnapping</strong></li>
-                        </ul>
+                        <ol style="font-size: 0.9rem; line-height: 1.6;">
+                            <li>User clicks link &rarr; new tab opens</li>
+                            <li>External page runs <code>window.opener.location = "..."</code></li>
+                            <li>Your original tab silently redirects to a phishing page</li>
+                            <li>User switches back &amp; sees a fake login form</li>
+                        </ol>
                     </div>
                     <div>
                         <h3 style="color: #2ecc71;">The Fix</h3>
@@ -1146,10 +1149,10 @@ https://wiki.com/page#section3</code></pre>
   Click here
 &lt;/a&gt;</code></pre>
                         <p><span class="security-badge">Secure</span></p>
-                        <ul style="font-size: 0.95rem;">
-                            <li><code>noopener</code> &mdash; Prevents <code>window.opener</code> access</li>
-                            <li><code>noreferrer</code> &mdash; Hides the referring URL</li>
-                            <li>Modern browsers auto-add <code>noopener</code>, but include both for compatibility</li>
+                        <ul style="font-size: 0.9rem; line-height: 1.6;">
+                            <li><code>noopener</code> &mdash; Sets <code>window.opener</code> to <code>null</code>, so the new tab <strong>cannot access or redirect</strong> your page</li>
+                            <li><code>noreferrer</code> &mdash; Prevents the browser from sending the <strong>Referer header</strong>, so the external site doesn't know which page the user came from</li>
+                            <li>Modern browsers auto-apply <code>noopener</code>, but always include both for older browser support</li>
                         </ul>
                     </div>
                 </div>
@@ -1162,12 +1165,12 @@ https://wiki.com/page#section3</code></pre>
                 <h2>Giving Titles to Links</h2>
                 <p>The <code>title</code> attribute provides additional context as a tooltip:</p>
                 <pre><code>&lt;a href="https://developer.mozilla.org"
-   title="Mozilla Developer Network - Web documentation"&gt;
+   title="Mozilla Developer Network - Web documentation and tutorials"&gt;
   MDN Web Docs
 &lt;/a&gt;</code></pre>
                 <div class="link-demo-box">
                     <p>Hover over the link below to see the tooltip:</p>
-                    <p><a href="https://developer.mozilla.org" target="_blank" rel="noopener noreferrer" title="Mozilla Developer Network - Comprehensive web development documentation and tutorials">MDN Web Docs</a></p>
+                    <p><a href="https://developer.mozilla.org" target="_blank" rel="noopener noreferrer" title="Mozilla Developer Network - Web documentation and tutorials">MDN Web Docs</a></p>
                 </div>
                 <div class="two-column" style="margin-top: 1rem;">
                     <div class="note">
@@ -1323,23 +1326,23 @@ a:focus   { outline: 2px solid blue; }</code></pre>
                 <div class="playground">
                     <div class="controls">
                         <div class="control-group">
-                            <label>Link Color</label>
+                            <label>:link color</label>
                             <input type="color" id="linkColor" value="#0066cc" oninput="updateLinkDemo()">
                         </div>
                         <div class="control-group">
-                            <label>Visited Color</label>
+                            <label>:visited color</label>
                             <input type="color" id="visitedColor" value="#551a8b" oninput="updateLinkDemo()">
                         </div>
                         <div class="control-group">
-                            <label>Hover Color</label>
+                            <label>:hover color</label>
                             <input type="color" id="hoverColor" value="#e74c3c" oninput="updateLinkDemo()">
                         </div>
                         <div class="control-group">
-                            <label>Active Color</label>
+                            <label>:active color</label>
                             <input type="color" id="activeColor" value="#c0392b" oninput="updateLinkDemo()">
                         </div>
                         <div class="control-group">
-                            <label>Text Decoration</label>
+                            <label>:link text-decoration</label>
                             <select id="linkDecoration" onchange="updateLinkDemo()">
                                 <option value="underline">underline</option>
                                 <option value="none">none</option>
@@ -1348,7 +1351,7 @@ a:focus   { outline: 2px solid blue; }</code></pre>
                             </select>
                         </div>
                         <div class="control-group">
-                            <label>Hover Decoration</label>
+                            <label>:hover text-decoration</label>
                             <select id="hoverDecoration" onchange="updateLinkDemo()">
                                 <option value="none">none</option>
                                 <option value="underline">underline</option>
@@ -1357,7 +1360,7 @@ a:focus   { outline: 2px solid blue; }</code></pre>
                             </select>
                         </div>
                         <div class="control-group">
-                            <label>Font Weight</label>
+                            <label>:link font-weight</label>
                             <select id="linkWeight" onchange="updateLinkDemo()">
                                 <option value="normal">normal</option>
                                 <option value="bold">bold</option>
