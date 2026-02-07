@@ -1,0 +1,1055 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Canvas Quiz Generator - Colors, Images, and Multimedia</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            padding: 50px;
+            max-width: 600px;
+            width: 100%;
+            text-align: center;
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 28px;
+        }
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 16px;
+        }
+        .info-box {
+            background: #f8f9fa;
+            border-left: 4px solid #667eea;
+            padding: 20px;
+            margin-bottom: 30px;
+            text-align: left;
+            border-radius: 5px;
+        }
+        .info-box h2 {
+            color: #667eea;
+            font-size: 18px;
+            margin-bottom: 10px;
+        }
+        .info-box ul {
+            color: #555;
+            line-height: 1.8;
+            margin-left: 20px;
+        }
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 18px 40px;
+            font-size: 18px;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+            font-weight: 600;
+        }
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+        }
+        button:active {
+            transform: translateY(0);
+        }
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+        .status {
+            margin-top: 20px;
+            color: #667eea;
+            font-weight: 500;
+            min-height: 24px;
+        }
+        .success {
+            color: #28a745;
+        }
+        .error {
+            color: #dc3545;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📝 Canvas Quiz Generator</h1>
+        <p class="subtitle">Colors, Images, and Multimedia Assessment</p>
+        
+        <div class="info-box">
+            <h2>Quiz Contents</h2>
+            <ul>
+                <li><strong>40 questions</strong> covering web colors, images, and multimedia</li>
+                <li>Multiple choice, multiple answer, true/false, and numeric questions</li>
+                <li>Detailed feedback for all answer choices</li>
+                <li>Ready to import into Canvas New Quizzes</li>
+            </ul>
+        </div>
+
+        <button id="generateBtn" onclick="generateQuiz()">Generate Quiz Package</button>
+        <div id="status" class="status"></div>
+    </div>
+
+    <script>
+        function escapeXml(unsafe) {
+            return unsafe
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&apos;");
+        }
+
+        function generateQuiz() {
+            const btn = document.getElementById('generateBtn');
+            const status = document.getElementById('status');
+            
+            btn.disabled = true;
+            status.textContent = 'Generating quiz package...';
+            status.className = 'status';
+
+            setTimeout(() => {
+                try {
+                    const zip = new JSZip();
+                    
+                    // Create manifest
+                    const manifest = createManifest();
+                    zip.file('imsmanifest.xml', manifest);
+                    
+                    // Create assessment
+                    const assessment = createAssessment();
+                    zip.file('assessment.xml', assessment);
+                    
+                    // Generate and download
+                    zip.generateAsync({type: 'blob'}).then(function(content) {
+                        const url = URL.createObjectURL(content);
+                        const a = document.createElement('a');
+                        a.href = url;
+                        a.download = 'colors_images_multimedia_quiz.zip';
+                        document.body.appendChild(a);
+                        a.click();
+                        document.body.removeChild(a);
+                        URL.revokeObjectURL(url);
+                        
+                        status.textContent = '✓ Quiz package downloaded successfully!';
+                        status.className = 'status success';
+                        btn.disabled = false;
+                    });
+                } catch (error) {
+                    status.textContent = '✗ Error generating quiz: ' + error.message;
+                    status.className = 'status error';
+                    btn.disabled = false;
+                }
+            }, 100);
+        }
+
+        function createManifest() {
+            return `<?xml version="1.0" encoding="UTF-8"?>
+<manifest identifier="quiz_export" xmlns="http://www.imsglobal.org/xsd/imscp_v1p1" xmlns:lom="http://ltsc.ieee.org/xsd/imsmd_v1p2" xmlns:imsmd="http://www.imsglobal.org/xsd/imsmd_v1p2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.imsglobal.org/xsd/imscp_v1p1 http://www.imsglobal.org/xsd/imscp_v1p1.xsd http://ltsc.ieee.org/xsd/imsmd_v1p2 http://ltsc.ieee.org/xsd/imsmd_v1p2p4.xsd http://www.imsglobal.org/xsd/imsmd_v1p2 http://www.imsglobal.org/xsd/imsmd_v1p2p4.xsd">
+  <metadata>
+    <schema>QTI Assessment</schema>
+    <schemaversion>1.2</schemaversion>
+  </metadata>
+  <organizations/>
+  <resources>
+    <resource identifier="quiz_res" type="imsqti_xmlv1p2" href="assessment.xml">
+      <file href="assessment.xml"/>
+    </resource>
+  </resources>
+</manifest>`;
+        }
+
+        function createAssessment() {
+            const questions = [
+                // Question 1
+                {
+                    type: 'multiple_choice_question',
+                    title: 'Color Contrast Ratio',
+                    points: 1,
+                    question: 'According to WCAG 2.1 AA level standards, what is the minimum contrast ratio required for normal text?',
+                    answers: [
+                        { text: '4.5:1', correct: true, feedback: 'Correct! WCAG 2.1 AA level requires a contrast ratio of at least 4.5:1 for normal text to ensure readability for users with visual impairments.' },
+                        { text: '3:1', correct: false, feedback: 'Incorrect. 3:1 is the minimum for large text (AA level) or graphical objects, not normal text.' },
+                        { text: '7:1', correct: false, feedback: 'Incorrect. While 7:1 is the AAA level standard for enhanced accessibility, it exceeds the minimum AA requirement of 4.5:1.' },
+                        { text: '2:1', correct: false, feedback: 'Incorrect. A 2:1 ratio is far too low and would not meet any WCAG accessibility standards for text.' }
+                    ]
+                },
+                // Question 2
+                {
+                    type: 'multiple_choice_question',
+                    title: 'Hexadecimal Color Values',
+                    points: 1,
+                    question: 'What does the hexadecimal color code #ff0000 represent?',
+                    answers: [
+                        { text: 'Pure red', correct: true, feedback: 'Correct! #ff0000 means full red (ff), no green (00), and no blue (00), resulting in pure red.' },
+                        { text: 'Pure blue', correct: false, feedback: 'Incorrect. Pure blue would be #0000ff (no red, no green, full blue).' },
+                        { text: 'Pure green', correct: false, feedback: 'Incorrect. Pure green would be #00ff00 (no red, full green, no blue).' },
+                        { text: 'White', correct: false, feedback: 'Incorrect. White would be #ffffff (full red, full green, and full blue).' }
+                    ]
+                },
+                // Question 3
+                {
+                    type: 'multiple_choice_question',
+                    title: 'RGB Color Format',
+                    points: 1,
+                    question: 'In the RGB color format rgb(255, 0, 0), what does the first number (255) represent?',
+                    answers: [
+                        { text: 'The amount of red', correct: true, feedback: 'Correct! In RGB format, the first value represents red, the second green, and the third blue. 255 is the maximum value for full brightness.' },
+                        { text: 'The amount of green', correct: false, feedback: 'Incorrect. Green is the second value in RGB format. The first value represents red.' },
+                        { text: 'The amount of blue', correct: false, feedback: 'Incorrect. Blue is the third value in RGB format. The first value represents red.' },
+                        { text: 'The transparency level', correct: false, feedback: 'Incorrect. Transparency is specified using RGBa format with a fourth value, not in standard RGB.' }
+                    ]
+                },
+                // Question 4
+                {
+                    type: 'multiple_choice_question',
+                    title: 'RGBa Transparency',
+                    points: 1,
+                    question: 'In the RGBa color format rgba(100, 149, 237, 0.5), what does the value 0.5 represent?',
+                    answers: [
+                        { text: '50% transparency', correct: true, feedback: 'Correct! The alpha value in RGBa ranges from 0 (fully transparent) to 1 (fully opaque). 0.5 means 50% transparent.' },
+                        { text: '5% transparency', correct: false, feedback: 'Incorrect. The alpha value 0.5 represents 50% transparency, not 5%. The value ranges from 0 to 1.' },
+                        { text: '100% transparency', correct: false, feedback: 'Incorrect. 100% transparency would be represented by 0, making the color completely invisible.' },
+                        { text: 'The blue color value', correct: false, feedback: 'Incorrect. The blue value is 237 (the third number). The fourth value (0.5) represents transparency.' }
+                    ]
+                },
+                // Question 5
+                {
+                    type: 'multiple_choice_question',
+                    title: 'HSL Color Model',
+                    points: 1,
+                    question: 'In the HSL color model hsl(120, 100%, 50%), what does the first value (120) represent?',
+                    answers: [
+                        { text: 'The hue as a degree on the color wheel', correct: true, feedback: 'Correct! In HSL, the first value is hue measured in degrees (0-360). 120 degrees corresponds to green on the color wheel.' },
+                        { text: 'The saturation percentage', correct: false, feedback: 'Incorrect. Saturation is the second value (100% in this example). The first value is hue.' },
+                        { text: 'The lightness percentage', correct: false, feedback: 'Incorrect. Lightness is the third value (50% in this example). The first value is hue.' },
+                        { text: 'The transparency level', correct: false, feedback: 'Incorrect. Transparency is specified in HSLa format with a fourth value, not in the hue value.' }
+                    ]
+                },
+                // Question 6
+                {
+                    type: 'multiple_choice_question',
+                    title: 'CSS Custom Properties',
+                    points: 1,
+                    question: 'What is the correct syntax for defining a CSS custom property (variable)?',
+                    answers: [
+                        { text: '--primary-color: #3498db;', correct: true, feedback: 'Correct! CSS custom properties use the -- prefix followed by the property name and value.' },
+                        { text: '$primary-color: #3498db;', correct: false, feedback: 'Incorrect. The $ syntax is used in CSS preprocessors like Sass, not for native CSS custom properties.' },
+                        { text: 'var-primary-color: #3498db;', correct: false, feedback: 'Incorrect. The var() function is used to reference custom properties, not define them. Use -- to define.' },
+                        { text: '@primary-color: #3498db;', correct: false, feedback: 'Incorrect. The @ syntax is used for CSS at-rules and in Less preprocessor, not for CSS custom properties.' }
+                    ]
+                },
+                // Question 7
+                {
+                    type: 'true_false_question',
+                    title: 'Color Scheme Definition',
+                    points: 1,
+                    question: 'A complementary color scheme uses colors that are opposite each other on the color wheel.',
+                    answers: [
+                        { text: 'True', correct: true, feedback: 'Correct! Complementary colors are located opposite each other on the color wheel, such as red and green.' },
+                        { text: 'False', correct: false, feedback: 'Incorrect. Complementary colors are indeed opposite each other on the color wheel, creating high contrast.' }
+                    ]
+                },
+                // Question 8
+                {
+                    type: 'multiple_choice_question',
+                    title: 'JPEG Image Format',
+                    points: 1,
+                    question: 'Which type of images is the JPEG format best suited for?',
+                    answers: [
+                        { text: 'Photographs and images with many colors and gradients', correct: true, feedback: 'Correct! JPEG uses lossy compression that works well for photographs with continuous color tones and gradients.' },
+                        { text: 'Images requiring transparency', correct: false, feedback: 'Incorrect. JPEG does not support transparency. PNG or WebP would be better choices for transparent images.' },
+                        { text: 'Logos and icons with sharp edges', correct: false, feedback: 'Incorrect. JPEG\'s lossy compression can blur sharp edges. PNG or SVG are better for logos and icons.' },
+                        { text: 'Animated graphics', correct: false, feedback: 'Incorrect. JPEG does not support animation. GIF or WebP would be used for animated graphics.' }
+                    ]
+                },
+                // Question 9
+                {
+                    type: 'multiple_choice_question',
+                    title: 'PNG vs JPEG',
+                    points: 1,
+                    question: 'What is a key advantage of PNG over JPEG?',
+                    answers: [
+                        { text: 'PNG supports transparency', correct: true, feedback: 'Correct! PNG supports full alpha transparency, allowing varying degrees of transparency, which JPEG does not support.' },
+                        { text: 'PNG files are always smaller', correct: false, feedback: 'Incorrect. PNG files are often larger than JPEG for photographs because PNG uses lossless compression.' },
+                        { text: 'PNG is better for photographs', correct: false, feedback: 'Incorrect. JPEG is generally better for photographs due to smaller file sizes with acceptable quality loss.' },
+                        { text: 'PNG supports more colors', correct: false, feedback: 'Incorrect. Both PNG and JPEG can support millions of colors (24-bit color depth).' }
+                    ]
+                },
+                // Question 10
+                {
+                    type: 'multiple_choice_question',
+                    title: 'WebP Format Benefits',
+                    points: 1,
+                    question: 'What is the typical file size reduction of WebP compared to JPEG at equivalent quality?',
+                    answers: [
+                        { text: '25-35%', correct: true, feedback: 'Correct! WebP typically produces files that are 25-35% smaller than JPEG at equivalent quality, improving page load times.' },
+                        { text: '5-10%', correct: false, feedback: 'Incorrect. WebP provides much more significant savings, typically 25-35% smaller than JPEG.' },
+                        { text: '50-60%', correct: false, feedback: 'Incorrect. While WebP is very efficient, typical savings are 25-35%, not quite 50-60%.' },
+                        { text: '75-80%', correct: false, feedback: 'Incorrect. This would be an unrealistic compression rate. WebP typically saves 25-35% compared to JPEG.' }
+                    ]
+                },
+                // Question 11
+                {
+                    type: 'multiple_choice_question',
+                    title: 'SVG Images',
+                    points: 1,
+                    question: 'What is a primary advantage of SVG images over raster formats like PNG?',
+                    answers: [
+                        { text: 'SVG images scale infinitely without quality loss', correct: true, feedback: 'Correct! SVG is a vector format based on mathematical shapes, so it can scale to any size without losing quality.' },
+                        { text: 'SVG is better for photographs', correct: false, feedback: 'Incorrect. SVG is not suitable for photographs. Raster formats like JPEG or WebP are better for photos.' },
+                        { text: 'SVG files are always smaller', correct: false, feedback: 'Incorrect. For complex images or photographs, SVG files can be very large. They\'re best for simple graphics.' },
+                        { text: 'SVG has better browser support', correct: false, feedback: 'Incorrect. Modern raster formats like PNG have excellent browser support, comparable to SVG.' }
+                    ]
+                },
+                // Question 12
+                {
+                    type: 'true_false_question',
+                    title: 'DPI for Web Images',
+                    points: 1,
+                    question: 'For web images, DPI (dots per inch) is a critical setting that significantly affects how the image displays on screen.',
+                    answers: [
+                        { text: 'False', correct: true, feedback: 'Correct! DPI only matters for print. On the web, what matters is pixel dimensions. A 1000×500 pixel image displays the same whether saved at 72 or 300 DPI.' },
+                        { text: 'True', correct: false, feedback: 'Incorrect. DPI is irrelevant for web display. Only pixel dimensions and file size matter for web images.' }
+                    ]
+                },
+                // Question 13
+                {
+                    type: 'multiple_choice_question',
+                    title: 'Image Compression',
+                    points: 1,
+                    question: 'What is the purpose of image compression for web images?',
+                    answers: [
+                        { text: 'To reduce file size while maintaining acceptable quality', correct: true, feedback: 'Correct! Compression squeezes out repetitive patterns to make files smaller and faster to transfer while preserving visual quality.' },
+                        { text: 'To increase image resolution', correct: false, feedback: 'Incorrect. Compression reduces file size; it does not increase resolution.' },
+                        { text: 'To add transparency to images', correct: false, feedback: 'Incorrect. Transparency is a format feature (like in PNG), not a result of compression.' },
+                        { text: 'To convert images to black and white', correct: false, feedback: 'Incorrect. Compression reduces file size but doesn\'t change color information unless specifically converting formats.' }
+                    ]
+                },
+                // Question 14
+                {
+                    type: 'multiple_choice_question',
+                    title: 'Alt Attribute Purpose',
+                    points: 1,
+                    question: 'What is the primary purpose of the alt attribute in the &lt;img&gt; tag?',
+                    answers: [
+                        { text: 'To provide alternative text for accessibility and when images don\'t load', correct: true, feedback: 'Correct! The alt attribute provides descriptive text for screen readers and displays when images fail to load, making content accessible.' },
+                        { text: 'To specify the image file format', correct: false, feedback: 'Incorrect. The file format is determined by the src attribute and the file itself, not the alt attribute.' },
+                        { text: 'To set the image dimensions', correct: false, feedback: 'Incorrect. Image dimensions are set using width and height attributes, not the alt attribute.' },
+                        { text: 'To create a tooltip on hover', correct: false, feedback: 'Incorrect. The title attribute creates tooltips. Alt text is for accessibility and fallback display.' }
+                    ]
+                },
+                // Question 15
+                {
+                    type: 'multiple_choice_question',
+                    title: 'Decorative Images Alt Text',
+                    points: 1,
+                    question: 'How should you handle the alt attribute for purely decorative images?',
+                    answers: [
+                        { text: 'Use alt="" (empty alt attribute)', correct: true, feedback: 'Correct! Empty alt (alt="") tells screen readers to skip the image since it adds no informational content.' },
+                        { text: 'Omit the alt attribute entirely', correct: false, feedback: 'Incorrect. The alt attribute is required for valid HTML. Use alt="" for decorative images.' },
+                        { text: 'Use alt="decorative image"', correct: false, feedback: 'Incorrect. This forces screen readers to announce useless information. Use alt="" instead.' },
+                        { text: 'Use alt="image"', correct: false, feedback: 'Incorrect. This provides no useful information and clutters the experience. Use alt="" for decorative images.' }
+                    ]
+                },
+                // Question 16
+                {
+                    type: 'multiple_choice_question',
+                    title: 'Figure and Figcaption Elements',
+                    points: 1,
+                    question: 'What is the semantic purpose of the &lt;figure&gt; and &lt;figcaption&gt; elements?',
+                    answers: [
+                        { text: 'To group an image with its caption in a semantically meaningful way', correct: true, feedback: 'Correct! These elements tell browsers and assistive technologies that an image and its caption are related, improving accessibility and SEO.' },
+                        { text: 'To apply automatic styling to images', correct: false, feedback: 'Incorrect. While they can be styled, their primary purpose is semantic grouping, not styling.' },
+                        { text: 'To compress images for faster loading', correct: false, feedback: 'Incorrect. These elements have no effect on image compression or loading speed.' },
+                        { text: 'To create image galleries', correct: false, feedback: 'Incorrect. While they can be used in galleries, their purpose is to semantically link images with captions.' }
+                    ]
+                },
+                // Question 17
+                {
+                    type: 'multiple_choice_question',
+                    title: 'Object-fit Property',
+                    points: 1,
+                    question: 'What does the CSS property object-fit: cover; do to an image?',
+                    answers: [
+                        { text: 'Scales the image to cover the container, potentially cropping it', correct: true, feedback: 'Correct! object-fit: cover scales the image to fill the container completely, cropping if necessary to maintain aspect ratio.' },
+                        { text: 'Stretches the image to fill the container', correct: false, feedback: 'Incorrect. That would be object-fit: fill. The cover value maintains aspect ratio and may crop.' },
+                        { text: 'Shrinks the image to fit within the container with letterboxing', correct: false, feedback: 'Incorrect. That would be object-fit: contain. Cover fills the container and may crop.' },
+                        { text: 'Keeps the image at its original size', correct: false, feedback: 'Incorrect. That would be object-fit: none. Cover scales to fill the container.' }
+                    ]
+                },
+                // Question 18
+                {
+                    type: 'multiple_choice_question',
+                    title: 'Lazy Loading Images',
+                    points: 1,
+                    question: 'What does the loading="lazy" attribute do for an image?',
+                    answers: [
+                        { text: 'Defers loading the image until it approaches the viewport', correct: true, feedback: 'Correct! Lazy loading delays image loading until the user scrolls near the image, improving initial page load performance.' },
+                        { text: 'Compresses the image automatically', correct: false, feedback: 'Incorrect. The loading attribute controls when images load, not how they\'re compressed.' },
+                        { text: 'Prevents the image from ever loading', correct: false, feedback: 'Incorrect. Lazy loading defers loading until needed; it doesn\'t prevent loading entirely.' },
+                        { text: 'Makes the image load faster', correct: false, feedback: 'Incorrect. It delays loading until the image is needed, which improves overall page performance but doesn\'t make individual images load faster.' }
+                    ]
+                },
+                // Question 19
+                {
+                    type: 'true_false_question',
+                    title: 'Lazy Loading for Above-Fold Images',
+                    points: 1,
+                    question: 'You should use loading="lazy" on images that appear in the initial viewport (above the fold).',
+                    answers: [
+                        { text: 'False', correct: true, feedback: 'Correct! Images visible without scrolling should use loading="eager" or no loading attribute. Lazy loading these images would delay their appearance.' },
+                        { text: 'True', correct: false, feedback: 'Incorrect. Lazy loading above-the-fold images actually delays their display, hurting user experience. Only lazy load below-the-fold images.' }
+                    ]
+                },
+                // Question 20
+                {
+                    type: 'multiple_choice_question',
+                    title: 'Responsive Images with srcset',
+                    points: 1,
+                    question: 'What is the purpose of the srcset attribute in the &lt;img&gt; tag?',
+                    answers: [
+                        { text: 'To provide multiple image sources at different sizes for the browser to choose from', correct: true, feedback: 'Correct! srcset lets browsers select the most appropriate image size based on screen size and resolution, optimizing bandwidth.' },
+                        { text: 'To specify the image file format', correct: false, feedback: 'Incorrect. The file format is part of the src value. srcset provides multiple size options.' },
+                        { text: 'To add filters to images', correct: false, feedback: 'Incorrect. Filters are applied with CSS. srcset provides multiple image size options.' },
+                        { text: 'To create image galleries', correct: false, feedback: 'Incorrect. srcset optimizes single image delivery by providing size options, not creating galleries.' }
+                    ]
+                },
+                // Question 21
+                {
+                    type: 'multiple_choice_question',
+                    title: 'Picture Element Use Case',
+                    points: 1,
+                    question: 'When should you use the &lt;picture&gt; element instead of just srcset?',
+                    answers: [
+                        { text: 'When you need art direction (different crops) or format fallbacks', correct: true, feedback: 'Correct! Use &lt;picture&gt; when showing different images entirely based on conditions, or serving modern formats with fallbacks.' },
+                        { text: 'When you only need different sizes of the same image', correct: false, feedback: 'Incorrect. For size variations of the same image, srcset alone is sufficient and simpler.' },
+                        { text: 'When you want to add alt text', correct: false, feedback: 'Incorrect. Alt text is added to the &lt;img&gt; tag, not determined by using &lt;picture&gt;.' },
+                        { text: 'When creating image thumbnails', correct: false, feedback: 'Incorrect. Thumbnails are just smaller versions linked to larger ones; &lt;picture&gt; isn\'t required.' }
+                    ]
+                },
+                // Question 22
+                {
+                    type: 'multiple_choice_question',
+                    title: 'Float Property for Images',
+                    points: 1,
+                    question: 'What does the CSS property float: left; do when applied to an image?',
+                    answers: [
+                        { text: 'Aligns the image to the left and wraps text around the right side', correct: true, feedback: 'Correct! float: left positions the image on the left and allows content to flow around its right side.' },
+                        { text: 'Centers the image on the page', correct: false, feedback: 'Incorrect. Centering requires text-align: center on the parent or margin: auto. Float aligns to the side.' },
+                        { text: 'Makes the image transparent', correct: false, feedback: 'Incorrect. Transparency is controlled with opacity or RGBa colors, not the float property.' },
+                        { text: 'Prevents text from wrapping around the image', correct: false, feedback: 'Incorrect. Float specifically enables text wrapping. To prevent wrapping, use display: block.' }
+                    ]
+                },
+                // Question 23
+                {
+                    type: 'multiple_choice_question',
+                    title: 'Vertical Align Middle',
+                    points: 1,
+                    question: 'What does vertical-align: middle; do when applied to an inline image?',
+                    answers: [
+                        { text: 'Aligns the middle of the image with the vertical center of the line', correct: true, feedback: 'Correct! vertical-align: middle aligns the image\'s vertical center with the overall center of the line content.' },
+                        { text: 'Centers the image horizontally on the page', correct: false, feedback: 'Incorrect. Horizontal centering uses text-align: center. vertical-align affects vertical positioning within a line.' },
+                        { text: 'Aligns the top of the image with the top of the text', correct: false, feedback: 'Incorrect. That would be vertical-align: top. Middle aligns the image\'s center with the line center.' },
+                        { text: 'Floats the image to the middle of the page', correct: false, feedback: 'Incorrect. vertical-align affects inline positioning, not floating. Float would be a separate property.' }
+                    ]
+                },
+                // Question 24
+                {
+                    type: 'true_false_question',
+                    title: 'Specifying Image Dimensions',
+                    points: 1,
+                    question: 'Specifying width and height attributes directly on the &lt;img&gt; tag is now recommended to prevent layout shifts.',
+                    answers: [
+                        { text: 'True', correct: true, feedback: 'Correct! Modern browsers use width and height attributes to calculate aspect ratio before images load, preventing content from jumping around.' },
+                        { text: 'False', correct: false, feedback: 'Incorrect. This is a recent change in recommendations. Specifying dimensions is now encouraged to improve page stability.' }
+                    ]
+                },
+                // Question 25
+                {
+                    type: 'multiple_choice_question',
+                    title: 'Image Maps Definition',
+                    points: 1,
+                    question: 'What is an image map?',
+                    answers: [
+                        { text: 'An image divided into clickable regions that link to different destinations', correct: true, feedback: 'Correct! Image maps allow different parts of a single image to be clickable links to different locations.' },
+                        { text: 'A collection of thumbnail images', correct: false, feedback: 'Incorrect. A collection of thumbnails is just a gallery. Image maps have multiple clickable areas within one image.' },
+                        { text: 'A geographic map displayed as an image', correct: false, feedback: 'Incorrect. While maps can be image maps, the term refers to any image with multiple clickable regions.' },
+                        { text: 'A navigation menu made entirely of images', correct: false, feedback: 'Incorrect. An image-based menu could be separate images. Image maps have clickable regions within a single image.' }
+                    ]
+                },
+                // Question 26
+                {
+                    type: 'multiple_choice_question',
+                    title: 'Image Map Shapes',
+                    points: 1,
+                    question: 'Which shape types are supported in HTML image maps?',
+                    answers: [
+                        { text: 'Rectangle (rect), circle, and polygon (poly)', correct: true, feedback: 'Correct! Image maps support rectangular regions, circular regions, and irregular polygons defined by multiple points.' },
+                        { text: 'Only rectangles', correct: false, feedback: 'Incorrect. Image maps also support circles and polygons for more complex shapes.' },
+                        { text: 'Only circles', correct: false, feedback: 'Incorrect. Image maps support rectangles, circles, and polygons.' },
+                        { text: 'Any SVG path shape', correct: false, feedback: 'Incorrect. Image maps support only rect, circle, and poly shapes, not arbitrary SVG paths.' }
+                    ]
+                },
+                // Question 27
+                {
+                    type: 'multiple_choice_question',
+                    title: 'Video Element Controls',
+                    points: 1,
+                    question: 'What does the controls attribute do in the &lt;video&gt; element?',
+                    answers: [
+                        { text: 'Displays play/pause buttons and other playback controls', correct: true, feedback: 'Correct! The controls attribute tells the browser to show built-in video controls like play, pause, volume, and seek bar.' },
+                        { text: 'Automatically starts video playback', correct: false, feedback: 'Incorrect. That would be the autoplay attribute. Controls just displays the control interface.' },
+                        { text: 'Loops the video continuously', correct: false, feedback: 'Incorrect. That would be the loop attribute. Controls displays the playback interface.' },
+                        { text: 'Mutes the video audio', correct: false, feedback: 'Incorrect. That would be the muted attribute. Controls provides the user interface for playback.' }
+                    ]
+                },
+                // Question 28
+                {
+                    type: 'true_false_question',
+                    title: 'Video Autoplay Restrictions',
+                    points: 1,
+                    question: 'Modern browsers will autoplay videos with sound without requiring the muted attribute.',
+                    answers: [
+                        { text: 'False', correct: true, feedback: 'Correct! Browsers block autoplay with sound to prevent annoying experiences. Videos must be muted to autoplay, or require user interaction first.' },
+                        { text: 'True', correct: false, feedback: 'Incorrect. Modern browsers have strict autoplay policies. Videos with sound will not autoplay unless the user has interacted with the page.' }
+                    ]
+                },
+                // Question 29
+                {
+                    type: 'multiple_choice_question',
+                    title: 'Video Format Compatibility',
+                    points: 1,
+                    question: 'Which video format has the best browser compatibility for web use?',
+                    answers: [
+                        { text: 'MP4 (H.264)', correct: true, feedback: 'Correct! MP4 with H.264 codec has the best support across all modern browsers and is the safest choice.' },
+                        { text: 'AVI', correct: false, feedback: 'Incorrect. AVI is not widely supported in browsers. MP4 (H.264) is the standard for web video.' },
+                        { text: 'MOV', correct: false, feedback: 'Incorrect. MOV is primarily for Apple devices and not universally supported in browsers. MP4 is better.' },
+                        { text: 'WMV', correct: false, feedback: 'Incorrect. WMV is a Windows format with poor browser support. MP4 (H.264) is the web standard.' }
+                    ]
+                },
+                // Question 30
+                {
+                    type: 'multiple_choice_question',
+                    title: 'Video Poster Attribute',
+                    points: 1,
+                    question: 'What is the purpose of the poster attribute in the &lt;video&gt; element?',
+                    answers: [
+                        { text: 'Specifies an image to show before the video plays', correct: true, feedback: 'Correct! The poster attribute displays a placeholder image while the video downloads or before the user clicks play.' },
+                        { text: 'Adds subtitles to the video', correct: false, feedback: 'Incorrect. Subtitles are added with the &lt;track&gt; element. Poster specifies a preview image.' },
+                        { text: 'Sets the video thumbnail for sharing', correct: false, feedback: 'Incorrect. Social media thumbnails are set with meta tags. Poster controls the placeholder image in the player.' },
+                        { text: 'Loops the video continuously', correct: false, feedback: 'Incorrect. That would be the loop attribute. Poster provides a preview image before playback.' }
+                    ]
+                },
+                // Question 31
+                {
+                    type: 'true_false_question',
+                    title: 'Audio Autoplay',
+                    points: 1,
+                    question: 'It is good practice to set audio elements to autoplay on page load.',
+                    answers: [
+                        { text: 'False', correct: true, feedback: 'Correct! Autoplaying audio creates a terrible user experience and is blocked by most browsers. Always let users control audio playback.' },
+                        { text: 'True', correct: false, feedback: 'Incorrect. Autoplaying audio is considered poor UX and is blocked by browsers. Users should always control when audio plays.' }
+                    ]
+                },
+                // Question 32
+                {
+                    type: 'multiple_choice_question',
+                    title: 'Audio Element Format',
+                    points: 1,
+                    question: 'Which audio format has the best browser support for web use?',
+                    answers: [
+                        { text: 'MP3', correct: true, feedback: 'Correct! MP3 (audio/mpeg) has universal browser support and is the most compatible audio format for the web.' },
+                        { text: 'FLAC', correct: false, feedback: 'Incorrect. FLAC has limited browser support. MP3 is the most widely supported format.' },
+                        { text: 'WMA', correct: false, feedback: 'Incorrect. WMA is a Windows format with poor browser support. MP3 is the web standard.' },
+                        { text: 'AIFF', correct: false, feedback: 'Incorrect. AIFF is primarily for Apple devices. MP3 has better cross-browser compatibility.' }
+                    ]
+                },
+                // Question 33
+                {
+                    type: 'multiple_choice_question',
+                    title: 'Source Element Purpose',
+                    points: 1,
+                    question: 'What is the purpose of using multiple &lt;source&gt; elements within a &lt;video&gt; tag?',
+                    answers: [
+                        { text: 'To provide fallback formats for different browser support', correct: true, feedback: 'Correct! Multiple source elements let browsers choose the first format they support, ensuring maximum compatibility.' },
+                        { text: 'To create a playlist of videos', correct: false, feedback: 'Incorrect. Multiple sources provide format alternatives for one video, not a playlist of different videos.' },
+                        { text: 'To improve video quality', correct: false, feedback: 'Incorrect. Source elements provide format options; quality depends on the encoding of each file.' },
+                        { text: 'To add multiple audio tracks', correct: false, feedback: 'Incorrect. Multiple sources are for format compatibility, not multiple audio tracks.' }
+                    ]
+                },
+                // Question 34
+                {
+                    type: 'multiple_choice_question',
+                    title: 'Video Accessibility',
+                    points: 1,
+                    question: 'How can you add captions/subtitles to a video for accessibility?',
+                    answers: [
+                        { text: 'Use the &lt;track&gt; element with a WebVTT file', correct: true, feedback: 'Correct! The track element with kind="captions" and a .vtt subtitle file provides accessible captions for video content.' },
+                        { text: 'Add them in the alt attribute', correct: false, feedback: 'Incorrect. The alt attribute is for images. Videos use the &lt;track&gt; element for captions.' },
+                        { text: 'Embed text directly in the video file', correct: false, feedback: 'Incorrect. While you can burn in captions, the &lt;track&gt; element is the standard HTML method for separate, accessible captions.' },
+                        { text: 'Use the title attribute', correct: false, feedback: 'Incorrect. The title attribute creates tooltips, not captions. Use the &lt;track&gt; element for video captions.' }
+                    ]
+                },
+                // Question 35
+                {
+                    type: 'multiple_answers_question',
+                    title: 'Video Hosting Benefits',
+                    points: 1,
+                    question: 'What are advantages of using third-party video hosting services like YouTube or Vimeo? (Select all that apply)',
+                    answers: [
+                        { text: 'Free hosting and bandwidth', correct: true, feedback: 'Correct! Third-party services handle storage and bandwidth costs, which can be expensive for self-hosting.' },
+                        { text: 'Automatic transcoding to multiple formats', correct: true, feedback: 'Correct! These services automatically convert videos to multiple formats for different devices and browsers.' },
+                        { text: 'Built-in analytics', correct: true, feedback: 'Correct! Services like YouTube and Vimeo provide detailed viewing statistics and analytics.' },
+                        { text: 'Complete control over player appearance', correct: false, feedback: 'Incorrect. Third-party services limit customization of the player. Self-hosting provides more control over appearance.' },
+                        { text: 'No dependency on external services', correct: false, feedback: 'Incorrect. Using third-party hosting creates a dependency on that service. Self-hosting avoids this dependency.' }
+                    ]
+                },
+                // Question 36
+                {
+                    type: 'numeric_question',
+                    title: 'JPEG Quality Recommendation',
+                    points: 1,
+                    question: 'What is the generally recommended JPEG quality percentage (as a whole number) for a good balance between file size and image quality for most photographic images?',
+                    answer: 85,
+                    margin: 5,
+                    feedback_correct: 'Correct! The lesson recommends 80-85% quality as generally a good compromise between file size and quality for most photographic images.',
+                    feedback_incorrect: 'Incorrect. The lesson recommends 80-85% quality as a good balance. You answered outside this range.'
+                },
+                // Question 37
+                {
+                    type: 'multiple_answers_question',
+                    title: 'Color Scheme Best Practices',
+                    points: 1,
+                    question: 'Which of the following are best practices for choosing colors for a website? (Select all that apply)',
+                    answers: [
+                        { text: 'Use a natural palette of colors', correct: true, feedback: 'Correct! Using naturally occurring colors helps avoid eye strain and creates a more pleasant visual experience.' },
+                        { text: 'Use accessible color combinations with good contrast', correct: true, feedback: 'Correct! Good contrast is essential for readability and accessibility, especially for users with visual impairments.' },
+                        { text: 'Use a small color palette (3-4 main colors)', correct: true, feedback: 'Correct! Limiting your palette to 3-4 main colors creates a cohesive, professional design.' },
+                        { text: 'Use as many colors as possible to make the site exciting', correct: false, feedback: 'Incorrect. Using too many colors creates visual chaos. The lesson recommends focusing on 3-4 main colors.' },
+                        { text: 'Avoid considering cultural differences in color interpretation', correct: false, feedback: 'Incorrect. The lesson emphasizes being culturally sensitive with color choices, as colors have different meanings globally.' }
+                    ]
+                },
+                // Question 38
+                {
+                    type: 'multiple_choice_question',
+                    title: 'Aspect Ratio CSS Property',
+                    points: 1,
+                    question: 'What does the CSS property aspect-ratio: 16 / 9; ensure?',
+                    answers: [
+                        { text: 'The element maintains a 16:9 width-to-height ratio regardless of size', correct: true, feedback: 'Correct! The aspect-ratio property locks an element to specific proportions, perfect for video containers and responsive layouts.' },
+                        { text: 'The element is exactly 16 pixels wide and 9 pixels tall', correct: false, feedback: 'Incorrect. aspect-ratio sets proportions, not absolute dimensions. The element maintains 16:9 proportions at any size.' },
+                        { text: 'The element is compressed to 16% of its original size', correct: false, feedback: 'Incorrect. aspect-ratio controls proportions, not compression or sizing. 16/9 is a ratio, not a percentage.' },
+                        { text: 'The element displays only 16 out of every 9 frames', correct: false, feedback: 'Incorrect. aspect-ratio controls dimensional proportions of elements, not frame rates or display frequency.' }
+                    ]
+                },
+                // Question 39
+                {
+                    type: 'multiple_choice_question',
+                    title: 'Dark Mode Support',
+                    points: 1,
+                    question: 'Which CSS feature allows you to detect if a user prefers dark mode?',
+                    answers: [
+                        { text: 'The @media (prefers-color-scheme: dark) media query', correct: true, feedback: 'Correct! This media query detects the user\'s system preference and allows you to adjust your color scheme accordingly.' },
+                        { text: 'The background-color property', correct: false, feedback: 'Incorrect. background-color sets colors but doesn\'t detect preferences. Use the prefers-color-scheme media query.' },
+                        { text: 'The filter property', correct: false, feedback: 'Incorrect. The filter property applies visual effects but doesn\'t detect user preferences. Use prefers-color-scheme.' },
+                        { text: 'The color property', correct: false, feedback: 'Incorrect. The color property sets text color but doesn\'t detect preferences. Use the prefers-color-scheme media query.' }
+                    ]
+                },
+                // Question 40
+                {
+                    type: 'true_false_question',
+                    title: 'Image Enlargement',
+                    points: 1,
+                    question: 'You should resize images to be larger than their original size to ensure they look good on high-resolution displays.',
+                    answers: [
+                        { text: 'False', correct: true, feedback: 'Correct! Never enlarge images beyond their original size, as this results in blurry, pixelated images. Always start with larger source images and resize down.' },
+                        { text: 'True', correct: false, feedback: 'Incorrect. Enlarging images creates poor quality results as software must guess at missing pixel data. Always resize images down, not up.' }
+                    ]
+                }
+            ];
+
+            let assessmentXml = `<?xml version="1.0" encoding="UTF-8"?>
+<questestinterop xmlns="http://www.imsglobal.org/xsd/ims_qtiasiv1p2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.imsglobal.org/xsd/ims_qtiasiv1p2 http://www.imsglobal.org/xsd/ims_qtiasiv1p2p1.xsd">
+  <assessment ident="quiz_assessment" title="Colors, Images, and Multimedia Quiz">
+    <qtimetadata>
+      <qtimetadatafield>
+        <fieldlabel>cc_maxattempts</fieldlabel>
+        <fieldentry>1</fieldentry>
+      </qtimetadatafield>
+    </qtimetadata>
+    <section ident="root_section">`;
+
+            questions.forEach((q, index) => {
+                const itemId = `question_${index + 1}`;
+                const responseId = `response_${index + 1}`;
+                
+                if (q.type === 'numeric_question') {
+                    assessmentXml += generateNumericQuestion(q, itemId, responseId);
+                } else if (q.type === 'true_false_question') {
+                    assessmentXml += generateTrueFalseQuestion(q, itemId, responseId);
+                } else if (q.type === 'multiple_answers_question') {
+                    assessmentXml += generateMultipleAnswersQuestion(q, itemId, responseId);
+                } else {
+                    assessmentXml += generateMultipleChoiceQuestion(q, itemId, responseId);
+                }
+            });
+
+            assessmentXml += `
+    </section>
+  </assessment>
+</questestinterop>`;
+
+            return assessmentXml;
+        }
+
+        function generateMultipleChoiceQuestion(q, itemId, responseId) {
+            let xml = `
+      <item ident="${itemId}" title="${escapeXml(q.title)}">
+        <itemmetadata>
+          <qtimetadata>
+            <qtimetadatafield>
+              <fieldlabel>question_type</fieldlabel>
+              <fieldentry>multiple_choice_question</fieldentry>
+            </qtimetadatafield>
+            <qtimetadatafield>
+              <fieldlabel>points_possible</fieldlabel>
+              <fieldentry>${q.points}</fieldentry>
+            </qtimetadatafield>
+            <qtimetadatafield>
+              <fieldlabel>assessment_question_identifierref</fieldlabel>
+              <fieldentry>${itemId}_ref</fieldentry>
+            </qtimetadatafield>
+          </qtimetadata>
+        </itemmetadata>
+        <presentation>
+          <material>
+            <mattext texttype="text/html">${escapeXml(q.question)}</mattext>
+          </material>
+          <response_lid ident="${responseId}" rcardinality="Single">
+            <render_choice>`;
+
+            q.answers.forEach((answer, aIndex) => {
+                const answerId = `${responseId}_${aIndex}`;
+                xml += `
+              <response_label ident="${answerId}">
+                <material>
+                  <mattext texttype="text/plain">${escapeXml(answer.text)}</mattext>
+                </material>
+              </response_label>`;
+            });
+
+            xml += `
+            </render_choice>
+          </response_lid>
+        </presentation>
+        <resprocessing>
+          <outcomes>
+            <decvar maxvalue="100" minvalue="0" varname="SCORE" vartype="Decimal"/>
+          </outcomes>`;
+
+            q.answers.forEach((answer, aIndex) => {
+                const answerId = `${responseId}_${aIndex}`;
+                xml += `
+          <respcondition continue="No">
+            <conditionvar>
+              <varequal respident="${responseId}">${answerId}</varequal>
+            </conditionvar>
+            ${answer.correct ? '<setvar action="Set" varname="SCORE">100</setvar>' : ''}
+            <displayfeedback feedbacktype="Response" linkrefid="${answerId}_fb"/>
+          </respcondition>`;
+            });
+
+            xml += `
+        </resprocessing>`;
+
+            q.answers.forEach((answer, aIndex) => {
+                const answerId = `${responseId}_${aIndex}`;
+                xml += `
+        <itemfeedback ident="${answerId}_fb">
+          <flow_mat>
+            <material>
+              <mattext texttype="text/html">${escapeXml(answer.feedback)}</mattext>
+            </material>
+          </flow_mat>
+        </itemfeedback>`;
+            });
+
+            xml += `
+      </item>`;
+            return xml;
+        }
+
+        function generateTrueFalseQuestion(q, itemId, responseId) {
+            let xml = `
+      <item ident="${itemId}" title="${escapeXml(q.title)}">
+        <itemmetadata>
+          <qtimetadata>
+            <qtimetadatafield>
+              <fieldlabel>question_type</fieldlabel>
+              <fieldentry>true_false_question</fieldentry>
+            </qtimetadatafield>
+            <qtimetadatafield>
+              <fieldlabel>points_possible</fieldlabel>
+              <fieldentry>${q.points}</fieldentry>
+            </qtimetadatafield>
+            <qtimetadatafield>
+              <fieldlabel>assessment_question_identifierref</fieldlabel>
+              <fieldentry>${itemId}_ref</fieldentry>
+            </qtimetadatafield>
+          </qtimetadata>
+        </itemmetadata>
+        <presentation>
+          <material>
+            <mattext texttype="text/html">${escapeXml(q.question)}</mattext>
+          </material>
+          <response_lid ident="${responseId}" rcardinality="Single">
+            <render_choice>`;
+
+            q.answers.forEach((answer, aIndex) => {
+                const answerId = `${responseId}_${aIndex}`;
+                xml += `
+              <response_label ident="${answerId}">
+                <material>
+                  <mattext texttype="text/plain">${escapeXml(answer.text)}</mattext>
+                </material>
+              </response_label>`;
+            });
+
+            xml += `
+            </render_choice>
+          </response_lid>
+        </presentation>
+        <resprocessing>
+          <outcomes>
+            <decvar maxvalue="100" minvalue="0" varname="SCORE" vartype="Decimal"/>
+          </outcomes>`;
+
+            q.answers.forEach((answer, aIndex) => {
+                const answerId = `${responseId}_${aIndex}`;
+                xml += `
+          <respcondition continue="No">
+            <conditionvar>
+              <varequal respident="${responseId}">${answerId}</varequal>
+            </conditionvar>
+            ${answer.correct ? '<setvar action="Set" varname="SCORE">100</setvar>' : ''}
+            <displayfeedback feedbacktype="Response" linkrefid="${answerId}_fb"/>
+          </respcondition>`;
+            });
+
+            xml += `
+        </resprocessing>`;
+
+            q.answers.forEach((answer, aIndex) => {
+                const answerId = `${responseId}_${aIndex}`;
+                xml += `
+        <itemfeedback ident="${answerId}_fb">
+          <flow_mat>
+            <material>
+              <mattext texttype="text/html">${escapeXml(answer.feedback)}</mattext>
+            </material>
+          </flow_mat>
+        </itemfeedback>`;
+            });
+
+            xml += `
+      </item>`;
+            return xml;
+        }
+
+        function generateMultipleAnswersQuestion(q, itemId, responseId) {
+            let xml = `
+      <item ident="${itemId}" title="${escapeXml(q.title)}">
+        <itemmetadata>
+          <qtimetadata>
+            <qtimetadatafield>
+              <fieldlabel>question_type</fieldlabel>
+              <fieldentry>multiple_answers_question</fieldentry>
+            </qtimetadatafield>
+            <qtimetadatafield>
+              <fieldlabel>points_possible</fieldlabel>
+              <fieldentry>${q.points}</fieldentry>
+            </qtimetadatafield>
+            <qtimetadatafield>
+              <fieldlabel>assessment_question_identifierref</fieldlabel>
+              <fieldentry>${itemId}_ref</fieldentry>
+            </qtimetadatafield>
+          </qtimetadata>
+        </itemmetadata>
+        <presentation>
+          <material>
+            <mattext texttype="text/html">${escapeXml(q.question)}</mattext>
+          </material>
+          <response_lid ident="${responseId}" rcardinality="Multiple">
+            <render_choice>`;
+
+            q.answers.forEach((answer, aIndex) => {
+                const answerId = `${responseId}_${aIndex}`;
+                xml += `
+              <response_label ident="${answerId}">
+                <material>
+                  <mattext texttype="text/plain">${escapeXml(answer.text)}</mattext>
+                </material>
+              </response_label>`;
+            });
+
+            xml += `
+            </render_choice>
+          </response_lid>
+        </presentation>
+        <resprocessing>
+          <outcomes>
+            <decvar maxvalue="100" minvalue="0" varname="SCORE" vartype="Decimal"/>
+          </outcomes>`;
+
+            // Check for all correct answers
+            const correctAnswers = q.answers.filter(a => a.correct);
+            xml += `
+          <respcondition continue="No">
+            <conditionvar>
+              <and>`;
+            correctAnswers.forEach((answer, aIndex) => {
+                const answerId = `${responseId}_${q.answers.indexOf(answer)}`;
+                xml += `
+                <varequal respident="${responseId}">${answerId}</varequal>`;
+            });
+            xml += `
+              </and>
+            </conditionvar>
+            <setvar action="Set" varname="SCORE">100</setvar>
+          </respcondition>`;
+
+            // Individual feedback for each answer
+            q.answers.forEach((answer, aIndex) => {
+                const answerId = `${responseId}_${aIndex}`;
+                xml += `
+          <respcondition continue="Yes">
+            <conditionvar>
+              <varequal respident="${responseId}">${answerId}</varequal>
+            </conditionvar>
+            <displayfeedback feedbacktype="Response" linkrefid="${answerId}_fb"/>
+          </respcondition>`;
+            });
+
+            xml += `
+        </resprocessing>`;
+
+            q.answers.forEach((answer, aIndex) => {
+                const answerId = `${responseId}_${aIndex}`;
+                xml += `
+        <itemfeedback ident="${answerId}_fb">
+          <flow_mat>
+            <material>
+              <mattext texttype="text/html">${escapeXml(answer.feedback)}</mattext>
+            </material>
+          </flow_mat>
+        </itemfeedback>`;
+            });
+
+            xml += `
+      </item>`;
+            return xml;
+        }
+
+        function generateNumericQuestion(q, itemId, responseId) {
+            let xml = `
+      <item ident="${itemId}" title="${escapeXml(q.title)}">
+        <itemmetadata>
+          <qtimetadata>
+            <qtimetadatafield>
+              <fieldlabel>question_type</fieldlabel>
+              <fieldentry>numerical_question</fieldentry>
+            </qtimetadatafield>
+            <qtimetadatafield>
+              <fieldlabel>points_possible</fieldlabel>
+              <fieldentry>${q.points}</fieldentry>
+            </qtimetadatafield>
+            <qtimetadatafield>
+              <fieldlabel>assessment_question_identifierref</fieldlabel>
+              <fieldentry>${itemId}_ref</fieldentry>
+            </qtimetadatafield>
+          </qtimetadata>
+        </itemmetadata>
+        <presentation>
+          <material>
+            <mattext texttype="text/html">${escapeXml(q.question)}</mattext>
+          </material>
+          <response_str ident="${responseId}" rcardinality="Single">
+            <render_fib>
+              <response_label ident="answer1"/>
+            </render_fib>
+          </response_str>
+        </presentation>
+        <resprocessing>
+          <outcomes>
+            <decvar maxvalue="100" minvalue="0" varname="SCORE" vartype="Decimal"/>
+          </outcomes>
+          <respcondition continue="No">
+            <conditionvar>
+              <or>
+                <varequal respident="${responseId}">${q.answer}</varequal>`;
+            
+            // Add margin of error
+            for (let i = 1; i <= q.margin; i++) {
+                xml += `
+                <varequal respident="${responseId}">${q.answer + i}</varequal>
+                <varequal respident="${responseId}">${q.answer - i}</varequal>`;
+            }
+            
+            xml += `
+              </or>
+            </conditionvar>
+            <setvar action="Set" varname="SCORE">100</setvar>
+            <displayfeedback feedbacktype="Response" linkrefid="correct_fb"/>
+          </respcondition>
+          <respcondition continue="No">
+            <conditionvar>
+              <other/>
+            </conditionvar>
+            <displayfeedback feedbacktype="Response" linkrefid="incorrect_fb"/>
+          </respcondition>
+        </resprocessing>
+        <itemfeedback ident="correct_fb">
+          <flow_mat>
+            <material>
+              <mattext texttype="text/html">${escapeXml(q.feedback_correct)}</mattext>
+            </material>
+          </flow_mat>
+        </itemfeedback>
+        <itemfeedback ident="incorrect_fb">
+          <flow_mat>
+            <material>
+              <mattext texttype="text/html">${escapeXml(q.feedback_incorrect)}</mattext>
+            </material>
+          </flow_mat>
+        </itemfeedback>
+      </item>`;
+            return xml;
+        }
+    </script>
+</body>
+</html>
