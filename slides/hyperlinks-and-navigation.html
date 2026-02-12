@@ -879,29 +879,32 @@ href="http://api.example.com"</code></pre>
         <!-- Slide 8: Fragment Identifiers in Modern Web -->
         <div class="slide">
             <div class="slide-content">
-                <h2>Fragment Identifiers in Modern Web Dev</h2>
-                <p>The <code>#</code> fragment is used far beyond simple page jumps:</p>
+                <h2>The <code>#</code> Beyond Page Jumps</h2>
+                <p>You've seen <code>#</code> jump to sections on a page. Here are other ways the web uses it:</p>
                 <div class="three-column">
                     <div class="address-card">
-                        <h3>Scroll-to Sections</h3>
-                        <pre><code>scroll-behavior: smooth;</code></pre>
-                        <p>Add CSS smooth scrolling for a polished UX when navigating sections.</p>
+                        <h3>Smooth Scrolling</h3>
+                        <pre><code>html {
+  scroll-behavior: smooth;
+}</code></pre>
+                        <p>Instead of instantly jumping to a section, the page <strong>glides</strong> there. One line of CSS upgrades all your <code>#</code> links.</p>
                     </div>
                     <div class="address-card">
-                        <h3>Single Page Apps (SPAs)</h3>
-                        <pre><code>https://app.com/#/dashboard
-https://app.com/#/settings</code></pre>
-                        <p>SPAs use hash-based routing to simulate multiple pages without reloading.</p>
+                        <h3>Fake "Pages" in Apps</h3>
+                        <pre><code>gmail.com/#inbox
+gmail.com/#sent
+gmail.com/#drafts</code></pre>
+                        <p>Some web apps (like Gmail) use the <code>#</code> to switch views <strong>without reloading the page</strong>. The URL changes so you can bookmark it or hit Back, but the browser never actually loads a new page &mdash; JavaScript swaps the content instead.</p>
                     </div>
                     <div class="address-card">
-                        <h3>Deep Linking</h3>
-                        <pre><code>https://docs.com/api#auth
-https://wiki.com/page#section3</code></pre>
-                        <p>Share links that go directly to a specific section of a document.</p>
+                        <h3>Sharing Exact Spots</h3>
+                        <pre><code>wikipedia.org/CSS#History
+docs.google.com/doc#heading3</code></pre>
+                        <p>Want to send someone to a <strong>specific section</strong> of a long page? Add <code>#sectionName</code> to the URL. When they open it, the browser scrolls right to that spot &mdash; no hunting required.</p>
                     </div>
                 </div>
                 <div class="highlight">
-                    <strong>Pro tip:</strong> Add <code>scroll-behavior: smooth</code> to your CSS for animated scrolling when users click anchor links.
+                    <strong>Key idea:</strong> Everything after the <code>#</code> stays in the browser &mdash; it's never sent to the server. That's why it's useful for bookmarking spots on a page or tracking state in JavaScript apps.
                 </div>
             </div>
         </div>
@@ -1122,38 +1125,35 @@ https://wiki.com/page#section3</code></pre>
             <div class="slide-content">
                 <h2>Link Security: Protecting Your Users</h2>
                 <div class="highlight">
-                    <strong>What is <code>window.opener</code>?</strong> When you open a link with <code>target="_blank"</code>, the <em>new</em> tab gets a JavaScript reference back to your page called <code>window.opener</code>. This means the external site's code can run <code>window.opener.location = "https://evil-phishing-site.com"</code> &mdash; silently redirecting your original tab to a fake login page while the user isn't looking.
+                    <strong>The problem with <code>target="_blank"</code>:</strong> When a link opens in a new tab, that new tab gets a hidden "back door" to your original page. The external site can use this to <strong>secretly change what's showing on your tab</strong> while you're not looking.
                 </div>
                 <div class="two-column" style="margin-top: 1rem;">
                     <div>
-                        <h3 style="color: #e74c3c;">The Attack ("Tabnapping")</h3>
-                        <pre><code>&lt;!-- INSECURE --&gt;
-&lt;a href="https://example.com"
-   target="_blank"&gt;
-  Click here
-&lt;/a&gt;</code></pre>
+                        <h3 style="color: #e74c3c;">Imagine This Scenario:</h3>
                         <p><span class="security-badge danger">Vulnerable</span></p>
-                        <ol style="font-size: 0.9rem; line-height: 1.6;">
-                            <li>User clicks link &rarr; new tab opens</li>
-                            <li>External page runs <code>window.opener.location = "..."</code></li>
-                            <li>Your original tab silently redirects to a phishing page</li>
-                            <li>User switches back &amp; sees a fake login form</li>
+                        <ol style="font-size: 0.9rem; line-height: 1.8;">
+                            <li>You're logged into your <strong>bank</strong> website</li>
+                            <li>You click a link that opens a news article in a <strong>new tab</strong></li>
+                            <li>While you read the article, the news site secretly <strong>replaces your bank tab</strong> with a page that <em>looks identical</em> to your bank's login page</li>
+                            <li>You switch back to the "bank" tab, see a login screen, and think "Oh, I got logged out" &mdash; so you type your password into the <strong>fake page</strong></li>
                         </ol>
+                        <p style="font-size: 0.9rem;">This attack is called <strong>"tabnapping"</strong> and it works because the new tab has access to redirect your original tab.</p>
                     </div>
                     <div>
-                        <h3 style="color: #2ecc71;">The Fix</h3>
-                        <pre><code>&lt;!-- SECURE --&gt;
-&lt;a href="https://example.com"
+                        <h3 style="color: #2ecc71;">The Fix: Two Simple Attributes</h3>
+                        <pre><code>&lt;a href="https://example.com"
    target="_blank"
    rel="noopener noreferrer"&gt;
-  Click here
+  Read the article
 &lt;/a&gt;</code></pre>
                         <p><span class="security-badge">Secure</span></p>
-                        <ul style="font-size: 0.9rem; line-height: 1.6;">
-                            <li><code>noopener</code> &mdash; Sets <code>window.opener</code> to <code>null</code>, so the new tab <strong>cannot access or redirect</strong> your page</li>
-                            <li><code>noreferrer</code> &mdash; Prevents the browser from sending the <strong>Referer header</strong>, so the external site doesn't know which page the user came from</li>
-                            <li>Modern browsers auto-apply <code>noopener</code>, but always include both for older browser support</li>
+                        <ul style="font-size: 0.9rem; line-height: 1.8;">
+                            <li><code>noopener</code> &mdash; Slams the "back door" shut. The new tab <strong>cannot touch or redirect</strong> your original page at all.</li>
+                            <li><code>noreferrer</code> &mdash; Also hides <em>where</em> the user came from, so the external site doesn't know your URL.</li>
                         </ul>
+                        <div class="note" style="font-size: 0.9rem;">
+                            <strong>Good news:</strong> Modern browsers now add <code>noopener</code> automatically. But always include both attributes for older browsers &mdash; it's a simple habit that protects your users.
+                        </div>
                     </div>
                 </div>
             </div>
