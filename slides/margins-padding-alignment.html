@@ -1,0 +1,1536 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lesson 9: Working with Margins, Padding, Alignment, and Floats</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --accent-color: #e74c3c;
+            --light-bg: #ecf0f1;
+            --text-color: #2c3e50;
+            --code-bg: #1e1e1e;
+            --code-text: #d4d4d4;
+        }
+
+        html, body {
+            height: 100%;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--primary-color);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .slideshow-container {
+            width: 100%;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .slide {
+            display: none;
+            flex: 1;
+            padding: 2rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            overflow-y: auto;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        .slide.active {
+            display: flex;
+            flex-direction: column;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateX(20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        .slide-content {
+            max-width: 1200px;
+            width: 100%;
+            margin: 0 auto;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        h1 {
+            font-size: clamp(1.8rem, 5vw, 3rem);
+            margin-bottom: 1.5rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+            line-height: 1.2;
+        }
+
+        h2 {
+            font-size: clamp(1.4rem, 4vw, 2.2rem);
+            margin-bottom: 1rem;
+            color: #ffeaa7;
+        }
+
+        h3 {
+            font-size: clamp(1.1rem, 3vw, 1.5rem);
+            margin: 1rem 0 0.5rem;
+            color: #81ecec;
+        }
+
+        p {
+            font-size: clamp(1rem, 2.5vw, 1.3rem);
+            line-height: 1.6;
+            margin-bottom: 1rem;
+        }
+
+        ul, ol {
+            font-size: clamp(0.95rem, 2.2vw, 1.2rem);
+            line-height: 1.8;
+            margin-left: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        li {
+            margin-bottom: 0.5rem;
+        }
+
+        a {
+            color: #ffeaa7;
+            text-decoration: underline;
+        }
+
+        a:hover {
+            color: #fdcb6e;
+        }
+
+        code {
+            background: rgba(0,0,0,0.3);
+            padding: 0.2em 0.5em;
+            border-radius: 4px;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 0.9em;
+        }
+
+        pre {
+            background: var(--code-bg);
+            color: var(--code-text);
+            padding: 1rem;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 1rem 0;
+            font-size: clamp(0.75rem, 1.6vw, 0.95rem);
+            line-height: 1.5;
+        }
+
+        pre code {
+            background: none;
+            padding: 0;
+        }
+
+        .highlight {
+            background: rgba(255,255,255,0.15);
+            padding: 1rem;
+            border-radius: 8px;
+            border-left: 4px solid #ffeaa7;
+            margin: 1rem 0;
+        }
+
+        .note {
+            background: rgba(46, 204, 113, 0.2);
+            padding: 1rem;
+            border-radius: 8px;
+            border-left: 4px solid #2ecc71;
+            margin: 1rem 0;
+        }
+
+        .caution {
+            background: rgba(231, 76, 60, 0.2);
+            padding: 1rem;
+            border-radius: 8px;
+            border-left: 4px solid #e74c3c;
+            margin: 1rem 0;
+        }
+
+        .two-column {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            align-items: start;
+        }
+
+        .three-column {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.5rem;
+            align-items: start;
+        }
+
+        @media (max-width: 900px) {
+            .three-column {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .two-column, .three-column {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .navigation {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem;
+            background: var(--primary-color);
+            flex-wrap: wrap;
+        }
+
+        .nav-btn {
+            padding: 0.75rem 1.5rem;
+            font-size: 1rem;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: var(--secondary-color);
+            color: white;
+        }
+
+        .nav-btn:hover {
+            background: #2980b9;
+            transform: translateY(-2px);
+        }
+
+        .nav-btn:disabled {
+            background: #7f8c8d;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .slide-counter {
+            color: white;
+            font-size: 1rem;
+            min-width: 100px;
+            text-align: center;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 4px;
+            background: rgba(255,255,255,0.2);
+        }
+
+        .progress {
+            height: 100%;
+            background: var(--secondary-color);
+            transition: width 0.3s ease;
+        }
+
+        /* Playground styles */
+        .playground {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            margin-top: 1rem;
+        }
+
+        @media (max-width: 800px) {
+            .playground {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .controls {
+            background: rgba(0,0,0,0.2);
+            padding: 1.5rem;
+            border-radius: 8px;
+        }
+
+        .control-group {
+            margin-bottom: 1rem;
+        }
+
+        .control-group label {
+            display: block;
+            font-size: 0.9rem;
+            margin-bottom: 0.3rem;
+            color: #81ecec;
+        }
+
+        .control-group input[type="range"],
+        .control-group input[type="number"],
+        .control-group select {
+            width: 100%;
+            padding: 0.5rem;
+            border-radius: 4px;
+            border: 1px solid rgba(255,255,255,0.3);
+            background: rgba(255,255,255,0.9);
+            color: #333;
+            font-size: 1rem;
+        }
+
+        .control-group input[type="range"] {
+            padding: 0;
+            height: 8px;
+            cursor: pointer;
+        }
+
+        .control-value {
+            font-size: 0.85rem;
+            color: #ffeaa7;
+            margin-top: 0.2rem;
+        }
+
+        .preview-area {
+            background: rgba(255,255,255,0.95);
+            color: #333;
+            padding: 1.5rem;
+            border-radius: 8px;
+            min-height: 300px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            position: relative;
+            overflow: auto;
+        }
+
+        .code-output {
+            background: var(--code-bg);
+            color: var(--code-text);
+            padding: 1rem;
+            border-radius: 8px;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 0.85rem;
+            margin-top: 1rem;
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
+
+        /* Slide themes */
+        .slide:nth-child(odd) {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .slide:nth-child(even) {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+        }
+
+        .slide:nth-child(3n) {
+            background: linear-gradient(135deg, #ee0979 0%, #ff6a00 100%);
+        }
+
+        .slide:nth-child(4n) {
+            background: linear-gradient(135deg, #2193b0 0%, #6dd5ed 100%);
+        }
+
+        .slide:nth-child(5n) {
+            background: linear-gradient(135deg, #c31432 0%, #240b36 100%);
+        }
+
+        /* Color blocks demo */
+        .demo-container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+        }
+
+        .demo-box {
+            width: 150px;
+            height: 80px;
+            border: 3px solid #000;
+            color: #000;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9rem;
+        }
+
+        /* TRBL mnemonic */
+        .trbl-visual {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+
+        .trbl-card {
+            background: rgba(0,0,0,0.2);
+            padding: 1.5rem;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .trbl-letter {
+            font-size: 3rem;
+            font-weight: bold;
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+
+        .trbl-word {
+            font-size: 1.2rem;
+            display: block;
+            margin-bottom: 0.3rem;
+        }
+
+        /* Box model diagram */
+        .box-model-diagram {
+            background: white;
+            padding: 2rem;
+            border-radius: 8px;
+            color: #333;
+            margin: 1rem 0;
+        }
+
+        .box-layers {
+            max-width: 400px;
+            margin: 0 auto;
+        }
+
+        .box-layer {
+            border: 2px solid;
+            padding: 10px;
+            margin: 10px;
+            text-align: center;
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+
+        .layer-margin { border-color: #e74c3c; background: rgba(231, 76, 60, 0.1); }
+        .layer-border { border-color: #f39c12; background: rgba(243, 156, 18, 0.1); }
+        .layer-padding { border-color: #2ecc71; background: rgba(46, 204, 113, 0.1); }
+        .layer-content { border-color: #3498db; background: rgba(52, 152, 219, 0.1); }
+
+        /* Float demo */
+        .float-demo {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            color: #333;
+            line-height: 1.8;
+        }
+
+        .float-img {
+            width: 150px;
+            height: 150px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            border-radius: 4px;
+        }
+
+        @media (max-width: 600px) {
+            .slide {
+                padding: 1rem;
+            }
+
+            .navigation {
+                padding: 0.75rem;
+            }
+
+            .nav-btn {
+                padding: 0.5rem 1rem;
+                font-size: 0.9rem;
+            }
+
+            .trbl-visual {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="progress-bar">
+        <div class="progress" id="progress"></div>
+    </div>
+
+    <div class="slideshow-container">
+
+        <!-- Slide 1: Title -->
+        <div class="slide active">
+            <div class="slide-content" style="text-align: center;">
+                <h1>Lesson 9: Working with Margins, Padding, Alignment, and Floats</h1>
+                <p style="font-size: clamp(1.2rem, 3vw, 1.8rem); opacity: 0.9;">Mastering CSS Spacing and Layout Fundamentals</p>
+                <div style="margin: 2rem 0;">
+                    <svg viewBox="0 0 400 200" style="max-width: 400px; margin: 0 auto; display: block;">
+                        <!-- Content box -->
+                        <rect x="150" y="75" width="100" height="50" fill="#3498db" stroke="#2c3e50" stroke-width="2"/>
+                        <text x="200" y="105" text-anchor="middle" fill="white" font-size="12" font-weight="bold">Content</text>
+                        <!-- Padding -->
+                        <rect x="135" y="60" width="130" height="80" fill="none" stroke="#2ecc71" stroke-width="3" stroke-dasharray="5,3"/>
+                        <text x="200" y="50" text-anchor="middle" fill="#2ecc71" font-size="11" font-weight="bold">Padding</text>
+                        <!-- Border -->
+                        <rect x="125" y="50" width="150" height="100" fill="none" stroke="#f39c12" stroke-width="3"/>
+                        <text x="200" y="40" text-anchor="middle" fill="#f39c12" font-size="11" font-weight="bold">Border</text>
+                        <!-- Margin -->
+                        <rect x="105" y="30" width="190" height="140" fill="none" stroke="#e74c3c" stroke-width="3" stroke-dasharray="5,3"/>
+                        <text x="200" y="20" text-anchor="middle" fill="#e74c3c" font-size="11" font-weight="bold">Margin</text>
+                    </svg>
+                </div>
+                <p style="opacity: 0.7;">Use arrow keys, buttons, or swipe to navigate</p>
+            </div>
+        </div>
+
+        <!-- Slide 2: What You'll Learn -->
+        <div class="slide">
+            <div class="slide-content">
+                <h2>What You'll Learn in This Lesson</h2>
+                <div class="two-column">
+                    <div>
+                        <h3>Core Concepts</h3>
+                        <ul>
+                            <li>How to add <strong>margins</strong> around elements</li>
+                            <li>How to add <strong>padding</strong> within elements</li>
+                            <li>How to keep everything <strong>aligned</strong></li>
+                            <li>How to use the <code>float</code> property for wrapping content</li>
+                            <li>How modern CSS properties simplify spacing and layout</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h3>Key Properties</h3>
+                        <ul>
+                            <li><code>margin</code> and <code>padding</code> — For adding space around and within elements</li>
+                            <li><code>text-align</code> and <code>vertical-align</code> — For placing your elements in relationship to others</li>
+                            <li><code>box-sizing</code> — For controlling how element dimensions are calculated</li>
+                            <li><code>float</code> and <code>clear</code> — For text wrapping</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="note" style="margin-top: 1rem;">
+                    These fundamental properties work alongside modern layout methods like <strong>Flexbox and CSS Grid</strong> (covered in Lesson 12)
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 3: Using Margins - Introduction -->
+        <div class="slide">
+            <div class="slide-content">
+                <h2>Using Margins</h2>
+                <p>Margins add <strong>empty space around the outside</strong> of an element's rectangular area.</p>
+                <div class="two-column">
+                    <div>
+                        <h3>Margin Properties</h3>
+                        <ul>
+                            <li><code>margin-top</code> — Sets the top margin</li>
+                            <li><code>margin-right</code> — Sets the right margin</li>
+                            <li><code>margin-bottom</code> — Sets the bottom margin</li>
+                            <li><code>margin-left</code> — Sets the left margin</li>
+                            <li><code>margin</code> — Shorthand for all four margins</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h3>Values</h3>
+                        <ul>
+                            <li><code>auto</code> — Browser calculates the margin</li>
+                            <li>Length units — <code>px</code>, <code>em</code>, <code>rem</code>, etc.</li>
+                            <li>Percentages — Relative to container width</li>
+                        </ul>
+                        <pre><code>/* Individual properties */
+margin-top: 20px;
+margin-right: 10px;
+
+/* Shorthand */
+margin: 20px 10px;</code></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 4: TRBL Mnemonic -->
+        <div class="slide">
+            <div class="slide-content">
+                <h2>Understanding Margin Shorthand: TRBL</h2>
+                <p>Remember the order with the <strong>TRBL</strong> mnemonic (pronounced "trouble" or "tribble" for Star Trek fans!):</p>
+                <div class="trbl-visual">
+                    <div class="trbl-card" style="background: rgba(231, 76, 60, 0.3);">
+                        <span class="trbl-letter" style="color: #e74c3c;">T</span>
+                        <span class="trbl-word">Top</span>
+                    </div>
+                    <div class="trbl-card" style="background: rgba(52, 152, 219, 0.3);">
+                        <span class="trbl-letter" style="color: #3498db;">R</span>
+                        <span class="trbl-word">Right</span>
+                    </div>
+                    <div class="trbl-card" style="background: rgba(46, 204, 113, 0.3);">
+                        <span class="trbl-letter" style="color: #2ecc71;">B</span>
+                        <span class="trbl-word">Bottom</span>
+                    </div>
+                    <div class="trbl-card" style="background: rgba(243, 156, 18, 0.3);">
+                        <span class="trbl-letter" style="color: #f39c12;">L</span>
+                        <span class="trbl-word">Left</span>
+                    </div>
+                </div>
+                <div class="highlight">
+                    Think of it clockwise: start at the <strong>top</strong> and work your way around the rectangle
+                </div>
+                <div class="note">
+                    This TRBL order also applies to <code>padding</code> and <code>border</code> properties!
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 5: Margin Shorthand Patterns -->
+        <div class="slide">
+            <div class="slide-content">
+                <h2>Margin Shorthand Patterns</h2>
+                <p>The <code>margin</code> property accepts 1 to 4 values with different meanings:</p>
+                <div class="two-column">
+                    <div>
+                        <h3>One Value</h3>
+                        <pre><code>margin: 15px;</code></pre>
+                        <p>Applies <code>15px</code> to <strong>all four sides</strong></p>
+                        <h3>Two Values</h3>
+                        <pre><code>margin: 10px 20px;</code></pre>
+                        <p><code>10px</code> top/bottom, <code>20px</code> left/right</p>
+                    </div>
+                    <div>
+                        <h3>Three Values</h3>
+                        <pre><code>margin: 10px 20px 15px;</code></pre>
+                        <p><code>10px</code> top, <code>20px</code> left/right, <code>15px</code> bottom</p>
+                        <h3>Four Values</h3>
+                        <pre><code>margin: 10px 20px 15px 5px;</code></pre>
+                        <p>Top, Right, Bottom, Left (TRBL)</p>
+                    </div>
+                </div>
+                <div class="highlight" style="margin-top: 1rem;">
+                    <strong>Pro tip:</strong> Use 1 value or 4 values consistently for clarity in your code
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 6: Margin Playground -->
+        <div class="slide">
+            <div class="slide-content">
+                <h2>Margin Playground</h2>
+                <div class="playground">
+                    <div class="controls">
+                        <div class="control-group">
+                            <label>Top Margin</label>
+                            <input type="range" id="marginTop" min="0" max="50" value="15" oninput="updateMarginDemo()">
+                            <div class="control-value"><span id="marginTopVal">15</span>px</div>
+                        </div>
+                        <div class="control-group">
+                            <label>Right Margin</label>
+                            <input type="range" id="marginRight" min="0" max="50" value="15" oninput="updateMarginDemo()">
+                            <div class="control-value"><span id="marginRightVal">15</span>px</div>
+                        </div>
+                        <div class="control-group">
+                            <label>Bottom Margin</label>
+                            <input type="range" id="marginBottom" min="0" max="50" value="15" oninput="updateMarginDemo()">
+                            <div class="control-value"><span id="marginBottomVal">15</span>px</div>
+                        </div>
+                        <div class="control-group">
+                            <label>Left Margin</label>
+                            <input type="range" id="marginLeft" min="0" max="50" value="15" oninput="updateMarginDemo()">
+                            <div class="control-value"><span id="marginLeftVal">15</span>px</div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="preview-area">
+                            <div class="demo-container">
+                                <div id="marginBox1" class="demo-box" style="background: #e74c3c; margin: 15px;">DIV #1</div>
+                                <div id="marginBox2" class="demo-box" style="background: #2ecc71; margin: 15px;">DIV #2</div>
+                            </div>
+                        </div>
+                        <div class="code-output" id="marginCode"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 7: Default Body Margins -->
+        <div class="slide">
+            <div class="slide-content">
+                <h2>Removing Default Body Margins</h2>
+                <p>Browsers add default margins to the <code>&lt;body&gt;</code> element, which can cause unexpected spacing.</p>
+                <div class="two-column">
+                    <div>
+                        <h3>The Problem</h3>
+                        <p>Even with <code>margin: 0</code> on your elements, there's still space from the browser edge:</p>
+                        <pre><code>div {
+  margin: 0px;
+}
+/* Still has space! */</code></pre>
+                        <div class="caution">
+                            Without removing body margins, element placement calculations will be off by 8-10 pixels!
+                        </div>
+                    </div>
+                    <div>
+                        <h3>The Solution</h3>
+                        <p>Reset the body margin to ensure elements start flush with the browser window:</p>
+                        <pre><code>body {
+  margin: 0px;
+}</code></pre>
+                        <div class="note">
+                            Many developers use a CSS reset or normalize.css to standardize default browser styles across all browsers.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 8: Margin Collapse -->
+        <div class="slide">
+            <div class="slide-content">
+                <h2>Understanding Margin Collapse</h2>
+                <p><strong>Vertical margins collapse</strong> between adjacent elements — they don't add up!</p>
+                <div class="two-column">
+                    <div>
+                        <h3>How It Works</h3>
+                        <pre><code>.box1 {
+  margin-bottom: 20px;
+}
+.box2 {
+  margin-top: 30px;
+}
+/* Space between = 30px, NOT 50px! */</code></pre>
+                        <p>The space between the elements will be the <strong>larger</strong> of the two margins (30px), not their sum.</p>
+                    </div>
+                    <div>
+                        <h3>Why This Matters</h3>
+                        <ul>
+                            <li>Prevents excessive spacing between paragraphs and headings</li>
+                            <li>Only affects <strong>vertical</strong> margins (top/bottom)</li>
+                            <li>Horizontal margins (left/right) never collapse</li>
+                            <li>Padding never collapses (it's inside the element)</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="highlight" style="margin-top: 1rem;">
+                    <strong>Pro tip:</strong> Use <code>margin-bottom</code> OR <code>margin-top</code> consistently, but not both on stacked elements
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 9: Modern Units for Responsive Spacing -->
+        <div class="slide">
+            <div class="slide-content">
+                <h2>Modern Units for Responsive Spacing</h2>
+                <p>While <code>px</code> is simple, modern web development uses more flexible units:</p>
+                <div class="two-column">
+                    <div>
+                        <h3>Relative Units</h3>
+                        <ul>
+                            <li><strong><code>rem</code></strong> — Relative to root element's font size (most consistent)</li>
+                            <li><strong><code>em</code></strong> — Relative to parent element's font size</li>
+                            <li><strong><code>%</code></strong> — Percentage of container width</li>
+                            <li><strong><code>vw/vh</code></strong> — Viewport width/height units</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h3>Example</h3>
+                        <pre><code>/* Scales with user's font size */
+.container {
+  margin: 1rem;
+  padding: 2rem;
+}
+
+/* Responsive to viewport */
+.hero {
+  margin: 5vh 0;
+}</code></pre>
+                        <div class="note">
+                            Using <code>rem</code> improves accessibility — spacing scales when users adjust browser font size!
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 10: Logical Properties -->
+        <div class="slide">
+            <div class="slide-content">
+                <h2>Logical Properties for Internationalization</h2>
+                <p>Modern CSS includes logical properties that adapt to different writing directions (LTR vs RTL):</p>
+                <div class="two-column">
+                    <div>
+                        <h3>Physical Properties (Old)</h3>
+                        <pre><code>margin-left: 20px;
+margin-right: 10px;
+margin-top: 15px;
+margin-bottom: 15px;</code></pre>
+                        <p style="font-size: 0.95rem;">Fixed to physical directions — breaks for right-to-left languages like Arabic or Hebrew</p>
+                    </div>
+                    <div>
+                        <h3>Logical Properties (Modern)</h3>
+                        <pre><code>margin-inline-start: 20px;
+margin-inline-end: 10px;
+margin-block-start: 15px;
+margin-block-end: 15px;</code></pre>
+                        <p style="font-size: 0.95rem;">Adapts automatically — <code>inline-start</code> is left in LTR, right in RTL!</p>
+                    </div>
+                </div>
+                <div class="highlight" style="margin-top: 1rem;">
+                    <strong>When to use:</strong> If your site supports multiple languages, logical properties save you from maintaining separate stylesheets
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 11: Padding Elements -->
+        <div class="slide">
+            <div class="slide-content">
+                <h2>Padding Elements</h2>
+                <p>Padding adds space <strong>inside</strong> the rectangular area of an element.</p>
+                <div class="two-column">
+                    <div>
+                        <h3>Key Difference</h3>
+                        <ul>
+                            <li><strong>Margin:</strong> Space <em>outside</em> the element</li>
+                            <li><strong>Padding:</strong> Space <em>inside</em> the element</li>
+                            <li>Padding assumes the element's background color</li>
+                            <li>Padding increases clickable area for buttons/links</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h3>Padding Properties</h3>
+                        <ul>
+                            <li><code>padding-top</code></li>
+                            <li><code>padding-right</code></li>
+                            <li><code>padding-bottom</code></li>
+                            <li><code>padding-left</code></li>
+                            <li><code>padding</code> — Shorthand (uses TRBL order)</li>
+                        </ul>
+                        <pre><code>/* Two values */
+padding: 12px 8px;
+/* vertical  horizontal */</code></pre>
+                    </div>
+                </div>
+                <div class="note" style="margin-top: 1rem;">
+                    <strong>Remember:</strong> Padding follows the same TRBL shorthand rules as margins!
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 12: Box-Sizing - The Game Changer -->
+        <div class="slide">
+            <div class="slide-content">
+                <h2>Understanding Box Sizing</h2>
+                <p>One of the <strong>most confusing</strong> aspects for beginners: how browsers calculate element dimensions.</p>
+                <div class="box-model-diagram">
+                    <h3 style="color: #333; margin-bottom: 1rem;">Default: content-box model</h3>
+                    <div class="box-layers">
+                        <div class="layer-margin">
+                            Margin (outside)
+                            <div class="layer-border">
+                                Border
+                                <div class="layer-padding">
+                                    Padding
+                                    <div class="layer-content">
+                                        Content<br>width: 200px<br>height: 100px
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div style="margin-top: 1rem; font-size: 0.9rem; color: #e74c3c;">
+                        <strong>Problem:</strong> width/height only applies to content box!<br>
+                        <strong>Actual width:</strong> 200px (content) + 40px (padding) + 10px (border) = <strong>250px</strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 13: Box-Sizing Solution -->
+        <div class="slide">
+            <div class="slide-content">
+                <h2>The Box-Sizing Solution</h2>
+                <p>Use <code>box-sizing: border-box;</code> to make width/height include padding and border:</p>
+                <div class="two-column">
+                    <div>
+                        <h3>Without border-box</h3>
+                        <pre><code>.box {
+  width: 200px;
+  padding: 20px;
+  border: 5px solid black;
+}
+/* Actual width: 250px */</code></pre>
+                        <div class="caution">
+                            Calculations are difficult — you must manually account for padding and borders!
+                        </div>
+                    </div>
+                    <div>
+                        <h3>With border-box</h3>
+                        <pre><code>.box {
+  box-sizing: border-box;
+  width: 200px;
+  padding: 20px;
+  border: 5px solid black;
+}
+/* Actual width: 200px ✓ */</code></pre>
+                        <div class="note">
+                            The element is exactly 200px — content area shrinks to fit padding and border!
+                        </div>
+                    </div>
+                </div>
+                <pre style="margin-top: 1rem;"><code>/* Apply to all elements (best practice) */
+* {
+  box-sizing: border-box;
+}</code></pre>
+            </div>
+        </div>
+
+        <!-- Slide 14: Box-Sizing Playground -->
+        <div class="slide">
+            <div class="slide-content">
+                <h2>Box-Sizing Comparison</h2>
+                <div class="playground">
+                    <div class="controls">
+                        <div class="control-group">
+                            <label>Width</label>
+                            <input type="range" id="boxWidth" min="100" max="300" value="200" oninput="updateBoxSizing()">
+                            <div class="control-value"><span id="boxWidthVal">200</span>px</div>
+                        </div>
+                        <div class="control-group">
+                            <label>Padding</label>
+                            <input type="range" id="boxPadding" min="0" max="40" value="20" oninput="updateBoxSizing()">
+                            <div class="control-value"><span id="boxPaddingVal">20</span>px</div>
+                        </div>
+                        <div class="control-group">
+                            <label>Border Width</label>
+                            <input type="range" id="boxBorder" min="0" max="10" value="5" oninput="updateBoxSizing()">
+                            <div class="control-value"><span id="boxBorderVal">5</span>px</div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="preview-area">
+                            <div style="margin-bottom: 1rem;">
+                                <strong>content-box (default)</strong>
+                                <div id="contentBox" style="background: #e74c3c; color: white; display: inline-block; width: 200px; padding: 20px; border: 5px solid #000;">Box</div>
+                                <div id="contentBoxActual" style="margin-top: 0.5rem; font-size: 0.9rem;"></div>
+                            </div>
+                            <div>
+                                <strong>border-box</strong>
+                                <div id="borderBox" style="background: #2ecc71; color: white; display: inline-block; box-sizing: border-box; width: 200px; padding: 20px; border: 5px solid #000;">Box</div>
+                                <div id="borderBoxActual" style="margin-top: 0.5rem; font-size: 0.9rem;"></div>
+                            </div>
+                        </div>
+                        <div class="code-output" id="boxSizingCode"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 15: Padding Playground -->
+        <div class="slide">
+            <div class="slide-content">
+                <h2>Padding Playground</h2>
+                <div class="playground">
+                    <div class="controls">
+                        <div class="control-group">
+                            <label>Top Padding</label>
+                            <input type="range" id="paddingTop" min="0" max="50" value="15" oninput="updatePaddingDemo()">
+                            <div class="control-value"><span id="paddingTopVal">15</span>px</div>
+                        </div>
+                        <div class="control-group">
+                            <label>Right Padding</label>
+                            <input type="range" id="paddingRight" min="0" max="50" value="15" oninput="updatePaddingDemo()">
+                            <div class="control-value"><span id="paddingRightVal">15</span>px</div>
+                        </div>
+                        <div class="control-group">
+                            <label>Bottom Padding</label>
+                            <input type="range" id="paddingBottom" min="0" max="50" value="15" oninput="updatePaddingDemo()">
+                            <div class="control-value"><span id="paddingBottomVal">15</span>px</div>
+                        </div>
+                        <div class="control-group">
+                            <label>Left Padding</label>
+                            <input type="range" id="paddingLeft" min="0" max="50" value="15" oninput="updatePaddingDemo()">
+                            <div class="control-value"><span id="paddingLeftVal">15</span>px</div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="preview-area">
+                            <div id="paddingBox" style="box-sizing: border-box; background: #3498db; color: white; border: 3px solid #000; width: 200px; padding: 15px; font-weight: bold;">
+                                Content with Padding
+                            </div>
+                        </div>
+                        <div class="code-output" id="paddingCode"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 16: Margin vs Padding -->
+        <div class="slide">
+            <div class="slide-content">
+                <h2>Margin vs Padding: When to Use Which?</h2>
+                <div class="two-column">
+                    <div>
+                        <h3>Use Margin When:</h3>
+                        <ul>
+                            <li>You need space <strong>between</strong> elements</li>
+                            <li>Centering with <code>margin: 0 auto;</code></li>
+                            <li>Creating consistent vertical rhythm</li>
+                            <li>Pushing elements away from each other</li>
+                        </ul>
+                        <h3 style="margin-top: 1.5rem;">Use Padding When:</h3>
+                        <ul>
+                            <li>You need space <strong>inside</strong> an element</li>
+                            <li>Increasing clickable area on buttons/links</li>
+                            <li>Creating breathing room around text</li>
+                            <li>Background color should extend to the space</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h3>Key Differences</h3>
+                        <table style="width: 100%; border-collapse: collapse; font-size: 0.9rem;">
+                            <tr style="background: rgba(0,0,0,0.2);">
+                                <th style="padding: 0.5rem; text-align: left; border: 1px solid rgba(255,255,255,0.3);">Aspect</th>
+                                <th style="padding: 0.5rem; text-align: left; border: 1px solid rgba(255,255,255,0.3);">Margin</th>
+                                <th style="padding: 0.5rem; text-align: left; border: 1px solid rgba(255,255,255,0.3);">Padding</th>
+                            </tr>
+                            <tr>
+                                <td style="padding: 0.5rem; border: 1px solid rgba(255,255,255,0.3);">Location</td>
+                                <td style="padding: 0.5rem; border: 1px solid rgba(255,255,255,0.3);">Outside</td>
+                                <td style="padding: 0.5rem; border: 1px solid rgba(255,255,255,0.3);">Inside</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 0.5rem; border: 1px solid rgba(255,255,255,0.3);">Background</td>
+                                <td style="padding: 0.5rem; border: 1px solid rgba(255,255,255,0.3);">Transparent</td>
+                                <td style="padding: 0.5rem; border: 1px solid rgba(255,255,255,0.3);">Inherits element</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 0.5rem; border: 1px solid rgba(255,255,255,0.3);">Clickable</td>
+                                <td style="padding: 0.5rem; border: 1px solid rgba(255,255,255,0.3);">No</td>
+                                <td style="padding: 0.5rem; border: 1px solid rgba(255,255,255,0.3);">Yes</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 0.5rem; border: 1px solid rgba(255,255,255,0.3);">Collapse</td>
+                                <td style="padding: 0.5rem; border: 1px solid rgba(255,255,255,0.3);">Vertical: Yes</td>
+                                <td style="padding: 0.5rem; border: 1px solid rgba(255,255,255,0.3);">Never</td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 17: Alignment Properties -->
+        <div class="slide">
+            <div class="slide-content">
+                <h2>Keeping Everything Aligned</h2>
+                <div class="two-column">
+                    <div>
+                        <h3>text-align (Horizontal)</h3>
+                        <ul>
+                            <li><code>left</code> — Left-justified (default)</li>
+                            <li><code>right</code> — Right-justified</li>
+                            <li><code>center</code> — Centered</li>
+                            <li><code>justify</code> — Straight edges on both sides</li>
+                        </ul>
+                        <pre><code>.centered {
+  text-align: center;
+}</code></pre>
+                    </div>
+                    <div>
+                        <h3>vertical-align (Inline Elements)</h3>
+                        <ul>
+                            <li><code>top</code> — Aligns with top of line</li>
+                            <li><code>middle</code> — Aligns middle with parent's middle</li>
+                            <li><code>bottom</code> — Aligns with bottom of line</li>
+                            <li><code>baseline</code> — Aligns baselines</li>
+                            <li><code>text-top</code> / <code>text-bottom</code></li>
+                        </ul>
+                        <pre><code>img {
+  vertical-align: middle;
+}</code></pre>
+                    </div>
+                </div>
+                <div class="caution" style="margin-top: 1rem;">
+                    <strong>Important:</strong> <code>vertical-align</code> only works on <strong>inline</strong> or <strong>inline-block</strong> elements!
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 18: Centering Blocks -->
+        <div class="slide">
+            <div class="slide-content">
+                <h2>Centering Blocks of Content</h2>
+                <p>Centering block-level elements requires a different approach than centering text:</p>
+                <div class="two-column">
+                    <div>
+                        <h3>Traditional Method</h3>
+                        <pre><code>.centered-block {
+  width: 50%;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Shorthand */
+.centered-block {
+  width: 50%;
+  margin: 0 auto;
+}</code></pre>
+                        <div class="note">
+                            The element <strong>must have a width</strong> smaller than its container for this to work!
+                        </div>
+                    </div>
+                    <div>
+                        <h3>Modern Methods (Preview)</h3>
+                        <pre><code>/* Flexbox */
+.container {
+  display: flex;
+  justify-content: center;
+}
+
+/* Grid */
+.container {
+  display: grid;
+  place-items: center;
+}</code></pre>
+                        <div class="highlight">
+                            You'll learn these powerful centering techniques in <strong>Lesson 12</strong>!
+                        </div>
+                    </div>
+                </div>
+                <div class="caution" style="margin-top: 1rem;">
+                    <strong>Never use the deprecated <code>&lt;center&gt;</code> tag</strong> — it's been removed from HTML!
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 19: Understanding the float Property -->
+        <div class="slide">
+            <div class="slide-content">
+                <h2>Understanding the float Property</h2>
+                <p>The <code>float</code> property moves elements to one side, allowing content to wrap around them.</p>
+                <div class="two-column">
+                    <div>
+                        <h3>How It Works</h3>
+                        <ul>
+                            <li>Elements float <strong>horizontally</strong>, not vertically</li>
+                            <li>Values: <code>left</code> or <code>right</code></li>
+                            <li>Element moves as far as the container allows</li>
+                            <li>Following content wraps around it</li>
+                        </ul>
+                        <pre><code>img {
+  float: left;
+  margin: 0 15px 15px 0;
+}</code></pre>
+                    </div>
+                    <div>
+                        <h3>Modern Usage</h3>
+                        <div class="note">
+                            <strong>Use float for:</strong> Text wrapping around images (magazine-style layout)
+                        </div>
+                        <div class="caution">
+                            <strong>Don't use float for:</strong> Page layouts — use Flexbox or Grid instead!
+                        </div>
+                    </div>
+                </div>
+                <div class="highlight" style="margin-top: 1rem;">
+                    While <code>float</code> was historically used for entire page layouts, modern CSS (Flexbox and Grid) has replaced that use case
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 20: Float Demo -->
+        <div class="slide">
+            <div class="slide-content">
+                <h2>Floating Images with Text Wrapping</h2>
+                <div class="playground">
+                    <div class="controls">
+                        <div class="control-group">
+                            <label>Float Direction</label>
+                            <select id="floatDir" onchange="updateFloatDemo()">
+                                <option value="left">left</option>
+                                <option value="right">right</option>
+                                <option value="none">none</option>
+                            </select>
+                        </div>
+                        <div class="control-group">
+                            <label>Margin (spacing around image)</label>
+                            <input type="range" id="floatMargin" min="0" max="30" value="15" oninput="updateFloatDemo()">
+                            <div class="control-value"><span id="floatMarginVal">15</span>px</div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="preview-area" style="height: 400px; overflow: auto;">
+                            <div class="float-demo">
+                                <div id="floatImg" class="float-img" style="float: left; margin: 0 15px 15px 0;">Image</div>
+                                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>
+                                <p>Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+                                <p>Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo.</p>
+                            </div>
+                        </div>
+                        <div class="code-output" id="floatCode"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 21: The clear Property -->
+        <div class="slide">
+            <div class="slide-content">
+                <h2>The clear Property</h2>
+                <p>Use <code>clear</code> to control what appears after floated elements:</p>
+                <div class="two-column">
+                    <div>
+                        <h3>Clear Values</h3>
+                        <ul>
+                            <li><code>clear: left;</code> — No floating elements on the left</li>
+                            <li><code>clear: right;</code> — No floating elements on the right</li>
+                            <li><code>clear: both;</code> — No floating elements on either side</li>
+                            <li><code>clear: none;</code> — Allow floating (default)</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h3>Example</h3>
+                        <pre><code>img {
+  float: left;
+}
+
+h2 {
+  clear: left;
+  /* Heading appears BELOW image,
+     not wrapped around it */
+}</code></pre>
+                    </div>
+                </div>
+                <div class="highlight" style="margin-top: 1rem;">
+                    <strong>Common use case:</strong> You have a floated image followed by paragraphs, but want a heading to appear below the image (not wrapped around it)
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 22: Modern Layout: Gap Property -->
+        <div class="slide">
+            <div class="slide-content">
+                <h2>Modern Layout: The gap Property</h2>
+                <p>Flexbox and Grid introduce <code>gap</code>, which simplifies spacing between items:</p>
+                <div class="two-column">
+                    <div>
+                        <h3>The Old Way (Margins)</h3>
+                        <pre><code>.container {
+  display: flex;
+}
+
+.item {
+  margin-right: 20px;
+}
+
+/* But the last item also
+   has margin! Need :last-child
+   to fix it */</code></pre>
+                    </div>
+                    <div>
+                        <h3>The Modern Way (Gap)</h3>
+                        <pre><code>.container {
+  display: flex;
+  gap: 20px;
+  /* That's it! */
+}</code></pre>
+                        <div class="note">
+                            <code>gap</code> creates space <strong>between</strong> items, but not around the edges!
+                        </div>
+                    </div>
+                </div>
+                <pre style="margin-top: 1rem;"><code>/* Different row and column gaps */
+.grid-container {
+  display: grid;
+  gap: 20px 40px; /* 20px rows, 40px columns */
+}</code></pre>
+            </div>
+        </div>
+
+        <!-- Slide 23: Summary -->
+        <div class="slide">
+            <div class="slide-content">
+                <h2>Summary: Key Takeaways</h2>
+                <div class="two-column">
+                    <div>
+                        <h3>Margins & Padding</h3>
+                        <ul>
+                            <li><strong>Margin</strong> = space outside element</li>
+                            <li><strong>Padding</strong> = space inside element</li>
+                            <li>Both use TRBL shorthand order</li>
+                            <li>Vertical margins collapse</li>
+                            <li>Reset body margins for precise layouts</li>
+                            <li>Use <code>rem</code> for responsive spacing</li>
+                        </ul>
+                        <h3>Alignment</h3>
+                        <ul>
+                            <li><code>text-align</code> for horizontal alignment</li>
+                            <li><code>vertical-align</code> for inline elements only</li>
+                            <li>Center blocks with <code>margin: 0 auto;</code></li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h3>Box Sizing</h3>
+                        <ul>
+                            <li>Use <code>box-sizing: border-box;</code> globally</li>
+                            <li>Makes width/height include padding & border</li>
+                            <li>Essential for predictable layouts</li>
+                        </ul>
+                        <h3>Float</h3>
+                        <ul>
+                            <li>Use for text wrapping around images</li>
+                            <li>Don't use for page layouts anymore</li>
+                            <li>Use <code>clear</code> to control flow after floats</li>
+                        </ul>
+                        <h3>Modern Techniques</h3>
+                        <ul>
+                            <li>Logical properties for internationalization</li>
+                            <li><code>gap</code> property for Flexbox/Grid spacing</li>
+                            <li>Flexbox & Grid for layouts (Lesson 12)</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 24: Resources -->
+        <div class="slide">
+            <div class="slide-content">
+                <h2>Resources & Further Learning</h2>
+                <div class="two-column">
+                    <div>
+                        <h3>Documentation</h3>
+                        <ul>
+                            <li><a href="https://developer.mozilla.org/en-US/docs/Web/CSS/margin" target="_blank" rel="noopener noreferrer">MDN: margin</a></li>
+                            <li><a href="https://developer.mozilla.org/en-US/docs/Web/CSS/padding" target="_blank" rel="noopener noreferrer">MDN: padding</a></li>
+                            <li><a href="https://developer.mozilla.org/en-US/docs/Web/CSS/box-sizing" target="_blank" rel="noopener noreferrer">MDN: box-sizing</a></li>
+                            <li><a href="https://developer.mozilla.org/en-US/docs/Web/CSS/float" target="_blank" rel="noopener noreferrer">MDN: float</a></li>
+                            <li><a href="https://www.w3schools.com/css/css_margin.asp" target="_blank" rel="noopener noreferrer">W3Schools: CSS Margins</a></li>
+                            <li><a href="https://www.w3schools.com/css/css_padding.asp" target="_blank" rel="noopener noreferrer">W3Schools: CSS Padding</a></li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h3>Interactive Tutorials</h3>
+                        <ul>
+                            <li><a href="https://www.w3schools.com/css/css_boxmodel.asp" target="_blank" rel="noopener noreferrer">W3Schools: Box Model</a></li>
+                            <li><a href="https://css-tricks.com/box-sizing/" target="_blank" rel="noopener noreferrer">CSS-Tricks: Box Sizing</a></li>
+                            <li><a href="https://developer.mozilla.org/en-US/docs/Learn/CSS/Building_blocks/The_box_model" target="_blank" rel="noopener noreferrer">MDN: The Box Model</a></li>
+                        </ul>
+                        <h3>Next Steps</h3>
+                        <p>In <strong>Lesson 12</strong>, you'll learn modern layout techniques with Flexbox and CSS Grid!</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="navigation">
+        <button class="nav-btn" id="prevBtn" onclick="changeSlide(-1)">&larr; Previous</button>
+        <span class="slide-counter"><span id="currentSlide">1</span> / <span id="totalSlides">24</span></span>
+        <button class="nav-btn" id="nextBtn" onclick="changeSlide(1)">Next &rarr;</button>
+    </div>
+
+    <script>
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.slide');
+        const totalSlides = slides.length;
+
+        document.getElementById('totalSlides').textContent = totalSlides;
+
+        function showSlide(n) {
+            slides[currentSlide].classList.remove('active');
+            currentSlide = (n + totalSlides) % totalSlides;
+            slides[currentSlide].classList.add('active');
+
+            document.getElementById('currentSlide').textContent = currentSlide + 1;
+            document.getElementById('prevBtn').disabled = currentSlide === 0;
+            document.getElementById('nextBtn').disabled = currentSlide === totalSlides - 1;
+
+            const progress = ((currentSlide + 1) / totalSlides) * 100;
+            document.getElementById('progress').style.width = progress + '%';
+        }
+
+        function changeSlide(direction) {
+            showSlide(currentSlide + direction);
+        }
+
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'ArrowRight' || e.key === ' ') {
+                e.preventDefault();
+                if (currentSlide < totalSlides - 1) changeSlide(1);
+            } else if (e.key === 'ArrowLeft') {
+                e.preventDefault();
+                if (currentSlide > 0) changeSlide(-1);
+            } else if (e.key === 'Home') {
+                e.preventDefault();
+                showSlide(0);
+            } else if (e.key === 'End') {
+                e.preventDefault();
+                showSlide(totalSlides - 1);
+            }
+        });
+
+        let touchStartX = 0;
+        let touchEndX = 0;
+
+        document.addEventListener('touchstart', function(e) {
+            touchStartX = e.changedTouches[0].screenX;
+        }, false);
+
+        document.addEventListener('touchend', function(e) {
+            touchEndX = e.changedTouches[0].screenX;
+            handleSwipe();
+        }, false);
+
+        function handleSwipe() {
+            const swipeThreshold = 50;
+            const diff = touchStartX - touchEndX;
+
+            if (Math.abs(diff) > swipeThreshold) {
+                if (diff > 0 && currentSlide < totalSlides - 1) {
+                    changeSlide(1);
+                } else if (diff < 0 && currentSlide > 0) {
+                    changeSlide(-1);
+                }
+            }
+        }
+
+        showSlide(0);
+
+        // ===== Margin Playground =====
+        function updateMarginDemo() {
+            const top = document.getElementById('marginTop').value;
+            const right = document.getElementById('marginRight').value;
+            const bottom = document.getElementById('marginBottom').value;
+            const left = document.getElementById('marginLeft').value;
+
+            document.getElementById('marginTopVal').textContent = top;
+            document.getElementById('marginRightVal').textContent = right;
+            document.getElementById('marginBottomVal').textContent = bottom;
+            document.getElementById('marginLeftVal').textContent = left;
+
+            const box1 = document.getElementById('marginBox1');
+            const box2 = document.getElementById('marginBox2');
+            box1.style.margin = `${top}px ${right}px ${bottom}px ${left}px`;
+            box2.style.margin = `${top}px ${right}px ${bottom}px ${left}px`;
+
+            let code = `margin: ${top}px ${right}px ${bottom}px ${left}px;`;
+            if (top === right && right === bottom && bottom === left) {
+                code = `margin: ${top}px;`;
+            } else if (top === bottom && left === right) {
+                code = `margin: ${top}px ${right}px;`;
+            }
+
+            document.getElementById('marginCode').textContent = code;
+        }
+
+        // ===== Box-Sizing Playground =====
+        function updateBoxSizing() {
+            const width = document.getElementById('boxWidth').value;
+            const padding = document.getElementById('boxPadding').value;
+            const border = document.getElementById('boxBorder').value;
+
+            document.getElementById('boxWidthVal').textContent = width;
+            document.getElementById('boxPaddingVal').textContent = padding;
+            document.getElementById('boxBorderVal').textContent = border;
+
+            const contentBox = document.getElementById('contentBox');
+            const borderBox = document.getElementById('borderBox');
+
+            contentBox.style.width = width + 'px';
+            contentBox.style.padding = padding + 'px';
+            contentBox.style.borderWidth = border + 'px';
+
+            borderBox.style.width = width + 'px';
+            borderBox.style.padding = padding + 'px';
+            borderBox.style.borderWidth = border + 'px';
+
+            const actualContentBox = parseInt(width) + (parseInt(padding) * 2) + (parseInt(border) * 2);
+            document.getElementById('contentBoxActual').innerHTML = `Actual width: <strong>${actualContentBox}px</strong>`;
+            document.getElementById('borderBoxActual').innerHTML = `Actual width: <strong>${width}px</strong> (as specified)`;
+
+            const code = `.content-box {
+  box-sizing: content-box; /* default */
+  width: ${width}px;
+  padding: ${padding}px;
+  border: ${border}px solid black;
+  /* Actual: ${actualContentBox}px */
+}
+
+.border-box {
+  box-sizing: border-box;
+  width: ${width}px;
+  padding: ${padding}px;
+  border: ${border}px solid black;
+  /* Actual: ${width}px ✓ */
+}`;
+
+            document.getElementById('boxSizingCode').textContent = code;
+        }
+
+        // ===== Padding Playground =====
+        function updatePaddingDemo() {
+            const top = document.getElementById('paddingTop').value;
+            const right = document.getElementById('paddingRight').value;
+            const bottom = document.getElementById('paddingBottom').value;
+            const left = document.getElementById('paddingLeft').value;
+
+            document.getElementById('paddingTopVal').textContent = top;
+            document.getElementById('paddingRightVal').textContent = right;
+            document.getElementById('paddingBottomVal').textContent = bottom;
+            document.getElementById('paddingLeftVal').textContent = left;
+
+            const box = document.getElementById('paddingBox');
+            box.style.padding = `${top}px ${right}px ${bottom}px ${left}px`;
+
+            let code = `padding: ${top}px ${right}px ${bottom}px ${left}px;`;
+            if (top === right && right === bottom && bottom === left) {
+                code = `padding: ${top}px;`;
+            } else if (top === bottom && left === right) {
+                code = `padding: ${top}px ${right}px;`;
+            }
+
+            document.getElementById('paddingCode').textContent = code;
+        }
+
+        // ===== Float Demo =====
+        function updateFloatDemo() {
+            const dir = document.getElementById('floatDir').value;
+            const margin = document.getElementById('floatMargin').value;
+
+            document.getElementById('floatMarginVal').textContent = margin;
+
+            const img = document.getElementById('floatImg');
+            img.style.float = dir;
+
+            if (dir === 'left') {
+                img.style.margin = `0 ${margin}px ${margin}px 0`;
+            } else if (dir === 'right') {
+                img.style.margin = `0 0 ${margin}px ${margin}px`;
+            } else {
+                img.style.margin = `${margin}px`;
+            }
+
+            let code = `img {
+  float: ${dir};`;
+            if (dir !== 'none') {
+                if (dir === 'left') {
+                    code += `\n  margin: 0 ${margin}px ${margin}px 0;`;
+                } else {
+                    code += `\n  margin: 0 0 ${margin}px ${margin}px;`;
+                }
+            }
+            code += '\n}';
+
+            document.getElementById('floatCode').textContent = code;
+        }
+
+        // Initialize playgrounds
+        updateMarginDemo();
+        updateBoxSizing();
+        updatePaddingDemo();
+        updateFloatDemo();
+    </script>
+</body>
+</html>
