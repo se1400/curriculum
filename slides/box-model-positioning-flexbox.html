@@ -1,0 +1,1511 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lesson 10: Box Model, Positioning, and Flexbox</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --accent-color: #e74c3c;
+            --light-bg: #ecf0f1;
+            --text-color: #2c3e50;
+            --code-bg: #1e1e1e;
+            --code-text: #d4d4d4;
+        }
+
+        html, body {
+            height: 100%;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--primary-color);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .slideshow-container {
+            width: 100%;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .slide {
+            display: none;
+            flex: 1;
+            padding: 2rem;
+            color: white;
+            overflow-y: auto;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        .slide.active {
+            display: flex;
+            flex-direction: column;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateX(20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        .slide-content {
+            max-width: 1200px;
+            width: 100%;
+            margin: 0 auto;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        h1 {
+            font-size: clamp(1.8rem, 5vw, 3rem);
+            margin-bottom: 1.5rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+            line-height: 1.2;
+        }
+
+        h2 {
+            font-size: clamp(1.4rem, 4vw, 2.2rem);
+            margin-bottom: 1rem;
+            color: #ffeaa7;
+        }
+
+        h3 {
+            font-size: clamp(1.1rem, 3vw, 1.5rem);
+            margin: 1rem 0 0.5rem;
+            color: #81ecec;
+        }
+
+        h4 {
+            font-size: clamp(1rem, 2.5vw, 1.2rem);
+            margin: 0.8rem 0 0.4rem;
+            color: #dfe6e9;
+        }
+
+        p {
+            font-size: clamp(1rem, 2.5vw, 1.3rem);
+            line-height: 1.6;
+            margin-bottom: 1rem;
+        }
+
+        ul, ol {
+            font-size: clamp(0.95rem, 2.2vw, 1.2rem);
+            line-height: 1.8;
+            margin-left: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        li {
+            margin-bottom: 0.5rem;
+        }
+
+        a {
+            color: #ffeaa7;
+            text-decoration: underline;
+        }
+
+        a:hover {
+            color: #fdcb6e;
+        }
+
+        code {
+            background: rgba(0,0,0,0.3);
+            padding: 0.2em 0.5em;
+            border-radius: 4px;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 0.9em;
+        }
+
+        pre {
+            background: var(--code-bg);
+            color: var(--code-text);
+            padding: 1rem;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 1rem 0;
+            font-size: clamp(0.75rem, 1.6vw, 0.95rem);
+            line-height: 1.5;
+        }
+
+        pre code {
+            background: none;
+            padding: 0;
+        }
+
+        .highlight {
+            background: rgba(255,255,255,0.15);
+            padding: 1rem;
+            border-radius: 8px;
+            border-left: 4px solid #ffeaa7;
+            margin: 1rem 0;
+        }
+
+        .note {
+            background: rgba(46, 204, 113, 0.2);
+            padding: 1rem;
+            border-radius: 8px;
+            border-left: 4px solid #2ecc71;
+            margin: 1rem 0;
+        }
+
+        .caution {
+            background: rgba(231, 76, 60, 0.2);
+            padding: 1rem;
+            border-radius: 8px;
+            border-left: 4px solid #e74c3c;
+            margin: 1rem 0;
+        }
+
+        .two-column {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            align-items: start;
+        }
+
+        .three-column {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.5rem;
+            align-items: start;
+        }
+
+        @media (max-width: 900px) {
+            .three-column {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .two-column, .three-column {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .codepen-container {
+            margin: 1rem 0;
+            border-radius: 8px;
+            overflow: hidden;
+            flex: 1;
+        }
+
+        .codepen-container iframe {
+            border: none;
+            width: 100%;
+            border-radius: 8px;
+        }
+
+        .image-container {
+            text-align: center;
+            margin: 1rem 0;
+        }
+
+        .image-container img {
+            max-width: 100%;
+            max-height: 45vh;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        }
+
+        .navigation {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem;
+            background: var(--primary-color);
+            flex-wrap: wrap;
+        }
+
+        .nav-btn {
+            padding: 0.75rem 1.5rem;
+            font-size: 1rem;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: var(--secondary-color);
+            color: white;
+        }
+
+        .nav-btn:hover {
+            background: #2980b9;
+            transform: translateY(-2px);
+        }
+
+        .nav-btn:disabled {
+            background: #7f8c8d;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .slide-counter {
+            color: white;
+            font-size: 1rem;
+            min-width: 100px;
+            text-align: center;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 4px;
+            background: rgba(255,255,255,0.2);
+        }
+
+        .progress {
+            height: 100%;
+            background: var(--secondary-color);
+            transition: width 0.3s ease;
+        }
+
+        /* Interactive playground */
+        .playground {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            margin-top: 1rem;
+        }
+
+        @media (max-width: 800px) {
+            .playground {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .controls {
+            background: rgba(0,0,0,0.2);
+            padding: 1.5rem;
+            border-radius: 8px;
+        }
+
+        .control-group {
+            margin-bottom: 1rem;
+        }
+
+        .control-group label {
+            display: block;
+            font-size: 0.9rem;
+            margin-bottom: 0.3rem;
+            color: #81ecec;
+        }
+
+        .control-group input[type="range"],
+        .control-group input[type="number"],
+        .control-group select {
+            width: 100%;
+            padding: 0.5rem;
+            border-radius: 4px;
+            border: 1px solid rgba(255,255,255,0.3);
+            background: rgba(255,255,255,0.9);
+            color: #333;
+            font-size: 1rem;
+        }
+
+        .control-group input[type="range"] {
+            padding: 0;
+            height: 8px;
+            cursor: pointer;
+        }
+
+        .control-value {
+            font-size: 0.85rem;
+            color: #ffeaa7;
+            margin-top: 0.2rem;
+        }
+
+        .preview-area {
+            background: rgba(255,255,255,0.95);
+            color: #333;
+            padding: 1.5rem;
+            border-radius: 8px;
+            min-height: 200px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            position: relative;
+            overflow: auto;
+        }
+
+        .code-output {
+            background: var(--code-bg);
+            color: var(--code-text);
+            padding: 1rem;
+            border-radius: 8px;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 0.85rem;
+            margin-top: 1rem;
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
+
+        /* Slide themes */
+        .slide:nth-child(odd) {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .slide:nth-child(even) {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+        }
+
+        .slide:nth-child(3n) {
+            background: linear-gradient(135deg, #ee0979 0%, #ff6a00 100%);
+        }
+
+        .slide:nth-child(4n) {
+            background: linear-gradient(135deg, #2193b0 0%, #6dd5ed 100%);
+        }
+
+        .slide:nth-child(5n) {
+            background: linear-gradient(135deg, #c31432 0%, #240b36 100%);
+        }
+
+        /* Box model demo */
+        .box-model-layers {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 1rem 0;
+        }
+
+        .bm-margin {
+            background: rgba(243, 171, 115, 0.5);
+            padding: 20px;
+            border-radius: 4px;
+            text-align: center;
+        }
+
+        .bm-border {
+            background: rgba(253, 203, 110, 0.7);
+            padding: 15px;
+            border-radius: 4px;
+        }
+
+        .bm-padding {
+            background: rgba(129, 236, 236, 0.5);
+            padding: 20px;
+            border-radius: 4px;
+        }
+
+        .bm-content {
+            background: rgba(108, 92, 231, 0.6);
+            color: white;
+            padding: 20px 30px;
+            font-weight: bold;
+            border-radius: 4px;
+        }
+
+        .bm-label {
+            font-size: 0.75rem;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 4px;
+        }
+
+        /* Position cards */
+        .position-card {
+            background: rgba(0,0,0,0.2);
+            padding: 1rem;
+            border-radius: 8px;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .position-card h4 {
+            margin-top: 0;
+        }
+
+        .position-card code {
+            font-size: 0.85em;
+        }
+
+        /* Comparison table */
+        table.compare-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1rem 0;
+            font-size: clamp(0.8rem, 1.8vw, 1rem);
+        }
+
+        table.compare-table th,
+        table.compare-table td {
+            border: 1px solid rgba(255,255,255,0.3);
+            padding: 0.5rem 0.75rem;
+            text-align: left;
+        }
+
+        table.compare-table th {
+            background: rgba(0,0,0,0.2);
+        }
+
+        @media (max-width: 600px) {
+            .slide {
+                padding: 1rem;
+            }
+
+            .navigation {
+                padding: 0.75rem;
+            }
+
+            .nav-btn {
+                padding: 0.5rem 1rem;
+                font-size: 0.9rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="progress-bar">
+        <div class="progress" id="progress"></div>
+    </div>
+
+    <div class="slideshow-container">
+
+        <!-- Slide 1: Title -->
+        <div class="slide active">
+            <div class="slide-content" style="text-align: center;">
+                <h1>Lesson 10: Box Model, Positioning, and Flexbox</h1>
+                <p style="font-size: clamp(1.2rem, 3vw, 1.8rem); opacity: 0.9;">Understanding CSS Layout Fundamentals</p>
+                <div style="margin: 2rem auto; max-width: 350px;">
+                    <div class="box-model-layers">
+                        <div class="bm-margin">
+                            <div class="bm-label">margin</div>
+                            <div class="bm-border">
+                                <div class="bm-label">border</div>
+                                <div class="bm-padding">
+                                    <div class="bm-label">padding</div>
+                                    <div class="bm-content">Content</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <p style="opacity: 0.7;">Use arrow keys, buttons, or swipe to navigate</p>
+            </div>
+        </div>
+
+        <!-- Slide 2: What You'll Learn -->
+        <div class="slide">
+            <div class="slide-content">
+                <h2>What You'll Learn in This Lesson</h2>
+                <div class="two-column">
+                    <div>
+                        <h3>Core Concepts</h3>
+                        <ul>
+                            <li>How to conceptualize the <strong>CSS box model</strong></li>
+                            <li>How to change the box model with <code>box-sizing</code></li>
+                            <li>How to <strong>position</strong> your elements</li>
+                            <li>How to control element <strong>stacking</strong> with <code>z-index</code></li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h3>Modern Layout</h3>
+                        <ul>
+                            <li>How to create flexible layouts with <strong>Flexbox</strong></li>
+                            <li>How to use modern <strong>alignment</strong> techniques</li>
+                            <li>When to use Flexbox vs positioning</li>
+                            <li>Common layout patterns and pitfalls</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="note" style="margin-top: 1rem;">
+                    <strong>Why this matters:</strong> Understanding the box model is essential to avoid layout surprises. If elements seem "off" or don't line up, the box model is almost always the reason.
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 3: The CSS Box Model -->
+        <div class="slide">
+            <div class="slide-content">
+                <h2>The CSS Box Model</h2>
+                <p>Every HTML element is a <strong>rectangular box</strong> with four layers, whether visible or not:</p>
+                <div class="two-column">
+                    <div>
+                        <div class="image-container">
+                            <img src="assets/fig-10.1.jpg" alt="Diagram of the CSS box model showing margin, border, padding, and content layers">
+                        </div>
+                        <p style="font-size: 0.85rem; text-align: center;"><strong>Figure 10.1</strong> — The CSS box model</p>
+                    </div>
+                    <div>
+                        <h3>From Outside In:</h3>
+                        <ul>
+                            <li><strong>Margin</strong> — Space outside the element (always transparent)</li>
+                            <li><strong>Border</strong> — Surrounds the padding; can be styled with width, style, and color</li>
+                            <li><strong>Padding</strong> — Space inside the element; inherits the background color</li>
+                            <li><strong>Content</strong> — The actual text, images, or child elements</li>
+                        </ul>
+                        <div class="highlight">
+                            These layers are <strong>always present</strong> on every element, even when you don't explicitly set them.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 4: Box Model Size Calculation -->
+        <div class="slide">
+            <div class="slide-content">
+                <h2>Box Model: How Size Is Calculated</h2>
+                <p>In the <strong>default box model</strong>, the rendered size includes all layers:</p>
+                <div class="two-column">
+                    <div>
+                        <h3>A Simple div</h3>
+                        <pre><code>div {
+  width: 250px;
+  height: 100px;
+  background-color: #E74C3C;
+  border: 1px solid #000;
+}</code></pre>
+                        <div class="image-container">
+                            <img src="assets/fig-10.2.jpg" alt="A simple red div element" style="max-height: 25vh;">
+                        </div>
+                        <p style="font-size: 0.85rem; text-align: center;"><strong>Figure 10.2</strong> — A simple div</p>
+                    </div>
+                    <div>
+                        <h3>Same div + margin + padding</h3>
+                        <pre><code>div#d2 {
+  width: 250px;
+  height: 100px;
+  background-color: #E74C3C;
+  border: 5px solid #000;
+  margin: 10px;
+  padding: 10px;
+}</code></pre>
+                        <div class="image-container">
+                            <img src="assets/fig-10.3.jpg" alt="Two divs showing box model size difference" style="max-height: 25vh;">
+                        </div>
+                        <p style="font-size: 0.85rem; text-align: center;"><strong>Figure 10.3</strong> — Padding and border add to the size</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 5: Box Model Math -->
+        <div class="slide">
+            <div class="slide-content">
+                <h2>Box Model Math</h2>
+                <p>The <strong>actual space</strong> an element takes up on the page:</p>
+                <div class="two-column">
+                    <div>
+                        <h3>Total Width</h3>
+                        <pre><code>width
++ padding-left + padding-right
++ border-left  + border-right
++ margin-left  + margin-right</code></pre>
+                        <h3>Total Height</h3>
+                        <pre><code>height
++ padding-top    + padding-bottom
++ border-top     + border-bottom
++ margin-top     + margin-bottom</code></pre>
+                    </div>
+                    <div>
+                        <h3>Example Calculation</h3>
+                        <p>For the second div on the previous slide:</p>
+                        <pre><code>Width:  250 + 10 + 10 + 5 + 5 + 10 + 10
+      = 300px actual width
+
+Height: 100 + 10 + 10 + 5 + 5 + 10 + 10
+      = 150px actual height</code></pre>
+                        <div class="caution">
+                            <strong>The trap:</strong> You set <code>width: 250px</code> but the element takes up <strong>300px</strong> of horizontal space!
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 6: Interactive Box Model Demo -->
+        <div class="slide">
+            <div class="slide-content">
+                <h2>Box Model Playground</h2>
+                <p>Adjust the values to see how they affect the total rendered size:</p>
+                <div class="playground">
+                    <div class="controls">
+                        <div class="control-group">
+                            <label>Content Width</label>
+                            <input type="range" id="bmWidth" min="80" max="250" value="150" oninput="updateBoxModelDemo()">
+                            <div class="control-value"><span id="bmWidthVal">150</span>px</div>
+                        </div>
+                        <div class="control-group">
+                            <label>Padding (all sides)</label>
+                            <input type="range" id="bmPadding" min="0" max="40" value="10" oninput="updateBoxModelDemo()">
+                            <div class="control-value"><span id="bmPaddingVal">10</span>px</div>
+                        </div>
+                        <div class="control-group">
+                            <label>Border Width</label>
+                            <input type="range" id="bmBorder" min="0" max="15" value="3" oninput="updateBoxModelDemo()">
+                            <div class="control-value"><span id="bmBorderVal">3</span>px</div>
+                        </div>
+                        <div class="control-group">
+                            <label>Margin (all sides)</label>
+                            <input type="range" id="bmMargin" min="0" max="40" value="10" oninput="updateBoxModelDemo()">
+                            <div class="control-value"><span id="bmMarginVal">10</span>px</div>
+                        </div>
+                        <div class="control-group">
+                            <label>Box Sizing</label>
+                            <select id="bmBoxSizing" onchange="updateBoxModelDemo()">
+                                <option value="content-box">content-box (default)</option>
+                                <option value="border-box">border-box</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="preview-area" style="align-items: center;">
+                            <!-- Margin layer -->
+                            <div id="bmDemoMargin" style="background: rgba(243,171,115,0.5); padding: 10px; display: inline-block;">
+                                <div style="font-size: 0.7rem; color: #8B4513; font-weight: bold; text-align: center;">margin</div>
+                                <!-- Border layer -->
+                                <div id="bmDemoBorder" style="border: 3px solid #333; display: inline-block;">
+                                    <!-- Padding layer -->
+                                    <div id="bmDemoPadding" style="background: rgba(129,236,236,0.4); padding: 10px;">
+                                        <div style="font-size: 0.65rem; color: #00796b; font-weight: bold; text-align: center;">padding</div>
+                                        <!-- Content -->
+                                        <div id="bmDemoContent" style="width: 150px; height: 60px; background: #3498db; color: white; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 0.85rem;">
+                                            Content
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div style="margin-top: 0.75rem; font-size: 0.85rem; color: #555; text-align: center;">
+                                Total: <strong><span id="bmTotalWidth">0</span> × <span id="bmTotalHeight">0</span>px</strong>
+                            </div>
+                        </div>
+                        <div class="code-output" id="bmCode"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 7: Changing the Box Model -->
+        <div class="slide">
+            <div class="slide-content">
+                <h2>Changing the Box Model: <code>box-sizing</code></h2>
+                <p>The default box model adds padding and border <em>outside</em> your specified width. <code>box-sizing</code> fixes this:</p>
+                <div class="two-column">
+                    <div>
+                        <h3><code>content-box</code> (default)</h3>
+                        <ul>
+                            <li>Width/height apply to <strong>content only</strong></li>
+                            <li>Padding and border are added <strong>on top</strong></li>
+                            <li>Element ends up <strong>larger</strong> than specified</li>
+                        </ul>
+                        <pre><code>div { width: 250px; padding: 10px; }
+/* Actual width: 270px */</code></pre>
+                    </div>
+                    <div>
+                        <h3><code>border-box</code> (intuitive)</h3>
+                        <ul>
+                            <li>Width/height <strong>include</strong> padding and border</li>
+                            <li>Element is exactly the size you specify</li>
+                            <li>Content area shrinks to accommodate padding/border</li>
+                        </ul>
+                        <pre><code>div { width: 250px; padding: 10px;
+     box-sizing: border-box; }
+/* Actual width: 250px ✓ */</code></pre>
+                    </div>
+                </div>
+                <div class="note" style="margin-top: 1rem;">
+                    <strong>Best practice:</strong> Most developers apply this globally:
+                    <code>* { box-sizing: border-box; }</code>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 8: box-sizing CodePen -->
+        <div class="slide">
+            <div class="slide-content">
+                <h2>Box Sizing in Action</h2>
+                <p>See how <code>border-box</code> makes two 50%-width divs fit side by side:</p>
+                <div class="codepen-container">
+                    <iframe style="width: 100%;" title="Codepen 10.1" src="https://codepen.io/mattkearl/embed/WbxYpeg?default-tab=css%2Cresult&editable=true" height="600" loading="lazy"></iframe>
+                </div>
+                <div class="highlight" style="margin-top: 1rem;">
+                    <strong>Try it:</strong> Toggle <code>box-sizing: border-box;</code> on and off to see the layout break and fix!
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 9: Outline Properties Note -->
+        <div class="slide">
+            <div class="slide-content">
+                <h2>The Outline: A Special Case</h2>
+                <p>CSS also has <strong>outline</strong> properties that look like borders but behave differently:</p>
+                <div class="two-column">
+                    <div>
+                        <h3>Border vs Outline</h3>
+                        <table class="compare-table">
+                            <tr><th>Feature</th><th>Border</th><th>Outline</th></tr>
+                            <tr><td>Takes up space?</td><td>Yes</td><td><strong>No</strong></td></tr>
+                            <tr><td>Affects layout?</td><td>Yes</td><td><strong>No</strong></td></tr>
+                            <tr><td>Can be rounded?</td><td>Yes (<code>border-radius</code>)</td><td><strong>No</strong></td></tr>
+                            <tr><td>Per-side control?</td><td>Yes</td><td><strong>No</strong></td></tr>
+                        </table>
+                    </div>
+                    <div>
+                        <h3>Outline Properties</h3>
+                        <pre><code>element {
+  outline: 2px solid blue;
+  outline-offset: 5px;
+}</code></pre>
+                        <div class="note">
+                            <strong>Common use:</strong> Browser focus indicators (the ring you see when tabbing through links) use outlines so they don't shift the layout.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 10: Positioning Overview -->
+        <div class="slide">
+            <div class="slide-content">
+                <h2>The Whole Scoop on Positioning</h2>
+                <p>The <code>position</code> property controls how an element is placed on the page:</p>
+                <div class="three-column">
+                    <div class="position-card">
+                        <h4><code>static</code></h4>
+                        <p style="font-size: 0.9rem;">Default. Normal document flow. <code>top</code>/<code>left</code> have no effect.</p>
+                    </div>
+                    <div class="position-card">
+                        <h4><code>relative</code></h4>
+                        <p style="font-size: 0.9rem;">Offsets from its <strong>normal position</strong>. Still takes up original space.</p>
+                    </div>
+                    <div class="position-card">
+                        <h4><code>absolute</code></h4>
+                        <p style="font-size: 0.9rem;">Positioned relative to nearest <strong>positioned parent</strong>. Removed from flow.</p>
+                    </div>
+                    <div class="position-card">
+                        <h4><code>fixed</code></h4>
+                        <p style="font-size: 0.9rem;">Positioned relative to the <strong>browser window</strong>. Stays put on scroll.</p>
+                    </div>
+                    <div class="position-card">
+                        <h4><code>sticky</code></h4>
+                        <p style="font-size: 0.9rem;"><strong>Hybrid</strong>: acts relative until a scroll threshold, then acts fixed.</p>
+                    </div>
+                </div>
+                <div class="highlight" style="margin-top: 1rem;">
+                    Position offsets: <code>top</code>, <code>right</code>, <code>bottom</code>, <code>left</code> — these work on all types except <code>static</code>.
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 11: Relative Positioning -->
+        <div class="slide">
+            <div class="slide-content">
+                <h2>Relative Positioning</h2>
+                <p>Elements flow normally, stacking block elements vertically and inline elements horizontally:</p>
+                <div class="two-column">
+                    <div>
+                        <h3>Element Types</h3>
+                        <ul>
+                            <li><strong>Block</strong> (<code>&lt;div&gt;</code>, <code>&lt;p&gt;</code>) — starts on a new line, full width</li>
+                            <li><strong>Inline</strong> (<code>&lt;span&gt;</code>, <code>&lt;code&gt;</code>) — flows with text, no width/height</li>
+                            <li><strong>Inline-block</strong> (<code>&lt;img&gt;</code>) — flows inline but can have width/height</li>
+                        </ul>
+                        <pre><code>div {
+  position: relative;
+  left: 25px;  /* shifts 25px from
+                  its normal spot */
+}</code></pre>
+                    </div>
+                    <div>
+                        <div class="codepen-container">
+                            <iframe style="width: 100%;" title="Codepen - 10.10" src="https://codepen.io/mattkearl/embed/azZQWdV?default-tab=css%2Cresult&editable=true" height="400" loading="lazy"></iframe>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 12: Absolute Positioning -->
+        <div class="slide">
+            <div class="slide-content">
+                <h2>Absolute Positioning</h2>
+                <p>Elements are placed at <strong>exact coordinates</strong> relative to their nearest positioned parent:</p>
+                <div class="two-column">
+                    <div>
+                        <h3>Key Behaviors</h3>
+                        <ul>
+                            <li>Removed from the normal flow</li>
+                            <li>Positioned relative to nearest ancestor with <code>position: relative</code> (or the page)</li>
+                            <li>Can overlap other elements</li>
+                            <li><code>left</code>/<code>top</code> take priority over <code>right</code>/<code>bottom</code></li>
+                        </ul>
+                        <pre><code>#d1 { position: absolute;
+      left: 0; top: 0; }
+#d2 { position: absolute;
+      left: 50px; top: 30px; }</code></pre>
+                    </div>
+                    <div>
+                        <div class="codepen-container">
+                            <iframe style="width: 100%;" title="Codepen - 10.12" src="https://codepen.io/mattkearl/embed/myEQmPv?default-tab=css%2Cresult&editable=true" height="400" loading="lazy"></iframe>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 13: Fixed & Sticky Positioning -->
+        <div class="slide">
+            <div class="slide-content">
+                <h2>Fixed &amp; Sticky Positioning</h2>
+                <div class="two-column">
+                    <div>
+                        <h3><code>fixed</code></h3>
+                        <ul>
+                            <li>Positioned relative to the <strong>browser window</strong></li>
+                            <li>Stays in place as the page scrolls</li>
+                            <li>Common uses: sticky headers, floating buttons, watermarks</li>
+                        </ul>
+                        <h3><code>sticky</code></h3>
+                        <ul>
+                            <li>Acts <strong>relative</strong> until you scroll past a threshold</li>
+                            <li>Then acts <strong>fixed</strong> until its container ends</li>
+                            <li>Common use: table headers that "stick" while scrolling</li>
+                        </ul>
+                        <pre><code>.sticky-header {
+  position: sticky;
+  top: 0; /* sticks at top */
+}</code></pre>
+                    </div>
+                    <div>
+                        <p>Try scrolling in this fixed-position demo:</p>
+                        <div class="codepen-container">
+                            <iframe style="width: 100%;" title="Codepen - 10.2" src="https://codepen.io/mattkearl/embed/wBWQJaX?default-tab=css%2Cresult&editable=true" height="500" loading="lazy"></iframe>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 14: Z-Index -->
+        <div class="slide">
+            <div class="slide-content">
+                <h2>Controlling the Way Things Stack Up: <code>z-index</code></h2>
+                <p>When elements overlap, <code>z-index</code> controls which appears on top — like <strong>layers in Photoshop</strong>:</p>
+                <div class="two-column">
+                    <div>
+                        <h3>How It Works</h3>
+                        <ul>
+                            <li>Higher <code>z-index</code> = closer to the viewer (on top)</li>
+                            <li>Default is <code>0</code> if not set</li>
+                            <li>Can be <strong>negative</strong> to push behind other elements</li>
+                            <li>Only works on <strong>positioned</strong> elements (not <code>static</code>)</li>
+                            <li>An element always appears on top of its parent</li>
+                        </ul>
+                        <pre><code>#box1 { z-index: 1; }  /* behind */
+#box2 { z-index: 10; } /* on top */
+#box3 { z-index: 5; }  /* middle */</code></pre>
+                        <div class="note">
+                            Without <code>z-index</code>, elements later in the HTML appear on top of earlier ones.
+                        </div>
+                    </div>
+                    <div>
+                        <div class="codepen-container">
+                            <iframe style="width: 100%;" title="Codepen 10.13" src="https://codepen.io/mattkearl/embed/jErQmVq?default-tab=css%2Cresult&editable=true" height="500" loading="lazy"></iframe>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 15: Z-Index with Images -->
+        <div class="slide">
+            <div class="slide-content">
+                <h2>Z-Index with Real Content</h2>
+                <p>Z-index works on any positioned HTML content — images, text, entire sections:</p>
+                <div class="codepen-container">
+                    <iframe style="width: 100%;" title="Untitled" src="https://codepen.io/mattkearl/embed/yyJQMYr?default-tab=result&editable=true" height="600" loading="lazy"></iframe>
+                </div>
+                <p style="font-size: 0.9rem; margin-top: 0.5rem;">Try adjusting the <code>z-index</code> values in the CSS to change which image appears on top!</p>
+            </div>
+        </div>
+
+        <!-- Slide 16: Introduction to Flexbox -->
+        <div class="slide">
+            <div class="slide-content">
+                <h2>Modern Layout with Flexbox</h2>
+                <p>Flexbox makes creating flexible, responsive layouts <strong>dramatically easier</strong> than older methods:</p>
+                <div class="two-column">
+                    <div>
+                        <h3>What Makes Flexbox Different</h3>
+                        <ul>
+                            <li><strong>Direction-agnostic</strong> — easily switch between horizontal and vertical</li>
+                            <li><strong>Flexible sizing</strong> — items grow to fill space or shrink to fit</li>
+                            <li><strong>Powerful alignment</strong> — center anything in one line</li>
+                            <li><strong>Order control</strong> — rearrange visually without changing HTML</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h3>Getting Started</h3>
+                        <pre><code>.container {
+  display: flex;
+}
+
+/* That's it! Direct children
+   become flex items. */</code></pre>
+                        <div class="caution">
+                            <strong>Flexbox = one dimension.</strong> It arranges items in a single row <em>or</em> column. For two-dimensional layouts (rows AND columns), use CSS Grid (Lesson 12).
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 17: Main Axis & Cross Axis -->
+        <div class="slide">
+            <div class="slide-content">
+                <h2>Main Axis &amp; Cross Axis</h2>
+                <p>This is the <strong>most important concept</strong> in Flexbox. Every flex container has two axes:</p>
+                <div class="two-column">
+                    <div>
+                        <h3><code>flex-direction: row</code> (default)</h3>
+                        <ul>
+                            <li><strong>Main axis</strong> = horizontal (left → right)</li>
+                            <li><strong>Cross axis</strong> = vertical (top → bottom)</li>
+                        </ul>
+                        <h3><code>flex-direction: column</code></h3>
+                        <ul>
+                            <li><strong>Main axis</strong> = vertical (top → bottom)</li>
+                            <li><strong>Cross axis</strong> = horizontal (left → right)</li>
+                        </ul>
+                        <div class="highlight">
+                            <strong>Key:</strong><br>
+                            <code>justify-content</code> → main axis<br>
+                            <code>align-items</code> → cross axis
+                        </div>
+                    </div>
+                    <div>
+                        <div class="codepen-container">
+                            <iframe style="width: 100%;" title="Codepen - 10.4" src="https://codepen.io/mattkearl/embed/xbOQqRO?default-tab=result&editable=true" height="500" loading="lazy"></iframe>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 18: flex-direction & flex-wrap -->
+        <div class="slide">
+            <div class="slide-content">
+                <h2>Flex Container: Direction &amp; Wrapping</h2>
+                <div class="two-column">
+                    <div>
+                        <h3><code>flex-direction</code></h3>
+                        <p>Sets the main axis direction:</p>
+                        <pre><code>flex-direction: row;           /* → default */
+flex-direction: row-reverse;   /* ← */
+flex-direction: column;        /* ↓ */
+flex-direction: column-reverse;/* ↑ */</code></pre>
+                        <h3><code>flex-wrap</code></h3>
+                        <p>Controls whether items wrap to new lines:</p>
+                        <pre><code>flex-wrap: nowrap;       /* default: one line */
+flex-wrap: wrap;         /* wraps to new lines */
+flex-wrap: wrap-reverse; /* wraps upward */</code></pre>
+                    </div>
+                    <div>
+                        <h3><code>flex-flow</code> (shorthand)</h3>
+                        <p>Combines direction and wrap:</p>
+                        <pre><code>flex-flow: row wrap;</code></pre>
+                        <h3><code>gap</code> (modern spacing)</h3>
+                        <p>Cleaner than margins for spacing between items:</p>
+                        <pre><code>.container {
+  display: flex;
+  gap: 1rem;       /* all gaps */
+  row-gap: 1rem;   /* between rows */
+  column-gap: 2rem;/* between columns */
+}</code></pre>
+                        <div class="note">
+                            <code>gap</code> replaces the old approach of margins + removing margins on first/last items.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 19: justify-content -->
+        <div class="slide">
+            <div class="slide-content">
+                <h2><code>justify-content</code> — Main Axis Spacing</h2>
+                <p>Controls how items are distributed along the <strong>main axis</strong>:</p>
+                <pre><code>justify-content: flex-start;     /* items at start (default) */
+justify-content: flex-end;       /* items at end */
+justify-content: center;         /* items centered */
+justify-content: space-between;  /* first/last at edges, equal space between */
+justify-content: space-around;   /* equal space around each item */
+justify-content: space-evenly;   /* perfectly equal gaps everywhere */</code></pre>
+                <div class="codepen-container">
+                    <iframe style="width: 100%;" title="Codepen - 10.5" src="https://codepen.io/mattkearl/embed/azZQJpN?default-tab=result&editable=true" height="500" loading="lazy"></iframe>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 20: align-items & align-content -->
+        <div class="slide">
+            <div class="slide-content">
+                <h2><code>align-items</code> &amp; <code>align-content</code></h2>
+                <div class="two-column">
+                    <div>
+                        <h3><code>align-items</code> — Cross Axis</h3>
+                        <p>Aligns items <strong>within each line</strong>:</p>
+                        <pre><code>align-items: stretch;    /* default */
+align-items: flex-start; /* top */
+align-items: flex-end;   /* bottom */
+align-items: center;     /* middle */
+align-items: baseline;   /* text baselines */</code></pre>
+                    </div>
+                    <div>
+                        <h3><code>align-content</code> — Multiple Lines</h3>
+                        <p>Aligns <strong>the lines themselves</strong> (only when <code>flex-wrap: wrap</code>):</p>
+                        <pre><code>align-content: stretch;       /* default */
+align-content: flex-start;
+align-content: flex-end;
+align-content: center;
+align-content: space-between;
+align-content: space-around;</code></pre>
+                    </div>
+                </div>
+                <div class="caution" style="margin-top: 1rem;">
+                    <strong>Common confusion:</strong> <code>align-items</code> aligns items within a single line. <code>align-content</code> aligns the lines themselves when items wrap to multiple lines.
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 21: Flex Item Properties -->
+        <div class="slide">
+            <div class="slide-content">
+                <h2>Flex Item Properties</h2>
+                <p>Individual flex items have their own properties that control how they behave:</p>
+                <div class="two-column">
+                    <div>
+                        <h4><code>flex-grow</code></h4>
+                        <p style="font-size: 0.95rem;">How much an item <strong>grows</strong> to fill space (0 = don't grow):</p>
+                        <pre><code>flex-grow: 0; /* default */
+flex-grow: 1; /* fills space */
+flex-grow: 2; /* grows 2× as much */</code></pre>
+                        <h4><code>flex-shrink</code></h4>
+                        <p style="font-size: 0.95rem;">How much an item <strong>shrinks</strong> when space is tight:</p>
+                        <pre><code>flex-shrink: 1; /* default: can shrink */
+flex-shrink: 0; /* never shrink */</code></pre>
+                    </div>
+                    <div>
+                        <h4><code>flex-basis</code></h4>
+                        <p style="font-size: 0.95rem;">The <strong>starting size</strong> before growing/shrinking:</p>
+                        <pre><code>flex-basis: auto; /* use content size */
+flex-basis: 200px; /* start at 200px */
+flex-basis: 50%;   /* start at 50% */</code></pre>
+                        <h4><code>flex</code> (shorthand) — use this!</h4>
+                        <pre><code>flex: 0 1 auto; /* default */
+flex: 1;        /* grow equally */
+flex: 2;        /* grow 2× more */
+flex: 0 0 200px;/* fixed 200px */</code></pre>
+                        <div class="highlight">
+                            <strong>Most common:</strong> <code>flex: 1;</code> makes items equal-width and flexible.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 22: order & align-self -->
+        <div class="slide">
+            <div class="slide-content">
+                <h2>Order &amp; Individual Alignment</h2>
+                <div class="two-column">
+                    <div>
+                        <h3><code>order</code></h3>
+                        <p>Changes the <strong>visual order</strong> without changing HTML:</p>
+                        <pre><code>.item-1 { order: 2; } /* appears 2nd */
+.item-2 { order: 1; } /* appears 1st */
+.item-3 { order: 3; } /* appears 3rd */</code></pre>
+                        <div class="caution">
+                            <strong>Accessibility warning:</strong> <code>order</code> only changes visual order — screen readers and Tab key still follow the HTML source order.
+                        </div>
+                    </div>
+                    <div>
+                        <h3><code>align-self</code></h3>
+                        <p>Override the container's <code>align-items</code> for one item:</p>
+                        <pre><code>.container {
+  align-items: flex-start;
+}
+
+.special {
+  align-self: flex-end;
+  /* just this item aligns
+     to the bottom */
+}</code></pre>
+                    </div>
+                </div>
+                <div class="codepen-container" style="margin-top: 1rem;">
+                    <iframe style="width: 100%;" title="Codepen - 10.6" src="https://codepen.io/mattkearl/embed/LEZXWWW?default-tab=result&editable=true" height="400" loading="lazy"></iframe>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 23: Practical Flexbox Examples -->
+        <div class="slide">
+            <div class="slide-content">
+                <h2>Practical Flexbox Patterns</h2>
+                <div class="two-column">
+                    <div>
+                        <h3>Navigation Bar</h3>
+                        <pre><code>.nav {
+  display: flex;
+  gap: 2rem;
+  padding: 1rem;
+  background: #2C3E50;
+}</code></pre>
+                        <h3>Perfect Centering</h3>
+                        <pre><code>.center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+}</code></pre>
+                    </div>
+                    <div>
+                        <h3>Equal-Height Cards</h3>
+                        <pre><code>.cards {
+  display: flex;
+  gap: 1rem;
+}
+.card { flex: 1; }
+/* All cards same height! */</code></pre>
+                        <h3>Sticky Footer</h3>
+                        <pre><code>body {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+main { flex: 1; }
+/* Footer pushed to bottom */</code></pre>
+                    </div>
+                </div>
+                <div class="codepen-container" style="margin-top: 0.5rem;">
+                    <iframe style="width: 100%;" title="Codepen - 10.7" src="https://codepen.io/mattkearl/embed/emzQvRm?default-tab=result&editable=true" height="350" loading="lazy"></iframe>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 24: Responsive Patterns -->
+        <div class="slide">
+            <div class="slide-content">
+                <h2>Responsive Patterns with Flexbox</h2>
+                <p>Flexbox can create responsive layouts <strong>without media queries</strong>:</p>
+                <div class="two-column">
+                    <div>
+                        <h3>The Magic Pattern</h3>
+                        <pre><code>.responsive-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.responsive-grid > * {
+  flex: 1 1 300px;
+  /* grow, shrink, min 300px */
+}</code></pre>
+                        <h3>What happens:</h3>
+                        <ul>
+                            <li>Items try to be at least 300px wide</li>
+                            <li>They grow to fill available space</li>
+                            <li>They wrap to new lines when they don't fit</li>
+                            <li>All without media queries!</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <div class="codepen-container">
+                            <iframe style="width: 100%;" title="Codepen 10.8" src="https://codepen.io/mattkearl/embed/qENQrXr?default-tab=result&editable=true" height="500" loading="lazy"></iframe>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 25: Common Pitfalls -->
+        <div class="slide">
+            <div class="slide-content">
+                <h2>Common Flexbox Pitfalls</h2>
+                <div class="two-column">
+                    <div>
+                        <h3>1. Percentage widths in flex items</h3>
+                        <pre><code>/* Instead of: */
+.item { width: 50%; }
+
+/* Use: */
+.item { flex: 0 0 50%; }</code></pre>
+                        <h3>2. <code>min-width: auto</code> overflow</h3>
+                        <p>Flex items won't shrink below their content by default. Fix:</p>
+                        <pre><code>.item { min-width: 0; }</code></pre>
+                    </div>
+                    <div>
+                        <h3>3. Margins don't collapse</h3>
+                        <p>Unlike block elements, flex item margins <strong>never collapse</strong>. Use <code>gap</code> instead.</p>
+                        <h3>4. Auto margins are powerful</h3>
+                        <p>Auto margins consume all available space — useful for pushing items:</p>
+                        <pre><code>.nav-item:last-child {
+  margin-left: auto;
+  /* pushes to far right */
+}</code></pre>
+                        <h3>5. <code>flex: 1</code> vs <code>flex: auto</code></h3>
+                        <p style="font-size: 0.95rem;"><code>flex: 1</code> ignores content size (<code>basis: 0</code>). <code>flex: auto</code> respects it (<code>basis: auto</code>).</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 26: When to Use What -->
+        <div class="slide">
+            <div class="slide-content">
+                <h2>When to Use What</h2>
+                <div class="three-column">
+                    <div class="position-card" style="border-left: 4px solid #3498db;">
+                        <h3 style="color: #3498db;">Flexbox</h3>
+                        <ul style="font-size: 0.9rem;">
+                            <li>Navigation menus</li>
+                            <li>Cards in a row/column</li>
+                            <li>Centering content</li>
+                            <li>Equal-height columns</li>
+                            <li>Responsive layouts</li>
+                            <li>Distributing space</li>
+                        </ul>
+                    </div>
+                    <div class="position-card" style="border-left: 4px solid #e74c3c;">
+                        <h3 style="color: #e74c3c;">Positioning</h3>
+                        <ul style="font-size: 0.9rem;">
+                            <li>Tooltips / popovers</li>
+                            <li>Modals / overlays</li>
+                            <li>Precise placement</li>
+                            <li>Sticky headers</li>
+                            <li>Layering with z-index</li>
+                            <li>Floating buttons</li>
+                        </ul>
+                    </div>
+                    <div class="position-card" style="border-left: 4px solid #2ecc71;">
+                        <h3 style="color: #2ecc71;">CSS Grid (Lesson 12)</h3>
+                        <ul style="font-size: 0.9rem;">
+                            <li>Full page layouts</li>
+                            <li>Rows AND columns</li>
+                            <li>Complex 2D layouts</li>
+                            <li>Magazine-style layouts</li>
+                            <li>Dashboard grids</li>
+                            <li>Template areas</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="highlight" style="margin-top: 1rem;">
+                    <strong>Rule of thumb:</strong> Start with Flexbox for most things. Reach for positioning when you need overlays. Use Grid when you need rows <em>and</em> columns.
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 27: Summary -->
+        <div class="slide">
+            <div class="slide-content">
+                <h2>Summary: Key Takeaways</h2>
+                <div class="two-column">
+                    <div>
+                        <h3>Box Model</h3>
+                        <ul>
+                            <li>Every element = content + padding + border + margin</li>
+                            <li>Default model adds padding/border <em>outside</em> width</li>
+                            <li>Use <code>box-sizing: border-box</code> globally</li>
+                            <li>Outlines don't affect layout</li>
+                        </ul>
+                        <h3>Positioning</h3>
+                        <ul>
+                            <li><code>static</code> (default), <code>relative</code>, <code>absolute</code>, <code>fixed</code>, <code>sticky</code></li>
+                            <li><code>z-index</code> controls stacking order</li>
+                            <li>Higher z-index = on top</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h3>Flexbox</h3>
+                        <ul>
+                            <li><code>display: flex</code> on the container</li>
+                            <li>Main axis vs cross axis is key</li>
+                            <li><code>justify-content</code> = main axis</li>
+                            <li><code>align-items</code> = cross axis</li>
+                            <li><code>flex: 1</code> for flexible equal items</li>
+                            <li><code>gap</code> for clean spacing</li>
+                        </ul>
+                        <h3>Resources</h3>
+                        <ul>
+                            <li><a href="https://css-tricks.com/snippets/css/a-guide-to-flexbox/" target="_blank" rel="noopener noreferrer">CSS-Tricks: Complete Guide to Flexbox</a></li>
+                            <li><a href="https://flexboxfroggy.com/" target="_blank" rel="noopener noreferrer">Flexbox Froggy (Game)</a></li>
+                            <li><a href="https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_box_model" target="_blank" rel="noopener noreferrer">MDN: Box Model</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 28: Q&A -->
+        <div class="slide">
+            <div class="slide-content">
+                <h2>Common Questions</h2>
+                <div class="two-column">
+                    <div>
+                        <h3>Q: When do I use relative vs absolute positioning?</h3>
+                        <p style="font-size: 0.95rem;">Use <strong>relative</strong> for slight nudges from normal position. Use <strong>absolute</strong> when you need pixel-perfect placement inside a container. For most layouts, use Flexbox or Grid instead.</p>
+
+                        <h3>Q: Should I always use <code>border-box</code>?</h3>
+                        <p style="font-size: 0.95rem;">Yes, for nearly all projects. It makes sizing intuitive — 250px means 250px. Apply it globally with <code>* { box-sizing: border-box; }</code>.</p>
+
+                        <h3>Q: What if elements overlap without <code>z-index</code>?</h3>
+                        <p style="font-size: 0.95rem;">Elements later in the HTML appear on top of earlier ones. Think of the browser painting them in order — the last one painted is on top.</p>
+                    </div>
+                    <div>
+                        <h3>Q: <code>justify-content</code> vs <code>align-items</code>?</h3>
+                        <p style="font-size: 0.95rem;"><code>justify-content</code> = main axis (horizontal by default). <code>align-items</code> = cross axis (vertical by default). When <code>flex-direction: column</code>, they swap!</p>
+
+                        <h3>Q: Why doesn't <code>flex: 1</code> respect content width?</h3>
+                        <p style="font-size: 0.95rem;"><code>flex: 1</code> is shorthand for <code>flex: 1 1 0</code> — the <code>0</code> basis ignores content size. Use <code>flex: auto</code> (<code>1 1 auto</code>) to respect content.</p>
+
+                        <h3>Q: Can I use Flexbox for full page layouts?</h3>
+                        <p style="font-size: 0.95rem;">Yes, but CSS Grid is better for 2D page layouts. Flexbox excels at one-dimensional arrangements (rows or columns).</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="navigation">
+        <button class="nav-btn" id="prevBtn" onclick="changeSlide(-1)">&larr; Previous</button>
+        <span class="slide-counter"><span id="currentSlide">1</span> / <span id="totalSlides">28</span></span>
+        <button class="nav-btn" id="nextBtn" onclick="changeSlide(1)">Next &rarr;</button>
+    </div>
+
+    <script>
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.slide');
+        const totalSlides = slides.length;
+
+        document.getElementById('totalSlides').textContent = totalSlides;
+
+        function showSlide(n) {
+            slides[currentSlide].classList.remove('active');
+            currentSlide = (n + totalSlides) % totalSlides;
+            slides[currentSlide].classList.add('active');
+
+            document.getElementById('currentSlide').textContent = currentSlide + 1;
+            document.getElementById('prevBtn').disabled = currentSlide === 0;
+            document.getElementById('nextBtn').disabled = currentSlide === totalSlides - 1;
+
+            const progress = ((currentSlide + 1) / totalSlides) * 100;
+            document.getElementById('progress').style.width = progress + '%';
+        }
+
+        function changeSlide(direction) {
+            showSlide(currentSlide + direction);
+        }
+
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'ArrowRight' || e.key === ' ') {
+                e.preventDefault();
+                if (currentSlide < totalSlides - 1) changeSlide(1);
+            } else if (e.key === 'ArrowLeft') {
+                e.preventDefault();
+                if (currentSlide > 0) changeSlide(-1);
+            } else if (e.key === 'Home') {
+                e.preventDefault();
+                showSlide(0);
+            } else if (e.key === 'End') {
+                e.preventDefault();
+                showSlide(totalSlides - 1);
+            }
+        });
+
+        let touchStartX = 0;
+        let touchEndX = 0;
+
+        document.addEventListener('touchstart', function(e) {
+            touchStartX = e.changedTouches[0].screenX;
+        }, false);
+
+        document.addEventListener('touchend', function(e) {
+            touchEndX = e.changedTouches[0].screenX;
+            handleSwipe();
+        }, false);
+
+        function handleSwipe() {
+            const swipeThreshold = 50;
+            const diff = touchStartX - touchEndX;
+
+            if (Math.abs(diff) > swipeThreshold) {
+                if (diff > 0 && currentSlide < totalSlides - 1) {
+                    changeSlide(1);
+                } else if (diff < 0 && currentSlide > 0) {
+                    changeSlide(-1);
+                }
+            }
+        }
+
+        showSlide(0);
+
+        // ===== Box Model Playground =====
+        function updateBoxModelDemo() {
+            const width = parseInt(document.getElementById('bmWidth').value);
+            const padding = parseInt(document.getElementById('bmPadding').value);
+            const border = parseInt(document.getElementById('bmBorder').value);
+            const margin = parseInt(document.getElementById('bmMargin').value);
+            const boxSizing = document.getElementById('bmBoxSizing').value;
+
+            document.getElementById('bmWidthVal').textContent = width;
+            document.getElementById('bmPaddingVal').textContent = padding;
+            document.getElementById('bmBorderVal').textContent = border;
+            document.getElementById('bmMarginVal').textContent = margin;
+
+            // Update visual
+            document.getElementById('bmDemoMargin').style.padding = margin + 'px';
+            document.getElementById('bmDemoBorder').style.borderWidth = border + 'px';
+            document.getElementById('bmDemoPadding').style.padding = padding + 'px';
+            document.getElementById('bmDemoContent').style.width = width + 'px';
+
+            // Calculate totals
+            let totalWidth, totalHeight;
+            const contentHeight = 60;
+
+            if (boxSizing === 'content-box') {
+                totalWidth = width + (padding * 2) + (border * 2) + (margin * 2);
+                totalHeight = contentHeight + (padding * 2) + (border * 2) + (margin * 2);
+            } else {
+                // border-box: width includes padding and border
+                totalWidth = width + (margin * 2);
+                totalHeight = contentHeight + (margin * 2);
+                // Shrink the visual content to simulate border-box
+                const innerWidth = Math.max(width - (padding * 2) - (border * 2), 20);
+                document.getElementById('bmDemoContent').style.width = innerWidth + 'px';
+            }
+
+            document.getElementById('bmTotalWidth').textContent = totalWidth;
+            document.getElementById('bmTotalHeight').textContent = totalHeight;
+
+            // Code output
+            let code = `.element {\n  width: ${width}px;\n  height: ${contentHeight}px;\n  padding: ${padding}px;\n  border: ${border}px solid #333;\n  margin: ${margin}px;`;
+            if (boxSizing === 'border-box') {
+                code += `\n  box-sizing: border-box;`;
+            }
+            code += `\n}\n\n/* Total space: ${totalWidth}px × ${totalHeight}px */`;
+
+            if (boxSizing === 'content-box') {
+                code += `\n/* ${width} + ${padding}×2 + ${border}×2 + ${margin}×2 = ${totalWidth}px wide */`;
+            } else {
+                code += `\n/* ${width}px (includes padding+border) + ${margin}×2 margin = ${totalWidth}px wide */`;
+            }
+
+            document.getElementById('bmCode').textContent = code;
+        }
+
+        // Initialize
+        updateBoxModelDemo();
+    </script>
+</body>
+</html>
