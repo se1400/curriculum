@@ -1028,7 +1028,7 @@ Height: 100 + 10 + 10 + 5 + 5 + 10 + 10
         <div class="slide">
             <div class="slide-content">
                 <h2>Positioning Playground</h2>
-                <p>Click each position type and drag the sliders to see the element move:</p>
+                <p>Click each position type, toggle offsets on/off, and <strong>scroll the grey area</strong> to see fixed &amp; sticky in action:</p>
                 <div class="playground" style="flex:1;">
                     <div class="controls">
                         <div class="control-group">
@@ -1042,21 +1042,31 @@ Height: 100 + 10 + 10 + 5 + 5 + 10 + 10
                             </div>
                         </div>
                         <div class="control-group">
-                            <label>top</label>
+                            <label style="display:flex; align-items:center; gap:0.5rem;">
+                                <input type="checkbox" id="posTopEnabled" checked onchange="updatePosDemo()" style="width:auto; margin:0;">
+                                top <span style="font-size:0.75rem; color:#ffeaa7;">(uncheck to remove)</span>
+                            </label>
                             <input type="range" id="posTop" min="-50" max="150" value="20" oninput="updatePosDemo()">
                             <div class="control-value"><span id="posTopVal">20</span>px</div>
                         </div>
                         <div class="control-group">
-                            <label>left</label>
+                            <label style="display:flex; align-items:center; gap:0.5rem;">
+                                <input type="checkbox" id="posLeftEnabled" checked onchange="updatePosDemo()" style="width:auto; margin:0;">
+                                left <span style="font-size:0.75rem; color:#ffeaa7;">(uncheck to remove)</span>
+                            </label>
                             <input type="range" id="posLeft" min="-50" max="300" value="20" oninput="updatePosDemo()">
                             <div class="control-value"><span id="posLeftVal">20</span>px</div>
                         </div>
-                        <div id="posExplanation" style="background:rgba(0,0,0,0.2); padding:0.75rem; border-radius:8px; margin-top:0.5rem; font-size:0.9rem; line-height:1.4;">
+                        <div id="posExplanation" style="background:rgba(0,0,0,0.2); padding:0.75rem; border-radius:8px; margin-top:0.5rem; font-size:0.85rem; line-height:1.4;">
                             <strong>static:</strong> Default. The element flows normally. top/left have <strong>no effect</strong>.
                         </div>
                         <div class="code-output" id="posCode" style="margin-top:0.5rem;"></div>
                     </div>
-                    <div class="pos-demo-container" id="posDemoContainer" style="overflow:auto;">
+                    <div class="pos-demo-container" id="posDemoContainer" style="overflow:auto; max-height:400px;">
+                        <!-- Parent label for absolute/relative context -->
+                        <div id="posParentLabel" style="display:none; position:absolute; top:4px; right:8px; font-size:0.7rem; color:#888; background:rgba(255,255,255,0.8); padding:2px 6px; border-radius:3px; z-index:20; border:1px dashed #999;">
+                            Parent: position: relative
+                        </div>
                         <div style="padding:10px;">
                             <div style="background:#ddd; color:#555; padding:8px 12px; margin-bottom:8px; border-radius:4px; font-size:0.8rem;">Block 1 (normal flow)</div>
                             <div style="background:#ddd; color:#555; padding:8px 12px; margin-bottom:8px; border-radius:4px; font-size:0.8rem;">Block 2 (normal flow)</div>
@@ -1064,6 +1074,15 @@ Height: 100 + 10 + 10 + 5 + 5 + 10 + 10
                             <div id="posDemoTarget" class="pos-demo-box" style="background:#e74c3c; position:static; z-index:10; margin-bottom:8px;">Target Element</div>
                             <div style="background:#ddd; color:#555; padding:8px 12px; margin-bottom:8px; border-radius:4px; font-size:0.8rem;">Block 3 (normal flow)</div>
                             <div style="background:#ddd; color:#555; padding:8px 12px; margin-bottom:8px; border-radius:4px; font-size:0.8rem;">Block 4 (normal flow)</div>
+                            <!-- Extra blocks to enable scrolling for fixed/sticky demo -->
+                            <div style="background:#eee; color:#999; padding:8px 12px; margin-bottom:8px; border-radius:4px; font-size:0.8rem;">Block 5 — scroll down to test sticky/fixed</div>
+                            <div style="background:#eee; color:#999; padding:8px 12px; margin-bottom:8px; border-radius:4px; font-size:0.8rem;">Block 6</div>
+                            <div style="background:#eee; color:#999; padding:8px 12px; margin-bottom:8px; border-radius:4px; font-size:0.8rem;">Block 7</div>
+                            <div style="background:#eee; color:#999; padding:8px 12px; margin-bottom:8px; border-radius:4px; font-size:0.8rem;">Block 8</div>
+                            <div style="background:#eee; color:#999; padding:8px 12px; margin-bottom:8px; border-radius:4px; font-size:0.8rem;">Block 9</div>
+                            <div style="background:#eee; color:#999; padding:8px 12px; margin-bottom:8px; border-radius:4px; font-size:0.8rem;">Block 10</div>
+                            <div style="background:#eee; color:#999; padding:8px 12px; margin-bottom:8px; border-radius:4px; font-size:0.8rem;">Block 11</div>
+                            <div style="background:#eee; color:#999; padding:8px 12px; border-radius:4px; font-size:0.8rem;">Block 12 (bottom)</div>
                         </div>
                     </div>
                 </div>
@@ -1255,41 +1274,40 @@ Height: 100 + 10 + 10 + 5 + 5 + 10 + 10
         <div class="slide">
             <div class="slide-content">
                 <h2>Flex Item Properties: grow, shrink, basis</h2>
-                <p>Imagine a page layout with a sidebar, main content, and ad panel. Use the sliders to control how each section claims space:</p>
+                <p>These three properties control how each item claims space inside a flex container. Use the sliders to see them in action:</p>
                 <div class="playground" style="flex:1;">
                     <div class="controls" style="overflow-y:auto;">
+                        <div style="background:rgba(0,0,0,0.2); padding:0.6rem; border-radius:6px; margin-bottom:0.75rem; font-size:0.8rem; line-height:1.5;">
+                            <strong style="color:#ffeaa7;">flex-grow</strong> — How much <em>leftover</em> space this item should absorb. 0 means "don't grow." If two items have grow 1, they split extra space equally.<br>
+                            <strong style="color:#ffeaa7;">flex-shrink</strong> — How much the item should shrink if there isn't enough room. 1 (default) means "shrink equally." 0 means "never shrink."<br>
+                            <strong style="color:#ffeaa7;">flex-basis</strong> — The item's <em>starting size</em> before grow/shrink kicks in. Think of it as the "ideal width." The browser adds or removes space from here.
+                        </div>
                         <h4 style="color:#e74c3c; margin-top:0;">Sidebar (red)</h4>
                         <div class="control-group">
-                            <label>flex-grow (how much extra space it claims)</label>
+                            <label>flex-grow — <span id="fgAVal">0</span></label>
                             <input type="range" id="fgA" min="0" max="5" value="0" oninput="updateFlexItemsDemo()">
-                            <div class="control-value"><span id="fgAVal">0</span></div>
                         </div>
                         <div class="control-group">
-                            <label>flex-basis (starting width)</label>
+                            <label>flex-basis — <span id="fbAVal">120</span>px</label>
                             <input type="range" id="fbA" min="0" max="300" value="120" oninput="updateFlexItemsDemo()">
-                            <div class="control-value"><span id="fbAVal">120</span>px</div>
                         </div>
                         <h4 style="color:#3498db;">Main Content (blue)</h4>
                         <div class="control-group">
-                            <label>flex-grow</label>
+                            <label>flex-grow — <span id="fgBVal">1</span></label>
                             <input type="range" id="fgB" min="0" max="5" value="1" oninput="updateFlexItemsDemo()">
-                            <div class="control-value"><span id="fgBVal">1</span></div>
                         </div>
                         <div class="control-group">
-                            <label>flex-basis</label>
+                            <label>flex-basis — <span id="fbBVal">200</span>px</label>
                             <input type="range" id="fbB" min="0" max="300" value="200" oninput="updateFlexItemsDemo()">
-                            <div class="control-value"><span id="fbBVal">200</span>px</div>
                         </div>
                         <h4 style="color:#2ecc71;">Ad Panel (green)</h4>
                         <div class="control-group">
-                            <label>flex-grow</label>
+                            <label>flex-grow — <span id="fgCVal">0</span></label>
                             <input type="range" id="fgC" min="0" max="5" value="0" oninput="updateFlexItemsDemo()">
-                            <div class="control-value"><span id="fgCVal">0</span></div>
                         </div>
                         <div class="control-group">
-                            <label>flex-basis</label>
+                            <label>flex-basis — <span id="fbCVal">100</span>px</label>
                             <input type="range" id="fbC" min="0" max="300" value="100" oninput="updateFlexItemsDemo()">
-                            <div class="control-value"><span id="fbCVal">100</span>px</div>
                         </div>
                     </div>
                     <div style="display:flex; flex-direction:column;">
@@ -1299,8 +1317,9 @@ Height: 100 + 10 + 10 + 5 + 5 + 10 + 10
                             <div id="flexItemC" class="flex-demo-item" style="background:#2ecc71; flex:0 1 100px; display:flex; align-items:center; justify-content:center; font-size:0.8rem;">Ad Panel</div>
                         </div>
                         <div class="code-output" id="flexItemsCode"></div>
+                        <div id="flexItemsExplanation" style="background:rgba(0,0,0,0.2); padding:0.6rem; border-radius:6px; margin-top:0.5rem; font-size:0.8rem; line-height:1.4; color:#ddd;"></div>
                         <div class="highlight" style="margin-top:0.5rem; font-size:0.85rem;">
-                            <strong>Try:</strong> Set Main Content grow to <strong>1</strong> and the others to <strong>0</strong>. Now the main area fills all leftover space — a classic page layout!
+                            <strong>Try:</strong> Set Main Content grow to <strong>1</strong> and the others to <strong>0</strong>. The main area absorbs all leftover space — a classic page layout!
                         </div>
                     </div>
                 </div>
@@ -1439,29 +1458,51 @@ main { flex: 1; }</code></pre>
 
         <!-- Slide 28: Common Pitfalls -->
         <div class="slide">
-            <div class="slide-content centered">
-                <h2>Common Flexbox Pitfalls</h2>
-                <div class="two-column">
-                    <div>
-                        <h3>1. Percentage widths in flex items</h3>
-                        <pre><code>/* Instead of: */
-.item { width: 50%; }
-/* Use: */
+            <div class="slide-content" style="overflow-y:auto;">
+                <h2>Common Flexbox Pitfalls (and How to Fix Them)</h2>
+                <p>Flexbox is powerful, but it has a few surprises. Here are the top issues you'll run into:</p>
+                <div style="display:flex; flex-direction:column; gap:0.75rem; flex:1;">
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+                        <div style="background:rgba(0,0,0,0.2); padding:0.75rem; border-radius:8px;">
+                            <h3 style="margin-top:0;">1. Don't use <code>width: 50%</code> inside flex</h3>
+                            <p style="font-size:0.9rem;"><strong>The problem:</strong> You want two items side by side at 50% each, so you write <code>width: 50%</code>. But flex items don't always respect <code>width</code> the way you'd expect — they can still grow or shrink.</p>
+                            <p style="font-size:0.9rem;"><strong>The fix:</strong> Use <code>flex</code> instead. It gives you full control:</p>
+                            <pre><code>/* This says: don't grow, don't shrink, start at 50% */
 .item { flex: 0 0 50%; }</code></pre>
-                        <h3>2. <code>min-width: auto</code> overflow</h3>
-                        <p>Flex items won't shrink below their content by default. Fix:</p>
-                        <pre><code>.item { min-width: 0; }</code></pre>
+                        </div>
+                        <div style="background:rgba(0,0,0,0.2); padding:0.75rem; border-radius:8px;">
+                            <h3 style="margin-top:0;">2. Content overflows its flex item</h3>
+                            <p style="font-size:0.9rem;"><strong>The problem:</strong> A long word or URL refuses to shrink and breaks out of its container. This happens because flex items have <code>min-width: auto</code> by default, which means "never get smaller than my content."</p>
+                            <p style="font-size:0.9rem;"><strong>The fix:</strong> Tell the item it's OK to be smaller than its content:</p>
+                            <pre><code>.item { min-width: 0; }
+/* or: overflow: hidden; */</code></pre>
+                        </div>
                     </div>
-                    <div>
-                        <h3>3. Margins don't collapse</h3>
-                        <p>Unlike block elements, flex item margins <strong>never collapse</strong>. Use <code>gap</code> instead.</p>
-                        <h3>4. Auto margins are powerful</h3>
-                        <pre><code>.nav-item:last-child {
-  margin-left: auto;
-  /* pushes to far right */
+                    <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:1rem;">
+                        <div style="background:rgba(0,0,0,0.2); padding:0.75rem; border-radius:8px;">
+                            <h3 style="margin-top:0;">3. Margins don't collapse</h3>
+                            <p style="font-size:0.9rem;">In normal CSS, if two elements each have <code>margin: 20px</code>, the gap between them is 20px (they overlap). Inside flex, margins <strong>add up</strong> — you'd get 40px. Use <code>gap</code> instead for consistent spacing:</p>
+                            <pre><code>.container {
+  display: flex;
+  gap: 20px;
 }</code></pre>
-                        <h3>5. <code>flex: 1</code> vs <code>flex: auto</code></h3>
-                        <p style="font-size: 0.95rem;"><code>flex: 1</code> = basis 0 (ignores content). <code>flex: auto</code> = basis auto (respects content).</p>
+                        </div>
+                        <div style="background:rgba(0,0,0,0.2); padding:0.75rem; border-radius:8px;">
+                            <h3 style="margin-top:0;">4. <code>margin: auto</code> is magic</h3>
+                            <p style="font-size:0.9rem;">Want to push one nav item to the far right? <code>margin-left: auto</code> absorbs all available space before that item. It's like a spring that pushes everything apart:</p>
+                            <pre><code>/* Login button → far right */
+.login {
+  margin-left: auto;
+}</code></pre>
+                        </div>
+                        <div style="background:rgba(0,0,0,0.2); padding:0.75rem; border-radius:8px;">
+                            <h3 style="margin-top:0;">5. <code>flex: 1</code> vs <code>flex: auto</code></h3>
+                            <p style="font-size:0.9rem;"><code>flex: 1</code> means "ignore my content size, divide space equally." <code>flex: auto</code> means "start from my content size, then grow."</p>
+                            <p style="font-size:0.9rem;">Two items with <code>flex: 1</code> → same width. Two items with <code>flex: auto</code> → wider item stays wider.</p>
+                        </div>
+                    </div>
+                    <div class="note" style="font-size:0.9rem;">
+                        <strong>Don't worry about memorizing all of this.</strong> These are issues you'll encounter as you build things. Bookmark this slide and come back to it when something behaves unexpectedly!
                     </div>
                 </div>
             </div>
@@ -1755,38 +1796,72 @@ main { flex: 1; }</code></pre>
         function updatePosDemo() {
             var top = parseInt(document.getElementById('posTop').value);
             var left = parseInt(document.getElementById('posLeft').value);
+            var topEnabled = document.getElementById('posTopEnabled').checked;
+            var leftEnabled = document.getElementById('posLeftEnabled').checked;
             document.getElementById('posTopVal').textContent = top;
             document.getElementById('posLeftVal').textContent = left;
 
+            // Dim disabled sliders
+            document.getElementById('posTop').style.opacity = topEnabled ? '1' : '0.3';
+            document.getElementById('posLeft').style.opacity = leftEnabled ? '1' : '0.3';
+
             var target = document.getElementById('posDemoTarget');
             var ghost = document.getElementById('posDemoGhost');
+            var container = document.getElementById('posDemoContainer');
+            var parentLabel = document.getElementById('posParentLabel');
 
             target.style.position = currentPosType;
+
+            // Show parent relationship for absolute positioning
+            if (currentPosType === 'absolute') {
+                container.style.border = '2px dashed #999';
+                parentLabel.style.display = 'block';
+                parentLabel.innerHTML = 'Parent: <strong>position: relative</strong>';
+            } else if (currentPosType === 'relative') {
+                container.style.border = '';
+                parentLabel.style.display = 'block';
+                parentLabel.innerHTML = 'Element moves from its <strong>own normal position</strong>';
+            } else {
+                container.style.border = '';
+                parentLabel.style.display = 'none';
+            }
 
             if (currentPosType === 'static') {
                 target.style.top = '';
                 target.style.left = '';
                 ghost.style.display = 'none';
             } else {
-                target.style.top = top + 'px';
-                target.style.left = left + 'px';
+                target.style.top = topEnabled ? top + 'px' : '';
+                target.style.left = leftEnabled ? left + 'px' : '';
                 ghost.style.display = (currentPosType === 'relative') ? 'block' : 'none';
             }
 
+            // Build explanation based on enabled offsets
+            var offsets = [];
+            if (topEnabled) offsets.push(top + 'px down');
+            if (leftEnabled) offsets.push(left + 'px right');
+            var offsetDesc = offsets.length ? offsets.join(' and ') : 'nowhere (no offsets enabled)';
+
             var explanations = {
-                'static': '<strong>static:</strong> Default. The element flows normally in order. The top/left sliders have <strong>no effect</strong> — try moving them!',
-                'relative': '<strong>relative:</strong> The element is nudged ' + top + 'px down and ' + left + 'px right from where it <em>would normally be</em>. Notice the dashed box — that\'s the space it still occupies in the flow.',
-                'absolute': '<strong>absolute:</strong> The element is yanked out of the flow and placed at (' + left + ', ' + top + ') inside the grey container. Other elements act like it doesn\'t exist.',
-                'fixed': '<strong>fixed:</strong> Like absolute, but positioned relative to the <strong>browser window</strong>. It would stay at (' + left + ', ' + top + ') even while scrolling. (Limited in this demo.)',
-                'sticky': '<strong>sticky:</strong> Acts like relative normally, but if you scrolled this container, the element would "stick" in place once it reaches top: ' + top + 'px from the edge.'
+                'static': '<strong>static:</strong> Default. The element flows normally in order. The top/left properties have <strong>no effect</strong> — try toggling them on and moving the sliders!',
+                'relative': '<strong>relative:</strong> The element is nudged ' + offsetDesc + ' from where it <em>would normally be</em>. Notice the dashed box — that\'s the space it still occupies in the flow.' + (!topEnabled && !leftEnabled ? ' <em>With no offsets, it looks just like static!</em>' : ''),
+                'absolute': '<strong>absolute:</strong> The element is yanked out of the flow and placed ' + (offsets.length ? 'at offset ' + offsetDesc : 'at its default position') + ' inside the <strong>nearest positioned parent</strong> (the grey box with the dashed border has <code>position: relative</code>). Other elements act like it doesn\'t exist.' + (!topEnabled && !leftEnabled ? ' <em>Without top/left, it stays where it would have been but is still removed from flow.</em>' : ''),
+                'fixed': '<strong>fixed:</strong> Positioned relative to the <strong>browser viewport</strong>. <strong>Scroll the grey area</strong> — notice the element stays put while content moves. In a real page, fixed elements stay visible as the user scrolls (think: sticky headers, floating chat buttons).',
+                'sticky': '<strong>sticky:</strong> Acts like relative until you scroll. <strong>Scroll down in the grey area</strong> — the element will "stick" at top: ' + (topEnabled ? top + 'px' : '0 (no top set)') + ' from the container edge. Used for headers that stay visible as you scroll.'
             };
             document.getElementById('posExplanation').innerHTML = explanations[currentPosType] || '';
 
+            // Build code output
             var code = '#target {\n  position: ' + currentPosType + ';';
             if (currentPosType !== 'static') {
-                code += '\n  top: ' + top + 'px;\n  left: ' + left + 'px;';
+                if (topEnabled) code += '\n  top: ' + top + 'px;';
+                if (leftEnabled) code += '\n  left: ' + left + 'px;';
+                if (!topEnabled && !leftEnabled) code += '\n  /* no offset set — element uses default position */';
             }
             code += '\n}';
+            if (currentPosType === 'absolute') {
+                code += '\n\n/* The parent container needs: */\n.parent {\n  position: relative;\n}';
+            }
             document.getElementById('posCode').textContent = code;
         }
 
@@ -1853,8 +1928,35 @@ main { flex: 1; }</code></pre>
             document.getElementById('flexItemB').style.flex = gB + ' 1 ' + bB + 'px';
             document.getElementById('flexItemC').style.flex = gC + ' 1 ' + bC + 'px';
 
-            var code = '.sidebar { flex: ' + gA + ' 1 ' + bA + 'px; }\n.main    { flex: ' + gB + ' 1 ' + bB + 'px; }\n.ad      { flex: ' + gC + ' 1 ' + bC + 'px; }';
+            var code = '.sidebar { flex: ' + gA + ' 1 ' + bA + 'px; }  /* grow: ' + gA + ', shrink: 1, basis: ' + bA + 'px */\n.main    { flex: ' + gB + ' 1 ' + bB + 'px; }  /* grow: ' + gB + ', shrink: 1, basis: ' + bB + 'px */\n.ad      { flex: ' + gC + ' 1 ' + bC + 'px; }  /* grow: ' + gC + ', shrink: 1, basis: ' + bC + 'px */';
             document.getElementById('flexItemsCode').textContent = code;
+
+            // Dynamic explanation
+            var totalGrow = parseInt(gA) + parseInt(gB) + parseInt(gC);
+            var explanation = '';
+            var names = ['Sidebar', 'Main', 'Ad Panel'];
+            var grows = [parseInt(gA), parseInt(gB), parseInt(gC)];
+            var bases = [parseInt(bA), parseInt(bB), parseInt(bC)];
+
+            explanation += '<strong>What\'s happening:</strong> Each item starts at its basis width (' + bA + 'px + ' + bB + 'px + ' + bC + 'px = ' + (bases[0]+bases[1]+bases[2]) + 'px total). ';
+            if (totalGrow === 0) {
+                explanation += 'No items have grow set, so the leftover space stays <strong>empty</strong>. The items just sit at their starting sizes.';
+            } else {
+                var growers = [];
+                for (var i = 0; i < 3; i++) {
+                    if (grows[i] > 0) growers.push(names[i] + ' (grow: ' + grows[i] + ')');
+                }
+                explanation += 'The leftover space is divided among: ' + growers.join(', ') + '. ';
+                if (totalGrow > 0) {
+                    for (var j = 0; j < 3; j++) {
+                        if (grows[j] > 0) {
+                            var pct = Math.round((grows[j] / totalGrow) * 100);
+                            explanation += names[j] + ' gets <strong>' + pct + '%</strong> of the extra space. ';
+                        }
+                    }
+                }
+            }
+            document.getElementById('flexItemsExplanation').innerHTML = explanation;
         }
 
         updateFlexItemsDemo();
