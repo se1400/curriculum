@@ -1848,39 +1848,48 @@ grid-template-areas:
         </div>
     </div>
 
-    <!-- ⬛ INTERACTIVE: z-index Overlap Explorer ── -->
+    <!-- ⬛ INTERACTIVE: z-index Photo Card Demo ── -->
     <div class="slide">
         <div class="slide-content">
             <div class="slide-label">Interactive Demo — Overlapping Items</div>
-            <h2>z-index Overlap Explorer</h2>
-            <p style="margin-bottom:0.5rem;">Both items are <strong>semi-transparent</strong> and occupy the same grid cells. In the overlap zone you can see <em>both colors at once</em> — the one with the higher z-index is painted last, on top.</p>
-            <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin-bottom:0.5rem;">
-                <div>
-                    <label style="font-size:0.9rem;">🔴 Red z-index: <strong id="ziRedLabel">2</strong></label>
-                    <input type="range" id="ziRedSlider" min="0" max="5" value="2" style="width:100%; margin-top:0.3rem;" oninput="updateZindex()">
+            <h2>z-index: Who's on Top?</h2>
+            <div class="interactive-demo">
+                <div class="demo-header">
+                    <span class="demo-badge">Interactive</span>
+                    <strong>All 3 elements share the same grid cell — click to bring any layer to the front</strong>
                 </div>
-                <div>
-                    <label style="font-size:0.9rem;">🔵 Blue z-index: <strong id="ziBlueLabel">1</strong></label>
-                    <input type="range" id="ziBlueSlider" min="0" max="5" value="1" style="width:100%; margin-top:0.3rem;" oninput="updateZindex()">
+                <!-- Bring-to-front buttons -->
+                <div style="display:flex; gap:0.5rem; margin-bottom:0.6rem; flex-wrap:wrap;">
+                    <button class="demo-btn" onclick="bringToFront('photo')">🖼️ Photo to Front</button>
+                    <button class="demo-btn" onclick="bringToFront('caption')">📝 Caption to Front</button>
+                    <button class="demo-btn" onclick="bringToFront('badge')">⭐ Badge to Front</button>
+                    <button class="demo-btn" onclick="bringToFront('reset')">↺ Reset</button>
+                </div>
+                <!-- The grid: 1 column, 1 row — all 3 items placed in the same cell -->
+                <div style="display:grid; grid-template-columns:1fr; grid-template-rows:210px; border-radius:10px; overflow:hidden; box-shadow:0 0 0 2px rgba(255,255,255,0.12);">
+                    <!-- Layer 1: Photo background -->
+                    <div id="ziPhoto" style="grid-column:1; grid-row:1; background:linear-gradient(135deg,#0f3460 0%,#16213e 50%,#533483 100%); display:flex; align-items:center; justify-content:center; font-size:0.9rem; color:rgba(255,255,255,0.3); letter-spacing:0.06em; z-index:1;">
+                        [ 🖼️ PHOTO BACKGROUND ]
+                    </div>
+                    <!-- Layer 2: Caption card -->
+                    <div id="ziCaption" style="grid-column:1; grid-row:1; background:rgba(255,255,255,0.96); color:#111; align-self:end; justify-self:start; margin:0 0 1rem 1rem; padding:0.55rem 1rem; border-radius:6px; font-weight:bold; font-size:0.88rem; z-index:3; box-shadow:0 2px 10px rgba(0,0,0,0.45); pointer-events:none;">
+                        📝 Article Caption<br>
+                        <span style="font-size:0.72rem; font-weight:normal; color:#555;">Text overlay on the photo</span>
+                    </div>
+                    <!-- Layer 3: Featured badge -->
+                    <div id="ziBadge" style="grid-column:1; grid-row:1; background:#e74c3c; color:white; align-self:start; justify-self:end; margin:0.9rem; width:58px; height:58px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:0.68rem; font-weight:bold; text-align:center; line-height:1.4; z-index:2; box-shadow:0 2px 8px rgba(0,0,0,0.4); pointer-events:none;">
+                        ⭐ NEW
+                    </div>
+                </div>
+                <!-- Live code display -->
+                <div class="demo-code" id="ziLiveCode" style="margin-top:0.6rem;">.photo   { z-index: 1; }  /* behind everything */
+.caption { z-index: 3; }  /* in front */
+.badge   { z-index: 2; }  /* middle */</div>
+                <div id="ziNote" style="margin-top:0.5rem; font-size:0.88rem; color:#06d6a0; font-weight:bold;">
+                    📝 Caption (z-index 3) is in front — 🖼️ Photo (z-index 1) is behind everything.
                 </div>
             </div>
-            <!-- Overlap grid: both items placed in same cells; both semi-transparent -->
-            <div style="display:grid; grid-template-columns:1fr 1fr 1fr; grid-template-rows:180px; gap:6px; background:rgba(0,0,0,0.25); padding:8px; border-radius:8px;">
-                <!-- Blue: full width — semi-transparent -->
-                <div id="ziBlue" style="grid-column:1/-1; grid-row:1; background:rgba(52,152,219,0.45); border:3px solid #3498db; border-radius:8px; display:flex; flex-direction:column; align-items:flex-start; justify-content:flex-start; padding:1rem; font-size:0.88rem; font-weight:bold; z-index:1;">
-                    🔵 Blue (full width, grid-column: 1 / -1)
-                    <code style="font-size:0.8rem; background:rgba(0,0,0,0.3); padding:2px 8px; border-radius:3px; margin-top:0.4rem; display:inline-block;">z-index: <span id="ziBlueCode">1</span></code>
-                    <span style="font-size:0.72rem; font-weight:normal; margin-top:0.3rem; opacity:0.8;">← outer columns: only blue here</span>
-                </div>
-                <!-- Red: center column — semi-transparent, overlap zone shows mix of both -->
-                <div id="ziRed" style="grid-column:2/3; grid-row:1; background:rgba(231,76,60,0.45); border:3px solid #e74c3c; border-radius:8px; display:flex; flex-direction:column; align-items:center; justify-content:center; font-size:0.88rem; font-weight:bold; z-index:2; text-align:center;">
-                    🔴 Red<br>(col 2 only)
-                    <code style="font-size:0.78rem; background:rgba(0,0,0,0.3); padding:2px 6px; border-radius:3px; margin-top:0.35rem; display:inline-block;">z-index: <span id="ziRedCode">2</span></code>
-                    <span style="font-size:0.68rem; font-weight:normal; margin-top:0.25rem; opacity:0.85;">← overlap zone:<br>both visible here</span>
-                </div>
-            </div>
-            <div id="ziWinner" style="margin-top:0.6rem; font-size:0.92rem; color:#06d6a0; font-weight:bold;">🔴 Red is on top — painted last (z-index: 2 &gt; 1)</div>
-            <div class="note" style="margin-top:0.5rem; font-size:0.85rem;">In the center column, both colors blend — but the higher z-index item is drawn on top. Grid items get a stacking context automatically; no <code>position: relative</code> needed.</div>
+            <div class="note" style="margin-top:0.5rem; font-size:0.84rem;">Grid items placed in the same cell stack in source order by default. Add <code>z-index</code> to override the order. No <code>position: relative</code> needed for grid items.</div>
         </div>
     </div>
 
@@ -2043,59 +2052,77 @@ main  { grid-column: 2 / 3; }</code></pre>
     </div>
 
 
-    <!-- ⬛ INTERACTIVE: Subgrid Before/After Toggle ── -->
+    <!-- ⬛ INTERACTIVE: Subgrid Side-by-Side ── -->
     <div class="slide">
         <div class="slide-content">
             <div class="slide-label">Interactive Demo — Subgrid</div>
-            <h2>Subgrid: Before &amp; After</h2>
-            <!-- ⬛ DEMO: Subgrid Side-by-Side -->
+            <h2>Subgrid: Aligned vs. Broken Cards</h2>
             <div class="interactive-demo">
                 <div class="demo-header">
                     <span class="demo-badge">Compare</span>
-                    <strong>Same HTML — click "+ More Text" to grow card 2 and watch what happens to the buttons</strong>
+                    <strong>Same 3 cards, same HTML — look at where the "Buy Now" buttons land</strong>
                 </div>
-                <div style="display:flex; gap:0.5rem; align-items:center; margin-bottom:0.6rem; flex-wrap:wrap;">
-                    <button class="demo-btn" id="sgAddBtn" onclick="sgAddText()" style="background:rgba(6,214,160,0.2); border-color:rgba(6,214,160,0.5);">+ More Text in Card 2</button>
-                    <button class="demo-btn" onclick="sgResetText()">↺ Reset</button>
-                    <span style="font-size:0.78rem; opacity:0.65; margin-left:auto;">Watch where the Action buttons land</span>
-                </div>
-                <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
-                    <!-- WITHOUT subgrid -->
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:1.2rem;">
+
+                    <!-- WITHOUT subgrid — left -->
                     <div>
-                        <p style="font-size:0.78rem; font-weight:bold; color:#ffd166; margin-bottom:5px;">✗ Without Subgrid — independent cards</p>
-                        <div style="display:grid; grid-template-columns:1fr 1fr; gap:5px;">
-                            <div style="display:grid; grid-template-rows:auto 1fr auto; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.15); border-radius:5px; overflow:hidden;">
-                                <div style="background:rgba(233,69,96,0.3); padding:5px 7px; font-size:0.78rem; font-weight:bold;">Short Title</div>
-                                <div style="background:rgba(255,255,255,0.04); padding:5px 7px; font-size:0.73rem;">Brief text.</div>
-                                <div style="background:rgba(0,180,216,0.35); padding:4px 7px; font-size:0.78rem; text-align:center; font-weight:bold;">Action</div>
+                        <p style="font-size:0.82rem; font-weight:bold; color:#ffd166; margin-bottom:4px;">✗ Without Subgrid</p>
+                        <p style="font-size:0.7rem; color:rgba(255,255,255,0.5); margin-bottom:8px;">Each card is its own independent grid</p>
+                        <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:6px; align-items:start;">
+                            <!-- Card 1: short everything -->
+                            <div style="display:grid; grid-template-rows:auto 1fr auto; background:rgba(255,255,255,0.06); border:1px solid rgba(255,209,102,0.25); border-radius:6px; overflow:hidden;">
+                                <div style="background:rgba(233,69,96,0.45); padding:6px 8px; font-size:0.72rem; font-weight:bold;">Budget Pick</div>
+                                <div style="padding:6px 8px; font-size:0.7rem; line-height:1.4;">Solid everyday laptop.</div>
+                                <div style="background:rgba(0,180,216,0.5); padding:5px; font-size:0.72rem; text-align:center; font-weight:bold;">Buy Now</div>
                             </div>
-                            <div style="display:grid; grid-template-rows:auto 1fr auto; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.15); border-radius:5px; overflow:hidden;">
-                                <div style="background:rgba(233,69,96,0.3); padding:5px 7px; font-size:0.78rem; font-weight:bold;">A Longer Card Title</div>
-                                <div id="nosg-body" style="background:rgba(255,255,255,0.04); padding:5px 7px; font-size:0.73rem;">Starting content.</div>
-                                <div style="background:rgba(0,180,216,0.35); padding:4px 7px; font-size:0.78rem; text-align:center; font-weight:bold;">Action</div>
+                            <!-- Card 2: long title + long body -->
+                            <div style="display:grid; grid-template-rows:auto 1fr auto; background:rgba(255,255,255,0.06); border:1px solid rgba(255,209,102,0.25); border-radius:6px; overflow:hidden;">
+                                <div style="background:rgba(233,69,96,0.45); padding:6px 8px; font-size:0.72rem; font-weight:bold;">Ultra-Slim Pro for Creative Professionals</div>
+                                <div style="padding:6px 8px; font-size:0.7rem; line-height:1.4;">Stunning 4K OLED, 32GB RAM, all-day battery. Built for designers who demand performance.</div>
+                                <div style="background:rgba(0,180,216,0.5); padding:5px; font-size:0.72rem; text-align:center; font-weight:bold;">Buy Now</div>
+                            </div>
+                            <!-- Card 3: medium -->
+                            <div style="display:grid; grid-template-rows:auto 1fr auto; background:rgba(255,255,255,0.06); border:1px solid rgba(255,209,102,0.25); border-radius:6px; overflow:hidden;">
+                                <div style="background:rgba(233,69,96,0.45); padding:6px 8px; font-size:0.72rem; font-weight:bold;">Gaming Rig</div>
+                                <div style="padding:6px 8px; font-size:0.7rem; line-height:1.4;">144Hz display, dedicated GPU.</div>
+                                <div style="background:rgba(0,180,216,0.5); padding:5px; font-size:0.72rem; text-align:center; font-weight:bold;">Buy Now</div>
                             </div>
                         </div>
-                        <p style="font-size:0.72rem; color:#ffd166; margin-top:5px;">↑ Buttons drift further apart as card 2 grows</p>
+                        <p style="font-size:0.72rem; color:#ffd166; margin-top:6px;">↑ "Buy Now" buttons are at 3 different heights — messy</p>
                     </div>
-                    <!-- WITH subgrid (real CSS subgrid applied) -->
+
+                    <!-- WITH subgrid — right -->
                     <div>
-                        <p style="font-size:0.78rem; font-weight:bold; color:#06d6a0; margin-bottom:5px;">✓ With Subgrid — shared parent row tracks</p>
-                        <div style="display:grid; grid-template-columns:1fr 1fr; grid-template-rows:auto 1fr auto; gap:5px;">
-                            <div style="grid-row:span 3; display:grid; grid-template-rows:subgrid; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.15); border-radius:5px; overflow:hidden;">
-                                <div style="background:rgba(233,69,96,0.3); padding:5px 7px; font-size:0.78rem; font-weight:bold;">Short Title</div>
-                                <div style="background:rgba(255,255,255,0.04); padding:5px 7px; font-size:0.73rem;">Brief text.</div>
-                                <div style="background:rgba(0,180,216,0.35); padding:4px 7px; font-size:0.78rem; text-align:center; font-weight:bold;">Action</div>
+                        <p style="font-size:0.82rem; font-weight:bold; color:#06d6a0; margin-bottom:4px;">✓ With Subgrid</p>
+                        <p style="font-size:0.7rem; color:rgba(255,255,255,0.5); margin-bottom:8px;">Cards share the parent's row tracks</p>
+                        <div style="display:grid; grid-template-columns:1fr 1fr 1fr; grid-template-rows:auto 1fr auto; gap:6px;">
+                            <!-- Card 1 -->
+                            <div style="grid-row:span 3; display:grid; grid-template-rows:subgrid; background:rgba(255,255,255,0.06); border:1px solid rgba(6,214,160,0.3); border-radius:6px; overflow:hidden;">
+                                <div style="background:rgba(233,69,96,0.45); padding:6px 8px; font-size:0.72rem; font-weight:bold;">Budget Pick</div>
+                                <div style="padding:6px 8px; font-size:0.7rem; line-height:1.4;">Solid everyday laptop.</div>
+                                <div style="background:rgba(0,180,216,0.5); padding:5px; font-size:0.72rem; text-align:center; font-weight:bold;">Buy Now</div>
                             </div>
-                            <div style="grid-row:span 3; display:grid; grid-template-rows:subgrid; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.15); border-radius:5px; overflow:hidden;">
-                                <div style="background:rgba(233,69,96,0.3); padding:5px 7px; font-size:0.78rem; font-weight:bold;">A Longer Card Title</div>
-                                <div id="sg-body" style="background:rgba(255,255,255,0.04); padding:5px 7px; font-size:0.73rem;">Starting content.</div>
-                                <div style="background:rgba(0,180,216,0.35); padding:4px 7px; font-size:0.78rem; text-align:center; font-weight:bold;">Action</div>
+                            <!-- Card 2 -->
+                            <div style="grid-row:span 3; display:grid; grid-template-rows:subgrid; background:rgba(255,255,255,0.06); border:1px solid rgba(6,214,160,0.3); border-radius:6px; overflow:hidden;">
+                                <div style="background:rgba(233,69,96,0.45); padding:6px 8px; font-size:0.72rem; font-weight:bold;">Ultra-Slim Pro for Creative Professionals</div>
+                                <div style="padding:6px 8px; font-size:0.7rem; line-height:1.4;">Stunning 4K OLED, 32GB RAM, all-day battery. Built for designers who demand performance.</div>
+                                <div style="background:rgba(0,180,216,0.5); padding:5px; font-size:0.72rem; text-align:center; font-weight:bold;">Buy Now</div>
+                            </div>
+                            <!-- Card 3 -->
+                            <div style="grid-row:span 3; display:grid; grid-template-rows:subgrid; background:rgba(255,255,255,0.06); border:1px solid rgba(6,214,160,0.3); border-radius:6px; overflow:hidden;">
+                                <div style="background:rgba(233,69,96,0.45); padding:6px 8px; font-size:0.72rem; font-weight:bold;">Gaming Rig</div>
+                                <div style="padding:6px 8px; font-size:0.7rem; line-height:1.4;">144Hz display, dedicated GPU.</div>
+                                <div style="background:rgba(0,180,216,0.5); padding:5px; font-size:0.72rem; text-align:center; font-weight:bold;">Buy Now</div>
                             </div>
                         </div>
-                        <p style="font-size:0.72rem; color:#06d6a0; margin-top:5px;">↑ Buttons stay locked to the same row as content grows</p>
+                        <p style="font-size:0.72rem; color:#06d6a0; margin-top:6px;">↑ All "Buy Now" buttons sit at the exact same height — clean</p>
                     </div>
+
                 </div>
-                <div class="demo-code" style="margin-top:0.5rem;">.parent { grid-template-rows: auto 1fr auto; } &nbsp; .card { grid-row: span 3; grid-template-rows: subgrid; }</div>
+                <div class="demo-code" style="margin-top:0.6rem;">/* Parent defines 3 shared row zones */
+.parent { grid-template-columns: 1fr 1fr 1fr; grid-template-rows: auto 1fr auto; }
+/* Each card spans all 3 rows and inherits those tracks */
+.card   { grid-row: span 3;  display: grid;  grid-template-rows: subgrid; }</div>
             </div>
         </div>
     </div>
@@ -2357,27 +2384,30 @@ main  { grid-column: 2 / 3; }</code></pre>
                 `repeat(${count}, minmax(${min}, ${max}))`;
         }
 
-        /* ── NEW Demo: z-index Overlap Explorer ── */
-        function updateZindex() {
-            const rz = parseInt(document.getElementById('ziRedSlider').value);
-            const bz = parseInt(document.getElementById('ziBlueSlider').value);
-            document.getElementById('ziRedLabel').textContent  = rz;
-            document.getElementById('ziBlueLabel').textContent = bz;
-            document.getElementById('ziRedCode').textContent   = rz;
-            document.getElementById('ziBlueCode').textContent  = bz;
-            document.getElementById('ziRed').style.zIndex  = rz;
-            document.getElementById('ziBlue').style.zIndex = bz;
-            const winner = document.getElementById('ziWinner');
-            if (rz > bz) {
-                winner.textContent = '🔴 Red is on top (z-index: ' + rz + ' > ' + bz + ')';
-                winner.style.color = '#e74c3c';
-            } else if (bz > rz) {
-                winner.textContent = '🔵 Blue is on top (z-index: ' + bz + ' > ' + rz + ')';
-                winner.style.color = '#3498db';
+        /* ── Demo: z-index Photo Card ── */
+        const ziDefaults = { photo: 1, caption: 3, badge: 2 };
+        let ziState = { ...ziDefaults };
+        function bringToFront(layer) {
+            if (layer === 'reset') {
+                ziState = { ...ziDefaults };
             } else {
-                winner.textContent = '⚠️ Tied at z-index ' + rz + ' — source order wins (Blue rendered last → on top)';
-                winner.style.color = '#ffd166';
+                const max = Math.max(...Object.values(ziState));
+                ziState[layer] = max + 1;
             }
+            applyZi();
+        }
+        function applyZi() {
+            document.getElementById('ziPhoto').style.zIndex   = ziState.photo;
+            document.getElementById('ziCaption').style.zIndex = ziState.caption;
+            document.getElementById('ziBadge').style.zIndex   = ziState.badge;
+            const sorted = Object.entries(ziState).sort((a, b) => b[1] - a[1]);
+            const labels = { photo: '🖼️ Photo', caption: '📝 Caption', badge: '⭐ Badge' };
+            const top    = labels[sorted[0][0]];
+            const bottom = labels[sorted[sorted.length - 1][0]];
+            document.getElementById('ziLiveCode').textContent =
+                `.photo   { z-index: ${ziState.photo}; }\n.caption { z-index: ${ziState.caption}; }\n.badge   { z-index: ${ziState.badge}; }`;
+            document.getElementById('ziNote').textContent =
+                `${top} (z-index ${sorted[0][1]}) is in front — ${bottom} (z-index ${sorted[sorted.length-1][1]}) is behind everything.`;
         }
 
         /* ── Demo 1: Column/fr Builder ── */
@@ -2628,28 +2658,6 @@ main  { grid-column: 2 / 3; }</code></pre>
             g.style.alignContent   = document.getElementById('alignContent').value;
         }
 
-        /* ── Demo 8: Subgrid side-by-side ── */
-        let sgTextLevel = 0;
-        const sgTexts = [
-            'Starting content.',
-            'More text added here. The card is getting taller.',
-            'Even more text now. Getting quite long. Watch how the buttons move.',
-            'This card has a lot of content now. On the left, the button has drifted way down. On the right, both buttons stay perfectly aligned!'
-        ];
-        function sgAddText() {
-            if (sgTextLevel < sgTexts.length - 1) sgTextLevel++;
-            document.getElementById('nosg-body').textContent = sgTexts[sgTextLevel];
-            document.getElementById('sg-body').textContent   = sgTexts[sgTextLevel];
-            if (sgTextLevel >= sgTexts.length - 1) {
-                document.getElementById('sgAddBtn').disabled = true;
-            }
-        }
-        function sgResetText() {
-            sgTextLevel = 0;
-            document.getElementById('nosg-body').textContent = sgTexts[0];
-            document.getElementById('sg-body').textContent   = sgTexts[0];
-            document.getElementById('sgAddBtn').disabled = false;
-        }
 
         // Initialise demos that require JS to populate on load
         updateAutoFillDemo();
