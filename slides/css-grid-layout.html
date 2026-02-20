@@ -1848,48 +1848,57 @@ grid-template-areas:
         </div>
     </div>
 
-    <!-- ⬛ INTERACTIVE: z-index Photo Card Demo ── -->
+    <!-- ⬛ INTERACTIVE: z-index Grid Cell Stacking ── -->
     <div class="slide">
         <div class="slide-content">
             <div class="slide-label">Interactive Demo — Overlapping Items</div>
-            <h2>z-index: Who's on Top?</h2>
+            <h2>z-index: Stacking Items in Grid Cells</h2>
             <div class="interactive-demo">
                 <div class="demo-header">
                     <span class="demo-badge">Interactive</span>
-                    <strong>All 3 elements share the same grid cell — click to bring any layer to the front</strong>
+                    <strong>Move 🟢 C into the same cell as 🔵 A or 🔴 B — then control which is on top with z-index</strong>
                 </div>
-                <!-- Bring-to-front buttons -->
-                <div style="display:flex; gap:0.5rem; margin-bottom:0.6rem; flex-wrap:wrap;">
-                    <button class="demo-btn" onclick="bringToFront('photo')">🖼️ Photo to Front</button>
-                    <button class="demo-btn" onclick="bringToFront('caption')">📝 Caption to Front</button>
-                    <button class="demo-btn" onclick="bringToFront('badge')">⭐ Badge to Front</button>
-                    <button class="demo-btn" onclick="bringToFront('reset')">↺ Reset</button>
+                <!-- Move C buttons -->
+                <div style="display:flex; gap:0.4rem; flex-wrap:wrap; margin-bottom:0.5rem; align-items:center;">
+                    <span style="font-size:0.78rem; font-weight:bold; color:#06d6a0; white-space:nowrap;">Move 🟢 C to:</span>
+                    <button class="demo-btn" onclick="moveC(1,1)">col 1 / row 1 (→ overlaps A)</button>
+                    <button class="demo-btn" onclick="moveC(2,1)">col 2 / row 1 (→ overlaps B)</button>
+                    <button class="demo-btn" onclick="moveC(3,1)">col 3 / row 1</button>
+                    <button class="demo-btn" onclick="moveC(1,2)">col 1 / row 2</button>
+                    <button class="demo-btn" onclick="moveC(2,2)">col 2 / row 2</button>
+                    <button class="demo-btn" onclick="moveC(3,2)" class="active">col 3 / row 2 ← start</button>
                 </div>
-                <!-- The grid: 1 column, 1 row — all 3 items placed in the same cell -->
-                <div style="display:grid; grid-template-columns:1fr; grid-template-rows:210px; border-radius:10px; overflow:hidden; box-shadow:0 0 0 2px rgba(255,255,255,0.12);">
-                    <!-- Layer 1: Photo background -->
-                    <div id="ziPhoto" style="grid-column:1; grid-row:1; background:linear-gradient(135deg,#0f3460 0%,#16213e 50%,#533483 100%); display:flex; align-items:center; justify-content:center; font-size:0.9rem; color:rgba(255,255,255,0.3); letter-spacing:0.06em; z-index:1;">
-                        [ 🖼️ PHOTO BACKGROUND ]
+                <!-- z-index nudge (only shown on overlap) -->
+                <div id="ziControl" style="display:none; gap:0.5rem; align-items:center; margin-bottom:0.5rem; flex-wrap:wrap; background:rgba(6,214,160,0.08); border:1px solid rgba(6,214,160,0.3); padding:0.4rem 0.8rem; border-radius:6px;">
+                    <span style="font-size:0.8rem; font-weight:bold;">🟢 C  z-index:</span>
+                    <button class="demo-btn" onclick="changeCZ(-1)">▼</button>
+                    <strong id="ziCVal" style="min-width:1.4rem; text-align:center; font-size:1rem;">1</strong>
+                    <button class="demo-btn" onclick="changeCZ(1)">▲</button>
+                    <span id="ziResult" style="font-size:0.8rem; margin-left:0.4rem; color:#ffd166;"></span>
+                </div>
+                <!-- 3-column × 2-row grid with visible cell lines -->
+                <div style="display:grid; grid-template-columns:1fr 1fr 1fr; grid-template-rows:90px 90px; gap:3px; background:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.2); border-radius:8px; padding:3px;">
+                    <!-- Column line labels -->
+                    <!-- Item A: fixed col 1 / row 1 -->
+                    <div style="grid-column:1; grid-row:1; background:rgba(52,152,219,0.8); border-radius:5px; display:flex; flex-direction:column; align-items:center; justify-content:center; font-weight:bold; z-index:1; gap:4px;">
+                        🔵 A
+                        <code style="font-size:0.6rem; background:rgba(0,0,0,0.35); padding:2px 5px; border-radius:3px; font-weight:normal;">grid-column:1 / grid-row:1</code>
                     </div>
-                    <!-- Layer 2: Caption card -->
-                    <div id="ziCaption" style="grid-column:1; grid-row:1; background:rgba(255,255,255,0.96); color:#111; align-self:end; justify-self:start; margin:0 0 1rem 1rem; padding:0.55rem 1rem; border-radius:6px; font-weight:bold; font-size:0.88rem; z-index:3; box-shadow:0 2px 10px rgba(0,0,0,0.45); pointer-events:none;">
-                        📝 Article Caption<br>
-                        <span style="font-size:0.72rem; font-weight:normal; color:#555;">Text overlay on the photo</span>
+                    <!-- Item B: fixed col 2 / row 1 -->
+                    <div style="grid-column:2; grid-row:1; background:rgba(231,76,60,0.8); border-radius:5px; display:flex; flex-direction:column; align-items:center; justify-content:center; font-weight:bold; z-index:1; gap:4px;">
+                        🔴 B
+                        <code style="font-size:0.6rem; background:rgba(0,0,0,0.35); padding:2px 5px; border-radius:3px; font-weight:normal;">grid-column:2 / grid-row:1</code>
                     </div>
-                    <!-- Layer 3: Featured badge -->
-                    <div id="ziBadge" style="grid-column:1; grid-row:1; background:#e74c3c; color:white; align-self:start; justify-self:end; margin:0.9rem; width:58px; height:58px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:0.68rem; font-weight:bold; text-align:center; line-height:1.4; z-index:2; box-shadow:0 2px 8px rgba(0,0,0,0.4); pointer-events:none;">
-                        ⭐ NEW
+                    <!-- Item C: movable, starts at col 3 / row 2 -->
+                    <div id="ziC" style="grid-column:3; grid-row:2; background:rgba(6,214,160,0.8); border-radius:5px; display:flex; flex-direction:column; align-items:center; justify-content:center; font-weight:bold; z-index:1; gap:4px; transition:background 0.15s;">
+                        🟢 C
+                        <code id="ziCLabel" style="font-size:0.6rem; background:rgba(0,0,0,0.35); padding:2px 5px; border-radius:3px; font-weight:normal;">grid-column:3 / grid-row:2</code>
                     </div>
                 </div>
-                <!-- Live code display -->
-                <div class="demo-code" id="ziLiveCode" style="margin-top:0.6rem;">.photo   { z-index: 1; }  /* behind everything */
-.caption { z-index: 3; }  /* in front */
-.badge   { z-index: 2; }  /* middle */</div>
-                <div id="ziNote" style="margin-top:0.5rem; font-size:0.88rem; color:#06d6a0; font-weight:bold;">
-                    📝 Caption (z-index 3) is in front — 🖼️ Photo (z-index 1) is behind everything.
-                </div>
+                <!-- Live CSS -->
+                <div class="demo-code" id="ziCode" style="margin-top:0.5rem;">#c { grid-column: 3;  grid-row: 2;  z-index: 1; }  /* no overlap */</div>
             </div>
-            <div class="note" style="margin-top:0.5rem; font-size:0.84rem;">Grid items placed in the same cell stack in source order by default. Add <code>z-index</code> to override the order. No <code>position: relative</code> needed for grid items.</div>
+            <div class="note" style="margin-top:0.5rem; font-size:0.84rem;">Grid items placed in the <strong>same cell</strong> stack in source order by default. Add <code>z-index</code> to override that paint order — no <code>position: relative</code> needed.</div>
         </div>
     </div>
 
@@ -2056,73 +2065,82 @@ main  { grid-column: 2 / 3; }</code></pre>
     <div class="slide">
         <div class="slide-content">
             <div class="slide-label">Interactive Demo — Subgrid</div>
-            <h2>Subgrid: Aligned vs. Broken Cards</h2>
+            <h2>Subgrid: Seeing the Parent Grid</h2>
             <div class="interactive-demo">
                 <div class="demo-header">
                     <span class="demo-badge">Compare</span>
-                    <strong>Same 3 cards, same HTML — look at where the "Buy Now" buttons land</strong>
+                    <strong>Click "+ More Text" to grow Card 2 — watch what happens to the "Buy Now" buttons</strong>
+                </div>
+                <!-- Controls -->
+                <div style="display:flex; gap:0.5rem; margin-bottom:0.7rem;">
+                    <button class="demo-btn" id="sgAddBtn" onclick="sgAddText()" style="background:rgba(6,214,160,0.15); border-color:rgba(6,214,160,0.4);">+ More Text in Card 2</button>
+                    <button class="demo-btn" onclick="sgResetText()">↺ Reset</button>
                 </div>
                 <div style="display:grid; grid-template-columns:1fr 1fr; gap:1.2rem;">
 
                     <!-- WITHOUT subgrid — left -->
                     <div>
-                        <p style="font-size:0.82rem; font-weight:bold; color:#ffd166; margin-bottom:4px;">✗ Without Subgrid</p>
-                        <p style="font-size:0.7rem; color:rgba(255,255,255,0.5); margin-bottom:8px;">Each card is its own independent grid</p>
-                        <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:6px; align-items:start;">
-                            <!-- Card 1: short everything -->
-                            <div style="display:grid; grid-template-rows:auto 1fr auto; background:rgba(255,255,255,0.06); border:1px solid rgba(255,209,102,0.25); border-radius:6px; overflow:hidden;">
-                                <div style="background:rgba(233,69,96,0.45); padding:6px 8px; font-size:0.72rem; font-weight:bold;">Budget Pick</div>
-                                <div style="padding:6px 8px; font-size:0.7rem; line-height:1.4;">Solid everyday laptop.</div>
-                                <div style="background:rgba(0,180,216,0.5); padding:5px; font-size:0.72rem; text-align:center; font-weight:bold;">Buy Now</div>
+                        <p style="font-size:0.8rem; font-weight:bold; color:#ffd166; margin-bottom:3px;">✗ Without Subgrid — each card is its own island</p>
+                        <p style="font-size:0.68rem; color:rgba(255,255,255,0.45); margin-bottom:6px;">No shared rows — buttons float wherever the content pushes them</p>
+                        <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:5px; align-items:start;">
+                            <div style="display:grid; grid-template-rows:auto 1fr auto; background:rgba(255,255,255,0.06); border:1px solid rgba(255,209,102,0.2); border-radius:5px; overflow:hidden;">
+                                <div style="background:rgba(233,69,96,0.4); padding:5px 7px; font-size:0.7rem; font-weight:bold;">Budget Pick</div>
+                                <div style="padding:5px 7px; font-size:0.68rem; line-height:1.4;">Solid everyday laptop.</div>
+                                <div style="background:rgba(0,180,216,0.45); padding:4px; font-size:0.7rem; text-align:center; font-weight:bold;">Buy Now</div>
                             </div>
-                            <!-- Card 2: long title + long body -->
-                            <div style="display:grid; grid-template-rows:auto 1fr auto; background:rgba(255,255,255,0.06); border:1px solid rgba(255,209,102,0.25); border-radius:6px; overflow:hidden;">
-                                <div style="background:rgba(233,69,96,0.45); padding:6px 8px; font-size:0.72rem; font-weight:bold;">Ultra-Slim Pro for Creative Professionals</div>
-                                <div style="padding:6px 8px; font-size:0.7rem; line-height:1.4;">Stunning 4K OLED, 32GB RAM, all-day battery. Built for designers who demand performance.</div>
-                                <div style="background:rgba(0,180,216,0.5); padding:5px; font-size:0.72rem; text-align:center; font-weight:bold;">Buy Now</div>
+                            <div style="display:grid; grid-template-rows:auto 1fr auto; background:rgba(255,255,255,0.06); border:1px solid rgba(255,209,102,0.2); border-radius:5px; overflow:hidden;">
+                                <div style="background:rgba(233,69,96,0.4); padding:5px 7px; font-size:0.7rem; font-weight:bold;">Ultra-Slim Pro</div>
+                                <div id="nosg-body" style="padding:5px 7px; font-size:0.68rem; line-height:1.4;">Great battery life.</div>
+                                <div style="background:rgba(0,180,216,0.45); padding:4px; font-size:0.7rem; text-align:center; font-weight:bold;">Buy Now</div>
                             </div>
-                            <!-- Card 3: medium -->
-                            <div style="display:grid; grid-template-rows:auto 1fr auto; background:rgba(255,255,255,0.06); border:1px solid rgba(255,209,102,0.25); border-radius:6px; overflow:hidden;">
-                                <div style="background:rgba(233,69,96,0.45); padding:6px 8px; font-size:0.72rem; font-weight:bold;">Gaming Rig</div>
-                                <div style="padding:6px 8px; font-size:0.7rem; line-height:1.4;">144Hz display, dedicated GPU.</div>
-                                <div style="background:rgba(0,180,216,0.5); padding:5px; font-size:0.72rem; text-align:center; font-weight:bold;">Buy Now</div>
+                            <div style="display:grid; grid-template-rows:auto 1fr auto; background:rgba(255,255,255,0.06); border:1px solid rgba(255,209,102,0.2); border-radius:5px; overflow:hidden;">
+                                <div style="background:rgba(233,69,96,0.4); padding:5px 7px; font-size:0.7rem; font-weight:bold;">Gaming Rig</div>
+                                <div style="padding:5px 7px; font-size:0.68rem; line-height:1.4;">144Hz display.</div>
+                                <div style="background:rgba(0,180,216,0.45); padding:4px; font-size:0.7rem; text-align:center; font-weight:bold;">Buy Now</div>
                             </div>
                         </div>
-                        <p style="font-size:0.72rem; color:#ffd166; margin-top:6px;">↑ "Buy Now" buttons are at 3 different heights — messy</p>
+                        <p style="font-size:0.68rem; color:#ffd166; margin-top:5px;">↑ "Buy Now" buttons drift apart as Card 2 grows</p>
                     </div>
 
-                    <!-- WITH subgrid — right -->
+                    <!-- WITH subgrid — right, with visible parent grid zone bands -->
                     <div>
-                        <p style="font-size:0.82rem; font-weight:bold; color:#06d6a0; margin-bottom:4px;">✓ With Subgrid</p>
-                        <p style="font-size:0.7rem; color:rgba(255,255,255,0.5); margin-bottom:8px;">Cards share the parent's row tracks</p>
-                        <div style="display:grid; grid-template-columns:1fr 1fr 1fr; grid-template-rows:auto 1fr auto; gap:6px;">
-                            <!-- Card 1 -->
-                            <div style="grid-row:span 3; display:grid; grid-template-rows:subgrid; background:rgba(255,255,255,0.06); border:1px solid rgba(6,214,160,0.3); border-radius:6px; overflow:hidden;">
-                                <div style="background:rgba(233,69,96,0.45); padding:6px 8px; font-size:0.72rem; font-weight:bold;">Budget Pick</div>
-                                <div style="padding:6px 8px; font-size:0.7rem; line-height:1.4;">Solid everyday laptop.</div>
-                                <div style="background:rgba(0,180,216,0.5); padding:5px; font-size:0.72rem; text-align:center; font-weight:bold;">Buy Now</div>
+                        <p style="font-size:0.8rem; font-weight:bold; color:#06d6a0; margin-bottom:3px;">✓ With Subgrid — cards share the parent's row tracks</p>
+                        <p style="font-size:0.68rem; color:rgba(255,255,255,0.45); margin-bottom:6px;">The dashed bands are the parent grid's 3 rows — cards snap to them</p>
+                        <!-- Parent grid with in-grid zone bands (z-index 0) and cards (z-index 1) all in the same grid -->
+                        <div style="display:grid; grid-template-columns:1fr 1fr 1fr; grid-template-rows:auto 1fr auto; gap:5px;">
+                            <!-- Zone band: Title row (spans all 3 cols, behind cards) -->
+                            <div style="grid-column:1/-1; grid-row:1; background:rgba(233,69,96,0.1); border:1px dashed rgba(233,69,96,0.45); border-radius:3px; display:flex; align-items:center; padding:0 6px; font-size:0.58rem; color:rgba(233,69,96,0.75); font-style:italic; z-index:0; pointer-events:none;">parent row 1 — auto (title zone)</div>
+                            <!-- Zone band: Body row -->
+                            <div style="grid-column:1/-1; grid-row:2; background:rgba(255,255,255,0.03); border:1px dashed rgba(255,255,255,0.18); border-radius:3px; display:flex; align-items:flex-start; padding:3px 6px; font-size:0.58rem; color:rgba(255,255,255,0.35); font-style:italic; z-index:0; pointer-events:none;">parent row 2 — 1fr (body zone)</div>
+                            <!-- Zone band: Button row -->
+                            <div style="grid-column:1/-1; grid-row:3; background:rgba(0,180,216,0.1); border:1px dashed rgba(0,180,216,0.45); border-radius:3px; display:flex; align-items:center; padding:0 6px; font-size:0.58rem; color:rgba(0,180,216,0.75); font-style:italic; z-index:0; pointer-events:none;">parent row 3 — auto (button zone)</div>
+                            <!-- Card 1: col 1, spans rows 1-3, uses subgrid -->
+                            <div style="grid-column:1; grid-row:1/4; display:grid; grid-template-rows:subgrid; background:rgba(255,255,255,0.07); border:1px solid rgba(6,214,160,0.3); border-radius:5px; overflow:hidden; z-index:1;">
+                                <div style="background:rgba(233,69,96,0.4); padding:5px 7px; font-size:0.7rem; font-weight:bold;">Budget Pick</div>
+                                <div style="padding:5px 7px; font-size:0.68rem; line-height:1.4;">Solid everyday laptop.</div>
+                                <div style="background:rgba(0,180,216,0.45); padding:4px; font-size:0.7rem; text-align:center; font-weight:bold;">Buy Now</div>
                             </div>
-                            <!-- Card 2 -->
-                            <div style="grid-row:span 3; display:grid; grid-template-rows:subgrid; background:rgba(255,255,255,0.06); border:1px solid rgba(6,214,160,0.3); border-radius:6px; overflow:hidden;">
-                                <div style="background:rgba(233,69,96,0.45); padding:6px 8px; font-size:0.72rem; font-weight:bold;">Ultra-Slim Pro for Creative Professionals</div>
-                                <div style="padding:6px 8px; font-size:0.7rem; line-height:1.4;">Stunning 4K OLED, 32GB RAM, all-day battery. Built for designers who demand performance.</div>
-                                <div style="background:rgba(0,180,216,0.5); padding:5px; font-size:0.72rem; text-align:center; font-weight:bold;">Buy Now</div>
+                            <!-- Card 2: col 2, body grows with JS -->
+                            <div style="grid-column:2; grid-row:1/4; display:grid; grid-template-rows:subgrid; background:rgba(255,255,255,0.07); border:1px solid rgba(6,214,160,0.3); border-radius:5px; overflow:hidden; z-index:1;">
+                                <div style="background:rgba(233,69,96,0.4); padding:5px 7px; font-size:0.7rem; font-weight:bold;">Ultra-Slim Pro</div>
+                                <div id="sg-body" style="padding:5px 7px; font-size:0.68rem; line-height:1.4;">Great battery life.</div>
+                                <div style="background:rgba(0,180,216,0.45); padding:4px; font-size:0.7rem; text-align:center; font-weight:bold;">Buy Now</div>
                             </div>
-                            <!-- Card 3 -->
-                            <div style="grid-row:span 3; display:grid; grid-template-rows:subgrid; background:rgba(255,255,255,0.06); border:1px solid rgba(6,214,160,0.3); border-radius:6px; overflow:hidden;">
-                                <div style="background:rgba(233,69,96,0.45); padding:6px 8px; font-size:0.72rem; font-weight:bold;">Gaming Rig</div>
-                                <div style="padding:6px 8px; font-size:0.7rem; line-height:1.4;">144Hz display, dedicated GPU.</div>
-                                <div style="background:rgba(0,180,216,0.5); padding:5px; font-size:0.72rem; text-align:center; font-weight:bold;">Buy Now</div>
+                            <!-- Card 3: col 3 -->
+                            <div style="grid-column:3; grid-row:1/4; display:grid; grid-template-rows:subgrid; background:rgba(255,255,255,0.07); border:1px solid rgba(6,214,160,0.3); border-radius:5px; overflow:hidden; z-index:1;">
+                                <div style="background:rgba(233,69,96,0.4); padding:5px 7px; font-size:0.7rem; font-weight:bold;">Gaming Rig</div>
+                                <div style="padding:5px 7px; font-size:0.68rem; line-height:1.4;">144Hz display.</div>
+                                <div style="background:rgba(0,180,216,0.45); padding:4px; font-size:0.7rem; text-align:center; font-weight:bold;">Buy Now</div>
                             </div>
                         </div>
-                        <p style="font-size:0.72rem; color:#06d6a0; margin-top:6px;">↑ All "Buy Now" buttons sit at the exact same height — clean</p>
+                        <p style="font-size:0.68rem; color:#06d6a0; margin-top:5px;">↑ Parent row 3 grows → all cards stretch together → buttons stay locked</p>
                     </div>
 
                 </div>
-                <div class="demo-code" style="margin-top:0.6rem;">/* Parent defines 3 shared row zones */
-.parent { grid-template-columns: 1fr 1fr 1fr; grid-template-rows: auto 1fr auto; }
-/* Each card spans all 3 rows and inherits those tracks */
-.card   { grid-row: span 3;  display: grid;  grid-template-rows: subgrid; }</div>
+                <div class="demo-code" style="margin-top:0.5rem;">/* Parent grid: defines 3 shared row zones */
+.parent { grid-template-columns: 1fr 1fr 1fr;  grid-template-rows: auto 1fr auto; }
+/* Each card: spans all 3 parent rows, inherits those tracks internally */
+.card   { grid-column: 1; grid-row: 1 / 4;  display: grid;  grid-template-rows: subgrid; }</div>
             </div>
         </div>
     </div>
@@ -2384,30 +2402,67 @@ main  { grid-column: 2 / 3; }</code></pre>
                 `repeat(${count}, minmax(${min}, ${max}))`;
         }
 
-        /* ── Demo: z-index Photo Card ── */
-        const ziDefaults = { photo: 1, caption: 3, badge: 2 };
-        let ziState = { ...ziDefaults };
-        function bringToFront(layer) {
-            if (layer === 'reset') {
-                ziState = { ...ziDefaults };
-            } else {
-                const max = Math.max(...Object.values(ziState));
-                ziState[layer] = max + 1;
-            }
-            applyZi();
+        /* ── Demo: z-index Grid Cell Stacking ── */
+        let cCol = 3, cRow = 2, cZ = 1;
+        function moveC(col, row) {
+            cCol = col; cRow = row;
+            const el = document.getElementById('ziC');
+            el.style.gridColumn = col;
+            el.style.gridRow    = row;
+            document.getElementById('ziCLabel').textContent = 'grid-column:' + col + ' / grid-row:' + row;
+            updateZiStack();
         }
-        function applyZi() {
-            document.getElementById('ziPhoto').style.zIndex   = ziState.photo;
-            document.getElementById('ziCaption').style.zIndex = ziState.caption;
-            document.getElementById('ziBadge').style.zIndex   = ziState.badge;
-            const sorted = Object.entries(ziState).sort((a, b) => b[1] - a[1]);
-            const labels = { photo: '🖼️ Photo', caption: '📝 Caption', badge: '⭐ Badge' };
-            const top    = labels[sorted[0][0]];
-            const bottom = labels[sorted[sorted.length - 1][0]];
-            document.getElementById('ziLiveCode').textContent =
-                `.photo   { z-index: ${ziState.photo}; }\n.caption { z-index: ${ziState.caption}; }\n.badge   { z-index: ${ziState.badge}; }`;
-            document.getElementById('ziNote').textContent =
-                `${top} (z-index ${sorted[0][1]}) is in front — ${bottom} (z-index ${sorted[sorted.length-1][1]}) is behind everything.`;
+        function changeCZ(delta) {
+            cZ = Math.max(0, Math.min(5, cZ + delta));
+            document.getElementById('ziC').style.zIndex = cZ;
+            document.getElementById('ziCVal').textContent = cZ;
+            updateZiStack();
+        }
+        function updateZiStack() {
+            const overlapA = (cCol === 1 && cRow === 1);
+            const overlapB = (cCol === 2 && cRow === 1);
+            const ctrl = document.getElementById('ziControl');
+            ctrl.style.display = (overlapA || overlapB) ? 'flex' : 'none';
+            const code = document.getElementById('ziCode');
+            const result = document.getElementById('ziResult');
+            code.textContent = '#c { grid-column: ' + cCol + ';  grid-row: ' + cRow + ';  z-index: ' + cZ + '; }' +
+                ((overlapA || overlapB) ? '' : '  /* no overlap */');
+            if (overlapA || overlapB) {
+                const otherLabel = overlapA ? '🔵 A' : '🔴 B';
+                if (cZ > 1) {
+                    result.textContent = '🟢 C (z-index ' + cZ + ') is on top of ' + otherLabel + ' (z-index 1)';
+                    result.style.color = '#06d6a0';
+                } else if (cZ < 1) {
+                    result.textContent = otherLabel + ' (z-index 1) is on top of 🟢 C (z-index ' + cZ + ')';
+                    result.style.color = '#ffd166';
+                } else {
+                    result.textContent = 'Both z-index 1 — source order wins: ' + otherLabel + ' first → 🟢 C on top';
+                    result.style.color = '#ffd166';
+                }
+            }
+        }
+
+        /* ── Demo: Subgrid ── */
+        let sgTextLevel = 0;
+        const sgTexts = [
+            'Great battery life.',
+            'Stunning 4K OLED display and all-day battery life.',
+            'Stunning 4K OLED, 32GB RAM, all-day battery. Built for creative professionals.',
+            'Stunning 4K OLED, 32GB RAM, all-day battery. Lightweight chassis perfect for designers and developers who need power on the go.'
+        ];
+        function sgAddText() {
+            if (sgTextLevel < sgTexts.length - 1) sgTextLevel++;
+            document.getElementById('nosg-body').textContent = sgTexts[sgTextLevel];
+            document.getElementById('sg-body').textContent   = sgTexts[sgTextLevel];
+            if (sgTextLevel >= sgTexts.length - 1) {
+                document.getElementById('sgAddBtn').disabled = true;
+            }
+        }
+        function sgResetText() {
+            sgTextLevel = 0;
+            document.getElementById('nosg-body').textContent = sgTexts[0];
+            document.getElementById('sg-body').textContent   = sgTexts[0];
+            document.getElementById('sgAddBtn').disabled = false;
         }
 
         /* ── Demo 1: Column/fr Builder ── */
