@@ -153,6 +153,15 @@
         .demo-select { padding: .3rem .5rem; font-size: .82rem; border: 1px solid rgba(255,255,255,.35); border-radius: 4px; background: rgba(0,0,0,.5); color: white; cursor: pointer; }
         .demo-row { display: flex; gap: .35rem; flex-wrap: wrap; align-items: center; margin-bottom: .4rem; }
         .demo-row-label { font-size: .78rem; opacity: .75; white-space: nowrap; }
+        input[type="color"] { width:34px; height:28px; padding:2px; border:1px solid rgba(255,255,255,.4); border-radius:4px; cursor:pointer; background:transparent; }
+        .big-preview { height:130px; border-radius:12px; margin:.4rem 0; box-shadow:0 4px 20px rgba(0,0,0,.4); transition:all .35s; display:flex; align-items:center; justify-content:center; font-size:.8rem; font-weight:bold; text-shadow:0 1px 3px rgba(0,0,0,.6); text-align:center; }
+        .code-live { background:rgba(0,0,0,.5); color:#d4d4d4; padding:.5rem .75rem; border-radius:6px; font-family:monospace; font-size:.72rem; line-height:1.5; margin-top:.35rem; white-space:pre-wrap; }
+        .dir-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:.25rem; width:100px; }
+        .dir-btn { aspect-ratio:1; display:flex; align-items:center; justify-content:center; font-size:1rem; }
+        .seg-row { display:flex; align-items:center; gap:.4rem; font-size:.78rem; margin:.2rem 0; }
+        .seg-swatch { width:16px; height:16px; border-radius:3px; border:1px solid rgba(255,255,255,.4); flex-shrink:0; }
+        .pie-ring { border-radius:50%; border:2px solid rgba(255,255,255,.2); }
+        .corner-grid { display:grid; grid-template-columns:1fr auto 1fr; grid-template-rows:auto 80px auto; gap:.3rem; width:100%; }
     </style>
 </head>
 <body>
@@ -214,19 +223,37 @@
                     </ul>
                 </div>
                 <div>
-                    <h3>Common Examples</h3>
-                    <pre><code>/* Color only */
-background: #dfdfdf;
-
-/* Image + fallback color */
-background: url('paper.png') #dfdfdf;
-
-/* Full shorthand */
-background: url('hero.jpg')
-  center / cover no-repeat;</code></pre>
-                    <div class="tip" style="margin-top:.5rem;">
-                        <strong>Tip:</strong> You can use <code>background</code> on <em>any</em> HTML element — not just <code>&lt;body&gt;</code> or <code>&lt;div&gt;</code>.
+                    <h3>Shorthand Builder</h3>
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:.3rem .6rem; margin-bottom:.4rem; align-items:center;">
+                        <label style="font-size:.78rem; color:#81ecec;">background-image:</label>
+                        <select id="bgImg" class="demo-select" onchange="buildBg()">
+                            <option value="none">none</option>
+                            <option value="linear-gradient(to right,#667eea,#764ba2)" selected>linear-gradient()</option>
+                            <option value="radial-gradient(circle,#ff6b6b,#feca57)">radial-gradient()</option>
+                            <option value="repeating-linear-gradient(45deg,#3a86ff 0px,#3a86ff 10px,white 10px,white 20px)">repeating stripe</option>
+                        </select>
+                        <label style="font-size:.78rem; color:#81ecec;">background-position:</label>
+                        <select id="bgPos" class="demo-select" onchange="buildBg()">
+                            <option>center</option><option>top left</option><option>bottom right</option><option>25% 75%</option>
+                        </select>
+                        <label style="font-size:.78rem; color:#81ecec;">background-size:</label>
+                        <select id="bgSz" class="demo-select" onchange="buildBg()">
+                            <option>auto</option><option>cover</option><option>contain</option><option>50%</option>
+                        </select>
+                        <label style="font-size:.78rem; color:#81ecec;">background-repeat:</label>
+                        <select id="bgRep" class="demo-select" onchange="buildBg()">
+                            <option>no-repeat</option><option>repeat</option><option>repeat-x</option><option>space</option>
+                        </select>
+                        <label style="font-size:.78rem; color:#81ecec;">background-color:</label>
+                        <select id="bgCol" class="demo-select" onchange="buildBg()">
+                            <option value="#2c3e50">dark (#2c3e50)</option><option value="#c31432">red (#c31432)</option>
+                            <option value="steelblue">steelblue</option><option value="transparent">transparent</option>
+                        </select>
                     </div>
+                    <div id="bgBuilderBox" style="height:70px; border-radius:8px; border:6px solid rgba(255,255,255,.25); padding:8px; background:linear-gradient(to right,#667eea,#764ba2) center / auto no-repeat #2c3e50; display:flex; align-items:center; justify-content:center; font-size:.72rem; font-weight:bold; text-shadow:0 1px 3px rgba(0,0,0,.7);"></div>
+                    <div id="bgBuilderCode" class="code-live" style="margin-top:.35rem;">background: linear-gradient(to right,#667eea,#764ba2)
+  center / auto no-repeat
+  #2c3e50;</div>
                 </div>
             </div>
         </div>
@@ -386,26 +413,44 @@ border-bottom: 5px dashed red;</code></pre>
                     </div>
                 </div>
                 <div>
-                    <h3>Layer Builder — Toggle Each Layer</h3>
-                    <div id="layerBox" style="height:145px; border-radius:8px; border:1px solid rgba(255,255,255,.25); margin-bottom:.5rem; background: radial-gradient(ellipse at 70% 30%, rgba(255,220,100,0.9) 0%, transparent 55%), linear-gradient(135deg, rgba(233,69,96,0.7) 0%, rgba(233,69,96,0) 65%), linear-gradient(#1a237e, #283593); transition: background .3s;"></div>
-                    <div style="display:flex; flex-direction:column; gap:.35rem;">
-                        <label style="display:flex; align-items:center; gap:.5rem; cursor:pointer; font-size:.82rem; background:rgba(0,0,0,.2); padding:.35rem .6rem; border-radius:4px;">
+                    <h3>Layer Builder — Night Sky</h3>
+                    <div id="layerBox" style="height:160px; border-radius:10px; overflow:hidden; margin-bottom:.5rem; transition:background .4s; background:
+                        radial-gradient(1px 1px at 8% 18%, white 0%, transparent 100%),
+                        radial-gradient(1.5px 1.5px at 22% 8%, rgba(255,255,220,.9) 0%, transparent 100%),
+                        radial-gradient(1px 1px at 38% 25%, white 0%, transparent 100%),
+                        radial-gradient(1px 1px at 55% 12%, white 0%, transparent 100%),
+                        radial-gradient(1.5px 1.5px at 70% 30%, rgba(255,255,220,.85) 0%, transparent 100%),
+                        radial-gradient(1px 1px at 83% 8%, white 0%, transparent 100%),
+                        radial-gradient(1px 1px at 92% 20%, white 0%, transparent 100%),
+                        radial-gradient(1px 1px at 15% 45%, white 0%, transparent 100%),
+                        radial-gradient(1.5px 1.5px at 48% 38%, rgba(255,255,220,.9) 0%, transparent 100%),
+                        radial-gradient(1px 1px at 78% 50%, white 0%, transparent 100%),
+                        radial-gradient(circle at 78% 22%, rgba(255,248,195,.95) 0%, rgba(255,240,160,.8) 5%, rgba(255,220,100,.35) 10%, transparent 18%),
+                        radial-gradient(ellipse at 50% 110%, rgba(90,50,140,.75) 0%, rgba(60,20,100,.4) 35%, transparent 60%),
+                        linear-gradient(to bottom, #04041a 0%, #070730 40%, #120540 70%, #1e0840 100%);"></div>
+                    <div style="display:flex; flex-direction:column; gap:.3rem;">
+                        <label style="display:flex; align-items:center; gap:.5rem; cursor:pointer; font-size:.82rem; background:rgba(0,0,0,.25); padding:.35rem .6rem; border-radius:5px; border:1px solid rgba(255,255,255,.1);">
                             <input type="checkbox" id="l1" checked onchange="updateLayers()">
-                            <span style="display:inline-block; width:14px; height:14px; background:radial-gradient(ellipse at 70% 30%, gold, transparent); border:1px solid rgba(255,255,255,.4); border-radius:2px; flex-shrink:0;"></span>
-                            Layer 1 (top): <code style="font-size:.78rem;">radial-gradient()</code> — gold glow
+                            <span style="display:inline-block; width:12px; height:12px; background:white; border-radius:50%; flex-shrink:0; box-shadow:0 0 4px white;"></span>
+                            Layer 1–10 (top): ✦ Stars — ten <code style="font-size:.76rem;">radial-gradient(1px)</code> dots
                         </label>
-                        <label style="display:flex; align-items:center; gap:.5rem; cursor:pointer; font-size:.82rem; background:rgba(0,0,0,.2); padding:.35rem .6rem; border-radius:4px;">
+                        <label style="display:flex; align-items:center; gap:.5rem; cursor:pointer; font-size:.82rem; background:rgba(0,0,0,.25); padding:.35rem .6rem; border-radius:5px; border:1px solid rgba(255,255,255,.1);">
                             <input type="checkbox" id="l2" checked onchange="updateLayers()">
-                            <span style="display:inline-block; width:14px; height:14px; background:linear-gradient(135deg, rgba(233,69,96,.9), transparent); border:1px solid rgba(255,255,255,.4); border-radius:2px; flex-shrink:0;"></span>
-                            Layer 2: <code style="font-size:.78rem;">linear-gradient()</code> — red corner
+                            <span style="display:inline-block; width:12px; height:12px; background:radial-gradient(circle, #fff5c2, #ffd166); border-radius:50%; flex-shrink:0;"></span>
+                            Layer 11: 🌕 Moon — <code style="font-size:.76rem;">radial-gradient(circle at 78% 22%)</code>
                         </label>
-                        <label style="display:flex; align-items:center; gap:.5rem; cursor:pointer; font-size:.82rem; background:rgba(0,0,0,.2); padding:.35rem .6rem; border-radius:4px;">
+                        <label style="display:flex; align-items:center; gap:.5rem; cursor:pointer; font-size:.82rem; background:rgba(0,0,0,.25); padding:.35rem .6rem; border-radius:5px; border:1px solid rgba(255,255,255,.1);">
                             <input type="checkbox" id="l3" checked onchange="updateLayers()">
-                            <span style="display:inline-block; width:14px; height:14px; background:linear-gradient(#1a237e, #283593); border:1px solid rgba(255,255,255,.4); border-radius:2px; flex-shrink:0;"></span>
-                            Layer 3 (bottom): solid <code style="font-size:.78rem;">#1a237e</code>
+                            <span style="display:inline-block; width:12px; height:12px; background:radial-gradient(ellipse, rgba(90,50,140,.8), transparent); border-radius:3px; flex-shrink:0;"></span>
+                            Layer 12: 🌫 Mist — <code style="font-size:.76rem;">radial-gradient(ellipse at bottom)</code>
+                        </label>
+                        <label style="display:flex; align-items:center; gap:.5rem; cursor:pointer; font-size:.82rem; background:rgba(0,0,0,.25); padding:.35rem .6rem; border-radius:5px; border:1px solid rgba(255,255,255,.1);">
+                            <input type="checkbox" id="l4" checked onchange="updateLayers()">
+                            <span style="display:inline-block; width:12px; height:12px; background:linear-gradient(#04041a,#1e0840); border-radius:3px; flex-shrink:0;"></span>
+                            Layer 13 (bottom): 🌌 Sky — <code style="font-size:.76rem;">linear-gradient(to bottom)</code>
                         </label>
                     </div>
-                    <p style="font-size:.72rem; opacity:.6; margin-top:.4rem;">First layer in the list paints on top — uncheck to remove it</p>
+                    <p style="font-size:.7rem; opacity:.55; margin-top:.4rem;">Uncheck layers to see what each one contributes</p>
                 </div>
             </div>
         </div>
@@ -471,7 +516,7 @@ border-bottom: 5px dashed red;</code></pre>
   background-clip: text;
 }</code></pre>
                     <div class="note" style="font-size:.85rem; margin-top:.5rem;">
-                        Include both the <code>-webkit-</code> prefixed and unprefixed versions for maximum browser compatibility.
+                        <strong>Modern browsers (2024+)</strong> support <code>background-clip: text</code> without the prefix. The <code>-webkit-</code> versions are still commonly included as a safety net for older browsers, but are no longer required.
                     </div>
                     <div class="caution" style="font-size:.85rem;">
                         Works best on <strong>large, bold text</strong>. Thin or small text may not show the effect clearly. Ensure sufficient contrast for accessibility.
@@ -550,10 +595,10 @@ background-position: 40px 80px;</code></pre>
                 <button class="demo-btn"         id="bs-50"       onclick="setBgSize('50%')">50%</button>
                 <button class="demo-btn"         id="bs-80"       onclick="setBgSize('80px 80px')">80px</button>
             </div>
-            <div id="bsizeBox" style="height:90px; border-radius:6px; border:1px solid rgba(255,255,255,.2); background-image:radial-gradient(circle at center, #ffd166 0%, #ffd166 22%, #ee5a24 22%, #ee5a24 44%, #1a237e 44%, #1a237e 66%, transparent 66%); background-size:cover; background-position:center; background-repeat:no-repeat; background-color:rgba(0,0,0,.35); display:flex; align-items:center; justify-content:center; font-size:.8rem; font-weight:bold; text-shadow:0 1px 3px rgba(0,0,0,.8); transition:background-size .3s;">
+            <div id="bsizeBox" style="height:110px; border-radius:6px; border:1px solid rgba(255,255,255,.2); background-image:url(&quot;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Crect width='120' height='120' fill='%23050518'/%3E%3Ccircle cx='60' cy='60' r='55' fill='%23ffd166'/%3E%3Ccircle cx='60' cy='60' r='40' fill='%23ee5a24'/%3E%3Ccircle cx='60' cy='60' r='25' fill='%23ffd166'/%3E%3Ccircle cx='60' cy='60' r='10' fill='%23e74c3c'/%3E%3Cline x1='60' y1='5' x2='60' y2='115' stroke='rgba(0,0,0,0.3)' stroke-width='1.5'/%3E%3Cline x1='5' y1='60' x2='115' y2='60' stroke='rgba(0,0,0,0.3)' stroke-width='1.5'/%3E%3C/svg%3E&quot;); background-size:cover; background-position:center; background-repeat:no-repeat; background-color:#050518; display:flex; align-items:center; justify-content:center; font-size:.8rem; font-weight:bold; text-shadow:0 1px 3px rgba(0,0,0,.9); transition:background-size .3s; color:rgba(255,255,255,.7);">
                 background-size: cover
             </div>
-            <p style="font-size:.72rem; opacity:.6; margin-top:.3rem;">The concentric target shows how the image fills (or doesn't fill) the container — try <em>contain</em> and <em>auto</em> to see gaps appear</p>
+            <p style="font-size:.72rem; opacity:.6; margin-top:.3rem;">The bullseye SVG (120×120px) in a wide container — <em>cover</em> crops it, <em>contain</em> letterboxes it, <em>auto</em> shows natural size</p>
         </div>
     </div>
 
@@ -583,23 +628,31 @@ background-position: 40px 80px;</code></pre>
             <div class="caution" style="margin-top:.4rem;">
                 <strong>Mobile Warning:</strong> <code>background-attachment: fixed</code> does not work as expected on iOS Safari or many mobile browsers — it often renders as <code>scroll</code> or causes performance issues. For parallax effects, prefer <a href="https://developer.mozilla.org/en-US/docs/Web/CSS/animation-timeline/scroll" target="_blank">CSS scroll-driven animations</a>.
             </div>
-            <h3 style="margin-top:.6rem;">Live Demo — <code>scroll</code> vs <code>local</code></h3>
-            <p style="font-size:.82rem; margin-bottom:.4rem;">Both containers below scroll. Watch how the stripe pattern behaves differently:</p>
-            <div style="display:flex; gap:.75rem; flex-wrap:wrap;">
-                <div style="flex:1; min-width:180px;">
-                    <p style="font-size:.78rem; color:#81ecec; margin-bottom:.25rem;"><code>background-attachment: scroll</code></p>
-                    <div style="height:90px; overflow-y:scroll; border-radius:6px; border:1px solid rgba(255,255,255,.25); background:repeating-linear-gradient(0deg, rgba(255,255,255,.18) 0px, rgba(255,255,255,.18) 2px, transparent 2px, transparent 28px) #1a237e; background-attachment:scroll;">
-                        <div style="padding:.6rem .75rem; min-height:200px; font-size:.78rem; line-height:1.8; opacity:.85;">Scroll me ↓<br>Line 2<br>Line 3<br>Line 4<br>Line 5<br>Line 6<br>Line 7</div>
+            <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:.6rem; margin-top:.6rem;">
+                <div>
+                    <p style="font-size:.76rem; color:#81ecec; margin-bottom:.2rem; text-align:center;"><code>scroll</code></p>
+                    <div style="height:85px; overflow-y:scroll; border-radius:6px; border:1px solid rgba(255,255,255,.25); background:repeating-linear-gradient(0deg,rgba(255,255,255,.15) 0px,rgba(255,255,255,.15) 2px,transparent 2px,transparent 26px) #050a2e; background-attachment:scroll;">
+                        <div style="padding:.5rem .6rem; min-height:190px; font-size:.72rem; line-height:1.9; opacity:.8;">Scroll ↓<br>Line 2<br>Line 3<br>Line 4<br>Line 5<br>Line 6<br>Line 7</div>
                     </div>
-                    <p style="font-size:.7rem; opacity:.55; margin-top:.2rem;">Stripes stay fixed to the element</p>
+                    <p style="font-size:.68rem; opacity:.55; margin-top:.2rem; text-align:center;">Stripes fixed to element</p>
                 </div>
-                <div style="flex:1; min-width:180px;">
-                    <p style="font-size:.78rem; color:#81ecec; margin-bottom:.25rem;"><code>background-attachment: local</code></p>
-                    <div style="height:90px; overflow-y:scroll; border-radius:6px; border:1px solid rgba(255,255,255,.25); background:repeating-linear-gradient(0deg, rgba(255,255,255,.18) 0px, rgba(255,255,255,.18) 2px, transparent 2px, transparent 28px) #1a237e; background-attachment:local;">
-                        <div style="padding:.6rem .75rem; min-height:200px; font-size:.78rem; line-height:1.8; opacity:.85;">Scroll me ↓<br>Line 2<br>Line 3<br>Line 4<br>Line 5<br>Line 6<br>Line 7</div>
+                <div>
+                    <p style="font-size:.76rem; color:#81ecec; margin-bottom:.2rem; text-align:center;"><code>local</code></p>
+                    <div style="height:85px; overflow-y:scroll; border-radius:6px; border:1px solid rgba(255,255,255,.25); background:repeating-linear-gradient(0deg,rgba(255,255,255,.15) 0px,rgba(255,255,255,.15) 2px,transparent 2px,transparent 26px) #050a2e; background-attachment:local;">
+                        <div style="padding:.5rem .6rem; min-height:190px; font-size:.72rem; line-height:1.9; opacity:.8;">Scroll ↓<br>Line 2<br>Line 3<br>Line 4<br>Line 5<br>Line 6<br>Line 7</div>
                     </div>
-                    <p style="font-size:.7rem; opacity:.55; margin-top:.2rem;">Stripes scroll WITH the content</p>
+                    <p style="font-size:.68rem; opacity:.55; margin-top:.2rem; text-align:center;">Stripes scroll with content</p>
                 </div>
+                <div>
+                    <p style="font-size:.76rem; color:#ffd166; margin-bottom:.2rem; text-align:center;"><code>fixed</code> — parallax</p>
+                    <div style="height:85px; overflow-y:scroll; border-radius:6px; border:1px solid rgba(255,209,102,.35); background:repeating-linear-gradient(45deg,rgba(255,209,102,.12) 0px,rgba(255,209,102,.12) 2px,transparent 2px,transparent 18px),linear-gradient(135deg,#050a2e,#1a0540); background-attachment:fixed;">
+                        <div style="padding:.5rem .6rem; min-height:190px; font-size:.72rem; line-height:1.9; opacity:.85;">Scroll ↓<br>Line 2<br>Line 3<br>Line 4<br>Line 5<br>Line 6<br>Line 7</div>
+                    </div>
+                    <p style="font-size:.68rem; opacity:.55; margin-top:.2rem; text-align:center;">Background fixed to viewport</p>
+                </div>
+            </div>
+            <div class="note" style="font-size:.8rem; margin-top:.4rem;">
+                Scroll each box above. The <strong style="color:#ffd166;">fixed</strong> box's diagonal stripes stay pinned to the viewport — content slides over a "frozen" background — that's the parallax effect.
             </div>
         </div>
     </div>
@@ -648,21 +701,28 @@ background-position: 40px 80px;</code></pre>
                 </div>
                 <div>
                     <h3><code>mix-blend-mode</code></h3>
-                    <p>Blends an <em>entire element</em> (including content) with whatever is visually <em>behind it</em> on the page:</p>
-                    <pre><code>.title-overlay {
-  mix-blend-mode: screen;
-}
-
-/* "cut-out" text effect */
-.cutout-text {
-  mix-blend-mode: multiply;
-  color: white;
-}</code></pre>
-                    <table class="compare-table" style="margin-top:.5rem;">
-                        <thead><tr><th>Property</th><th>Affects</th></tr></thead>
+                    <p style="font-size:.88rem;">Blends an <em>entire element</em> with everything visually <em>behind it</em> — including other elements:</p>
+                    <div style="display:flex; align-items:center; gap:.5rem; margin:.4rem 0;">
+                        <span style="font-size:.82rem;">mode:</span>
+                        <select id="mixSelect" class="demo-select" onchange="setMixBlend(this.value)">
+                            <option>normal</option><option selected>multiply</option><option>screen</option>
+                            <option>overlay</option><option>difference</option><option>exclusion</option>
+                            <option>color-dodge</option><option>hard-light</option><option>hue</option>
+                            <option>saturation</option><option>color</option><option>luminosity</option>
+                        </select>
+                    </div>
+                    <div style="background:#e8e8e8; border-radius:8px; padding:.75rem 1rem; position:relative; height:100px; display:flex; align-items:center; justify-content:center;">
+                        <div style="position:relative; width:160px; height:80px; flex-shrink:0;">
+                            <div style="width:75px; height:75px; border-radius:50%; background:#e74c3c; position:absolute; left:0; top:2px; display:flex; align-items:center; justify-content:center; font-size:.68rem; font-weight:bold; color:white; text-shadow:0 1px 2px rgba(0,0,0,.5);">Red</div>
+                            <div id="mixCircle" style="width:75px; height:75px; border-radius:50%; background:#3498db; position:absolute; left:55px; top:2px; mix-blend-mode:multiply; display:flex; align-items:center; justify-content:center; font-size:.68rem; font-weight:bold; color:white; text-shadow:0 1px 2px rgba(0,0,0,.4); text-align:center; transition:mix-blend-mode .1s;">Blue</div>
+                        </div>
+                    </div>
+                    <p style="font-size:.72rem; opacity:.65; text-align:center; margin-top:.25rem;">Overlap area = blend result; try <em>multiply</em>, <em>screen</em>, <em>difference</em></p>
+                    <table class="compare-table" style="margin-top:.4rem; font-size:.78rem;">
+                        <thead><tr><th>Property</th><th>Blends…</th></tr></thead>
                         <tbody>
-                            <tr><td><code>background-blend-mode</code></td><td>Layers <em>within</em> one element</td></tr>
-                            <tr><td><code>mix-blend-mode</code></td><td>Element vs. everything <em>behind</em> it</td></tr>
+                            <tr><td><code>background-blend-mode</code></td><td>Background layers <em>within</em> one element</td></tr>
+                            <tr><td><code>mix-blend-mode</code></td><td>Element vs everything <em>behind</em> it</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -912,27 +972,25 @@ background-image:
                     </ul>
                 </div>
                 <div>
-                    <h3>Live Preview — change direction</h3>
-                    <div class="demo-row">
-                        <button class="demo-btn active" id="dir-r"  onclick="setGradDir('to right',this)">→ right</button>
-                        <button class="demo-btn"         id="dir-b"  onclick="setGradDir('to bottom',this)">↓ bottom</button>
-                        <button class="demo-btn"         id="dir-45" onclick="setGradDir('45deg',this)">↗ 45°</button>
-                        <button class="demo-btn"         id="dir-135" onclick="setGradDir('135deg',this)">↘ 135°</button>
-                        <button class="demo-btn"         id="dir-tl" onclick="setGradDir('to top left',this)">↖ top left</button>
+                    <h3>Live Gradient Builder</h3>
+                    <div style="display:flex; gap:.4rem; align-items:center; margin-bottom:.35rem; flex-wrap:wrap;">
+                        <label style="font-size:.78rem; color:#81ecec;">Colors:</label>
+                        <input type="color" id="lc1" value="#667eea" oninput="updateLinear()">
+                        <input type="color" id="lc2" value="#f64f59" oninput="updateLinear()">
+                        <input type="color" id="lc3" value="#f9ca24" oninput="updateLinear()">
                     </div>
-                    <div id="gradDirBox" style="height:85px; border-radius:8px; background:linear-gradient(to right,#e74c3c,#feca57,#48dbfb); transition:background .35s; display:flex; align-items:center; justify-content:center; font-size:.75rem; font-weight:bold; text-shadow:0 1px 3px rgba(0,0,0,.6); text-align:center;">
-                        linear-gradient(to right, #e74c3c, #feca57, #48dbfb)
+                    <div style="display:flex; gap:.3rem; flex-wrap:wrap; margin-bottom:.35rem;">
+                        <label style="font-size:.78rem; color:#81ecec; align-self:center;">Direction:</label>
+                        <button class="demo-btn active" id="ldir-r"   onclick="setLinearDir('to right',this)">→ right</button>
+                        <button class="demo-btn"         id="ldir-b"   onclick="setLinearDir('to bottom',this)">↓ bottom</button>
+                        <button class="demo-btn"         id="ldir-45"  onclick="setLinearDir('45deg',this)">↗ 45°</button>
+                        <button class="demo-btn"         id="ldir-135" onclick="setLinearDir('135deg',this)">↘ 135°</button>
+                        <button class="demo-btn"         id="ldir-tl"  onclick="setLinearDir('to top left',this)">↖</button>
+                        <button class="demo-btn"         id="ldir-tr"  onclick="setLinearDir('to top right',this)">↗</button>
                     </div>
-                    <div class="gradient-row" style="margin-top:.5rem;">
-                        <div class="grad-swatch" style="background:linear-gradient(to right,#e74c3c,#3498db);">to right</div>
-                        <div class="grad-swatch" style="background:linear-gradient(to bottom,#2ecc71,#9b59b6);">to bottom</div>
-                        <div class="grad-swatch" style="background:linear-gradient(45deg,#f39c12,#e74c3c,#9b59b6);">45deg</div>
-                        <div class="grad-swatch" style="background:linear-gradient(to right,#ff6b6b 0%,#feca57 40%,#48dbfb 100%);">color stops</div>
-                    </div>
-                    <div class="note" style="font-size:.82rem; margin-top:.4rem;">
-                        Color stops (<code>40%</code>) pin a color to a position. Without them colors distribute evenly.
-                    </div>
-                    <p style="font-size:.82rem; margin-top:.3rem;"><a href="https://cssgradient.io" target="_blank">cssgradient.io</a> — visual gradient builder</p>
+                    <div id="linearPreview" class="big-preview" style="background:linear-gradient(to right,#667eea,#f64f59,#f9ca24);"></div>
+                    <div id="linearCode" class="code-live">linear-gradient(to right, #667eea, #f64f59, #f9ca24)</div>
+                    <p style="font-size:.78rem; margin-top:.4rem; opacity:.8;">Change the colors above — the gradient updates live. <a href="https://cssgradient.io" target="_blank">cssgradient.io</a> for more.</p>
                 </div>
             </div>
         </div>
@@ -972,18 +1030,28 @@ background-image:
   );</code></pre>
                 </div>
                 <div>
-                    <h3>Pattern Gallery</h3>
-                    <div class="gradient-row">
-                        <div class="grad-swatch" style="background:repeating-linear-gradient(45deg,#3a86ff,#3a86ff 10px,#fff 10px,#fff 20px); border:1px solid rgba(255,255,255,.2);">diagonal stripes</div>
-                        <div class="grad-swatch" style="background:repeating-linear-gradient(0deg,transparent,transparent 10px,rgba(255,255,255,.25) 10px,rgba(255,255,255,.25) 12px),repeating-linear-gradient(90deg,transparent,transparent 10px,rgba(255,255,255,.25) 10px,rgba(255,255,255,.25) 12px), #3a86ff; border:1px solid rgba(255,255,255,.2);">grid overlay</div>
+                    <h3>Pattern Builder</h3>
+                    <div style="display:flex; gap:.3rem; flex-wrap:wrap; margin-bottom:.35rem;">
+                        <button class="demo-btn active" onclick="setPattern('diagonal',this)">Diagonal</button>
+                        <button class="demo-btn" onclick="setPattern('vertical',this)">Vertical</button>
+                        <button class="demo-btn" onclick="setPattern('horizontal',this)">Horizontal</button>
+                        <button class="demo-btn" onclick="setPattern('grid',this)">Grid</button>
+                        <button class="demo-btn" onclick="setPattern('rings',this)">Rings</button>
+                        <button class="demo-btn" onclick="setPattern('checker',this)">Checker</button>
                     </div>
-                    <div class="gradient-row">
-                        <div class="grad-swatch" style="background:repeating-linear-gradient(90deg,#ee0979,#ee0979 15px,#ff6a00 15px,#ff6a00 30px); border:1px solid rgba(255,255,255,.2);">vertical stripes</div>
-                        <div class="grad-swatch" style="background:repeating-radial-gradient(circle,#3a86ff 0px,#3a86ff 8px,#fff 8px,#fff 16px); border:1px solid rgba(255,255,255,.2);">concentric rings</div>
+                    <div style="display:flex; gap:.5rem; align-items:center; margin-bottom:.35rem; flex-wrap:wrap;">
+                        <input type="color" id="pat1" value="#3a86ff" oninput="updatePattern()">
+                        <input type="color" id="pat2" value="#ffffff" oninput="updatePattern()">
+                        <label style="font-size:.75rem; display:flex; align-items:center; gap:.3rem;">
+                            Size: <input type="range" id="patSize" min="6" max="40" value="16" style="width:70px;" oninput="updatePattern()">
+                            <span id="patSizeVal" style="font-size:.72rem;">16px</span>
+                        </label>
                     </div>
-                    <div class="tip" style="font-size:.85rem; margin-top:.4rem;">
-                        <a href="https://css-pattern.com" target="_blank">css-pattern.com</a> — a library of pure CSS gradient patterns you can use or learn from.
-                    </div>
+                    <div id="patternPreview" class="big-preview" style="background:repeating-linear-gradient(45deg,#3a86ff,#3a86ff 16px,#ffffff 16px,#ffffff 32px); border-radius:10px;"></div>
+                    <div id="patternCode" class="code-live" style="margin-top:.35rem;">repeating-linear-gradient(45deg,
+  #3a86ff 0, #3a86ff 16px,
+  #fff 16px, #fff 32px)</div>
+                    <p style="font-size:.75rem; margin-top:.3rem;"><a href="https://css-pattern.com" target="_blank">css-pattern.com</a> — library of CSS patterns</p>
                 </div>
             </div>
         </div>
@@ -1037,8 +1105,14 @@ background-image: radial-gradient(
                         <div class="grad-swatch" style="background:radial-gradient(circle at 25% 40%, #ff6b6b 20%, transparent 60%), #2d3436; border:1px solid rgba(255,255,255,.2);">at 25% 40%</div>
                         <div class="grad-swatch" style="background:radial-gradient(ellipse farthest-corner at 80% 20%,#feca57,#ee5a24,#341f97);">farthest-corner</div>
                     </div>
-                    <div style="margin-top:.5rem;">
-                        <h4 style="margin-bottom:.35rem; color:#81ecec;">Adjust the gradient</h4>
+                    <div style="margin-top:.4rem;">
+                        <h4 style="margin-bottom:.3rem; color:#81ecec;">Adjust the gradient</h4>
+                        <div style="display:flex; gap:.4rem; align-items:center; margin-bottom:.3rem;">
+                            <span style="font-size:.76rem; color:#81ecec;">Colors:</span>
+                            <input type="color" id="rc1" value="#9ad6e9" oninput="updateRadial()">
+                            <input type="color" id="rc2" value="#f4a261" oninput="updateRadial()">
+                            <input type="color" id="rc3" value="#e63946" oninput="updateRadial()">
+                        </div>
                         <div class="demo-row">
                             <span class="demo-row-label">Shape:</span>
                             <button class="demo-btn active" id="rs-ellipse" onclick="setRadial('shape','ellipse')">ellipse</button>
@@ -1057,8 +1131,8 @@ background-image: radial-gradient(
                             <button class="demo-btn"         id="rp-25" onclick="setRadial('pos','25% 75%')">25% 75%</button>
                             <button class="demo-btn"         id="rp-80" onclick="setRadial('pos','80% 20%')">80% 20%</button>
                         </div>
-                        <div id="radialBox" style="height:75px; border-radius:6px; background:radial-gradient(ellipse farthest-corner at center, #9ad6e9, #f4a261, #e63946); transition:background .3s;"></div>
-                        <p id="radialCode" style="font-size:.7rem; opacity:.6; margin-top:.25rem; font-family:monospace;">radial-gradient(ellipse farthest-corner at center, ...)</p>
+                        <div id="radialBox" class="big-preview" style="background:radial-gradient(ellipse farthest-corner at center, #9ad6e9, #f4a261, #e63946);"></div>
+                        <div id="radialCode" class="code-live" style="margin-top:.3rem;">radial-gradient(ellipse farthest-corner at center, ...)</div>
                     </div>
                 </div>
             </div>
@@ -1100,22 +1174,30 @@ background-image: conic-gradient(
 );</code></pre>
                 </div>
                 <div>
-                    <h3>Visual Examples</h3>
-                    <div class="conic-swatches">
-                        <div class="conic-swatch" style="background:conic-gradient(red,orange,yellow,green,aqua,blue,magenta,red);" title="Color wheel"></div>
-                        <div class="conic-swatch" style="background:conic-gradient(steelblue 0% 30%,gold 30% 60%,tomato 60% 100%);" title="Pie chart"></div>
-                        <div class="conic-swatch" style="background:conic-gradient(#ff6b6b 25%,#feca57 25% 50%,#48dbfb 50% 75%,#ff9ff3 75%);" title="Quadrants"></div>
-                        <div class="conic-swatch" style="background:repeating-conic-gradient(#3a86ff 0deg 30deg,#fff 30deg 60deg);" title="Repeating"></div>
+                    <h3>Live Demos</h3>
+                    <div style="display:flex; gap:.6rem; align-items:flex-start; flex-wrap:wrap;">
+                        <div style="flex:1; min-width:140px;">
+                            <p style="font-size:.76rem; color:#81ecec; margin-bottom:.3rem; text-align:center;">Pie Chart</p>
+                            <div id="pieChart" class="pie-ring" style="width:100%; aspect-ratio:1; background:conic-gradient(#667eea 0% 30%, #f64f59 30% 65%, #f9ca24 65% 100%);"></div>
+                            <div style="margin-top:.4rem; display:flex; flex-direction:column; gap:.25rem;">
+                                <div class="seg-row"><div class="seg-swatch" style="background:#667eea;"></div><span>A:</span><input type="range" min="5" max="80" value="30" style="flex:1;" id="seg1" oninput="updatePie()"><span id="seg1v" style="font-size:.72rem; min-width:28px;">30%</span></div>
+                                <div class="seg-row"><div class="seg-swatch" style="background:#f64f59;"></div><span>B:</span><input type="range" min="5" max="80" value="35" style="flex:1;" id="seg2" oninput="updatePie()"><span id="seg2v" style="font-size:.72rem; min-width:28px;">35%</span></div>
+                                <div class="seg-row"><div class="seg-swatch" style="background:#f9ca24;"></div><span>C: auto</span></div>
+                            </div>
+                        </div>
+                        <div style="flex:1; min-width:140px;">
+                            <p style="font-size:.76rem; color:#81ecec; margin-bottom:.3rem; text-align:center;">Color Wheel</p>
+                            <div class="pie-ring" style="width:100%; aspect-ratio:1; background:conic-gradient(red,orange,yellow,lime,cyan,blue,violet,red);"></div>
+                            <p style="font-size:.76rem; color:#81ecec; margin:.5rem 0 .3rem; text-align:center;">Checker</p>
+                            <div style="width:100%; aspect-ratio:2/1; border-radius:6px; background:repeating-conic-gradient(#3a86ff 0deg 90deg, rgba(255,255,255,.9) 90deg 180deg); background-size:20px 20px;"></div>
+                        </div>
                     </div>
-                    <h3 style="margin-top:.5rem;">Common Uses</h3>
-                    <ul>
-                        <li>Pie / donut charts (CSS-only, no JS!)</li>
-                        <li>Color wheels for pickers</li>
-                        <li>Starburst &amp; pinwheel patterns</li>
-                        <li>Progress ring indicators</li>
-                    </ul>
-                    <div class="tip" style="font-size:.85rem; margin-top:.4rem;">
-                        <code>repeating-conic-gradient()</code> works just like repeating linear/radial — ideal for checkerboard patterns.
+                    <div id="pieCode" class="code-live" style="margin-top:.4rem; font-size:.7rem;">conic-gradient(
+  #667eea 0% 30%,
+  #f64f59 30% 65%,
+  #f9ca24 65% 100%)</div>
+                    <div class="tip" style="font-size:.82rem; margin-top:.4rem;">
+                        Drag the sliders to resize pie segments — the CSS updates live.
                     </div>
                 </div>
             </div>
@@ -1153,25 +1235,35 @@ border-radius: 50px / 20px;
 border-radius: 50%;</code></pre>
                 </div>
                 <div>
-                    <h3>Live Slider</h3>
-                    <label style="display:flex; align-items:center; gap:.6rem; font-size:.85rem; margin-bottom:.4rem;">
-                        border-radius: <strong id="rrVal">8px</strong>
-                        <input type="range" min="0" max="50" value="8" style="flex:1; cursor:pointer;" oninput="setRadius(this.value)">
-                        <button class="demo-btn" onclick="setRadius(50); document.querySelector('input[type=range]').value=50;" style="white-space:nowrap; font-size:.75rem;">50% circle</button>
-                    </label>
-                    <div id="rrBox" style="height:80px; background:rgba(52,152,219,.45); border:2px solid #3498db; border-radius:8px; transition:border-radius .2s; display:flex; align-items:center; justify-content:center; font-size:.82rem; font-weight:bold; text-align:center;">
-                        border-radius: 8px
+                    <h3>Live Demo — per-corner control</h3>
+                    <div style="display:grid; grid-template-columns:80px 1fr 80px; grid-template-rows:auto 90px auto; gap:.3rem; align-items:center; margin-bottom:.4rem;">
+                        <label style="font-size:.7rem; text-align:right; color:#81ecec; padding-right:.3rem;">
+                            TL<br><input type="range" id="rr-tl" min="0" max="80" value="8" style="width:70px;" oninput="updateRadiusCorners()">
+                        </label>
+                        <div style="grid-row:1/4; grid-column:2; display:flex; align-items:center; justify-content:center;">
+                            <div id="rrBox" style="width:100%; height:90px; background:linear-gradient(135deg,rgba(52,152,219,.5),rgba(155,89,182,.5)); border:2px solid rgba(255,255,255,.4); border-radius:8px; transition:border-radius .25s; display:flex; align-items:center; justify-content:center; font-size:.72rem; font-weight:bold; text-align:center; padding:.3rem;">border-radius: 8px</div>
+                        </div>
+                        <label style="font-size:.7rem; color:#81ecec;">
+                            TR<br><input type="range" id="rr-tr" min="0" max="80" value="8" style="width:70px;" oninput="updateRadiusCorners()">
+                        </label>
+                        <div></div><div></div>
+                        <label style="font-size:.7rem; text-align:right; color:#81ecec; padding-right:.3rem;">
+                            BL<br><input type="range" id="rr-bl" min="0" max="80" value="8" style="width:70px;" oninput="updateRadiusCorners()">
+                        </label>
+                        <div></div>
+                        <label style="font-size:.7rem; color:#81ecec;">
+                            BR<br><input type="range" id="rr-br" min="0" max="80" value="8" style="width:70px;" oninput="updateRadiusCorners()">
+                        </label>
                     </div>
-                    <div class="radius-row" style="margin-top:.5rem;">
-                        <div class="radius-demo" style="border-radius:0;">0px</div>
-                        <div class="radius-demo" style="border-radius:8px;">8px</div>
-                        <div class="radius-demo" style="border-radius:20px;">20px</div>
-                        <div class="radius-demo" style="border-radius:50%;">50%</div>
-                        <div class="radius-demo" style="border-radius:50px 4px;">asymmetric</div>
+                    <div style="display:flex; gap:.3rem; flex-wrap:wrap; margin-bottom:.3rem;">
+                        <button class="demo-btn" onclick="setAllCorners(0)">Sharp</button>
+                        <button class="demo-btn" onclick="setAllCorners(8)">8px</button>
+                        <button class="demo-btn" onclick="setAllCorners(20)">20px</button>
+                        <button class="demo-btn" onclick="setCircle()">50% Circle</button>
+                        <button class="demo-btn" onclick="setBlob()">Blob</button>
                     </div>
-                    <div class="tip" style="font-size:.82rem; margin-top:.4rem;">
-                        <a href="https://9elements.github.io/fancy-border-radius/" target="_blank">Fancy Border Radius Generator</a> — organic blob shapes
-                    </div>
+                    <div id="rrCode" class="code-live">border-radius: 8px</div>
+                    <div class="tip" style="font-size:.8rem; margin-top:.4rem;"><a href="https://9elements.github.io/fancy-border-radius/" target="_blank">Fancy Border Radius Generator</a></div>
                 </div>
             </div>
         </div>
@@ -1214,25 +1306,23 @@ border-radius: 50%;</code></pre>
                     </div>
                 </div>
                 <div>
-                    <h3>Visual Examples</h3>
-                    <div class="aspect-demo">
-                        <div class="aspect-box" style="width:80px; aspect-ratio:1;">1 / 1<br>square</div>
-                        <div class="aspect-box" style="width:120px; aspect-ratio:16/9; font-size:.7rem;">16 / 9<br>widescreen</div>
-                        <div class="aspect-box" style="width:80px; aspect-ratio:4/3; font-size:.7rem;">4 / 3</div>
-                        <div class="aspect-box" style="width:70px; aspect-ratio:1; border-radius:50%; font-size:.7rem;">circle<br>50%</div>
+                    <h3>Live — resize and watch the height</h3>
+                    <div style="display:flex; gap:.4rem; flex-wrap:wrap; margin-bottom:.4rem;">
+                        <button class="demo-btn active" id="ar-1"    onclick="setAR('1',this)">1:1 Square</button>
+                        <button class="demo-btn"         id="ar-169"  onclick="setAR('16/9',this)">16:9 Video</button>
+                        <button class="demo-btn"         id="ar-43"   onclick="setAR('4/3',this)">4:3</button>
+                        <button class="demo-btn"         id="ar-21"   onclick="setAR('2/1',this)">2:1 Banner</button>
+                        <button class="demo-btn"         id="ar-circle" onclick="setAR('circle',this)">Circle</button>
                     </div>
-                    <div class="tip" style="font-size:.85rem; margin-top:.5rem;">
-                        <strong>Most useful pattern:</strong> combine <code>width: 100%</code> with <code>aspect-ratio</code> for fully responsive proportional elements — no fixed heights needed.
+                    <label style="font-size:.78rem; display:flex; align-items:center; gap:.5rem; margin-bottom:.35rem;">
+                        Width: <input type="range" id="arWidth" min="20" max="100" value="55" style="flex:1;" oninput="updateAR()">
+                        <span id="arWidthVal" style="min-width:35px; font-size:.75rem;">55%</span>
+                    </label>
+                    <div style="background:rgba(0,0,0,.2); border-radius:8px; padding:.6rem; display:flex; align-items:flex-start; justify-content:center; min-height:80px;">
+                        <div id="arBox" style="width:55%; aspect-ratio:1; background:linear-gradient(135deg,rgba(255,209,102,.5),rgba(233,69,96,.5)); border:2px solid #ffd166; border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:.72rem; font-weight:bold; text-align:center; padding:.3rem; transition:all .25s;">1 / 1</div>
                     </div>
-                    <pre style="font-size:.78rem; margin-top:.4rem;"><code>/* Responsive grid of squares */
-.grid { display: grid;
-  grid-template-columns:
-    repeat(auto-fill, minmax(150px,1fr));
-}
-.grid-item {
-  aspect-ratio: 1;
-  border-radius: 8px;
-}</code></pre>
+                    <div id="arCode" class="code-live" style="margin-top:.35rem;">width: 55%; aspect-ratio: 1;</div>
+                    <p style="font-size:.78rem; margin-top:.3rem; opacity:.8;">The height adjusts automatically — no fixed height needed.</p>
                 </div>
             </div>
         </div>
@@ -1273,17 +1363,30 @@ border-image:
                     </ul>
                 </div>
                 <div>
-                    <h3>Live Examples</h3>
-                    <div style="margin: .5rem 0; padding: 1rem; border: 6px solid transparent; border-image: linear-gradient(to right, #ff6b6b, #feca57) 1; border-radius: 0; font-size: .85rem; background: rgba(0,0,0,.15);">
-                        Gradient border using <code>linear-gradient()</code> as <code>border-image-source</code>
+                    <h3>Live Gallery — click to select</h3>
+                    <div style="display:flex; flex-direction:column; gap:.5rem; margin-bottom:.4rem;">
+                        <button class="demo-btn active" style="text-align:left; padding:.5rem .75rem;" onclick="setBorderImage('linear-gradient(to right,#ff6b6b,#feca57,#48dbfb)','4px','1',this)">
+                            <span style="display:inline-block; width:60px; height:8px; background:linear-gradient(to right,#ff6b6b,#feca57,#48dbfb); vertical-align:middle; margin-right:.4rem; border-radius:2px;"></span>Sunrise gradient
+                        </button>
+                        <button class="demo-btn" style="text-align:left; padding:.5rem .75rem;" onclick="setBorderImage('linear-gradient(135deg,#667eea,#764ba2,#06d6a0)','4px','1',this)">
+                            <span style="display:inline-block; width:60px; height:8px; background:linear-gradient(135deg,#667eea,#764ba2,#06d6a0); vertical-align:middle; margin-right:.4rem; border-radius:2px;"></span>Purple–teal diagonal
+                        </button>
+                        <button class="demo-btn" style="text-align:left; padding:.5rem .75rem;" onclick="setBorderImage('repeating-linear-gradient(90deg,#ff6b6b,#ff6b6b 6px,#feca57 6px,#feca57 12px)','6px','6',this)">
+                            <span style="display:inline-block; width:60px; height:8px; background:repeating-linear-gradient(90deg,#ff6b6b,#ff6b6b 6px,#feca57 6px,#feca57 12px); vertical-align:middle; margin-right:.4rem; border-radius:2px;"></span>Racing stripes
+                        </button>
+                        <button class="demo-btn" style="text-align:left; padding:.5rem .75rem;" onclick="setBorderImage('conic-gradient(#ff6b6b,#feca57,#48dbfb,#ff9ff3,#ff6b6b)','4px','1',this)">
+                            <span style="display:inline-block; width:60px; height:8px; background:conic-gradient(#ff6b6b,#feca57,#48dbfb,#ff9ff3,#ff6b6b); vertical-align:middle; margin-right:.4rem; border-radius:2px;"></span>Conic color wheel
+                        </button>
                     </div>
-                    <div style="margin: .5rem 0; padding: 1rem; border: 8px solid transparent; border-image: repeating-linear-gradient(45deg, #ff6b6b, #ff6b6b 5px, #feca57 5px, #feca57 10px) 8; font-size: .85rem; background: rgba(0,0,0,.15);">
-                        Stripe pattern border using <code>repeating-linear-gradient()</code>
+                    <div id="borderImgBox" style="padding:1rem; border:4px solid transparent; border-image:linear-gradient(to right,#ff6b6b,#feca57,#48dbfb) 1; background:rgba(0,0,0,.2); border-radius:0; font-size:.82rem; min-height:55px; display:flex; align-items:center;">
+                        border-image: linear-gradient(to right,#ff6b6b,#feca57,#48dbfb) 1
                     </div>
-                    <div class="note" style="font-size:.85rem; margin-top:.5rem;">
-                        <strong>Important:</strong> <code>border-image</code> overrides <code>border-style</code>, <code>border-color</code>, and <code>border-width</code> visually. Set <code>border: N solid transparent</code> to reserve the space first.
+                    <div id="borderImgCode" class="code-live" style="margin-top:.35rem; font-size:.7rem;">border: 4px solid transparent;
+border-image: linear-gradient(to right,
+  #ff6b6b, #feca57, #48dbfb) 1;</div>
+                    <div class="note" style="font-size:.8rem; margin-top:.4rem;">
+                        <strong>Note:</strong> <code>border-image</code> ignores <code>border-radius</code>. Use <code>outline</code> or <code>box-shadow</code> for rounded gradient borders.
                     </div>
-                    <p style="font-size:.85rem; margin-top:.4rem;"><a href="https://developer.mozilla.org/en-US/docs/Web/CSS/border-image" target="_blank">MDN: border-image</a> — includes the 9-slice diagram.</p>
                 </div>
             </div>
         </div>
@@ -1317,29 +1420,31 @@ outline-offset: 4px;
 outline-offset: -4px;</code></pre>
                 </div>
                 <div>
-                    <h3>Visual Comparison</h3>
-                    <div class="outline-compare">
-                        <div>
-                            <div class="outline-box" style="border: 3px solid #3498db;">
-                                Border<br><small>Takes up space</small>
-                            </div>
-                            <p style="font-size:.75rem; margin-top:.3rem; text-align:center; opacity:.7;">margin shifts neighbors</p>
+                    <h3>Live Demo — adjust outline</h3>
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:.35rem .6rem; align-items:center; margin-bottom:.4rem;">
+                        <label style="font-size:.76rem; color:#81ecec;">Style:</label>
+                        <select id="outStyle" class="demo-select" onchange="updateOutline()">
+                            <option>solid</option><option>dashed</option><option>dotted</option><option>double</option>
+                        </select>
+                        <label style="font-size:.76rem; color:#81ecec;">Width:</label>
+                        <div style="display:flex; align-items:center; gap:.4rem;"><input type="range" id="outWidth" min="1" max="10" value="3" style="flex:1;" oninput="updateOutline()"><span id="outWidthVal" style="font-size:.72rem; min-width:22px;">3px</span></div>
+                        <label style="font-size:.76rem; color:#81ecec;">Offset:</label>
+                        <div style="display:flex; align-items:center; gap:.4rem;"><input type="range" id="outOffset" min="-8" max="16" value="4" style="flex:1;" oninput="updateOutline()"><span id="outOffsetVal" style="font-size:.72rem; min-width:28px;">4px</span></div>
+                        <label style="font-size:.76rem; color:#81ecec;">Color:</label>
+                        <input type="color" id="outColor" value="#ffd166" oninput="updateOutline()">
+                    </div>
+                    <div style="background:rgba(0,0,0,.2); border-radius:8px; padding:1.5rem; display:flex; gap:1rem; align-items:center; justify-content:center; flex-wrap:wrap;">
+                        <div style="background:rgba(52,152,219,.3); border:3px solid #3498db; padding:.6rem 1rem; border-radius:4px; font-size:.8rem; text-align:center;">
+                            Border<br><small style="opacity:.7;">shifts layout</small>
                         </div>
-                        <div>
-                            <div class="outline-box" style="outline: 3px solid #ffd166; outline-offset: 4px;">
-                                Outline<br><small>Outside flow</small>
-                            </div>
-                            <p style="font-size:.75rem; margin-top:.3rem; text-align:center; opacity:.7;">no layout impact</p>
-                        </div>
-                        <div>
-                            <div class="outline-box" style="outline: 3px dashed #06d6a0; outline-offset: -4px;">
-                                Negative offset<br><small>Inside the element</small>
-                            </div>
-                            <p style="font-size:.75rem; margin-top:.3rem; text-align:center; opacity:.7;">outline-offset: -4px</p>
+                        <div id="outlineBox" style="background:rgba(0,0,0,.2); padding:.6rem 1rem; border-radius:4px; font-size:.8rem; text-align:center; outline:3px solid #ffd166; outline-offset:4px; transition:outline .2s, outline-offset .2s;">
+                            Outline<br><small style="opacity:.7;">no layout shift</small>
                         </div>
                     </div>
-                    <div class="caution" style="font-size:.85rem; margin-top:.5rem;">
-                        <strong>Never</strong> do <code>outline: none</code> without providing an alternative focus indicator — this harms keyboard-navigation users.
+                    <div id="outlineCode" class="code-live" style="margin-top:.4rem;">outline: 3px solid #ffd166;
+outline-offset: 4px;</div>
+                    <div class="caution" style="font-size:.82rem; margin-top:.4rem;">
+                        <strong>Never</strong> use <code>outline: none</code> without an alternative — keyboard users need visible focus indicators.
                     </div>
                 </div>
             </div>
@@ -1478,16 +1583,47 @@ button:focus-visible {
 
     showSlide(0);
 
-    /* ── Slide 7: Layer builder ── */
-    const _l1 = 'radial-gradient(ellipse at 70% 30%, rgba(255,220,100,0.9) 0%, transparent 55%)';
-    const _l2 = 'linear-gradient(135deg, rgba(233,69,96,0.7) 0%, rgba(233,69,96,0) 65%)';
-    const _l3 = 'linear-gradient(#1a237e, #283593)';
+    /* ── Slide 7: Night Sky Layer builder ── */
+    const _stars = [
+        'radial-gradient(1px 1px at 8% 18%, white 0%, transparent 100%)',
+        'radial-gradient(1.5px 1.5px at 22% 8%, rgba(255,255,220,.9) 0%, transparent 100%)',
+        'radial-gradient(1px 1px at 38% 25%, white 0%, transparent 100%)',
+        'radial-gradient(1px 1px at 55% 12%, white 0%, transparent 100%)',
+        'radial-gradient(1.5px 1.5px at 70% 30%, rgba(255,255,220,.85) 0%, transparent 100%)',
+        'radial-gradient(1px 1px at 83% 8%, white 0%, transparent 100%)',
+        'radial-gradient(1px 1px at 92% 20%, white 0%, transparent 100%)',
+        'radial-gradient(1px 1px at 15% 45%, white 0%, transparent 100%)',
+        'radial-gradient(1.5px 1.5px at 48% 38%, rgba(255,255,220,.9) 0%, transparent 100%)',
+        'radial-gradient(1px 1px at 78% 50%, white 0%, transparent 100%)'
+    ];
+    const _moon = 'radial-gradient(circle at 78% 22%, rgba(255,248,195,.95) 0%, rgba(255,240,160,.8) 5%, rgba(255,220,100,.35) 10%, transparent 18%)';
+    const _mist = 'radial-gradient(ellipse at 50% 110%, rgba(90,50,140,.75) 0%, rgba(60,20,100,.4) 35%, transparent 60%)';
+    const _sky  = 'linear-gradient(to bottom, #04041a 0%, #070730 40%, #120540 70%, #1e0840 100%)';
     function updateLayers() {
         const on1 = document.getElementById('l1').checked;
         const on2 = document.getElementById('l2').checked;
         const on3 = document.getElementById('l3').checked;
-        const layers = [on1 && _l1, on2 && _l2, on3 && _l3].filter(Boolean);
-        document.getElementById('layerBox').style.background = layers.length ? layers.join(', ') : 'rgba(255,255,255,0.05)';
+        const on4 = document.getElementById('l4').checked;
+        const layers = [
+            ...(on1 ? _stars : []),
+            on2 ? _moon : null,
+            on3 ? _mist : null,
+            on4 ? _sky  : null
+        ].filter(Boolean);
+        document.getElementById('layerBox').style.background = layers.length ? layers.join(', ') : '#04041a';
+    }
+
+    /* ── Slide 3: Background shorthand builder ── */
+    function buildBg() {
+        const img  = document.getElementById('bgImg').value;
+        const pos  = document.getElementById('bgPos').value;
+        const sz   = document.getElementById('bgSz').value;
+        const rep  = document.getElementById('bgRep').value;
+        const col  = document.getElementById('bgCol').value;
+        const shorthand = `${img} ${pos} / ${sz} ${rep} ${col}`;
+        document.getElementById('bgBuilderBox').style.background = shorthand;
+        const imgDisplay = img.length > 30 ? img.substring(0,30) + '...' : img;
+        document.getElementById('bgBuilderCode').textContent = `background: ${img}\n  ${pos} / ${sz} ${rep}\n  ${col};`;
     }
 
     /* ── Slide 8: background-clip switcher ── */
@@ -1516,40 +1652,191 @@ button:focus-visible {
         box.style.backgroundBlendMode = val;
         box.textContent = 'background-blend-mode: ' + val;
     }
-
-    /* ── Slide 20: gradient direction ── */
-    function setGradDir(dir, btn) {
-        const box = document.getElementById('gradDirBox');
-        box.style.background = 'linear-gradient(' + dir + ', #e74c3c, #feca57, #48dbfb)';
-        box.textContent = 'linear-gradient(' + dir + ', #e74c3c, #feca57, #48dbfb)';
-        document.querySelectorAll('[id^="dir-"]').forEach(b => b.classList.remove('active'));
-        if (btn) btn.classList.add('active');
+    function setMixBlend(val) {
+        document.getElementById('mixCircle').style.mixBlendMode = val;
     }
 
-    /* ── Slide 22: radial gradient interactive ── */
+    /* ── Slide 20: Linear gradient builder ── */
+    let linearDir = 'to right';
+    function setLinearDir(dir, btn) {
+        linearDir = dir;
+        document.querySelectorAll('[id^="ldir-"]').forEach(b => b.classList.remove('active'));
+        if (btn) btn.classList.add('active');
+        updateLinear();
+    }
+    function updateLinear() {
+        const c1 = document.getElementById('lc1').value;
+        const c2 = document.getElementById('lc2').value;
+        const c3 = document.getElementById('lc3').value;
+        const grad = `linear-gradient(${linearDir}, ${c1}, ${c2}, ${c3})`;
+        document.getElementById('linearPreview').style.background = grad;
+        document.getElementById('linearCode').textContent = `linear-gradient(${linearDir}, ${c1}, ${c2}, ${c3})`;
+    }
+
+    /* ── Slide 21: Pattern builder ── */
+    let curPattern = 'diagonal';
+    function setPattern(type, btn) {
+        curPattern = type;
+        document.querySelectorAll('[onclick*="setPattern"]').forEach(b => b.classList.remove('active'));
+        if (btn) btn.classList.add('active');
+        updatePattern();
+    }
+    function updatePattern() {
+        const c1   = document.getElementById('pat1').value;
+        const c2   = document.getElementById('pat2').value;
+        const sz   = parseInt(document.getElementById('patSize').value);
+        document.getElementById('patSizeVal').textContent = sz + 'px';
+        const sz2  = sz * 2;
+        let bg, code;
+        switch(curPattern) {
+            case 'diagonal':
+                bg   = `repeating-linear-gradient(45deg, ${c1}, ${c1} ${sz}px, ${c2} ${sz}px, ${c2} ${sz2}px)`;
+                code = `repeating-linear-gradient(45deg,\n  ${c1} 0, ${c1} ${sz}px,\n  ${c2} ${sz}px, ${c2} ${sz2}px)`;
+                break;
+            case 'vertical':
+                bg   = `repeating-linear-gradient(90deg, ${c1}, ${c1} ${sz}px, ${c2} ${sz}px, ${c2} ${sz2}px)`;
+                code = `repeating-linear-gradient(90deg,\n  ${c1} 0, ${c1} ${sz}px,\n  ${c2} ${sz}px, ${c2} ${sz2}px)`;
+                break;
+            case 'horizontal':
+                bg   = `repeating-linear-gradient(0deg, ${c1}, ${c1} ${sz}px, ${c2} ${sz}px, ${c2} ${sz2}px)`;
+                code = `repeating-linear-gradient(0deg,\n  ${c1} 0, ${c1} ${sz}px,\n  ${c2} ${sz}px, ${c2} ${sz2}px)`;
+                break;
+            case 'grid':
+                bg   = `repeating-linear-gradient(0deg,transparent,transparent ${sz-1}px,${c2} ${sz-1}px,${c2} ${sz}px), repeating-linear-gradient(90deg,transparent,transparent ${sz-1}px,${c2} ${sz-1}px,${c2} ${sz}px), ${c1}`;
+                code = `/* grid lines on ${c1} */\nrepeating-linear-gradient(0deg,…),\nrepeating-linear-gradient(90deg,…)`;
+                break;
+            case 'rings':
+                bg   = `repeating-radial-gradient(circle, ${c1} 0px, ${c1} ${sz}px, ${c2} ${sz}px, ${c2} ${sz2}px)`;
+                code = `repeating-radial-gradient(circle,\n  ${c1} 0px, ${c1} ${sz}px,\n  ${c2} ${sz}px, ${c2} ${sz2}px)`;
+                break;
+            case 'checker':
+                bg   = `repeating-conic-gradient(${c1} 0deg 90deg, ${c2} 90deg 180deg)`;
+                document.getElementById('patternPreview').style.backgroundSize = `${sz2}px ${sz2}px`;
+                code = `repeating-conic-gradient(\n  ${c1} 0deg 90deg,\n  ${c2} 90deg 180deg)\nbg-size: ${sz2}px ${sz2}px`;
+                break;
+        }
+        if (curPattern !== 'checker') document.getElementById('patternPreview').style.backgroundSize = '';
+        document.getElementById('patternPreview').style.background = bg;
+        document.getElementById('patternCode').textContent = code;
+    }
+
+    /* ── Slide 22: Radial gradient builder ── */
     let radShape = 'ellipse', radSize = 'farthest-corner', radPos = 'center';
     function setRadial(prop, val) {
         if (prop === 'shape') radShape = val;
         if (prop === 'size')  radSize  = val;
         if (prop === 'pos')   radPos   = val;
-        const grad = 'radial-gradient(' + radShape + ' ' + radSize + ' at ' + radPos + ', #9ad6e9, #f4a261, #e63946)';
-        document.getElementById('radialBox').style.background = grad;
-        document.getElementById('radialCode').textContent = 'radial-gradient(' + radShape + ' ' + radSize + ' at ' + radPos + ', ...)';
+        updateRadial();
         document.querySelectorAll('[id^="rs-"],[id^="rp-"]').forEach(b => b.classList.remove('active'));
         const smap = {'ellipse':'rs-ellipse','circle':'rs-circle'};
         const szmap = {'farthest-corner':'rs-fc','farthest-side':'rs-fs','closest-side':'rs-cs'};
         const pmap = {'center':'rp-c','top left':'rp-tl','25% 75%':'rp-25','80% 20%':'rp-80'};
         [smap[radShape], szmap[radSize], pmap[radPos]].forEach(id => { if (id) document.getElementById(id).classList.add('active'); });
     }
+    function updateRadial() {
+        const c1  = document.getElementById('rc1') ? document.getElementById('rc1').value : '#9ad6e9';
+        const c2  = document.getElementById('rc2') ? document.getElementById('rc2').value : '#f4a261';
+        const c3  = document.getElementById('rc3') ? document.getElementById('rc3').value : '#e63946';
+        const grad = `radial-gradient(${radShape} ${radSize} at ${radPos}, ${c1}, ${c2}, ${c3})`;
+        document.getElementById('radialBox').style.background = grad;
+        document.getElementById('radialCode').textContent = `radial-gradient(${radShape} ${radSize} at ${radPos}, ...)`;
+    }
 
-    /* ── Slide 24: border-radius slider ── */
+    /* ── Slide 23: Conic pie chart ── */
+    function updatePie() {
+        const a = parseInt(document.getElementById('seg1').value);
+        const b = parseInt(document.getElementById('seg2').value);
+        const c = Math.max(5, 100 - a - b);
+        document.getElementById('seg1v').textContent = a + '%';
+        document.getElementById('seg2v').textContent = b + '%';
+        const grad = `conic-gradient(#667eea 0% ${a}%, #f64f59 ${a}% ${a+b}%, #f9ca24 ${a+b}% 100%)`;
+        document.getElementById('pieChart').style.background = grad;
+        document.getElementById('pieCode').textContent = `conic-gradient(\n  #667eea 0% ${a}%,\n  #f64f59 ${a}% ${a+b}%,\n  #f9ca24 ${a+b}% 100%)`;
+    }
+
+    /* ── Slide 24: border-radius per-corner ── */
+    function updateRadiusCorners() {
+        const tl = document.getElementById('rr-tl').value;
+        const tr = document.getElementById('rr-tr').value;
+        const br = document.getElementById('rr-br').value;
+        const bl = document.getElementById('rr-bl').value;
+        const val = `${tl}px ${tr}px ${br}px ${bl}px`;
+        document.getElementById('rrBox').style.borderRadius = val;
+        const shorthand = tl===tr && tr===br && br===bl ? `${tl}px` : val;
+        document.getElementById('rrBox').textContent = 'border-radius: ' + shorthand;
+        document.getElementById('rrCode').textContent = 'border-radius: ' + shorthand + ';';
+    }
+    function setAllCorners(v) {
+        ['rr-tl','rr-tr','rr-br','rr-bl'].forEach(id => document.getElementById(id).value = v);
+        updateRadiusCorners();
+    }
+    function setCircle() {
+        const box = document.getElementById('rrBox');
+        box.style.borderRadius = '50%';
+        box.textContent = 'border-radius: 50%';
+        document.getElementById('rrCode').textContent = 'border-radius: 50%;';
+    }
+    function setBlob() {
+        const box = document.getElementById('rrBox');
+        box.style.borderRadius = '60% 40% 70% 30% / 50% 60% 40% 50%';
+        box.textContent = 'border-radius: 60% 40% 70% 30% / 50% 60% 40% 50%';
+        document.getElementById('rrCode').textContent = 'border-radius: 60% 40% 70% 30% / 50% 60% 40% 50%;';
+    }
+    /* old setRadius kept for compatibility */
     function setRadius(val) {
-        const unit = val > 50 ? '%' : 'px';
         const display = val > 50 ? '50%' : val + 'px';
         const box = document.getElementById('rrBox');
-        box.style.borderRadius = val > 50 ? '50%' : val + 'px';
-        box.textContent = 'border-radius: ' + display;
-        document.getElementById('rrVal').textContent = display;
+        if (box) { box.style.borderRadius = display; box.textContent = 'border-radius: ' + display; }
+        const el = document.getElementById('rrVal');
+        if (el) el.textContent = display;
+    }
+
+    /* ── Slide 25: aspect-ratio demo ── */
+    let curAR = '1';
+    function setAR(ratio, btn) {
+        curAR = ratio;
+        document.querySelectorAll('[id^="ar-"]').forEach(b => b.classList.remove('active'));
+        if (btn) btn.classList.add('active');
+        updateAR();
+    }
+    function updateAR() {
+        const w = document.getElementById('arWidth').value;
+        document.getElementById('arWidthVal').textContent = w + '%';
+        const box = document.getElementById('arBox');
+        const isCircle = curAR === 'circle';
+        box.style.width = w + '%';
+        box.style.aspectRatio = isCircle ? '1' : curAR;
+        box.style.borderRadius = isCircle ? '50%' : '8px';
+        const label = isCircle ? '1 (+ border-radius:50%)' : curAR;
+        box.textContent = 'aspect-ratio: ' + label;
+        document.getElementById('arCode').textContent = `width: ${w}%; aspect-ratio: ${isCircle ? '1' : curAR};${isCircle ? '\nborder-radius: 50%;' : ''}`;
+    }
+
+    /* ── Slide 26: border-image gallery ── */
+    function setBorderImage(gradient, width, slice, btn) {
+        const box = document.getElementById('borderImgBox');
+        box.style.borderWidth = width;
+        box.style.borderStyle = 'solid';
+        box.style.borderColor = 'transparent';
+        box.style.borderImage = gradient + ' ' + slice;
+        box.textContent = 'border-image: ' + gradient.substring(0,40) + '… ' + slice;
+        document.getElementById('borderImgCode').textContent = `border: ${width} solid transparent;\nborder-image: ${gradient}\n  ${slice};`;
+        document.querySelectorAll('[onclick*="setBorderImage"]').forEach(b => b.classList.remove('active'));
+        if (btn) btn.classList.add('active');
+    }
+
+    /* ── Slide 27: outline interactive ── */
+    function updateOutline() {
+        const style  = document.getElementById('outStyle').value;
+        const width  = document.getElementById('outWidth').value;
+        const offset = document.getElementById('outOffset').value;
+        const color  = document.getElementById('outColor').value;
+        document.getElementById('outWidthVal').textContent  = width + 'px';
+        document.getElementById('outOffsetVal').textContent = offset + 'px';
+        const box = document.getElementById('outlineBox');
+        box.style.outline = `${width}px ${style} ${color}`;
+        box.style.outlineOffset = offset + 'px';
+        document.getElementById('outlineCode').textContent = `outline: ${width}px ${style} ${color};\noutline-offset: ${offset}px;`;
     }
 </script>
 </body>
