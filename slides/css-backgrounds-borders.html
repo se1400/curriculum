@@ -1,0 +1,1392 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lesson 13: Advanced CSS Backgrounds &amp; Borders</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --code-bg: #1e1e1e;
+            --code-text: #d4d4d4;
+        }
+
+        html, body {
+            height: 100%;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--primary-color);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .slideshow-container {
+            width: 100%;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .slide {
+            display: none;
+            flex: 1;
+            padding: 1.5rem 2rem;
+            color: white;
+            overflow-y: auto;
+            animation: fadeIn 0.4s ease-in-out;
+        }
+        .slide.active { display: flex; flex-direction: column; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateX(20px); }
+            to   { opacity: 1; transform: translateX(0); }
+        }
+
+        /* Cycling slide backgrounds */
+        .slide:nth-child(odd)  { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+        .slide:nth-child(even) { background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); }
+        .slide:nth-child(3n)   { background: linear-gradient(135deg, #ee0979 0%, #ff6a00 100%); }
+        .slide:nth-child(4n)   { background: linear-gradient(135deg, #2193b0 0%, #6dd5ed 100%); }
+        .slide:nth-child(5n)   { background: linear-gradient(135deg, #c31432 0%, #240b36 100%); }
+
+        .slide-content {
+            max-width: 1400px;
+            width: 100%;
+            margin: 0 auto;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        .slide-content.centered { justify-content: center; }
+
+        /* Typography */
+        h1 { font-size: clamp(1.8rem,5vw,3rem); margin-bottom: 1.5rem; text-shadow: 2px 2px 4px rgba(0,0,0,.2); line-height: 1.2; }
+        h2 { font-size: clamp(1.4rem,4vw,2.2rem); margin-bottom: .75rem; color: #ffeaa7; }
+        h3 { font-size: clamp(1.1rem,3vw,1.5rem); margin: .75rem 0 .4rem; color: #81ecec; }
+        h4 { font-size: clamp(1rem,2.5vw,1.2rem); margin: .5rem 0 .3rem; color: #dfe6e9; }
+        p  { font-size: clamp(1rem,2.5vw,1.2rem); line-height: 1.5; margin-bottom: .5rem; }
+        ul, ol { font-size: clamp(.95rem,2.2vw,1.15rem); line-height: 1.6; margin-left: 1.5rem; margin-bottom: .5rem; }
+        li { margin-bottom: .3rem; }
+        a  { color: #ffeaa7; text-decoration: underline; }
+        a:hover { color: #fdcb6e; }
+        code { background: rgba(0,0,0,.3); padding: .2em .5em; border-radius: 4px; font-family: 'Consolas','Monaco',monospace; font-size: .9em; }
+        pre  { background: var(--code-bg); color: var(--code-text); padding: .75rem 1rem; border-radius: 8px; overflow-x: auto; margin: .5rem 0; font-size: clamp(.75rem,1.6vw,.95rem); line-height: 1.4; }
+        pre code { background: none; padding: 0; }
+
+        /* Callout boxes */
+        .note    { background: rgba(46,204,113,.2);  padding: .75rem 1rem; border-radius: 8px; border-left: 4px solid #2ecc71; margin: .5rem 0; font-size: clamp(.9rem,2vw,1.05rem); }
+        .caution { background: rgba(231,76,60,.2);   padding: .75rem 1rem; border-radius: 8px; border-left: 4px solid #e74c3c; margin: .5rem 0; font-size: clamp(.9rem,2vw,1.05rem); }
+        .tip     { background: rgba(52,152,219,.2);  padding: .75rem 1rem; border-radius: 8px; border-left: 4px solid #3498db; margin: .5rem 0; font-size: clamp(.9rem,2vw,1.05rem); }
+        .highlight { background: rgba(255,255,255,.15); padding: .75rem 1rem; border-radius: 8px; border-left: 4px solid #ffeaa7; margin: .5rem 0; }
+
+        /* Layout helpers */
+        .two-column   { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; align-items: start; }
+        .three-column { display: grid; grid-template-columns: repeat(3,1fr); gap: 1.2rem; align-items: start; }
+        @media (max-width:900px) { .three-column { grid-template-columns: 1fr 1fr; } }
+        @media (max-width:768px) { .two-column, .three-column { grid-template-columns: 1fr; } }
+        @media (max-width:600px) { .slide { padding: 1rem; } .navigation { padding: .5rem; } .nav-btn { padding: .5rem 1rem; font-size: .9rem; } }
+
+        /* Cards */
+        .card { background: rgba(0,0,0,.2); padding: 1rem; border-radius: 8px; border: 1px solid rgba(255,255,255,.2); }
+        .card h3, .card h4 { margin-top: 0; }
+        .card-grid { display: grid; grid-template-columns: repeat(auto-fit,minmax(160px,1fr)); gap: .75rem; margin: .5rem 0; }
+        .vocab-card { background: rgba(0,0,0,.2); border-radius: 8px; padding: .6rem .9rem; border: 1px solid rgba(255,255,255,.2); border-top: 3px solid #81ecec; }
+        .vocab-card strong { color: #81ecec; display: block; font-size: .92em; margin-bottom: .2rem; }
+        .vocab-card span { font-size: .83em; opacity: .9; line-height: 1.4; }
+
+        /* Slide label */
+        .slide-label { font-size: .75rem; text-transform: uppercase; letter-spacing: .1em; color: rgba(255,255,255,.5); margin-bottom: .25rem; }
+
+        /* CodePen container */
+        .codepen-container { margin: .5rem 0; border-radius: 8px; overflow: hidden; flex: 1; min-height: 0; }
+        .codepen-container iframe { border: none; width: 100%; height: 100%; min-height: 300px; border-radius: 8px; }
+
+        /* Learn grid */
+        .learn-grid { display: grid; grid-template-columns: repeat(auto-fit,minmax(240px,1fr)); gap: .5rem; margin-top: .5rem; }
+        .learn-item { background: rgba(0,0,0,.2); border-radius: 8px; padding: .5rem .75rem; font-size: clamp(.82rem,1.8vw,.98rem); border-left: 3px solid #81ecec; line-height: 1.4; border: 1px solid rgba(255,255,255,.2); border-left: 3px solid #81ecec; }
+
+        /* Navigation */
+        .navigation { display: flex; justify-content: center; align-items: center; gap: 1rem; padding: .75rem 1rem; background: var(--primary-color); flex-wrap: wrap; }
+        .nav-btn { padding: .6rem 1.2rem; font-size: 1rem; border: none; border-radius: 5px; cursor: pointer; transition: all .3s ease; background: var(--secondary-color); color: white; }
+        .nav-btn:hover { background: #2980b9; transform: translateY(-2px); }
+        .nav-btn:disabled { background: #7f8c8d; cursor: not-allowed; transform: none; }
+        .slide-counter { color: white; font-size: 1rem; min-width: 100px; text-align: center; }
+        .progress-bar { width: 100%; height: 4px; background: rgba(255,255,255,.2); }
+        .progress { height: 100%; background: var(--secondary-color); transition: width .3s ease; }
+
+        /* Compare table */
+        table.compare-table { width: 100%; border-collapse: collapse; margin: .5rem 0; font-size: clamp(.8rem,1.8vw,1rem); }
+        table.compare-table th, table.compare-table td { border: 1px solid rgba(255,255,255,.3); padding: .4rem .6rem; text-align: left; }
+        table.compare-table th { background: rgba(0,0,0,.2); color: #ffeaa7; }
+
+        /* ── Lesson 13: visual demo styles ── */
+        .gradient-row { display: flex; gap: .5rem; flex-wrap: wrap; margin: .5rem 0; }
+        .grad-swatch  { flex: 1; min-width: 80px; height: 72px; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: .7rem; font-weight: bold; text-align: center; text-shadow: 0 1px 3px rgba(0,0,0,.6); padding: 4px; line-height: 1.3; }
+        .border-style-grid { display: grid; grid-template-columns: repeat(auto-fill,minmax(110px,1fr)); gap: .5rem; margin: .5rem 0; }
+        .border-demo { background: rgba(0,0,0,.2); padding: .5rem .75rem; border-radius: 4px; text-align: center; font-size: .8rem; }
+        .border-demo .preview { height: 30px; margin-bottom: 4px; display: flex; align-items: center; justify-content: center; font-size: .7rem; opacity: .7; }
+        .demo-box { border-radius: 8px; padding: 1rem; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: .9rem; text-align: center; min-height: 60px; }
+        .img-figure { text-align: center; }
+        .img-figure img { max-width: 100%; border-radius: 8px; border: 1px solid rgba(255,255,255,.2); }
+        .img-figure figcaption { font-size: .8rem; opacity: .7; margin-top: .3rem; }
+        .stripe-table { width: 100%; border-collapse: collapse; font-size: clamp(.78rem,1.7vw,.95rem); }
+        .stripe-table th { background: rgba(0,0,0,.35); color: #ffeaa7; padding: .35rem .6rem; border: 1px solid rgba(255,255,255,.2); }
+        .stripe-table td { padding: .3rem .6rem; border: 1px solid rgba(255,255,255,.15); }
+        .stripe-table tbody tr:nth-child(odd) { background: rgba(255,255,255,.12); }
+        .conic-swatches { display: grid; grid-template-columns: repeat(auto-fill,minmax(100px,1fr)); gap: .5rem; margin: .5rem 0; }
+        .conic-swatch { height: 90px; border-radius: 50%; border: 2px solid rgba(255,255,255,.2); }
+        .radius-row { display: flex; gap: .75rem; flex-wrap: wrap; margin: .5rem 0; }
+        .radius-demo { background: rgba(52,152,219,.4); border: 2px solid #3498db; width: 80px; height: 80px; display: flex; align-items: center; justify-content: center; font-size: .7rem; font-weight: bold; text-align: center; line-height: 1.3; }
+        .outline-compare { display: flex; gap: 1.5rem; flex-wrap: wrap; align-items: flex-start; margin: .5rem 0; }
+        .outline-box { background: rgba(0,0,0,.2); padding: .75rem 1.2rem; border-radius: 4px; font-size: .85rem; text-align: center; }
+        .focus-demo-btn { padding: .6rem 1.4rem; border-radius: 6px; font-size: 1rem; cursor: pointer; background: rgba(52,152,219,.4); color: white; border: none; margin: .3rem; }
+        .focus-demo-btn:focus-visible { outline: 3px solid #ffd166; outline-offset: 4px; }
+        .focus-demo-btn:focus:not(:focus-visible) { outline: none; }
+        .aspect-demo { display: flex; gap: 1rem; flex-wrap: wrap; margin: .5rem 0; align-items: flex-start; }
+        .aspect-box { background: rgba(255,209,102,.3); border: 2px solid #ffd166; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: .8rem; font-weight: bold; text-align: center; padding: .5rem; }
+    </style>
+</head>
+<body>
+
+<div class="slideshow-container">
+
+    <!-- ═══════════════════════════════════════ SLIDE 1: TITLE ═══ -->
+    <div class="slide">
+        <div class="slide-content centered">
+            <div class="slide-label">Lesson 13</div>
+            <h1>Advanced CSS Backgrounds &amp; Borders</h1>
+            <p style="font-size:clamp(1.1rem,3vw,1.4rem); opacity:.85; margin-bottom:1.5rem;">Gradients, Layering, Blend Modes, Frosted Glass &amp; More</p>
+            <div class="highlight" style="max-width:700px;">
+                <p>In this lesson you will go beyond basic <code>background-color</code> and <code>border</code> to create rich, modern visual effects entirely in CSS — no image editor required.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════ SLIDE 2: OBJECTIVES ═══ -->
+    <div class="slide">
+        <div class="slide-content">
+            <div class="slide-label">Lesson 13 — Overview</div>
+            <h2>What You'll Learn</h2>
+            <div class="learn-grid">
+                <div class="learn-item">▶ Layer multiple backgrounds on one element</div>
+                <div class="learn-item">▶ Use <strong>linear</strong>, <strong>radial</strong>, and <strong>conic</strong> gradients</div>
+                <div class="learn-item">▶ Create patterns with <strong>repeating gradients</strong></div>
+                <div class="learn-item">▶ Blend backgrounds with <code>background-blend-mode</code> &amp; <code>mix-blend-mode</code></div>
+                <div class="learn-item">▶ Create frosted glass effects with <code>backdrop-filter</code></div>
+                <div class="learn-item">▶ Auto zebra-stripe tables using <code>:nth-child()</code></div>
+                <div class="learn-item">▶ Create rounded corners with <code>border-radius</code></div>
+                <div class="learn-item">▶ Guarantee square elements with <code>aspect-ratio</code></div>
+                <div class="learn-item">▶ Use images as borders with <code>border-image</code></div>
+                <div class="learn-item">▶ Understand how outlines differ from borders</div>
+                <div class="learn-item">▶ Write accessible focus styles with <code>:focus-visible</code></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════ SLIDE 3: BACKGROUND BASICS ═══ -->
+    <div class="slide">
+        <div class="slide-content">
+            <div class="slide-label">Background &amp; Border Basics</div>
+            <h2>The <code>background</code> Shorthand</h2>
+            <p>One property sets all background sub-properties in order:</p>
+            <pre><code>background: url('img.png') center / cover no-repeat padding-box #dfdfdf;</code></pre>
+            <div class="two-column" style="margin-top:.5rem;">
+                <div>
+                    <h3>Sub-properties</h3>
+                    <ul>
+                        <li><code>background-image</code> — image URL or gradient</li>
+                        <li><code>background-position</code> — placement keywords or lengths</li>
+                        <li><code>background-size</code> — after <code>/</code>, or keywords like <code>cover</code></li>
+                        <li><code>background-repeat</code> — <code>repeat</code>, <code>no-repeat</code>, <code>space</code>, <code>round</code></li>
+                        <li><code>background-origin</code> — <code>border-box</code> / <code>padding-box</code> / <code>content-box</code></li>
+                        <li><code>background-clip</code> — same three values + <code>text</code></li>
+                        <li><code>background-attachment</code> — <code>scroll</code> / <code>fixed</code> / <code>local</code></li>
+                        <li><code>background-color</code> — fallback solid color</li>
+                    </ul>
+                </div>
+                <div>
+                    <h3>Common Examples</h3>
+                    <pre><code>/* Color only */
+background: #dfdfdf;
+
+/* Image + fallback color */
+background: url('paper.png') #dfdfdf;
+
+/* Full shorthand */
+background: url('hero.jpg')
+  center / cover no-repeat;</code></pre>
+                    <div class="tip" style="margin-top:.5rem;">
+                        <strong>Tip:</strong> You can use <code>background</code> on <em>any</em> HTML element — not just <code>&lt;body&gt;</code> or <code>&lt;div&gt;</code>.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════ SLIDE 4: BORDER BASICS ═══ -->
+    <div class="slide">
+        <div class="slide-content">
+            <div class="slide-label">Background &amp; Border Basics</div>
+            <h2>Border Basics &amp; Style Keywords</h2>
+            <pre><code>border: 2px solid tomato;   /* width  style  color */</code></pre>
+            <div class="border-style-grid" style="margin-top:.5rem;">
+                <div class="border-demo">
+                    <div class="preview" style="border-top: 3px solid white;"></div>
+                    <code>solid</code>
+                </div>
+                <div class="border-demo">
+                    <div class="preview" style="border-top: 3px dashed white;"></div>
+                    <code>dashed</code>
+                </div>
+                <div class="border-demo">
+                    <div class="preview" style="border-top: 3px dotted white;"></div>
+                    <code>dotted</code>
+                </div>
+                <div class="border-demo">
+                    <div class="preview" style="border-top: 6px double white;"></div>
+                    <code>double</code>
+                </div>
+                <div class="border-demo">
+                    <div class="preview" style="border-top: 5px groove white;"></div>
+                    <code>groove</code>
+                </div>
+                <div class="border-demo">
+                    <div class="preview" style="border-top: 5px ridge white;"></div>
+                    <code>ridge</code>
+                </div>
+                <div class="border-demo">
+                    <div class="preview" style="border-top: 5px inset white;"></div>
+                    <code>inset</code>
+                </div>
+                <div class="border-demo">
+                    <div class="preview" style="border-top: 5px outset white;"></div>
+                    <code>outset</code>
+                </div>
+                <div class="border-demo">
+                    <div class="preview" style="opacity:.4; font-size:.65rem;">no border</div>
+                    <code>none</code>
+                </div>
+                <div class="border-demo">
+                    <div class="preview" style="opacity:.4; font-size:.65rem;">invisible</div>
+                    <code>hidden</code>
+                </div>
+            </div>
+            <div class="tip" style="margin-top:.4rem;">
+                <strong>Remember:</strong> <code>none</code> removes the border; <code>hidden</code> reserves the space but hides it (used in table layouts).
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════ SLIDE 5: MULTIPLE BORDERS ═══ -->
+    <div class="slide">
+        <div class="slide-content">
+            <div class="slide-label">Using Multiple Borders &amp; Backgrounds</div>
+            <h2>Multiple Borders: Per-Side &amp; Cascade</h2>
+            <div class="two-column">
+                <div>
+                    <h3>Four-Side Shorthand Properties</h3>
+                    <pre><code>/* Style each side independently */
+border-top:    2px solid red;
+border-right:  2px dashed aqua;
+border-bottom: 5px dashed red;
+border-left:   5px solid aqua;</code></pre>
+                    <h3>Using the Cascade</h3>
+                    <p>Define all borders the same, then override the one that differs:</p>
+                    <pre><code>/* All four borders blue */
+border: 2px solid aqua;
+/* Override bottom only */
+border-bottom: 5px dashed red;</code></pre>
+                </div>
+                <div>
+                    <h3>Live Preview</h3>
+                    <div style="background:rgba(0,0,0,.25); padding:1.5rem; border-radius:8px; display:flex; align-items:center; justify-content:center;">
+                        <div style="width:140px; height:80px; border-top:2px solid red; border-right:2px dashed aqua; border-bottom:5px dashed red; border-left:5px solid aqua; display:flex; align-items:center; justify-content:center; font-size:.75rem; background:rgba(255,255,255,.08); border-radius:2px; text-align:center; padding:.3rem;">
+                            four different<br>border sides
+                        </div>
+                    </div>
+                    <div class="note" style="margin-top:.75rem; font-size:.9rem;">
+                        <strong>Most common pattern:</strong> set all borders with <code>border</code>, then override one side — saves you repeating values.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════ SLIDE 6: BOX-SHADOW BORDERS ═══ -->
+    <div class="slide">
+        <div class="slide-content">
+            <div class="slide-label">Using Multiple Borders &amp; Backgrounds</div>
+            <h2>Faking Multiple Borders with <code>box-shadow</code></h2>
+            <p>CSS only supports one <code>border</code>, but <code>box-shadow</code> accepts a comma-separated list and can simulate stacked rings using a spread radius with <strong>zero blur</strong>:</p>
+            <div class="two-column">
+                <div>
+                    <pre><code>.multi-border {
+  border: 3px solid tomato;
+  box-shadow:
+    0 0 0 6px gold,
+    0 0 0 10px steelblue;
+}</code></pre>
+                    <ul style="margin-top:.5rem;">
+                        <li>Innermost: real <code>border</code> (tomato)</li>
+                        <li>Middle: 6px gold "ring"</li>
+                        <li>Outer: 10px steel blue "ring"</li>
+                        <li><strong>Does not affect layout</strong> — shadows don't push other elements</li>
+                    </ul>
+                    <div class="caution" style="font-size:.85rem;">
+                        <strong>Note:</strong> <code>box-shadow</code> is outside the border-box. Design around it using <code>margin</code> if spacing matters.
+                    </div>
+                </div>
+                <div>
+                    <div style="background:rgba(0,0,0,.25); padding:2.5rem; border-radius:8px; display:flex; align-items:center; justify-content:center; flex-direction:column; gap:1rem;">
+                        <div style="width:120px; height:60px; border:3px solid tomato; box-shadow:0 0 0 6px gold, 0 0 0 12px steelblue; border-radius:4px; display:flex; align-items:center; justify-content:center; font-size:.72rem; background:rgba(255,255,255,.08);">multi-ring</div>
+                        <p style="font-size:.75rem; opacity:.6; text-align:center; margin:0;">Live example above — box-shadow rings</p>
+                    </div>
+                </div>
+            </div>
+            <h3 style="margin-top:.5rem;">Try it — CodePen 13.2</h3>
+            <div class="codepen-container" style="min-height:280px; flex:none;">
+                <iframe style="width:100%;" title="Codepen - 13.2" src="https://codepen.io/mattkearl/embed/XJKvZxo?default-tab=css%2Cresult&editable=true" height="320" loading="lazy"></iframe>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════ SLIDE 7: MULTIPLE BACKGROUNDS ═══ -->
+    <div class="slide">
+        <div class="slide-content">
+            <div class="slide-label">Using Multiple Borders &amp; Backgrounds</div>
+            <h2>Layering Multiple Backgrounds</h2>
+            <div class="two-column">
+                <div>
+                    <h3>How It Works</h3>
+                    <ul>
+                        <li>List backgrounds separated by <strong>commas</strong></li>
+                        <li><strong>First in list = top layer</strong>, last = bottom</li>
+                        <li>Images with transparent areas let layers below show through</li>
+                        <li>Final item can be a <code>background-color</code> (always bottommost)</li>
+                    </ul>
+                    <h3>Wolf + Moon Example</h3>
+                    <pre><code>.box {
+  width: 500px;
+  height: 400px;
+  background:
+    url('wolf.svg') center bottom / cover no-repeat,
+    url('moon.png') right top / 45% no-repeat;
+}</code></pre>
+                    <div class="note" style="font-size:.85rem;">
+                        The wolf is on top (first), moon below it. Transparent areas in each SVG let the other show through.
+                    </div>
+                </div>
+                <div>
+                    <figure class="img-figure">
+                        <img src="assets/fig-13-1.svg" alt="Wolf and moon SVG images" onerror="this.style.display='none'; this.nextElementSibling.style.display='block'">
+                        <div style="display:none; background:rgba(0,0,0,.2); border-radius:8px; padding:1.5rem; text-align:center; color:rgba(255,255,255,.5); font-size:.85rem; border: 1px dashed rgba(255,255,255,.2);">[ fig-13-1.svg — wolf &amp; moon images ]</div>
+                        <figcaption>Fig 13.1 — Two transparent SVG images to layer</figcaption>
+                    </figure>
+                    <figure class="img-figure" style="margin-top:.75rem;">
+                        <img src="assets/fig-13-2.svg" alt="Result of layering wolf and moon backgrounds" onerror="this.style.display='none'; this.nextElementSibling.style.display='block'">
+                        <div style="display:none; background:rgba(0,0,0,.2); border-radius:8px; padding:1.5rem; text-align:center; color:rgba(255,255,255,.5); font-size:.85rem; border: 1px dashed rgba(255,255,255,.2);">[ fig-13-2.svg — layered result ]</div>
+                        <figcaption>Fig 13.2 — Wolf howling at the moon</figcaption>
+                    </figure>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════ SLIDE 8: background-clip & origin ═══ -->
+    <div class="slide">
+        <div class="slide-content">
+            <div class="slide-label">Forgotten Background Properties</div>
+            <h2><code>background-clip</code> &amp; <code>background-origin</code></h2>
+            <div class="two-column">
+                <div>
+                    <h3><code>background-clip</code></h3>
+                    <p>Controls <em>where the background is painted</em> (where it ends):</p>
+                    <ul>
+                        <li><code>border-box</code> — extends under the border <em>(default)</em></li>
+                        <li><code>padding-box</code> — stops at the border edge</li>
+                        <li><code>content-box</code> — stops at the padding edge</li>
+                        <li><code>text</code> — clips background to text shape</li>
+                    </ul>
+                    <h3 style="margin-top:.75rem;"><code>background-origin</code></h3>
+                    <p>Controls <em>where the background starts</em> (position reference point):</p>
+                    <ul>
+                        <li><code>border-box</code> — starts at border edge</li>
+                        <li><code>padding-box</code> — starts at padding edge <em>(default)</em></li>
+                        <li><code>content-box</code> — starts at content edge</li>
+                    </ul>
+                </div>
+                <div>
+                    <div class="card">
+                        <h4>Easy Way to Remember</h4>
+                        <p style="font-size:.9rem; margin-bottom:.4rem;">Think of a painting:</p>
+                        <ul style="font-size:.9rem;">
+                            <li><code>background-origin</code> = where the brush starts</li>
+                            <li><code>background-clip</code> = where the painter's tape ends</li>
+                        </ul>
+                    </div>
+                    <div class="note" style="margin-top:.75rem; font-size:.85rem;">
+                        For multiple backgrounds, separate values with commas — first value = top layer:
+                        <pre style="margin:.4rem 0 0;"><code>background-clip: content-box, border-box;
+background-origin: content-box, padding-box;</code></pre>
+                    </div>
+                    <div class="tip" style="font-size:.85rem; margin-top:.5rem;">
+                        <strong>MDN reference:</strong> <a href="https://developer.mozilla.org/en-US/docs/Web/CSS/background-clip" target="_blank">background-clip</a> &nbsp;|&nbsp; <a href="https://developer.mozilla.org/en-US/docs/Web/CSS/background-origin" target="_blank">background-origin</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════ SLIDE 9: background-clip text ═══ -->
+    <div class="slide">
+        <div class="slide-content">
+            <div class="slide-label">Forgotten Background Properties</div>
+            <h2>Gradient Text with <code>background-clip: text</code></h2>
+            <div class="two-column">
+                <div>
+                    <p>Clips a gradient (or image) background to the shape of the text — combined with a transparent text color, the gradient becomes the text fill:</p>
+                    <pre><code>.gradient-text {
+  background: linear-gradient(
+    to right, #ff6b6b, #feca57
+  );
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}</code></pre>
+                    <div class="note" style="font-size:.85rem; margin-top:.5rem;">
+                        Include both the <code>-webkit-</code> prefixed and unprefixed versions for maximum browser compatibility.
+                    </div>
+                    <div class="caution" style="font-size:.85rem;">
+                        Works best on <strong>large, bold text</strong>. Thin or small text may not show the effect clearly. Ensure sufficient contrast for accessibility.
+                    </div>
+                </div>
+                <div>
+                    <h3>Live Preview</h3>
+                    <div style="background:rgba(0,0,0,.3); border-radius:8px; padding:1.5rem; text-align:center;">
+                        <p style="font-size:clamp(2rem,5vw,3.5rem); font-weight:900; background:linear-gradient(to right,#ff6b6b,#feca57); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; margin:0; line-height:1.1;">Gradient<br>Text!</p>
+                    </div>
+                    <div style="background:rgba(0,0,0,.3); border-radius:8px; padding:1rem; text-align:center; margin-top:.5rem;">
+                        <p style="font-size:clamp(1.5rem,4vw,2.5rem); font-weight:900; background:linear-gradient(135deg,#06d6a0,#118ab2,#9b5de5); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; margin:0;">CSS is Cool</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════ SLIDE 10: CODEPEN 13.1 ═══ -->
+    <div class="slide">
+        <div class="slide-content">
+            <div class="slide-label">CodePen 13.1 — Try it</div>
+            <h2>Gradient Text — <code>background-clip: text</code></h2>
+            <p style="margin-bottom:.4rem; font-size:.95rem;">Experiment with gradient direction, colors, and font-size to see how the clipped text effect responds.</p>
+            <div class="codepen-container">
+                <iframe style="width:100%;" title="Codepen - 13.1" src="https://codepen.io/mattkearl/embed/myENXjP?default-tab=css%2Cresult&editable=true" height="700" loading="lazy"></iframe>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════ SLIDE 11: background-size & position ═══ -->
+    <div class="slide">
+        <div class="slide-content">
+            <div class="slide-label">Forgotten Background Properties</div>
+            <h2><code>background-size</code> &amp; <code>background-position</code></h2>
+            <div class="two-column">
+                <div>
+                    <h3><code>background-size</code></h3>
+                    <table class="compare-table">
+                        <thead><tr><th>Value</th><th>Effect</th></tr></thead>
+                        <tbody>
+                            <tr><td><code>auto</code></td><td>Natural image size (default)</td></tr>
+                            <tr><td><code>cover</code></td><td>Fills box — may crop image</td></tr>
+                            <tr><td><code>contain</code></td><td>Fits whole image — may leave gaps</td></tr>
+                            <tr><td><code>400px 200px</code></td><td>Explicit width &amp; height</td></tr>
+                            <tr><td><code>50%</code></td><td>50% of container width; height auto</td></tr>
+                        </tbody>
+                    </table>
+                    <pre style="margin-top:.5rem;"><code>/* Multiple backgrounds */
+background-size: 400px 400px, cover;</code></pre>
+                </div>
+                <div>
+                    <h3><code>background-position</code></h3>
+                    <p>Keywords, lengths, or edge offsets:</p>
+                    <pre><code>/* Keywords */
+background-position: center;
+background-position: top right;
+
+/* Edge offsets — 4-value syntax */
+background-position:
+  top 2rem right 1rem;
+
+/* Percentage / length */
+background-position: 25% 75%;
+background-position: 40px 80px;</code></pre>
+                    <div class="tip" style="font-size:.85rem; margin-top:.4rem;">
+                        Need to offset from the right or bottom edge? The 4-value edge-offset syntax is <strong>supported in all modern browsers</strong>.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════ SLIDE 12: background-attachment ═══ -->
+    <div class="slide">
+        <div class="slide-content">
+            <div class="slide-label">Forgotten Background Properties</div>
+            <h2><code>background-attachment</code></h2>
+            <p>Controls how the background moves relative to the viewport when the page scrolls:</p>
+            <div class="three-column" style="margin-top:.4rem;">
+                <div class="card">
+                    <h3 style="margin-top:0;"><code>scroll</code></h3>
+                    <p style="font-size:.9rem;">Background stays fixed relative to the <strong>element</strong> but scrolls with the page. Default for most cases.</p>
+                </div>
+                <div class="card">
+                    <h3 style="margin-top:0;"><code>fixed</code></h3>
+                    <p style="font-size:.9rem;">Background stays fixed relative to the <strong>viewport</strong>. Creates a "parallax" effect as the page scrolls over it.</p>
+                </div>
+                <div class="card">
+                    <h3 style="margin-top:0;"><code>local</code></h3>
+                    <p style="font-size:.9rem;">Background scrolls with both the page <strong>and</strong> the element's own scroll. Useful for scrollable containers.</p>
+                </div>
+            </div>
+            <pre style="margin-top:.5rem;"><code>.scroll { background-attachment: scroll; }
+.fixed  { background-attachment: fixed;  }
+.local  { background-attachment: local;  }</code></pre>
+            <div class="caution" style="margin-top:.4rem;">
+                <strong>Mobile Warning:</strong> <code>background-attachment: fixed</code> does not work as expected on iOS Safari or many mobile browsers — it often renders as <code>scroll</code> or causes performance issues. For parallax effects, prefer <a href="https://developer.mozilla.org/en-US/docs/Web/CSS/animation-timeline/scroll" target="_blank">CSS scroll-driven animations</a>.
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════ SLIDE 13: BLEND MODES ═══ -->
+    <div class="slide">
+        <div class="slide-content">
+            <div class="slide-label">Forgotten Background Properties</div>
+            <h2>Blending Backgrounds</h2>
+            <div class="two-column">
+                <div>
+                    <h3><code>background-blend-mode</code></h3>
+                    <p>Blends <em>background layers within one element</em> — like Photoshop layer modes:</p>
+                    <pre><code>.blended {
+  background-image: url('photo.jpg');
+  background-color: steelblue;
+  background-blend-mode: multiply;
+}</code></pre>
+                    <div class="card-grid" style="margin-top:.5rem;">
+                        <div class="vocab-card"><strong>multiply</strong><span>Darker result</span></div>
+                        <div class="vocab-card"><strong>screen</strong><span>Lighter result</span></div>
+                        <div class="vocab-card"><strong>overlay</strong><span>High contrast</span></div>
+                        <div class="vocab-card"><strong>darken</strong><span>Keeps darker pixel</span></div>
+                        <div class="vocab-card"><strong>lighten</strong><span>Keeps lighter pixel</span></div>
+                        <div class="vocab-card"><strong>color-dodge</strong><span>Brightens bottom</span></div>
+                        <div class="vocab-card"><strong>difference</strong><span>High contrast inversion</span></div>
+                        <div class="vocab-card"><strong>luminosity</strong><span>Top brightness, bottom color</span></div>
+                    </div>
+                </div>
+                <div>
+                    <h3><code>mix-blend-mode</code></h3>
+                    <p>Blends an <em>entire element</em> (including content) with whatever is visually <em>behind it</em> on the page:</p>
+                    <pre><code>.title-overlay {
+  mix-blend-mode: screen;
+}
+
+/* "cut-out" text effect */
+.cutout-text {
+  mix-blend-mode: multiply;
+  color: white;
+}</code></pre>
+                    <table class="compare-table" style="margin-top:.5rem;">
+                        <thead><tr><th>Property</th><th>Affects</th></tr></thead>
+                        <tbody>
+                            <tr><td><code>background-blend-mode</code></td><td>Layers <em>within</em> one element</td></tr>
+                            <tr><td><code>mix-blend-mode</code></td><td>Element vs. everything <em>behind</em> it</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════ SLIDE 14: CODEPEN 13.4 ═══ -->
+    <div class="slide">
+        <div class="slide-content">
+            <div class="slide-label">CodePen 13.4 — Try it</div>
+            <h2>Blend Modes Explorer</h2>
+            <p style="margin-bottom:.4rem; font-size:.95rem;">Experiment with <code>background-blend-mode</code> and <code>mix-blend-mode</code> values to see their visual effects.</p>
+            <div class="codepen-container">
+                <iframe style="width:100%;" title="Codepen - 13.4" src="https://codepen.io/mattkearl/embed/ogLKEPv?default-tab=css%2Cresult&editable=true" height="700" loading="lazy"></iframe>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════ SLIDE 15: FROSTED GLASS ═══ -->
+    <div class="slide">
+        <div class="slide-content">
+            <div class="slide-label">The Frosted Glass Effect</div>
+            <h2>Frosted Glass: <code>filter</code> vs <code>backdrop-filter</code></h2>
+            <div class="two-column">
+                <div>
+                    <h3><code>filter</code> — affects the element itself</h3>
+                    <p>Applies graphic effects to the element <em>and all its content</em>:</p>
+                    <pre><code>/* Desaturate image on hover */
+img:hover {
+  filter: grayscale(1);
+}
+
+/* Common filter values */
+filter: blur(5px);
+filter: brightness(0.8);
+filter: contrast(1.5);
+filter: grayscale(1);
+filter: saturate(2);
+filter: sepia(0.6);</code></pre>
+                    <div class="caution" style="font-size:.85rem; margin-top:.4rem;">
+                        Using <code>filter: blur()</code> blurs the element's text too — not ideal for frosted glass panels.
+                    </div>
+                </div>
+                <div>
+                    <h3><code>backdrop-filter</code> — blurs what's <em>behind</em></h3>
+                    <p>Applies effects only to the content <em>behind</em> the element — the element's own text stays sharp:</p>
+                    <pre><code>.glass-panel {
+  background: rgba(255,255,255,0.25);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255,255,255,0.4);
+  border-radius: 1rem;
+}</code></pre>
+                    <div style="background:linear-gradient(135deg,#667eea,#764ba2); border-radius:8px; padding:1rem; position:relative; overflow:hidden; margin-top:.4rem;">
+                        <div style="position:absolute; inset:0; background:url('data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22><circle cx=%2220%22 cy=%2220%22 r=%2215%22 fill=%22rgba(255,100,100,0.4)%22/><circle cx=%2260%22 cy=%2240%22 r=%2220%22 fill=%22rgba(100,200,255,0.4)%22/></svg>');"></div>
+                        <div style="background:rgba(255,255,255,0.2); backdrop-filter:blur(8px); border:1px solid rgba(255,255,255,0.4); border-radius:8px; padding:.75rem; position:relative; text-align:center; font-size:.85rem;">
+                            Frosted glass panel<br>
+                            <code style="font-size:.75rem;">backdrop-filter: blur(8px)</code>
+                        </div>
+                    </div>
+                    <div class="note" style="font-size:.8rem; margin-top:.4rem;">
+                        <strong>Requires</strong> semi-transparent background. Fully opaque backgrounds hide the blur effect entirely.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════ SLIDE 16: CODEPEN 13.5 ═══ -->
+    <div class="slide">
+        <div class="slide-content">
+            <div class="slide-label">CodePen 13.5 — Try it</div>
+            <h2>Frosted Glass Effect</h2>
+            <p style="margin-bottom:.4rem; font-size:.95rem;">Adjust the blur amount and background opacity to see how <code>backdrop-filter</code> responds.</p>
+            <div class="codepen-container">
+                <iframe style="width:100%;" title="Codepen - 13.5" src="https://codepen.io/mattkearl/embed/vEKodzN?default-tab=css%2Cresult&editable=true" height="700" loading="lazy"></iframe>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════ SLIDE 17: NTH-CHILD ═══ -->
+    <div class="slide">
+        <div class="slide-content">
+            <div class="slide-label">Alternating Background Colors</div>
+            <h2>Zebra-Stripe Tables with <code>:nth-child()</code></h2>
+            <div class="two-column">
+                <div>
+                    <p>No classes on every row needed — CSS auto-selects by position:</p>
+                    <pre><code>tbody tr:nth-child(odd) {
+  background-color: #dfdfdf;
+}</code></pre>
+                    <h3>Selector Values</h3>
+                    <ul>
+                        <li><code>odd</code> — rows 1, 3, 5, 7…</li>
+                        <li><code>even</code> — rows 2, 4, 6, 8…</li>
+                        <li><code>4</code> — exactly the 4th row</li>
+                        <li><code>2n+5</code> — every other, starting at 5th</li>
+                        <li><code>6n+2</code> — every 6th, starting at 2nd</li>
+                    </ul>
+                    <div class="tip" style="font-size:.85rem; margin-top:.4rem;">
+                        Works on any element, not just tables: <code>li:nth-child(odd)</code>, <code>div:nth-child(3n)</code>, etc.
+                    </div>
+                    <p style="font-size:.85rem; margin-top:.4rem;"><strong>Interactive formula tester:</strong><br>
+                    <a href="https://css-tricks.com/examples/nth-child-tester/" target="_blank">css-tricks.com nth-child tester</a></p>
+                </div>
+                <div>
+                    <h3>Live Example</h3>
+                    <table class="stripe-table">
+                        <thead>
+                            <tr><th>Product</th><th>Price</th><th>Stock</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>Widget A</td><td>$12.00</td><td>In Stock</td></tr>
+                            <tr><td>Widget B</td><td>$8.50</td><td>Low Stock</td></tr>
+                            <tr><td>Widget C</td><td>$22.00</td><td>In Stock</td></tr>
+                            <tr><td>Widget D</td><td>$5.00</td><td>Out of Stock</td></tr>
+                            <tr><td>Widget E</td><td>$18.00</td><td>In Stock</td></tr>
+                            <tr><td>Widget F</td><td>$31.00</td><td>In Stock</td></tr>
+                        </tbody>
+                    </table>
+                    <pre style="font-size:.8rem; margin-top:.5rem;"><code>tbody tr:nth-child(odd) {
+  background: rgba(255,255,255,.12);
+}</code></pre>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════ SLIDE 18: NTH-CHILD ADVANCED ═══ -->
+    <div class="slide">
+        <div class="slide-content">
+            <div class="slide-label">Alternating Background Colors</div>
+            <h2><code>:nth-child()</code> — Advanced Selectors</h2>
+            <div class="two-column">
+                <div>
+                    <h3>The <code>of</code> Keyword (Modern CSS)</h3>
+                    <p>Filter counting to only elements that match a specific type:</p>
+                    <pre><code>/* Count only &lt;li&gt; items, ignore others */
+li:nth-child(odd of li) {
+  background-color: #dfdfdf;
+}</code></pre>
+                    <p style="font-size:.9rem;">Supported in all modern browsers. Fixes problems when mixed content (like headings inside lists) would throw off counting.</p>
+
+                    <h3 style="margin-top:.75rem;">Related Pseudo-Classes</h3>
+                    <ul>
+                        <li><code>:nth-of-type(n)</code> — counts by element type</li>
+                        <li><code>:nth-last-child(n)</code> — counts from the bottom up</li>
+                        <li><code>:nth-last-of-type(n)</code> — type-based, bottom up</li>
+                        <li><code>:first-child</code> / <code>:last-child</code> — first &amp; last</li>
+                        <li><code>:only-child</code> — sole child of its parent</li>
+                    </ul>
+                </div>
+                <div>
+                    <h3>Formula Reference</h3>
+                    <table class="compare-table">
+                        <thead><tr><th>Formula</th><th>Selects</th></tr></thead>
+                        <tbody>
+                            <tr><td><code>:nth-child(2n)</code></td><td>Even elements (2,4,6…)</td></tr>
+                            <tr><td><code>:nth-child(2n+1)</code></td><td>Odd elements (1,3,5…)</td></tr>
+                            <tr><td><code>:nth-child(3n)</code></td><td>Every 3rd (3,6,9…)</td></tr>
+                            <tr><td><code>:nth-child(n+4)</code></td><td>4th and beyond</td></tr>
+                            <tr><td><code>:nth-child(-n+3)</code></td><td>First 3 only</td></tr>
+                            <tr><td><code>:nth-child(2n+5)</code></td><td>Every other, from 5th</td></tr>
+                        </tbody>
+                    </table>
+                    <div class="tip" style="margin-top:.5rem; font-size:.85rem;">
+                        <a href="http://lea.verou.me/demos/nth.html" target="_blank">Lea Verou's :nth-child tester</a> — experiment with formulas visually.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════ SLIDE 19: GRADIENTS OVERVIEW ═══ -->
+    <div class="slide">
+        <div class="slide-content">
+            <div class="slide-label">Using Gradients as Backgrounds</div>
+            <h2>CSS Gradients — Overview</h2>
+            <p>Gradients are added as <strong>background images</strong> — no actual image files required. Three types:</p>
+            <div class="gradient-row" style="margin:1rem 0;">
+                <div class="grad-swatch" style="background:linear-gradient(to right, #ff00d5, rgba(39,164,0,0.8), blue);">linear-gradient()</div>
+                <div class="grad-swatch" style="background:radial-gradient(#9ad6e9, #f4a261, #e63946);">radial-gradient()</div>
+                <div class="grad-swatch" style="background:conic-gradient(#ff6b6b, #feca57, #48dbfb, #ff9ff3, #ff6b6b);">conic-gradient()</div>
+            </div>
+            <div class="three-column">
+                <div class="card">
+                    <h3 style="margin-top:0;">Linear</h3>
+                    <p style="font-size:.9rem;">Color changes along a straight line — horizontal, vertical, or diagonal.</p>
+                    <pre style="font-size:.72rem;"><code>background-image:
+  linear-gradient(
+    to right, red, blue
+  );</code></pre>
+                </div>
+                <div class="card">
+                    <h3 style="margin-top:0;">Radial</h3>
+                    <p style="font-size:.9rem;">Color radiates outward from a center point — creates circles or ellipses.</p>
+                    <pre style="font-size:.72rem;"><code>background-image:
+  radial-gradient(
+    circle, yellow, orange
+  );</code></pre>
+                </div>
+                <div class="card">
+                    <h3 style="margin-top:0;">Conic</h3>
+                    <p style="font-size:.9rem;">Color sweeps around a center point — like a pie chart or color wheel.</p>
+                    <pre style="font-size:.72rem;"><code>background-image:
+  conic-gradient(
+    red, yellow, green, red
+  );</code></pre>
+                </div>
+            </div>
+            <div class="caution" style="margin-top:.5rem; font-size:.85rem;">
+                Always also set a fallback <code>background-color</code> for older browsers that might not support the gradient function.
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════ SLIDE 20: LINEAR GRADIENTS ═══ -->
+    <div class="slide">
+        <div class="slide-content">
+            <div class="slide-label">Using Gradients as Backgrounds</div>
+            <h2>Linear Gradients</h2>
+            <div class="two-column">
+                <div>
+                    <h3>Syntax</h3>
+                    <pre><code>/* Minimum: two colors (top → bottom) */
+background-image:
+  linear-gradient(red, blue);
+
+/* With direction */
+background-image:
+  linear-gradient(to right, red, blue);
+
+/* Multiple color stops */
+background-image:
+  linear-gradient(
+    45deg,
+    #ff00d5,
+    rgba(39,164,0,0.5) 35%,
+    blue
+  );</code></pre>
+                    <h3>Direction Keywords</h3>
+                    <ul>
+                        <li><code>to right</code> — left → right</li>
+                        <li><code>to bottom</code> — top → bottom (default)</li>
+                        <li><code>to top left</code> — diagonal to corner</li>
+                        <li><code>45deg</code> — any angle (0° = up, 90° = right)</li>
+                    </ul>
+                </div>
+                <div>
+                    <h3>Visual Examples</h3>
+                    <div class="gradient-row">
+                        <div class="grad-swatch" style="background:linear-gradient(to right,#e74c3c,#3498db);">to right</div>
+                        <div class="grad-swatch" style="background:linear-gradient(to bottom,#2ecc71,#9b59b6);">to bottom</div>
+                    </div>
+                    <div class="gradient-row">
+                        <div class="grad-swatch" style="background:linear-gradient(45deg,#f39c12,#e74c3c,#9b59b6);">45deg</div>
+                        <div class="grad-swatch" style="background:linear-gradient(to right,#ff6b6b 0%,#feca57 40%,#48dbfb 100%);">color stops</div>
+                    </div>
+                    <div class="note" style="font-size:.85rem; margin-top:.4rem;">
+                        Color stops (<code>35%</code>) pin a color to a position. Without them, colors are evenly distributed.
+                    </div>
+                    <p style="font-size:.85rem; margin-top:.4rem;"><a href="https://cssgradient.io" target="_blank">cssgradient.io</a> — visual gradient builder tool</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════ SLIDE 21: REPEATING LINEAR ═══ -->
+    <div class="slide">
+        <div class="slide-content">
+            <div class="slide-label">Using Gradients as Backgrounds</div>
+            <h2>Repeating Gradients — CSS Patterns</h2>
+            <div class="two-column">
+                <div>
+                    <h3><code>repeating-linear-gradient()</code></h3>
+                    <p>Color stops define <em>one tile</em> — the browser repeats it to fill the element:</p>
+                    <pre><code>/* Diagonal blue &amp; white stripes */
+background-image:
+  repeating-linear-gradient(
+    45deg,
+    #3a86ff,
+    #3a86ff 10px,
+    #ffffff 10px,
+    #ffffff 20px
+  );</code></pre>
+                    <ul style="font-size:.9rem; margin-top:.4rem;">
+                        <li>Adjust the <strong>angle</strong> for different stripe directions</li>
+                        <li>Adjust the <strong>pixel values</strong> for stripe width</li>
+                        <li>Use <strong>3+ colors</strong> for more complex patterns</li>
+                    </ul>
+                    <h3 style="margin-top:.75rem;"><code>repeating-radial-gradient()</code></h3>
+                    <pre><code>background-image:
+  repeating-radial-gradient(
+    circle,
+    #3a86ff 0px,
+    #3a86ff 10px,
+    transparent 10px,
+    transparent 20px
+  );</code></pre>
+                </div>
+                <div>
+                    <h3>Pattern Gallery</h3>
+                    <div class="gradient-row">
+                        <div class="grad-swatch" style="background:repeating-linear-gradient(45deg,#3a86ff,#3a86ff 10px,#fff 10px,#fff 20px); border:1px solid rgba(255,255,255,.2);">diagonal stripes</div>
+                        <div class="grad-swatch" style="background:repeating-linear-gradient(0deg,transparent,transparent 10px,rgba(255,255,255,.25) 10px,rgba(255,255,255,.25) 12px),repeating-linear-gradient(90deg,transparent,transparent 10px,rgba(255,255,255,.25) 10px,rgba(255,255,255,.25) 12px), #3a86ff; border:1px solid rgba(255,255,255,.2);">grid overlay</div>
+                    </div>
+                    <div class="gradient-row">
+                        <div class="grad-swatch" style="background:repeating-linear-gradient(90deg,#ee0979,#ee0979 15px,#ff6a00 15px,#ff6a00 30px); border:1px solid rgba(255,255,255,.2);">vertical stripes</div>
+                        <div class="grad-swatch" style="background:repeating-radial-gradient(circle,#3a86ff 0px,#3a86ff 8px,#fff 8px,#fff 16px); border:1px solid rgba(255,255,255,.2);">concentric rings</div>
+                    </div>
+                    <div class="tip" style="font-size:.85rem; margin-top:.4rem;">
+                        <a href="https://css-pattern.com" target="_blank">css-pattern.com</a> — a library of pure CSS gradient patterns you can use or learn from.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════ SLIDE 22: RADIAL GRADIENTS ═══ -->
+    <div class="slide">
+        <div class="slide-content">
+            <div class="slide-label">Using Gradients as Backgrounds</div>
+            <h2>Radial Gradients</h2>
+            <div class="two-column">
+                <div>
+                    <h3>Syntax</h3>
+                    <pre><code>/* Default: ellipse from center */
+background-image:
+  radial-gradient(#9ad6e9, yellow);
+
+/* Force a circle */
+background-image:
+  radial-gradient(circle, #9ad6e9, yellow);
+
+/* Set size keyword */
+background-image: radial-gradient(
+  circle closest-side,
+  orange, white
+);
+
+/* Custom center position */
+background-image: radial-gradient(
+  circle at 25% 40%,
+  #ff6b6b, transparent
+);</code></pre>
+                    <h3>Shape Options</h3>
+                    <ul>
+                        <li><code>ellipse</code> — default; adapts to container shape</li>
+                        <li><code>circle</code> — always a perfect circle</li>
+                    </ul>
+                    <h3>Size Keywords</h3>
+                    <ul>
+                        <li><code>closest-side</code>, <code>farthest-side</code></li>
+                        <li><code>closest-corner</code>, <code>farthest-corner</code> (default)</li>
+                    </ul>
+                </div>
+                <div>
+                    <h3>Visual Examples</h3>
+                    <div class="gradient-row">
+                        <div class="grad-swatch" style="background:radial-gradient(#9ad6e9,yellow); border:1px solid rgba(0,0,0,.15);">ellipse (default)</div>
+                        <div class="grad-swatch" style="background:radial-gradient(circle,#9ad6e9,#f4a261); border:1px solid rgba(0,0,0,.15);">circle</div>
+                    </div>
+                    <div class="gradient-row">
+                        <div class="grad-swatch" style="background:radial-gradient(circle at 25% 40%, #ff6b6b 20%, transparent 60%), #2d3436; border:1px solid rgba(255,255,255,.2);">at 25% 40%</div>
+                        <div class="grad-swatch" style="background:radial-gradient(ellipse farthest-corner at 80% 20%,#feca57,#ee5a24,#341f97);">farthest-corner</div>
+                    </div>
+                    <figure class="img-figure" style="margin-top:.5rem;">
+                        <img src="assets/fig-13-3.svg" alt="Radial gradient on two different element shapes" onerror="this.style.display='none'; this.nextElementSibling.style.display='block'">
+                        <div style="display:none; font-size:.8rem; opacity:.5; border:1px dashed rgba(255,255,255,.2); border-radius:6px; padding:.5rem; text-align:center;">[ fig-13-3.svg — radial gradient on square vs narrow element ]</div>
+                        <figcaption>Fig 13.3 — Same gradient on different element shapes</figcaption>
+                    </figure>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════ SLIDE 23: CONIC GRADIENTS ═══ -->
+    <div class="slide">
+        <div class="slide-content">
+            <div class="slide-label">Using Gradients as Backgrounds</div>
+            <h2>Conic Gradients</h2>
+            <div class="two-column">
+                <div>
+                    <h3>Syntax</h3>
+                    <pre><code>/* Color wheel */
+background-image:
+  conic-gradient(
+    red, yellow, green,
+    aqua, blue, magenta, red
+  );
+
+/* Pie chart segments */
+background-image: conic-gradient(
+  steelblue 0%  30%,
+  gold      30% 60%,
+  tomato    60% 100%
+);
+
+/* Start angle */
+background-image: conic-gradient(
+  from 45deg,
+  #ff6b6b, #feca57, #48dbfb
+);
+
+/* Custom center */
+background-image: conic-gradient(
+  from 0deg at 30% 50%,
+  pink, purple, pink
+);</code></pre>
+                </div>
+                <div>
+                    <h3>Visual Examples</h3>
+                    <div class="conic-swatches">
+                        <div class="conic-swatch" style="background:conic-gradient(red,orange,yellow,green,aqua,blue,magenta,red);" title="Color wheel"></div>
+                        <div class="conic-swatch" style="background:conic-gradient(steelblue 0% 30%,gold 30% 60%,tomato 60% 100%);" title="Pie chart"></div>
+                        <div class="conic-swatch" style="background:conic-gradient(#ff6b6b 25%,#feca57 25% 50%,#48dbfb 50% 75%,#ff9ff3 75%);" title="Quadrants"></div>
+                        <div class="conic-swatch" style="background:repeating-conic-gradient(#3a86ff 0deg 30deg,#fff 30deg 60deg);" title="Repeating"></div>
+                    </div>
+                    <h3 style="margin-top:.5rem;">Common Uses</h3>
+                    <ul>
+                        <li>Pie / donut charts (CSS-only, no JS!)</li>
+                        <li>Color wheels for pickers</li>
+                        <li>Starburst &amp; pinwheel patterns</li>
+                        <li>Progress ring indicators</li>
+                    </ul>
+                    <div class="tip" style="font-size:.85rem; margin-top:.4rem;">
+                        <code>repeating-conic-gradient()</code> works just like repeating linear/radial — ideal for checkerboard patterns.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════ SLIDE 24: BORDER-RADIUS ═══ -->
+    <div class="slide">
+        <div class="slide-content">
+            <div class="slide-label">Rounded Corners</div>
+            <h2>Rounded Corners with <code>border-radius</code></h2>
+            <div class="two-column">
+                <div>
+                    <h3>Syntax</h3>
+                    <pre><code>/* All four corners equal */
+border-radius: 8px;
+
+/* Top-left/bottom-right  top-right/bottom-left */
+border-radius: 10px 4px;
+
+/* All four individually */
+border-radius: 10px 4px 8px 16px;
+/*              TL   TR   BR   BL */
+
+/* Per-corner properties */
+border-top-left-radius:     10px;
+border-top-right-radius:    4px;
+border-bottom-right-radius: 10px;
+border-bottom-left-radius:  4px;
+
+/* Elliptical corners */
+border-radius: 50px / 20px;
+
+/* Perfect circle */
+border-radius: 50%;</code></pre>
+                </div>
+                <div>
+                    <h3>Visual Examples</h3>
+                    <div class="radius-row">
+                        <div class="radius-demo" style="border-radius:0;">0px<br>sharp</div>
+                        <div class="radius-demo" style="border-radius:8px;">8px<br>subtle</div>
+                        <div class="radius-demo" style="border-radius:20px;">20px<br>rounded</div>
+                        <div class="radius-demo" style="border-radius:50%;">50%<br>circle</div>
+                        <div class="radius-demo" style="border-radius:50px 4px;">asymmetric</div>
+                        <div class="radius-demo" style="border-radius:50% / 20%;">50% / 20%<br>ellipse</div>
+                    </div>
+                    <div class="note" style="font-size:.85rem; margin-top:.5rem;">
+                        <code>border-radius: 50%</code> on a square element = perfect circle. On a rectangle = ellipse.
+                    </div>
+                    <div class="tip" style="font-size:.85rem; margin-top:.4rem;">
+                        <a href="https://9elements.github.io/fancy-border-radius/" target="_blank">Fancy Border Radius Generator</a> — create organic blob shapes with complex border-radius values.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════ SLIDE 25: ASPECT-RATIO ═══ -->
+    <div class="slide">
+        <div class="slide-content">
+            <div class="slide-label">Rounded Corners &amp; Aspect Ratio</div>
+            <h2>Guaranteed Squares with <code>aspect-ratio</code></h2>
+            <div class="two-column">
+                <div>
+                    <p>The <code>aspect-ratio</code> property maintains a fixed width-to-height ratio regardless of content or container size:</p>
+                    <pre><code>/* Always a square */
+.square {
+  width: 200px;
+  aspect-ratio: 1 / 1;  /* or just: 1 */
+}
+
+/* 16:9 video thumbnail */
+.video-thumb {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+}
+
+/* 4:3 card */
+.card-image {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+}
+
+/* Responsive circle with border-radius */
+.avatar {
+  width: 20%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+}</code></pre>
+                    <div class="note" style="font-size:.85rem; margin-top:.4rem;">
+                        Supported in all modern browsers. Replaces the old "padding-top hack" for maintaining aspect ratios.
+                    </div>
+                </div>
+                <div>
+                    <h3>Visual Examples</h3>
+                    <div class="aspect-demo">
+                        <div class="aspect-box" style="width:80px; aspect-ratio:1;">1 / 1<br>square</div>
+                        <div class="aspect-box" style="width:120px; aspect-ratio:16/9; font-size:.7rem;">16 / 9<br>widescreen</div>
+                        <div class="aspect-box" style="width:80px; aspect-ratio:4/3; font-size:.7rem;">4 / 3</div>
+                        <div class="aspect-box" style="width:70px; aspect-ratio:1; border-radius:50%; font-size:.7rem;">circle<br>50%</div>
+                    </div>
+                    <div class="tip" style="font-size:.85rem; margin-top:.5rem;">
+                        <strong>Most useful pattern:</strong> combine <code>width: 100%</code> with <code>aspect-ratio</code> for fully responsive proportional elements — no fixed heights needed.
+                    </div>
+                    <pre style="font-size:.78rem; margin-top:.4rem;"><code>/* Responsive grid of squares */
+.grid { display: grid;
+  grid-template-columns:
+    repeat(auto-fill, minmax(150px,1fr));
+}
+.grid-item {
+  aspect-ratio: 1;
+  border-radius: 8px;
+}</code></pre>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════ SLIDE 26: BORDER-IMAGE ═══ -->
+    <div class="slide">
+        <div class="slide-content">
+            <div class="slide-label">Images as Borders</div>
+            <h2>Image Borders with <code>border-image</code></h2>
+            <div class="two-column">
+                <div>
+                    <h3>Syntax</h3>
+                    <pre><code>/* border-image shorthand */
+border-image:
+  source  slice  width  outset  repeat;
+
+/* Common pattern */
+.fancy-border {
+  border: 10px solid transparent;
+  border-image:
+    url('border.png') 30 round;
+}
+
+/* Gradient border! */
+.gradient-border {
+  border: 4px solid transparent;
+  border-image:
+    linear-gradient(to right, #ff6b6b, #feca57)
+    1;
+}</code></pre>
+                    <h3>Key Properties</h3>
+                    <ul>
+                        <li><code>border-image-source</code> — URL or gradient</li>
+                        <li><code>border-image-slice</code> — how to slice the image into 9 zones</li>
+                        <li><code>border-image-width</code> — overrides border width</li>
+                        <li><code>border-image-repeat</code> — <code>stretch</code>, <code>repeat</code>, <code>round</code>, <code>space</code></li>
+                    </ul>
+                </div>
+                <div>
+                    <h3>Live Examples</h3>
+                    <div style="margin: .5rem 0; padding: 1rem; border: 6px solid transparent; border-image: linear-gradient(to right, #ff6b6b, #feca57) 1; border-radius: 0; font-size: .85rem; background: rgba(0,0,0,.15);">
+                        Gradient border using <code>linear-gradient()</code> as <code>border-image-source</code>
+                    </div>
+                    <div style="margin: .5rem 0; padding: 1rem; border: 8px solid transparent; border-image: repeating-linear-gradient(45deg, #ff6b6b, #ff6b6b 5px, #feca57 5px, #feca57 10px) 8; font-size: .85rem; background: rgba(0,0,0,.15);">
+                        Stripe pattern border using <code>repeating-linear-gradient()</code>
+                    </div>
+                    <div class="note" style="font-size:.85rem; margin-top:.5rem;">
+                        <strong>Important:</strong> <code>border-image</code> overrides <code>border-style</code>, <code>border-color</code>, and <code>border-width</code> visually. Set <code>border: N solid transparent</code> to reserve the space first.
+                    </div>
+                    <p style="font-size:.85rem; margin-top:.4rem;"><a href="https://developer.mozilla.org/en-US/docs/Web/CSS/border-image" target="_blank">MDN: border-image</a> — includes the 9-slice diagram.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════ SLIDE 27: OUTLINES VS BORDERS ═══ -->
+    <div class="slide">
+        <div class="slide-content">
+            <div class="slide-label">Exploring Outlines</div>
+            <h2>Outlines vs. Borders</h2>
+            <div class="two-column">
+                <div>
+                    <h3>Key Differences</h3>
+                    <table class="compare-table">
+                        <thead><tr><th>Property</th><th>Border</th><th>Outline</th></tr></thead>
+                        <tbody>
+                            <tr><td>Affects layout?</td><td>✅ Yes</td><td>❌ No</td></tr>
+                            <tr><td>All 4 sides same?</td><td>No — per side OK</td><td>Yes — always all sides</td></tr>
+                            <tr><td>Rounded corners?</td><td>✅ <code>border-radius</code></td><td>⚠️ <code>outline-offset</code> only</td></tr>
+                            <tr><td>Can be offset?</td><td>❌ No</td><td>✅ <code>outline-offset</code></td></tr>
+                            <tr><td>Main use</td><td>Design &amp; layout</td><td>Accessibility / focus</td></tr>
+                        </tbody>
+                    </table>
+                    <pre style="margin-top:.5rem;"><code>/* Outline syntax (same as border) */
+outline: 3px solid gold;
+
+/* Move it outward from the element */
+outline-offset: 4px;
+
+/* Negative offset: inside the element */
+outline-offset: -4px;</code></pre>
+                </div>
+                <div>
+                    <h3>Visual Comparison</h3>
+                    <div class="outline-compare">
+                        <div>
+                            <div class="outline-box" style="border: 3px solid #3498db;">
+                                Border<br><small>Takes up space</small>
+                            </div>
+                            <p style="font-size:.75rem; margin-top:.3rem; text-align:center; opacity:.7;">margin shifts neighbors</p>
+                        </div>
+                        <div>
+                            <div class="outline-box" style="outline: 3px solid #ffd166; outline-offset: 4px;">
+                                Outline<br><small>Outside flow</small>
+                            </div>
+                            <p style="font-size:.75rem; margin-top:.3rem; text-align:center; opacity:.7;">no layout impact</p>
+                        </div>
+                        <div>
+                            <div class="outline-box" style="outline: 3px dashed #06d6a0; outline-offset: -4px;">
+                                Negative offset<br><small>Inside the element</small>
+                            </div>
+                            <p style="font-size:.75rem; margin-top:.3rem; text-align:center; opacity:.7;">outline-offset: -4px</p>
+                        </div>
+                    </div>
+                    <div class="caution" style="font-size:.85rem; margin-top:.5rem;">
+                        <strong>Never</strong> do <code>outline: none</code> without providing an alternative focus indicator — this harms keyboard-navigation users.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════ SLIDE 28: FOCUS-VISIBLE ═══ -->
+    <div class="slide">
+        <div class="slide-content">
+            <div class="slide-label">Exploring Outlines</div>
+            <h2>Accessible Focus with <code>:focus-visible</code></h2>
+            <div class="two-column">
+                <div>
+                    <h3>The Problem</h3>
+                    <p>Browsers show a focus ring on every clicked element. Designers often removed it entirely with <code>outline: none</code>, breaking keyboard navigation for all users.</p>
+                    <h3>The Solution</h3>
+                    <p><code>:focus-visible</code> shows the outline <em>only</em> when the browser determines keyboard navigation is being used — not on mouse clicks:</p>
+                    <pre><code>/* Remove focus ring for mouse clicks */
+button:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* Show a strong ring for keyboard nav */
+button:focus-visible {
+  outline: 3px solid #ffd166;
+  outline-offset: 4px;
+}</code></pre>
+                    <div class="note" style="font-size:.85rem; margin-top:.4rem;">
+                        This is the modern, accessible way to handle focus styles. Supported in all current browsers.
+                    </div>
+                </div>
+                <div>
+                    <h3>Try it — Tab through these buttons</h3>
+                    <p style="font-size:.85rem;">Click a button vs. Tab to it — see the difference:</p>
+                    <div style="background:rgba(0,0,0,.25); border-radius:8px; padding:1.5rem; display:flex; flex-wrap:wrap; gap:.75rem; justify-content:center; margin:.5rem 0;">
+                        <button class="focus-demo-btn">Home</button>
+                        <button class="focus-demo-btn">About</button>
+                        <button class="focus-demo-btn">Contact</button>
+                        <button class="focus-demo-btn">Sign In</button>
+                    </div>
+                    <p style="font-size:.78rem; opacity:.7; text-align:center;">↑ Tab key → gold outline appears. Mouse click → no outline.</p>
+                    <div class="tip" style="font-size:.85rem; margin-top:.5rem;">
+                        <strong>Resources:</strong><br>
+                        <a href="https://developer.mozilla.org/en-US/docs/Web/CSS/:focus-visible" target="_blank">MDN: :focus-visible</a><br>
+                        <a href="https://www.w3.org/WAI/WCAG22/quickref/?showtechniques=1412#focus-visible" target="_blank">WCAG 2.4.11 — Focus Visible (Enhanced)</a>
+                    </div>
+                    <div class="caution" style="font-size:.85rem; margin-top:.4rem;">
+                        Always ensure focus indicators have a <strong>contrast ratio of at least 3:1</strong> against the background (WCAG 2.4.11).
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════ SLIDE 29: SUMMARY ═══ -->
+    <div class="slide">
+        <div class="slide-content">
+            <div class="slide-label">Lesson 13 — Summary</div>
+            <h2>What You've Learned</h2>
+            <div class="learn-grid">
+                <div class="learn-item">✅ Layer backgrounds with comma-separated <code>background</code> lists</div>
+                <div class="learn-item">✅ Control clip &amp; origin with <code>background-clip</code> / <code>background-origin</code></div>
+                <div class="learn-item">✅ Create gradient text with <code>background-clip: text</code></div>
+                <div class="learn-item">✅ Blend backgrounds with <code>background-blend-mode</code> &amp; <code>mix-blend-mode</code></div>
+                <div class="learn-item">✅ Frosted glass panels with <code>backdrop-filter: blur()</code></div>
+                <div class="learn-item">✅ Auto zebra-stripe tables with <code>:nth-child(odd)</code></div>
+                <div class="learn-item">✅ Linear, radial &amp; conic gradients — no image files needed</div>
+                <div class="learn-item">✅ CSS-only patterns with repeating gradient functions</div>
+                <div class="learn-item">✅ Round corners with <code>border-radius</code>, even to a circle with <code>50%</code></div>
+                <div class="learn-item">✅ Lock aspect ratios with <code>aspect-ratio: 1</code> / <code>16/9</code></div>
+                <div class="learn-item">✅ Decorative image borders with <code>border-image</code></div>
+                <div class="learn-item">✅ Accessible focus styles with <code>:focus-visible</code></div>
+            </div>
+            <div class="highlight" style="margin-top:.75rem;">
+                <p><strong>Key takeaway:</strong> Modern CSS can replace many image-based design techniques entirely — gradients, patterns, frosted glass, and gradient borders all require zero image files. The browser does the work.</p>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- ── Navigation ── -->
+<div class="progress-bar"><div class="progress" id="progress"></div></div>
+<div class="navigation">
+    <button class="nav-btn" id="prevBtn" onclick="changeSlide(-1)" disabled>&larr; Prev</button>
+    <span class="slide-counter">
+        Slide <span id="currentSlide">1</span> of <span id="totalSlides"></span>
+    </span>
+    <button class="nav-btn" id="nextBtn" onclick="changeSlide(1)">Next &rarr;</button>
+</div>
+
+<script>
+    let currentSlide = 0;
+    const slides = document.querySelectorAll('.slide');
+    const totalSlides = slides.length;
+
+    document.getElementById('totalSlides').textContent = totalSlides;
+
+    function showSlide(n) {
+        slides[currentSlide].classList.remove('active');
+        currentSlide = (n + totalSlides) % totalSlides;
+        slides[currentSlide].classList.add('active');
+        document.getElementById('currentSlide').textContent = currentSlide + 1;
+        document.getElementById('prevBtn').disabled = currentSlide === 0;
+        document.getElementById('nextBtn').disabled = currentSlide === totalSlides - 1;
+        const progress = ((currentSlide + 1) / totalSlides) * 100;
+        document.getElementById('progress').style.width = progress + '%';
+        slides[currentSlide].scrollTop = 0;
+    }
+
+    function changeSlide(dir) { showSlide(currentSlide + dir); }
+
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'ArrowRight' || e.key === ' ') {
+            e.preventDefault();
+            if (currentSlide < totalSlides - 1) changeSlide(1);
+        } else if (e.key === 'ArrowLeft') {
+            e.preventDefault();
+            if (currentSlide > 0) changeSlide(-1);
+        } else if (e.key === 'Home') {
+            e.preventDefault(); showSlide(0);
+        } else if (e.key === 'End') {
+            e.preventDefault(); showSlide(totalSlides - 1);
+        }
+    });
+
+    let touchStartX = 0;
+    document.addEventListener('touchstart', function(e) { touchStartX = e.touches[0].clientX; });
+    document.addEventListener('touchend', function(e) {
+        const delta = touchStartX - e.changedTouches[0].clientX;
+        if (Math.abs(delta) > 50) {
+            if (delta > 0 && currentSlide < totalSlides - 1) changeSlide(1);
+            else if (delta < 0 && currentSlide > 0) changeSlide(-1);
+        }
+    });
+
+    showSlide(0);
+</script>
+</body>
+</html>
