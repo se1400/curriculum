@@ -1,0 +1,789 @@
+<h1>Objects &amp; JSON</h1>
+
+<h2>What You&rsquo;ll Learn in This Lesson</h2>
+
+<ul>
+  <li style="list-style-type: '▶  '">What objects are and how key-value pairs organize related data</li>
+  <li style="list-style-type: '▶  '">How to read and write object properties with dot and bracket notation</li>
+  <li style="list-style-type: '▶  '">How to add, modify, and delete properties</li>
+  <li style="list-style-type: '▶  '">Property shorthand, computed property names, and method shorthand</li>
+  <li style="list-style-type: '▶  '">How <code>this</code> works inside object methods</li>
+  <li style="list-style-type: '▶  '"><code>Object.keys()</code>, <code>Object.values()</code>, <code>Object.entries()</code>, and <code>Object.fromEntries()</code></li>
+  <li style="list-style-type: '▶  '">How to copy and merge objects with <code>Object.assign()</code> and spread</li>
+  <li style="list-style-type: '▶  '">How to deep copy with <code>structuredClone()</code></li>
+  <li style="list-style-type: '▶  '">Object destructuring with renaming and default values</li>
+  <li style="list-style-type: '▶  '">Optional chaining (<code>?.</code>) for safely accessing nested properties</li>
+  <li style="list-style-type: '▶  '">Arrays of objects &mdash; the most common data pattern in web development</li>
+  <li style="list-style-type: '▶  '">JSON: what it is, how to stringify and parse, and why APIs use it</li>
+</ul>
+
+<hr>
+
+<h2>Introduction</h2>
+
+<p>Imagine building a user profile page. Without objects, you might declare four separate variables: <code>firstName</code>, <code>lastName</code>, <code>email</code>, and <code>age</code>. That works for one user, but the moment you have ten users, you have forty separate variables with no clear connection between them. Objects solve this by bundling all the related data for one entity under a single name &mdash; <code>user.firstName</code>, <code>user.lastName</code>, <code>user.email</code>, <code>user.age</code> &mdash; so that one variable holds the whole picture. Objects are the fundamental unit of structured data in JavaScript, and they appear in virtually every program you will ever read or write.</p>
+
+<p>The visual connection between objects and the screen is direct. One object becomes one rendered card. An array of objects becomes an entire product grid or search results page. By the end of this lesson you will be able to take a plain JavaScript object, access its properties, transform its data, and render it as styled HTML. You will also learn JSON &mdash; the text format that APIs use to send structured data across the network &mdash; so that when your code talks to a server, you know exactly what is being exchanged and how to work with it.</p>
+
+<hr>
+
+<h2>What Is an Object?</h2>
+
+<p>An object is a collection of <strong>key-value pairs</strong>. Each key is a string (or a Symbol) that names a piece of data, and each value can be anything: a number, a string, a boolean, an array, another object, or even a function. The key-value pair is called a <strong>property</strong>. When the value is a function, the property is called a <strong>method</strong>.</p>
+
+<p>Here is a product object and the card it can render:</p>
+
+<strong>LISTING 25.1 &mdash; A Product Object and Its Rendered Card</strong>
+<pre><code>const product = {
+  name: "Wireless Headphones",
+  price: 79.99,
+  category: "Audio",
+  inStock: true,
+};
+
+// Render the object as an HTML card
+const card = `
+  &lt;div class="card"&gt;
+    &lt;h3&gt;${product.name}&lt;/h3&gt;
+    &lt;p&gt;${product.category}&lt;/p&gt;
+    &lt;strong&gt;$${product.price}&lt;/strong&gt;
+    &lt;span&gt;${product.inStock ? "In Stock" : "Out of Stock"}&lt;/span&gt;
+  &lt;/div&gt;
+`;
+
+document.querySelector('#product-container').innerHTML = card;
+</code></pre>
+
+<p>One object. One card. The keys (<code>name</code>, <code>price</code>, <code>category</code>, <code>inStock</code>) become the labeled data inside the card. This is the core pattern of front-end development: data lives in objects, HTML is generated from that data.</p>
+
+<p>[IMG - Object dot vs bracket notation diagram]</p>
+
+<p>[CODEPEN 1]</p>
+
+<hr>
+
+<h2>Creating and Accessing Objects</h2>
+
+<p>The most common way to create an object is with an <strong>object literal</strong>: curly braces containing a comma-separated list of key-value pairs. Each pair uses a colon to separate the key from the value.</p>
+
+<strong>LISTING 25.2 &mdash; Object Literal Syntax</strong>
+<pre><code>const user = {
+  name: "Alex",
+  age: 28,
+  isAdmin: false,
+};
+</code></pre>
+
+<h3>Dot Notation</h3>
+
+<p>Dot notation is the most common way to read and write properties. Write the variable name, a dot, and then the property key:</p>
+
+<strong>LISTING 25.3 &mdash; Reading Properties with Dot Notation</strong>
+<pre><code>console.log(user.name);    // "Alex"
+console.log(user.age);     // 28
+console.log(user.isAdmin); // false
+</code></pre>
+
+<h3>Bracket Notation</h3>
+
+<p>Bracket notation uses a string inside square brackets. It is equivalent to dot notation but opens up two additional capabilities: accessing keys that contain special characters, and using a <em>variable</em> as the key name.</p>
+
+<strong>LISTING 25.4 &mdash; Bracket Notation and Dynamic Keys</strong>
+<pre><code>// Equivalent to dot notation
+console.log(user["name"]); // "Alex"
+
+// Dynamic key: the key name comes from a variable
+const fieldName = "age";
+console.log(user[fieldName]); // 28
+
+// Keys with special characters require bracket notation
+const config = {
+  "max-retries": 3,
+  "Content-Type": "application/json",
+};
+console.log(config["max-retries"]); // 3
+</code></pre>
+
+<blockquote>
+  <p><strong>NOTE:</strong> Use dot notation as your default. Switch to bracket notation when the key is stored in a variable, or when the key contains hyphens, spaces, or other characters that are not valid identifier characters.</p>
+</blockquote>
+
+<h3>Modifying, Adding, and Deleting Properties</h3>
+
+<p>You can change an existing property simply by assigning to it. You can add a new property the same way &mdash; if the key does not exist, JavaScript creates it. The <code>delete</code> operator removes a property entirely.</p>
+
+<strong>LISTING 25.5 &mdash; Modifying, Adding, and Deleting Properties</strong>
+<pre><code>const user = { name: "Alex", age: 28 };
+
+// Modify an existing property
+user.name = "Jordan";
+console.log(user.name); // "Jordan"
+
+// Add a new property
+user.phone = "555-0100";
+console.log(user.phone); // "555-0100"
+
+// Delete a property
+delete user.phone;
+console.log(user.phone); // undefined
+</code></pre>
+
+<hr>
+
+<h2>Checking If a Property Exists</h2>
+
+<p>Accessing a property that does not exist returns <code>undefined</code> rather than throwing an error. That silent <code>undefined</code> can cause subtle bugs &mdash; especially when a missing property and a property explicitly set to <code>undefined</code> look identical. Two tools give you a reliable existence check.</p>
+
+<strong>LISTING 25.6 &mdash; Checking Property Existence</strong>
+<pre><code>const user = { name: "Alex", role: undefined };
+
+// `in` operator: checks own AND inherited properties
+console.log("name" in user);   // true
+console.log("role" in user);   // true  (property exists, value is undefined)
+console.log("email" in user);  // false
+
+// Object.hasOwn(): modern, checks ONLY own properties (not inherited)
+console.log(Object.hasOwn(user, "name"));  // true
+console.log(Object.hasOwn(user, "email")); // false
+</code></pre>
+
+<p><code>Object.hasOwn()</code> was introduced in ES2022 and replaces the older <code>obj.hasOwnProperty("key")</code>. Prefer it in modern code. The <code>in</code> operator is still useful when you want to check inherited properties as well, but for most practical use cases <code>Object.hasOwn()</code> is the clearer choice.</p>
+
+<hr>
+
+<h2>Shorthand and Computed Properties</h2>
+
+<h3>Property Shorthand</h3>
+
+<p>When a variable name matches the property key you want to use, you can write the variable name once instead of twice. This shorthand appears constantly in modern JavaScript &mdash; in function return values, in object construction from form fields, and in module exports.</p>
+
+<strong>LISTING 25.7 &mdash; Property Shorthand</strong>
+<pre><code>const name = "Alex";
+const age = 28;
+const email = "alex@example.com";
+
+// Long form
+const user1 = { name: name, age: age, email: email };
+
+// Shorthand — identical result
+const user2 = { name, age, email };
+
+console.log(user2); // { name: "Alex", age: 28, email: "alex@example.com" }
+</code></pre>
+
+<h3>Computed Property Names</h3>
+
+<p>Square brackets inside an object literal let you use an expression as the key name. This makes it possible to build objects dynamically &mdash; for example, constructing an object from a form where the field name is only known at runtime.</p>
+
+<strong>LISTING 25.8 &mdash; Computed Property Names</strong>
+<pre><code>const key = "email";
+const value = "alex@example.com";
+
+const obj = { [key]: value };
+console.log(obj); // { email: "alex@example.com" }
+
+// Real use: building an object from form data
+function buildUpdate(fieldName, newValue) {
+  return { [fieldName]: newValue };
+}
+
+const patch = buildUpdate("role", "admin");
+console.log(patch); // { role: "admin" }
+</code></pre>
+
+<hr>
+
+<h2>Methods and <code>this</code></h2>
+
+<p>A function stored as a property of an object is called a <strong>method</strong>. Methods let an object carry its own behavior alongside its data. Modern JavaScript provides a shorthand syntax for methods that removes the <code>function</code> keyword entirely.</p>
+
+<strong>LISTING 25.9 &mdash; Method Shorthand and <code>this</code></strong>
+<pre><code>const user = {
+  name: "Alex",
+  role: "editor",
+
+  // Method shorthand (preferred)
+  greet() {
+    return `Hi, I'm ${this.name} and I'm an ${this.role}.`;
+  },
+
+  // Equivalent long form
+  // greet: function() {
+  //   return `Hi, I'm ${this.name}.`;
+  // },
+};
+
+console.log(user.greet()); // "Hi, I'm Alex and I'm an editor."
+</code></pre>
+
+<p>Inside a method, <code>this</code> refers to the object that the method was called on &mdash; in this case, <code>user</code>. So <code>this.name</code> is <code>user.name</code>, and <code>this.role</code> is <code>user.role</code>. The value of <code>this</code> is determined at the moment the method is called, not when it is defined.</p>
+
+<h3>Arrow Functions and <code>this</code></h3>
+
+<p>Arrow functions do <em>not</em> have their own <code>this</code>. Instead, they inherit <code>this</code> from the surrounding scope where they were defined. This makes arrow functions unsuitable as object methods when you need to reference the object via <code>this</code>.</p>
+
+<strong>LISTING 25.10 &mdash; Why Arrow Functions Break Object Methods</strong>
+<pre><code>const user = {
+  name: "Alex",
+
+  // Arrow function — this is NOT the user object
+  greetArrow: () =&gt; {
+    return `Hi, I'm ${this.name}.`; // this.name is undefined
+  },
+
+  // Regular method shorthand — this IS the user object
+  greetMethod() {
+    return `Hi, I'm ${this.name}.`; // "Alex"
+  },
+};
+
+console.log(user.greetArrow());  // "Hi, I'm undefined."
+console.log(user.greetMethod()); // "Hi, I'm Alex."
+</code></pre>
+
+<blockquote>
+  <p><strong>NOTE:</strong> Use method shorthand (<code>methodName() {}</code>) when you need <code>this</code> to refer to the object. Use arrow functions when you need <code>this</code> to refer to an outer context &mdash; for example, inside a callback nested within a method.</p>
+</blockquote>
+
+<p>[IMG - Shallow copy vs deep copy diagram]</p>
+
+<hr>
+
+<h2>Object Utilities</h2>
+
+<p>JavaScript provides a set of static methods on the <code>Object</code> constructor that let you inspect, iterate, and transform objects. These are among the most useful tools for working with data.</p>
+
+<h3>Object.keys(), Object.values(), Object.entries()</h3>
+
+<strong>LISTING 25.11 &mdash; Object.keys(), Object.values(), Object.entries()</strong>
+<pre><code>const settings = {
+  theme: "dark",
+  fontSize: 16,
+  notifications: true,
+  language: "en",
+};
+
+Object.keys(settings);
+// ["theme", "fontSize", "notifications", "language"]
+
+Object.values(settings);
+// ["dark", 16, true, "en"]
+
+Object.entries(settings);
+// [["theme", "dark"], ["fontSize", 16], ["notifications", true], ["language", "en"]]
+</code></pre>
+
+<p><code>Object.entries()</code> is particularly powerful for rendering objects as tables or settings panels, because it gives you both the key and the value together as you iterate:</p>
+
+<strong>LISTING 25.12 &mdash; Rendering a Settings Panel with Object.entries()</strong>
+<pre><code>const settings = { theme: "dark", fontSize: 16, language: "en" };
+
+const rows = Object.entries(settings).map(([key, value]) =&gt; `
+  &lt;tr&gt;
+    &lt;td&gt;&lt;strong&gt;${key}&lt;/strong&gt;&lt;/td&gt;
+    &lt;td&gt;${value}&lt;/td&gt;
+  &lt;/tr&gt;
+`).join('');
+
+document.querySelector('#settings-table tbody').innerHTML = rows;
+</code></pre>
+
+<h3>Object.fromEntries()</h3>
+
+<p><code>Object.fromEntries()</code> is the inverse of <code>Object.entries()</code>. It takes an array of <code>[key, value]</code> pairs and constructs an object. This is useful for transforming all values in an object via a <code>map</code> call and then converting the result back into an object.</p>
+
+<strong>LISTING 25.13 &mdash; Transforming an Object with fromEntries</strong>
+<pre><code>const prices = { shirt: 29.99, hat: 14.99, bag: 49.99 };
+
+// Apply a 10% discount to every price
+const discounted = Object.fromEntries(
+  Object.entries(prices).map(([item, price]) =&gt; [item, price * 0.9])
+);
+
+console.log(discounted);
+// { shirt: 26.991, hat: 13.491, bag: 44.991 }
+</code></pre>
+
+<h3>Object.assign()</h3>
+
+<p><code>Object.assign(target, source1, source2, ...)</code> copies all enumerable own properties from the source objects into the target object and returns the target. Sources are applied left to right, so later sources overwrite earlier ones if keys conflict.</p>
+
+<strong>LISTING 25.14 &mdash; Merging Objects with Object.assign()</strong>
+<pre><code>const defaults = { theme: "light", fontSize: 14, notifications: true };
+const userPrefs = { theme: "dark", fontSize: 16 };
+
+// Merge userPrefs into defaults (userPrefs wins on conflicts)
+const config = Object.assign({}, defaults, userPrefs);
+console.log(config);
+// { theme: "dark", fontSize: 16, notifications: true }
+</code></pre>
+
+<blockquote>
+  <p><strong>NOTE:</strong> Pass an empty object <code>{}</code> as the first argument to avoid mutating either source. <code>Object.assign(defaults, userPrefs)</code> would modify the <code>defaults</code> object in place, which is usually not what you want.</p>
+</blockquote>
+
+<h3>Object.freeze()</h3>
+
+<p><code>Object.freeze(obj)</code> makes an object immutable: existing properties cannot be changed, new properties cannot be added, and properties cannot be deleted. Attempting any of these operations silently fails (or throws in strict mode). Use it for configuration constants that should never be modified at runtime.</p>
+
+<strong>LISTING 25.15 &mdash; Object.freeze() for Constants</strong>
+<pre><code>const API_CONFIG = Object.freeze({
+  baseUrl: "https://api.example.com",
+  version: "v2",
+  timeout: 5000,
+});
+
+API_CONFIG.version = "v3"; // silently ignored
+console.log(API_CONFIG.version); // "v2"
+</code></pre>
+
+<p>[CODEPEN 3]</p>
+
+<hr>
+
+<h2>Copying Objects</h2>
+
+<p>Assignment in JavaScript copies a <em>reference</em>, not the value. When you write <code>const obj2 = obj1</code>, both variables point to the exact same object in memory. Modifying <code>obj2</code> modifies <code>obj1</code> as well. This is one of the most common sources of bugs for developers new to JavaScript.</p>
+
+<strong>LISTING 25.16 &mdash; Reference Trap: Assignment Is Not a Copy</strong>
+<pre><code>const original = { name: "Alex", score: 100 };
+const copy = original; // NOT a copy — same reference
+
+copy.score = 0;
+console.log(original.score); // 0  ← original was mutated!
+</code></pre>
+
+<h3>Shallow Copy</h3>
+
+<p>Both the spread operator and <code>Object.assign()</code> create a <strong>shallow copy</strong> &mdash; a new object whose top-level properties are independent from the source, but whose nested objects are still shared references.</p>
+
+<strong>LISTING 25.17 &mdash; Shallow Copy with Spread and Object.assign()</strong>
+<pre><code>const original = { name: "Alex", score: 100 };
+
+// Spread — shallow copy
+const copy1 = { ...original };
+copy1.score = 0;
+console.log(original.score); // 100 — independent at top level ✓
+
+// Object.assign() — also a shallow copy
+const copy2 = Object.assign({}, original);
+copy2.name = "Jordan";
+console.log(original.name); // "Alex" — independent ✓
+</code></pre>
+
+<h3>The Shallow Copy Problem with Nested Objects</h3>
+
+<p>When an object contains a nested object (or array), a shallow copy copies the <em>reference</em> to that nested object. Both the original and the copy point to the same nested object, so mutating it through either variable affects both.</p>
+
+<strong>LISTING 25.18 &mdash; Shallow Copy Fails for Nested Objects</strong>
+<pre><code>const original = {
+  name: "Alex",
+  address: { city: "Portland", state: "OR" },
+};
+
+const copy = { ...original };
+
+copy.name = "Jordan";          // independent ✓
+copy.address.city = "Seattle"; // mutates the SHARED nested object!
+
+console.log(original.name);         // "Alex"    — independent ✓
+console.log(original.address.city); // "Seattle" — was mutated! ✗
+</code></pre>
+
+<h3>Deep Copy with structuredClone()</h3>
+
+<p><code>structuredClone()</code> creates a completely independent deep copy of an object, including all nested objects and arrays. It was added to JavaScript natively in 2022 and is now the recommended way to make deep copies. It handles nested objects, arrays, dates, maps, and sets &mdash; but it does not copy functions.</p>
+
+<strong>LISTING 25.19 &mdash; Deep Copy with structuredClone()</strong>
+<pre><code>const original = {
+  name: "Alex",
+  address: { city: "Portland", state: "OR" },
+  scores: [95, 87, 100],
+};
+
+const copy = structuredClone(original);
+
+copy.name = "Jordan";
+copy.address.city = "Seattle";
+copy.scores.push(72);
+
+console.log(original.name);         // "Alex"    — unchanged ✓
+console.log(original.address.city); // "Portland" — unchanged ✓
+console.log(original.scores);       // [95, 87, 100] — unchanged ✓
+</code></pre>
+
+<p><strong>When to use which:</strong> Use spread or <code>Object.assign()</code> for flat objects (no nested objects or arrays). Use <code>structuredClone()</code> whenever the object contains nested structures that you need to be truly independent.</p>
+
+<p>[CODEPEN 5]</p>
+
+<hr>
+
+<h2>Object Destructuring</h2>
+
+<p>Destructuring lets you extract properties from an object directly into named variables in a single statement. Instead of writing <code>const name = user.name; const age = user.age;</code> on separate lines, you declare them together on one line.</p>
+
+<strong>LISTING 25.20 &mdash; Basic Destructuring</strong>
+<pre><code>const user = { name: "Alex", age: 28, role: "editor", email: "alex@example.com" };
+
+// Extract name and age into variables
+const { name, age } = user;
+console.log(name); // "Alex"
+console.log(age);  // 28
+</code></pre>
+
+<h3>Renaming While Destructuring</h3>
+
+<p>Add a colon after the property name to rename the variable. The key on the left matches the object property; the identifier on the right is the new variable name.</p>
+
+<strong>LISTING 25.21 &mdash; Destructuring with Rename</strong>
+<pre><code>const { name: userName, role: userRole } = user;
+console.log(userName); // "Alex"
+console.log(userRole); // "editor"
+// `name` and `role` are NOT declared as variables here
+</code></pre>
+
+<h3>Default Values</h3>
+
+<p>Use <code>=</code> to provide a default value that is used when the property is missing (<code>undefined</code>) from the object.</p>
+
+<strong>LISTING 25.22 &mdash; Destructuring with Default Values</strong>
+<pre><code>const { name, role = "viewer", theme = "light" } = user;
+console.log(role);  // "editor" — property exists, default not used
+console.log(theme); // "light"  — property missing, default used
+</code></pre>
+
+<h3>Destructuring in Function Parameters</h3>
+
+<p>One of the most valuable uses of destructuring is in function parameters. Instead of accepting an entire object and accessing <code>obj.name</code> inside the function, you destructure the properties you need right in the parameter list. This makes the function signature self-documenting &mdash; anyone reading the function call immediately knows which properties are used.</p>
+
+<strong>LISTING 25.23 &mdash; Destructuring in Function Parameters</strong>
+<pre><code>// Without destructuring
+function displayUser(user) {
+  return `${user.name} &lt;${user.email}&gt;`;
+}
+
+// With destructuring in the parameter
+function displayUser({ name, email }) {
+  return `${name} &lt;${email}&gt;`;
+}
+
+displayUser({ name: "Alex", age: 28, email: "alex@example.com" });
+// "Alex <alex@example.com>"
+</code></pre>
+
+<h3>Nested Destructuring</h3>
+
+<p>You can destructure into nested objects by mirroring the shape of the object in the destructuring pattern.</p>
+
+<strong>LISTING 25.24 &mdash; Nested Destructuring</strong>
+<pre><code>const user = {
+  name: "Alex",
+  address: {
+    city: "Portland",
+    state: "OR",
+  },
+};
+
+const { name, address: { city, state } } = user;
+console.log(city);  // "Portland"
+console.log(state); // "OR"
+// `address` is NOT declared as a variable here
+</code></pre>
+
+<p>[CODEPEN 4]</p>
+
+<hr>
+
+<h2>Optional Chaining and Nullish Coalescing</h2>
+
+<p>When working with data from APIs or user input, some properties may be absent entirely. Accessing a property on <code>null</code> or <code>undefined</code> throws a <code>TypeError</code> and stops your code. Optional chaining (<code>?.</code>) prevents that by short-circuiting to <code>undefined</code> the moment any link in the chain is <code>null</code> or <code>undefined</code>.</p>
+
+<strong>LISTING 25.25 &mdash; Optional Chaining</strong>
+<pre><code>const user = {
+  name: "Alex",
+  address: {
+    city: "Portland",
+  },
+};
+
+// Without optional chaining — throws if address is missing
+// console.log(user.contact.phone); // TypeError!
+
+// With optional chaining — returns undefined safely
+console.log(user?.address?.city);     // "Portland"
+console.log(user?.contact?.phone);    // undefined (no error)
+
+// Also works for method calls
+console.log(user?.getAddress?.());    // undefined (no error if method missing)
+</code></pre>
+
+<h3>Nullish Coalescing (??)</h3>
+
+<p>The nullish coalescing operator (<code>??</code>) provides a fallback value when the left side is <code>null</code> or <code>undefined</code>. Unlike the logical OR operator (<code>||</code>), it does not treat <code>0</code>, <code>false</code>, or empty string as falsy &mdash; only <code>null</code> and <code>undefined</code> trigger the fallback.</p>
+
+<strong>LISTING 25.26 &mdash; Optional Chaining with Nullish Coalescing</strong>
+<pre><code>const user = { name: "Alex", score: 0 };
+
+// ?? only falls back on null/undefined
+console.log(user?.address?.city ?? "Unknown");  // "Unknown"
+console.log(user?.score ?? "No score");          // 0 (not "No score")
+
+// || would incorrectly trigger on 0
+console.log(user?.score || "No score");          // "No score" — wrong!
+</code></pre>
+
+<blockquote>
+  <p><strong>NOTE:</strong> Combine optional chaining and nullish coalescing as a pair: <code>obj?.deep?.property ?? fallback</code>. This pattern handles missing data gracefully and is a hallmark of production-quality JavaScript.</p>
+</blockquote>
+
+<hr>
+
+<h2>Arrays of Objects</h2>
+
+<p>The most common data pattern in front-end development is an <strong>array of objects</strong>. Product listings, user directories, blog posts, search results, shopping cart items &mdash; virtually every list of real-world data is an array where each element is an object with the same shape.</p>
+
+<strong>LISTING 25.27 &mdash; An Array of Product Objects</strong>
+<pre><code>const products = [
+  { name: "Wireless Headphones", price: 79.99, category: "Audio",  inStock: true  },
+  { name: "USB-C Hub",           price: 34.99, category: "Tech",   inStock: true  },
+  { name: "Notebook",            price: 12.99, category: "Office", inStock: false },
+  { name: "Desk Lamp",           price: 44.99, category: "Office", inStock: true  },
+  { name: "Webcam",              price: 89.99, category: "Tech",   inStock: false },
+];
+
+// Access by index, then by property
+console.log(products[0].name);   // "Wireless Headphones"
+console.log(products[2].price);  // 12.99
+</code></pre>
+
+<p>To render all of these products as cards, loop over the array and build an HTML string from each object&rsquo;s properties:</p>
+
+<strong>LISTING 25.28 &mdash; Rendering an Array of Objects as a Card Grid</strong>
+<pre><code>const grid = document.querySelector('#product-grid');
+
+let html = '';
+
+for (const product of products) {
+  html += `
+    &lt;div class="card ${product.inStock ? '' : 'out-of-stock'}"&gt;
+      &lt;span class="category"&gt;${product.category}&lt;/span&gt;
+      &lt;h3&gt;${product.name}&lt;/h3&gt;
+      &lt;strong&gt;$${product.price.toFixed(2)}&lt;/strong&gt;
+      &lt;p&gt;${product.inStock ? '✓ In Stock' : '✗ Out of Stock'}&lt;/p&gt;
+    &lt;/div&gt;
+  `;
+}
+
+grid.innerHTML = html;
+</code></pre>
+
+<p>Five products in the array, five cards on screen. Change the array, the display changes. This is the direct relationship between data and UI that defines modern web development.</p>
+
+<p>[CODEPEN 2]</p>
+
+<hr>
+
+<h2>JSON</h2>
+
+<p><strong>JSON</strong> (JavaScript Object Notation) is a text format for representing structured data. It was derived from JavaScript object literal syntax, but it is language-agnostic &mdash; Python, Ruby, Java, Go, and virtually every other language can read and write JSON. When web applications talk to servers, when you save data to local storage, when you configure tools and services, JSON is almost always the format being used.</p>
+
+<h3>Why JSON Exists</h3>
+
+<p>A JavaScript object lives in your program&rsquo;s memory. You cannot send memory directly over a network or write it to a file. You need to <strong>serialize</strong> the object &mdash; convert it into a flat text representation that can be transmitted and then reconstructed on the other side. JSON is that text representation.</p>
+
+<p>Think of it like this: an object is furniture arranged in a room. JSON is the packing list that describes every piece precisely enough that someone else can unpack and reassemble the room identically.</p>
+
+<h3>JSON vs JavaScript Object Literal</h3>
+
+<p>JSON looks nearly identical to a JavaScript object literal, but the rules are stricter:</p>
+
+<strong>LISTING 25.29 &mdash; JSON vs JavaScript Object Literal</strong>
+<pre><code>// JavaScript object literal — flexible
+const user = {
+  name: 'Alex',       // single or double quotes for strings
+  age: 28,
+  isAdmin: false,
+  greet() { return "Hi"; }, // functions allowed
+  lastLogin: undefined,     // undefined allowed
+};
+
+// JSON — strict rules
+// {
+//   "name": "Alex",         ← keys MUST be double-quoted
+//   "age": 28,              ← numbers are fine
+//   "isAdmin": false,       ← booleans: true/false (lowercase)
+//   "scores": [95, 87],     ← arrays allowed
+//   "address": { "city": "Portland" }  ← nested objects allowed
+// }
+//
+// NOT allowed in JSON:
+//   functions, undefined, Date objects, comments, trailing commas
+</code></pre>
+
+<p>JSON supports only these value types: strings (double-quoted only), numbers, booleans (<code>true</code> / <code>false</code>), <code>null</code>, arrays, and objects. Everything else &mdash; functions, <code>undefined</code>, Dates, Symbols, class instances &mdash; cannot be represented in JSON.</p>
+
+<h3>JSON.stringify() &mdash; Object to JSON String</h3>
+
+<p><code>JSON.stringify(value, replacer, space)</code> converts a JavaScript value into a JSON string. The second argument is a replacer (pass <code>null</code> to include all properties). The third argument is the number of spaces to use for indentation in the output; pass <code>2</code> for readable pretty-printed JSON.</p>
+
+<strong>LISTING 25.30 &mdash; JSON.stringify()</strong>
+<pre><code>const user = { name: "Alex", age: 28, isAdmin: false };
+
+// Compact string (for sending over a network)
+const compact = JSON.stringify(user);
+console.log(compact);
+// '{"name":"Alex","age":28,"isAdmin":false}'
+
+// Pretty-printed (for display or debugging)
+const pretty = JSON.stringify(user, null, 2);
+console.log(pretty);
+// {
+//   "name": "Alex",
+//   "age": 28,
+//   "isAdmin": false
+// }
+
+// Properties with undefined or function values are dropped
+const partial = JSON.stringify({ name: "Alex", fn: () =&gt; {}, x: undefined });
+console.log(partial); // '{"name":"Alex"}'
+</code></pre>
+
+<h3>JSON.parse() &mdash; JSON String to Object</h3>
+
+<p><code>JSON.parse(jsonString)</code> converts a JSON string back into a JavaScript value. This is what you call after receiving data from a server.</p>
+
+<strong>LISTING 25.31 &mdash; JSON.parse()</strong>
+<pre><code>const jsonString = '{"name":"Alex","age":28,"scores":[95,87,100]}';
+
+const user = JSON.parse(jsonString);
+console.log(user.name);    // "Alex"
+console.log(user.scores);  // [95, 87, 100]
+console.log(typeof user);  // "object"
+</code></pre>
+
+<h3>The Null Guard Pattern</h3>
+
+<p>When reading from storage or a source that may not have data yet, the retrieved value might be <code>null</code>. Passing <code>null</code> to <code>JSON.parse()</code> throws an error. Use the <code>||</code> operator to provide a fallback JSON string.</p>
+
+<strong>LISTING 25.32 &mdash; Null Guard with JSON.parse()</strong>
+<pre><code>// localStorage.getItem() returns null if the key doesn't exist
+const raw = localStorage.getItem('cart'); // null on first visit
+
+// Without guard: JSON.parse(null) → throws SyntaxError
+// With guard: if raw is null/falsy, parse the empty array string instead
+const cart = JSON.parse(raw || '[]');
+console.log(cart); // [] on first visit, saved data on return visits
+
+// Same pattern for objects
+const prefs = JSON.parse(localStorage.getItem('prefs') || '{}');
+</code></pre>
+
+<h3>A Complete JSON Round Trip</h3>
+
+<p>Here is the full cycle: create an object, serialize it to JSON, simulate sending/storing it, parse it back, and use the result.</p>
+
+<strong>LISTING 25.33 &mdash; JSON Round Trip</strong>
+<pre><code>// 1. Start with a JavaScript object
+const order = {
+  id: "ORD-001",
+  customer: "Alex",
+  items: ["Headphones", "USB-C Hub"],
+  total: 114.98,
+};
+
+// 2. Stringify to send over a network or save to storage
+const jsonString = JSON.stringify(order);
+console.log(typeof jsonString); // "string"
+console.log(jsonString);
+// '{"id":"ORD-001","customer":"Alex","items":["Headphones","USB-C Hub"],"total":114.98}'
+
+// 3. --- string travels over the network or sits in storage ---
+
+// 4. Parse on the receiving end to get a JavaScript object back
+const receivedOrder = JSON.parse(jsonString);
+console.log(typeof receivedOrder); // "object"
+console.log(receivedOrder.customer); // "Alex"
+console.log(receivedOrder.items[0]); // "Headphones"
+console.log(receivedOrder.total);    // 114.98
+</code></pre>
+
+<h3>Real-World Context: Fetching API Data</h3>
+
+<p>When your JavaScript code calls a web API &mdash; a weather service, a search endpoint, a product catalog &mdash; the server responds with a JSON string. The <code>fetch()</code> API (which you will learn about when covering network requests) provides a <code>.json()</code> method that calls <code>JSON.parse()</code> for you. But under the hood, the same process is always happening: a JSON string arrives, gets parsed, and you work with the resulting JavaScript object.</p>
+
+<strong>LISTING 25.34 &mdash; Simulating an API Response</strong>
+<pre><code>// Imagine this string arrived from a server
+const apiResponse = `{
+  "status": "ok",
+  "results": [
+    { "id": 1, "title": "Post One",   "published": true  },
+    { "id": 2, "title": "Post Two",   "published": false },
+    { "id": 3, "title": "Post Three", "published": true  }
+  ]
+}`;
+
+const data = JSON.parse(apiResponse);
+console.log(data.status); // "ok"
+
+// Filter and render only published posts
+const published = data.results.filter(post =&gt; post.published);
+
+published.forEach(post =&gt; {
+  console.log(post.title); // "Post One", "Post Three"
+});
+</code></pre>
+
+<p>[IMG - JSON stringify and parse flow]</p>
+
+<blockquote>
+  <p><strong>NOTE:</strong> <code>JSON.parse()</code> throws a <code>SyntaxError</code> if the string is not valid JSON. In production code that parses data from external sources, wrap <code>JSON.parse()</code> in a <code>try...catch</code> block to handle malformed input gracefully.</p>
+</blockquote>
+
+<hr>
+
+<h2>Summary</h2>
+
+<ul>
+  <li style="list-style-type: '▶  '">Objects are collections of key-value pairs. Keys are strings (or Symbols); values can be any type, including other objects, arrays, and functions.</li>
+  <li style="list-style-type: '▶  '">Dot notation (<code>obj.key</code>) is the default. Bracket notation (<code>obj["key"]</code> or <code>obj[variable]</code>) is required for dynamic keys and keys with special characters.</li>
+  <li style="list-style-type: '▶  '">Property shorthand, computed property names, and method shorthand are modern syntactic conveniences that reduce repetition and appear throughout real codebases.</li>
+  <li style="list-style-type: '▶  '"><code>this</code> inside a method refers to the object the method is called on. Arrow functions do not have their own <code>this</code>, making them unsuitable as object methods when <code>this</code> is needed.</li>
+  <li style="list-style-type: '▶  '"><code>Object.keys()</code>, <code>Object.values()</code>, and <code>Object.entries()</code> convert an object&rsquo;s keys and values into arrays, enabling iteration and transformation. <code>Object.fromEntries()</code> reconstructs an object from an array of pairs.</li>
+  <li style="list-style-type: '▶  '">Assignment (<code>const b = a</code>) copies a reference, not the object. Spread and <code>Object.assign()</code> make shallow copies (nested objects remain shared). <code>structuredClone()</code> makes a fully independent deep copy of any object tree.</li>
+  <li style="list-style-type: '▶  '">Destructuring extracts properties into variables cleanly. You can rename, set defaults, destructure in function parameters, and destructure nested objects &mdash; all patterns that appear constantly in modern JavaScript.</li>
+  <li style="list-style-type: '▶  '">Optional chaining (<code>?.</code>) short-circuits to <code>undefined</code> when any link in a property chain is <code>null</code> or <code>undefined</code>, preventing TypeErrors. Pair it with nullish coalescing (<code>??</code>) to supply a fallback value.</li>
+  <li style="list-style-type: '▶  '">Arrays of objects are the dominant data pattern in front-end development. A <code>for...of</code> loop over an array of objects, combined with template literals and <code>innerHTML</code>, generates complete UI sections from data.</li>
+  <li style="list-style-type: '▶  '">JSON is a strict text format for structured data exchange. <code>JSON.stringify()</code> converts a JavaScript object to a JSON string; <code>JSON.parse()</code> converts a JSON string back to an object. JSON keys must be double-quoted, and functions, <code>undefined</code>, and Dates are not valid JSON values.</li>
+</ul>
+
+<hr>
+
+<h2>Q&amp;A</h2>
+
+<dl>
+
+  <dt>What is the difference between dot notation and bracket notation?</dt>
+  <dd>Both read and write object properties, and both produce identical results when the key is a known, valid identifier. Dot notation (<code>user.name</code>) is shorter and more readable when the key is a fixed string with no special characters. Bracket notation (<code>user["name"]</code> or <code>user[fieldName]</code>) is required in two situations: when the key contains characters that are not valid in an identifier (hyphens, spaces, starting with a number), and when the key is stored in a variable and only known at runtime. In practice, dot notation is used most of the time, with bracket notation reserved for those specific cases.</dd>
+
+  <dt>When should I use bracket notation instead of dot notation?</dt>
+  <dd>Use bracket notation when you need to access a property whose key is computed at runtime &mdash; for example, <code>user[fieldName]</code> where <code>fieldName</code> is a variable that might hold <code>"name"</code>, <code>"email"</code>, or any other string. Also use it when the key itself contains characters that make dot notation syntactically impossible, such as <code>config["max-retries"]</code> or <code>headers["Content-Type"]</code>. A common pattern is building a form-field-to-object mapper where you receive the field name as a string and use it directly as the key: <code>data[field.name] = field.value</code>.</dd>
+
+  <dt>What does <code>this</code> refer to inside an object method?</dt>
+  <dd><code>this</code> refers to the object on which the method was called. When you write <code>user.greet()</code>, JavaScript sets <code>this</code> to <code>user</code> for the duration of that call. So <code>this.name</code> inside <code>greet</code> resolves to <code>user.name</code>. This is determined at call time, not at definition time. Arrow functions are the notable exception: they capture <code>this</code> from the enclosing lexical scope when they are defined, so an arrow function used as an object method will not have the object as its <code>this</code>. Use regular method shorthand (<code>methodName() {}</code>) any time you need <code>this</code> to refer to the object itself.</dd>
+
+  <dt>What is the difference between Object.assign() and spread?</dt>
+  <dd>Both create a shallow copy and both merge source properties into a target. The practical differences are: <code>Object.assign(target, ...sources)</code> <em>mutates</em> the target object in place and returns it, while spread (<code>{ ...source }</code>) always creates a new object literal. For making copies without mutation, spread is cleaner and more idiomatic: <code>const copy = { ...original }</code> is shorter than <code>const copy = Object.assign({}, original)</code>. For merging multiple sources in one step with fine-grained control over the target, <code>Object.assign()</code> is explicit. In modern codebases, spread is used for copies and merges, while <code>Object.assign()</code> appears mainly in legacy code or when the intent is to explicitly modify an existing target.</dd>
+
+  <dt>What is shallow copy vs deep copy, and when does it matter?</dt>
+  <dd>A shallow copy creates a new object at the top level, but any nested objects or arrays inside it are still shared references pointing to the same memory as the original. A deep copy creates entirely independent copies of all nested structures as well. It matters whenever you need to modify a copy without affecting the original, and the object contains nested objects or arrays. If your object is flat &mdash; all values are primitives like strings and numbers &mdash; a shallow copy is sufficient because primitives are copied by value. If your object contains a nested address object, scores array, or any other reference type, a shallow copy is a mutation trap. Use <code>structuredClone()</code> for deep copies.</dd>
+
+  <dt>Why can't I just send a JavaScript object over the network?</dt>
+  <dd>A JavaScript object exists only in your program&rsquo;s memory &mdash; it is a data structure in RAM, specific to the JavaScript engine running your code. A network request carries a stream of bytes. There is no standard way for a server written in Python or Java to interpret raw JavaScript memory. Serialization bridges this gap: you convert the object into a universally understood text format (JSON), send that text, and the receiving application parses it back into its own equivalent data structure. This is why <code>JSON.stringify()</code> exists for outgoing data and <code>JSON.parse()</code> exists for incoming data.</dd>
+
+  <dt>What makes JSON different from a regular JavaScript object literal?</dt>
+  <dd>JSON is a strict subset of JavaScript with several important restrictions. First, all keys must be double-quoted strings &mdash; <code>{"name": "Alex"}</code> is valid JSON, but <code>{name: "Alex"}</code> is not. Second, string values must use double quotes, not single quotes. Third, only six value types are permitted: strings, numbers, booleans (<code>true</code>/<code>false</code>), <code>null</code>, arrays, and objects. Functions, <code>undefined</code>, <code>Date</code> objects, <code>Symbol</code>s, and class instances cannot be represented. Fourth, trailing commas are not allowed. A JavaScript object literal has none of these restrictions &mdash; it can have unquoted keys, single-quoted strings, function values, and trailing commas. JSON&rsquo;s strictness is a feature: it ensures that any language can parse it reliably.</dd>
+
+  <dt>What does optional chaining (?.) do, and when should I use it?</dt>
+  <dd>Optional chaining is a short-circuit operator: when evaluating a chain of property accesses like <code>a?.b?.c</code>, if any value in the chain is <code>null</code> or <code>undefined</code>, the entire expression immediately evaluates to <code>undefined</code> instead of throwing a <code>TypeError</code>. Without it, <code>user.address.city</code> throws if <code>user.address</code> is <code>null</code> or <code>undefined</code>. With it, <code>user?.address?.city</code> safely returns <code>undefined</code>. Use it whenever you are working with data that may be partially populated &mdash; API responses where some fields are optional, user data that may not have filled in every profile field, or DOM queries that may return <code>null</code>. It also works for method calls: <code>user?.getAddress?.()</code> will not throw if <code>getAddress</code> is not defined.</dd>
+
+</dl>

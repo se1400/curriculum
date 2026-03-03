@@ -1,0 +1,825 @@
+<h1>Functions: The Building Blocks of Organized Code</h1>
+
+<h2>What You'll Learn in This Lesson</h2>
+
+<ul>
+  <li style="list-style-type: '▶  '">Why functions are the most important tool for keeping code organized and maintainable</li>
+  <li style="list-style-type: '▶  '">The three ways to write a function: declarations, expressions, and arrow functions &mdash; and when to use each</li>
+  <li style="list-style-type: '▶  '">How arrow function shorthand forms work, including implicit return</li>
+  <li style="list-style-type: '▶  '">What named function expressions are and why they help with debugging</li>
+  <li style="list-style-type: '▶  '">The difference between parameters (at definition) and arguments (at call)</li>
+  <li style="list-style-type: '▶  '">How default parameters and rest parameters work</li>
+  <li style="list-style-type: '▶  '">What the <code>return</code> keyword does and how to use early returns as guard clauses</li>
+  <li style="list-style-type: '▶  '">Why functions are &ldquo;first-class values&rdquo; in JavaScript and what that means practically</li>
+  <li style="list-style-type: '▶  '">What callback functions are &mdash; and how event handlers are already callbacks in practice</li>
+  <li style="list-style-type: '▶  '">How scope works: block scope, function scope, global scope, and the scope chain</li>
+  <li style="list-style-type: '▶  '">What closures are, why they matter, and how to use them to create private state &mdash; including a real DOM counter example</li>
+</ul>
+
+<p>If variables are the nouns of JavaScript &mdash; the containers that hold data &mdash; then functions are the verbs. They are the units of action, the named chunks of code you can define once and run as many times as you like. No topic in this curriculum will pay more long-term dividends than a deep, confident understanding of how functions work in JavaScript. Every modern framework, every API, every pattern you will encounter relies on functions. This is the lesson where the language really opens up.</p>
+
+<hr>
+
+<h2>Why Functions Matter</h2>
+
+<p>Imagine you are a baker and you have perfected a recipe for sourdough bread. Now imagine that every time you want to make a loaf, you have to reinvent the recipe from scratch &mdash; figuring out the right flour ratio, the hydration level, the proofing time, all over again. That would be absurd. You would write the recipe down once and refer to it whenever you need it. If you discover the proofing time needs to change, you update the recipe in one place and every future loaf benefits from that fix.</p>
+
+<p>Functions are your recipes. Without them, you would duplicate the same blocks of code everywhere in your program. When a bug appears or requirements change, you would have to hunt down every copy and update each one. This is error-prone and exhausting, and it is precisely what the <strong>DRY principle</strong> &mdash; Don't Repeat Yourself &mdash; is designed to prevent.</p>
+
+<p>DRY is not just an aesthetic preference. Repeated code is a maintenance liability. Every copy is a place where a future bug can diverge from its siblings, creating subtle inconsistencies. Functions let you centralize logic so that there is one place to look, one place to fix, and one place to test.</p>
+
+<p>Beyond eliminating repetition, functions let you give meaningful names to operations. Reading <code>calculateTax(subtotal)</code> is far clearer than reading fifteen lines of arithmetic. Functions are how you communicate intent to the next programmer who reads your code &mdash; which is often you, six months later.</p>
+
+<hr>
+
+<h2>Three Ways to Write a Function</h2>
+
+<p>JavaScript offers three syntaxes for creating functions, and you will encounter all three constantly. They are not interchangeable in every context, but they all produce callable units of code. Understanding the differences between them matters for both correctness and readability.</p>
+
+<h3>Function Declarations</h3>
+
+<p>A function declaration is the classic syntax. You write the <code>function</code> keyword, followed by a name, a parameter list in parentheses, and a body in curly braces.</p>
+
+<p><strong>LISTING 22.1 &mdash; Function Declaration</strong></p>
+<pre><code>function greet(name) {
+  return "Hello, " + name + "!";
+}
+
+console.log(greet("Priya")); // "Hello, Priya!"</code></pre>
+
+<p>The defining characteristic of a function declaration is that it is <strong>hoisted</strong> &mdash; the entire function, including its body, is moved to the top of its scope before any code runs. This means you can call a declared function <em>before</em> its definition appears in the file, and it will work correctly. This is why it was common in older codebases to see utility functions at the bottom of a file with calls to them at the top.</p>
+
+<p><strong>LISTING 22.2 &mdash; Hoisting: Calling a Declaration Before Its Definition</strong></p>
+<pre><code>// This works! The declaration is hoisted.
+const result = double(7);
+console.log(result); // 14
+
+function double(n) {
+  return n * 2;
+}</code></pre>
+
+<h3>Function Expressions</h3>
+
+<p>A function expression creates a function and assigns it to a variable. The function itself has no name in this form (making it an <em>anonymous function expression</em>) &mdash; the variable is what you use to refer to it.</p>
+
+<p><strong>LISTING 22.3 &mdash; Function Expression</strong></p>
+<pre><code>const greet = function(name) {
+  return "Hello, " + name + "!";
+};
+
+console.log(greet("Marcus")); // "Hello, Marcus!"</code></pre>
+
+<p>Function expressions are <strong>not hoisted</strong> the same way declarations are. The variable <code>greet</code> is hoisted (because of how <code>const</code> and <code>let</code> work), but its value &mdash; the function itself &mdash; is not assigned until the engine reaches that line. Try to call it before that line and you get a <code>TypeError</code> (if using <code>const</code>/<code>let</code>, you will actually hit the Temporal Dead Zone first and get a <code>ReferenceError</code>).</p>
+
+<p><strong>LISTING 22.4 &mdash; Function Expressions Are Not Hoisted</strong></p>
+<pre><code>// This FAILS — the variable is in the TDZ
+console.log(triple(4)); // ReferenceError: Cannot access 'triple' before initialization
+
+const triple = function(n) {
+  return n * 3;
+};</code></pre>
+
+<h3>Arrow Functions</h3>
+
+<p>Arrow functions, introduced in ES6, are a concise alternative syntax for function expressions. They replace the <code>function</code> keyword with a &ldquo;fat arrow&rdquo; <code>=&gt;</code>. Arrow functions are especially popular for short operations and callbacks because they are compact and easy to read inline.</p>
+
+<p><strong>LISTING 22.5 &mdash; Arrow Function (Explicit Return)</strong></p>
+<pre><code>const greet = (name) => {
+  return "Hello, " + name + "!";
+};
+
+console.log(greet("Sofia")); // "Hello, Sofia!"</code></pre>
+
+<p>Arrow functions have two shorthand forms that reduce boilerplate even further:</p>
+
+<p><strong>Single parameter &mdash; no parentheses needed:</strong></p>
+
+<p><strong>LISTING 22.6 &mdash; Arrow Function: Single Param, No Parens</strong></p>
+<pre><code>const double = n => n * 2;
+console.log(double(5)); // 10</code></pre>
+
+<p><strong>Implicit return &mdash; no curly braces, expression is returned directly:</strong> When you omit the curly braces from an arrow function body, whatever expression follows the arrow is automatically returned. This is called an <em>implicit return</em>. If you add curly braces, the body becomes an explicit block and you must write a <code>return</code> statement.</p>
+
+<p><strong>LISTING 22.7 &mdash; Implicit vs. Explicit Return</strong></p>
+<pre><code>// Implicit return — the expression (a + b) is returned automatically
+const add = (a, b) => a + b;
+console.log(add(3, 4)); // 7
+
+// Explicit return — curly braces mean you must write return
+const addVerbose = (a, b) => {
+  const sum = a + b;
+  return sum;
+};
+console.log(addVerbose(3, 4)); // 7
+
+// Returning an object literal with implicit return — wrap in parentheses!
+// Without parens, JS thinks the curly braces are a function body, not an object.
+const makePoint = (x, y) => ({ x, y });
+console.log(makePoint(2, 5)); // { x: 2, y: 5 }</code></pre>
+
+<blockquote>
+  <p><strong>NOTE:</strong> Arrow functions do <em>not</em> have their own <code>this</code> binding. When you use <code>this</code> inside an arrow function, it refers to <code>this</code> from the surrounding context where the arrow function was defined. This is a meaningful difference from regular functions and matters a great deal in class methods and event handlers. For now, just know the difference exists; the full behavior of <code>this</code> is an advanced topic worth exploring separately.</p>
+</blockquote>
+
+<h3>When to Use Which Syntax</h3>
+
+<p>In practice, most experienced JavaScript developers follow a consistent pattern:</p>
+
+<ul>
+  <li style="list-style-type: '▶  '"><strong>Function declarations</strong> for top-level, named utility functions that need to be readable and potentially hoisted. Good for the main functions of a module.</li>
+  <li style="list-style-type: '▶  '"><strong>Arrow functions</strong> for callbacks, inline operations, and short transformations. They read cleanly wherever a function is passed as an argument.</li>
+  <li style="list-style-type: '▶  '"><strong>Function expressions</strong> when you need to store a function in a variable but also need more control (such as a named function expression for debugging, described next).</li>
+</ul>
+
+<h3>Named Function Expressions (A Debugging Tip)</h3>
+
+<p>A function expression can also carry a name &mdash; this is a <strong>debugging tip</strong> more than a core concept. The name is only visible <em>inside</em> the function itself, but it appears in error stack traces and the browser DevTools, making bugs far easier to locate. Anonymous arrow functions show up as &ldquo;anonymous&rdquo; in call stack traces. Named function expressions show up with a descriptive name instead.</p>
+
+<p><strong>LISTING 22.8 &mdash; Named Function Expression (Debugging Tip)</strong></p>
+<pre><code>// Anonymous function expression — stack trace shows "(anonymous)"
+const calculateTax = function(amount, rate) {
+  return amount * rate;
+};
+
+// Named function expression — stack trace shows "computeTax"
+const calculateTax = function computeTax(amount, rate) {
+  return amount * rate;
+};
+
+// The name "computeTax" is NOT accessible from outside:
+console.log(typeof computeTax); // "undefined"
+
+// But if computeTax throws an error, the stack trace says "computeTax"
+// rather than "(anonymous)", making it much easier to track down the problem.</code></pre>
+
+<p>This is a professional habit worth adopting. For any function expression that is more than trivially short, giving it an internal name is worth the small extra typing. When something goes wrong, a readable stack trace beats hunting through a list of &ldquo;anonymous&rdquo; entries in DevTools.</p>
+
+<p>[CODEPEN 1]</p>
+
+<hr>
+
+<h2>Parameters and Arguments</h2>
+
+<p>The words &ldquo;parameter&rdquo; and &ldquo;argument&rdquo; are often used interchangeably in conversation, but they mean different things technically. A <strong>parameter</strong> is the variable name listed in a function definition &mdash; it is a placeholder. An <strong>argument</strong> is the actual value passed to the function when you call it. Parameters live at the definition; arguments live at the call site.</p>
+
+<p><strong>LISTING 22.9 &mdash; Parameters vs. Arguments</strong></p>
+<pre><code>// "name" and "greeting" are PARAMETERS — defined here as placeholders
+function sayHello(name, greeting) {
+  return greeting + ", " + name + "!";
+}
+
+// "Kenji" and "Good morning" are ARGUMENTS — the actual values passed in
+console.log(sayHello("Kenji", "Good morning")); // "Good morning, Kenji!"</code></pre>
+
+<h3>Positional Arguments</h3>
+
+<p>JavaScript functions match arguments to parameters by <em>position</em>. The first argument maps to the first parameter, the second to the second, and so on. If you pass too few arguments, the unmatched parameters receive <code>undefined</code>. If you pass too many, the extra arguments are silently ignored (though you can still access them using the <code>arguments</code> object or rest parameters).</p>
+
+<p><strong>LISTING 22.10 &mdash; Too Few and Too Many Arguments</strong></p>
+<pre><code>function describe(subject, adjective) {
+  return subject + " is " + adjective;
+}
+
+// Too few — adjective is undefined
+console.log(describe("The sky")); // "The sky is undefined"
+
+// Just right
+console.log(describe("The sky", "blue")); // "The sky is blue"
+
+// Too many — "today" is silently ignored
+console.log(describe("The sky", "blue", "today")); // "The sky is blue"</code></pre>
+
+<h3>Default Parameters</h3>
+
+<p>Default parameters let you specify a fallback value that a parameter should use if no argument is provided for it (or if <code>undefined</code> is explicitly passed). This feature was introduced in ES6 and is vastly cleaner than the old pattern of writing <code>name = name || "World"</code> inside the function body.</p>
+
+<p><strong>LISTING 22.11 &mdash; Default Parameters</strong></p>
+<pre><code>function greet(name = "World", punctuation = "!") {
+  return "Hello, " + name + punctuation;
+}
+
+console.log(greet());                  // "Hello, World!"
+console.log(greet("Amara"));           // "Hello, Amara!"
+console.log(greet("Amara", "."));      // "Hello, Amara."
+
+// Explicitly passing undefined triggers the default too
+console.log(greet(undefined, "?"));    // "Hello, World?"
+
+// Passing null does NOT trigger the default
+console.log(greet(null));              // "Hello, null!"</code></pre>
+
+<p>Default values are evaluated at call time, not at function definition time. This means you can use expressions &mdash; including calls to other functions &mdash; as default values.</p>
+
+<p><strong>LISTING 22.12 &mdash; Expression as a Default Value</strong></p>
+<pre><code>function createId(prefix = "user", timestamp = Date.now()) {
+  return prefix + "_" + timestamp;
+}
+
+console.log(createId());         // e.g., "user_1711234567890"
+console.log(createId("admin"));  // e.g., "admin_1711234567891"</code></pre>
+
+<h3>Rest Parameters</h3>
+
+<p>Sometimes you want a function to accept a variable number of arguments. Rest parameters let you collect all remaining arguments into a real JavaScript array. The syntax is three dots followed by a parameter name: <code>...numbers</code>. The rest parameter must always be the <em>last</em> parameter in the list.</p>
+
+<p><strong>LISTING 22.13 &mdash; Rest Parameters</strong></p>
+<pre><code>function sum(...numbers) {
+  let total = 0;
+  for (const n of numbers) {
+    total += n;
+  }
+  return total;
+}
+
+console.log(sum(1, 2));           // 3
+console.log(sum(10, 20, 30));     // 60
+console.log(sum(1, 2, 3, 4, 5)); // 15
+console.log(sum());               // 0 — numbers is an empty array
+
+// Mixing regular and rest parameters
+function logMessage(level, ...messages) {
+  console.log("[" + level + "]", messages.join(" "));
+}
+
+logMessage("INFO", "Server", "started", "successfully");
+// [INFO] Server started successfully</code></pre>
+
+<p>The key advantage of rest parameters over the legacy <code>arguments</code> object (described below) is that rest parameters give you a real array. You can use every array method &mdash; <code>map</code>, <code>filter</code>, <code>reduce</code>, <code>forEach</code> &mdash; directly on them.</p>
+
+<h3>The <code>arguments</code> Object (Legacy)</h3>
+
+<p>Before rest parameters existed, functions had access to a special <code>arguments</code> object &mdash; an array-like object containing all the arguments passed to the function. It looks like an array but is not one: it does not have array methods like <code>forEach</code> or <code>map</code>. You will encounter it in older code, but you should use rest parameters in all new code.</p>
+
+<p><strong>LISTING 22.14 &mdash; The arguments Object (Legacy &mdash; Avoid in New Code)</strong></p>
+<pre><code>function legacySum() {
+  let total = 0;
+  for (let i = 0; i < arguments.length; i++) {
+    total += arguments[i];
+  }
+  return total;
+}
+
+console.log(legacySum(1, 2, 3)); // 6
+
+// arguments is NOT available in arrow functions — another reason to use rest params
+const arrowSum = (...nums) => nums.reduce((acc, n) => acc + n, 0);
+console.log(arrowSum(1, 2, 3)); // 6</code></pre>
+
+<blockquote>
+  <p><strong>NOTE:</strong> Arrow functions do not have their own <code>arguments</code> object. If you try to use <code>arguments</code> inside an arrow function, you either get an error or the <code>arguments</code> from the nearest enclosing regular function. This is another reason to prefer rest parameters universally.</p>
+</blockquote>
+
+<p>[CODEPEN 2]</p>
+
+<hr>
+
+<h2>The <code>return</code> Keyword</h2>
+
+<p>The <code>return</code> statement does two things simultaneously: it exits the function immediately and it sends a value back to the code that called the function. The calling code can then use that value &mdash; store it in a variable, pass it to another function, display it in the DOM.</p>
+
+<p><strong>LISTING 22.15 &mdash; Returning a Value</strong></p>
+<pre><code>function celsiusToFahrenheit(c) {
+  return (c * 9 / 5) + 32;
+}
+
+const boiling = celsiusToFahrenheit(100);
+console.log(boiling); // 212
+
+// The returned value can be used directly in an expression
+console.log("Freezing is " + celsiusToFahrenheit(0) + "°F"); // "Freezing is 32°F"</code></pre>
+
+<h3>Functions That Return undefined</h3>
+
+<p>If a function has no <code>return</code> statement, or has a bare <code>return;</code> with no value, it returns <code>undefined</code> automatically. This is fine &mdash; not every function needs to produce a value. Some functions are called purely for their <em>side effects</em>: they might update the DOM, write to a log, send data to a server, or modify a variable in the outer scope.</p>
+
+<p><strong>LISTING 22.16 &mdash; Functions with Side Effects vs. Functions That Return Values</strong></p>
+<pre><code>// Side-effect function — changes the DOM, returns undefined
+function showMessage(text) {
+  document.getElementById("output").textContent = text;
+  // no return statement — implicitly returns undefined
+}
+
+// Value-returning function — computes and returns, no side effects
+function formatCurrency(amount, currency = "USD") {
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: currency
+  }).format(amount);
+}
+
+// Using both together
+const price = formatCurrency(1234.5);
+showMessage(price); // Displays "$1,234.50" in the DOM</code></pre>
+
+<p>Separating pure computation (functions that return values) from side effects (functions that change the world around them) is a pattern worth cultivating. Pure functions are easier to test, easier to reason about, and easier to reuse.</p>
+
+<h3>Early Returns as Guard Clauses</h3>
+
+<p>One of the most useful patterns in function design is the <em>early return</em> &mdash; returning immediately when a precondition fails, rather than wrapping the entire function body in a deep <code>if/else</code> chain. Early returns are called <strong>guard clauses</strong> because they guard the rest of the function from executing with bad input.</p>
+
+<p><strong>LISTING 22.17 &mdash; Guard Clauses: Early Returns vs. Nested if/else</strong></p>
+<pre><code>// Without guard clauses — arrow-shaped code, hard to read
+function processOrder(order) {
+  if (order !== null) {
+    if (order.items.length > 0) {
+      if (order.customer !== null) {
+        // actual logic buried three levels deep
+        return "Order processed for " + order.customer.name;
+      } else {
+        return "Error: no customer";
+      }
+    } else {
+      return "Error: cart is empty";
+    }
+  } else {
+    return "Error: no order";
+  }
+}
+
+// With guard clauses — linear, easy to scan
+function processOrder(order) {
+  if (order === null)             return "Error: no order";
+  if (order.items.length === 0)  return "Error: cart is empty";
+  if (order.customer === null)   return "Error: no customer";
+
+  // Happy path — no indentation needed
+  return "Order processed for " + order.customer.name;
+}</code></pre>
+
+<p>The guard clause version reads top-to-bottom like a checklist. You confirm that nothing is wrong, then proceed with the main logic. This style is widely considered cleaner and more professional than deeply nested conditionals.</p>
+
+<hr>
+
+<h2>Functions as First-Class Values</h2>
+
+<p>In JavaScript, functions are <em>first-class values</em>. This is a technical term with a precise meaning: a function can be used anywhere any other value can be used. Specifically:</p>
+
+<ul>
+  <li style="list-style-type: '▶  '">Assigned to a variable: <code>const fn = function() {}</code></li>
+  <li style="list-style-type: '▶  '">Stored in an array: <code>[function a() {}, function b() {}]</code></li>
+  <li style="list-style-type: '▶  '">Stored as an object property (a method): <code>{ greet: function() {} }</code></li>
+  <li style="list-style-type: '▶  '">Passed as an argument to another function</li>
+  <li style="list-style-type: '▶  '">Returned from another function</li>
+</ul>
+
+<p>This might sound abstract, but it is the entire foundation of how JavaScript is used in practice. Event listeners, array methods, promises, React hooks &mdash; all of these patterns depend on the ability to pass functions around as values.</p>
+
+<p><strong>LISTING 22.18 &mdash; Functions as First-Class Values</strong></p>
+<pre><code>// Assigned to a variable
+const square = n => n * n;
+
+// Stored in an array
+const operations = [
+  n => n + 1,
+  n => n * 2,
+  n => n - 3
+];
+
+// Apply each operation in sequence to the value 5
+let value = 5;
+for (const op of operations) {
+  value = op(value);
+}
+console.log(value); // ((5 + 1) * 2) - 3 = 9
+
+// Stored as an object property
+const mathUtils = {
+  add: (a, b) => a + b,
+  subtract: (a, b) => a - b,
+  multiply: (a, b) => a * b
+};
+console.log(mathUtils.multiply(4, 5)); // 20
+
+// Returned from another function
+function makeMultiplier(factor) {
+  return n => n * factor;
+}
+const triple = makeMultiplier(3);
+const quadruple = makeMultiplier(4);
+console.log(triple(7));    // 21
+console.log(quadruple(7)); // 28</code></pre>
+
+<p>Pay close attention to the last example. <code>makeMultiplier(3)</code> does not run the inner arrow function &mdash; it returns it. <code>triple</code> is now a function that multiplies by 3. This pattern &mdash; a function that creates and returns another function &mdash; is a <em>factory function</em>, and it reappears everywhere, including in the closures section coming up shortly.</p>
+
+<h3>The Difference Between Referencing and Calling</h3>
+
+<p>One point confuses many beginners: the parentheses <code>()</code> are what cause a function to <em>run</em>. Without them, you get a reference to the function itself, not its return value.</p>
+
+<p><strong>LISTING 22.19 &mdash; Reference vs. Call</strong></p>
+<pre><code>function sayHi() {
+  return "Hi!";
+}
+
+console.log(sayHi);   // prints the function itself: [Function: sayHi]
+console.log(sayHi()); // prints "Hi!" — the function runs and the return value is logged
+
+// This matters a lot with event listeners:
+button.addEventListener("click", sayHi);   // CORRECT — passes the function
+button.addEventListener("click", sayHi()); // WRONG — calls sayHi immediately,
+                                            // passes undefined to addEventListener</code></pre>
+
+<hr>
+
+<h2>Callback Functions</h2>
+
+<p>A <strong>callback</strong> is a function passed as an argument to another function, with the expectation that the receiving function will call it at the appropriate time. The name comes from the idea that you hand off a function and say &ldquo;call this back when you are done.&rdquo;</p>
+
+<p>Every event listener you have written is already a callback. When you write <code>button.addEventListener('click', handleClick)</code>, the function <code>handleClick</code> is the callback &mdash; it is passed as an argument and called back by JavaScript when the event fires. The function does not run immediately; it runs later when needed. You have already been working with callbacks throughout this course; this section gives you the vocabulary to name the pattern.</p>
+
+<h3>Synchronous Callbacks</h3>
+
+<p>A synchronous callback is called immediately, inline, as part of the current code flow. Array methods like <code>forEach</code>, <code>map</code>, and <code>filter</code> use synchronous callbacks. The array method runs through the array and calls your callback once for each element.</p>
+
+<p><strong>LISTING 22.20 &mdash; Synchronous Callbacks with Array Methods</strong></p>
+<pre><code>const numbers = [1, 2, 3, 4, 5];
+
+// forEach — callback is called once per element
+numbers.forEach(function(num) {
+  console.log(num * 10);
+}); // 10, 20, 30, 40, 50
+
+// Arrow function as callback — same thing, shorter
+numbers.forEach(num => console.log(num * 10));
+
+// map — transforms each element, returns a new array
+const doubled = numbers.map(num => num * 2);
+console.log(doubled); // [2, 4, 6, 8, 10]
+
+// filter — returns elements where the callback returns true
+const evens = numbers.filter(num => num % 2 === 0);
+console.log(evens); // [2, 4]</code></pre>
+
+<h3>Asynchronous Callbacks</h3>
+
+<p><code>setTimeout</code> is the classic example of an asynchronous callback. You pass it a function and a delay in milliseconds; it calls the function back after that delay. The rest of your code continues running during the wait &mdash; the callback does not block execution.</p>
+
+<p><strong>LISTING 22.21 &mdash; setTimeout: An Asynchronous Callback</strong></p>
+<pre><code>console.log("Before setTimeout");
+
+setTimeout(function() {
+  console.log("This runs after 2 seconds");
+}, 2000);
+
+console.log("After setTimeout — this prints before the callback!");
+
+// Output order:
+// "Before setTimeout"
+// "After setTimeout — this prints before the callback!"
+// (2 seconds later...)
+// "This runs after 2 seconds"</code></pre>
+
+<h3>Writing Your Own Function That Accepts a Callback</h3>
+
+<p>You are not limited to passing callbacks to built-in functions. You can write functions that accept callbacks as parameters, giving callers the power to customize behavior.</p>
+
+<p><strong>LISTING 22.22 &mdash; A Function That Accepts a Callback</strong></p>
+<pre><code>function doTask(taskName, callback) {
+  console.log("Starting: " + taskName);
+
+  // Simulate work taking a moment
+  setTimeout(function() {
+    console.log("Finished: " + taskName);
+    callback(taskName); // call the callback with the result
+  }, 1000);
+}
+
+// Passing an anonymous callback
+doTask("Data fetch", function(name) {
+  console.log("Callback received: " + name + " is done!");
+});
+
+// Passing a named callback — same behavior, better readability
+function onTaskComplete(name) {
+  console.log("Callback received: " + name + " is done!");
+}
+
+doTask("Data fetch", onTaskComplete);</code></pre>
+
+<h3>Named vs. Anonymous Callbacks</h3>
+
+<p>Anonymous callbacks are convenient for short, one-off operations. Named callbacks are better when the function is reused in multiple places, or when you need to remove the event listener later. <code>removeEventListener</code> requires the exact same function reference that was passed to <code>addEventListener</code> &mdash; an anonymous function created inline creates a new reference each time, making removal impossible.</p>
+
+<p><strong>LISTING 22.23 &mdash; Named Callbacks Enable Removal</strong></p>
+<pre><code>// Anonymous callback — cannot be removed
+button.addEventListener("click", function() {
+  console.log("clicked");
+});
+// button.removeEventListener("click", ???); // impossible — no reference
+
+// Named callback — can be removed
+function handleClick() {
+  console.log("clicked");
+}
+
+button.addEventListener("click", handleClick);
+
+// Later:
+button.removeEventListener("click", handleClick); // works!</code></pre>
+
+<p>[CODEPEN 3]</p>
+
+<hr>
+
+<h2>Scope</h2>
+
+<p>Every variable you declare exists somewhere &mdash; it has a <em>home</em>. <strong>Scope</strong> is the term for where a variable is accessible. Understanding scope is essential for avoiding bugs and understanding why JavaScript sometimes cannot find a variable you are sure you declared.</p>
+
+<h3>Block Scope</h3>
+
+<p>Variables declared with <code>let</code> or <code>const</code> are <strong>block-scoped</strong>: they exist only within the nearest enclosing pair of curly braces <code>{ }</code>. Once execution leaves that block, the variable ceases to exist. Any attempt to access it from outside the block produces a <code>ReferenceError</code>.</p>
+
+<p><strong>LISTING 22.24 &mdash; Block Scope</strong></p>
+<pre><code>if (true) {
+  const message = "I am inside the block";
+  let count = 0;
+  console.log(message); // "I am inside the block"
+}
+
+console.log(message); // ReferenceError: message is not defined
+console.log(count);   // ReferenceError: count is not defined
+
+// Each iteration of a loop has its own block scope
+for (let i = 0; i < 3; i++) {
+  const squared = i * i;
+  console.log(squared); // 0, 1, 4
+}
+
+console.log(i);       // ReferenceError
+console.log(squared); // ReferenceError</code></pre>
+
+<h3>Function Scope</h3>
+
+<p>Variables declared anywhere inside a function body are <strong>local to that function</strong>. They cannot be read or modified from outside the function. This is a powerful isolation mechanism &mdash; it means internal implementation details of a function cannot accidentally interfere with the rest of your program.</p>
+
+<p><strong>LISTING 22.25 &mdash; Function Scope</strong></p>
+<pre><code>function calculateDiscount(price, rate) {
+  const discount = price * rate;  // local variable
+  const final = price - discount; // local variable
+  return final;
+}
+
+console.log(calculateDiscount(100, 0.2)); // 80
+
+// discount and final are completely inaccessible here:
+console.log(discount); // ReferenceError
+console.log(final);    // ReferenceError</code></pre>
+
+<h3>Global Scope</h3>
+
+<p>A variable declared outside any function or block exists in the <strong>global scope</strong> and is accessible from anywhere in your program. In the browser, global variables become properties of the <code>window</code> object.</p>
+
+<p>Global variables should be used sparingly. A global variable can be read or modified from anywhere, which means any part of your code can accidentally change it. When bugs involve global state, they can be extremely difficult to track down because the source of the mutation could be anywhere. The professional habit is to keep everything as local as possible and expose only what needs to be shared.</p>
+
+<p><strong>LISTING 22.26 &mdash; Global Scope and Why to Limit It</strong></p>
+<pre><code>// Global variable — accessible everywhere
+const APP_NAME = "MyCoolApp";
+
+function displayTitle() {
+  // Can read APP_NAME because it is in global scope
+  document.title = APP_NAME;
+}
+
+// The danger: mutable globals can be changed from anywhere
+let userCount = 0;
+
+function addUser() { userCount++; }
+function removeUser() { userCount--; }
+function resetUsers() { userCount = 0; } // Fine — this is deliberate
+function buggyFunction() {
+  // Accidentally modifying userCount — bugs like this are hard to trace
+  userCount = userCount * 0;
+}</code></pre>
+
+<h3>The Scope Chain</h3>
+
+<p>When JavaScript encounters a variable name, it looks it up using the <em>scope chain</em>. It starts in the current scope. If the variable is not found there, it looks in the immediately enclosing outer scope. It continues outward through each level until it reaches the global scope. If the variable is not found anywhere in the chain, you get a <code>ReferenceError</code>.</p>
+
+<p><strong>LISTING 22.27 &mdash; The Scope Chain</strong></p>
+<pre><code>const globalVar = "I am global";
+
+function outer() {
+  const outerVar = "I am in outer";
+
+  function inner() {
+    const innerVar = "I am in inner";
+
+    // inner can see all three variables
+    console.log(innerVar);  // "I am in inner"
+    console.log(outerVar);  // "I am in outer"   — found in outer's scope
+    console.log(globalVar); // "I am global"     — found in global scope
+  }
+
+  inner();
+
+  // outer can see its own and global, but NOT inner's
+  console.log(outerVar);  // "I am in outer"
+  console.log(globalVar); // "I am global"
+  // console.log(innerVar); // ReferenceError — innerVar not in scope chain from here
+}
+
+outer();</code></pre>
+
+<h3>Variable Shadowing</h3>
+
+<p>When an inner scope declares a variable with the same name as a variable in an outer scope, the inner variable <em>shadows</em> the outer one. Within that inner scope, the name refers to the inner variable, completely hiding the outer one. This can be intentional (avoiding naming conflicts) or accidental (a subtle source of bugs).</p>
+
+<p><strong>LISTING 22.28 &mdash; Variable Shadowing</strong></p>
+<pre><code>const status = "global";
+
+function checkStatus() {
+  const status = "local"; // shadows the global "status"
+  console.log(status);    // "local" — the local one wins
+}
+
+checkStatus();
+console.log(status); // "global" — the global is unchanged
+
+// Accidental shadowing — a common mistake
+let total = 100;
+
+function addBonus(amount) {
+  let total = amount * 1.1; // oops — shadows the outer total
+  return total;
+}
+
+console.log(addBonus(50)); // 55
+console.log(total);        // still 100 — the function did not change the outer total</code></pre>
+
+<p>[IMG - Scope chain diagram showing nested scopes]</p>
+
+<p>Scope is why an event handler can use variables declared outside it:</p>
+<pre><code>const maxAttempts = 3;   // declared in outer scope
+let attempts = 0;         // declared in outer scope
+
+loginBtn.addEventListener('click', () => {
+  attempts++;  // inner function can see both outer variables
+  if (attempts >= maxAttempts) {
+    loginBtn.disabled = true;
+    statusEl.textContent = "Too many attempts. Account locked.";
+  }
+});</code></pre>
+<p>The event handler has access to <code>maxAttempts</code> and <code>attempts</code> because they are declared in an outer scope. This is scope enabling real functionality.</p>
+
+<p>[CODEPEN 5]</p>
+
+<hr>
+
+<h2>Closures</h2>
+
+<p>A closure is one of the most important &mdash; and frequently misunderstood &mdash; concepts in JavaScript. Here is the core idea: <strong>when a function is created, it remembers the variables from the scope where it was defined, even after that scope has finished executing.</strong></p>
+
+<p>Think of it this way: every function comes with a backpack. When the function is created, it packs into that backpack all the variables from its surrounding environment. When you call the function later &mdash; even from a completely different place in your code &mdash; it still has access to its backpack.</p>
+
+<p>This sounds abstract, so let us build up to it with a concrete example.</p>
+
+<p><strong>LISTING 22.29 &mdash; A Simple Closure</strong></p>
+<pre><code>function makeGreeter(greeting) {
+  // This inner function is the closure.
+  // It "closes over" the variable greeting.
+  return function(name) {
+    return greeting + ", " + name + "!";
+  };
+}
+
+const sayHello = makeGreeter("Hello");
+const sayHi    = makeGreeter("Hi");
+const sayBonjour = makeGreeter("Bonjour");
+
+// makeGreeter has finished running — yet greeting is still accessible!
+console.log(sayHello("Lin"));    // "Hello, Lin!"
+console.log(sayHi("Lin"));       // "Hi, Lin!"
+console.log(sayBonjour("Lin")); // "Bonjour, Lin!"</code></pre>
+
+<p>After <code>makeGreeter("Hello")</code> returns, you might expect the <code>greeting</code> variable to disappear &mdash; after all, the function has finished executing. But the returned inner function still holds a reference to <code>greeting</code> in its backpack. The JavaScript engine knows not to garbage-collect that variable as long as a function still references it.</p>
+
+<h3>The Classic Counter Example</h3>
+
+<p>The most common demonstration of closures is a counter. Each call to a counter factory creates an independent counter with its own private state.</p>
+
+<p><strong>LISTING 22.30 &mdash; Closure Counter</strong></p>
+<pre><code>function createCounter(start = 0, step = 1) {
+  let count = start; // this is the private state
+
+  return {
+    increment() { count += step; return count; },
+    decrement() { count -= step; return count; },
+    reset()     { count = start; return count; },
+    value()     { return count; }
+  };
+}
+
+const counterA = createCounter(0, 1);
+const counterB = createCounter(100, 5);
+
+counterA.increment(); // 1
+counterA.increment(); // 2
+counterA.increment(); // 3
+
+counterB.increment(); // 105
+counterB.increment(); // 110
+
+console.log(counterA.value()); // 3  — independent of counterB
+console.log(counterB.value()); // 110 — independent of counterA
+
+// count is completely private — cannot be accessed directly
+console.log(typeof count); // "undefined" — no access from outside</code></pre>
+
+<p>Notice that <code>count</code> is completely inaccessible from outside the function. There is no way to accidentally set <code>count = 0</code> from external code. The only way to interact with the counter is through the methods the factory exposes. This is <em>encapsulation</em> &mdash; a core principle of good software design &mdash; achieved without any class syntax.</p>
+
+<h3>Why Closures Matter</h3>
+
+<p>Closures are not an exotic advanced feature used only by JavaScript gurus. They appear constantly in everyday code:</p>
+
+<ul>
+  <li style="list-style-type: '▶  '"><strong>Event handlers</strong> that reference variables from the enclosing scope</li>
+  <li style="list-style-type: '▶  '"><strong>setTimeout callbacks</strong> that need access to outer variables</li>
+  <li style="list-style-type: '▶  '"><strong>Array method callbacks</strong> (<code>map</code>, <code>filter</code>) that use outer variables</li>
+  <li style="list-style-type: '▶  '"><strong>React hooks</strong> like <code>useState</code> and <code>useEffect</code> rely heavily on closures</li>
+  <li style="list-style-type: '▶  '"><strong>Factory functions</strong> that generate customized functions</li>
+  <li style="list-style-type: '▶  '"><strong>Module patterns</strong> that expose a public API while keeping internals private</li>
+</ul>
+
+<p><strong>LISTING 22.31 &mdash; Closures in Event Handlers</strong></p>
+<pre><code>function setupButtonWithMessage(buttonId, message) {
+  const button = document.getElementById(buttonId);
+
+  // The event handler is a closure — it captures "message" from the outer function.
+  // Even after setupButtonWithMessage returns, message is still accessible.
+  button.addEventListener("click", function() {
+    alert(message); // uses the "message" from the enclosing scope
+  });
+}
+
+setupButtonWithMessage("btn-save",   "Your work has been saved.");
+setupButtonWithMessage("btn-delete", "Are you sure you want to delete this?");
+setupButtonWithMessage("btn-share",  "Link copied to clipboard!");
+
+// Each button has its own closure over its own message.
+// Clicking btn-save shows "Your work has been saved."
+// Clicking btn-delete shows "Are you sure..." — each is independent.</code></pre>
+
+<p>Here is a closure doing real work in a browser &mdash; creating a counter that updates a visible element on screen:</p>
+
+<p><strong>LISTING 22.32 &mdash; Closure Powering a Visible Counter</strong></p>
+<pre><code>function createCounter(buttonEl, displayEl) {
+  let count = 0;  // count lives in the closure
+
+  buttonEl.addEventListener('click', () => {
+    count++;  // the inner function remembers and updates count
+    displayEl.textContent = count;
+  });
+}
+
+// Create two independent counters — each has its own count variable
+const btn1 = document.querySelector('#btn1');
+const display1 = document.querySelector('#display1');
+createCounter(btn1, display1);
+
+const btn2 = document.querySelector('#btn2');
+const display2 = document.querySelector('#display2');
+createCounter(btn2, display2);</code></pre>
+<p>Each call to <code>createCounter()</code> creates a <strong>new closure</strong> &mdash; a new <code>count</code> variable that the click handler remembers. The two counters are completely independent even though they share the same function. This is closure in practice: the inner function remembers its outer scope even after <code>createCounter()</code> has finished running.</p>
+
+<p>[CODEPEN 4]</p>
+
+<hr>
+
+<h2>Summary</h2>
+
+<p>Functions are the single most important organizing structure in JavaScript. This lesson covered them from the ground up, and you now have a thorough mental model to build on.</p>
+
+<p>You learned the three syntaxes for creating functions: <strong>function declarations</strong> (hoisted, named, classic), <strong>function expressions</strong> (stored as variable values, not hoisted), and <strong>arrow functions</strong> (concise, no own <code>this</code>, with optional implicit return). Named function expressions &mdash; <code>const fn = function myName() {}</code> &mdash; give you the benefit of both worlds: the variable is the public name, and the internal name appears in stack traces. Arrow functions have two shorthand forms: single parameters can omit parentheses, and a body without curly braces implicitly returns the expression.</p>
+
+<p><strong>Parameters</strong> are the placeholders defined at function creation; <strong>arguments</strong> are the values passed at call time. Default parameters provide fallback values when an argument is <code>undefined</code>. Rest parameters (<code>...name</code>) collect all remaining arguments into a real array and must be the last parameter. The legacy <code>arguments</code> object is array-like but not a true array and should be avoided in new code.</p>
+
+<p>The <code>return</code> keyword exits a function and sends a value back to the caller. Functions without <code>return</code> return <code>undefined</code>. Early returns as <strong>guard clauses</strong> keep functions readable by eliminating deep nesting &mdash; check preconditions at the top and return early on failure, then write the happy path without indentation.</p>
+
+<p>JavaScript functions are <strong>first-class values</strong>: they can be assigned to variables, stored in data structures, passed as arguments, and returned from other functions. The parentheses <code>()</code> are what invoke a function; without them, you get a reference to the function itself, not its output. <strong>Callbacks</strong> are functions passed as arguments to other functions. Synchronous callbacks (array methods) run immediately; asynchronous callbacks (<code>setTimeout</code>, event listeners) run later. Event handlers are callbacks — the browser calls them back when the event fires.</p>
+
+<p><strong>Scope</strong> determines where a variable is accessible. Block-scoped variables (<code>let</code>/<code>const</code>) exist only within their enclosing <code>{}</code>. Function-scoped variables exist only within their function. Global variables are accessible everywhere but should be used sparingly to avoid unintended mutations. The <strong>scope chain</strong> is JavaScript&rsquo;s lookup mechanism: it searches from the current scope outward until the variable is found or a <code>ReferenceError</code> is thrown. Variable <strong>shadowing</strong> occurs when an inner scope declares a name that exists in an outer scope.</p>
+
+<p>A <strong>closure</strong> is a function that remembers the variables from its outer scope even after that scope has finished executing. Every function in JavaScript is a closure. Closures enable private state, factory functions, and the module pattern. They appear in event handlers, timers, array callbacks, and React hooks. The DOM counter example in this lesson shows a closure in direct action: each call to <code>createCounter()</code> creates a new, independent <code>count</code> variable that the click handler can access and update &mdash; even after the factory function has returned.</p>
+
+<hr>
+
+<h2>Q&amp;A</h2>
+
+<dl>
+  <dt><strong>Q. What is the practical difference between a function declaration and an arrow function? When should I choose one over the other?</strong></dt>
+  <dd><p>A. The most meaningful technical differences are two: function declarations are hoisted (you can call them before their line in the file), and arrow functions do not have their own <code>this</code> binding (they inherit <code>this</code> from the surrounding context). In practice, a good default rule is: use <strong>function declarations</strong> for top-level named functions that form the main API of a module or script &mdash; they are easy to read, easy to find, and their hoisting keeps calling code at the top of a file clean. Use <strong>arrow functions</strong> for callbacks, inline transformations, and any function that you are passing as an argument &mdash; they are concise and their implicit return makes one-liner operations elegant. Arrow functions with implicit return are especially common in array methods: <code>items.map(item =&gt; item.name)</code> is much cleaner than the function expression equivalent.</p></dd>
+
+  <dt><strong>Q. I have seen code where a function is called like <code>fn()</code> and other times like <code>fn</code> without parentheses. What is the difference?</strong></dt>
+  <dd><p>A. The parentheses are what cause the function to <em>run</em>. <code>fn()</code> invokes the function and evaluates to its return value. <code>fn</code> without parentheses is just a reference to the function object itself &mdash; no code inside the function runs. This distinction matters enormously with event listeners: <code>button.addEventListener("click", handleClick)</code> correctly passes the function as a callback to be called later. <code>button.addEventListener("click", handleClick())</code> calls <code>handleClick</code> immediately, right now, and passes whatever it returns to <code>addEventListener</code> &mdash; which is almost certainly not what you want. If <code>handleClick</code> returns <code>undefined</code>, you have just registered <code>undefined</code> as an event listener, and nothing will happen when the button is clicked. This is one of the most common beginner mistakes.</p></dd>
+
+  <dt><strong>Q. What exactly is a closure, and how is it different from just using a global variable?</strong></dt>
+  <dd><p>A. A closure is a function that retains access to variables from the scope in which it was created, even after that scope has finished executing. It is similar to a global variable in that the data persists, but with a critical difference: the data is <em>private</em>. A global variable can be read and written from anywhere in your program. A closure&rsquo;s captured variables can only be accessed through the functions that close over them. In the counter example, <code>count</code> is private &mdash; no external code can directly set <code>count = 0</code> and bypass the <code>reset()</code> method. Closures give you the persistence of global variables with the encapsulation of private variables. This is why experienced developers strongly prefer closures and factory functions over mutable globals for maintaining state.</p></dd>
+
+  <dt><strong>Q. What is the difference between rest parameters and the <code>arguments</code> object? Which should I use?</strong></dt>
+  <dd><p>A. Always use rest parameters in new code. The <code>arguments</code> object is a legacy feature: it is automatically available inside every regular function and contains all the arguments passed to it, but it is an array-<em>like</em> object, not a real array. It does not have array methods like <code>map</code>, <code>filter</code>, or <code>reduce</code>. It is also not available in arrow functions at all. Rest parameters (<code>...name</code>) are part of the function signature, explicitly declared, and produce a genuine JavaScript array with all array methods available. They also make the function&rsquo;s intent clear to readers: a parameter named <code>...values</code> immediately communicates that the function accepts multiple values. The <code>arguments</code> object provides no such signal.</p></dd>
+
+  <dt><strong>Q. How does the scope chain actually work when JavaScript looks up a variable?</strong></dt>
+  <dd><p>A. When JavaScript encounters a variable name during execution, it follows a precise lookup algorithm. It starts in the current scope &mdash; the innermost function or block where the variable was referenced. If it finds a matching declaration there (<code>let x</code>, <code>const x</code>, a parameter named <code>x</code>, and so on), it uses that variable. If not, it moves one level outward to the enclosing scope and repeats the search. It continues expanding outward through each level of nesting until it reaches the global scope. If the variable is still not found there, JavaScript throws a <code>ReferenceError</code>. This chain is established at the time the function is <em>defined</em>, not at the time it is called &mdash; which is the key to understanding closures. A function carries a reference to the scope chain that existed when it was created, regardless of where it is later called from.</p></dd>
+
+  <dt><strong>Q. I have heard that I should avoid putting things in global scope. But some things need to be shared across functions &mdash; how should I handle that?</strong></dt>
+  <dd><p>A. The most common modern approach is to use modules. When you load a script with <code>&lt;script type="module"&gt;</code>, every variable declared in that file is module-scoped, not global &mdash; it does not leak onto the <code>window</code> object. You share things between modules using <code>export</code> and <code>import</code>. Within a single file, if multiple functions need to share state, the right pattern is usually to declare the shared state at the top of the module (making it module-scoped rather than truly global) or to encapsulate it in a closure and expose it through a well-defined interface. Factory functions returning objects &mdash; exactly like the counter example in this lesson &mdash; are the classic pattern. Frameworks like React formalize this further with state management libraries (Zustand, Redux), which are all built on the same underlying JavaScript closure mechanism.</p></dd>
+</dl>

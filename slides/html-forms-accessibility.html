@@ -1,0 +1,1293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Day 13: HTML Forms &amp; Form Accessibility</title>
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box;}
+    :root{
+      --primary:#1a2540;
+      --accent:#4f6df5;
+      --code-bg:#1e1e1e;
+      --code-text:#d4d4d4;
+    }
+    html,body{height:100%;font-family:'Segoe UI',system-ui,sans-serif;background:var(--primary);overflow:hidden;display:flex;flex-direction:column;}
+
+    /* Progress bar */
+    .progress-bar{width:100%;height:4px;background:rgba(255,255,255,.15);flex-shrink:0;}
+    .progress{height:100%;background:var(--accent);transition:width .3s ease;}
+
+    /* Slideshow */
+    .slideshow-container{flex:1;display:flex;flex-direction:column;overflow:hidden;min-height:0;}
+    .slide{display:none;flex:1;padding:1.5rem 2rem;color:#fff;overflow-y:auto;animation:fadeIn .35s ease;min-height:0;flex-direction:column;}
+    .slide.active{display:flex;}
+    @keyframes fadeIn{from{opacity:0;transform:translateX(18px);}to{opacity:1;transform:translateX(0);}}
+
+    /* Slide backgrounds — cycling */
+    .slide:nth-child(6n+1){background:linear-gradient(135deg,#1a2540 0%,#2d4070 100%);}
+    .slide:nth-child(6n+2){background:linear-gradient(135deg,#0f3460 0%,#16213e 100%);}
+    .slide:nth-child(6n+3){background:linear-gradient(135deg,#12263a 0%,#1d4e6e 100%);}
+    .slide:nth-child(6n+4){background:linear-gradient(135deg,#16213e 0%,#0f4c75 100%);}
+    .slide:nth-child(6n+5){background:linear-gradient(135deg,#0d2137 0%,#1565c0 100%);}
+    .slide:nth-child(6n+6){background:linear-gradient(135deg,#1a2a4a 0%,#3d5a9e 100%);}
+
+    /* Slide label (e.g. "INPUT TYPES") */
+    .slide-label{font-size:.7rem;text-transform:uppercase;letter-spacing:.12em;color:rgba(255,255,255,.45);margin-bottom:.3rem;}
+
+    /* Content wrapper */
+    .slide-content{max-width:1400px;width:100%;margin:0 auto;flex:1;display:flex;flex-direction:column;min-height:0;}
+    .slide-content.centered{justify-content:center;align-items:center;text-align:center;}
+
+    /* Typography */
+    h1{font-size:clamp(1.8rem,5vw,3rem);margin-bottom:1rem;line-height:1.2;text-shadow:0 2px 6px rgba(0,0,0,.3);}
+    h2{font-size:clamp(1.3rem,3.5vw,2rem);margin-bottom:.6rem;color:#93c5fd;}
+    h3{font-size:clamp(1rem,2.5vw,1.4rem);margin:.6rem 0 .3rem;color:#67e8f9;}
+    p{font-size:clamp(.9rem,2.2vw,1.1rem);line-height:1.55;margin-bottom:.4rem;}
+    ul,ol{font-size:clamp(.85rem,2vw,1.05rem);line-height:1.6;margin-left:1.4rem;margin-bottom:.4rem;}
+    li{margin-bottom:.25rem;}
+    a{color:#fde68a;text-decoration:underline;}
+    a:hover{color:#fbbf24;}
+    code{background:rgba(0,0,0,.35);padding:.15em .45em;border-radius:4px;font-family:'Consolas','Monaco',monospace;font-size:.88em;}
+    pre{background:var(--code-bg);color:var(--code-text);padding:.75rem 1rem;border-radius:8px;overflow-x:auto;margin:.4rem 0;font-size:clamp(.72rem,1.6vw,.9rem);line-height:1.45;flex-shrink:0;}
+    pre code{background:none;padding:0;font-size:inherit;}
+
+    /* Callouts */
+    .note{background:rgba(34,197,94,.15);border-left:4px solid #22c55e;padding:.6rem .9rem;border-radius:6px;margin:.4rem 0;font-size:clamp(.85rem,1.9vw,1rem);}
+    .caution{background:rgba(239,68,68,.15);border-left:4px solid #ef4444;padding:.6rem .9rem;border-radius:6px;margin:.4rem 0;font-size:clamp(.85rem,1.9vw,1rem);}
+    .tip{background:rgba(79,109,245,.2);border-left:4px solid #4f6df5;padding:.6rem .9rem;border-radius:6px;margin:.4rem 0;font-size:clamp(.85rem,1.9vw,1rem);}
+
+    /* Layout */
+    .two-col{display:grid;grid-template-columns:1fr 1fr;gap:1.25rem;align-items:start;}
+    .three-col{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;align-items:start;}
+    @media(max-width:900px){.three-col{grid-template-columns:1fr 1fr;}}
+    @media(max-width:700px){.two-col,.three-col{grid-template-columns:1fr;}.slide{padding:1rem 1rem;}}
+
+    /* Cards */
+    .card{background:rgba(0,0,0,.25);padding:.85rem 1rem;border-radius:8px;border:1px solid rgba(255,255,255,.15);}
+    .card-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:.6rem;margin:.4rem 0;}
+    .input-card{background:rgba(0,0,0,.3);border-radius:8px;padding:.55rem .8rem;border:1px solid rgba(255,255,255,.18);border-top:3px solid #93c5fd;}
+    .input-card strong{color:#93c5fd;display:block;font-size:.85em;margin-bottom:.2rem;}
+    .input-card span{font-size:.8em;opacity:.88;line-height:1.4;}
+
+    /* Slides img */
+    .slide-img{max-width:100%;border-radius:8px;border:1px solid rgba(255,255,255,.2);margin:.4rem 0;box-shadow:0 4px 16px rgba(0,0,0,.4);}
+    .img-caption{font-size:.75rem;opacity:.6;text-align:center;margin-top:.2rem;}
+
+    /* Learn grid (cover/summary) */
+    .learn-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:.45rem;margin:.5rem 0;}
+    .learn-item{background:rgba(0,0,0,.25);border-left:3px solid #93c5fd;border-radius:6px;padding:.45rem .75rem;font-size:clamp(.8rem,1.8vw,.96rem);line-height:1.45;}
+
+    /* Summary cards */
+    .summary-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:.55rem;margin:.5rem 0;}
+    .summary-card{background:rgba(0,0,0,.25);border-radius:8px;padding:.65rem .9rem;border:1px solid rgba(255,255,255,.15);font-size:clamp(.78rem,1.7vw,.93rem);line-height:1.45;}
+    .summary-card strong{color:#93c5fd;display:block;margin-bottom:.2rem;font-size:.9em;}
+
+    /* Compare table */
+    table.cmp{width:100%;border-collapse:collapse;font-size:clamp(.8rem,1.8vw,1rem);margin:.4rem 0;}
+    table.cmp th,table.cmp td{border:1px solid rgba(255,255,255,.25);padding:.4rem .65rem;text-align:left;}
+    table.cmp th{background:rgba(0,0,0,.3);color:#fde68a;}
+    table.cmp td:first-child{color:#93c5fd;font-weight:600;}
+
+    /* CodePen / demo iframe container */
+    .demo-wrap{flex:1;min-height:0;display:flex;flex-direction:column;border-radius:10px;overflow:hidden;margin:.4rem 0;border:1px solid rgba(255,255,255,.2);}
+    .demo-wrap iframe{flex:1;border:none;width:100%;background:#fff;}
+    .demo-label{font-size:.75rem;text-transform:uppercase;letter-spacing:.1em;color:rgba(255,255,255,.5);margin-bottom:.3rem;text-align:center;}
+
+    /* Badge chip */
+    .badge{display:inline-block;background:rgba(79,109,245,.4);border:1px solid rgba(79,109,245,.6);border-radius:20px;padding:.2em .7em;font-size:.78em;margin:.15rem;}
+    .badge.green{background:rgba(34,197,94,.25);border-color:rgba(34,197,94,.5);color:#86efac;}
+    .badge.yellow{background:rgba(234,179,8,.2);border-color:rgba(234,179,8,.45);color:#fde68a;}
+    .badge.red{background:rgba(239,68,68,.2);border-color:rgba(239,68,68,.45);color:#fca5a5;}
+
+    /* Navigation */
+    .navigation{display:flex;justify-content:center;align-items:center;gap:1rem;padding:.65rem 1rem;background:rgba(0,0,0,.35);flex-shrink:0;flex-wrap:wrap;}
+    .nav-btn{padding:.5rem 1.2rem;font-size:.95rem;border:none;border-radius:5px;cursor:pointer;background:var(--accent);color:#fff;transition:all .25s;font-weight:600;}
+    .nav-btn:hover{background:#3a56d4;transform:translateY(-1px);}
+    .nav-btn:disabled{background:#4b5563;cursor:not-allowed;transform:none;}
+    .slide-counter{color:#fff;font-size:.95rem;min-width:90px;text-align:center;opacity:.85;}
+
+    @media(max-width:480px){
+      h1{font-size:1.5rem;}
+      .navigation{gap:.5rem;padding:.5rem;}
+      .nav-btn{padding:.45rem .9rem;font-size:.85rem;}
+    }
+  </style>
+</head>
+<body>
+
+<div class="progress-bar"><div class="progress" id="progress"></div></div>
+
+<div class="slideshow-container" id="slideshow">
+
+  <!-- ══════════════════════════════════
+       SLIDE 1 — COVER
+  ══════════════════════════════════ -->
+  <div class="slide active">
+    <div class="slide-content centered">
+      <div class="slide-label">Day 13</div>
+      <h1>HTML Forms &amp;<br>Form Accessibility</h1>
+      <p style="font-size:clamp(1rem,2.5vw,1.25rem);opacity:.8;margin-bottom:1.25rem;">
+        How users send data back to a server — and how to make forms usable by everyone.
+      </p>
+      <div class="learn-grid" style="max-width:780px;">
+        <div class="learn-item">📋 The <code>&lt;form&gt;</code> element &amp; GET vs POST</div>
+        <div class="learn-item">🏷️ Pairing every input with a <code>&lt;label&gt;</code></div>
+        <div class="learn-item">⌨️ All major input types</div>
+        <div class="learn-item">📅 Date, time, checkbox, radio, range &amp; color</div>
+        <div class="learn-item">✅ HTML5 built-in validation</div>
+        <div class="learn-item">🎨 CSS form pseudo-classes</div>
+        <div class="learn-item">♿ ARIA attributes &amp; keyboard navigation</div>
+        <div class="learn-item">🗂️ Grouping with <code>&lt;fieldset&gt;</code> &amp; <code>&lt;legend&gt;</code></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════
+       SLIDE 2 — THE FORM ELEMENT
+  ══════════════════════════════════ -->
+  <div class="slide">
+    <div class="slide-content">
+      <div class="slide-label">The Form Element</div>
+      <h2>The <code>&lt;form&gt;</code> Element</h2>
+      <div class="two-col">
+        <div>
+          <p>The <code>&lt;form&gt;</code> container defines two critical things:</p>
+          <ul>
+            <li><strong><code>action</code></strong> — URL where data is sent on submit. Omit to submit to the current URL.</li>
+            <li><strong><code>method</code></strong> — how data travels: <code>get</code> or <code>post</code></li>
+          </ul>
+          <pre><code>&lt;form action="/submit" method="post"&gt;
+  &lt;!-- inputs here --&gt;
+&lt;/form&gt;</code></pre>
+          <div class="note" style="margin-top:.6rem;">
+            <strong>Rule of thumb:</strong> Use <code>get</code> for searches (bookmarkable URLs). Use <code>post</code> for sensitive data, large payloads, or anything that creates/modifies server data.
+          </div>
+        </div>
+        <div>
+          <table class="cmp">
+            <tr><th>GET</th><th>POST</th></tr>
+            <tr><td>Data in URL</td><td>Data in request body</td></tr>
+            <tr><td>Bookmarkable &amp; shareable</td><td>Not visible in URL</td></tr>
+            <tr><td>Limited data size</td><td>No practical size limit</td></tr>
+            <tr><td>Cached by browser</td><td>Not cached</td></tr>
+            <tr><td>Use for: searches, filters</td><td>Use for: login, signup, checkout</td></tr>
+          </table>
+          <img src="assets/fig-13.1-get-query-string.png" alt="Browser address bar showing GET query string parameters" class="slide-img" style="margin-top:.6rem;">
+          <p class="img-caption">GET appends data as a query string: <code>?q=hello&amp;page=2</code></p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════
+       SLIDE 3 — LABELS
+  ══════════════════════════════════ -->
+  <div class="slide">
+    <div class="slide-content">
+      <div class="slide-label">Labels &amp; Inputs</div>
+      <h2>Every Input Must Have a Label</h2>
+      <div class="two-col">
+        <div>
+          <p><strong>Why it matters:</strong></p>
+          <ul>
+            <li>🔊 Screen readers announce the label when the input receives focus</li>
+            <li>👆 Clicking the label focuses the input — larger tap target on mobile</li>
+            <li>🤖 Autofill, password managers &amp; browser autocomplete use labels to understand fields</li>
+          </ul>
+          <h3 style="margin-top:.75rem;">Method 1 — <code>for</code> / <code>id</code></h3>
+          <pre><code>&lt;label for="email"&gt;Email Address&lt;/label&gt;
+&lt;input type="email" id="email" name="email"&gt;</code></pre>
+          <h3>Method 2 — Wrap the input</h3>
+          <pre><code>&lt;label&gt;
+  Email Address
+  &lt;input type="email" name="email"&gt;
+&lt;/label&gt;</code></pre>
+          <p style="font-size:.85rem;opacity:.75;">Both are valid. <code>for/id</code> gives more layout flexibility; wrapping is more concise.</p>
+        </div>
+        <div>
+          <div class="caution">
+            <strong>⚠️ Don't use <code>placeholder</code> as a label.</strong><br>
+            Placeholder text disappears when the user starts typing — they lose context about what the field is for. Use placeholder for <em>example values</em> like <code>jane@example.com</code>, not as the field label.
+          </div>
+          <div class="tip" style="margin-top:.75rem;">
+            <strong>The <code>name</code> attribute is required for submission.</strong><br>
+            <code>name</code> becomes the key in submitted data: <code>email=jane@example.com</code>. An input without <code>name</code> is never included in the form submission.
+          </div>
+          <div class="tip" style="margin-top:.5rem;">
+            <strong><code>id</code> vs <code>name</code></strong><br>
+            <code>id</code> — links to <code>&lt;label&gt;</code>, used by CSS/JS.<br>
+            <code>name</code> — the key sent with the form data. You usually need both.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════
+       SLIDE 4 — TEXT-TYPE INPUTS
+  ══════════════════════════════════ -->
+  <div class="slide">
+    <div class="slide-content">
+      <div class="slide-label">Input Types</div>
+      <h2>Text-Type Inputs</h2>
+      <p style="margin-bottom:.5rem;">All use <code>&lt;input type="..."&gt;</code>. Each type unlocks keyboard layouts, validation, and autofill.</p>
+      <div class="card-grid">
+        <div class="input-card"><strong>text</strong><span>Generic single-line text. Use when no specific type applies.</span></div>
+        <div class="input-card"><strong>email</strong><span>Validates email shape. Mobile keyboard shows <code>@</code> prominently.</span></div>
+        <div class="input-card"><strong>password</strong><span>Characters masked. Password managers auto-recognize this type.</span></div>
+        <div class="input-card"><strong>url</strong><span>Validates URL format. Mobile keyboard shows <code>/</code> and <code>.</code> shortcuts.</span></div>
+        <div class="input-card"><strong>tel</strong><span>Triggers numeric phone keypad on mobile. Use <code>pattern</code> for format validation.</span></div>
+        <div class="input-card"><strong>search</strong><span>Like text, but browsers may add a clear ✕ button. Semantic search signal.</span></div>
+        <div class="input-card"><strong>number</strong><span>Shows spinner arrows. Use <code>min</code>, <code>max</code>, <code>step</code> to constrain values.</span></div>
+      </div>
+      <pre style="margin-top:.5rem;"><code>&lt;input type="text"     name="username" placeholder="Your username"&gt;
+&lt;input type="email"    name="email"    placeholder="jane@example.com"&gt;
+&lt;input type="password" name="password" placeholder="At least 8 characters"&gt;
+&lt;input type="url"      name="website"  placeholder="https://example.com"&gt;
+&lt;input type="tel"      name="phone"    placeholder="(555) 555-5555"&gt;
+&lt;input type="number"   name="qty"      min="1" max="99"&gt;</code></pre>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════
+       SLIDE 5 — DEMO: TEXT INPUTS
+  ══════════════════════════════════ -->
+  <div class="slide">
+    <div class="slide-content">
+      <div class="demo-label">▶ Live Demo — Text-Type Inputs</div>
+      <div class="demo-wrap">
+        <iframe id="demo-1" title="Text-type inputs demo" loading="lazy"></iframe>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════
+       SLIDE 6 — DATE & TIME INPUTS
+  ══════════════════════════════════ -->
+  <div class="slide">
+    <div class="slide-content">
+      <div class="slide-label">Input Types</div>
+      <h2>Date &amp; Time Inputs</h2>
+      <div class="two-col">
+        <div>
+          <p>The browser renders a native date/time picker — no JavaScript calendar widget needed.</p>
+          <table class="cmp" style="margin:.5rem 0;">
+            <tr><th>Type</th><th>Value format</th><th>Use for</th></tr>
+            <tr><td><code>date</code></td><td><code>YYYY-MM-DD</code></td><td>Birthdays, travel dates</td></tr>
+            <tr><td><code>time</code></td><td><code>HH:MM</code></td><td>Meeting times</td></tr>
+            <tr><td><code>datetime-local</code></td><td><code>YYYY-MM-DDTHH:MM</code></td><td>Appointments</td></tr>
+            <tr><td><code>month</code></td><td><code>YYYY-MM</code></td><td>Credit card expiry</td></tr>
+            <tr><td><code>week</code></td><td>ISO week</td><td>Sprint planning</td></tr>
+          </table>
+          <pre><code>&lt;!-- Set default, min, and max --&gt;
+&lt;input type="date" name="travel"
+       value="2025-06-01"
+       min="2025-01-01"
+       max="2025-12-31"&gt;</code></pre>
+          <div class="caution" style="margin-top:.5rem;">
+            Date picker appearance varies across browsers. For consistent styling or date-range pickers, use a JS library in production.
+          </div>
+        </div>
+        <div>
+          <img src="assets/fig-13.2-date-picker.png" alt="Native date picker rendered in a browser" class="slide-img">
+          <p class="img-caption">Native date pickers look different per browser &amp; OS</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════
+       SLIDE 7 — CHECKBOXES & RADIO
+  ══════════════════════════════════ -->
+  <div class="slide">
+    <div class="slide-content">
+      <div class="slide-label">Input Types</div>
+      <h2>Checkboxes &amp; Radio Buttons</h2>
+      <div class="two-col">
+        <div>
+          <h3>☑ Checkboxes — zero or more</h3>
+          <p>Each checkbox is independent. Multiple can be selected.</p>
+          <pre><code>&lt;label&gt;
+  &lt;input type="checkbox" name="toppings"
+         value="cheese"&gt; Cheese
+&lt;/label&gt;
+&lt;label&gt;
+  &lt;input type="checkbox" name="toppings"
+         value="peppers" checked&gt; Peppers
+&lt;/label&gt;</code></pre>
+          <ul style="margin-top:.4rem;">
+            <li>Same <code>name</code> sends multiple values</li>
+            <li>Add <code>checked</code> to pre-select</li>
+          </ul>
+        </div>
+        <div>
+          <h3>⭕ Radio Buttons — exactly one</h3>
+          <p>All radios in a group share the same <code>name</code>. Selecting one deselects the others.</p>
+          <pre><code>&lt;label&gt;
+  &lt;input type="radio" name="size"
+         value="small"&gt; Small
+&lt;/label&gt;
+&lt;label&gt;
+  &lt;input type="radio" name="size"
+         value="medium" checked&gt; Medium
+&lt;/label&gt;
+&lt;label&gt;
+  &lt;input type="radio" name="size"
+         value="large"&gt; Large
+&lt;/label&gt;</code></pre>
+          <div class="note" style="margin-top:.4rem;">
+            Once a radio is selected, the user can only pick <em>another</em> option — they can't deselect entirely. Always wrap radio groups in a <code>&lt;fieldset&gt;</code>.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════
+       SLIDE 8 — RANGE & COLOR
+  ══════════════════════════════════ -->
+  <div class="slide">
+    <div class="slide-content">
+      <div class="slide-label">Input Types</div>
+      <h2>Range &amp; Color Inputs</h2>
+      <div class="two-col">
+        <div>
+          <h3>🎚 Range — number slider</h3>
+          <p>Creates a drag slider. The slider doesn't display the current value — pair it with <code>&lt;output&gt;</code> and JavaScript.</p>
+          <pre><code>&lt;label for="vol"&gt;
+  Volume: &lt;output id="vol-out"&gt;50&lt;/output&gt;
+&lt;/label&gt;
+&lt;input type="range" id="vol"
+       name="volume"
+       min="0" max="100"
+       value="50" step="1"&gt;</code></pre>
+          <pre style="margin-top:.3rem;"><code>// Wire the slider to the output
+const slider = document.getElementById('vol');
+const out = document.getElementById('vol-out');
+slider.addEventListener('input', () => {
+  out.textContent = slider.value;
+});</code></pre>
+        </div>
+        <div>
+          <h3>🎨 Color — native color picker</h3>
+          <p>Opens the OS color picker. Value must be a 6-digit hex code.</p>
+          <pre><code>&lt;label for="theme"&gt;Favorite Color&lt;/label&gt;
+&lt;input type="color"
+       id="theme" name="theme-color"
+       value="#4f6df5"&gt;</code></pre>
+          <div class="note" style="margin-top:.5rem;">
+            Named colors like <code>"red"</code> are ignored — always use <code>#rrggbb</code> hex format for the default <code>value</code>.
+          </div>
+          <div class="tip" style="margin-top:.5rem;">
+            <strong>accent-color CSS property</strong> — style checkboxes, radios, ranges and progress bars with one line:<br>
+            <code>accent-color: #4f6df5;</code>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════
+       SLIDE 9 — DEMO: SELECTION INPUTS
+  ══════════════════════════════════ -->
+  <div class="slide">
+    <div class="slide-content">
+      <div class="demo-label">▶ Live Demo — Date, Range, Color, Checkboxes &amp; Radio Buttons</div>
+      <div class="demo-wrap">
+        <iframe id="demo-2" title="Selection inputs demo" loading="lazy"></iframe>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════
+       SLIDE 10 — SELECT
+  ══════════════════════════════════ -->
+  <div class="slide">
+    <div class="slide-content">
+      <div class="slide-label">Form Controls</div>
+      <h2>The <code>&lt;select&gt;</code> Element</h2>
+      <div class="two-col">
+        <div>
+          <p>Use a drop-down list when you have more than 4–5 options.</p>
+          <pre><code>&lt;label for="country"&gt;Country&lt;/label&gt;
+&lt;select id="country" name="country"&gt;
+  &lt;option value=""&gt;-- Select a country --&lt;/option&gt;
+  &lt;option value="us"&gt;United States&lt;/option&gt;
+  &lt;option value="ca"&gt;Canada&lt;/option&gt;
+  &lt;option value="uk"&gt;United Kingdom&lt;/option&gt;
+&lt;/select&gt;</code></pre>
+          <ul style="margin-top:.4rem;">
+            <li>First <code>&lt;option value=""&gt;</code> acts as a prompt</li>
+            <li>The selected option's <code>value</code> is submitted under the <code>select</code>'s <code>name</code></li>
+          </ul>
+        </div>
+        <div>
+          <h3>Grouping with <code>&lt;optgroup&gt;</code></h3>
+          <pre><code>&lt;select name="country"&gt;
+  &lt;optgroup label="North America"&gt;
+    &lt;option value="us"&gt;United States&lt;/option&gt;
+    &lt;option value="ca"&gt;Canada&lt;/option&gt;
+    &lt;option value="mx"&gt;Mexico&lt;/option&gt;
+  &lt;/optgroup&gt;
+  &lt;optgroup label="Europe"&gt;
+    &lt;option value="uk"&gt;United Kingdom&lt;/option&gt;
+    &lt;option value="de"&gt;Germany&lt;/option&gt;
+  &lt;/optgroup&gt;
+&lt;/select&gt;</code></pre>
+          <div class="tip" style="margin-top:.4rem;">
+            <strong>Select vs Radio buttons:</strong><br>
+            ≤ 5 options → radio buttons (all visible at once)<br>
+            6+ options → <code>&lt;select&gt;</code> (saves space)
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════
+       SLIDE 11 — TEXTAREA & DATALIST
+  ══════════════════════════════════ -->
+  <div class="slide">
+    <div class="slide-content">
+      <div class="slide-label">Form Controls</div>
+      <h2><code>&lt;textarea&gt;</code> &amp; <code>&lt;datalist&gt;</code></h2>
+      <div class="two-col">
+        <div>
+          <h3>📝 Textarea — multi-line text</h3>
+          <pre><code>&lt;label for="msg"&gt;Your Message&lt;/label&gt;
+&lt;textarea id="msg" name="message"
+          rows="5"
+          placeholder="Write here..."&gt;
+&lt;/textarea&gt;</code></pre>
+          <ul style="margin-top:.4rem;">
+            <li><strong>Has a closing tag</strong> (unlike <code>&lt;input&gt;</code>)</li>
+            <li>Text between tags = default value</li>
+            <li><code>rows</code> sets initial height</li>
+            <li>Control resize with CSS: <code>resize: vertical</code> (recommended), <code>resize: none</code>, or <code>resize: both</code></li>
+          </ul>
+        </div>
+        <div>
+          <h3>🔍 Datalist — autocomplete suggestions</h3>
+          <p>Suggests options as the user types, but still allows free-text entry. Hybrid of <code>&lt;input&gt;</code> and <code>&lt;select&gt;</code>.</p>
+          <pre><code>&lt;input type="text" name="browser"
+       list="browser-list"
+       placeholder="Start typing..."&gt;
+
+&lt;datalist id="browser-list"&gt;
+  &lt;option value="Chrome"&gt;
+  &lt;option value="Firefox"&gt;
+  &lt;option value="Safari"&gt;
+  &lt;option value="Edge"&gt;
+&lt;/datalist&gt;</code></pre>
+          <ul style="margin-top:.3rem;">
+            <li>The <code>list</code> attribute must match the <code>datalist</code>'s <code>id</code></li>
+            <li>User can ignore suggestions and type anything</li>
+          </ul>
+          <img src="assets/fig-13.3-datalist.png" alt="Datalist suggestions dropdown appearing as user types" class="slide-img" style="margin-top:.4rem;">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════
+       SLIDE 12 — FIELDSET & LEGEND
+  ══════════════════════════════════ -->
+  <div class="slide">
+    <div class="slide-content">
+      <div class="slide-label">Grouping Controls</div>
+      <h2>Grouping with <code>&lt;fieldset&gt;</code> &amp; <code>&lt;legend&gt;</code></h2>
+      <div class="two-col">
+        <div>
+          <p>Wrap related inputs in <code>&lt;fieldset&gt;</code> and label the group with <code>&lt;legend&gt;</code>.</p>
+          <pre><code>&lt;fieldset&gt;
+  &lt;legend&gt;Contact Preferences&lt;/legend&gt;
+
+  &lt;label&gt;
+    &lt;input type="radio" name="contact"
+           value="email"&gt; Email
+  &lt;/label&gt;
+  &lt;label&gt;
+    &lt;input type="radio" name="contact"
+           value="phone"&gt; Phone
+  &lt;/label&gt;
+  &lt;label&gt;
+    &lt;input type="radio" name="contact"
+           value="text"&gt; Text Message
+  &lt;/label&gt;
+
+&lt;/fieldset&gt;</code></pre>
+        </div>
+        <div>
+          <img src="assets/fig-13.4-fieldset.png" alt="Fieldset with visible border and legend label positioned at the top" class="slide-img">
+          <p class="img-caption">Legend appears inside the fieldset border by default</p>
+          <div class="note" style="margin-top:.5rem;">
+            <strong>Screen reader experience:</strong><br>
+            With fieldset + legend, a screen reader announces:<br>
+            <em>"Contact Preferences, Email, radio button, 1 of 3"</em><br><br>
+            Without fieldset, it only announces:<br>
+            <em>"Email, radio button"</em> — no group context!
+          </div>
+          <p style="margin-top:.4rem;font-size:.9rem;">Use <code>&lt;fieldset&gt;</code> whenever you have a group of radio buttons, or logically related sections like billing vs. shipping address.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════
+       SLIDE 13 — DEMO: SELECT/DATALIST/TEXTAREA/FIELDSET
+  ══════════════════════════════════ -->
+  <div class="slide">
+    <div class="slide-content">
+      <div class="demo-label">▶ Live Demo — Select, Datalist, Textarea &amp; Fieldset</div>
+      <div class="demo-wrap">
+        <iframe id="demo-3" title="Select, datalist, textarea and fieldset demo" loading="lazy"></iframe>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════
+       SLIDE 14 — SPECIAL INPUTS
+  ══════════════════════════════════ -->
+  <div class="slide">
+    <div class="slide-content">
+      <div class="slide-label">Special Inputs</div>
+      <h2>Hidden Fields, Buttons &amp; Output</h2>
+      <div class="three-col">
+        <div class="card">
+          <h3>🙈 Hidden Inputs</h3>
+          <p>Store data submitted with the form but not visible or editable by the user.</p>
+          <pre><code>&lt;input type="hidden"
+  name="user_id"
+  value="1042"&gt;
+&lt;input type="hidden"
+  name="source"
+  value="homepage"&gt;</code></pre>
+          <div class="caution" style="margin-top:.4rem;">
+            Not secure — anyone can view page source. Use for reference values only, never secrets.
+          </div>
+        </div>
+        <div class="card">
+          <h3>🔘 Button vs Input Submit</h3>
+          <p>Prefer <code>&lt;button&gt;</code> — it can contain HTML markup.</p>
+          <pre><code>&lt;!-- Old approach --&gt;
+&lt;input type="submit"
+  value="Send"&gt;
+
+&lt;!-- Modern (preferred) --&gt;
+&lt;button type="submit"&gt;
+  Send
+&lt;/button&gt;
+
+&lt;!-- With icon --&gt;
+&lt;button type="submit"&gt;
+  ✉ Send Message
+&lt;/button&gt;</code></pre>
+          <div class="tip" style="margin-top:.3rem;">Always include <code>type="submit"</code> explicitly — it's the default but being explicit makes intent clear.</div>
+        </div>
+        <div class="card">
+          <h3>📊 The <code>&lt;output&gt;</code> Element</h3>
+          <p>Displays a calculated result, often paired with a range or number input.</p>
+          <pre><code>&lt;label for="price"&gt;
+  Price:
+  $&lt;output id="price-out"&gt;
+    10
+  &lt;/output&gt;
+&lt;/label&gt;
+&lt;input type="range"
+  id="price"
+  min="10" max="100"
+  step="5" value="10"&gt;</code></pre>
+          <p style="font-size:.85rem;margin-top:.3rem;">Wire with JavaScript — update <code>output.textContent</code> on the input's <code>input</code> event.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════
+       SLIDE 15 — HTML5 VALIDATION ATTRS
+  ══════════════════════════════════ -->
+  <div class="slide">
+    <div class="slide-content">
+      <div class="slide-label">Validation</div>
+      <h2>HTML5 Validation Attributes</h2>
+      <p style="margin-bottom:.5rem;">Browsers enforce these rules before submitting — <strong>no JavaScript required.</strong></p>
+      <div class="two-col">
+        <div>
+          <table class="cmp">
+            <tr><th>Attribute</th><th>What it does</th></tr>
+            <tr><td><code>required</code></td><td>Field must not be empty</td></tr>
+            <tr><td><code>minlength / maxlength</code></td><td>Character count limits for text</td></tr>
+            <tr><td><code>min / max</code></td><td>Value range for number, date, time</td></tr>
+            <tr><td><code>pattern</code></td><td>Regex the value must match</td></tr>
+            <tr><td><code>step</code></td><td>Valid increment (e.g. multiples of 5)</td></tr>
+            <tr><td><code>autocomplete</code></td><td>Hints for browser autofill</td></tr>
+          </table>
+        </div>
+        <div>
+          <pre><code>&lt;!-- Required field --&gt;
+&lt;input type="text" name="user" required&gt;
+
+&lt;!-- Length limits --&gt;
+&lt;input type="text" name="user"
+       minlength="3" maxlength="20"&gt;
+
+&lt;!-- Custom regex pattern + helpful title --&gt;
+&lt;input type="text" id="zip" name="zip"
+       pattern="[0-9]{5}(-[0-9]{4})?"
+       title="5-digit ZIP, e.g. 12345"
+       placeholder="12345"
+       required&gt;</code></pre>
+          <div class="note" style="margin-top:.4rem;">
+            <strong>Autocomplete tokens:</strong><br>
+            <code>"given-name"</code> <code>"family-name"</code> <code>"email"</code> <code>"tel"</code><br>
+            <code>"street-address"</code> <code>"postal-code"</code> <code>"new-password"</code><br>
+            <a href="https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes/autocomplete" target="_blank" rel="noopener noreferrer">Full list on MDN ↗</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════
+       SLIDE 16 — DEMO: VALIDATION
+  ══════════════════════════════════ -->
+  <div class="slide">
+    <div class="slide-content">
+      <div class="demo-label">▶ Live Demo — HTML5 Validation Attributes in Action</div>
+      <div class="demo-wrap">
+        <iframe id="demo-4" title="HTML5 validation demo" loading="lazy"></iframe>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════
+       SLIDE 17 — FORM PSEUDO-CLASSES
+  ══════════════════════════════════ -->
+  <div class="slide">
+    <div class="slide-content">
+      <div class="slide-label">CSS Styling</div>
+      <h2>Form Pseudo-Classes</h2>
+      <div class="two-col">
+        <div>
+          <p>Style inputs based on their current state — no JavaScript needed.</p>
+          <table class="cmp" style="margin:.4rem 0;">
+            <tr><th>Pseudo-class</th><th>When it matches</th></tr>
+            <tr><td><code>:valid</code></td><td>Value passes all constraints</td></tr>
+            <tr><td><code>:invalid</code></td><td>Value fails any constraint</td></tr>
+            <tr><td><code>:required</code></td><td>Has the <code>required</code> attribute</td></tr>
+            <tr><td><code>:optional</code></td><td>Does NOT have <code>required</code></td></tr>
+            <tr><td><code>:placeholder-shown</code></td><td>Field is empty (placeholder visible)</td></tr>
+            <tr><td><code>:user-invalid</code></td><td>Invalid <em>after user interaction</em></td></tr>
+            <tr><td><code>:focus</code></td><td>Has keyboard focus</td></tr>
+          </table>
+        </div>
+        <div>
+          <pre><code>/* GREEN border when valid */
+input:valid {
+  border-color: #22c55e;
+  background: #f0fdf4;
+}
+
+/* RED border — but ONLY after user typed */
+input:user-invalid {
+  border-color: #ef4444;
+  background: #fef2f2;
+}
+
+/* Fallback for older browsers */
+input:not(:placeholder-shown):invalid {
+  border-color: #ef4444;
+}
+
+/* Required field accent */
+input:required {
+  border-left: 4px solid #4f6df5;
+}</code></pre>
+          <div class="caution" style="margin-top:.4rem;">
+            <strong>⚠️ Avoid bare <code>:invalid</code></strong> — it matches empty required fields on page load, showing red errors before the user touches anything. Use <code>:user-invalid</code> instead.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════
+       SLIDE 18 — DEMO: PSEUDO-CLASSES
+  ══════════════════════════════════ -->
+  <div class="slide">
+    <div class="slide-content">
+      <div class="demo-label">▶ Live Demo — CSS Form Pseudo-Classes &amp; Live Validation</div>
+      <div class="demo-wrap">
+        <iframe id="demo-5" title="CSS form pseudo-classes demo" loading="lazy"></iframe>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════
+       SLIDE 19 — FORM ACCESSIBILITY: ARIA
+  ══════════════════════════════════ -->
+  <div class="slide">
+    <div class="slide-content">
+      <div class="slide-label">Accessibility</div>
+      <h2>Form Accessibility — ARIA Attributes</h2>
+      <div class="three-col">
+        <div class="card">
+          <h3><code>aria-describedby</code></h3>
+          <p>Links help text to its input. Screen reader announces both label AND description when field is focused.</p>
+          <pre><code>&lt;label for="user"&gt;
+  Username
+&lt;/label&gt;
+&lt;input id="user" type="text"
+  aria-describedby="user-hint"
+  minlength="3" maxlength="20"&gt;
+&lt;p id="user-hint"&gt;
+  3–20 characters.
+  Letters &amp; numbers only.
+&lt;/p&gt;</code></pre>
+          <p style="font-size:.82rem;margin-top:.3rem;">Screen reader says: "Username — 3–20 characters, letters and numbers only"</p>
+        </div>
+        <div class="card">
+          <h3><code>aria-invalid</code></h3>
+          <p>Set to <code>"true"</code> on a failing field after submission. Screen readers announce the invalid state when the field is focused.</p>
+          <pre><code>&lt;input type="email"
+  id="email"
+  aria-invalid="true"
+  aria-describedby="email-err"&gt;
+
+&lt;p id="email-err"
+   role="alert"&gt;
+  Please enter a valid
+  email address.
+&lt;/p&gt;</code></pre>
+          <p style="font-size:.82rem;margin-top:.3rem;"><code>aria-invalid</code> is typically toggled via JavaScript after the user attempts to submit.</p>
+        </div>
+        <div class="card">
+          <h3><code>role="alert"</code></h3>
+          <p>Makes error messages announce immediately when they appear in the DOM — even if focus hasn't moved there.</p>
+          <pre><code>&lt;p id="err-msg"
+   role="alert"
+   hidden&gt;
+  Field is required.
+&lt;/p&gt;</code></pre>
+          <p style="font-size:.82rem;margin-top:.3rem;">When you remove <code>hidden</code> via JavaScript, the screen reader announces the message automatically.</p>
+          <div class="tip" style="margin-top:.4rem;">
+            Use <code>novalidate</code> on the <code>&lt;form&gt;</code> to disable browser popups and handle all errors with your own ARIA-friendly UI.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════
+       SLIDE 20 — TAB ORDER / KEYBOARD NAV
+  ══════════════════════════════════ -->
+  <div class="slide">
+    <div class="slide-content">
+      <div class="slide-label">Accessibility</div>
+      <h2>Tab Order &amp; Keyboard Navigation</h2>
+      <div class="two-col">
+        <div>
+          <p>Every form must be fully usable with a keyboard alone.</p>
+          <ul style="margin:.4rem 0;">
+            <li>Inputs, selects, textareas, and buttons are in the tab order by default</li>
+            <li>Tab order follows <strong>DOM order</strong> — if CSS repositions elements visually, keyboard users experience HTML order</li>
+          </ul>
+          <h3 style="margin-top:.6rem;"><code>tabindex</code> values</h3>
+          <table class="cmp">
+            <tr><th>Value</th><th>Effect</th></tr>
+            <tr><td><code>tabindex="0"</code></td><td>Add custom element to natural tab order</td></tr>
+            <tr><td><code>tabindex="-1"</code></td><td>Focusable via JS only; not in tab sequence</td></tr>
+            <tr><td><code>tabindex="3"</code></td><td>❌ Avoid positive values — breaks natural order</td></tr>
+          </table>
+          <div class="tip" style="margin-top:.5rem;">
+            <strong>Manual test:</strong> Set your mouse aside and Tab through the form. Every field should be reachable, every label clearly readable, and Enter should submit the form.
+          </div>
+        </div>
+        <div>
+          <img src="assets/fig-13.5-focus-order.png" alt="DevTools accessibility panel showing form tab focus order" class="slide-img">
+          <p class="img-caption">DevTools → Accessibility panel shows the focus order</p>
+          <div class="note" style="margin-top:.5rem;">
+            Keep your visual layout and DOM order in sync. If they differ, keyboard users experience a disorienting non-linear tab flow.
+          </div>
+          <p style="margin-top:.5rem;font-size:.9rem;">Tools for testing keyboard accessibility:</p>
+          <ul style="font-size:.88rem;">
+            <li><a href="https://wave.webaim.org" target="_blank" rel="noopener noreferrer">WAVE Accessibility Evaluator ↗</a></li>
+            <li><a href="https://www.deque.com/axe/devtools/" target="_blank" rel="noopener noreferrer">axe DevTools ↗</a></li>
+            <li>Chrome DevTools → Accessibility tab</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════
+       SLIDE 21 — QUICK REFERENCE
+  ══════════════════════════════════ -->
+  <div class="slide">
+    <div class="slide-content">
+      <div class="slide-label">Reference</div>
+      <h2>When to Use What</h2>
+      <div class="two-col">
+        <div>
+          <h3>Choosing an input type</h3>
+          <table class="cmp">
+            <tr><th>Situation</th><th>Use</th></tr>
+            <tr><td>Single line of text</td><td><code>type="text"</code></td></tr>
+            <tr><td>Email address</td><td><code>type="email"</code></td></tr>
+            <tr><td>Password</td><td><code>type="password"</code></td></tr>
+            <tr><td>Date / time</td><td><code>type="date"</code> etc.</td></tr>
+            <tr><td>Multiple paragraphs</td><td><code>&lt;textarea&gt;</code></td></tr>
+            <tr><td>One from many (≤5 options)</td><td>Radio buttons in <code>&lt;fieldset&gt;</code></td></tr>
+            <tr><td>One from many (6+ options)</td><td><code>&lt;select&gt;</code></td></tr>
+            <tr><td>Zero or more from a set</td><td>Checkboxes</td></tr>
+            <tr><td>Suggested but free text OK</td><td><code>&lt;datalist&gt;</code></td></tr>
+            <tr><td>Number in a range</td><td><code>type="range"</code></td></tr>
+          </table>
+        </div>
+        <div>
+          <h3>Validation checklist</h3>
+          <ul>
+            <li>✅ Every input has a <code>&lt;label&gt;</code></li>
+            <li>✅ Radio groups wrapped in <code>&lt;fieldset&gt;</code></li>
+            <li>✅ <code>required</code> on mandatory fields</li>
+            <li>✅ <code>pattern</code> + <code>title</code> for custom formats</li>
+            <li>✅ <code>:user-invalid</code> (not bare <code>:invalid</code>) for CSS</li>
+            <li>✅ <code>aria-describedby</code> for help text</li>
+            <li>✅ <code>aria-invalid</code> + <code>role="alert"</code> for errors</li>
+            <li>✅ Tested by tabbing through without a mouse</li>
+          </ul>
+          <div class="note" style="margin-top:.6rem;">
+            <strong>Always validate server-side too!</strong> Browser validation (HTML5 or JavaScript) can be bypassed. Server validation is your last line of defense.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════
+       SLIDE 22 — SUMMARY
+  ══════════════════════════════════ -->
+  <div class="slide">
+    <div class="slide-content">
+      <div class="slide-label">Summary</div>
+      <h2>Key Takeaways</h2>
+      <div class="summary-grid">
+        <div class="summary-card">
+          <strong>form element</strong>
+          <code>action</code> = where data goes. <code>method="get"</code> for searches, <code>method="post"</code> for sensitive/state-changing data.
+        </div>
+        <div class="summary-card">
+          <strong>Labels are mandatory</strong>
+          Every input needs a <code>&lt;label&gt;</code>. Use <code>for</code>/<code>id</code> or wrap the input. Never substitute <code>placeholder</code>.
+        </div>
+        <div class="summary-card">
+          <strong>Input types</strong>
+          Use the right type — <code>email</code>, <code>tel</code>, <code>date</code>, <code>number</code> unlock mobile keyboards, native pickers, and autofill.
+        </div>
+        <div class="summary-card">
+          <strong>Grouping controls</strong>
+          <code>&lt;fieldset&gt;</code> + <code>&lt;legend&gt;</code> groups related inputs and gives screen readers essential context.
+        </div>
+        <div class="summary-card">
+          <strong>HTML5 validation</strong>
+          <code>required</code>, <code>minlength</code>, <code>maxlength</code>, <code>min</code>, <code>max</code>, <code>pattern</code>, <code>step</code> — no JavaScript needed.
+        </div>
+        <div class="summary-card">
+          <strong>CSS pseudo-classes</strong>
+          Style based on state: <code>:valid</code>, <code>:invalid</code>, <code>:required</code>. Use <code>:user-invalid</code> to avoid errors on page load.
+        </div>
+        <div class="summary-card">
+          <strong>ARIA &amp; accessibility</strong>
+          <code>aria-describedby</code> for help text, <code>aria-invalid</code> for errors, <code>role="alert"</code> to announce dynamic messages.
+        </div>
+        <div class="summary-card">
+          <strong>Keyboard navigation</strong>
+          Keep DOM order = visual order. Avoid positive <code>tabindex</code>. Test by tabbing through the form yourself.
+        </div>
+        <div class="summary-card">
+          <strong>Server validation too</strong>
+          Browser validation can always be bypassed. Validate server-side as well for real security.
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /slideshow-container -->
+
+<nav class="navigation">
+  <button class="nav-btn" id="prev-btn" onclick="changeSlide(-1)" disabled>← Previous</button>
+  <span class="slide-counter" id="counter">1 / 22</span>
+  <button class="nav-btn" id="next-btn" onclick="changeSlide(1)">Next →</button>
+</nav>
+
+<script>
+// ─────────────────────────────────────────
+// CodePen demo content as full HTML documents
+// ─────────────────────────────────────────
+
+const DEMO_1_HTML = `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+*{box-sizing:border-box;}
+body{font-family:system-ui,sans-serif;max-width:480px;margin:2rem auto;padding:0 1rem;color:#333;}
+.form-group{margin-bottom:1.25rem;}
+label{display:block;margin-bottom:.35rem;font-weight:600;font-size:.9rem;}
+input{width:100%;padding:.6rem .75rem;border:1.5px solid #ccc;border-radius:4px;font-size:1rem;transition:border-color .2s,box-shadow .2s;}
+input:focus{outline:none;border-color:#4f6df5;box-shadow:0 0 0 3px rgba(79,109,245,.15);}
+button{width:100%;padding:.75rem;background:#4f6df5;color:white;border:none;border-radius:4px;font-size:1rem;font-weight:600;cursor:pointer;margin-top:.5rem;}
+button:hover{background:#3a56d4;}
+</style>
+</head>
+<body>
+<form action="#" method="post" novalidate>
+  <div class="form-group">
+    <label for="name">Full Name</label>
+    <input type="text" id="name" name="name" placeholder="Jane Smith">
+  </div>
+  <div class="form-group">
+    <label for="email">Email Address</label>
+    <input type="email" id="email" name="email" placeholder="jane@example.com">
+  </div>
+  <div class="form-group">
+    <label for="password">Password</label>
+    <input type="password" id="password" name="password" placeholder="At least 8 characters">
+  </div>
+  <div class="form-group">
+    <label for="website">Website (optional)</label>
+    <input type="url" id="website" name="website" placeholder="https://example.com">
+  </div>
+  <div class="form-group">
+    <label for="phone">Phone Number</label>
+    <input type="tel" id="phone" name="phone" placeholder="(555) 555-5555">
+  </div>
+  <div class="form-group">
+    <label for="qty">Quantity</label>
+    <input type="number" id="qty" name="qty" min="1" max="99" value="1">
+  </div>
+  <button type="submit">Create Account</button>
+</form>
+</body>
+</html>`;
+
+const DEMO_2_HTML = `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+*{box-sizing:border-box;}
+body{font-family:system-ui,sans-serif;max-width:480px;margin:1.5rem auto;padding:0 1rem;color:#333;}
+h2{font-size:.85rem;text-transform:uppercase;letter-spacing:.06em;color:#4f6df5;margin:1.5rem 0 .6rem;}
+hr{border:none;border-top:1px solid #eee;margin:1.5rem 0;}
+.form-group{margin-bottom:1rem;}
+label{display:block;margin-bottom:.35rem;font-weight:600;font-size:.9rem;}
+input[type="date"],input[type="time"],input[type="datetime-local"],input[type="month"]{padding:.5rem .6rem;border:1.5px solid #ccc;border-radius:4px;font-size:.95rem;}
+input[type="range"]{width:100%;accent-color:#4f6df5;margin-top:.25rem;}
+input[type="color"]{width:48px;height:36px;border:1.5px solid #ccc;border-radius:4px;cursor:pointer;padding:2px;}
+.check-group label{font-weight:normal;display:flex;align-items:center;gap:.5rem;margin-bottom:.4rem;}
+</style>
+</head>
+<body>
+<form>
+  <h2>Date &amp; Time Inputs</h2>
+  <div class="form-group">
+    <label for="birthday">Date</label>
+    <input type="date" id="birthday" name="birthday">
+  </div>
+  <div class="form-group">
+    <label for="meettime">Time</label>
+    <input type="time" id="meettime" name="meettime">
+  </div>
+  <div class="form-group">
+    <label for="appt">Date &amp; Time</label>
+    <input type="datetime-local" id="appt" name="appt">
+  </div>
+  <div class="form-group">
+    <label for="billing">Month</label>
+    <input type="month" id="billing" name="billing">
+  </div>
+  <hr>
+  <h2>Range &amp; Color</h2>
+  <div class="form-group">
+    <label for="volume">Volume: <output id="vol-out">50</output></label>
+    <input type="range" id="volume" name="volume" min="0" max="100" value="50">
+  </div>
+  <div class="form-group">
+    <label for="theme-color">Theme Color</label>
+    <input type="color" id="theme-color" name="theme-color" value="#4f6df5">
+  </div>
+  <hr>
+  <h2>Checkboxes</h2>
+  <div class="form-group check-group">
+    <label><input type="checkbox" name="toppings" value="cheese"> Cheese</label>
+    <label><input type="checkbox" name="toppings" value="peppers" checked> Peppers</label>
+    <label><input type="checkbox" name="toppings" value="mushrooms"> Mushrooms</label>
+  </div>
+  <h2>Radio Buttons</h2>
+  <div class="form-group check-group">
+    <label><input type="radio" name="size" value="sm"> Small</label>
+    <label><input type="radio" name="size" value="md" checked> Medium</label>
+    <label><input type="radio" name="size" value="lg"> Large</label>
+  </div>
+</form>
+<script>
+const rangeInput = document.getElementById('volume');
+const rangeOutput = document.getElementById('vol-out');
+rangeInput.addEventListener('input', () => { rangeOutput.textContent = rangeInput.value; });
+<\/script>
+</body>
+</html>`;
+
+const DEMO_3_HTML = `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+*{box-sizing:border-box;}
+body{font-family:system-ui,sans-serif;max-width:480px;margin:1.5rem auto;padding:0 1rem;color:#333;}
+fieldset{border:1.5px solid #ccc;border-radius:6px;padding:1rem 1.25rem;margin-bottom:1.5rem;}
+legend{font-weight:700;padding:0 .4rem;color:#4f6df5;}
+.radio-group label{display:flex;align-items:center;gap:.5rem;margin-bottom:.4rem;font-size:.95rem;font-weight:normal;}
+.form-group{margin-bottom:1.25rem;}
+label{display:block;margin-bottom:.35rem;font-weight:600;font-size:.9rem;}
+input[type="text"],select,textarea{width:100%;padding:.6rem .75rem;border:1.5px solid #ccc;border-radius:4px;font-size:1rem;font-family:inherit;transition:border-color .2s,box-shadow .2s;}
+textarea{resize:vertical;min-height:80px;}
+input:focus,select:focus,textarea:focus{outline:none;border-color:#4f6df5;box-shadow:0 0 0 3px rgba(79,109,245,.15);}
+button{padding:.7rem 2rem;background:#4f6df5;color:white;border:none;border-radius:4px;font-size:1rem;font-weight:600;cursor:pointer;}
+button:hover{background:#3a56d4;}
+</style>
+</head>
+<body>
+<form>
+  <fieldset>
+    <legend>Contact Preferences</legend>
+    <div class="radio-group">
+      <label><input type="radio" name="contact" value="email" checked> Email</label>
+      <label><input type="radio" name="contact" value="phone"> Phone</label>
+      <label><input type="radio" name="contact" value="text"> Text Message</label>
+    </div>
+  </fieldset>
+  <div class="form-group">
+    <label for="country">Country</label>
+    <select id="country" name="country">
+      <option value="">-- Select a country --</option>
+      <optgroup label="North America">
+        <option value="us">United States</option>
+        <option value="ca">Canada</option>
+        <option value="mx">Mexico</option>
+      </optgroup>
+      <optgroup label="Europe">
+        <option value="uk">United Kingdom</option>
+        <option value="de">Germany</option>
+        <option value="fr">France</option>
+      </optgroup>
+    </select>
+  </div>
+  <div class="form-group">
+    <label for="browser">Favorite Browser</label>
+    <input type="text" id="browser" name="browser" list="browser-options" placeholder="Start typing...">
+    <datalist id="browser-options">
+      <option value="Chrome">
+      <option value="Firefox">
+      <option value="Safari">
+      <option value="Edge">
+      <option value="Opera">
+    </datalist>
+  </div>
+  <div class="form-group">
+    <label for="message">Message</label>
+    <textarea id="message" name="message" rows="4" placeholder="Write your message here..."></textarea>
+  </div>
+  <button type="submit">Send</button>
+</form>
+</body>
+</html>`;
+
+const DEMO_4_HTML = `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+*{box-sizing:border-box;}
+body{font-family:system-ui,sans-serif;max-width:480px;margin:2rem auto;padding:0 1rem;color:#333;}
+h2{margin-top:0;}
+.form-group{margin-bottom:1.25rem;}
+label{display:block;margin-bottom:.35rem;font-weight:600;font-size:.9rem;}
+.req{color:#e53e3e;font-weight:normal;}
+.hint{display:block;font-size:.8rem;color:#666;margin-top:.25rem;}
+input{width:100%;padding:.6rem .75rem;border:1.5px solid #ccc;border-radius:4px;font-size:1rem;transition:border-color .2s,box-shadow .2s,background-color .2s;}
+input:focus{outline:none;border-color:#4f6df5;box-shadow:0 0 0 3px rgba(79,109,245,.15);}
+input:not(:placeholder-shown):valid{border-color:#38a169;background-color:#f0fff4;}
+input:not(:placeholder-shown):invalid{border-color:#e53e3e;background-color:#fff5f5;}
+button{width:100%;padding:.75rem;background:#4f6df5;color:white;border:none;border-radius:4px;font-size:1rem;font-weight:600;cursor:pointer;margin-top:.25rem;}
+button:hover{background:#3a56d4;}
+#success-msg{margin-top:1rem;padding:.75rem 1rem;background:#f0fff4;border:1px solid #38a169;border-radius:4px;color:#276749;}
+</style>
+</head>
+<body>
+<form id="signup-form" novalidate>
+  <h2>Create Account</h2>
+  <div class="form-group">
+    <label for="username">Username <span class="req">*</span></label>
+    <input type="text" id="username" name="username" minlength="3" maxlength="20" pattern="[a-zA-Z0-9_]+" title="3-20 characters: letters, numbers, underscores only" placeholder="e.g. cool_coder42" required>
+    <span class="hint">3-20 characters — letters, numbers, underscores only</span>
+  </div>
+  <div class="form-group">
+    <label for="reg-email">Email <span class="req">*</span></label>
+    <input type="email" id="reg-email" name="email" placeholder="jane@example.com" required>
+  </div>
+  <div class="form-group">
+    <label for="age">Age <span class="req">*</span></label>
+    <input type="number" id="age" name="age" min="13" max="120" placeholder="Must be 13 or older" required>
+  </div>
+  <div class="form-group">
+    <label for="zip">ZIP Code <span class="req">*</span></label>
+    <input type="text" id="zip" name="zip" pattern="[0-9]{5}(-[0-9]{4})?" title="5-digit ZIP code, or ZIP+4 format" placeholder="12345" required>
+  </div>
+  <button type="submit">Sign Up</button>
+  <p id="success-msg" hidden>All fields are valid! (Data would be submitted in a real form.)</p>
+</form>
+<script>
+const form = document.getElementById('signup-form');
+const successMsg = document.getElementById('success-msg');
+form.addEventListener('submit', (event) => {
+  event.preventDefault();
+  if (form.checkValidity()) {
+    successMsg.hidden = false;
+  } else {
+    form.reportValidity();
+  }
+});
+<\/script>
+</body>
+</html>`;
+
+const DEMO_5_HTML = `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+*{box-sizing:border-box;}
+body{font-family:system-ui,sans-serif;max-width:480px;margin:2rem auto;padding:0 1rem;color:#333;}
+h2{margin-top:0;}
+.intro{color:#555;margin-bottom:1.5rem;font-size:.95rem;}
+.form-group{margin-bottom:1.5rem;}
+label{display:block;margin-bottom:.35rem;font-weight:600;font-size:.9rem;}
+.req{font-weight:normal;color:#666;font-size:.82rem;}
+input{width:100%;padding:.6rem .75rem;border:2px solid #ccc;border-radius:4px;font-size:1rem;transition:border-color .25s,background-color .25s;}
+input:focus{outline:none;border-color:#4f6df5;box-shadow:0 0 0 3px rgba(79,109,245,.15);}
+input:placeholder-shown{background-color:#f9f9f9;}
+input:required{border-left:4px solid #4f6df5;}
+input:not(:placeholder-shown):valid{border-color:#38a169;background-color:#f0fff4;}
+input:required:not(:placeholder-shown):valid{border-left-color:#38a169;}
+input:not(:placeholder-shown):invalid{border-color:#e53e3e;background-color:#fff5f5;}
+input:required:not(:placeholder-shown):invalid{border-left-color:#e53e3e;}
+.feedback{display:none;font-size:.8rem;margin-top:.3rem;}
+.valid-msg{color:#276749;}
+.invalid-msg{color:#c53030;}
+.form-group:has(input:not(:placeholder-shown):valid) .valid-msg{display:block;}
+.form-group:has(input:not(:placeholder-shown):invalid) .invalid-msg{display:block;}
+button{padding:.7rem 2rem;background:#4f6df5;color:white;border:none;border-radius:4px;font-size:1rem;font-weight:600;cursor:pointer;}
+button:hover{background:#3a56d4;}
+</style>
+</head>
+<body>
+<form novalidate>
+  <h2>Live Validation Demo</h2>
+  <p class="intro">Fill in each field and watch the border color change based on your input.</p>
+  <div class="form-group">
+    <label for="p-email">Email Address <span class="req">(required)</span></label>
+    <input type="email" id="p-email" name="email" placeholder="jane@example.com" required>
+    <span class="feedback valid-msg">Looks good!</span>
+    <span class="feedback invalid-msg">Please enter a valid email address.</span>
+  </div>
+  <div class="form-group">
+    <label for="p-username">Username <span class="req">(required, 3-15 chars)</span></label>
+    <input type="text" id="p-username" name="username" minlength="3" maxlength="15" placeholder="minimum 3 characters" required>
+    <span class="feedback valid-msg">Username looks good!</span>
+    <span class="feedback invalid-msg">Must be between 3 and 15 characters.</span>
+  </div>
+  <div class="form-group">
+    <label for="p-url">Website <span class="req">(optional)</span></label>
+    <input type="url" id="p-url" name="website" placeholder="https://example.com">
+    <span class="feedback valid-msg">Valid URL!</span>
+    <span class="feedback invalid-msg">Please include https:// at the start.</span>
+  </div>
+  <button type="submit">Submit</button>
+</form>
+</body>
+</html>`;
+
+// ─────────────────────────────────────────
+// Create blob URLs and inject into iframes
+// ─────────────────────────────────────────
+function makeIframe(id, html) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  const blob = new Blob([html], { type: 'text/html' });
+  el.src = URL.createObjectURL(blob);
+}
+
+// Inject all demos on load
+window.addEventListener('DOMContentLoaded', () => {
+  makeIframe('demo-1', DEMO_1_HTML);
+  makeIframe('demo-2', DEMO_2_HTML);
+  makeIframe('demo-3', DEMO_3_HTML);
+  makeIframe('demo-4', DEMO_4_HTML);
+  makeIframe('demo-5', DEMO_5_HTML);
+  updateUI();
+});
+
+// ─────────────────────────────────────────
+// Slide navigation
+// ─────────────────────────────────────────
+const slides = document.querySelectorAll('.slide');
+const totalSlides = slides.length;
+let current = 0;
+
+function goTo(index) {
+  slides[current].classList.remove('active');
+  current = Math.max(0, Math.min(index, totalSlides - 1));
+  slides[current].classList.add('active');
+  updateUI();
+}
+
+function changeSlide(dir) {
+  goTo(current + dir);
+}
+
+function updateUI() {
+  document.getElementById('counter').textContent = (current + 1) + ' / ' + totalSlides;
+  document.getElementById('prev-btn').disabled = current === 0;
+  document.getElementById('next-btn').disabled = current === totalSlides - 1;
+  const pct = ((current + 1) / totalSlides) * 100;
+  document.getElementById('progress').style.width = pct + '%';
+}
+
+// Keyboard navigation
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'ArrowRight' || e.key === 'ArrowDown' || e.key === ' ') {
+    e.preventDefault();
+    changeSlide(1);
+  } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+    e.preventDefault();
+    changeSlide(-1);
+  } else if (e.key === 'Home') {
+    e.preventDefault();
+    goTo(0);
+  } else if (e.key === 'End') {
+    e.preventDefault();
+    goTo(totalSlides - 1);
+  }
+});
+</script>
+
+</body>
+</html>

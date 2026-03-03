@@ -1,0 +1,544 @@
+<h1>HTML Forms and Form Accessibility</h1>
+
+<h2>What You'll Learn in This Lesson:</h2>
+<ul style="list-style-type: '▶  '">
+  <li>How the <code>&lt;form&gt;</code> element works and when to use GET vs. POST</li>
+  <li>Why pairing every input with a label is critical for usability and accessibility</li>
+  <li>All major HTML input types — text, email, password, date, checkbox, radio, and more</li>
+  <li>How to group related inputs with <code>&lt;fieldset&gt;</code> and <code>&lt;legend&gt;</code></li>
+  <li>How to add autocomplete suggestions with <code>&lt;datalist&gt;</code></li>
+  <li>How to use HTML5 built-in validation to catch errors before submission</li>
+  <li>How CSS pseudo-classes let you style fields based on their state</li>
+  <li>Core accessibility techniques: ARIA attributes and keyboard navigation</li>
+</ul>
+
+<p>Every website you've used that collected information from you — a sign-up page, a search box, a checkout form — did so with an HTML form. Forms are how users send data back to a server. Without them, the web would be a one-way street: you could read content, but you couldn't interact.</p>
+
+<p>In this lesson, you'll build a comprehensive understanding of HTML forms, from the basic <code>&lt;form&gt;</code> element all the way to HTML5 validation and accessibility best practices. By the end, you'll be able to create forms that work correctly, look professional, and are usable by everyone — including people who rely on keyboard navigation or screen readers.</p>
+
+<hr>
+
+<h2>The <code>&lt;form&gt;</code> Element</h2>
+
+<p>The <code>&lt;form&gt;</code> element is the container for all form controls. On its own, a <code>&lt;form&gt;</code> tag doesn't display anything visible, but it defines two critical pieces of information: where the data goes and how it gets there.</p>
+
+<p><strong>LISTING 13.1 — The basic form element with action and method</strong></p>
+<pre><code>&lt;form action="/submit" method="post"&gt;
+  &lt;!-- form controls go here --&gt;
+&lt;/form&gt;</code></pre>
+
+<p>The <strong>action</strong> attribute specifies the URL where the form data will be sent when the user submits. If you omit <code>action</code>, the form submits to the current page's URL.</p>
+
+<p>The <strong>method</strong> attribute tells the browser how to send the data. There are two choices:</p>
+
+<ul>
+  <li><strong><code>method="get"</code></strong> — The form data is appended to the URL as a query string: <code>example.com/search?q=hello</code>. Use GET for searches and anything where the URL should be bookmarkable or shareable.</li>
+  <li><strong><code>method="post"</code></strong> — The form data is sent in the request body, not the URL. Use POST for sensitive data (like passwords), large data payloads, or anything that creates or changes data on the server (like creating an account).</li>
+</ul>
+
+<p>[IMG - Browser address bar with GET query string visible]</p>
+
+<blockquote>
+  <p><strong>NOTE:</strong> The HTML5 specification adds other method values, but <code>get</code> and <code>post</code> are the only values you'll use in everyday web development.</p>
+</blockquote>
+
+<hr>
+
+<h2>Pairing Labels with Inputs</h2>
+
+<p>The single most important rule for accessible forms: <strong>every input must have a label.</strong></p>
+
+<p>A <code>&lt;label&gt;</code> element associates a text description with a form control. This matters for three reasons:</p>
+
+<ol>
+  <li><strong>Screen readers</strong> announce the label when a user focuses the input — without it, a blind user hears "text field" with no context about what to type.</li>
+  <li><strong>Larger click targets</strong> — clicking or tapping a label focuses its associated input, making the interactive area bigger. This is especially helpful on mobile.</li>
+  <li><strong>Better tooling support</strong> — autofill software, password managers, and browser autocomplete all use labels to understand what a field is for.</li>
+</ol>
+
+<p>There are two ways to associate a label with an input.</p>
+
+<p><strong>Using <code>for</code> and <code>id</code>:</strong></p>
+
+<p><strong>LISTING 13.2 — Associating a label using for and id</strong></p>
+<pre><code>&lt;label for="email"&gt;Email Address&lt;/label&gt;
+&lt;input type="email" id="email" name="email"&gt;</code></pre>
+
+<p>The <code>for</code> attribute on the <code>&lt;label&gt;</code> must exactly match the <code>id</code> attribute on the <code>&lt;input&gt;</code>. They don't have to be adjacent in the HTML, but keeping them together is a good habit.</p>
+
+<p><strong>Wrapping the input inside the label:</strong></p>
+
+<p><strong>LISTING 13.3 — Wrapping an input inside its label</strong></p>
+<pre><code>&lt;label&gt;
+  Email Address
+  &lt;input type="email" name="email"&gt;
+&lt;/label&gt;</code></pre>
+
+<p>When you wrap the input inside the label, the association is implicit — no <code>for</code>/<code>id</code> needed. Both approaches are valid. The wrapping technique is more concise; the <code>for</code>/<code>id</code> technique gives you more layout flexibility.</p>
+
+<blockquote>
+  <p><strong>CAUTION:</strong> Never use the <code>placeholder</code> attribute as a substitute for a <code>&lt;label&gt;</code>. Placeholder text disappears when the user starts typing, leaving them no reminder of what the field is for. Use placeholder for example values like <code>jane@example.com</code>, not as the field's label.</p>
+</blockquote>
+
+<hr>
+
+<h2>Text-Type Inputs</h2>
+
+<p>All text-type inputs use <code>&lt;input&gt;</code> with a <code>type</code> attribute. The browser renders them as single-line text fields, but each type gives the browser information about what kind of data to expect — which unlocks virtual keyboard layouts on mobile, built-in validation, and browser autofill.</p>
+
+<p><strong>LISTING 13.4 — Common text-type inputs</strong></p>
+<pre><code>&lt;input type="text"     name="username"  placeholder="Your username"&gt;
+&lt;input type="email"    name="email"     placeholder="jane@example.com"&gt;
+&lt;input type="password" name="password"  placeholder="At least 8 characters"&gt;
+&lt;input type="url"      name="website"   placeholder="https://example.com"&gt;
+&lt;input type="tel"      name="phone"     placeholder="(555) 555-5555"&gt;
+&lt;input type="search"   name="q"         placeholder="Search..."&gt;
+&lt;input type="number"   name="quantity"  min="1" max="99"&gt;</code></pre>
+
+<p>Here's what each type does differently:</p>
+
+<ul>
+  <li><strong><code>type="text"</code></strong> — The generic single-line text input. Use it when none of the more specific types apply.</li>
+  <li><strong><code>type="email"</code></strong> — The browser validates that the value looks like an email address. On mobile, it shows a keyboard with <code>@</code> and <code>.</code> prominently placed.</li>
+  <li><strong><code>type="password"</code></strong> — Characters are masked (shown as dots or asterisks) for privacy. Password managers automatically recognize and fill this type.</li>
+  <li><strong><code>type="url"</code></strong> — The browser validates the format matches a URL. Mobile keyboards show <code>/</code>, <code>.</code>, and <code>http://</code> shortcuts.</li>
+  <li><strong><code>type="tel"</code></strong> — Triggers a numeric phone keypad on mobile. The browser doesn't validate the phone format (there are too many international formats), so use <code>pattern</code> if you need validation.</li>
+  <li><strong><code>type="search"</code></strong> — Functionally identical to <code>type="text"</code>, but browsers may add a clear (×) button. Semantically signals this is a search field.</li>
+  <li><strong><code>type="number"</code></strong> — Shows spinner arrows for incrementing and decrementing. Use <code>min</code> and <code>max</code> to set a valid range and <code>step</code> to control the increment size.</li>
+</ul>
+
+<p>[CODEPEN 1]</p>
+
+<blockquote>
+  <p><strong>NOTE:</strong> The <code>name</code> attribute is required for form data to be submitted. The <code>name</code> becomes the key in the submitted data (for example, <code>email=jane@example.com</code>). An <code>&lt;input&gt;</code> without a <code>name</code> attribute is never included in the form submission.</p>
+</blockquote>
+
+<hr>
+
+<h2>Date and Time Inputs</h2>
+
+<p>HTML provides a set of inputs for capturing dates and times. The browser renders a native date/time picker — which looks different in each browser — saving you from having to build a calendar widget from scratch with JavaScript.</p>
+
+<p><strong>LISTING 13.5 — Date and time input types</strong></p>
+<pre><code>&lt;input type="date"           name="birthday"&gt;
+&lt;input type="time"           name="meeting-time"&gt;
+&lt;input type="datetime-local" name="appointment"&gt;
+&lt;input type="month"          name="billing-month"&gt;
+&lt;input type="week"           name="sprint-week"&gt;</code></pre>
+
+<ul>
+  <li><strong><code>type="date"</code></strong> — Picks a calendar date (year, month, day). The submitted value format is always <code>YYYY-MM-DD</code>.</li>
+  <li><strong><code>type="time"</code></strong> — Picks a time in hours and minutes (optionally seconds). Value format: <code>HH:MM</code>.</li>
+  <li><strong><code>type="datetime-local"</code></strong> — Combines a date and time picker in one control. Value format: <code>YYYY-MM-DDTHH:MM</code>.</li>
+  <li><strong><code>type="month"</code></strong> — Picks just a year and month. Useful for credit card expiration dates.</li>
+  <li><strong><code>type="week"</code></strong> — Picks a week number within a year (ISO week format).</li>
+</ul>
+
+<p>You can set default values, minimum dates, and maximum dates using the <code>value</code>, <code>min</code>, and <code>max</code> attributes. The values must match the input type's expected format:</p>
+
+<p><strong>LISTING 13.6 — Date input with min, max, and a default value</strong></p>
+<pre><code>&lt;input type="date" name="travel-date"
+       value="2025-06-01"
+       min="2025-01-01"
+       max="2025-12-31"&gt;</code></pre>
+
+<p>[IMG - Native date picker in Chrome, Firefox, and Safari side by side]</p>
+
+<blockquote>
+  <p><strong>CAUTION:</strong> Date input appearance varies significantly across browsers and operating systems. For production projects that need consistent styling or more advanced date-range behavior, consider a JavaScript date picker library. For learning purposes and basic projects, native date inputs work well and require zero JavaScript.</p>
+</blockquote>
+
+<hr>
+
+<h2>Selection Inputs: Checkboxes, Radio Buttons, Range, and Color</h2>
+
+<p>Not all inputs collect text. These four types capture different kinds of choices or values.</p>
+
+<p><strong>Checkboxes</strong> let users select zero or more options from a set. Each checkbox is independent of the others.</p>
+
+<p><strong>LISTING 13.7 — Checkboxes for multiple selections</strong></p>
+<pre><code>&lt;label&gt;&lt;input type="checkbox" name="toppings" value="cheese"&gt; Cheese&lt;/label&gt;
+&lt;label&gt;&lt;input type="checkbox" name="toppings" value="peppers"&gt; Peppers&lt;/label&gt;
+&lt;label&gt;&lt;input type="checkbox" name="toppings" value="mushrooms"&gt; Mushrooms&lt;/label&gt;</code></pre>
+
+<p>Add the <code>checked</code> attribute to pre-select a checkbox: <code>&lt;input type="checkbox" checked&gt;</code>.</p>
+
+<p><strong>Radio buttons</strong> let users select exactly one option from a group. All radio buttons in the same group share the same <code>name</code>.</p>
+
+<p><strong>LISTING 13.8 — Radio buttons for single selection</strong></p>
+<pre><code>&lt;label&gt;&lt;input type="radio" name="size" value="small"&gt; Small&lt;/label&gt;
+&lt;label&gt;&lt;input type="radio" name="size" value="medium" checked&gt; Medium&lt;/label&gt;
+&lt;label&gt;&lt;input type="radio" name="size" value="large"&gt; Large&lt;/label&gt;</code></pre>
+
+<p>Selecting any radio button in the group automatically deselects the others. Unlike checkboxes, once a user selects a radio button they can't deselect it — they can only choose a different option in the group.</p>
+
+<p>The <strong>range input</strong> creates a slider for selecting a number within a range.</p>
+
+<p><strong>LISTING 13.9 — Range slider with a live value display</strong></p>
+<pre><code>&lt;label for="volume"&gt;Volume: &lt;output id="volume-display"&gt;50&lt;/output&gt;&lt;/label&gt;
+&lt;input type="range" id="volume" name="volume"
+       min="0" max="100" value="50" step="1"&gt;</code></pre>
+
+<p>The slider itself doesn't display the current number — you need to add that with the <code>&lt;output&gt;</code> element or JavaScript to wire them together.</p>
+
+<p>The <strong>color input</strong> opens a native color picker.</p>
+
+<p><strong>LISTING 13.10 — Color picker input</strong></p>
+<pre><code>&lt;label for="theme-color"&gt;Favorite Color&lt;/label&gt;
+&lt;input type="color" id="theme-color" name="theme-color" value="#3498db"&gt;</code></pre>
+
+<p>The <code>value</code> must be a six-digit hex color. The browser ignores named colors like <code>"red"</code>.</p>
+
+<p>[CODEPEN 2]</p>
+
+<hr>
+
+<h2>The <code>&lt;select&gt;</code> Element</h2>
+
+<p>When you have a predefined list of options — more than four or five — a drop-down list is often more practical than a group of radio buttons. Use the <code>&lt;select&gt;</code> element with <code>&lt;option&gt;</code> children.</p>
+
+<p><strong>LISTING 13.11 — A basic select drop-down</strong></p>
+<pre><code>&lt;label for="country"&gt;Country&lt;/label&gt;
+&lt;select id="country" name="country"&gt;
+  &lt;option value=""&gt;-- Select a country --&lt;/option&gt;
+  &lt;option value="us"&gt;United States&lt;/option&gt;
+  &lt;option value="ca"&gt;Canada&lt;/option&gt;
+  &lt;option value="uk"&gt;United Kingdom&lt;/option&gt;
+  &lt;option value="au"&gt;Australia&lt;/option&gt;
+&lt;/select&gt;</code></pre>
+
+<p>The first <code>&lt;option&gt;</code> has an empty <code>value</code> and serves as a prompt. When the form is submitted, the value of the selected <code>&lt;option&gt;</code> is sent using the <code>name</code> of the <code>&lt;select&gt;</code>.</p>
+
+<p>To organize a long list, use <code>&lt;optgroup&gt;</code> to create labeled section headers:</p>
+
+<p><strong>LISTING 13.12 — Grouping options with optgroup</strong></p>
+<pre><code>&lt;select name="country"&gt;
+  &lt;optgroup label="North America"&gt;
+    &lt;option value="us"&gt;United States&lt;/option&gt;
+    &lt;option value="ca"&gt;Canada&lt;/option&gt;
+    &lt;option value="mx"&gt;Mexico&lt;/option&gt;
+  &lt;/optgroup&gt;
+  &lt;optgroup label="Europe"&gt;
+    &lt;option value="uk"&gt;United Kingdom&lt;/option&gt;
+    &lt;option value="de"&gt;Germany&lt;/option&gt;
+    &lt;option value="fr"&gt;France&lt;/option&gt;
+  &lt;/optgroup&gt;
+&lt;/select&gt;</code></pre>
+
+<p>The <code>label</code> attribute on <code>&lt;optgroup&gt;</code> appears as a non-selectable header in the list.</p>
+
+<hr>
+
+<h2>The <code>&lt;textarea&gt;</code> Element</h2>
+
+<p>For longer, multi-line text input, use <code>&lt;textarea&gt;</code> instead of a text <code>&lt;input&gt;</code>.</p>
+
+<p><strong>LISTING 13.13 — A textarea for multi-line input</strong></p>
+<pre><code>&lt;label for="message"&gt;Your Message&lt;/label&gt;
+&lt;textarea id="message" name="message" rows="5"
+          placeholder="Write your message here..."&gt;&lt;/textarea&gt;</code></pre>
+
+<p>Unlike <code>&lt;input&gt;</code>, <code>&lt;textarea&gt;</code> is a container element with a closing tag. Any text placed between the opening and closing tags becomes the default value.</p>
+
+<p>The <code>rows</code> attribute sets the initial visible height. Users can resize the textarea by dragging the handle in the bottom-right corner. You can control resizing behavior with CSS:</p>
+
+<ul>
+  <li><code>resize: none</code> — prevents resizing completely</li>
+  <li><code>resize: vertical</code> — allows only vertical resizing (usually the best option)</li>
+  <li><code>resize: horizontal</code> — allows only horizontal resizing</li>
+  <li><code>resize: both</code> — the default behavior</li>
+</ul>
+
+<blockquote>
+  <p><strong>NOTE:</strong> The <code>cols</code> attribute is largely irrelevant today because CSS is used to control width. Setting a CSS <code>width</code> on a textarea overrides <code>cols</code>. The <code>rows</code> attribute is still useful as a way to set an initial height.</p>
+</blockquote>
+
+<hr>
+
+<h2>The <code>&lt;datalist&gt;</code> Element</h2>
+
+<p>A <code>&lt;datalist&gt;</code> provides autocomplete suggestions for a text input while still allowing the user to type anything they want. It's a hybrid between a free-text input and a <code>&lt;select&gt;</code>.</p>
+
+<p><strong>LISTING 13.14 — A text input with datalist suggestions</strong></p>
+<pre><code>&lt;label for="browser"&gt;Favorite Browser&lt;/label&gt;
+&lt;input type="text" id="browser" name="browser" list="browser-options"
+       placeholder="Start typing..."&gt;
+
+&lt;datalist id="browser-options"&gt;
+  &lt;option value="Chrome"&gt;
+  &lt;option value="Firefox"&gt;
+  &lt;option value="Safari"&gt;
+  &lt;option value="Edge"&gt;
+  &lt;option value="Opera"&gt;
+&lt;/datalist&gt;</code></pre>
+
+<p>The <code>list</code> attribute on the <code>&lt;input&gt;</code> must match the <code>id</code> of the <code>&lt;datalist&gt;</code>. As the user types, the browser shows matching suggestions. Unlike <code>&lt;select&gt;</code>, the user can ignore the suggestions and type anything they want.</p>
+
+<p>[IMG - Datalist dropdown appearing as user types in browser]</p>
+
+<hr>
+
+<h2>Grouping Fields with <code>&lt;fieldset&gt;</code> and <code>&lt;legend&gt;</code></h2>
+
+<p>When a form has several logically related groups of inputs — like separate sections for billing and shipping addresses, or a group of radio buttons — wrap each group in a <code>&lt;fieldset&gt;</code> and label it with a <code>&lt;legend&gt;</code>.</p>
+
+<p><strong>LISTING 13.15 — Fieldset and legend for a radio button group</strong></p>
+<pre><code>&lt;fieldset&gt;
+  &lt;legend&gt;Contact Preferences&lt;/legend&gt;
+  &lt;label&gt;&lt;input type="radio" name="contact" value="email"&gt; Email&lt;/label&gt;
+  &lt;label&gt;&lt;input type="radio" name="contact" value="phone"&gt; Phone&lt;/label&gt;
+  &lt;label&gt;&lt;input type="radio" name="contact" value="text"&gt; Text Message&lt;/label&gt;
+&lt;/fieldset&gt;</code></pre>
+
+<p>The <code>&lt;legend&gt;</code> appears at the top of the <code>&lt;fieldset&gt;</code> border by default. Screen readers announce the legend text when a user moves focus into the group — so a user hears "Contact Preferences, Email, radio button" instead of just "Email, radio button." This context is critical for understanding what the group is about.</p>
+
+<p><code>&lt;fieldset&gt;</code> is especially important for radio button groups because it explicitly communicates to assistive technology that these controls are related choices from a single group.</p>
+
+<p>[IMG - Fieldset with visible border and legend label on top]</p>
+
+<p>[CODEPEN 3]</p>
+
+<hr>
+
+<h2>Special Inputs: Hidden Fields, Output, and Buttons</h2>
+
+<p><strong>Hidden inputs</strong> store data that needs to be submitted with the form but shouldn't be visible or editable by the user — like a session token, a user ID, or a pre-populated reference value.</p>
+
+<p><strong>LISTING 13.16 — Hidden inputs</strong></p>
+<pre><code>&lt;input type="hidden" name="user_id" value="1042"&gt;
+&lt;input type="hidden" name="source" value="homepage-cta"&gt;</code></pre>
+
+<blockquote>
+  <p><strong>CAUTION:</strong> Hidden inputs are not secure. Anyone can view the page source and see their values. Never use hidden inputs for sensitive security decisions. They're appropriate for convenience reference values — not secrets.</p>
+</blockquote>
+
+<p><strong><code>&lt;button&gt;</code> vs. <code>&lt;input type="submit"&gt;</code></strong> — Both are valid ways to add a submit button, but <code>&lt;button&gt;</code> is preferred for modern HTML because it's more flexible:</p>
+
+<p><strong>LISTING 13.17 — Button element vs. input type submit</strong></p>
+<pre><code>&lt;!-- Old approach --&gt;
+&lt;input type="submit" value="Send Message"&gt;
+
+&lt;!-- Modern approach: button can contain HTML --&gt;
+&lt;button type="submit"&gt;Send Message&lt;/button&gt;
+
+&lt;!-- Button with an icon (not possible with input submit) --&gt;
+&lt;button type="submit"&gt;
+  &lt;img src="send-icon.svg" alt=""&gt; Send Message
+&lt;/button&gt;</code></pre>
+
+<p>The <code>&lt;button&gt;</code> element can contain HTML markup inside it — icons, styled text, images — while <code>&lt;input type="submit"&gt;</code> can only show plain text. Always include <code>type="submit"</code> explicitly on a <code>&lt;button&gt;</code> inside a form. Without it, the button defaults to <code>type="submit"</code> anyway, but being explicit makes your intent clear.</p>
+
+<p>The <strong><code>&lt;output&gt;</code> element</strong> displays a calculated result, often connected to a range slider or number input via JavaScript:</p>
+
+<p><strong>LISTING 13.18 — Output element for displaying calculated values</strong></p>
+<pre><code>&lt;label for="price"&gt;Price: $&lt;output id="price-display"&gt;10&lt;/output&gt;&lt;/label&gt;
+&lt;input type="range" id="price" min="10" max="100" step="5" value="10"&gt;</code></pre>
+
+<hr>
+
+<h2>HTML5 Validation Attributes</h2>
+
+<p>Before HTML5, all form validation required JavaScript. Now browsers handle common validation automatically. Add these attributes to your inputs and the browser will check them before allowing the form to submit — no code required.</p>
+
+<p><strong>LISTING 13.19 — Common validation attributes</strong></p>
+<pre><code>&lt;!-- Required: field must not be empty --&gt;
+&lt;input type="text" name="username" required&gt;
+
+&lt;!-- Text length limits --&gt;
+&lt;input type="text" name="username" minlength="3" maxlength="20"&gt;
+
+&lt;!-- Numeric range --&gt;
+&lt;input type="number" name="age" min="18" max="120"&gt;
+
+&lt;!-- Custom pattern using a regular expression --&gt;
+&lt;input type="tel" name="phone"
+       pattern="[0-9]{3}-[0-9]{3}-[0-9]{4}"
+       placeholder="555-555-5555"&gt;
+
+&lt;!-- Step: controls valid increments --&gt;
+&lt;input type="number" name="quantity" min="0" step="5"&gt;</code></pre>
+
+<p>Here's a complete reference of the validation attributes:</p>
+
+<ul>
+  <li><strong><code>required</code></strong> — The field must have a value before the form can submit.</li>
+  <li><strong><code>minlength</code> / <code>maxlength</code></strong> — Minimum and maximum number of characters (for text inputs).</li>
+  <li><strong><code>min</code> / <code>max</code></strong> — Minimum and maximum values (for number, date, time, and range inputs).</li>
+  <li><strong><code>pattern</code></strong> — A regular expression the value must match. The browser won't explain the pattern in its error tooltip by default — add a <code>title</code> attribute with a plain-English description.</li>
+  <li><strong><code>step</code></strong> — Controls valid increments for number and range inputs. <code>step="5"</code> means only multiples of 5 are valid.</li>
+</ul>
+
+<p><strong>LISTING 13.20 — Pattern attribute with a title tooltip for context</strong></p>
+<pre><code>&lt;label for="zip"&gt;ZIP Code&lt;/label&gt;
+&lt;input type="text" id="zip" name="zip"
+       pattern="[0-9]{5}(-[0-9]{4})?"
+       title="Enter a 5-digit ZIP code, optionally followed by a dash and 4 digits"
+       placeholder="12345 or 12345-6789"
+       required&gt;</code></pre>
+
+<p>[CODEPEN 4]</p>
+
+<p>The <code>autocomplete</code> attribute helps browsers and password managers fill in fields automatically. For common fields, use standardized token values that browsers and autofill tools recognize:</p>
+
+<p><strong>LISTING 13.21 — Autocomplete tokens for common fields</strong></p>
+<pre><code>&lt;input type="text"  name="fname" autocomplete="given-name"&gt;
+&lt;input type="text"  name="lname" autocomplete="family-name"&gt;
+&lt;input type="email" name="email" autocomplete="email"&gt;
+&lt;input type="tel"   name="phone" autocomplete="tel"&gt;</code></pre>
+
+<p>Common <code>autocomplete</code> values: <code>"name"</code>, <code>"given-name"</code>, <code>"family-name"</code>, <code>"email"</code>, <code>"tel"</code>, <code>"street-address"</code>, <code>"postal-code"</code>, <code>"country"</code>, <code>"current-password"</code>, <code>"new-password"</code>. See the full list in <a href="https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes/autocomplete" target="_blank" rel="noopener noreferrer">MDN's autocomplete documentation</a>.</p>
+
+<hr>
+
+<h2>Form Pseudo-Classes</h2>
+
+<p>CSS provides a set of pseudo-classes to style form controls based on their current state. You can use these to give users visual feedback about whether a field's value is valid, whether it's required, or whether they've started typing.</p>
+
+<p><strong>LISTING 13.22 — Styling form fields based on their state</strong></p>
+<pre><code>/* Red border on invalid fields */
+input:invalid {
+  border-color: red;
+}
+
+/* Green border on valid fields */
+input:valid {
+  border-color: green;
+}
+
+/* Visual indicator for required fields */
+input:required {
+  border-left: 3px solid orange;
+}
+
+/* Style when placeholder text is visible (field is empty) */
+input:placeholder-shown {
+  background-color: #fffde7;
+}</code></pre>
+
+<p>Here's a reference of the form-related pseudo-classes:</p>
+
+<ul>
+  <li><strong><code>:valid</code></strong> — Matches when the input's value satisfies all validation constraints (or the input has no constraints).</li>
+  <li><strong><code>:invalid</code></strong> — Matches when the value fails any validation constraint.</li>
+  <li><strong><code>:required</code></strong> — Matches inputs that have the <code>required</code> attribute.</li>
+  <li><strong><code>:optional</code></strong> — Matches inputs that do <em>not</em> have the <code>required</code> attribute.</li>
+  <li><strong><code>:placeholder-shown</code></strong> — Matches when placeholder text is currently visible, meaning the field is empty.</li>
+  <li><strong><code>:focus</code></strong> — Matches when an element has keyboard focus.</li>
+</ul>
+
+<blockquote>
+  <p><strong>CAUTION:</strong> The <code>:invalid</code> pseudo-class matches immediately on page load for required or pattern-constrained fields — before the user has even touched the form. This causes jarring red error styles to appear the moment the page loads. To avoid this, use the newer <code>:user-invalid</code> pseudo-class (supported in all modern browsers), which only applies after the user has interacted with the field. As a fallback, combine <code>:not(:placeholder-shown)</code> with <code>:invalid</code> to suppress errors on untouched fields.</p>
+</blockquote>
+
+<p><strong>LISTING 13.23 — Using :user-invalid for better UX</strong></p>
+<pre><code>/* Only show invalid style after user has interacted with the field */
+input:user-invalid {
+  border-color: red;
+  background-color: #fff0f0;
+}
+
+/* Fallback for older browsers */
+input:not(:placeholder-shown):invalid {
+  border-color: red;
+}</code></pre>
+
+<p>[CODEPEN 5]</p>
+
+<hr>
+
+<h2>Form Accessibility</h2>
+
+<p>Built-in HTML validation catches formatting errors, but good form accessibility goes further. Here are the essential techniques.</p>
+
+<h3>Providing Help Text with <code>aria-describedby</code></h3>
+
+<p>When a field has additional instructions beyond the label, link them to the input using <code>aria-describedby</code>:</p>
+
+<p><strong>LISTING 13.24 — Linking help text with aria-describedby</strong></p>
+<pre><code>&lt;label for="username"&gt;Username&lt;/label&gt;
+&lt;input type="text" id="username" name="username"
+       minlength="3" maxlength="20"
+       aria-describedby="username-hint"&gt;
+&lt;p id="username-hint"&gt;3–20 characters. Letters, numbers, and underscores only.&lt;/p&gt;</code></pre>
+
+<p>The value of <code>aria-describedby</code> is the <code>id</code> of the help text element. When the user focuses the input, a screen reader announces both the label ("Username") and the description ("3–20 characters, letters, numbers, and underscores only").</p>
+
+<h3>Announcing Errors with <code>aria-invalid</code></h3>
+
+<p>When a form is submitted with errors, set <code>aria-invalid="true"</code> on each failing field. Screen readers announce this as part of the field's description, letting users know which fields need attention:</p>
+
+<p><strong>LISTING 13.25 — Using aria-invalid and role="alert" for validation errors</strong></p>
+<pre><code>&lt;label for="email"&gt;Email Address&lt;/label&gt;
+&lt;input type="email" id="email" name="email"
+       aria-invalid="true"
+       aria-describedby="email-error"&gt;
+&lt;p id="email-error" role="alert"&gt;Please enter a valid email address.&lt;/p&gt;</code></pre>
+
+<p>Using <code>role="alert"</code> on the error message causes screen readers to announce it immediately when it appears in the DOM, even if the user's focus hasn't moved there yet.</p>
+
+<h3>Custom Validation with <code>novalidate</code></h3>
+
+<p>If you want to handle all validation yourself with JavaScript — for full control over error messages, styling, and logic — add the <code>novalidate</code> attribute to the <code>&lt;form&gt;</code> element:</p>
+
+<p><strong>LISTING 13.26 — Disabling browser validation for custom JavaScript validation</strong></p>
+<pre><code>&lt;form action="/submit" method="post" novalidate&gt;
+  &lt;!-- Form controls --&gt;
+&lt;/form&gt;</code></pre>
+
+<p>With <code>novalidate</code>, the browser stops showing its built-in validation popups. However, <code>:valid</code> and <code>:invalid</code> pseudo-classes still work, and you can access <code>input.validity</code> properties in JavaScript to check each constraint programmatically.</p>
+
+<h3>Tab Order and Keyboard Navigation</h3>
+
+<p>Every form control must be reachable and usable with the keyboard alone. By default, interactive elements — inputs, selects, textareas, and buttons — are included in the tab order in the order they appear in the HTML.</p>
+
+<p>Keep your visual order and DOM order in sync. If CSS moves a form field to a different visual position than it appears in the HTML, keyboard users experience the fields in HTML order — which may feel backward or disorienting.</p>
+
+<p>Avoid setting positive <code>tabindex</code> values (like <code>tabindex="3"</code>) on form controls. Overriding the natural tab order almost always makes the experience worse. If you need to make a custom element focusable, use <code>tabindex="0"</code> to add it to the natural tab order, or <code>tabindex="-1"</code> to make it programmatically focusable without adding it to the tab sequence.</p>
+
+<p>[IMG - DevTools accessibility panel showing form focus order highlighted]</p>
+
+<blockquote>
+  <p><strong>NOTE:</strong> To test your form's keyboard experience, set your mouse aside and tab through the form yourself. Every field should be reachable, every label should be clearly readable, and pressing Enter should submit the form. If anything is confusing without a mouse, fix it before shipping.</p>
+</blockquote>
+
+<hr>
+
+<h2>Summary</h2>
+
+<p>In this lesson, you learned how to build complete, accessible HTML forms. Here are the key takeaways:</p>
+
+<ul>
+  <li>The <code>&lt;form&gt;</code> element uses <code>action</code> to specify where data is sent and <code>method</code> to specify how. Use <code>post</code> for sensitive data and form submissions that change server data; use <code>get</code> for searches and bookmarkable requests.</li>
+  <li>Every input must have an associated <code>&lt;label&gt;</code>, either paired with <code>for</code>/<code>id</code> or by wrapping. Labels are required for accessibility and improve usability for everyone.</li>
+  <li>HTML provides specific input types for text, email, password, URL, phone, search, numbers, dates, times, checkboxes, radio buttons, ranges, and colors — and the browser handles keyboard optimization and basic validation for each type automatically.</li>
+  <li>The <code>&lt;select&gt;</code> element creates drop-down lists. Use <code>&lt;optgroup&gt;</code> to organize long option lists into labeled groups.</li>
+  <li><code>&lt;textarea&gt;</code> is for multi-line text input. <code>&lt;datalist&gt;</code> adds autocomplete suggestions to a text input while still allowing free-text entry.</li>
+  <li>Group related controls with <code>&lt;fieldset&gt;</code> and <code>&lt;legend&gt;</code>, especially radio button groups, so screen readers can announce the group context.</li>
+  <li>HTML5 validation attributes — <code>required</code>, <code>minlength</code>, <code>maxlength</code>, <code>min</code>, <code>max</code>, <code>pattern</code>, <code>step</code> — let you enforce rules before the form is submitted, without writing JavaScript.</li>
+  <li>CSS pseudo-classes — <code>:valid</code>, <code>:invalid</code>, <code>:required</code>, <code>:placeholder-shown</code>, <code>:user-invalid</code> — let you style fields based on their current state.</li>
+  <li>Accessibility requires: labels paired with every input, help text linked via <code>aria-describedby</code>, errors marked with <code>aria-invalid</code>, dynamic error messages announced with <code>role="alert"</code>, and a logical keyboard tab order.</li>
+</ul>
+
+<hr>
+
+<h2>Q &amp; A</h2>
+
+<p><strong>Q: Do I always need a <code>&lt;form&gt;</code> element? What if I'm just showing a search box that filters a list on the page with JavaScript?</strong></p>
+
+<p>A: No — if you're handling the interaction entirely client-side with JavaScript (like filtering a visible list as the user types), you don't need a <code>&lt;form&gt;</code> element. A standalone <code>&lt;input&gt;</code> with a <code>&lt;label&gt;</code> is fine in that case. The <code>&lt;form&gt;</code> element is primarily meaningful when data needs to travel to a server.</p>
+
+<p><strong>Q: My required fields show red error borders the moment the page loads, before the user has done anything. How do I fix that?</strong></p>
+
+<p>A: This happens because <code>:invalid</code> fires immediately on page load for any required field that's empty — and an empty required field is technically invalid. The fix is to use <code>:user-invalid</code> instead of <code>:invalid</code>. This newer pseudo-class only applies after the user has actually interacted with the field. For older browser support, combine <code>:not(:placeholder-shown)</code> with <code>:invalid</code> to prevent error styles from appearing on untouched fields.</p>
+
+<p><strong>Q: What's the difference between the <code>name</code> and <code>id</code> attributes on an input? Do I need both?</strong></p>
+
+<p>A: They serve different purposes. <code>id</code> is a unique identifier used to link a <code>&lt;label&gt;</code> (via <code>for</code>) and for targeting with CSS or JavaScript. <code>name</code> is what the form uses when submitting data — it becomes the key in the key-value pair sent to the server (e.g., <code>email=jane@example.com</code>). You need <code>name</code> on any field whose data you want submitted. You need <code>id</code> to connect a <code>&lt;label&gt;</code> using the <code>for</code>/<code>id</code> approach. In most cases you'll have both.</p>
+
+<p><strong>Q: When should I use radio buttons instead of a <code>&lt;select&gt;</code> drop-down?</strong></p>
+
+<p>A: A useful rule of thumb: use radio buttons when you have five or fewer options and want them all visible at once. Use <code>&lt;select&gt;</code> when you have six or more options, or when screen space is limited. Radio buttons make all choices visible simultaneously, which is better for clarity. Drop-down lists save space but require an extra click or tap to see the full list of options.</p>
+
+<p><strong>Q: Is HTML5 validation enough, or do I still need JavaScript validation too?</strong></p>
+
+<p>A: HTML5 validation handles the common cases well — required fields, email format, number ranges, and custom patterns. But you'll still need JavaScript for cross-field logic: checking that two password fields match, verifying that a date is in the future, requiring at least one of several optional fields to be filled out, or when you need full control over the styling and content of error messages. In production, always validate on the server as well — browser-side validation, whether HTML5 or JavaScript, can always be bypassed by a determined user.</p>

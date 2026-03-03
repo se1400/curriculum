@@ -1,0 +1,654 @@
+<h1>Arrays &mdash; Core Methods</h1>
+
+<h2>What You'll Learn in This Lesson</h2>
+
+<ul>
+  <li style="list-style-type: '▶  '">What arrays are and how zero-based indexing works</li>
+  <li style="list-style-type: '▶  '">How to create arrays and read values including the modern <code>at()</code> method for negative indexing</li>
+  <li style="list-style-type: '▶  '">Mutating methods that change the original array: <code>push</code>, <code>pop</code>, <code>unshift</code>, <code>shift</code>, <code>splice</code>, <code>reverse</code>, <code>sort</code></li>
+  <li style="list-style-type: '▶  '">Non-mutating methods that return a new array: <code>slice</code>, <code>concat</code>, and the ES2023 methods <code>toReversed()</code>, <code>toSorted()</code>, <code>toSpliced()</code>, <code>with()</code></li>
+  <li style="list-style-type: '▶  '">How to find items: <code>indexOf</code>, <code>includes</code>, <code>findLast()</code>, <code>findLastIndex()</code></li>
+  <li style="list-style-type: '▶  '">How to convert arrays to strings with <code>join()</code></li>
+  <li style="list-style-type: '▶  '">The spread operator for copying and merging arrays</li>
+  <li style="list-style-type: '▶  '">Array destructuring with rest syntax</li>
+  <li style="list-style-type: '▶  '">The critical mutation trap: why <code>const arr2 = arr1</code> is NOT a copy</li>
+</ul>
+
+<hr>
+
+<h2>Introduction</h2>
+
+<p>Arrays are the data structure that powers nearly every dynamic page you have ever visited. Every product grid in an online store, every dropdown menu populated from a database, every search result list, every autocomplete suggestion &mdash; all of it is powered by an array somewhere. When a web page feels alive and responsive, chances are a developer is reading, filtering, sorting, or modifying an array and re-rendering the result to the screen.</p>
+
+<p>Throughout this lesson, the running example is an interactive to-do list. This is not an arbitrary choice: a to-do list is a pure, visible manifestation of array operations. When you push a new task, the list grows. When you pop the last task, the list shrinks. When you splice out the third item, it disappears from the middle. Every array method you learn here has an immediate, visible consequence. By the time you finish, you will be able to look at any method and picture exactly what happens to the list on screen.</p>
+
+<hr>
+
+<h2>What Is an Array?</h2>
+
+<p>An array is an ordered, indexed collection of values. &ldquo;Ordered&rdquo; means the items have a fixed sequence &mdash; item zero is always item zero until you explicitly move it. &ldquo;Indexed&rdquo; means every item is assigned a numeric position starting at zero. That starting-at-zero convention is called <strong>zero-based indexing</strong>, and it is the source of countless beginner mistakes, so let it sink in now.</p>
+
+<p>[IMG - Zero-based index diagram for array]</p>
+
+<p>An array with four items has indices 0, 1, 2, and 3. There is no index 4. The highest valid index is always <code>array.length - 1</code>. Arrays in JavaScript can hold any mix of data types: strings, numbers, booleans, objects, other arrays, even functions. You are not restricted to storing all the same type.</p>
+
+<strong>LISTING 24.1 &mdash; Arrays of Different Types</strong>
+<pre><code>// A string array
+const tasks = ["Buy groceries", "Walk the dog", "Read a book"];
+
+// A number array
+const scores = [98, 74, 85, 91, 63];
+
+// A mixed array (less common, but valid)
+const mixed = ["hello", 42, true, null];
+
+// An array of objects — the most common real-world shape
+const products = [
+  { name: "Notebook",  price: 12.99, inStock: true  },
+  { name: "Pen Set",   price:  8.49, inStock: true  },
+  { name: "Desk Lamp", price: 34.99, inStock: false },
+];
+
+// .length gives the number of items
+console.log(tasks.length);    // 3
+console.log(products.length); // 3</code></pre>
+
+<p>The <code>.length</code> property always reflects the current number of elements. It updates automatically when you add or remove items &mdash; you never have to maintain it yourself.</p>
+
+<hr>
+
+<h2>Creating Arrays and Reading Values</h2>
+
+<h3>Array Literals</h3>
+
+<p>The standard way to create an array is with square brackets. This is called an <strong>array literal</strong> and it is what you will use 95% of the time.</p>
+
+<strong>LISTING 24.2 &mdash; Array Literal and Basic Reading</strong>
+<pre><code>const fruits = ["apple", "banana", "cherry", "date", "elderberry"];
+
+// Read by index
+console.log(fruits[0]); // "apple"   (first item)
+console.log(fruits[2]); // "cherry"  (third item)
+
+// Classic last-item pattern (error-prone)
+console.log(fruits[fruits.length - 1]); // "elderberry"
+
+// Modern last-item pattern using at()
+console.log(fruits.at(-1)); // "elderberry"  ← clean!
+console.log(fruits.at(-2)); // "date"        ← second-to-last
+console.log(fruits.at(0));  // "apple"       ← same as fruits[0]</code></pre>
+
+<h3>The at() Method: Negative Indexing</h3>
+
+<p>The <code>at()</code> method accepts both positive and negative integers. A positive argument works exactly like bracket notation: <code>array.at(0)</code> is the first item. A negative argument counts from the end: <code>array.at(-1)</code> is the last item, <code>array.at(-2)</code> is the second-to-last, and so on.</p>
+
+<p>This matters because the old pattern &mdash; <code>array[array.length - 1]</code> &mdash; is verbose and easy to mis-type. The <code>at(-1)</code> pattern is cleaner, reads more naturally, and makes your intent obvious at a glance. Use it whenever you need to access items from the end of an array.</p>
+
+<h3>Array.from()</h3>
+
+<p><code>Array.from()</code> converts array-like things into real arrays — most commonly the NodeList returned by <code>querySelectorAll()</code>. (<code>Array.of()</code> also exists to create arrays from a list of values, but you'll almost always use the literal syntax <code>[]</code> instead.)</p>
+
+<strong>LISTING 24.3 &mdash; Array.from()</strong>
+<pre><code>// From a NodeList (what querySelectorAll returns)
+const divs = Array.from(document.querySelectorAll("div"));
+divs.forEach(div => div.classList.add("processed")); // now you can use array methods
+
+// From a string
+const letters = Array.from("hello"); // ["h", "e", "l", "l", "o"]
+
+// From a Set (removes duplicates)
+const unique = Array.from(new Set([1, 2, 2, 3, 3, 3])); // [1, 2, 3]
+
+// With a mapping function (second argument)
+const doubled = Array.from([1, 2, 3, 4], n => n * 2); // [2, 4, 6, 8]</code></pre>
+
+<p><code>Array.from()</code> is especially useful when working with the DOM. Methods like <code>querySelectorAll()</code> return a <em>NodeList</em>, which looks like an array but lacks most array methods. Converting it with <code>Array.from()</code> gives you the full array toolkit.</p>
+
+<hr>
+
+<h2>Mutating vs. Non-Mutating Methods</h2>
+
+<p>This is the most important concept in this lesson. JavaScript array methods fall into two camps: those that <strong>mutate</strong> (change) the original array, and those that return a <strong>new array</strong> while leaving the original untouched. Understanding which is which prevents some of the most confusing bugs in JavaScript.</p>
+
+<p>[IMG - Mutating vs non-mutating method comparison]</p>
+
+<blockquote>
+  <p><strong>NOTE:</strong> Before calling a method, ask yourself: will this change my original array? If you need to keep the original data intact &mdash; for example, to reset to the original state or to avoid corrupting shared data &mdash; use a non-mutating method or make a copy of the array first.</p>
+</blockquote>
+
+<p>Here is a simple example that makes the distinction concrete:</p>
+
+<strong>LISTING 24.4 &mdash; Mutating vs. Non-Mutating Comparison</strong>
+<pre><code>const original = ["apple", "banana", "cherry"];
+
+// MUTATING — reverse() changes original in place
+const mutated = original.reverse();
+console.log(original); // ["cherry", "banana", "apple"]  ← CHANGED!
+console.log(mutated);  // ["cherry", "banana", "apple"]  ← same array!
+
+// NON-MUTATING — toReversed() returns a new array
+const fresh = ["apple", "banana", "cherry"];
+const reversed = fresh.toReversed();
+console.log(fresh);    // ["apple", "banana", "cherry"]  ← unchanged
+console.log(reversed); // ["cherry", "banana", "apple"]  ← new array</code></pre>
+
+<p>With the mutating version, <code>original</code> and <code>mutated</code> point to the exact same array &mdash; reversing one reverses both. The non-mutating version creates a brand-new array, so <code>fresh</code> is untouched.</p>
+
+<hr>
+
+<h2>Mutating Methods &mdash; Adding and Removing</h2>
+
+<p>The four stack-and-queue methods are the most frequently used array methods in everyday code. They all modify the original array in place.</p>
+
+<h3>push() &mdash; Add to the End</h3>
+
+<p><code>push(...items)</code> appends one or more items to the end of the array and returns the new length of the array. In a to-do list, this is the "Add task" button: the new item appears at the bottom of the list.</p>
+
+<strong>LISTING 24.5 &mdash; push()</strong>
+<pre><code>const tasks = ["Buy groceries", "Walk the dog"];
+
+const newLength = tasks.push("Read a book");
+console.log(tasks);     // ["Buy groceries", "Walk the dog", "Read a book"]
+console.log(newLength); // 3
+
+// Push multiple items at once
+tasks.push("Call dentist", "Pay bills");
+console.log(tasks.length); // 5</code></pre>
+
+<h3>pop() &mdash; Remove from the End</h3>
+
+<p><code>pop()</code> removes the last item and returns it. No arguments needed. In a to-do list, this is "Remove last task."</p>
+
+<strong>LISTING 24.6 &mdash; pop()</strong>
+<pre><code>const tasks = ["Buy groceries", "Walk the dog", "Read a book"];
+
+const removed = tasks.pop();
+console.log(removed); // "Read a book"
+console.log(tasks);   // ["Buy groceries", "Walk the dog"]
+
+// pop() on an empty array returns undefined
+const empty = [];
+console.log(empty.pop()); // undefined</code></pre>
+
+<h3>unshift() &mdash; Add to the Beginning</h3>
+
+<p><code>unshift(...items)</code> prepends one or more items to the front of the array and returns the new length. Every existing item shifts up one index position. In a to-do list, this adds an urgent item to the top.</p>
+
+<strong>LISTING 24.7 &mdash; unshift()</strong>
+<pre><code>const tasks = ["Walk the dog", "Read a book"];
+
+tasks.unshift("URGENT: Call doctor");
+console.log(tasks);
+// ["URGENT: Call doctor", "Walk the dog", "Read a book"]
+// index 0 is now the urgent task</code></pre>
+
+<h3>shift() &mdash; Remove from the Beginning</h3>
+
+<p><code>shift()</code> removes the first item and returns it. Every remaining item shifts down one index. In a to-do list, this "completes" or "dismisses" the top task.</p>
+
+<strong>LISTING 24.8 &mdash; shift()</strong>
+<pre><code>const tasks = ["URGENT: Call doctor", "Walk the dog", "Read a book"];
+
+const completed = tasks.shift();
+console.log(completed); // "URGENT: Call doctor"
+console.log(tasks);     // ["Walk the dog", "Read a book"]
+// "Walk the dog" is now at index 0</code></pre>
+
+<p>[CODEPEN 1]</p>
+
+<hr>
+
+<h2>Mutating Methods &mdash; Modifying in Place</h2>
+
+<h3>splice() &mdash; The Swiss Army Knife</h3>
+
+<p><code>splice(start, deleteCount, ...items)</code> is the most powerful mutating method. It can delete items, insert items, or replace items &mdash; all at a specific position in the array. It modifies the original and returns an array of any deleted items.</p>
+
+<strong>LISTING 24.9 &mdash; splice() Three Ways</strong>
+<pre><code>// EXAMPLE 1: Delete items at a position
+const tasks = ["Task A", "Task B", "Task C", "Task D", "Task E"];
+const deleted = tasks.splice(1, 2); // start at index 1, delete 2 items
+console.log(deleted); // ["Task B", "Task C"]
+console.log(tasks);   // ["Task A", "Task D", "Task E"]
+
+// EXAMPLE 2: Insert items without deleting
+const colors = ["red", "green", "blue"];
+colors.splice(1, 0, "orange", "yellow"); // at index 1, delete 0, insert two
+console.log(colors); // ["red", "orange", "yellow", "green", "blue"]
+
+// EXAMPLE 3: Replace items
+const days = ["Mon", "Tue", "Wed", "Thu"];
+days.splice(2, 1, "WEDNESDAY"); // at index 2, delete 1, insert "WEDNESDAY"
+console.log(days); // ["Mon", "Tue", "WEDNESDAY", "Thu"]</code></pre>
+
+<p>In a to-do list, <code>splice</code> is used when the user clicks the &times; button on a specific item. You find the item's index and splice it out: <code>tasks.splice(index, 1)</code>.</p>
+
+<h3>reverse() &mdash; Reverse in Place</h3>
+
+<p><code>reverse()</code> reverses the order of an array's elements in place. The first element becomes the last, and the last becomes the first. It returns a reference to the same (now reversed) array &mdash; not a copy.</p>
+
+<strong>LISTING 24.10 &mdash; reverse()</strong>
+<pre><code>const tasks = ["First added", "Second added", "Third added"];
+tasks.reverse();
+console.log(tasks); // ["Third added", "Second added", "First added"]
+
+// Common use: toggle chronological / reverse-chronological order
+// in a rendered list</code></pre>
+
+<h3>sort() &mdash; Sort in Place</h3>
+
+<p><code>sort(compareFn)</code> sorts the array in place and returns the same array. The critical thing to understand: with no compare function, <code>sort()</code> converts every element to a string and sorts by Unicode character order. This works fine for alphabetical sorting of strings, but gives completely wrong results for numbers.</p>
+
+<strong>LISTING 24.11 &mdash; sort() &mdash; Alphabetical and Numeric</strong>
+<pre><code>// ALPHABETICAL — default sort works correctly for strings
+const fruits = ["banana", "apple", "cherry", "date"];
+fruits.sort();
+console.log(fruits); // ["apple", "banana", "cherry", "date"]
+
+// BUG: sorting numbers without a compare function
+const scores = [100, 9, 21, 3, 40];
+scores.sort();
+console.log(scores); // [100, 21, 3, 40, 9]  ← WRONG! (sorted as strings)
+
+// CORRECT: numeric sort with a compare function
+scores.sort((a, b) => a - b); // ascending
+console.log(scores); // [3, 9, 21, 40, 100]  ← correct
+
+scores.sort((a, b) => b - a); // descending
+console.log(scores); // [100, 40, 21, 9, 3]
+
+// Sorting objects by a property
+const products = [
+  { name: "Notebook",  price: 12.99 },
+  { name: "Pen Set",   price:  8.49 },
+  { name: "Desk Lamp", price: 34.99 },
+];
+
+products.sort((a, b) => a.price - b.price); // sort by price ascending
+// Now: Pen Set ($8.49), Notebook ($12.99), Desk Lamp ($34.99)</code></pre>
+
+<p>The compare function receives two items <code>a</code> and <code>b</code>. If it returns a negative number, <code>a</code> comes before <code>b</code>. If it returns a positive number, <code>b</code> comes before <code>a</code>. If it returns zero, their order stays the same. The subtraction shortcut <code>(a, b) => a - b</code> exploits this elegantly: if <code>a</code> is smaller, the result is negative (a first); if <code>b</code> is smaller, the result is positive (b first).</p>
+
+<p>[CODEPEN 2]</p>
+
+<hr>
+
+<h2>Non-Mutating Methods &mdash; Return a New Array</h2>
+
+<p>These methods leave the original array completely unchanged and return a new array with the result. Prefer them whenever you need to preserve the original data.</p>
+
+<h3>slice() &mdash; Extract a Portion</h3>
+
+<p><code>slice(start, end)</code> extracts a section of an array and returns it as a new array. The <code>start</code> index is included; the <code>end</code> index is excluded. The original is untouched.</p>
+
+<strong>LISTING 24.12 &mdash; slice()</strong>
+<pre><code>const tasks = ["A", "B", "C", "D", "E"];
+
+const middle = tasks.slice(1, 4); // indices 1, 2, 3 (not 4)
+console.log(middle); // ["B", "C", "D"]
+console.log(tasks);  // ["A", "B", "C", "D", "E"]  ← untouched
+
+// Omit end to go to the end of the array
+const fromThird = tasks.slice(2);    // ["C", "D", "E"]
+
+// Negative indices count from the end
+const lastTwo = tasks.slice(-2);     // ["D", "E"]
+
+// Common trick: copy an entire array
+const copy = tasks.slice();          // ["A", "B", "C", "D", "E"]  ← new array</code></pre>
+
+<h3>concat() &mdash; Merge Arrays</h3>
+
+<p><code>concat(arr2, arr3, ...)</code> merges two or more arrays into a new array. The originals are not modified.</p>
+
+<strong>LISTING 24.13 &mdash; concat()</strong>
+<pre><code>const morning = ["Stretch", "Breakfast", "Coffee"];
+const afternoon = ["Lunch", "Walk", "Reading"];
+const evening = ["Dinner", "Journal"];
+
+const fullDay = morning.concat(afternoon, evening);
+console.log(fullDay);
+// ["Stretch", "Breakfast", "Coffee", "Lunch", "Walk", "Reading", "Dinner", "Journal"]
+
+console.log(morning); // ["Stretch", "Breakfast", "Coffee"]  ← untouched</code></pre>
+
+<h3>ES2023 Non-Mutating Alternatives</h3>
+
+<p>The ES2023 specification added non-mutating counterparts to the most commonly needed mutating methods. They follow a consistent naming pattern: the mutating name with a "to" prefix (or just <code>with()</code> for element replacement).</p>
+
+<blockquote>
+  <p><strong>NOTE:</strong> The ES2023 non-mutating methods (<code>toReversed</code>, <code>toSorted</code>, <code>toSpliced</code>, <code>with</code>) are supported in all modern browsers as of 2023. They make working with state in frameworks like React much cleaner because you never accidentally mutate the state array.</p>
+</blockquote>
+
+<strong>LISTING 24.14 &mdash; ES2023 Non-Mutating Methods</strong>
+<pre><code>const tasks = ["Task A", "Task B", "Task C", "Task D"];
+
+// toReversed() — like reverse() but returns a new array
+const reversed = tasks.toReversed();
+console.log(reversed); // ["Task D", "Task C", "Task B", "Task A"]
+console.log(tasks);    // ["Task A", "Task B", "Task C", "Task D"]  ← untouched
+
+// toSorted(compareFn) — like sort() but returns a new array
+const scores = [40, 9, 100, 21];
+const sorted = scores.toSorted((a, b) => a - b);
+console.log(sorted); // [9, 21, 40, 100]
+console.log(scores); // [40, 9, 100, 21]  ← untouched
+
+// toSpliced(start, deleteCount, ...items) — like splice() but returns a new array
+const updated = tasks.toSpliced(1, 1, "REPLACEMENT");
+console.log(updated); // ["Task A", "REPLACEMENT", "Task C", "Task D"]
+console.log(tasks);   // ["Task A", "Task B", "Task C", "Task D"]  ← untouched
+
+// with(index, value) — returns new array with one element changed
+const fixed = tasks.with(2, "Task C (fixed)");
+console.log(fixed); // ["Task A", "Task B", "Task C (fixed)", "Task D"]
+console.log(tasks); // ["Task A", "Task B", "Task C", "Task D"]  ← untouched</code></pre>
+
+<hr>
+
+<h2>Finding Items</h2>
+
+<p>These methods help you locate elements inside an array. Each returns a slightly different thing, so choosing the right one matters.</p>
+
+<h3>indexOf() and lastIndexOf()</h3>
+
+<p><code>indexOf(value)</code> searches from the beginning and returns the index of the first match, or <code>-1</code> if not found. <code>lastIndexOf(value)</code> searches from the end. Both use strict equality (<code>===</code>).</p>
+
+<strong>LISTING 24.15 &mdash; indexOf() and lastIndexOf()</strong>
+<pre><code>const tasks = ["Buy milk", "Walk dog", "Buy milk", "Read book"];
+
+console.log(tasks.indexOf("Buy milk"));     // 0  (first occurrence)
+console.log(tasks.lastIndexOf("Buy milk")); // 2  (last occurrence)
+console.log(tasks.indexOf("Exercise"));     // -1 (not found)
+
+// Common pattern: check if item exists before adding it
+const input = "Walk dog";
+if (tasks.indexOf(input) === -1) {
+  tasks.push(input); // only add if not already there
+}</code></pre>
+
+<h3>includes()</h3>
+
+<p><code>includes(value)</code> returns <code>true</code> if the value is found, <code>false</code> otherwise. When you only need a yes/no answer, <code>includes()</code> is cleaner than checking if <code>indexOf()</code> equals <code>-1</code>.</p>
+
+<strong>LISTING 24.16 &mdash; includes()</strong>
+<pre><code>const tasks = ["Buy milk", "Walk dog", "Read book"];
+
+console.log(tasks.includes("Walk dog")); // true
+console.log(tasks.includes("Exercise")); // false
+
+// Clean duplicate check
+const input = "Walk dog";
+if (!tasks.includes(input)) {
+  tasks.push(input);
+}</code></pre>
+
+<h3>findLast() and findLastIndex() — ES2023</h3>
+
+<p><code>findLast(callback)</code> searches from the end of the array and returns the last element for which the callback returns <code>true</code>. <code>findLastIndex(callback)</code> does the same but returns the index instead of the element. Both return <code>undefined</code> / <code>-1</code> if nothing matches.</p>
+
+<strong>LISTING 24.17 &mdash; findLast() and findLastIndex()</strong>
+<pre><code>const tasks = [
+  { text: "Buy milk",  done: true  },
+  { text: "Walk dog",  done: false },
+  { text: "Read book", done: false },
+  { text: "Exercise",  done: true  },
+];
+
+// Find the last completed task
+const lastDone = tasks.findLast(task => task.done);
+console.log(lastDone); // { text: "Exercise", done: true }
+
+// Find the index of the last incomplete task
+const lastUndoneIndex = tasks.findLastIndex(task => !task.done);
+console.log(lastUndoneIndex); // 2  (the "Read book" entry)
+
+// DOM use: scroll to the last incomplete task
+const items = document.querySelectorAll(".task-item");
+if (lastUndoneIndex !== -1) {
+  items[lastUndoneIndex].scrollIntoView({ behavior: "smooth" });
+}</code></pre>
+
+<p>[CODEPEN 4]</p>
+
+<hr>
+
+<h2>Joining Arrays into Strings</h2>
+
+<p><code>join(separator)</code> converts all elements of an array into a single string, with each element separated by the separator you provide. If you omit the separator, it defaults to a comma.</p>
+
+<strong>LISTING 24.18 &mdash; join()</strong>
+<pre><code>const tasks = ["Buy milk", "Walk dog", "Read book"];
+
+console.log(tasks.join(", "));  // "Buy milk, Walk dog, Read book"
+console.log(tasks.join(" | ")); // "Buy milk | Walk dog | Read book"
+console.log(tasks.join(" &gt; ")); // "Buy milk &gt; Walk dog &gt; Read book"
+console.log(tasks.join(""));    // "Buy milkWalk dogRead book"  (no separator)
+
+// Real use: building a comma-separated display string
+const ingredients = ["flour", "eggs", "butter", "sugar"];
+const label = "Ingredients: " + ingredients.join(", ");
+// "Ingredients: flour, eggs, butter, sugar"
+
+// Generating HTML from an array of strings
+const listItems = tasks.map(t => `&lt;li&gt;${t}&lt;/li&gt;`).join("");
+document.querySelector("ul").innerHTML = listItems;</code></pre>
+
+<p>The combination of <code>map()</code> and <code>join("")</code> is the standard pattern for generating HTML from arrays. You transform each item into an HTML string with <code>map()</code>, then glue them all together with <code>join("")</code>, and set the result as <code>innerHTML</code>.</p>
+
+<hr>
+
+<h2>The Spread Operator</h2>
+
+<p>The spread operator (<code>...</code>) expands an array into its individual elements. In an array literal context, it lets you copy and merge arrays without mutation.</p>
+
+<strong>LISTING 24.19 &mdash; Spread Operator with Arrays</strong>
+<pre><code>const morning = ["Stretch", "Breakfast"];
+const afternoon = ["Lunch", "Walk"];
+
+// Shallow copy of an array
+const copy = [...morning];
+copy.push("Coffee");
+console.log(morning); // ["Stretch", "Breakfast"]  ← untouched
+console.log(copy);    // ["Stretch", "Breakfast", "Coffee"]
+
+// Merge two arrays
+const allTasks = [...morning, ...afternoon];
+console.log(allTasks); // ["Stretch", "Breakfast", "Lunch", "Walk"]
+
+// Prepend an item (non-mutating)
+const withUrgent = ["URGENT: Doctor call", ...morning];
+console.log(withUrgent); // ["URGENT: Doctor call", "Stretch", "Breakfast"]
+console.log(morning);    // ["Stretch", "Breakfast"]  ← untouched
+
+// Append an item (non-mutating)
+const withOptional = [...morning, "Optional: Read"];
+console.log(withOptional); // ["Stretch", "Breakfast", "Optional: Read"]
+console.log(morning);      // ["Stretch", "Breakfast"]  ← untouched</code></pre>
+
+<p>The spread-based non-mutating add pattern (<code>[...array, newItem]</code> or <code>[newItem, ...array]</code>) is how you update lists in React and other modern frameworks. Instead of pushing directly onto the state array, you spread the existing state into a new array with the new item included, then set the new array as state.</p>
+
+<hr>
+
+<h2>Array Destructuring</h2>
+
+<p>Destructuring lets you unpack array values into separate variables in a single statement. Instead of writing <code>const first = array[0]; const second = array[1];</code> on separate lines, you write one compact expression.</p>
+
+<strong>LISTING 24.20 &mdash; Array Destructuring</strong>
+<pre><code>const scores = [98, 74, 85, 91];
+
+// Basic destructuring
+const [first, second, third] = scores;
+console.log(first);  // 98
+console.log(second); // 74
+console.log(third);  // 85
+
+// Skip elements with empty commas
+const [gold, , bronze] = scores; // skip silver
+console.log(gold);   // 98
+console.log(bronze); // 85
+
+// Default values for missing positions
+const [a = 0, b = 0, c = 0, d = 0, e = 0] = [10, 20];
+console.log(a); // 10
+console.log(b); // 20
+console.log(e); // 0  ← default, no value at index 4
+
+// Rest syntax — collect remaining items
+const [head, ...tail] = ["apple", "banana", "cherry", "date"];
+console.log(head); // "apple"
+console.log(tail); // ["banana", "cherry", "date"]</code></pre>
+
+<strong>LISTING 24.21 &mdash; Real-World Destructuring Patterns</strong>
+<pre><code>// Destructuring coordinates
+const point = [37.7749, -122.4194]; // lat, lng
+const [lat, lng] = point;
+console.log(`Latitude: ${lat}, Longitude: ${lng}`);
+
+// Destructuring RGB values
+const rgb = [255, 99, 71]; // tomato red
+const [r, g, b] = rgb;
+document.body.style.backgroundColor = `rgb(${r}, ${g}, ${b})`;
+
+// Destructuring an API response
+function getMinMax(numbers) {
+  const sorted = [...numbers].sort((a, b) => a - b);
+  return [sorted[0], sorted.at(-1)]; // return as array
+}
+const [min, max] = getMinMax([40, 9, 100, 21, 63]);
+console.log(`Min: ${min}, Max: ${max}`); // "Min: 9, Max: 100"
+
+// Swap two variables without a temp variable
+let x = 1, y = 2;
+[x, y] = [y, x];
+console.log(x, y); // 2 1</code></pre>
+
+<p>[CODEPEN 5]</p>
+
+<hr>
+
+<h2>Array.isArray()</h2>
+
+<p>One surprising JavaScript behavior: <code>typeof []</code> returns <code>"object"</code>, not <code>"array"</code>. This is because arrays are objects in JavaScript. The <code>typeof</code> operator cannot distinguish between an array, a plain object, or <code>null</code> (all return <code>"object"</code>). Use <code>Array.isArray()</code> instead.</p>
+
+<strong>LISTING 24.22 &mdash; Array.isArray()</strong>
+<pre><code>// typeof is not helpful for arrays
+console.log(typeof []);         // "object"  ← misleading
+console.log(typeof {});         // "object"
+console.log(typeof null);       // "object"
+
+// Array.isArray() is the reliable check
+console.log(Array.isArray([]));          // true
+console.log(Array.isArray([1, 2, 3]));   // true
+console.log(Array.isArray({}));          // false
+console.log(Array.isArray("hello"));     // false
+console.log(Array.isArray(null));        // false
+
+// Real use: validating data from an API or form submission
+function processTasks(data) {
+  if (!Array.isArray(data)) {
+    console.error("Expected an array, got:", typeof data);
+    return;
+  }
+  data.forEach(task => renderTask(task));
+}</code></pre>
+
+<hr>
+
+<h2>The Mutation Trap</h2>
+
+<p>This is one of the most common sources of mysterious bugs in JavaScript, especially for beginners. It deserves its own section and careful attention.</p>
+
+<p>[IMG - Array memory reference vs copy diagram]</p>
+
+<p>When you assign an array to a variable, JavaScript does not copy the array. Both variables point to the same location in memory. This is called assignment by reference. Changing the array through either variable changes the one shared array.</p>
+
+<strong>LISTING 24.23 &mdash; The Mutation Trap Bug</strong>
+<pre><code>// THE BUG
+const original = ["Task A", "Task B", "Task C"];
+const copy = original; // This is NOT a copy — it's a second reference!
+
+copy.push("Task D");
+console.log(original); // ["Task A", "Task B", "Task C", "Task D"]
+                       //  ↑ original changed too! Both point to the same array.
+console.log(copy === original); // true — they ARE the same array</code></pre>
+
+<strong>LISTING 24.24 &mdash; The Mutation Trap Fix</strong>
+<pre><code>// THE FIX — use spread or slice() to create a real copy
+const original = ["Task A", "Task B", "Task C"];
+
+const copy1 = [...original];    // spread — most modern, most common
+const copy2 = original.slice(); // slice() with no arguments — classic approach
+
+copy1.push("Task D");
+console.log(original); // ["Task A", "Task B", "Task C"]  ← untouched!
+console.log(copy1);    // ["Task A", "Task B", "Task C", "Task D"]
+
+console.log(copy1 === original); // false — they are different arrays</code></pre>
+
+<blockquote>
+  <p><strong>CAUTION:</strong> Both <code>[...arr]</code> and <code>arr.slice()</code> create a <em>shallow</em> copy. If your array contains objects, the objects themselves are still shared by reference. To fully clone an array of objects, use <code>structuredClone(array)</code> (modern, supported in all current browsers) or <code>JSON.parse(JSON.stringify(array))</code> (older technique with limitations).</p>
+</blockquote>
+
+<strong>LISTING 24.25 &mdash; Shallow Copy vs. Deep Copy Caveat</strong>
+<pre><code>const tasks = [
+  { text: "Buy milk", done: false },
+  { text: "Walk dog", done: false },
+];
+
+// Shallow copy — the array is new, but the objects inside are shared
+const shallow = [...tasks];
+shallow[0].done = true; // modifying the object inside shallow...
+console.log(tasks[0].done); // true  ← tasks[0] changed too! Same object.
+
+// Deep copy — every object is also cloned
+const deep = structuredClone(tasks);
+deep[0].done = false;
+console.log(tasks[0].done); // true  ← unchanged — deep[0] is a new object</code></pre>
+
+<p>[CODEPEN 3]</p>
+
+<hr>
+
+<h2>Summary</h2>
+
+<ul>
+  <li style="list-style-type: '▶  '">Arrays are ordered, zero-indexed collections. The last valid index is always <code>array.length - 1</code>. Use <code>array.at(-1)</code> for the last element instead of <code>array[array.length - 1]</code>.</li>
+  <li style="list-style-type: '▶  '">Create arrays with the literal syntax <code>[]</code>. Use <code>Array.from()</code> to convert array-like values — especially NodeLists from <code>querySelectorAll()</code> — into real arrays with the full method toolkit.</li>
+  <li style="list-style-type: '▶  '">Mutating methods modify the original array: <code>push</code> / <code>pop</code> add and remove from the end; <code>unshift</code> / <code>shift</code> add and remove from the beginning; <code>splice</code> inserts, removes, or replaces at any position; <code>reverse</code> and <code>sort</code> reorder in place.</li>
+  <li style="list-style-type: '▶  '">Non-mutating methods return a new array and leave the original untouched: <code>slice</code>, <code>concat</code>, and the ES2023 methods <code>toReversed()</code>, <code>toSorted()</code>, <code>toSpliced()</code>, and <code>with()</code>.</li>
+  <li style="list-style-type: '▶  '">Always use a compare function with <code>sort()</code> for numbers: <code>(a, b) => a - b</code> ascending, <code>(a, b) => b - a</code> descending. Without it, numbers are sorted as strings and the result is wrong.</li>
+  <li style="list-style-type: '▶  '">Use <code>includes()</code> for boolean presence checks, <code>findLast()</code> to find the last matching element, and <code>join()</code> to build display strings and HTML from arrays.</li>
+  <li style="list-style-type: '▶  '">The spread operator (<code>[...arr]</code>) creates a shallow copy and is the standard way to merge and non-mutably update arrays. Array destructuring unpacks values into named variables and pairs with rest syntax (<code>...rest</code>) to collect remainders.</li>
+  <li style="list-style-type: '▶  '">The mutation trap (<code>const arr2 = arr1</code>) makes both variables point to the same array. Fix it with <code>[...arr1]</code> or <code>arr1.slice()</code> for a shallow copy, or <code>structuredClone(arr1)</code> for a full deep copy of objects inside the array.</li>
+</ul>
+
+<hr>
+
+<h2>Q &amp; A</h2>
+
+<dl>
+  <dt>What is the difference between <code>push()</code> and <code>unshift()</code>?</dt>
+  <dd><code>push()</code> adds one or more items to the <em>end</em> of the array and returns the new length. <code>unshift()</code> adds one or more items to the <em>beginning</em> of the array, shifting all existing items up by one index, and also returns the new length. Use <code>push()</code> when order doesn't require the new item to be first (most common); use <code>unshift()</code> when you need to prepend, such as adding an urgent item to the top of a task list. Note that <code>unshift()</code> is slower on large arrays because every existing element must be re-indexed.</dd>
+
+  <dt>When should I use a non-mutating method instead of a mutating one?</dt>
+  <dd>Use a non-mutating method whenever you need to preserve the original array. Common scenarios include: working with React state (you must never mutate state directly), keeping an original dataset so the user can reset a filtered or sorted view, and passing an array to a function you don't control and not wanting that function to modify your data. The ES2023 methods (<code>toReversed</code>, <code>toSorted</code>, <code>toSpliced</code>, <code>with</code>) plus <code>slice()</code>, <code>concat()</code>, and spread all return new arrays without touching the original.</dd>
+
+  <dt>How do I sort numbers correctly?</dt>
+  <dd>Always pass a compare function: <code>array.sort((a, b) => a - b)</code> for ascending order and <code>array.sort((a, b) => b - a)</code> for descending. Without a compare function, <code>sort()</code> converts numbers to strings and sorts by Unicode character code, which puts <code>100</code> before <code>9</code> because "1" comes before "9" alphabetically. The subtraction trick works because the compare function needs to return a negative number (a before b), zero (same), or positive (b before a) &mdash; and <code>a - b</code> naturally produces those results.</dd>
+
+  <dt>What does <code>Array.isArray()</code> do that <code>typeof</code> can't?</dt>
+  <dd><code>typeof []</code> returns <code>"object"</code> because arrays are objects in JavaScript. This makes <code>typeof</code> useless for distinguishing arrays from plain objects, <code>null</code>, or other object-type values. <code>Array.isArray(value)</code> performs a proper check and returns <code>true</code> only for actual arrays. Always use it when you receive data from an external source (API, form submission, function argument) and need to confirm the value is an array before calling array methods on it.</dd>
+
+  <dt>What is the mutation trap and how do I avoid it?</dt>
+  <dd>The mutation trap occurs when you write <code>const arr2 = arr1</code>. This does not copy the array &mdash; it creates a second variable pointing to the exact same array in memory. Any change made through either variable affects the one shared array. Avoid it by making an explicit copy: <code>const arr2 = [...arr1]</code> (spread) or <code>const arr2 = arr1.slice()</code> are the two standard approaches for a shallow copy. If your array contains objects and you need those objects to also be independent copies, use <code>structuredClone(arr1)</code> for a deep clone.</dd>
+
+  <dt>What does <code>at(-1)</code> do?</dt>
+  <dd><code>array.at(-1)</code> returns the last element of the array. Negative arguments to <code>at()</code> count from the end: <code>at(-1)</code> is the last item, <code>at(-2)</code> is the second-to-last, and so on. It is a cleaner alternative to the older <code>array[array.length - 1]</code> pattern. <code>at()</code> also accepts positive indices, where it behaves identically to bracket notation.</dd>
+
+  <dt>How is <code>splice()</code> different from <code>slice()</code>?</dt>
+  <dd>Despite the similar names, they serve opposite purposes. <code>splice(start, deleteCount, ...items)</code> is a <em>mutating</em> method that modifies the original array &mdash; it can delete, insert, or replace elements at any position. <code>slice(start, end)</code> is a <em>non-mutating</em> method that extracts a portion of the array into a new array without touching the original. A memory aid: <code>spl<strong>i</strong>ce</code> modifies <strong>i</strong>n place; <code>slice</code> creates a <strong>s</strong>ubset copy.</dd>
+
+  <dt>When would I use <code>findLast()</code> instead of <code>find()</code>?</dt>
+  <dd>Use <code>findLast()</code> when you need the <em>last</em> element matching a condition rather than the first. For example, if you have a list of log entries and want the most recent error, <code>findLast(entry => entry.type === "error")</code> returns the last error entry without reversing the array first. <code>find()</code> searches from index 0 forward and returns the first match. If duplicates exist in your data and the most recent or last occurrence is the meaningful one (as is common with time-sorted data), <code>findLast()</code> is the right choice.</dd>
+</dl>

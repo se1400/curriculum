@@ -1,0 +1,717 @@
+<h1>Modern CSS and Accessibility</h1>
+
+<h2>What You'll Learn in This Lesson</h2>
+
+<ul>
+  <li style="list-style-type: '▶  '">How to write nested CSS without a preprocessor using native CSS Nesting</li>
+  <li style="list-style-type: '▶  '">How <code>:has()</code> lets you style a parent based on its children</li>
+  <li style="list-style-type: '▶  '">How <code>:is()</code> and <code>:where()</code> reduce repetitive selectors</li>
+  <li style="list-style-type: '▶  '">How <code>@layer</code> solves specificity wars at scale</li>
+  <li style="list-style-type: '▶  '">How to implement dark mode with <code>prefers-color-scheme</code> and <code>light-dark()</code></li>
+  <li style="list-style-type: '▶  '">Why accessibility matters and what WCAG is</li>
+  <li style="list-style-type: '▶  '">How the accessibility tree exposes your HTML to assistive technology</li>
+  <li style="list-style-type: '▶  '">How to use ARIA roles, labels, and states correctly</li>
+  <li style="list-style-type: '▶  '">How focus management, skip links, and keyboard navigation work</li>
+  <li style="list-style-type: '▶  '">How to use the native <code>&lt;dialog&gt;</code> element for accessible modals</li>
+  <li style="list-style-type: '▶  '">How to test accessibility with Lighthouse, axe, and screen readers</li>
+</ul>
+
+<p>This lesson is intentionally ambitious — it covers two large topics in a single day. The first half surveys the most impactful recent additions to the CSS language. The second half introduces web accessibility: what it is, why it matters legally and ethically, and how to build it in from the start rather than bolting it on as an afterthought.</p>
+
+<p>These topics are not unrelated. Good CSS architecture and good accessibility share the same root value: clarity of intent expressed through clean code.</p>
+
+<hr>
+
+<h2>Part 1: Modern CSS Features</h2>
+
+<h2>CSS Nesting</h2>
+
+<p>For years, nested selectors were only possible with CSS preprocessors like Sass or Less. In Sass you could write <code>.card { &amp;:hover { } }</code> and the preprocessor would compile it to <code>.card:hover { }</code>. Native CSS Nesting — now supported in all modern browsers — brings this capability directly to the browser, no build step required.</p>
+
+<p>Nesting keeps related styles co-located, making large stylesheets easier to scan and understand. The <code>&amp;</code> selector represents the parent rule.</p>
+
+<p><strong>LISTING 17.1 &mdash; CSS Nesting</strong></p>
+<pre><code>/* Without nesting — selectors scattered throughout the file */
+.card { background: white; border-radius: 8px; }
+.card:hover { box-shadow: 0 8px 24px rgba(0,0,0,0.12); }
+.card .card-title { font-size: 1.25rem; }
+.card .card-title:first-child { margin-top: 0; }
+.card .card-body { padding: 1rem; color: #475569; }
+
+/* With nesting — all card styles in one block */
+.card {
+  background: white;
+  border-radius: 8px;
+
+  &:hover {
+    box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+  }
+
+  .card-title {
+    font-size: 1.25rem;
+
+    &:first-child { margin-top: 0; }
+  }
+
+  .card-body {
+    padding: 1rem;
+    color: #475569;
+  }
+}</code></pre>
+
+<p>You can also nest media queries directly inside a selector, keeping the responsive overrides right next to the base styles they modify:</p>
+
+<p><strong>LISTING 17.2 &mdash; Nesting Media Queries</strong></p>
+<pre><code>.hero {
+  font-size: 1.5rem;
+  padding: 1rem;
+
+  @media (min-width: 768px) {
+    font-size: 2.5rem;
+    padding: 2rem;
+  }
+
+  @media (min-width: 1200px) {
+    font-size: 3.5rem;
+    padding: 4rem;
+  }
+}</code></pre>
+
+<blockquote>
+  <p><strong>CAUTION:</strong> CSS Nesting is not yet available in the most ancient browsers. Check <a href="https://caniuse.com/css-nesting" target="_blank" rel="noopener noreferrer">caniuse.com/css-nesting</a> for support. If you need to support older browsers, use a build tool like PostCSS to compile nesting syntax.</p>
+</blockquote>
+
+<hr>
+
+<h2>The <code>:has()</code> Selector — The Parent Selector</h2>
+
+<p>For decades, CSS had no way to style a parent based on what it contained. You could style a <code>.card</code> that had a certain class, but not a <code>.card</code> based on whether it contained an <code>&lt;img&gt;</code>. JavaScript was required. <code>:has()</code> changes that.</p>
+
+<p><code>:has(selector)</code> matches an element if any of its descendants match the argument. It is often called "the parent selector," though it is more accurately "the relational selector" — it can check for any descendant, sibling, or relative.</p>
+
+<p><strong>LISTING 17.3 &mdash; :has() in Practice</strong></p>
+<pre><code>/* Style a figure that contains a figcaption differently */
+figure:has(figcaption) {
+  border-bottom: 2px solid #e2e8f0;
+  padding-bottom: 0.75rem;
+}
+
+/* Add extra padding to cards that contain images */
+.card:has(img) {
+  padding-top: 0;  /* image provides visual top spacing */
+}
+
+/* Mark a form as invalid when it contains an invalid input */
+form:has(:invalid) {
+  border: 2px solid #ef4444;
+}
+
+/* Show a sidebar navigation only when the nav contains items */
+.sidebar:not(:has(li)) {
+  display: none;
+}
+
+/* Style the label of a focused input */
+.field:has(input:focus) label {
+  color: #4f6df5;
+  font-weight: 600;
+}
+
+/* Add indicator to list items that contain a nested list */
+li:has(ul) {
+  list-style-type: "▸ ";
+}</code></pre>
+
+<p><code>:has()</code> is supported in all modern browsers. It has fully replaced a significant amount of JavaScript that was previously required to conditionally apply styles based on dynamic content.</p>
+
+<p>[CODEPEN 1]</p>
+
+<hr>
+
+<h2><code>:is()</code> and <code>:where()</code></h2>
+
+<p>Both selectors match any element that matches at least one selector in their argument list. They behave identically with one critical difference: specificity.</p>
+
+<ul>
+  <li style="list-style-type: '▶  '"><code>:is(selector-list)</code> — takes the <em>highest</em> specificity of any selector in its list</li>
+  <li style="list-style-type: '▶  '"><code>:where(selector-list)</code> — always has <strong>zero</strong> specificity regardless of its contents</li>
+</ul>
+
+<p><strong>LISTING 17.4 &mdash; Reducing Repetition with :is()</strong></p>
+<pre><code>/* Without :is() — repetitive */
+header h1,
+header h2,
+header h3,
+main h1,
+main h2,
+main h3 {
+  color: #0f172a;
+}
+
+/* With :is() — concise */
+:is(header, main) :is(h1, h2, h3) {
+  color: #0f172a;
+}
+
+/* :where() for zero-specificity base styles (easy to override) */
+:where(p, ul, ol, dl) {
+  margin-block: 1em;
+  /* This rule has 0 specificity — any selector overrides it */
+}</code></pre>
+
+<p>Use <code>:where()</code> for base/reset styles that you always want to be easily overridden. Use <code>:is()</code> when you want the matched selector's specificity to apply normally.</p>
+
+<hr>
+
+<h2>CSS Cascade Layers with <code>@layer</code></h2>
+
+<p>Specificity wars — where developers write increasingly specific selectors just to override library or framework styles — are one of the most common sources of CSS frustration. <code>@layer</code> introduces a new layer above and below the existing specificity system, giving you explicit control over which styles win.</p>
+
+<p>Think of layers as named buckets. Styles in later-declared layers always beat styles in earlier-declared layers, regardless of specificity. This is a fundamentally different — and more predictable — cascade resolution system.</p>
+
+<p><strong>LISTING 17.5 &mdash; Declaring and Using @layer</strong></p>
+<pre><code>/* Declare layer order: later layers win */
+@layer base, components, utilities;
+
+@layer base {
+  /* Low-priority resets */
+  * { box-sizing: border-box; margin: 0; }
+  body { font-family: system-ui, sans-serif; }
+}
+
+@layer components {
+  .card {
+    background: white;
+    border-radius: 8px;
+    padding: 1.5rem;
+  }
+}
+
+@layer utilities {
+  /* Highest priority — utility classes always win */
+  .p-0 { padding: 0 !important; }
+  .hidden { display: none; }
+}
+
+/* Importing a library into a layer (prevents it from overriding your code) */
+@import url("third-party.css") layer(vendor);</code></pre>
+
+<p>Unlayered styles (rules not inside any <code>@layer</code>) always beat layered styles. So your existing CSS without layers will not break when you introduce <code>@layer</code> into a project.</p>
+
+<p>[CODEPEN 2]</p>
+
+<hr>
+
+<h2>Dark Mode with <code>prefers-color-scheme</code> and <code>light-dark()</code></h2>
+
+<p>Operating systems now expose a user preference for light or dark color schemes. CSS provides the <code>prefers-color-scheme</code> media query to respond to this preference, and two newer functions — <code>color-mix()</code> and <code>light-dark()</code> — to make theming cleaner than ever.</p>
+
+<h3>The Media Query Approach</h3>
+
+<p><strong>LISTING 17.6 &mdash; Dark Mode with CSS Custom Properties</strong></p>
+<pre><code>/* Define color tokens on :root for light mode */
+:root {
+  --color-bg:      #ffffff;
+  --color-surface: #f8f9fa;
+  --color-text:    #0f172a;
+  --color-muted:   #64748b;
+  --color-accent:  #4f6df5;
+  --color-border:  #e2e8f0;
+}
+
+/* Override tokens for dark mode */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-bg:      #0f172a;
+    --color-surface: #1e293b;
+    --color-text:    #f1f5f9;
+    --color-muted:   #94a3b8;
+    --color-accent:  #7c9bff;
+    --color-border:  #334155;
+  }
+}
+
+/* Components use tokens — they automatically switch */
+body {
+  background: var(--color-bg);
+  color: var(--color-text);
+}
+
+.card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+}</code></pre>
+
+<h3>The <code>light-dark()</code> Function</h3>
+
+<p>The <code>light-dark()</code> function (supported in all modern browsers as of 2024) lets you specify both light and dark values in a single line — no media query block needed. You must set <code>color-scheme</code> on the root element to opt in.</p>
+
+<p><strong>LISTING 17.7 &mdash; light-dark() Function</strong></p>
+<pre><code>:root {
+  color-scheme: light dark; /* required to activate light-dark() */
+}
+
+body {
+  /* light-dark(light-value, dark-value) */
+  background: light-dark(#ffffff, #0f172a);
+  color:       light-dark(#0f172a, #f1f5f9);
+}
+
+.card {
+  background: light-dark(#f8f9fa, #1e293b);
+  border-color: light-dark(#e2e8f0, #334155);
+}</code></pre>
+
+<h3>The <code>color-mix()</code> Function</h3>
+
+<p><code>color-mix(in colorspace, color1 percentage, color2 percentage)</code> blends two colors in a specified color space. It is particularly useful for generating tints and shades of a brand color without hardcoding every variation.</p>
+
+<p><strong>LISTING 17.8 &mdash; color-mix() for Color Palettes</strong></p>
+<pre><code>:root {
+  --brand: #4f6df5;
+}
+
+.btn-primary {
+  background: var(--brand);
+}
+
+.btn-primary:hover {
+  /* 20% lighter: mix brand with white */
+  background: color-mix(in srgb, var(--brand), white 20%);
+}
+
+.btn-ghost {
+  /* Very light tint background */
+  background: color-mix(in srgb, var(--brand), transparent 85%);
+  color: var(--brand);
+}</code></pre>
+
+<p>[CODEPEN 3]</p>
+
+<hr>
+
+<h2>Feature Queries with <code>@supports</code></h2>
+
+<p><code>@supports</code> tests whether the browser supports a given CSS property and value before applying a block of styles. It enables progressive enhancement: you provide a basic working style for all browsers, then layer on advanced styles only for browsers that understand them.</p>
+
+<p><strong>LISTING 17.9 &mdash; Progressive Enhancement with @supports</strong></p>
+<pre><code>/* Basic layout — works everywhere */
+.gallery { display: flex; flex-wrap: wrap; gap: 1rem; }
+.gallery-item { flex: 1 1 200px; }
+
+/* Enhance with Grid if supported */
+@supports (display: grid) {
+  .gallery {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  }
+  .gallery-item { flex: unset; }
+}
+
+/* Use container queries only if supported */
+@supports (container-type: inline-size) {
+  .card-wrapper { container-type: inline-size; }
+  @container (min-width: 400px) {
+    .card { flex-direction: row; }
+  }
+}
+
+/* Test for a property-value pair */
+@supports (backdrop-filter: blur(8px)) {
+  .glass-card {
+    backdrop-filter: blur(8px);
+    background: rgba(255, 255, 255, 0.3);
+  }
+}</code></pre>
+
+<hr>
+
+<h2>Part 2: Web Accessibility</h2>
+
+<h2>Why Accessibility Matters</h2>
+
+<p>Accessibility is the practice of designing and building products that people with disabilities can use. On the web, this encompasses a wide range of conditions: blindness and low vision, deafness and hard of hearing, motor impairments that prevent mouse use, cognitive and learning differences, and situational limitations (holding a baby, being in bright sunlight, a broken mouse).</p>
+
+<p>Approximately one billion people worldwide have some form of disability. Here is why accessibility is non-negotiable:</p>
+
+<ul>
+  <li style="list-style-type: '▶  '"><strong>Legal.</strong> In the United States, the Americans with Disabilities Act (ADA) and Section 508 of the Rehabilitation Act require accessible digital products for many organizations. The EU Web Accessibility Directive imposes similar requirements in Europe. Lawsuits over inaccessible websites have cost companies millions of dollars.</li>
+  <li style="list-style-type: '▶  '"><strong>Ethical.</strong> Building a product that excludes a significant portion of the population is wrong. Accessibility is not a feature — it is the baseline expectation of a professional.</li>
+  <li style="list-style-type: '▶  '"><strong>Business.</strong> Accessible websites rank better in search engines, perform better on mobile, and reach a larger audience. The accessible user experience is often a better experience for everyone.</li>
+</ul>
+
+<h2>The Web Content Accessibility Guidelines (WCAG)</h2>
+
+<p>WCAG is the international standard for web accessibility, published by the W3C. It organizes requirements into four principles — content must be <strong>Perceivable, Operable, Understandable, and Robust</strong> (POUR). Within those principles are success criteria at three conformance levels:</p>
+
+<ul>
+  <li style="list-style-type: '▶  '"><strong>Level A</strong> — Minimum requirements. Failing these makes content completely inaccessible to some users.</li>
+  <li style="list-style-type: '▶  '"><strong>Level AA</strong> — The legally required standard in most jurisdictions and the target for most professional web projects.</li>
+  <li style="list-style-type: '▶  '"><strong>Level AAA</strong> — The highest level. Not all success criteria at this level can be met by all content types; it is an aspirational target.</li>
+</ul>
+
+<p>The current standard is <strong>WCAG 2.2</strong>, published in 2023. See the full specification at <a href="https://www.w3.org/TR/WCAG22/" target="_blank" rel="noopener noreferrer">www.w3.org/TR/WCAG22/</a>.</p>
+
+<hr>
+
+<h2>The Accessibility Tree</h2>
+
+<p>Every browser maintains two parallel representations of a web page: the DOM (Document Object Model) — the structure of HTML elements you write — and the <strong>accessibility tree</strong>, which is a simplified, semantic version of the DOM that assistive technologies like screen readers, braille displays, and voice control software use to understand and present content.</p>
+
+<p>The accessibility tree represents elements not as <code>&lt;div&gt;</code>s and <code>&lt;span&gt;</code>s but as semantic roles: "button," "heading level 2," "list with 5 items," "required text input labeled Full Name." When you use semantic HTML correctly, the browser builds this tree automatically. When you use <code>&lt;div&gt;</code>s for everything, the tree is meaningless — assistive technology cannot interpret it.</p>
+
+<p>[IMG - Chrome DevTools Accessibility panel showing the accessibility tree for a form]</p>
+
+<blockquote>
+  <p><strong>NOTE:</strong> You can inspect the accessibility tree in Chrome DevTools: open the Elements panel, select an element, then click the "Accessibility" tab in the panel on the right. This shows the element's role, name, states, and properties as seen by assistive technology.</p>
+</blockquote>
+
+<p><strong>Semantic HTML is the single most impactful accessibility technique.</strong> Using <code>&lt;button&gt;</code> instead of <code>&lt;div onclick&gt;</code>, <code>&lt;nav&gt;</code> instead of <code>&lt;div class="nav"&gt;</code>, and <code>&lt;h1&gt;</code> through <code>&lt;h6&gt;</code> in a meaningful hierarchy makes the accessibility tree rich and correct for free.</p>
+
+<hr>
+
+<h2>ARIA: Accessible Rich Internet Applications</h2>
+
+<p>ARIA (Accessible Rich Internet Applications) is a specification of HTML attributes that extend the accessibility tree with additional roles, states, and properties. ARIA fills the gaps where semantic HTML alone is not sufficient — for example, when building a custom dropdown, a tab panel, or a live chat interface.</p>
+
+<blockquote>
+  <p><strong>NOTE:</strong> <strong>The first rule of ARIA: do not use ARIA if a native HTML element can do the same thing.</strong> A <code>&lt;button&gt;</code> is always preferable to <code>&lt;div role="button"&gt;</code>. Native elements have built-in keyboard behavior, states, and accessibility semantics. ARIA only adds to the accessibility tree — it does not add keyboard behavior or change visual appearance.</p>
+</blockquote>
+
+<h3>ARIA Roles</h3>
+
+<p>The <code>role</code> attribute overrides or augments the implicit role of an element. The landmark roles are the most important for page structure:</p>
+
+<ul>
+  <li style="list-style-type: '▶  '"><code>role="banner"</code> — the page header (equivalent to <code>&lt;header&gt;</code> as a direct child of <code>&lt;body&gt;</code>)</li>
+  <li style="list-style-type: '▶  '"><code>role="navigation"</code> — equivalent to <code>&lt;nav&gt;</code></li>
+  <li style="list-style-type: '▶  '"><code>role="main"</code> — equivalent to <code>&lt;main&gt;</code></li>
+  <li style="list-style-type: '▶  '"><code>role="contentinfo"</code> — the page footer (equivalent to <code>&lt;footer&gt;</code>)</li>
+  <li style="list-style-type: '▶  '"><code>role="complementary"</code> — equivalent to <code>&lt;aside&gt;</code></li>
+  <li style="list-style-type: '▶  '"><code>role="dialog"</code> — a modal or non-modal dialog window</li>
+  <li style="list-style-type: '▶  '"><code>role="alert"</code> — important live information that is announced immediately (error messages, warnings)</li>
+  <li style="list-style-type: '▶  '"><code>role="status"</code> — polite live information (success messages, loading states)</li>
+</ul>
+
+<h3>ARIA Labels</h3>
+
+<p>ARIA labels provide accessible names for elements when the visible text is insufficient or absent:</p>
+
+<p><strong>LISTING 17.10 &mdash; ARIA Labeling</strong></p>
+<pre><code>&lt;!-- aria-label: provides a label when there is no visible text --&gt;
+&lt;button aria-label="Close dialog"&gt;✕&lt;/button&gt;
+
+&lt;!-- aria-labelledby: references another element's text as the label --&gt;
+&lt;section aria-labelledby="pricing-heading"&gt;
+  &lt;h2 id="pricing-heading"&gt;Pricing Plans&lt;/h2&gt;
+  ...
+&lt;/section&gt;
+
+&lt;!-- aria-describedby: references a longer description --&gt;
+&lt;input
+  type="password"
+  aria-describedby="pw-hint"
+  aria-required="true"
+&gt;
+&lt;p id="pw-hint"&gt;Must be at least 8 characters and include a number.&lt;/p&gt;
+
+&lt;!-- Multiple nav elements on a page need distinguishing labels --&gt;
+&lt;nav aria-label="Main navigation"&gt;...&lt;/nav&gt;
+&lt;nav aria-label="Breadcrumb"&gt;...&lt;/nav&gt;</code></pre>
+
+<h3>ARIA States and Properties</h3>
+
+<p><strong>LISTING 17.11 &mdash; ARIA States</strong></p>
+<pre><code>&lt;!-- Indicate whether a section is expanded or collapsed --&gt;
+&lt;button aria-expanded="false" aria-controls="menu"&gt;Menu&lt;/button&gt;
+&lt;ul id="menu" hidden&gt;...&lt;/ul&gt;
+
+&lt;!-- aria-current marks the active page in navigation --&gt;
+&lt;nav&gt;
+  &lt;a href="/"&gt;Home&lt;/a&gt;
+  &lt;a href="/about" aria-current="page"&gt;About&lt;/a&gt;
+  &lt;a href="/contact"&gt;Contact&lt;/a&gt;
+&lt;/nav&gt;
+
+&lt;!-- aria-hidden removes content from the accessibility tree --&gt;
+&lt;span aria-hidden="true"&gt;★★★★☆&lt;/span&gt;
+&lt;span class="sr-only"&gt;4 out of 5 stars&lt;/span&gt;
+
+&lt;!-- aria-invalid marks a form field as having an error --&gt;
+&lt;input type="email" aria-invalid="true" aria-describedby="email-error"&gt;
+&lt;p id="email-error" role="alert"&gt;Please enter a valid email address.&lt;/p&gt;
+
+&lt;!-- aria-live for dynamically updated regions --&gt;
+&lt;div aria-live="polite"&gt;
+  &lt;!-- Content added here is announced by screen readers --&gt;
+  &lt;p id="status-message"&gt;&lt;/p&gt;
+&lt;/div&gt;</code></pre>
+
+<hr>
+
+<h2>Focus Management and Keyboard Navigation</h2>
+
+<p>Every interactive element on a web page — buttons, links, form fields — must be reachable and operable using only the keyboard. This is essential for people who cannot use a mouse, including many users with motor impairments and power users who prefer keyboard navigation.</p>
+
+<p>The <strong>Tab</strong> key moves focus forward through interactive elements; <strong>Shift+Tab</strong> moves backward. <strong>Enter</strong> activates a focused link or button. <strong>Space</strong> activates a focused button or checkbox.</p>
+
+<h3>The <code>tabindex</code> Attribute</h3>
+
+<p>The <code>tabindex</code> attribute controls whether an element is focusable and in what order:</p>
+
+<ul>
+  <li style="list-style-type: '▶  '"><code>tabindex="0"</code> — includes a non-interactive element (like a <code>&lt;div&gt;</code>) in the natural tab order. Use this when you must make a custom interactive widget focusable.</li>
+  <li style="list-style-type: '▶  '"><code>tabindex="-1"</code> — removes an element from the tab order but allows it to be focused programmatically with JavaScript (<code>element.focus()</code>). Used to manage focus in modals, menus, and carousels.</li>
+  <li style="list-style-type: '▶  '"><strong>Positive values (<code>tabindex="1"</code>, etc.) — never use these.</strong> They override the natural document order, creating a confusing and unpredictable tab sequence for keyboard users.</li>
+</ul>
+
+<h3>Focus Styles</h3>
+
+<p>Visible focus indicators are required by WCAG 2.4.7 (Level AA). Never write <code>*:focus { outline: none; }</code> without providing an alternative visible focus style. The <code>:focus-visible</code> pseudo-class targets keyboard focus specifically (not mouse clicks), letting you show focus rings only when navigating by keyboard:</p>
+
+<p><strong>LISTING 17.12 &mdash; Accessible Focus Styles</strong></p>
+<pre><code>/* Remove browser outline only for mouse users */
+:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* Show a clear focus ring for keyboard users */
+:focus-visible {
+  outline: 3px solid #4f6df5;
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+/* High-contrast mode: use a thicker, high-contrast outline */
+@media (forced-colors: active) {
+  :focus-visible {
+    outline: 3px solid ButtonText;
+  }
+}</code></pre>
+
+<h3>The <code>inert</code> Attribute</h3>
+
+<p>The <code>inert</code> attribute is a modern HTML attribute that makes an element and all its descendants unfocusable, unclickable, and invisible to screen readers — with a single attribute. Before <code>inert</code>, developers had to manually set <code>aria-hidden="true"</code>, <code>tabindex="-1"</code> on every focusable child, and <code>pointer-events: none</code>. The <code>inert</code> attribute replaces all of that.</p>
+
+<p><strong>LISTING 17.13 &mdash; Using the inert Attribute</strong></p>
+<pre><code>&lt;!-- When a modal is open, make the rest of the page inert --&gt;
+&lt;main id="page-content" inert&gt;
+  &lt;!-- All focus and interaction is trapped in the modal --&gt;
+  &lt;a href="/"&gt;This link is unreachable while inert&lt;/a&gt;
+&lt;/main&gt;
+
+&lt;dialog id="my-modal"&gt;
+  &lt;h2&gt;Are you sure?&lt;/h2&gt;
+  &lt;button id="confirm"&gt;Confirm&lt;/button&gt;
+  &lt;button id="cancel"&gt;Cancel&lt;/button&gt;
+&lt;/dialog&gt;
+
+&lt;script&gt;
+const modal   = document.getElementById('my-modal');
+const content = document.getElementById('page-content');
+
+// Open: inert the background
+document.getElementById('open-btn').addEventListener('click', () => {
+  modal.showModal();
+  content.inert = true;
+});
+
+// Close: remove inert, return focus
+document.getElementById('cancel').addEventListener('click', () => {
+  modal.close();
+  content.inert = false;
+  document.getElementById('open-btn').focus();
+});
+&lt;/script&gt;</code></pre>
+
+<hr>
+
+<h2>The Native <code>&lt;dialog&gt;</code> Element</h2>
+
+<p>Building accessible modal dialogs from scratch is notoriously difficult: you must trap focus inside the dialog, close on Escape, manage <code>aria-modal</code>, return focus to the trigger on close, and prevent scrolling of background content. The native HTML <code>&lt;dialog&gt;</code> element handles most of this automatically.</p>
+
+<p><strong>LISTING 17.14 &mdash; The &lt;dialog&gt; Element</strong></p>
+<pre><code>&lt;button id="openBtn"&gt;Open Dialog&lt;/button&gt;
+
+&lt;dialog id="myDialog"&gt;
+  &lt;h2&gt;Confirm Delete&lt;/h2&gt;
+  &lt;p&gt;This action cannot be undone. Delete this item?&lt;/p&gt;
+  &lt;div class="dialog-actions"&gt;
+    &lt;button id="cancelBtn"&gt;Cancel&lt;/button&gt;
+    &lt;button id="deleteBtn"&gt;Delete&lt;/button&gt;
+  &lt;/div&gt;
+&lt;/dialog&gt;
+
+&lt;script&gt;
+const dialog    = document.getElementById('myDialog');
+const openBtn   = document.getElementById('openBtn');
+const cancelBtn = document.getElementById('cancelBtn');
+const deleteBtn = document.getElementById('deleteBtn');
+
+// showModal() creates a true modal — Escape closes it, focus is trapped
+openBtn.addEventListener('click', () => dialog.showModal());
+
+// close() closes the dialog and returns focus to the opener automatically
+cancelBtn.addEventListener('click', () => dialog.close());
+
+deleteBtn.addEventListener('click', () => {
+  // Do the delete action
+  dialog.close('deleted'); // Optional return value
+});
+
+// Handle close event
+dialog.addEventListener('close', () => {
+  console.log('Dialog closed, return value:', dialog.returnValue);
+});
+&lt;/script&gt;</code></pre>
+
+<p>The <code>showModal()</code> method creates a true modal: it adds a <code>::backdrop</code> pseudo-element behind the dialog, traps keyboard focus inside, and allows the Escape key to close it. This is far simpler and more robust than hand-rolling the same behavior.</p>
+
+<p>[CODEPEN 4]</p>
+
+<hr>
+
+<h2>Live Regions with <code>aria-live</code></h2>
+
+<p>Screen readers announce page content as it loads. But when content changes dynamically — an error message appears after form submission, a chat message arrives, a notification pops up — the screen reader is not automatically notified. <code>aria-live</code> regions tell the browser to announce dynamic content changes.</p>
+
+<p><strong>LISTING 17.15 &mdash; aria-live Regions</strong></p>
+<pre><code>&lt;!-- Polite: announces when the user is not busy --&gt;
+&lt;div aria-live="polite" aria-atomic="true"&gt;
+  &lt;p id="status"&gt;&lt;/p&gt;
+&lt;/div&gt;
+
+&lt;!-- Assertive: interrupts immediately (use sparingly — only for critical errors) --&gt;
+&lt;div role="alert" aria-live="assertive"&gt;
+  &lt;p id="error"&gt;&lt;/p&gt;
+&lt;/div&gt;
+
+&lt;script&gt;
+// When you update content inside a live region,
+// screen readers will announce the change
+document.getElementById('status').textContent = 'Your changes have been saved.';
+document.getElementById('error').textContent  = 'Error: network unavailable. Please retry.';
+&lt;/script&gt;</code></pre>
+
+<ul>
+  <li style="list-style-type: '▶  '"><code>aria-live="polite"</code> — waits until the user finishes their current interaction before announcing. Use for status messages, search results counts, chat messages.</li>
+  <li style="list-style-type: '▶  '"><code>aria-live="assertive"</code> — interrupts immediately. Only use for truly critical errors that block the user. <code>role="alert"</code> is a shorthand that implies <code>aria-live="assertive"</code>.</li>
+  <li style="list-style-type: '▶  '"><code>aria-atomic="true"</code> — announces the entire region every time any part changes (rather than just the changed part).</li>
+</ul>
+
+<hr>
+
+<h2>Skip Navigation Links</h2>
+
+<p>Keyboard users navigate through every link and interactive element at the top of a page before reaching the main content. On a page with a 30-link navigation menu, pressing Tab 30 times before reaching the article body is exhausting. A skip navigation link solves this: a link at the very top of the page that jumps directly to the main content area when activated.</p>
+
+<p><strong>LISTING 17.16 &mdash; Skip Navigation Link</strong></p>
+<pre><code>&lt;!-- First element in &lt;body&gt; --&gt;
+&lt;a class="skip-link" href="#main-content"&gt;Skip to main content&lt;/a&gt;
+
+&lt;!-- ... header, navigation ... --&gt;
+
+&lt;main id="main-content" tabindex="-1"&gt;
+  &lt;!-- Page content --&gt;
+&lt;/main&gt;</code></pre>
+
+<pre><code>/* Visually hidden by default; visible only on focus */
+.skip-link {
+  position: absolute;
+  top: -100%;
+  left: 0;
+  background: #4f6df5;
+  color: white;
+  padding: 0.75rem 1.5rem;
+  font-weight: 600;
+  text-decoration: none;
+  z-index: 9999;
+  transition: top 0.1s;
+}
+
+.skip-link:focus {
+  top: 0;
+}</code></pre>
+
+<p>[IMG - Skip navigation link visible when focused by keyboard user]</p>
+
+<hr>
+
+<h2>Common Accessibility Mistakes</h2>
+
+<p>The following errors account for the majority of accessibility failures found in web audits:</p>
+
+<ul>
+  <li style="list-style-type: '▶  '"><strong>Missing or empty alt text.</strong> Every <code>&lt;img&gt;</code> must have an <code>alt</code> attribute. Decorative images that carry no information get <code>alt=""</code>. Images that convey meaning need descriptive text.</li>
+  <li style="list-style-type: '▶  '"><strong>Insufficient color contrast.</strong> WCAG 1.4.3 (Level AA) requires a contrast ratio of at least 4.5:1 for normal text and 3:1 for large text. Use the <a href="https://webaim.org/resources/contrastchecker/" target="_blank" rel="noopener noreferrer">WebAIM Contrast Checker</a> to verify your palette.</li>
+  <li style="list-style-type: '▶  '"><strong>Removing focus outlines without replacement.</strong> <code>outline: none</code> without a replacement focus style makes keyboard navigation impossible to follow visually.</li>
+  <li style="list-style-type: '▶  '"><strong>Interactive <code>&lt;div&gt;</code>s and <code>&lt;span&gt;</code>s.</strong> <code>&lt;div onclick&gt;</code> elements are not focusable by keyboard, have no ARIA role, and convey no semantic meaning. Use <code>&lt;button&gt;</code> for actions and <code>&lt;a&gt;</code> for navigation.</li>
+  <li style="list-style-type: '▶  '"><strong>Form inputs without labels.</strong> Every input must have an associated <code>&lt;label&gt;</code> (or <code>aria-label</code>). Placeholder text disappears and is not a substitute for a label.</li>
+  <li style="list-style-type: '▶  '"><strong>Inaccessible modals.</strong> Modals that don't trap focus, don't close on Escape, and don't return focus to the trigger when closed confuse and strand keyboard users.</li>
+  <li style="list-style-type: '▶  '"><strong>Auto-playing media.</strong> Video or audio that plays automatically is disorienting and can be impossible to stop for some users. Always provide a pause control and do not autoplay audio.</li>
+  <li style="list-style-type: '▶  '"><strong>Non-descriptive link text.</strong> Links labeled "click here" or "read more" provide no context for screen reader users who navigate by listing all links on a page.</li>
+</ul>
+
+<hr>
+
+<h2>Accessibility Testing Tools</h2>
+
+<p>No automated tool can catch all accessibility issues — some require human judgment — but automated tools can quickly identify a large percentage of common errors and are an essential first step.</p>
+
+<h3>Browser DevTools Lighthouse</h3>
+
+<p>Chrome and Edge include Google Lighthouse in DevTools. Open DevTools &rarr; Lighthouse tab &rarr; run an Accessibility audit. Lighthouse scores your page from 0–100 and lists specific failing criteria with links to explanations.</p>
+
+<h3>axe DevTools</h3>
+
+<p>The <a href="https://www.deque.com/axe/devtools/" target="_blank" rel="noopener noreferrer">axe DevTools browser extension</a> (by Deque) is the most widely used professional accessibility testing tool. It integrates into DevTools, finds issues that Lighthouse misses, and provides detailed remediation guidance for each violation.</p>
+
+<h3>WAVE</h3>
+
+<p>The <a href="https://wave.webaim.org/" target="_blank" rel="noopener noreferrer">WAVE Web Accessibility Evaluation Tool</a> from WebAIM overlays accessibility information directly on your page — showing structure, labeling, contrast issues, and alerts visually in context. It is excellent for learning because you can see exactly which HTML elements have problems.</p>
+
+<h3>Screen Readers</h3>
+
+<p>Automated tools are a starting point, not a finish line. You must test with actual screen readers to understand the full user experience:</p>
+
+<ul>
+  <li style="list-style-type: '▶  '"><strong>VoiceOver</strong> — built into macOS, iOS, and iPadOS. Activate with <kbd>Cmd+F5</kbd> on Mac. Navigate with Tab, arrow keys, and VoiceOver-specific commands (Ctrl+Option+...).</li>
+  <li style="list-style-type: '▶  '"><strong>NVDA</strong> — free screen reader for Windows. Download from <a href="https://www.nvaccess.org/" target="_blank" rel="noopener noreferrer">nvaccess.org</a>.</li>
+  <li style="list-style-type: '▶  '"><strong>JAWS</strong> — professional screen reader for Windows, used by most blind professionals. Commercial license required.</li>
+  <li style="list-style-type: '▶  '"><strong>TalkBack</strong> — screen reader built into Android.</li>
+</ul>
+
+<p>[IMG - WAVE tool accessibility report showing icons overlaid on a web page]</p>
+
+<p>[CODEPEN 5]</p>
+
+<hr>
+
+<h2>Summary</h2>
+
+<p>This lesson covered two broad areas of modern web development.</p>
+
+<p>In the first half, you learned about modern CSS features that are now available natively in all modern browsers. CSS Nesting keeps related styles organized without a preprocessor. <code>:has()</code> enables you to style parent elements based on their contents for the first time. <code>:is()</code> and <code>:where()</code> reduce selector repetition while giving you control over specificity. <code>@layer</code> provides a powerful new way to manage the cascade at scale. The <code>prefers-color-scheme</code> media query and the <code>light-dark()</code> function make dark mode theming elegant and maintainable. <code>@supports</code> enables progressive enhancement — providing working experiences for all browsers while enhancing for those that support newer features.</p>
+
+<p>In the second half, you learned that accessibility is not optional — it is a legal requirement in many jurisdictions, an ethical responsibility, and a business advantage. You explored how the accessibility tree connects your HTML to assistive technology, why semantic HTML is the most powerful accessibility tool, and when to reach for ARIA roles, labels, and states. You learned how to manage focus correctly, how to use the native <code>&lt;dialog&gt;</code> element and the <code>inert</code> attribute for accessible modals, how to implement skip navigation links, how to create accessible live regions, and how to test your work with Lighthouse, axe, WAVE, and real screen readers.</p>
+
+<hr>
+
+<h2>Q&amp;A</h2>
+
+<dl>
+  <dt><strong>Q. Does CSS Nesting work the same as Sass/SCSS nesting?</strong></dt>
+  <dd><p>A. Almost. Native CSS Nesting requires either the <code>&amp;</code> selector or a nesting selector to identify descendent rules — some older Sass patterns that begin a nested rule with a plain element selector (like just <code>p { }</code> inside <code>.card { }</code>) are now valid in native CSS. The main difference is that native CSS computes selectors slightly differently than Sass in edge cases involving specificity and combinators, but for everyday usage the syntax and behavior are effectively the same.</p></dd>
+
+  <dt><strong>Q. What's the difference between <code>:is()</code> and <code>:where()</code> in practice?</strong></dt>
+  <dd><p>A. They work identically except for specificity. <code>:is(h1, h2)</code> has the specificity of <code>h1</code> or <code>h2</code> (whichever is higher in the list). <code>:where(h1, h2)</code> has zero specificity. Use <code>:where()</code> in base/reset stylesheets where you want any specific selector to easily override the rule. Use <code>:is()</code> in component or utility styles where normal specificity behavior is desired.</p></dd>
+
+  <dt><strong>Q. If ARIA only adds to the accessibility tree and doesn't add keyboard behavior, what actually handles keyboard interaction for custom widgets?</strong></dt>
+  <dd><p>A. JavaScript. When you build a custom widget — a date picker, a combobox, a tab interface — you are responsible for implementing all keyboard interactions. The WAI-ARIA Authoring Practices Guide at <a href="https://www.w3.org/WAI/ARIA/apg/" target="_blank" rel="noopener noreferrer">www.w3.org/WAI/ARIA/apg/</a> documents the expected keyboard behavior for every ARIA widget pattern. This is one of the strongest reasons to prefer native HTML elements: they come with keyboard behavior built in.</p></dd>
+
+  <dt><strong>Q. Is using a CSS variable for theming the same as using <code>light-dark()</code>?</strong></dt>
+  <dd><p>A. They achieve the same result but in different ways. The CSS custom properties approach — defining tokens on <code>:root</code> and overriding them in a media query — is more explicit and more controllable. You can also toggle dark mode via a class (useful for user-controlled theme switching). <code>light-dark()</code> is more concise and automatic, but it relies solely on the OS preference and is harder to override with a manual toggle. For most production sites, the custom properties approach is recommended; use <code>light-dark()</code> for simpler projects or when OS-only switching is sufficient.</p></dd>
+
+  <dt><strong>Q. How do I implement a "dark mode toggle" button that lets users override the OS setting?</strong></dt>
+  <dd><p>A. Store the user's preference in <code>localStorage</code>, then add a class (<code>data-theme="dark"</code>) to the <code>&lt;html&gt;</code> element based on the saved preference. In CSS, define your color tokens for both <code>@media (prefers-color-scheme: dark)</code> (OS preference) and <code>[data-theme="dark"]</code> (manual toggle). The manual class should always win, so list it after the media query. Restore the preference from <code>localStorage</code> before the first paint to avoid a flash of the wrong theme — do this in a <code>&lt;script&gt;</code> tag in the <code>&lt;head&gt;</code>, before any stylesheets load.</p></dd>
+</dl>

@@ -1,0 +1,879 @@
+<h1>Loops &amp; Generating HTML</h1>
+
+<h2>What You'll Learn in This Lesson</h2>
+
+<ul>
+  <li style="list-style-type: '▶  '">Why loops are fundamental to programming and what problem they solve</li>
+  <li style="list-style-type: '▶  '">How to write a <code>for</code> loop: initialization, condition, and increment</li>
+  <li style="list-style-type: '▶  '">How to count up, count down, and step by custom increments</li>
+  <li style="list-style-type: '▶  '">How to iterate over arrays using index-based loops &mdash; and the off-by-one error to avoid</li>
+  <li style="list-style-type: '▶  '">How <code>break</code> exits a loop early and <code>continue</code> skips an iteration</li>
+  <li style="list-style-type: '▶  '">How the <code>while</code> loop works and when it fits better than <code>for</code></li>
+  <li style="list-style-type: '▶  '">How <code>do...while</code> guarantees at least one execution before checking the condition</li>
+  <li style="list-style-type: '▶  '">Why <code>for...of</code> is the preferred modern loop for arrays, strings, and other iterables</li>
+  <li style="list-style-type: '▶  '">How to get both the index and value inside a <code>for...of</code> loop using <code>array.entries()</code></li>
+  <li style="list-style-type: '▶  '">Common loop patterns: accumulating, finding, searching, and building strings</li>
+  <li style="list-style-type: '▶  '">How to generate HTML dynamically with loops and template literals &mdash; the big payoff</li>
+  <li style="list-style-type: '▶  '">When to use <code>innerHTML</code> vs. <code>createElement</code> inside a loop</li>
+  <li style="list-style-type: '▶  '">How to render a card grid from an array of objects</li>
+  <li style="list-style-type: '▶  '">How <code>Array.from()</code> and <code>Object.entries()</code> open up elegant looping patterns</li>
+  <li style="list-style-type: '▶  '">How nested loops work and when to use them for grids and tables</li>
+</ul>
+
+<h2>Where This Is Headed</h2>
+<p>This lesson teaches loops. But instead of starting with counting numbers, let's look at the goal right away — generating visible HTML content from data. Every loop concept you learn here is a step toward this:</p>
+
+<strong>LISTING 23.0 — Generating a Card Grid from an Array</strong>
+<pre><code>const products = [
+  { name: "Wireless Headphones", price: 79.99, category: "Audio" },
+  { name: "USB-C Hub",           price: 34.99, category: "Tech"  },
+  { name: "Notebook",            price: 12.99, category: "Office"},
+];
+
+const grid = document.querySelector('#product-grid');
+
+grid.innerHTML = products.map(product => `
+  &lt;div class="card"&gt;
+    &lt;h3&gt;${product.name}&lt;/h3&gt;
+    &lt;p&gt;${product.category}&lt;/p&gt;
+    &lt;strong&gt;$${product.price}&lt;/strong&gt;
+  &lt;/div&gt;
+`).join('');
+</code></pre>
+<p>Five lines of JavaScript. Sixteen products could become sixteen cards. This is what loops and iteration are for. Everything that follows — <code>for</code> loops, <code>while</code> loops, <code>for...of</code> — is a tool for reaching this kind of result.</p>
+
+<hr>
+
+<p>Variables and data types, arrays and objects &mdash; the structures that hold collections of data &mdash;, DOM manipulation, events, functions, and control flow are the building blocks of front-end JavaScript. In this lesson those pieces click together in a way that finally lets you do something that feels like real web development: you will write code that <em>generates an entire section of a webpage from data</em>, automatically, in a fraction of the code you would need to write it by hand.</p>
+
+<p>That moment &mdash; when you feed an array of ten products into a loop and watch ten cards appear on screen &mdash; is one of the most satisfying moments in learning to program. Everything you have learned points toward it. Let&rsquo;s get there.</p>
+
+<hr>
+
+<h2>What Loops Are</h2>
+
+<p>Imagine you are checking off a grocery list. You start at the top, evaluate each item (&ldquo;Do I already have this?&rdquo;), take some action, and move to the next. You repeat that process until you reach the bottom of the list. This is exactly what a programming loop does.</p>
+
+<p>Or imagine a factory press that stamps metal parts. A worker loads a sheet of metal, the machine stamps it, the sheet advances, and the machine stamps again. The machine does not need a new set of instructions for each stamp &mdash; it repeats the same operation until the sheet runs out. Loops let your code work the same way: one set of instructions, repeated as many times as needed.</p>
+
+<p>Before loops existed in programming languages, early programmers had to literally write the same code over and over &mdash; one line per repetition. If they wanted to process a hundred values, they wrote a hundred lines. Loops replaced that with a single block of instructions and a rule for when to stop.</p>
+
+<p>JavaScript offers several loop structures. Each one fits a different scenario:</p>
+
+<ul>
+  <li style="list-style-type: '▶  '"><strong><code>for</code></strong> &mdash; when you know the number of iterations ahead of time (or you&rsquo;re iterating by index)</li>
+  <li style="list-style-type: '▶  '"><strong><code>while</code></strong> &mdash; when the number of iterations is unknown and depends on a condition</li>
+  <li style="list-style-type: '▶  '"><strong><code>for...of</code></strong> &mdash; the modern, clean way to iterate over arrays and other iterables</li>
+  <li style="list-style-type: '▶  '"><strong><code>for...in</code></strong> &mdash; iterates over an object&rsquo;s enumerable property keys (rarely used on arrays; prefer <code>for...of</code> or <code>Object.entries()</code>)</li>
+</ul>
+
+<p>This lesson covers the first three in depth, touches on <code>Array.from()</code> and <code>Object.entries()</code>, and shows you how to combine all of it with the DOM to generate real web content.</p>
+
+<hr>
+
+<h2>The <code>for</code> Loop</h2>
+
+<p>The <code>for</code> loop is the workhorse of iteration. It packs three pieces of information into a single line, making the loop&rsquo;s intent clear at a glance.</p>
+
+<h3>Anatomy of the <code>for</code> Loop</h3>
+
+<p>The syntax is: <code>for (initialization; condition; increment) { body }</code></p>
+
+<p>Each of the three parts separated by semicolons has a specific role:</p>
+
+<ul>
+  <li style="list-style-type: '▶  '"><strong>Initialization</strong> &mdash; runs once before the loop starts; typically declares and sets the counter variable</li>
+  <li style="list-style-type: '▶  '"><strong>Condition</strong> &mdash; evaluated before every iteration; if <code>true</code>, the body runs; if <code>false</code>, the loop exits</li>
+  <li style="list-style-type: '▶  '"><strong>Increment</strong> &mdash; runs at the end of every iteration; typically updates the counter</li>
+</ul>
+
+<p>[IMG - for loop anatomy labeled diagram]</p>
+
+<p>The counter variable is conventionally named <code>i</code> (short for &ldquo;index&rdquo;). When loops are nested, the inner counter is typically named <code>j</code>, and a third level uses <code>k</code>. These are conventions, not rules &mdash; you can name the variable anything &mdash; but following the convention makes your code instantly readable to other developers.</p>
+
+<h3>Counting Up</h3>
+
+<p>The most common loop pattern counts from zero up to (but not including) some number. You will see this pattern thousands of times in your career.</p>
+
+<p><strong>LISTING 23.1 &mdash; Counting Up: Basic for Loop</strong></p>
+<pre><code>for (let i = 0; i &lt; 5; i++) {
+  console.log("Iteration:", i);
+}
+// Output:
+// Iteration: 0
+// Iteration: 1
+// Iteration: 2
+// Iteration: 3
+// Iteration: 4</code></pre>
+
+<p>Walk through the mechanics: <code>let i = 0</code> runs once. Then the condition <code>i &lt; 5</code> is checked &mdash; <code>0 &lt; 5</code> is <code>true</code>, so the body runs. At the end of the body, <code>i++</code> increments <code>i</code> to <code>1</code>. The condition is checked again: <code>1 &lt; 5</code> is still <code>true</code>. This continues until <code>i</code> reaches <code>5</code>, at which point <code>5 &lt; 5</code> is <code>false</code> and the loop exits without running the body one more time.</p>
+
+<h3>Counting Down</h3>
+
+<p>Flip the pattern to count down. This is useful for countdowns, reverse-order rendering, or processing a list from the end.</p>
+
+<p><strong>LISTING 23.2 &mdash; Counting Down</strong></p>
+<pre><code>for (let i = 10; i &gt;= 0; i--) {
+  console.log(i);
+}
+// 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0</code></pre>
+
+<h3>Custom Increments</h3>
+
+<p>The increment expression does not have to be <code>i++</code>. You can step by any amount.</p>
+
+<p><strong>LISTING 23.3 &mdash; Custom Increments</strong></p>
+<pre><code>// Every other number (even numbers)
+for (let i = 0; i &lt;= 10; i += 2) {
+  console.log(i); // 0, 2, 4, 6, 8, 10
+}
+
+// Every fifth item
+for (let i = 0; i &lt; 100; i += 5) {
+  console.log(i); // 0, 5, 10, 15, ..., 95
+}
+
+// Multiplying (not common, but possible)
+for (let i = 1; i &lt; 1000; i *= 2) {
+  console.log(i); // 1, 2, 4, 8, 16, 32, 64, 128, 256, 512
+}</code></pre>
+
+<h3>Iterating Over Arrays by Index</h3>
+
+<p>One of the most powerful uses of a <code>for</code> loop is stepping through every element in an array. The counter variable <code>i</code> doubles as the index into the array.</p>
+
+<p><strong>LISTING 23.4 &mdash; Iterating Over an Array by Index</strong></p>
+<pre><code>const fruits = ["apple", "banana", "cherry", "date", "elderberry"];
+
+for (let i = 0; i &lt; fruits.length; i++) {
+  console.log(`Item ${i}: ${fruits[i]}`);
+}
+// Item 0: apple
+// Item 1: banana
+// Item 2: cherry
+// Item 3: date
+// Item 4: elderberry</code></pre>
+
+<p>Notice <code>fruits.length</code> in the condition. The array has five elements, so <code>fruits.length</code> is <code>5</code>. The valid indices are <code>0</code> through <code>4</code>.</p>
+
+<h3>The Off-By-One Error: The Most Common Loop Bug</h3>
+
+<p>This is the mistake every beginner makes at least once. An <strong>off-by-one error</strong> occurs when a loop runs one too many or one too few times. With arrays, the specific danger is using <code>i &lt;= array.length</code> instead of <code>i &lt; array.length</code>.</p>
+
+<p><strong>LISTING 23.5 &mdash; The Off-by-One Error</strong></p>
+<pre><code>const colors = ["red", "green", "blue"]; // length = 3, indices: 0, 1, 2
+
+// CORRECT — condition is i < colors.length (i.e., i < 3)
+for (let i = 0; i &lt; colors.length; i++) {
+  console.log(colors[i]); // "red", "green", "blue"
+}
+
+// BUG — condition is i <= colors.length (i.e., i <= 3)
+for (let i = 0; i &lt;= colors.length; i++) {
+  console.log(colors[i]); // "red", "green", "blue", undefined ← WRONG!
+}
+// When i = 3, colors[3] does not exist — JavaScript returns undefined</code></pre>
+
+<p>The reason is that array indices are <em>zero-based</em>. An array with three elements uses indices <code>0</code>, <code>1</code>, and <code>2</code>. There is no index <code>3</code>. The condition <code>i &lt; colors.length</code> stops the loop just before <code>i</code> would reach that nonexistent index. The condition <code>i &lt;= colors.length</code> lets the loop run one extra time, accessing an undefined slot.</p>
+
+<blockquote>
+  <p><strong>NOTE:</strong> If you see <code>undefined</code> appearing unexpectedly in output from a loop, the first thing to check is your condition. Chances are you used <code>&lt;=</code> where you needed <code>&lt;</code>.</p>
+</blockquote>
+
+<p>[IMG - off-by-one comparison less-than vs less-equal]</p>
+
+<p>See [CODEPEN 1] for a visual demonstration of the <code>for</code> loop stepping through iterations in real time.</p>
+
+<hr>
+
+<h2><code>break</code> and <code>continue</code></h2>
+
+<p>Sometimes you want to step out of a loop early, or skip a particular iteration without stopping altogether. JavaScript gives you two keywords for this: <code>break</code> and <code>continue</code>.</p>
+
+<h3><code>break</code> &mdash; Exit Immediately</h3>
+
+<p>When JavaScript encounters <code>break</code> inside a loop, it exits the loop completely and moves on to whatever code comes after it. This is most useful when you are searching for something: once you find it, there is no reason to keep looking.</p>
+
+<p><strong>LISTING 23.6 &mdash; Using break to Search an Array</strong></p>
+<pre><code>const usernames = ["alice", "bob", "charlie", "diana", "eve"];
+const target = "charlie";
+let foundAt = -1;
+
+for (let i = 0; i &lt; usernames.length; i++) {
+  if (usernames[i] === target) {
+    foundAt = i;
+    break; // Stop searching — no need to check the rest
+  }
+}
+
+if (foundAt !== -1) {
+  console.log(`Found "${target}" at index ${foundAt}`);
+} else {
+  console.log(`"${target}" not found`);
+}
+// Found "charlie" at index 2</code></pre>
+
+<p>Without <code>break</code>, the loop would keep running through &ldquo;diana&rdquo; and &ldquo;eve&rdquo; even after already finding what it needed. For small arrays this barely matters; for large datasets, <code>break</code> can make a meaningful performance difference.</p>
+
+<h3><code>continue</code> &mdash; Skip This Iteration</h3>
+
+<p><code>continue</code> skips the rest of the current iteration and jumps immediately to the increment step, then re-checks the condition. The loop keeps running &mdash; it just ignores the current item.</p>
+
+<p><strong>LISTING 23.7 &mdash; Using continue to Skip Null Values</strong></p>
+<pre><code>const values = [10, null, 25, undefined, 30, null, 15];
+let total = 0;
+
+for (let i = 0; i &lt; values.length; i++) {
+  if (values[i] == null) { // catches both null and undefined
+    continue; // skip this iteration
+  }
+  total += values[i];
+}
+
+console.log("Total:", total); // Total: 80</code></pre>
+
+<blockquote>
+  <p><strong>NOTE:</strong> The comparison <code>values[i] == null</code> (loose equality) deliberately catches <em>both</em> <code>null</code> and <code>undefined</code>. This is one of the few situations where the loose <code>==</code> is useful rather than dangerous. When you want to skip both null-ish values in one check, <code>== null</code> is a readable idiom.</p>
+</blockquote>
+
+<h3>Avoiding Infinite Loops</h3>
+
+<p>An infinite loop is a loop whose condition never becomes <code>false</code>. It runs forever, freezing your browser tab until the browser kills the script (or you close the tab). The most common cause is forgetting to increment the counter inside the loop.</p>
+
+<p><strong>LISTING 23.8 &mdash; Infinite Loop Example (Do Not Run This)</strong></p>
+<pre><code>// WARNING: This loops forever — never write this
+let i = 0;
+while (i &lt; 10) {
+  console.log(i);
+  // i never changes — condition is always true
+}
+
+// The fix — always update the condition variable
+let j = 0;
+while (j &lt; 10) {
+  console.log(j);
+  j++; // condition variable updated — loop will eventually stop
+}</code></pre>
+
+<p>Before writing any loop, ask yourself: &ldquo;What will eventually make this condition false?&rdquo; If the answer is &ldquo;nothing,&rdquo; you have an infinite loop waiting to happen.</p>
+
+<hr>
+
+<h2>The <code>while</code> Loop</h2>
+
+<p>The <code>for</code> loop works beautifully when you know how many times to repeat. But what if you don&rsquo;t know? What if the number of iterations depends on something that changes at runtime &mdash; user input, a network response, a random number?</p>
+
+<p>That is where <code>while</code> shines. A <code>while</code> loop has a simpler structure: it checks a condition and, if true, runs the body. Then it checks the condition again. It continues until the condition is false.</p>
+
+<p><strong>LISTING 23.9 &mdash; The while Loop</strong></p>
+<pre><code>let count = 0;
+
+while (count &lt; 5) {
+  console.log("Count is:", count);
+  count++;
+}
+// Count is: 0
+// Count is: 1
+// Count is: 2
+// Count is: 3
+// Count is: 4</code></pre>
+
+<p>This produces the same output as the equivalent <code>for</code> loop. The difference is where the counter management lives: in a <code>for</code> loop, it&rsquo;s all in the header; in a <code>while</code> loop, initialization is before the loop and the increment is inside the body. You must remember to update the condition variable, or you will get an infinite loop.</p>
+
+<h3>When <code>while</code> Fits Better Than <code>for</code></h3>
+
+<p>Use <code>while</code> when you genuinely do not know the number of iterations at the time you write the loop. Common scenarios:</p>
+
+<ul>
+  <li style="list-style-type: '▶  '"><strong>Reading until end of input</strong> &mdash; loop as long as there is more data to process</li>
+  <li style="list-style-type: '▶  '"><strong>Retrying an operation</strong> &mdash; keep trying until it succeeds or a maximum attempt count is reached</li>
+  <li style="list-style-type: '▶  '"><strong>Game loops</strong> &mdash; keep running while the game is active</li>
+  <li style="list-style-type: '▶  '"><strong>Searching in an unknown structure</strong> &mdash; traverse a linked list or tree until you reach the end</li>
+</ul>
+
+<p><strong>LISTING 23.10 &mdash; while Loop for Retry Logic</strong></p>
+<pre><code>function getRandomNumber() {
+  return Math.floor(Math.random() * 10); // 0 through 9
+}
+
+let result;
+let attempts = 0;
+const MAX_ATTEMPTS = 20;
+
+while (attempts &lt; MAX_ATTEMPTS) {
+  result = getRandomNumber();
+  attempts++;
+  if (result === 7) {
+    console.log(`Found 7 after ${attempts} attempt(s)!`);
+    break;
+  }
+}
+
+if (result !== 7) {
+  console.log("Did not find 7 within the attempt limit.");
+}</code></pre>
+
+<p>See [CODEPEN 2] for a visual demonstration of <code>for</code>, <code>while</code>, and <code>for...of</code> running side by side on the same array.</p>
+
+<h3><code>do...while</code> &mdash; Always Run at Least Once</h3>
+
+<p>A <code>do...while</code> loop moves the condition check to the <em>end</em>, guaranteeing the body runs at least once before the condition is evaluated. This is ideal for user input validation: you always need to ask at least once before you can know whether the answer is valid.</p>
+
+<p><strong>LISTING 23.11 &mdash; do...while: Run at Least Once</strong></p>
+<pre><code>let userInput;
+
+do {
+  userInput = prompt("Enter a number between 1 and 10:");
+  userInput = Number(userInput);
+} while (userInput &lt; 1 || userInput &gt; 10 || isNaN(userInput));
+
+console.log("Valid input received:", userInput);</code></pre>
+
+<hr>
+
+<h2>The <code>for...of</code> Loop</h2>
+
+<p>Modern JavaScript introduced <code>for...of</code> as a cleaner way to iterate over sequences. Instead of managing an index variable, you simply declare a name for &ldquo;the current item&rdquo; and let the language handle the bookkeeping.</p>
+
+<p><strong>LISTING 23.12 &mdash; for...of: The Clean Way to Iterate</strong></p>
+<pre><code>const fruits = ["apple", "banana", "cherry"];
+
+for (const fruit of fruits) {
+  console.log(fruit);
+}
+// apple
+// banana
+// cherry</code></pre>
+
+<p>There is no <code>i</code>, no <code>i &lt; fruits.length</code>, no <code>i++</code>, and no <code>fruits[i]</code>. The loop simply gives you each element in turn. This is less code, and it removes the entire category of off-by-one bugs.</p>
+
+<h3>What <code>for...of</code> Works With</h3>
+
+<p><code>for...of</code> works on any <strong>iterable</strong> &mdash; a value that knows how to produce a sequence of items one at a time. Built-in iterables include:</p>
+
+<ul>
+  <li style="list-style-type: '▶  '"><strong>Arrays</strong> &mdash; the most common use case</li>
+  <li style="list-style-type: '▶  '"><strong>Strings</strong> &mdash; iterates character by character</li>
+  <li style="list-style-type: '▶  '"><strong>NodeLists</strong> &mdash; the collections returned by <code>querySelectorAll()</code></li>
+  <li style="list-style-type: '▶  '"><strong>Sets</strong> &mdash; iterates each unique value</li>
+  <li style="list-style-type: '▶  '"><strong>Maps</strong> &mdash; iterates <code>[key, value]</code> pairs</li>
+</ul>
+
+<p><strong>LISTING 23.13 &mdash; for...of Over a String</strong></p>
+<pre><code>const word = "hello";
+
+for (const char of word) {
+  console.log(char);
+}
+// h
+// e
+// l
+// l
+// o</code></pre>
+
+<p><strong>LISTING 23.14 &mdash; for...of Over a NodeList</strong></p>
+<pre><code>// Select all paragraph elements on the page
+const paragraphs = document.querySelectorAll("p");
+
+for (const p of paragraphs) {
+  p.classList.add("highlighted");
+}</code></pre>
+
+<p>Before <code>for...of</code>, iterating a NodeList required converting it to an array first, or using a traditional <code>for</code> loop. Now you can use it directly.</p>
+
+<h3>Getting the Index When You Need It</h3>
+
+<p>The one thing <code>for...of</code> gives up compared to a traditional <code>for</code> loop is easy access to the current index. When you need both the index <em>and</em> the value, use <code>array.entries()</code>. This method returns an iterable of <code>[index, value]</code> pairs, which you can destructure directly in the loop header.</p>
+
+<p><strong>LISTING 23.15 &mdash; Getting Index and Value with array.entries()</strong></p>
+<pre><code>const animals = ["cat", "dog", "rabbit", "hamster"];
+
+for (const [index, animal] of animals.entries()) {
+  console.log(`${index + 1}. ${animal}`);
+}
+// 1. cat
+// 2. dog
+// 3. rabbit
+// 4. hamster</code></pre>
+
+<p>The destructuring syntax <code>[index, animal]</code> unpacks the <code>[0, "cat"]</code> pair automatically. This pattern gives you all the clarity of <code>for...of</code> with the index information you sometimes need.</p>
+
+<blockquote><strong>NOTE:</strong> A related loop, <code>for...in</code>, iterates over object property keys — but it should never be used on arrays because it also includes inherited properties. For objects, use <code>Object.entries()</code>; for arrays, use <code>for...of</code>.</blockquote>
+
+<p>See [CODEPEN 2] for a visual side-by-side comparison of <code>for</code>, <code>while</code>, and <code>for...of</code> iterating the same array.</p>
+
+<hr>
+
+<h2>Common Loop Patterns</h2>
+
+<p>Experienced programmers recognize a handful of loop patterns that appear again and again. Learning to see these patterns is like learning chess openings: once you know the template, you can apply it to any specific problem.</p>
+
+<h3>Summing and Accumulating</h3>
+
+<p>Declare a variable before the loop, add to it inside the loop. Often called an <strong>accumulator</strong>.</p>
+
+<p><strong>LISTING 23.16 &mdash; Accumulator Pattern</strong></p>
+<pre><code>const prices = [9.99, 14.50, 3.25, 22.00, 7.75];
+let total = 0;
+
+for (const price of prices) {
+  total += price;
+}
+
+console.log("Total:", total.toFixed(2)); // Total: 57.49</code></pre>
+
+<h3>Finding a Minimum or Maximum</h3>
+
+<p>Start with the first element as the initial best, then update it whenever you find something better.</p>
+
+<p><strong>LISTING 23.17 &mdash; Finding the Minimum Value</strong></p>
+<pre><code>const temperatures = [72, 68, 75, 61, 79, 58, 65];
+let min = temperatures[0]; // start with the first element
+
+for (const temp of temperatures) {
+  if (temp &lt; min) {
+    min = temp;
+  }
+}
+
+console.log("Coldest day:", min); // Coldest day: 58</code></pre>
+
+<h3>Counting Occurrences</h3>
+
+<p>Initialize a counter at zero, increment it whenever a condition is met.</p>
+
+<p><strong>LISTING 23.19 &mdash; Counting Occurrences</strong></p>
+<pre><code>const votes = ["yes", "no", "yes", "yes", "no", "yes", "abstain"];
+let yesCount = 0;
+
+for (const vote of votes) {
+  if (vote === "yes") yesCount++;
+}
+
+console.log(`Yes: ${yesCount} / ${votes.length}`); // Yes: 4 / 7</code></pre>
+
+<h3>Searching for the First Match</h3>
+
+<p>Loop through items and <code>break</code> as soon as the target is found.</p>
+
+<p><strong>LISTING 23.20 &mdash; Search with Break</strong></p>
+<pre><code>const inventory = [
+  { id: 101, name: "Widget A", inStock: false },
+  { id: 102, name: "Widget B", inStock: true },
+  { id: 103, name: "Widget C", inStock: true },
+];
+
+let firstAvailable = null;
+
+for (const item of inventory) {
+  if (item.inStock) {
+    firstAvailable = item;
+    break;
+  }
+}
+
+console.log(firstAvailable?.name); // Widget B</code></pre>
+
+<h3>Collecting Transformed Values</h3>
+
+<p>Create an empty array before the loop, <code>push()</code> a transformed version of each item inside.</p>
+
+<p><strong>LISTING 23.21 &mdash; Transforming Values into a New Array</strong></p>
+<pre><code>const names = ["alice", "bob", "charlie"];
+const displayNames = [];
+
+for (const name of names) {
+  displayNames.push(name[0].toUpperCase() + name.slice(1));
+}
+
+console.log(displayNames); // ["Alice", "Bob", "Charlie"]</code></pre>
+
+<blockquote>
+  <p><strong>NOTE:</strong> This push-into-array pattern is exactly what the built-in <code>array.map()</code> method does in one line. Understanding the manual version gives you a solid mental model for what <code>map()</code>, <code>filter()</code>, and <code>reduce()</code> do under the hood.</p>
+</blockquote>
+
+<hr>
+
+<h2>Generating HTML with Loops</h2>
+
+<p>Here is the moment this lesson has been building toward. Everything you have learned &mdash; loops, arrays, template literals, and the DOM &mdash; combines into one of the most powerful patterns in front-end web development: <strong>generating HTML dynamically from data</strong>.</p>
+
+<p>Think about a website that shows products, articles, contacts, or search results. That content is not hand-typed HTML for each item. A developer stores the data in an array of objects, then a loop reads the data and produces the HTML. When the data changes, the HTML updates automatically. When a new item is added to the data, a new card appears on screen without touching the HTML file.</p>
+
+<p>[IMG - data array arrow into loop arrow into rendered cards]</p>
+
+<p>There are two main patterns for generating HTML with loops. Each has its place.</p>
+
+<h3>Pattern 1: Build an HTML String, Then Set innerHTML Once</h3>
+
+<p>In this pattern, you declare an empty string before the loop, concatenate HTML into it inside the loop, and then set an element&rsquo;s <code>innerHTML</code> to the finished string after the loop. The key insight is doing one DOM update at the end, not one per iteration.</p>
+
+<p><strong>LISTING 23.22 &mdash; Generating a List with innerHTML and Template Literals</strong></p>
+<pre><code>const tasks = [
+  "Buy groceries",
+  "Call the dentist",
+  "Finish the report",
+  "Water the plants",
+];
+
+const taskList = document.getElementById("task-list");
+let html = "";
+
+for (const task of tasks) {
+  html += `&lt;li&gt;${task}&lt;/li&gt;`;
+}
+
+taskList.innerHTML = `&lt;ul&gt;${html}&lt;/ul&gt;`;</code></pre>
+
+<p>Notice the structure: the loop builds the string; the assignment to <code>innerHTML</code> happens once after the loop. This is more efficient than setting <code>innerHTML</code> on every iteration, because each <code>innerHTML</code> assignment forces the browser to re-parse the HTML and update the rendered page. Doing it once at the end is much faster for long lists.</p>
+
+<p>Template literals make this pattern especially readable. The backtick strings let you write HTML that looks like HTML, with expressions interpolated right where they belong.</p>
+
+<h3>Pattern 2: createElement in a Loop, Then appendChild</h3>
+
+<p>The second pattern creates real DOM elements rather than building a string. You use <code>document.createElement()</code> inside the loop to create each element, configure it, and then append it to a container.</p>
+
+<p><strong>LISTING 23.23 &mdash; Generating Elements with createElement and appendChild</strong></p>
+<pre><code>const tasks = [
+  "Buy groceries",
+  "Call the dentist",
+  "Finish the report",
+  "Water the plants",
+];
+
+const taskList = document.getElementById("task-list");
+const ul = document.createElement("ul");
+
+for (const task of tasks) {
+  const li = document.createElement("li");
+  li.textContent = task;
+
+  // Because we have a reference to 'li', we can attach events:
+  li.addEventListener("click", () => {
+    li.classList.toggle("done");
+  });
+
+  ul.appendChild(li);
+}
+
+taskList.appendChild(ul);</code></pre>
+
+<h3>Which Pattern to Use?</h3>
+
+<ul>
+  <li style="list-style-type: '▶  '"><strong>Use <code>innerHTML</code></strong> when generating display-only content (articles, product cards, info panels). It is concise, readable, and fast.</li>
+  <li style="list-style-type: '▶  '"><strong>Use <code>createElement</code></strong> when each generated element needs its own event listener, or when you need to keep a direct reference to each element for later manipulation. Event listeners added to DOM nodes survive re-renders; strings in <code>innerHTML</code> do not.</li>
+</ul>
+
+<blockquote>
+  <p><strong>CAUTION:</strong> Never set <code>innerHTML</code> to a string built from <em>user-provided data</em> without sanitizing it first. If a user enters <code>&lt;img src=x onerror="alert('xss')"&gt;</code> and you paste that directly into <code>innerHTML</code>, the browser will execute the script. For user data, use <code>textContent</code> instead of <code>innerHTML</code>, or sanitize with a library like <a href="https://github.com/cure53/DOMPurify" target="_blank" rel="noopener noreferrer">DOMPurify</a>.</p>
+</blockquote>
+
+<p>[CODEPEN 3]</p>
+
+<hr>
+
+<h2>Generating Cards, Grids, and Lists from Data</h2>
+
+<p>Now let&rsquo;s apply the pattern to something that looks like a real project: rendering a grid of product cards from an array of objects. This is the exact code structure you will find in e-commerce sites, portfolio pages, blog post listings, and dashboards.</p>
+
+<h3>The Data</h3>
+
+<p>Start by defining your data as an array of objects. Each object represents one card and holds everything that card needs to display.</p>
+
+<p><strong>LISTING 23.24 &mdash; Product Data Array</strong></p>
+<pre><code>const products = [
+  {
+    name: "Mechanical Keyboard",
+    price: 129.99,
+    category: "Electronics",
+    rating: 4.5,
+    icon: "⌨️"
+  },
+  {
+    name: "Ergonomic Mouse",
+    price: 59.99,
+    category: "Electronics",
+    rating: 4.2,
+    icon: "🖱️"
+  },
+  {
+    name: "Standing Desk Mat",
+    price: 34.99,
+    category: "Furniture",
+    rating: 4.8,
+    icon: "🟩"
+  },
+  {
+    name: "USB-C Hub",
+    price: 49.99,
+    category: "Electronics",
+    rating: 3.9,
+    icon: "🔌"
+  },
+];</code></pre>
+
+<h3>The Rendering Function</h3>
+
+<p>Write a function that accepts the data array and a container element, then loops through the data and builds the HTML.</p>
+
+<p><strong>LISTING 23.25 &mdash; Rendering Cards from Data</strong></p>
+<pre><code>function renderProducts(products, container) {
+  let html = "";
+
+  for (const product of products) {
+    const stars = "★".repeat(Math.floor(product.rating)) +
+                  "☆".repeat(5 - Math.floor(product.rating));
+
+    html += `
+      &lt;div class="card"&gt;
+        &lt;div class="card-icon"&gt;${product.icon}&lt;/div&gt;
+        &lt;h3 class="card-name"&gt;${product.name}&lt;/h3&gt;
+        &lt;p class="card-category"&gt;${product.category}&lt;/p&gt;
+        &lt;p class="card-rating"&gt;${stars} (${product.rating})&lt;/p&gt;
+        &lt;p class="card-price"&gt;$${product.price.toFixed(2)}&lt;/p&gt;
+      &lt;/div&gt;
+    `;
+  }
+
+  container.innerHTML = html;
+}
+
+const grid = document.getElementById("product-grid");
+renderProducts(products, grid);</code></pre>
+
+<p>This pattern is powerful for several reasons:</p>
+
+<ul>
+  <li style="list-style-type: '▶  '">The HTML structure is defined once (inside the template literal), not copied four times</li>
+  <li style="list-style-type: '▶  '">Adding a product means adding one object to the <code>products</code> array &mdash; the rendering code does not change</li>
+  <li style="list-style-type: '▶  '">Filtering the grid is as simple as calling <code>renderProducts(filteredProducts, grid)</code> with a different array</li>
+  <li style="list-style-type: '▶  '">Sorting is as simple as sorting the array before passing it to <code>renderProducts()</code></li>
+</ul>
+
+<h3>Filtering</h3>
+
+<p>Combine a loop (or array method) with the render function to implement category filtering.</p>
+
+<p><strong>LISTING 23.26 &mdash; Filtering Cards by Category</strong></p>
+<pre><code>function showCategory(category) {
+  const filtered = [];
+
+  for (const product of products) {
+    if (product.category === category || category === "All") {
+      filtered.push(product);
+    }
+  }
+
+  renderProducts(filtered, grid);
+}
+
+// Hook up filter buttons:
+document.querySelectorAll(".filter-btn").forEach(btn =&gt; {
+  btn.addEventListener("click", () =&gt; showCategory(btn.dataset.category));
+});</code></pre>
+
+<p>[CODEPEN 4]</p>
+
+<hr>
+
+<h2><code>Array.from()</code> for Creating Arrays</h2>
+
+<p>The built-in <code>Array.from()</code> function deserves its own section because it opens up some elegant patterns that reduce or eliminate traditional for loops entirely.</p>
+
+<h3>Converting Iterables to Real Arrays</h3>
+
+<p><code>Array.from(iterable)</code> takes anything iterable &mdash; a string, a NodeList, a Set, a Map &mdash; and converts it into a plain JavaScript array. This is useful because real arrays have methods like <code>.map()</code>, <code>.filter()</code>, and <code>.forEach()</code> that NodeLists and other iterables do not always have.</p>
+
+<p><strong>LISTING 23.27 &mdash; Array.from() Converting a NodeList</strong></p>
+<pre><code>// querySelectorAll returns a NodeList, not an array
+const nodeList = document.querySelectorAll(".card");
+console.log(typeof nodeList.map); // undefined — NodeLists don't have .map()
+
+// Convert to an array first
+const cardsArray = Array.from(nodeList);
+const titles = cardsArray.map(card =&gt; card.querySelector("h3").textContent);
+console.log(titles); // ["Mechanical Keyboard", "Ergonomic Mouse", ...]</code></pre>
+
+<h3>Generating Arrays with a Mapping Function</h3>
+
+<p>Here is where <code>Array.from()</code> really shines: the second argument is an optional mapping function, similar to how <code>.map()</code> works. By passing an object with a <code>length</code> property as the first argument, you can generate an array of <em>n</em> items without any traditional loop.</p>
+
+<p><strong>LISTING 23.28 &mdash; Array.from() with a Length and Mapping Function</strong></p>
+<pre><code>// Create [1, 2, 3, 4, 5]
+const oneToFive = Array.from({ length: 5 }, (_, i) =&gt; i + 1);
+console.log(oneToFive); // [1, 2, 3, 4, 5]
+
+// Create an array of 10 zeros (the _ is a conventional name for an unused parameter)
+const zeros = Array.from({ length: 10 }, () =&gt; 0);
+console.log(zeros); // [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+
+// Generate a row of star ratings (filled and empty)
+function starRating(score, outOf = 5) {
+  return Array.from({ length: outOf }, (_, i) =&gt;
+    i &lt; score ? "★" : "☆"
+  ).join("");
+}
+
+console.log(starRating(3));    // ★★★☆☆
+console.log(starRating(5));    // ★★★★★
+console.log(starRating(1, 5)); // ★☆☆☆☆</code></pre>
+
+<p>The underscore <code>_</code> in <code>(_, i) =&gt;</code> is a widely used convention meaning &ldquo;this parameter exists in the signature but I am not going to use it.&rdquo; The mapping function receives two arguments (the current element, which is <code>undefined</code> in this case, and the index) &mdash; we only need the index.</p>
+
+<h3>Generating Grids and Numbered Items</h3>
+
+<p><strong>LISTING 23.29 &mdash; Generating a Grid of Cells</strong></p>
+<pre><code>// Generate a 4x4 grid of numbered cells
+const gridContainer = document.getElementById("grid");
+const COLS = 4;
+const ROWS = 4;
+const TOTAL = COLS * ROWS;
+
+gridContainer.innerHTML = Array.from(
+  { length: TOTAL },
+  (_, i) =&gt; `&lt;div class="cell"&gt;${i + 1}&lt;/div&gt;`
+).join("");</code></pre>
+
+<p>In three lines, you have created 16 DOM elements numbered 1 through 16. Without <code>Array.from()</code> this would require a traditional for loop with an accumulator string.</p>
+
+<h3><code>Object.entries()</code> for Iterating Objects</h3>
+
+<p>Plain objects (<code>{ key: value }</code>) are not iterable, so <code>for...of</code> does not work on them directly. The solution is <code>Object.entries(obj)</code>, which returns an array of <code>[key, value]</code> pairs that you can iterate with <code>for...of</code>.</p>
+
+<p><strong>LISTING 23.30 &mdash; Iterating an Object with Object.entries()</strong></p>
+<pre><code>const config = {
+  theme: "dark",
+  language: "en",
+  fontSize: 16,
+  animations: true,
+};
+
+let settingsHtml = "&lt;ul&gt;";
+
+for (const [key, value] of Object.entries(config)) {
+  settingsHtml += `&lt;li&gt;&lt;strong&gt;${key}:&lt;/strong&gt; ${value}&lt;/li&gt;`;
+}
+
+settingsHtml += "&lt;/ul&gt;";
+document.getElementById("settings-list").innerHTML = settingsHtml;</code></pre>
+
+<p>You also have <code>Object.keys(obj)</code> (just the keys) and <code>Object.values(obj)</code> (just the values) available if you only need one side of the pair.</p>
+
+<blockquote>
+  <p><strong>NOTE:</strong> Two other modern features worth knowing in the context of loops: <code>array.at(-1)</code> is the modern way to access the last element of an array. <code>array[array.length - 1]</code> works but is verbose; <code>array.at(-1)</code> is concise and clear. Also, if you need a true independent copy of a nested data structure while working inside a loop &mdash; not a reference &mdash; use <code>structuredClone(originalObject)</code>. It creates a deep copy so that modifications inside the loop do not affect the original data.</p>
+</blockquote>
+
+<p>[CODEPEN 5]</p>
+
+<hr>
+
+<h2>Nested Loops</h2>
+
+<p>A loop inside a loop is called a <strong>nested loop</strong>. The outer loop runs its normal sequence; for every single iteration of the outer loop, the inner loop runs completely from start to finish. If the outer loop runs <em>n</em> times and the inner loop runs <em>m</em> times, the body of the inner loop executes <em>n &times; m</em> times total.</p>
+
+<p>Nested loops are the natural way to work with two-dimensional data: grids, tables, matrices, and calendar-like structures.</p>
+
+<h3>A Multiplication Table</h3>
+
+<p><strong>LISTING 23.31 &mdash; Generating a Multiplication Table with Nested Loops</strong></p>
+<pre><code>const table = document.getElementById("times-table");
+let html = "&lt;table&gt;";
+
+for (let row = 1; row &lt;= 10; row++) {
+  html += "&lt;tr&gt;";
+  for (let col = 1; col &lt;= 10; col++) {
+    const product = row * col;
+    html += `&lt;td&gt;${product}&lt;/td&gt;`;
+  }
+  html += "&lt;/tr&gt;";
+}
+
+html += "&lt;/table&gt;";
+table.innerHTML = html;</code></pre>
+
+<p>The outer loop counts rows 1 through 10. For each row, the inner loop counts columns 1 through 10. The body of the inner loop runs 10 &times; 10 = 100 times, producing all 100 cells of the table.</p>
+
+<h3>A Calendar-Style Grid</h3>
+
+<p><strong>LISTING 23.32 &mdash; Generating a Calendar Grid</strong></p>
+<pre><code>const WEEKS = 5;
+const DAYS_PER_WEEK = 7;
+const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+const startOffset = 3; // month starts on Wednesday
+
+let calHtml = "&lt;div class='calendar'&gt;";
+
+// Header row
+for (const day of days) {
+  calHtml += `&lt;div class='header'&gt;${day}&lt;/div&gt;`;
+}
+
+let dayNumber = 1;
+for (let week = 0; week &lt; WEEKS; week++) {
+  for (let d = 0; d &lt; DAYS_PER_WEEK; d++) {
+    const cellIndex = week * DAYS_PER_WEEK + d;
+    if (cellIndex &lt; startOffset) {
+      calHtml += "&lt;div class='empty'&gt;&lt;/div&gt;";
+    } else {
+      calHtml += `&lt;div class='day'&gt;${dayNumber++}&lt;/div&gt;`;
+    }
+  }
+}
+
+calHtml += "&lt;/div&gt;";
+document.getElementById("calendar").innerHTML = calHtml;</code></pre>
+
+<h3>Performance Warning</h3>
+
+<p>Nested loops multiply their iteration counts. An outer loop of 100 and an inner loop of 100 gives 10,000 iterations. A third level would give 1,000,000. Keep nested loops to a maximum of two levels for readability and performance, and question whether a nested loop is actually necessary &mdash; sometimes reformulating the data structure or algorithm eliminates the need for nesting entirely.</p>
+
+<p>[IMG - nested loop outer inner iteration count diagram]</p>
+
+<hr>
+
+<h2>Summary</h2>
+
+<p>Loops are one of the most foundational ideas in all of programming. They allow a single set of instructions to act on any number of items, whether that number is known in advance or not. In this lesson, you saw three main loop structures, each suited to a different situation:</p>
+
+<p>The <strong><code>for</code> loop</strong> is the workhorse. Its three-part header &mdash; initialization, condition, increment &mdash; declares everything about the loop&rsquo;s structure upfront. It is the right choice when iterating by index, when you need precise control over step size, or when generating a fixed number of items. The most important habit to build is using <code>i &lt; array.length</code> (not <code>&lt;=</code>) to avoid off-by-one errors.</p>
+
+<p>The <strong><code>while</code> loop</strong> is the right choice when the number of iterations depends on a condition rather than a count. Game loops, retry logic, and user input validation are its natural home. The <code>do...while</code> variant guarantees the body runs at least once before the condition is checked &mdash; ideal for prompting users.</p>
+
+<p>The <strong><code>for...of</code> loop</strong> is modern JavaScript&rsquo;s cleanest iteration syntax. It works on any iterable &mdash; arrays, strings, NodeLists, Sets, Maps &mdash; and eliminates the index bookkeeping that causes bugs. When you need the index alongside the value, <code>array.entries()</code> with destructuring gives you both. Prefer <code>for...of</code> for most array iteration.</p>
+
+<p>Beyond the loop structures themselves, you learned the common patterns that appear across almost every codebase: accumulating totals, finding minimums and maximums, building strings, counting occurrences, and searching for matches. These patterns are the vocabulary of iteration.</p>
+
+<p>The biggest payoff of this lesson is the connection between loops and the DOM. By combining a <code>for...of</code> loop with template literals and <code>innerHTML</code>, you can render an entire grid of cards from an array of objects in a handful of lines. By using <code>createElement</code> inside a loop, you can attach individual event listeners to each generated element. These are not toy examples &mdash; this is exactly how modern web applications work.</p>
+
+<p><code>Array.from({length: n}, mapFn)</code> extends this power further, letting you generate arrays of items without a traditional loop body at all. Combined with <code>Object.entries()</code> for iterating over objects, these tools cover nearly every iteration need you will encounter.</p>
+
+<p>Nested loops complete the picture for two-dimensional data. They are the right tool for tables, grids, and matrices, but use them sparingly &mdash; keep nesting to two levels and watch your iteration counts.</p>
+
+<p>With loops, you have crossed an important threshold. The combination of data structures, DOM manipulation, functions, control flow, and now loops means you can build real, data-driven web content. That skill only grows from here.</p>
+
+<hr>
+
+<h2>Q&amp;A</h2>
+
+<dl>
+
+  <dt>What is the difference between <code>break</code> and <code>continue</code>, and when should I use each one?</dt>
+  <dd><code>break</code> exits the loop completely &mdash; no more iterations happen, and execution jumps to the code after the loop&rsquo;s closing brace. <code>continue</code> exits only the <em>current</em> iteration, jumping to the increment step (in a <code>for</code> loop) or back to the condition check (in a <code>while</code> loop), then potentially running more iterations. Use <code>break</code> when you have found what you were looking for and there is no reason to keep checking. Use <code>continue</code> when an item does not meet your criteria and you want to skip it, but you still need to process the remaining items.</dd>
+
+  <dt>Why should I use <code>for...of</code> instead of a traditional <code>for</code> loop for most array work?</dt>
+  <dd><code>for...of</code> is cleaner, shorter, and eliminates an entire category of bugs. You do not have to declare a counter variable, remember to write <code>i &lt; array.length</code> (and not <code>&lt;=</code>), or use <code>array[i]</code> to access each element. The intent is also clearer: <code>for (const product of products)</code> reads almost like plain English. The only reason to use a traditional <code>for</code> loop instead is when you need precise control over the index &mdash; for example, when you need to iterate backward, skip every other element, or access two indices simultaneously.</dd>
+
+  <dt>Why is it more efficient to build an HTML string in a loop and set <code>innerHTML</code> once, rather than updating <code>innerHTML</code> on every iteration?</dt>
+  <dd>Every time you assign to an element&rsquo;s <code>innerHTML</code>, the browser must parse the string, build new DOM nodes, and repaint or reflow the affected portion of the page. If you do this 100 times inside a loop, you trigger up to 100 parse-and-reflow operations. By accumulating the HTML in a plain string (which is a fast, in-memory operation) and then making one final <code>innerHTML</code> assignment, you cause only one parse and one reflow. For large data sets the difference in perceived speed is significant.</dd>
+
+  <dt>I keep hearing that I should not use <code>for...in</code> on arrays. Why not?</dt>
+  <dd><code>for...in</code> iterates the <em>enumerable property keys</em> of an object, and since arrays are objects in JavaScript, the keys it iterates are the string versions of the array&rsquo;s indices: <code>"0"</code>, <code>"1"</code>, <code>"2"</code>, and so on. Two problems arise. First, those keys are strings, not numbers, which can cause subtle bugs in arithmetic. Second, <code>for...in</code> also picks up any properties added to <code>Array.prototype</code> by libraries, which means you might get unexpected keys mixed in with your indices. <code>for...of</code> on arrays gives you the values directly, in order, with none of those gotchas. Reserve <code>for...in</code> for plain objects when you specifically want to enumerate property keys, and even then prefer <code>Object.keys()</code> or <code>Object.entries()</code> for clarity.</dd>
+
+  <dt>What is <code>Array.from({length: n}, mapFn)</code> actually doing? Why does passing an object with <code>length</code> work?</dt>
+  <dd>When <code>Array.from()</code> receives an object that has a <code>length</code> property, it treats it as an <em>array-like object</em> &mdash; something with a known number of slots, even if those slots are empty. It creates an array of that length and, if a mapping function is provided, calls the mapping function for each slot, passing the (undefined) slot value and the index. The mapping function&rsquo;s return value fills the slot. So <code>Array.from({length: 5}, (_, i) =&gt; i + 1)</code> creates five slots, calls the mapping function five times with indices 0 through 4, and fills those slots with the values 1 through 5. The result is <code>[1, 2, 3, 4, 5]</code>. It is a compact, functional-style alternative to writing a <code>for</code> loop that pushes values into an array.</dd>
+
+  <dt>What is an off-by-one error and why is it so common?</dt>
+  <dd>An off-by-one error (sometimes abbreviated OBOE) is when a loop runs one too many or one too few times, usually because the boundary condition uses <code>&lt;=</code> instead of <code>&lt;</code> (or vice versa). It is common because arrays use zero-based indexing &mdash; an array of five elements has indices 0 through 4, so the last valid index is <code>length - 1</code>, not <code>length</code>. When you write <code>i &lt;= array.length</code>, the loop tries to access <code>array[length]</code>, which does not exist, returning <code>undefined</code>. The fix is to always write <code>i &lt; array.length</code>. The mnemonic is: the condition tells you the last value of <code>i</code> that is <em>allowed in</em>; when <code>i</code> equals <code>length</code>, there is no element at that index, so you want the condition to be false at that point, which means you need strict less-than.</dd>
+
+</dl>

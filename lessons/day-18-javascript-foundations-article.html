@@ -1,0 +1,724 @@
+<h1>JavaScript Foundations: Data Types and Variables</h1>
+
+<h2>What You'll Learn in This Lesson</h2>
+
+<ul>
+  <li style="list-style-type: '▶  '">How to declare variables with <code>let</code>, <code>const</code>, and <code>var</code> — and why <code>var</code> causes bugs</li>
+  <li style="list-style-type: '▶  '">What hoisting is and how the Temporal Dead Zone (TDZ) affects <code>let</code> and <code>const</code></li>
+  <li style="list-style-type: '▶  '">The five primitive data types: <code>string</code>, <code>number</code>, <code>boolean</code>, <code>null</code>, and <code>undefined</code></li>
+  <li style="list-style-type: '▶  '">Two additional primitive types exist for specialized use: <code>BigInt</code> for integers beyond JavaScript's normal number range, and <code>Symbol</code> for creating unique identifiers used inside frameworks</li>
+  <li style="list-style-type: '▶  '">How to use variables to control what appears on screen — updating text, styles, and content in the DOM</li>
+  <li style="list-style-type: '▶  '">How to use the <code>typeof</code> operator — including its famous quirk with <code>null</code></li>
+  <li style="list-style-type: '▶  '">How to write strings with single quotes, double quotes, and backtick template literals</li>
+  <li style="list-style-type: '▶  '">How JavaScript's 64-bit floating-point numbers work — and the 0.1 + 0.2 problem</li>
+  <li style="list-style-type: '▶  '">How to use the <code>Math</code> object for rounding, random numbers, and calculations</li>
+  <li style="list-style-type: '▶  '">What truthy and falsy values are and why they matter in conditionals</li>
+  <li style="list-style-type: '▶  '">Why <code>===</code> (strict equality) must always be used instead of <code>==</code> (loose equality)</li>
+  <li style="list-style-type: '▶  '">How to convert between types explicitly and what implicit type coercion does</li>
+</ul>
+
+<p>JavaScript connects HTML and CSS to real interactivity: linking a script file to an HTML page, writing <code>console.log()</code> calls, responding to button clicks, and manipulating the DOM. This lesson goes deeper into the foundations that underpin all of that.</p>
+
+<p>Every program you will ever write — in JavaScript or any other language — revolves around data. You receive data from users, fetch it from servers, transform it, combine it, validate it, and display it back. To do any of that reliably, you must understand what <em>kinds</em> of data JavaScript works with and how it stores that data in variables. Without this foundation, bugs appear in places you do not expect, comparisons produce wrong answers, and type conversions cause mysterious failures. With this foundation, you will write code that behaves predictably and is easy to debug.</p>
+
+<p>This lesson is the foundational reference for everything that follows. Read it carefully, experiment with every code listing in the browser console, and return to it whenever behavior seems surprising.</p>
+
+<hr>
+
+<h2>Variables in the Browser</h2>
+<p>Before diving into theory, let's see what variables are actually for. Every variable you learn to declare is a tool for controlling what users see on the page.</p>
+
+<p><strong>LISTING 18.0 &mdash; Variables Controlling What the User Sees</strong></p>
+<pre><code>const greeting = "Hello";
+const userName = "Alex";
+const fullMessage = greeting + ", " + userName + "!";
+
+document.querySelector('h1').textContent = fullMessage;
+// The h1 on the page now reads: "Hello, Alex!"
+
+const buttonColor = "royalblue";
+document.querySelector('button').style.backgroundColor = buttonColor;
+// The button is now royal blue</code></pre>
+<p>Everything in this lesson — data types, variables, operators — is building toward this: controlling what appears on screen. Keep that goal in mind as you read.</p>
+
+<hr>
+
+<h2>Variables: <code>let</code>, <code>const</code>, and <code>var</code></h2>
+
+<p>A variable is a named container for a value. You create a variable by <em>declaring</em> it with a keyword. JavaScript offers three declaration keywords: <code>let</code>, <code>const</code>, and <code>var</code>. Two of them are modern and useful; one is legacy and should be avoided.</p>
+
+<h3><code>let</code> — Block-Scoped and Reassignable</h3>
+
+<p><code>let</code> declares a variable that can be reassigned after its initial value is set. It is <strong>block-scoped</strong>, meaning the variable only exists within the nearest enclosing pair of curly braces <code>{ }</code> — an <code>if</code> block, a <code>for</code> loop, a function body. Outside that block, the variable does not exist.</p>
+
+<p><strong>LISTING 18.1 &mdash; let — Reassignable and Block-Scoped</strong></p>
+<pre><code>let score = 0;
+score = 10;       // reassignment is fine
+score = score + 5; // now 15
+
+if (true) {
+  let blockVar = "I only exist inside this if block";
+  console.log(blockVar); // "I only exist inside this if block"
+}
+
+console.log(blockVar); // ReferenceError: blockVar is not defined</code></pre>
+
+<p>Use <code>let</code> when you know the value will need to change — a counter that increments, a running total that accumulates, a flag that toggles.</p>
+
+<h3><code>const</code> — Block-Scoped and Non-Reassignable</h3>
+
+<p><code>const</code> declares a variable whose <em>binding</em> cannot be reassigned. Once you assign a value to a <code>const</code>, you cannot point that name at a different value.</p>
+
+<p><strong>LISTING 18.2 &mdash; const — Cannot Be Reassigned</strong></p>
+<pre><code>const TAX_RATE = 0.08;
+TAX_RATE = 0.09; // TypeError: Assignment to constant variable.
+
+const siteName = "LearnCode";
+siteName = "OtherSite"; // TypeError — not allowed</code></pre>
+
+<p>There is an important nuance that trips up beginners: <code>const</code> prevents <em>reassignment</em> of the variable binding, but it does <strong>not</strong> make the value itself immutable. If the value is an object or an array, the contents of that object or array can still be changed.</p>
+
+<p><strong>LISTING 18.3 &mdash; const with Objects and Arrays (Contents Can Change)</strong></p>
+<pre><code>const user = { name: "Alex", age: 25 };
+user.age = 26;        // fine — modifying a property
+user.email = "a@b.c"; // fine — adding a property
+console.log(user);    // { name: "Alex", age: 26, email: "a@b.c" }
+
+user = {};            // TypeError — cannot reassign the binding
+
+const colors = ["red", "green"];
+colors.push("blue");  // fine — modifying the array
+console.log(colors);  // ["red", "green", "blue"]
+
+colors = ["yellow"];  // TypeError — cannot reassign the binding</code></pre>
+
+<blockquote>
+  <p><strong>NOTE:</strong> Prefer <code>const</code> by default. Declare every variable with <code>const</code> first. If you find yourself needing to reassign it, change it to <code>let</code>. This habit makes code easier to read — readers know a <code>const</code> binding will never point to a different value, reducing what they need to track mentally.</p>
+</blockquote>
+
+<h3><code>var</code> — The Old Way (Avoid It)</h3>
+
+<p><code>var</code> was the only way to declare variables in JavaScript before ES6 (2015). It has two behaviors that make it error-prone and are not found in <code>let</code> or <code>const</code>:</p>
+
+<ul>
+  <li style="list-style-type: '▶  '"><strong>Function-scoped, not block-scoped.</strong> A <code>var</code> declared inside an <code>if</code> block or <code>for</code> loop leaks out into the enclosing function scope — or the global scope if there is no function.</li>
+  <li style="list-style-type: '▶  '"><strong>Hoisted and initialized to <code>undefined</code>.</strong> The declaration is moved to the top of its scope, meaning you can reference a <code>var</code> variable before its declaration line without getting an error — you simply get <code>undefined</code>. This silently masks bugs.</li>
+</ul>
+
+<p><strong>LISTING 18.4 &mdash; var Scope Leak — A Classic Bug</strong></p>
+<pre><code>for (var i = 0; i < 3; i++) {
+  // i is being declared with var
+}
+console.log(i); // 3 — i leaked out of the for loop!
+
+// With let, this is a ReferenceError:
+for (let j = 0; j < 3; j++) { }
+console.log(j); // ReferenceError: j is not defined</code></pre>
+
+<p><strong>LISTING 18.5 &mdash; var Leaks Out of Blocks</strong></p>
+<pre><code>// var leaks out of an if block
+if (true) {
+  var leaked = "I escaped the block!";
+}
+console.log(leaked); // "I escaped the block!" — leaked into the outer scope
+
+// let stays contained inside the block
+if (true) {
+  let contained = "I stay inside";
+}
+console.log(contained); // ReferenceError: contained is not defined
+
+// Same issue in for loops — var i leaks out after the loop ends
+for (var i = 0; i < 3; i++) { }
+console.log(i); // 3 — leaked out
+
+for (let j = 0; j < 3; j++) { }
+console.log(j); // ReferenceError: j is not defined</code></pre>
+
+<h3>Hoisting and the Temporal Dead Zone (TDZ)</h3>
+
+<p>JavaScript processes declarations before executing code. Both <code>let</code> and <code>const</code> are hoisted (the engine is aware of them), but they are <strong>not initialized</strong> until their declaration line is reached. The gap between the start of the block and the declaration line is called the <strong>Temporal Dead Zone</strong> — any access during this window throws a <code>ReferenceError</code>.</p>
+
+<p><strong>LISTING 18.6 &mdash; The Temporal Dead Zone</strong></p>
+<pre><code>// ReferenceError: Cannot access 'color' before initialization
+console.log(color);
+let color = "blue"; // TDZ ends here
+console.log(color); // "blue"</code></pre>
+
+<p>The practical rule: always declare variables at the top of their block. This makes the TDZ a non-issue and keeps your code predictable.</p>
+
+<hr>
+
+<h2>The Five Primitive Data Types</h2>
+
+<p>JavaScript has seven primitive data types. Five of them are the ones you will use constantly: <code>string</code>, <code>number</code>, <code>boolean</code>, <code>null</code>, and <code>undefined</code>. Two newer ones — <code>BigInt</code> and <code>Symbol</code> — cover specialized needs. All primitives are <strong>immutable</strong>: the values themselves cannot be changed, though variables can be reassigned to hold different values.</p>
+
+<h3>string</h3>
+
+<p>A sequence of characters enclosed in quotes. Strings represent text. JavaScript has three ways to delimit strings: single quotes (<code>'</code>), double quotes (<code>"</code>), and backticks (<code>`</code>). The first two are interchangeable; backtick strings (template literals) have special capabilities covered in depth below.</p>
+
+<h3>number</h3>
+
+<p>JavaScript has a single numeric type that represents both integers and floating-point numbers. There is no separate <code>int</code> or <code>float</code>. The details — including floating-point precision, <code>NaN</code>, <code>Infinity</code>, and safe integer limits — are covered in depth below.</p>
+
+<h3>boolean</h3>
+
+<p>A <code>boolean</code> has exactly two possible values: <code>true</code> and <code>false</code>. Booleans are the result of comparisons and are used as the condition in <code>if</code> statements, <code>while</code> loops, and ternary expressions.</p>
+
+<p><strong>LISTING 18.7 &mdash; Boolean Values</strong></p>
+<pre><code>const isLoggedIn = true;
+const hasError   = false;
+
+const age  = 20;
+const isAdult = age >= 18; // true
+const hasTicket = false;
+
+if (isAdult && hasTicket) {
+  console.log("Welcome!");
+} else {
+  console.log("Sorry, you cannot enter.");
+}</code></pre>
+
+<h3>null</h3>
+
+<p><code>null</code> represents the <strong>intentional absence of a value</strong>. It is a deliberate, programmer-assigned empty slot. You use <code>null</code> when you want to explicitly say "this variable has no value right now, and that is intentional."</p>
+
+<p><strong>LISTING 18.8 &mdash; null — Intentional Absence</strong></p>
+<pre><code>let currentUser = null;  // No user is logged in — intentionally empty
+
+// Later, after login:
+currentUser = { id: 42, name: "Taylor" };
+
+// An API result that returned no match:
+const searchResult = null;</code></pre>
+
+<h3>undefined</h3>
+
+<p><code>undefined</code> means a value has <strong>not yet been assigned</strong>. JavaScript assigns <code>undefined</code> automatically in several situations: a declared variable with no assignment, a function parameter that was not provided, and accessing a non-existent object property. Unlike <code>null</code>, you rarely assign <code>undefined</code> yourself — JavaScript uses it as a default.</p>
+
+<p><strong>LISTING 18.9 &mdash; undefined — Not Yet Assigned</strong></p>
+<pre><code>let score;
+console.log(score); // undefined — declared but not assigned
+
+function greet(name) {
+  console.log(name); // undefined if called as greet()
+}
+greet();
+
+const obj = { a: 1 };
+console.log(obj.b); // undefined — property does not exist
+
+// Convention: use null for intentional absence, not undefined
+// Let JavaScript use undefined on its own; assign null yourself</code></pre>
+
+<blockquote><strong>NOTE:</strong> <strong>BigInt</strong> (<code>42n</code>) represents integers larger than JavaScript can handle with normal numbers — needed only in cryptography or large ID processing, rarely in everyday web development. <strong>Symbol</strong> is a primitive for creating unique identifiers primarily used inside JavaScript frameworks — you will not need to write Symbols yourself as a beginner.</blockquote>
+
+<hr>
+
+<h2>The <code>typeof</code> Operator</h2>
+
+<p>The <code>typeof</code> operator returns a string describing the type of its operand. It is an invaluable debugging tool and is used frequently for type-checking in code that handles unknown input.</p>
+
+<p><strong>LISTING 18.10 &mdash; typeof on Every Type</strong></p>
+<pre><code>console.log(typeof "hello");        // "string"
+console.log(typeof 42);             // "number"
+console.log(typeof 3.14);           // "number"
+console.log(typeof true);           // "boolean"
+console.log(typeof undefined);      // "undefined"
+console.log(typeof null);           // "object"  ← famous bug!
+console.log(typeof Symbol("x"));    // "symbol"
+console.log(typeof 42n);            // "bigint"
+console.log(typeof {});             // "object"
+console.log(typeof []);             // "object"  ← arrays are objects
+console.log(typeof function(){});   // "function"</code></pre>
+
+<p>[IMG - JavaScript typeof results in browser console]</p>
+
+<p>Two results deserve special attention:</p>
+
+<ul>
+  <li style="list-style-type: '▶  '"><strong><code>typeof null === "object"</code></strong> — This is a well-known bug in JavaScript that has existed since the language's first version in 1995. Fixing it would break too much existing code, so it will never be corrected. To check specifically for <code>null</code>, use <code>value === null</code> (strict equality), never <code>typeof</code>.</li>
+  <li style="list-style-type: '▶  '"><strong><code>typeof [] === "object"</code></strong> — Arrays are a kind of object in JavaScript. To check whether something is an array, use <code>Array.isArray(value)</code>.</li>
+</ul>
+
+<p><strong>LISTING 18.11 &mdash; Correct Type Checks for null and Arrays</strong></p>
+<pre><code>const value = null;
+
+// Wrong: typeof cannot distinguish null from objects
+if (typeof value === "object") {
+  console.log("object or null?"); // ambiguous!
+}
+
+// Correct: use strict equality for null checks
+if (value === null) {
+  console.log("definitely null");
+}
+
+// Checking for arrays:
+const arr = [1, 2, 3];
+console.log(typeof arr);           // "object" — not helpful
+console.log(Array.isArray(arr));   // true — correct
+
+// Combining checks: is it a non-null object?
+function isObject(val) {
+  return typeof val === "object" && val !== null;
+}
+console.log(isObject({}));    // true
+console.log(isObject(null));  // false
+console.log(isObject("hi"));  // false</code></pre>
+
+<p>[CODEPEN 1]</p>
+
+<hr>
+
+<h2>Strings in Depth</h2>
+
+<p>Strings are arguably the most frequently used data type in web development. They represent user names, URLs, HTML content, error messages, labels — nearly every piece of data that touches a user interface passes through a string at some point.</p>
+
+<h3>Single Quotes and Double Quotes</h3>
+
+<p>Single and double quotes are completely interchangeable in JavaScript. The choice is purely stylistic — pick one and be consistent within a project. The main practical reason to choose one over the other is to avoid escaping: if your string contains single quotes, wrap it in double quotes (and vice versa).</p>
+
+<p><strong>LISTING 18.12 &mdash; Single and Double Quotes</strong></p>
+<pre><code>const a = 'Hello, World!';
+const b = "Hello, World!";
+
+// Use double quotes when the string contains a single quote:
+const message = "It's a great day!";
+
+// Use single quotes when the string contains a double quote:
+const html = '&lt;a href="/"&gt;Home&lt;/a&gt;';
+
+// Escaping the alternative — works, but less readable:
+const escaped = 'It\'s a great day!';
+const escaped2 = "She said \"hello\"";</code></pre>
+
+<h3>Template Literals (Backticks)</h3>
+
+<p>Template literals, introduced in ES6, are strings delimited by backtick characters (<code>`</code>). They provide two capabilities that single and double quote strings lack:</p>
+
+<ul>
+  <li style="list-style-type: '▶  '"><strong>String interpolation</strong> — embed any JavaScript expression directly in the string using <code>${ expression }</code>. The expression is evaluated and its result is converted to a string and inserted.</li>
+  <li style="list-style-type: '▶  '"><strong>Multi-line strings</strong> — a template literal can span multiple lines without escape characters or concatenation.</li>
+</ul>
+
+<p><strong>LISTING 18.13 &mdash; Template Literals — Interpolation and Multi-line</strong></p>
+<pre><code>const name    = "Jordan";
+const points  = 1450;
+const rank    = 3;
+
+// Old concatenation style — awkward and error-prone:
+const oldMsg = "Hello, " + name + "! You have " + points + " points and are ranked #" + rank + ".";
+
+// Template literal — clean and readable:
+const newMsg = `Hello, ${name}! You have ${points} points and are ranked #${rank}.`;
+
+// Expressions inside ${ } are evaluated:
+const price = 29.99;
+const qty   = 3;
+const receipt = `Subtotal: $${(price * qty).toFixed(2)}`;
+console.log(receipt); // "Subtotal: $89.97"
+
+// Multi-line string (preserves newlines and indentation):
+const card = `
+  &lt;div class="card"&gt;
+    &lt;h2&gt;${name}&lt;/h2&gt;
+    &lt;p&gt;Points: ${points}&lt;/p&gt;
+  &lt;/div&gt;
+`;</code></pre>
+
+<h3>Escape Characters</h3>
+
+<p>Some characters cannot appear literally inside a string — the newline character, for example, would just break the line. Escape sequences solve this: a backslash followed by a special character code produces the intended character.</p>
+
+<p><strong>LISTING 18.14 &mdash; Common Escape Characters</strong></p>
+<pre><code>console.log("Line one\nLine two");     // newline
+console.log("Name:\tJordan");          // tab
+console.log("C:\\Users\\Jordan");      // literal backslash
+console.log("She said \"hello\"");     // double quote inside double-quoted string
+console.log('It\'s working');          // single quote inside single-quoted string
+console.log("\u2764");                 // Unicode character: ❤
+
+// In template literals, \n is still valid but you can also just press Enter:
+const multiline = `First line
+Second line`;  // same result as "First line\nSecond line"</code></pre>
+
+<h3>String Immutability</h3>
+
+<p>Strings are <strong>immutable</strong> in JavaScript. You cannot change individual characters in a string. String methods — <code>toUpperCase()</code>, <code>slice()</code>, <code>replace()</code>, and so on — do not modify the original string; they always return a <em>new</em> string.</p>
+
+<p><strong>LISTING 18.15 &mdash; String Immutability</strong></p>
+<pre><code>const greeting = "hello";
+const upper    = greeting.toUpperCase(); // returns a NEW string
+console.log(greeting); // "hello" — unchanged
+console.log(upper);    // "HELLO"
+
+// You cannot change individual characters:
+let word = "cat";
+word[0] = "b"; // silently fails in non-strict mode
+console.log(word); // "cat" — unchanged
+
+// To "change" a string, reassign to a new value:
+let city = "london";
+city = city[0].toUpperCase() + city.slice(1);
+console.log(city); // "London"</code></pre>
+
+<p>[CODEPEN 2]</p>
+
+<hr>
+
+<h2>Numbers in Depth</h2>
+
+<p>JavaScript has exactly one numeric type. Whether you write <code>42</code> or <code>3.14</code>, the value is stored as a 64-bit floating-point number following the IEEE 754 standard — the same format used by C's <code>double</code>. This design keeps the language simple (one type instead of several), but it introduces a few behaviors you must understand to avoid bugs.</p>
+
+<h3>Integers and Decimals</h3>
+
+<p><strong>LISTING 18.16 &mdash; Integer and Decimal Numbers</strong></p>
+<pre><code>const integer = 42;
+const decimal = 3.14159;
+const negative = -17;
+const big = 1_000_000; // numeric separator (ES2021) — same as 1000000, more readable
+
+console.log(typeof 42);    // "number"
+console.log(typeof 3.14);  // "number" — same type!</code></pre>
+
+<h3>The Floating-Point Precision Problem</h3>
+
+<p>Because all numbers are stored as 64-bit floats, some decimal fractions cannot be represented exactly in binary. This leads to a famous gotcha:</p>
+
+<p>[IMG - Floating point 0.1 plus 0.2 result in console]</p>
+
+<p><strong>LISTING 18.17 &mdash; Floating-Point Precision and Number.EPSILON</strong></p>
+<pre><code>console.log(0.1 + 0.2);          // 0.30000000000000004 — not 0.3!
+console.log(0.1 + 0.2 === 0.3);  // false — do NOT compare floats with ===
+
+// Safe float comparison using Number.EPSILON:
+// Number.EPSILON is the smallest difference between two representable numbers
+// ~2.22e-16
+
+function floatsEqual(a, b) {
+  return Math.abs(a - b) < Number.EPSILON;
+}
+
+console.log(floatsEqual(0.1 + 0.2, 0.3)); // true
+
+// For display purposes: round to desired precision
+const total = 0.1 + 0.2;
+console.log(total.toFixed(2)); // "0.30" — string, rounded for display</code></pre>
+
+<h3>Special Numeric Values</h3>
+
+<p>JavaScript's number type includes three special values that represent edge cases in arithmetic:</p>
+
+<p><strong>LISTING 18.18 &mdash; Infinity, -Infinity, and NaN</strong></p>
+<pre><code>// Infinity and -Infinity
+console.log(1 / 0);           // Infinity
+console.log(-1 / 0);          // -Infinity
+console.log(Infinity + 1);    // Infinity
+console.log(typeof Infinity);  // "number"
+
+// NaN — Not a Number
+console.log(0 / 0);           // NaN
+console.log("hello" * 2);     // NaN
+console.log(Math.sqrt(-1));   // NaN
+console.log(typeof NaN);       // "number" (another quirk!)
+
+// NaN is the only value in JS not equal to itself:
+console.log(NaN === NaN); // false — bizarre but true
+
+// Checking for NaN:
+console.log(isNaN("hello"));        // true — but MISLEADING (coerces first)
+console.log(isNaN(undefined));      // true — undefined coerces to NaN
+console.log(Number.isNaN("hello")); // false — not actually NaN
+console.log(Number.isNaN(NaN));     // true — correct!
+console.log(Number.isNaN(undefined)); // false — correct</code></pre>
+
+<p>Always use <code>Number.isNaN()</code> instead of the global <code>isNaN()</code>. The global function converts its argument to a number first, so <code>isNaN("hello")</code> returns <code>true</code> because <code>Number("hello")</code> is <code>NaN</code> — even though the string <code>"hello"</code> is not NaN. <code>Number.isNaN()</code> does no conversion and only returns <code>true</code> for the actual <code>NaN</code> value.</p>
+
+<hr>
+
+<h2>The Math Object</h2>
+
+<p>JavaScript's built-in <code>Math</code> object provides mathematical constants and functions. Unlike most objects, you do not create instances of <code>Math</code> — you call its methods directly as <code>Math.method()</code>.</p>
+
+<p><strong>LISTING 18.20 &mdash; Math Rounding Methods</strong></p>
+<pre><code>console.log(Math.round(4.4));  // 4 — rounds to nearest integer
+console.log(Math.round(4.5));  // 5 — .5 rounds up
+console.log(Math.floor(4.9));  // 4 — always rounds DOWN (toward -Infinity)
+console.log(Math.ceil(4.1));   // 5 — always rounds UP (toward +Infinity)
+console.log(Math.trunc(4.9));  // 4 — removes decimal part (toward 0)
+console.log(Math.trunc(-4.9)); // -4 — note: different from floor for negatives!
+console.log(Math.floor(-4.1)); // -5 — floor goes toward -Infinity</code></pre>
+
+<p><strong>LISTING 18.21 &mdash; Math.random() and Random Integer Patterns</strong></p>
+<pre><code>// Math.random() returns a float in [0, 1) — 0 is possible, 1 is never returned
+console.log(Math.random()); // e.g., 0.7341829...
+
+// Random integer from 0 to max-1:
+function randomInt(max) {
+  return Math.floor(Math.random() * max);
+}
+console.log(randomInt(6)); // 0, 1, 2, 3, 4, or 5 (like a die minus one)
+
+// Random integer from min to max (inclusive):
+function randomRange(min, max) {
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+console.log(randomRange(1, 6));   // 1, 2, 3, 4, 5, or 6 (like a die)
+console.log(randomRange(10, 20)); // integer between 10 and 20 inclusive</code></pre>
+
+<p><strong>LISTING 18.22 &mdash; Other Essential Math Methods</strong></p>
+<pre><code>// Min and max
+console.log(Math.min(3, 1, 4, 1, 5));  // 1
+console.log(Math.max(3, 1, 4, 1, 5));  // 5
+console.log(Math.min(...[10, 5, 20])); // 5 — spread array into arguments
+
+// Absolute value, power, square root
+console.log(Math.abs(-42));      // 42
+console.log(Math.pow(2, 10));    // 1024 (2 to the 10th power)
+console.log(2 ** 10);            // 1024 — ** operator does the same thing
+console.log(Math.sqrt(144));     // 12
+console.log(Math.cbrt(27));      // 3 — cube root
+
+// Constants
+console.log(Math.PI);   // 3.141592653589793
+console.log(Math.E);    // 2.718281828459045 (Euler's number)
+console.log(Math.LN2);  // 0.6931471805599453 (natural log of 2)</code></pre>
+
+<p>[CODEPEN 3]</p>
+
+<hr>
+
+<h2>Truthy and Falsy Values</h2>
+
+<p>JavaScript conditionals do not require a strict <code>boolean</code>. Any value placed in a boolean context — the condition of an <code>if</code> statement, a <code>while</code> loop, a ternary, or the operand of <code>!</code> — is implicitly converted to either <code>true</code> or <code>false</code>. Values that convert to <code>true</code> are called <strong>truthy</strong>; values that convert to <code>false</code> are called <strong>falsy</strong>.</p>
+
+<p>There are exactly <strong>six falsy values</strong> in JavaScript:</p>
+
+<ul>
+  <li style="list-style-type: '▶  '"><code>false</code> — the boolean false</li>
+  <li style="list-style-type: '▶  '"><code>0</code> — the number zero (also <code>-0</code> and <code>0n</code> BigInt zero)</li>
+  <li style="list-style-type: '▶  '"><code>""</code> — an empty string (single quotes, double quotes, or backticks — all empty)</li>
+  <li style="list-style-type: '▶  '"><code>null</code> — intentional absence of value</li>
+  <li style="list-style-type: '▶  '"><code>undefined</code> — unassigned value</li>
+  <li style="list-style-type: '▶  '"><code>NaN</code> — Not a Number</li>
+</ul>
+
+<p>Every other value is truthy — including <code>0</code>'s neighbors, non-empty strings, all objects, and all arrays (even empty ones).</p>
+
+<p>[IMG - Truthy and falsy values comparison table]</p>
+
+<p><strong>LISTING 18.23 &mdash; Falsy Values in if Statements</strong></p>
+<pre><code>// All six falsy values:
+if (false)     { } // skipped
+if (0)         { } // skipped
+if ("")        { } // skipped
+if (null)      { } // skipped
+if (undefined) { } // skipped
+if (NaN)       { } // skipped
+
+// Truthy — these blocks DO execute:
+if (1)         { console.log("truthy"); }
+if ("hello")   { console.log("truthy"); }
+if ([])        { console.log("truthy — empty array is truthy!"); }
+if ({})        { console.log("truthy — empty object is truthy!"); }
+if (-1)        { console.log("truthy — negative numbers too"); }
+if ("false")   { console.log("truthy — the STRING 'false' is not the boolean false!"); }</code></pre>
+
+<p><strong>LISTING 18.24 &mdash; Practical Truthy/Falsy Patterns</strong></p>
+<pre><code>// Guard pattern: only proceed if value exists and is non-empty
+function processName(name) {
+  if (!name) {
+    return "Name is required";
+  }
+  return `Hello, ${name}!`;
+}
+console.log(processName(""));        // "Name is required"
+console.log(processName(null));      // "Name is required"
+console.log(processName(undefined)); // "Name is required"
+console.log(processName("Sam"));     // "Hello, Sam!"
+
+// Default value with || (OR):
+const username = userInput || "Guest";
+// If userInput is falsy (empty string, null, undefined), use "Guest"
+
+// Nullish coalescing ?? — only falls back for null/undefined (not 0 or ""):
+const timeout = userTimeout ?? 5000;
+// ?? is safer than || when 0 or "" are valid values</code></pre>
+
+<blockquote>
+  <p><strong>NOTE:</strong> The empty array <code>[]</code> and the empty object <code>{}</code> are both truthy. This is a common source of confusion. To check if an array is empty, use <code>array.length === 0</code>. To check if an object has no properties, use <code>Object.keys(obj).length === 0</code>.</p>
+</blockquote>
+
+<p>[CODEPEN 4]</p>
+
+<hr>
+
+<h2>Loose vs. Strict Equality</h2>
+
+<p>JavaScript provides two equality operators: <code>==</code> (loose equality, also called abstract equality) and <code>===</code> (strict equality, also called identity). They look similar but behave very differently.</p>
+
+<h3>Loose Equality: <code>==</code></h3>
+
+<p>The <code>==</code> operator performs <strong>type coercion</strong> before comparing. If the two operands are of different types, JavaScript converts one or both to a common type first, then compares. This produces results that are impossible to memorize reliably — and causes real bugs when you work with DOM values.</p>
+
+<p><strong>LISTING 18.25 &mdash; == Bugs with DOM Input Values</strong></p>
+<pre><code>// Bug 1: user input is always a string — == silently coerces it
+const input = document.querySelector('#age').value; // "25" not 25
+
+if (input == 25) {
+  document.querySelector('#result').textContent = "Old enough"; // passes! (coercion)
+}
+if (input === 25) {
+  document.querySelector('#result').textContent = "Old enough"; // fails correctly
+}
+// Rule: always use === when comparing form values to numbers.
+// Or convert first: if (Number(input) === 25)
+
+// Bug 2: empty string is falsy, so == false passes when input is ""
+if (input == false) {
+  document.querySelector('#error').textContent = "Please enter your age";
+  // Fires when input is "" OR "0" OR "false" — all coerce the same way
+}
+if (!input) {
+  document.querySelector('#error').textContent = "Please enter your age";
+  // Clearer intent: falsy check, catches empty string
+}
+
+// Bug 3: a checkbox value is the string "on" or undefined, not true/false
+const checked = document.querySelector('#terms').value; // "on" not true
+if (checked == true) { ... }  // never passes — "on" does not coerce to true
+if (checked === "on") { ... } // correct</code></pre>
+
+<h3>Strict Equality: <code>===</code></h3>
+
+<p>The <code>===</code> operator never coerces types. If the two operands have different types, the result is immediately <code>false</code>. If they have the same type, it compares their values directly.</p>
+
+<p><strong>LISTING 18.26 &mdash; Strict Equality — Predictable Results</strong></p>
+<pre><code>console.log(0 === false);       // false — different types
+console.log("" === false);      // false — different types
+console.log("" === 0);          // false — different types
+console.log(null === undefined); // false — different types
+console.log("1" === 1);         // false — different types
+console.log(1 === 1);           // true
+console.log("hello" === "hello"); // true
+console.log(null === null);     // true
+console.log(undefined === undefined); // true
+
+// Use !== for not-equal:
+console.log(1 !== 2);   // true
+console.log(1 !== "1"); // true — strict, different types</code></pre>
+
+<blockquote>
+  <p><strong>NOTE:</strong> Always use <code>===</code> and <code>!==</code>. Never use <code>==</code> or <code>!=</code> in modern JavaScript. The only exception some developers make is <code>value == null</code> to check for both <code>null</code> and <code>undefined</code> simultaneously — but even then, the nullish coalescing operator <code>??</code> and optional chaining <code>?.</code> are clearer alternatives.</p>
+</blockquote>
+
+<p>[CODEPEN 5]</p>
+
+<hr>
+
+<h2>Type Conversion</h2>
+
+<p>Type conversion is the process of changing a value from one data type to another. JavaScript does this in two ways: <strong>implicitly</strong> (coercion, done automatically by the engine) and <strong>explicitly</strong> (conversion, done intentionally by the programmer).</p>
+
+<h3>Implicit Coercion</h3>
+
+<p>JavaScript coerces types automatically in many operations. The rules are not always intuitive, which is why coercion is a frequent source of bugs for developers who have not studied it carefully.</p>
+
+<p><strong>LISTING 18.27 &mdash; Implicit Type Coercion</strong></p>
+<pre><code>// The + operator with a string: coerces to string (concatenation wins)
+console.log("5" + 3);    // "53" — 3 is coerced to "3", then concatenated
+console.log("5" + true); // "5true"
+console.log("" + null);  // "null"
+console.log("" + undefined); // "undefined"
+
+// Arithmetic operators other than +: coerce to number
+console.log("5" - 3);    // 2 — "5" is coerced to 5
+console.log("5" * "2");  // 10 — both coerced to numbers
+console.log("5" / "2");  // 2.5
+console.log(true + true); // 2 — true is 1, false is 0
+console.log(false + 1);   // 1
+
+// Unary + coerces to number:
+console.log(+"5");         // 5 — string to number
+console.log(+true);        // 1
+console.log(+false);       // 0
+console.log(+null);        // 0
+console.log(+undefined);   // NaN
+console.log(+"hello");     // NaN</code></pre>
+
+<h3>Explicit Conversion</h3>
+
+<p>Explicit conversion is always preferable to relying on coercion, because the intent is clear and the behavior is predictable.</p>
+
+<p><strong>LISTING 18.28 &mdash; Explicit Type Conversion</strong></p>
+<pre><code>// To Number:
+console.log(Number("42"));       // 42
+console.log(Number("3.14"));     // 3.14
+console.log(Number("42px"));     // NaN — can't convert "42px" to a number
+console.log(Number(""));         // 0 — empty string to 0
+console.log(Number(true));       // 1
+console.log(Number(false));      // 0
+console.log(Number(null));       // 0
+console.log(Number(undefined));  // NaN
+
+// parseInt and parseFloat — more lenient than Number():
+console.log(parseInt("42px"));     // 42 — reads integer up to non-numeric char
+console.log(parseInt("3.9"));      // 3 — truncates decimal (does not round)
+console.log(parseFloat("3.14em")); // 3.14 — reads decimal up to non-numeric char
+console.log(parseInt("px42"));     // NaN — must start with a digit
+
+// To String:
+console.log(String(42));        // "42"
+console.log(String(true));      // "true"
+console.log(String(false));     // "false"
+console.log(String(null));      // "null"
+console.log(String(undefined)); // "undefined"
+console.log(String(NaN));       // "NaN"
+
+// To Boolean:
+console.log(Boolean(1));         // true
+console.log(Boolean(0));         // false
+console.log(Boolean("hello"));   // true
+console.log(Boolean(""));        // false
+console.log(Boolean(null));      // false
+console.log(Boolean(undefined)); // false
+console.log(Boolean([]));        // true — empty array is truthy!
+console.log(Boolean({}));        // true — empty object is truthy!</code></pre>
+
+<hr>
+
+<hr>
+
+<h2>Summary</h2>
+
+<p>This lesson covered the foundational layer of JavaScript: how to store data and what kinds of data the language understands.</p>
+
+<p>You learned to declare variables with <code>const</code> (the default choice), <code>let</code> (when reassignment is needed), and why <code>var</code> should be avoided — because it is function-scoped rather than block-scoped and is hoisted in a way that silently masks bugs. Both <code>let</code> and <code>const</code> experience the Temporal Dead Zone, which produces a clear <code>ReferenceError</code> if you access them before their declaration line, preventing the silent-undefined behavior of <code>var</code>.</p>
+
+<p>JavaScript has seven primitive types. The five you will use daily are <code>string</code>, <code>number</code>, <code>boolean</code>, <code>null</code>, and <code>undefined</code>. Two modern additions are <code>BigInt</code> (for integers beyond <code>Number.MAX_SAFE_INTEGER</code>) and <code>Symbol</code> (for guaranteed-unique property keys). The <code>typeof</code> operator identifies types at runtime, with two famous quirks: <code>typeof null === "object"</code> (a historical bug) and <code>typeof [] === "object"</code> (because arrays are objects).</p>
+
+<p>Strings are immutable sequences of characters that can be written with single quotes, double quotes, or backtick template literals. Template literals are the modern choice, supporting <code>${expression}</code> interpolation and multi-line strings. JavaScript numbers are all 64-bit floating-point values, which means integer arithmetic is exact only up to <code>Number.MAX_SAFE_INTEGER</code> and decimal arithmetic has precision limits — compare floats using <code>Number.EPSILON</code>, never with <code>===</code>. Use <code>Number.isNaN()</code> rather than global <code>isNaN()</code>. The <code>Math</code> object provides rounding, randomness, and mathematical functions.</p>
+
+<p>Six values are falsy: <code>false</code>, <code>0</code>, <code>""</code>, <code>null</code>, <code>undefined</code>, and <code>NaN</code>. Everything else is truthy — including empty arrays and empty objects. Always use strict equality <code>===</code> and <code>!==</code>, never the loose operators <code>==</code> and <code>!=</code>, which perform type coercion and produce deeply counterintuitive results. When you need to convert types explicitly, prefer <code>Number()</code>, <code>String()</code>, <code>Boolean()</code>, <code>parseInt()</code>, and <code>parseFloat()</code>.</p>
+
+<hr>
+
+<h2>Q&amp;A</h2>
+
+<dl>
+  <dt><strong>Q. What is the difference between <code>null</code> and <code>undefined</code>? When should I use each?</strong></dt>
+  <dd><p>A. Both represent the absence of a meaningful value, but they communicate different things. <code>undefined</code> is JavaScript's way of saying "this has not been given a value yet" — it is the default state of a declared-but-unassigned variable, a missing function argument, or a non-existent object property. You rarely assign <code>undefined</code> yourself. <code>null</code> is the programmer's way of saying "I am intentionally setting this to empty" — for example, <code>let currentUser = null</code> clearly signals that no user is logged in and this is deliberate. Think of <code>undefined</code> as "not yet" and <code>null</code> as "intentionally nothing."</p></dd>
+
+  <dt><strong>Q. Why does <code>typeof null</code> return <code>"object"</code>? Is null an object?</strong></dt>
+  <dd><p>A. No, <code>null</code> is not an object — it is a primitive. The <code>"object"</code> result is a bug from JavaScript's very first implementation in 1995. In the original engine, values were stored with a type tag in the low bits of a 32-bit word. The type tag for objects was <code>000</code>. The value <code>null</code> was represented as all zeros — a null pointer — which happened to have the <code>000</code> tag, so <code>typeof</code> misidentified it as an object. The TC39 committee proposed fixing this in ES6, but the change was rejected because it would break existing code that relies on the behavior. It remains a permanent, unfixable quirk of the language. Always check for <code>null</code> using <code>value === null</code>.</p></dd>
+
+  <dt><strong>Q. If <code>const</code> prevents reassignment, why can I still push items into a <code>const</code> array?</strong></dt>
+  <dd><p>A. Because <code>const</code> locks the <em>variable binding</em>, not the value itself. When you write <code>const arr = [1, 2, 3]</code>, the variable <code>arr</code> holds a reference — a memory address pointing to the array. <code>const</code> prevents you from changing that memory address (you cannot do <code>arr = []</code>). But the array at that address is still a mutable object. Calling <code>arr.push(4)</code> modifies the array in place at the same memory address — the binding does not change, so <code>const</code> has no objection. If you need a truly immutable array or object, use <code>Object.freeze()</code> (shallow only) or reach for a library like Immer.</p></dd>
+
+  <dt><strong>Q. When should I use <code>parseInt()</code> vs <code>Number()</code> to convert a string to a number?</strong></dt>
+  <dd><p>A. Use <code>parseInt()</code> when the string contains a number followed by non-numeric characters and you want to extract the leading integer — for example, parsing a CSS value like <code>"42px"</code> yields <code>42</code>. Always pass <code>10</code> as the second argument to ensure decimal interpretation: <code>parseInt("42px", 10)</code>. Use <code>Number()</code> when you want strict conversion: if the string contains anything that is not a valid number, <code>Number()</code> returns <code>NaN</code> immediately, which is often what you want for form validation. Use <code>parseFloat()</code> the same way as <code>parseInt()</code> but for decimals: <code>parseFloat("3.14em")</code> returns <code>3.14</code>.</p></dd>
+
+  <dt><strong>Q. What is the Temporal Dead Zone, and does it matter in practice?</strong></dt>
+  <dd><p>A. The Temporal Dead Zone (TDZ) is the period between the start of a block scope and the line where a <code>let</code> or <code>const</code> variable is declared. During this window, the variable exists (the engine is aware of it because it was hoisted) but is not yet initialized. Any attempt to access it throws a <code>ReferenceError</code>. In practice, the TDZ matters most in two situations: when you accidentally reference a variable before its declaration (the error helps you find the bug quickly) and in class field initializers and function bodies where declaration order can be subtle. The TDZ is a feature, not a flaw — it catches a class of bugs that <code>var</code>'s silent <code>undefined</code> hoisting would hide.</p></dd>
+</dl>
