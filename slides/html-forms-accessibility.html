@@ -69,6 +69,8 @@
     .live-form-demo .demo-inp:valid:not(:placeholder-shown){border-color:#22c55e;}
     .live-form-demo .demo-inp:user-invalid{border-color:#ef4444;}
     .live-form-demo .demo-inp:not(:placeholder-shown):invalid{border-color:#ef4444;}
+    .live-form-demo select.demo-inp{cursor:pointer;height:2.15rem;padding:.2rem .5rem;}
+    .live-form-demo textarea.demo-inp{resize:vertical;min-height:4rem;font-family:inherit;}
     .code-live{background:rgba(0,0,0,.5);color:#d4d4d4;padding:.4rem .7rem;border-radius:6px;font-family:monospace;font-size:.75rem;line-height:1.5;margin-top:.3rem;white-space:pre-wrap;}
     .ps-chip{padding:.2rem .55rem;border-radius:4px;font-size:.73rem;transition:all .2s;display:inline-block;}
 
@@ -148,11 +150,11 @@
       <div class="learn-grid" style="max-width:780px;">
         <div class="learn-item">📋 The <code>&lt;form&gt;</code> element &amp; GET vs POST</div>
         <div class="learn-item">🏷️ Pairing every input with a <code>&lt;label&gt;</code></div>
-        <div class="learn-item">⌨️ All major input types</div>
+        <div class="learn-item">⌨️ Text, email, password, tel, url &amp; number inputs</div>
         <div class="learn-item">📅 Date, time, checkbox, radio, range &amp; color</div>
-        <div class="learn-item">✅ HTML5 built-in validation</div>
-        <div class="learn-item">🎨 CSS form pseudo-classes</div>
-        <div class="learn-item">♿ ARIA attributes &amp; keyboard navigation</div>
+        <div class="learn-item">✅ HTML5 built-in validation — no JavaScript needed</div>
+        <div class="learn-item">🎨 CSS pseudo-classes for live visual feedback</div>
+        <div class="learn-item">♿ ARIA attributes &amp; screen reader support</div>
         <div class="learn-item">🗂️ Grouping with <code>&lt;fieldset&gt;</code> &amp; <code>&lt;legend&gt;</code></div>
       </div>
     </div>
@@ -167,33 +169,42 @@
       <h2>The <code>&lt;form&gt;</code> Element</h2>
       <div class="two-col">
         <div>
-          <p>The <code>&lt;form&gt;</code> container defines two critical things:</p>
+          <p>A <code>&lt;form&gt;</code> acts like a mailing envelope for user input — it tells the browser <em>where</em> to send the data and <em>how</em> to package it. Two attributes control this behavior:</p>
           <ul>
-            <li><strong><code>action</code></strong> — URL where data is sent on submit. Omit to submit to the current URL.</li>
-            <li><strong><code>method</code></strong> — how data travels: <code>get</code> or <code>post</code></li>
+            <li><strong><code>action</code></strong> — the destination URL. When the user submits, the browser sends data here. Omit it to re-submit to the current page's URL (common for server-rendered forms).</li>
+            <li><strong><code>method</code></strong> — the delivery mechanism:
+              <ul>
+                <li><code>get</code> — appends all values directly in the URL as a query string</li>
+                <li><code>post</code> — bundles data invisibly inside the HTTP request body</li>
+                <li>Default is <code>get</code> if you leave this attribute out</li>
+              </ul>
+            </li>
           </ul>
-          <pre><code>&lt;form action="/submit" method="post"&gt;
+          <pre><code>&lt;form action="/search" method="get"&gt;
   &lt;!-- inputs here --&gt;
 &lt;/form&gt;</code></pre>
           <div class="note" style="margin-top:.6rem;">
-            <strong>Rule of thumb:</strong> Use <code>get</code> for searches (bookmarkable URLs). Use <code>post</code> for sensitive data, large payloads, or anything that creates/modifies server data.
+            <strong>Rule of thumb:</strong> Use <code>get</code> for searches and filters — the resulting URL is bookmarkable and shareable. Use <code>post</code> for login forms, signups, checkouts, or anything that changes data on the server.
           </div>
         </div>
         <div>
           <table class="cmp">
             <tr><th>GET</th><th>POST</th></tr>
-            <tr><td>Data in URL</td><td>Data in request body</td></tr>
-            <tr><td>Bookmarkable &amp; shareable</td><td>Not visible in URL</td></tr>
-            <tr><td>Limited data size</td><td>No practical size limit</td></tr>
+            <tr><td>Data visible in URL</td><td>Data hidden in request body</td></tr>
+            <tr><td>Bookmarkable &amp; shareable</td><td>Not visible in URL bar</td></tr>
+            <tr><td>Limited data size (~2 KB)</td><td>No practical size limit</td></tr>
             <tr><td>Cached by browser</td><td>Not cached</td></tr>
             <tr><td>Use for: searches, filters</td><td>Use for: login, signup, checkout</td></tr>
           </table>
-          <img src="assets/fig-13.1-get-query-string.png" alt="Browser address bar showing GET query string parameters" class="slide-img" style="margin-top:.6rem;">
-          <p class="img-caption">GET appends data as a query string: <code>?q=hello&amp;page=2</code></p>
+          <img src="assets/fig-13.1-get-query-string.png" alt="Browser address bar showing GET query string parameters" class="slide-img" style="margin-top:.5rem;">
+          <p class="img-caption">GET appends data as a query string — each field becomes a <code>name=value</code> pair:<br><code style="font-size:.8em;">https://shopfinder.com/search?q=leather+boots&amp;sort=price&amp;color=brown</code></p>
+          <div class="highlight" style="margin-top:.4rem;font-size:.85rem;">
+            The URL above is the result of a form with three fields: <code>q</code>, <code>sort</code>, and <code>color</code>. Anyone can copy, paste, or bookmark it — the entire search is encoded in the URL.
+          </div>
           <div class="live-form-demo" style="margin-top:.5rem;">
             <p style="font-size:.75rem;opacity:.8;margin-bottom:.35rem;">▶ Try it — type a search term and submit:</p>
             <form onsubmit="showQS(event)" style="display:flex;gap:.5rem;">
-              <input class="demo-inp" type="text" name="q" placeholder="e.g. JavaScript" style="margin:0;flex:1;">
+              <input class="demo-inp" type="text" name="q" placeholder="e.g. leather boots" style="margin:0;flex:1;">
               <button type="submit" class="demo-btn" style="flex-shrink:0;">Search →</button>
             </form>
             <div class="code-live" id="qs-preview">Submit to see the query string...</div>
@@ -212,13 +223,14 @@
       <h2>Every Input Must Have a Label</h2>
       <div class="two-col">
         <div>
-          <p><strong>Why it matters:</strong></p>
+          <p><strong>Why labels are not optional:</strong></p>
           <ul>
-            <li>🔊 Screen readers announce the label when the input receives focus</li>
-            <li>👆 Clicking the label focuses the input — larger tap target on mobile</li>
-            <li>🤖 Autofill, password managers &amp; browser autocomplete use labels to understand fields</li>
+            <li>🔊 Screen readers announce the label text when a user tabs into the input. Without one, the user hears only "text field" — no idea what to type.</li>
+            <li>👆 Clicking or tapping anywhere on the label text activates the input, giving mobile users a much larger tap target than the tiny input box alone.</li>
+            <li>🤖 Password managers, browser autofill, and autocomplete all use label text + input type + name together to identify fields and suggest the right saved values.</li>
+            <li>🧪 Test automation tools reference labels to find fields — well-labeled forms are far easier to test.</li>
           </ul>
-          <h3 style="margin-top:.75rem;">Method 1 — <code>for</code> / <code>id</code></h3>
+          <h3 style="margin-top:.6rem;">Method 1 — <code>for</code> / <code>id</code></h3>
           <pre><code>&lt;label for="email"&gt;Email Address&lt;/label&gt;
 &lt;input type="email" id="email" name="email"&gt;</code></pre>
           <h3>Method 2 — Wrap the input</h3>
@@ -226,28 +238,38 @@
   Email Address
   &lt;input type="email" name="email"&gt;
 &lt;/label&gt;</code></pre>
-          <p style="font-size:.85rem;opacity:.75;">Both are valid. <code>for/id</code> gives more layout flexibility; wrapping is more concise.</p>
+          <p style="font-size:.85rem;opacity:.75;">Both are valid. <code>for/id</code> gives layout flexibility; wrapping is concise.</p>
+          <h3 style="margin-top:.6rem;">Method 3 — <code>aria-label</code> (invisible label)</h3>
+          <p style="font-size:.88rem;">When the design calls for an icon-only input (e.g. a search bar with no visible label text), provide a label only screen readers can hear:</p>
+          <pre><code>&lt;input type="search" name="q"
+  aria-label="Search products"
+  placeholder="Search..."&gt;</code></pre>
+          <h3>Method 4 — <code>aria-labelledby</code> (reuse existing text)</h3>
+          <p style="font-size:.88rem;">When another element on the page already describes the input well, point to its <code>id</code> instead of writing duplicate label text:</p>
+          <pre><code>&lt;h2 id="contact-heading"&gt;Contact Us&lt;/h2&gt;
+&lt;input type="email" name="email"
+  aria-labelledby="contact-heading"&gt;</code></pre>
         </div>
         <div>
           <div class="caution">
-            <strong>⚠️ Don't use <code>placeholder</code> as a label.</strong><br>
-            Placeholder text disappears when the user starts typing — they lose context about what the field is for. Use placeholder for <em>example values</em> like <code>jane@example.com</code>, not as the field label.
+            <strong>⚠️ Never use <code>placeholder</code> as a label.</strong><br>
+            Placeholder text disappears the moment typing begins — the user immediately loses context about what the field is for. Use placeholder only for <em>example values</em> like <code>jane@example.com</code> or <code>e.g. New York</code>, never as the field label itself.
           </div>
-          <div class="tip" style="margin-top:.75rem;">
+          <div class="tip" style="margin-top:.6rem;">
             <strong>The <code>name</code> attribute is required for submission.</strong><br>
-            <code>name</code> becomes the key in submitted data: <code>email=jane@example.com</code>. An input without <code>name</code> is never included in the form submission.
+            <code>name</code> becomes the key in submitted data. A form field with <code>value="Alice"</code> but no <code>name</code> is silently excluded from the submission — the server never receives it.
           </div>
-          <div class="tip" style="margin-top:.5rem;">
-            <strong><code>id</code> vs <code>name</code></strong><br>
-            <code>id</code> — links to <code>&lt;label&gt;</code>, used by CSS/JS.<br>
-            <code>name</code> — the key sent with the form data. You usually need both.
+          <div class="tip" style="margin-top:.4rem;">
+            <strong><code>id</code> vs <code>name</code> — not the same thing</strong><br>
+            <code>id</code> — links to <code>&lt;label&gt;</code>, targeted by CSS and JavaScript. Must be unique on the page.<br>
+            <code>name</code> — the key sent with form data to the server. Required for submission. Can repeat (e.g. checkboxes in a group).
           </div>
           <div class="live-form-demo" style="margin-top:.5rem;">
-            <p style="font-size:.75rem;opacity:.8;margin-bottom:.35rem;">▶ Click the label <em>text</em> (not the input field):</p>
+            <p style="font-size:.75rem;opacity:.8;margin-bottom:.35rem;">▶ Click the <em>label text</em> (not the input) — focus jumps to the field:</p>
             <label class="demo-lbl" for="d-name-demo">Full Name</label>
-            <input class="demo-inp" type="text" id="d-name-demo" placeholder="focus will jump here when you click the label">
+            <input class="demo-inp" type="text" id="d-name-demo" placeholder="focus jumps here when you click the label">
             <label class="demo-lbl" for="d-email-demo">Email Address</label>
-            <input class="demo-inp" type="email" id="d-email-demo" placeholder="click the label above ↑">
+            <input class="demo-inp" type="email" id="d-email-demo" placeholder="click the 'Email Address' label above ↑">
           </div>
         </div>
       </div>
@@ -261,22 +283,55 @@
     <div class="slide-content">
       <div class="slide-label">Input Types</div>
       <h2>Text-Type Inputs</h2>
-      <p style="margin-bottom:.5rem;">All use <code>&lt;input type="..."&gt;</code>. Each type unlocks keyboard layouts, validation, and autofill.</p>
+      <p style="margin-bottom:.4rem;">All use <code>&lt;input type="..."&gt;</code>. Choosing the right type unlocks the correct mobile keyboard, built-in validation, and browser autofill — for free.</p>
       <div class="card-grid">
-        <div class="input-card"><strong>text</strong><span>Generic single-line text. Use when no specific type applies.</span></div>
-        <div class="input-card"><strong>email</strong><span>Validates email shape. Mobile keyboard shows <code>@</code> prominently.</span></div>
-        <div class="input-card"><strong>password</strong><span>Characters masked. Password managers auto-recognize this type.</span></div>
-        <div class="input-card"><strong>url</strong><span>Validates URL format. Mobile keyboard shows <code>/</code> and <code>.</code> shortcuts.</span></div>
-        <div class="input-card"><strong>tel</strong><span>Triggers numeric phone keypad on mobile. Use <code>pattern</code> for format validation.</span></div>
-        <div class="input-card"><strong>search</strong><span>Like text, but browsers may add a clear ✕ button. Semantic search signal.</span></div>
-        <div class="input-card"><strong>number</strong><span>Shows spinner arrows. Use <code>min</code>, <code>max</code>, <code>step</code> to constrain values.</span></div>
+        <div class="input-card"><strong>text</strong><span>The general fallback. Use for names, usernames, cities — any single line of text that doesn't fit a more specific type. No special keyboard or validation.</span></div>
+        <div class="input-card"><strong>email</strong><span>Validates the value contains an "@" sign. Mobile keyboards show "@" and "." prominently. Browsers may autofill saved email addresses.</span></div>
+        <div class="input-card"><strong>password</strong><span>Characters are masked as dots. Password managers automatically detect this type and offer to fill or save credentials.</span></div>
+        <div class="input-card"><strong>url</strong><span>Validates that the value starts with a protocol (https://). Mobile keyboards show "/" and "." shortcuts. Does NOT verify the URL exists.</span></div>
+        <div class="input-card"><strong>tel</strong><span>Opens a numeric phone keypad on mobile. No automatic format validation — add a <code>pattern</code> attribute if you need a specific format like (###) ###-####.</span></div>
+        <div class="input-card"><strong>search</strong><span>Like text, but signals "search context" to browsers and tools. Some browsers add a ✕ clear button automatically. Pairs well with <code>method="get"</code>.</span></div>
+        <div class="input-card"><strong>number</strong><span>Adds up/down spinner arrows. Only accepts numeric values. Use <code>min</code>, <code>max</code>, and <code>step</code> to constrain the valid range.</span></div>
       </div>
-      <pre style="margin-top:.5rem;"><code>&lt;input type="text"     name="username" placeholder="Your username"&gt;
-&lt;input type="email"    name="email"    placeholder="jane@example.com"&gt;
-&lt;input type="password" name="password" placeholder="At least 8 characters"&gt;
-&lt;input type="url"      name="website"  placeholder="https://example.com"&gt;
-&lt;input type="tel"      name="phone"    placeholder="(555) 555-5555"&gt;
-&lt;input type="number"   name="qty"      min="1" max="99"&gt;</code></pre>
+      <div class="two-col" style="margin-top:.5rem;">
+        <div>
+          <pre><code>&lt;input type="text"     name="username"
+       placeholder="Your username"&gt;
+&lt;input type="email"    name="email"
+       placeholder="jane@example.com"&gt;
+&lt;input type="password" name="password"
+       placeholder="At least 8 characters"&gt;
+&lt;input type="url"      name="website"
+       placeholder="https://example.com"&gt;
+&lt;input type="tel"      name="phone"
+       placeholder="(555) 555-5555"&gt;
+&lt;input type="number"   name="qty"
+       min="1" max="99"&gt;</code></pre>
+        </div>
+        <div>
+          <h3 style="margin-top:0;">Key universal attributes</h3>
+          <table class="cmp" style="font-size:.8rem;">
+            <tr><th>Attribute</th><th>What it does</th></tr>
+            <tr><td><code>placeholder</code></td><td>Hint text shown when field is empty — disappears on typing</td></tr>
+            <tr><td><code>value</code></td><td>Pre-fills the field with a default value on page load</td></tr>
+            <tr><td><code>disabled</code></td><td>Grays out the field — cannot interact with it, NOT submitted</td></tr>
+            <tr><td><code>readonly</code></td><td>Shows the value but prevents editing — value IS submitted</td></tr>
+            <tr><td><code>autofocus</code></td><td>Auto-focuses this field when the page loads</td></tr>
+            <tr><td><code>autocomplete</code></td><td>Hints the browser autofill system (e.g. <code>"email"</code>, <code>"given-name"</code>)</td></tr>
+          </table>
+          <div class="live-form-demo" style="margin-top:.5rem;">
+            <p style="font-size:.75rem;opacity:.8;margin-bottom:.4rem;">▶ Try each type — notice behavior differences (especially on mobile):</p>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:.35rem;">
+              <div><span class="demo-lbl" style="font-size:.7rem;margin:0;">text</span><input class="demo-inp" type="text" placeholder="Any text" style="margin:0;"></div>
+              <div><span class="demo-lbl" style="font-size:.7rem;margin:0;">email</span><input class="demo-inp" type="email" placeholder="jane@example.com" style="margin:0;"></div>
+              <div><span class="demo-lbl" style="font-size:.7rem;margin:0;">password</span><input class="demo-inp" type="password" placeholder="••••••••" style="margin:0;"></div>
+              <div><span class="demo-lbl" style="font-size:.7rem;margin:0;">url</span><input class="demo-inp" type="url" placeholder="https://..." style="margin:0;"></div>
+              <div><span class="demo-lbl" style="font-size:.7rem;margin:0;">tel</span><input class="demo-inp" type="tel" placeholder="(555) 555-5555" style="margin:0;"></div>
+              <div><span class="demo-lbl" style="font-size:.7rem;margin:0;">number (1–99)</span><input class="demo-inp" type="number" min="1" max="99" placeholder="1" style="margin:0;"></div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -301,27 +356,43 @@
       <h2>Date &amp; Time Inputs</h2>
       <div class="two-col">
         <div>
-          <p>The browser renders a native date/time picker — no JavaScript calendar widget needed.</p>
+          <p>The browser renders a native date/time picker built into the OS — no JavaScript calendar widget needed. However, the picker's appearance (colors, layout) varies by browser and OS, and cannot be styled with CSS alone.</p>
           <table class="cmp" style="margin:.5rem 0;">
-            <tr><th>Type</th><th>Value format</th><th>Use for</th></tr>
+            <tr><th>Type</th><th>Value format</th><th>Best for</th></tr>
             <tr><td><code>date</code></td><td><code>YYYY-MM-DD</code></td><td>Birthdays, travel dates</td></tr>
             <tr><td><code>time</code></td><td><code>HH:MM</code></td><td>Meeting times</td></tr>
-            <tr><td><code>datetime-local</code></td><td><code>YYYY-MM-DDTHH:MM</code></td><td>Appointments</td></tr>
+            <tr><td><code>datetime-local</code></td><td><code>YYYY-MM-DDTHH:MM</code></td><td>Appointments, events</td></tr>
             <tr><td><code>month</code></td><td><code>YYYY-MM</code></td><td>Credit card expiry</td></tr>
             <tr><td><code>week</code></td><td>ISO week</td><td>Sprint planning</td></tr>
           </table>
-          <pre><code>&lt;!-- Set default, min, and max --&gt;
+          <pre><code>&lt;!-- Set a default value, plus min and max --&gt;
 &lt;input type="date" name="travel"
        value="2025-06-01"
        min="2025-01-01"
        max="2025-12-31"&gt;</code></pre>
-          <div class="caution" style="margin-top:.5rem;">
-            Date picker appearance varies across browsers. For consistent styling or date-range pickers, use a JS library in production.
+          <div class="highlight" style="margin-top:.4rem;">
+            <strong>Key insight:</strong> Regardless of how the picker displays (e.g. "June 1, 2025" in a US locale), JavaScript always reads <code>input.value</code> in the standardized ISO format shown above. This makes server-side date handling and comparisons reliable across every browser and locale.
+          </div>
+          <div class="caution" style="margin-top:.4rem;">
+            For date-range pickers, custom styling, or calendar UIs, a JavaScript library (like Flatpickr or Pikaday) gives you full control.
           </div>
         </div>
         <div>
-          <img src="assets/fig-13.2-date-picker.png" alt="Native date picker rendered in a browser" class="slide-img">
-          <p class="img-caption">Native date pickers look different per browser &amp; OS</p>
+          <div class="live-form-demo">
+            <p style="font-size:.75rem;opacity:.8;margin-bottom:.4rem;">▶ Pick a date and time — see the exact value your JavaScript code would receive:</p>
+            <label class="demo-lbl" for="d-date">date</label>
+            <input class="demo-inp" type="date" id="d-date" oninput="updateDatePreview()">
+            <label class="demo-lbl" for="d-time" style="margin-top:.3rem;">time</label>
+            <input class="demo-inp" type="time" id="d-time" oninput="updateDatePreview()">
+            <label class="demo-lbl" for="d-datetime" style="margin-top:.3rem;">datetime-local</label>
+            <input class="demo-inp" type="datetime-local" id="d-datetime" oninput="updateDatePreview()">
+            <div class="code-live" id="date-preview">Pick a date or time above to see the value...</div>
+          </div>
+          <div class="tip" style="margin-top:.5rem;">
+            <strong>Reading the value in JavaScript:</strong><br>
+            <code>document.getElementById('d-date').value</code><br>
+            returns a string like <code>"2025-06-01"</code> — always year-month-day, always ISO 8601.
+          </div>
         </div>
       </div>
     </div>
@@ -337,7 +408,7 @@
       <div class="two-col">
         <div>
           <h3>☑ Checkboxes — zero or more</h3>
-          <p>Each checkbox is independent. Multiple can be selected.</p>
+          <p>Each checkbox is completely independent. A user can select none, one, or all of them simultaneously. Use when the question is "which of these apply?" — toppings, interests, permissions.</p>
           <pre><code>&lt;label&gt;
   &lt;input type="checkbox" name="toppings"
          value="cheese"&gt; Cheese
@@ -347,13 +418,23 @@
          value="peppers" checked&gt; Peppers
 &lt;/label&gt;</code></pre>
           <ul style="margin-top:.4rem;">
-            <li>Same <code>name</code> sends multiple values</li>
-            <li>Add <code>checked</code> to pre-select</li>
+            <li>Same <code>name</code> sends multiple values: <code>toppings=cheese&amp;toppings=peppers</code></li>
+            <li>Add <code>checked</code> attribute to pre-select on page load</li>
+            <li>Unchecked boxes send nothing — check on the server if a box was left empty</li>
           </ul>
+          <div class="live-form-demo" style="margin-top:.5rem;">
+            <p style="font-size:.75rem;opacity:.8;margin-bottom:.4rem;">▶ Check items — see multiple values submitted:</p>
+            <div style="display:flex;gap:1rem;flex-wrap:wrap;margin-bottom:.35rem;">
+              <label style="font-size:.88rem;cursor:pointer;display:flex;align-items:center;gap:.35rem;"><input type="checkbox" name="toppings" value="cheese" onchange="updateCBPreview()"> Cheese</label>
+              <label style="font-size:.88rem;cursor:pointer;display:flex;align-items:center;gap:.35rem;"><input type="checkbox" name="toppings" value="peppers" onchange="updateCBPreview()"> Peppers</label>
+              <label style="font-size:.88rem;cursor:pointer;display:flex;align-items:center;gap:.35rem;"><input type="checkbox" name="toppings" value="mushrooms" onchange="updateCBPreview()"> Mushrooms</label>
+            </div>
+            <div class="code-live" id="cb-preview">toppings=  (none checked)</div>
+          </div>
         </div>
         <div>
           <h3>⭕ Radio Buttons — exactly one</h3>
-          <p>All radios in a group share the same <code>name</code>. Selecting one deselects the others.</p>
+          <p>All radios sharing the same <code>name</code> form a single group. Selecting one <em>automatically</em> deselects whichever was previously selected — it's physically impossible for two in the same group to be active at once. Use when the question has exactly one right answer — size, payment method, preference.</p>
           <pre><code>&lt;label&gt;
   &lt;input type="radio" name="size"
          value="small"&gt; Small
@@ -367,16 +448,16 @@
          value="large"&gt; Large
 &lt;/label&gt;</code></pre>
           <div class="note" style="margin-top:.4rem;">
-            Once a radio is selected, the user can only pick <em>another</em> option — they can't deselect entirely. Always wrap radio groups in a <code>&lt;fieldset&gt;</code>.
+            Once a radio in a group is selected, users can only <em>change</em> to another option — they cannot deselect entirely. Always wrap radio groups in a <code>&lt;fieldset&gt;</code> for screen readers.
           </div>
           <div class="live-form-demo" style="margin-top:.5rem;">
-            <p style="font-size:.75rem;opacity:.8;margin-bottom:.4rem;">▶ Check items — see the submitted form data:</p>
+            <p style="font-size:.75rem;opacity:.8;margin-bottom:.4rem;">▶ Select a size — only one can be active at a time:</p>
             <div style="display:flex;gap:1rem;flex-wrap:wrap;margin-bottom:.35rem;">
-              <label style="font-size:.88rem;cursor:pointer;display:flex;align-items:center;gap:.35rem;"><input type="checkbox" value="cheese" onchange="updateCBPreview()"> Cheese</label>
-              <label style="font-size:.88rem;cursor:pointer;display:flex;align-items:center;gap:.35rem;"><input type="checkbox" value="peppers" onchange="updateCBPreview()"> Peppers</label>
-              <label style="font-size:.88rem;cursor:pointer;display:flex;align-items:center;gap:.35rem;"><input type="checkbox" value="mushrooms" onchange="updateCBPreview()"> Mushrooms</label>
+              <label style="font-size:.88rem;cursor:pointer;display:flex;align-items:center;gap:.35rem;"><input type="radio" name="d-size" value="small" onchange="updateRadioPreview()"> Small</label>
+              <label style="font-size:.88rem;cursor:pointer;display:flex;align-items:center;gap:.35rem;"><input type="radio" name="d-size" value="medium" onchange="updateRadioPreview()"> Medium</label>
+              <label style="font-size:.88rem;cursor:pointer;display:flex;align-items:center;gap:.35rem;"><input type="radio" name="d-size" value="large" onchange="updateRadioPreview()"> Large</label>
             </div>
-            <div class="code-live" id="cb-preview">toppings=  (none checked)</div>
+            <div class="code-live" id="radio-preview">size=  (none selected)</div>
           </div>
         </div>
       </div>
@@ -392,21 +473,18 @@
       <h2>Range &amp; Color Inputs</h2>
       <div class="two-col">
         <div>
-          <h3>🎚 Range — number slider</h3>
-          <p>Creates a drag slider. The slider doesn't display the current value — pair it with <code>&lt;output&gt;</code> and JavaScript.</p>
+          <h3>🎚 Range — drag slider</h3>
+          <p>Creates a familiar drag slider control. The slider itself does <strong>not</strong> display the current value — pair it with an <code>&lt;output&gt;</code> element and the <code>oninput</code> event to show it in real time. The <code>min</code>, <code>max</code>, and <code>step</code> attributes work the same as for <code>type="number"</code>.</p>
           <pre><code>&lt;label for="vol"&gt;
   Volume: &lt;output id="vol-out"&gt;50&lt;/output&gt;
 &lt;/label&gt;
 &lt;input type="range" id="vol"
        name="volume"
        min="0" max="100"
-       value="50" step="1"&gt;</code></pre>
-          <pre style="margin-top:.3rem;"><code>// Wire the slider to the output
-const slider = document.getElementById('vol');
-const out = document.getElementById('vol-out');
-slider.addEventListener('input', () => {
-  out.textContent = slider.value;
-});</code></pre>
+       value="50" step="1"
+       oninput="document.getElementById('vol-out')
+                .textContent = this.value"&gt;</code></pre>
+          <p style="font-size:.85rem;opacity:.8;margin-top:.3rem;">The <code>oninput</code> event fires continuously as you drag. <code>this.value</code> is the current position as a string.</p>
           <div class="live-form-demo" style="margin-top:.4rem;">
             <p style="font-size:.75rem;opacity:.8;margin-bottom:.3rem;">▶ Try the slider:</p>
             <label class="demo-lbl" for="d-vol">Volume: <output id="d-vol-out" style="color:#4ade80;font-weight:700;">50</output></label>
@@ -416,16 +494,17 @@ slider.addEventListener('input', () => {
         </div>
         <div>
           <h3>🎨 Color — native color picker</h3>
-          <p>Opens the OS color picker. Value must be a 6-digit hex code.</p>
+          <p>Opens the operating system's native color picker — the macOS color wheel, Windows color grid, etc. The returned value is always a 6-digit lowercase hex code regardless of how the user made the selection.</p>
           <pre><code>&lt;label for="theme"&gt;Favorite Color&lt;/label&gt;
 &lt;input type="color"
        id="theme" name="theme-color"
        value="#4f6df5"&gt;</code></pre>
-          <div class="note" style="margin-top:.5rem;">
-            Named colors like <code>"red"</code> are ignored — always use <code>#rrggbb</code> hex format for the default <code>value</code>.
+          <div class="caution" style="margin-top:.5rem;">
+            Named colors like <code>"red"</code> are ignored in the <code>value</code> attribute — always use 6-digit hex format: <code>#rrggbb</code>.
           </div>
           <div class="tip" style="margin-top:.5rem;">
-            <strong>accent-color CSS property</strong> — style checkboxes, radios, ranges and progress bars with one line:<br>
+            <strong>accent-color CSS property</strong><br>
+            Style checkboxes, radio buttons, range sliders, and progress bars with one line of CSS — no custom components needed:<br>
             <code>accent-color: #4f6df5;</code>
           </div>
           <div class="live-form-demo" style="margin-top:.4rem;">
@@ -464,7 +543,7 @@ slider.addEventListener('input', () => {
       <h2>The <code>&lt;select&gt;</code> Element</h2>
       <div class="two-col">
         <div>
-          <p>Use a drop-down list when you have more than 4–5 options.</p>
+          <p>A <code>&lt;select&gt;</code> dropdown is ideal when you have 5 or more mutually exclusive options. Users click the control, scan the list, pick one, and the list closes. For fewer options, radio buttons (all visible at once) require fewer clicks.</p>
           <pre><code>&lt;label for="country"&gt;Country&lt;/label&gt;
 &lt;select id="country" name="country"&gt;
   &lt;option value=""&gt;-- Select a country --&lt;/option&gt;
@@ -473,12 +552,27 @@ slider.addEventListener('input', () => {
   &lt;option value="uk"&gt;United Kingdom&lt;/option&gt;
 &lt;/select&gt;</code></pre>
           <ul style="margin-top:.4rem;">
-            <li>First <code>&lt;option value=""&gt;</code> acts as a prompt</li>
-            <li>The selected option's <code>value</code> is submitted under the <code>select</code>'s <code>name</code></li>
+            <li>The first <code>&lt;option value=""&gt;</code> acts as a prompt — an empty value fails <code>required</code> validation</li>
+            <li>The selected option's <code>value</code> attribute (not its visible text) is what gets submitted</li>
+            <li>Add <code>multiple</code> to allow multiple selections; add <code>size="4"</code> to show multiple rows</li>
           </ul>
+          <div class="live-form-demo" style="margin-top:.5rem;">
+            <p style="font-size:.75rem;opacity:.8;margin-bottom:.35rem;">▶ Pick a country — see the submitted value:</p>
+            <label class="demo-lbl" for="d-country">Country</label>
+            <select class="demo-inp" id="d-country" onchange="updateSelectPreview(this)">
+              <option value="">-- Select a country --</option>
+              <option value="us">United States</option>
+              <option value="ca">Canada</option>
+              <option value="uk">United Kingdom</option>
+              <option value="de">Germany</option>
+              <option value="au">Australia</option>
+            </select>
+            <div class="code-live" id="select-preview">country=  (nothing selected)</div>
+          </div>
         </div>
         <div>
           <h3>Grouping with <code>&lt;optgroup&gt;</code></h3>
+          <p>Long lists become hard to scan. <code>&lt;optgroup&gt;</code> adds non-selectable headers that organize options into logical categories:</p>
           <pre><code>&lt;select name="country"&gt;
   &lt;optgroup label="North America"&gt;
     &lt;option value="us"&gt;United States&lt;/option&gt;
@@ -490,10 +584,13 @@ slider.addEventListener('input', () => {
     &lt;option value="de"&gt;Germany&lt;/option&gt;
   &lt;/optgroup&gt;
 &lt;/select&gt;</code></pre>
-          <div class="tip" style="margin-top:.4rem;">
-            <strong>Select vs Radio buttons:</strong><br>
-            ≤ 5 options → radio buttons (all visible at once)<br>
-            6+ options → <code>&lt;select&gt;</code> (saves space)
+          <div class="tip" style="margin-top:.5rem;">
+            <strong>Select vs Radio buttons — quick rule:</strong><br>
+            ≤ 4 options → radio buttons (all visible, fastest to scan)<br>
+            5+ options → <code>&lt;select&gt;</code> (saves vertical space)
+          </div>
+          <div class="note" style="margin-top:.4rem;">
+            <strong>Multi-select:</strong> Add <code>multiple</code> to allow choosing several options (Ctrl/Cmd+click). But multi-select UIs are notoriously confusing on mobile — consider checkboxes instead for better usability.
           </div>
         </div>
       </div>
@@ -510,22 +607,32 @@ slider.addEventListener('input', () => {
       <div class="two-col">
         <div>
           <h3>📝 Textarea — multi-line text</h3>
+          <p>Use <code>&lt;textarea&gt;</code> any time a user might write more than one sentence — comments, messages, bios, addresses.</p>
           <pre><code>&lt;label for="msg"&gt;Your Message&lt;/label&gt;
 &lt;textarea id="msg" name="message"
           rows="5"
+          maxlength="500"
           placeholder="Write here..."&gt;
 &lt;/textarea&gt;</code></pre>
           <ul style="margin-top:.4rem;">
-            <li><strong>Has a closing tag</strong> (unlike <code>&lt;input&gt;</code>)</li>
-            <li>Text between tags = default value</li>
-            <li><code>rows</code> sets initial height</li>
-            <li>Control resize with CSS: <code>resize: vertical</code> (recommended), <code>resize: none</code>, or <code>resize: both</code></li>
+            <li><strong>Has a closing tag</strong> — unlike <code>&lt;input&gt;</code>. Text between tags becomes the default value.</li>
+            <li><code>rows</code> sets the initial visible height. Use CSS <code>height</code> for more precise control.</li>
+            <li>Control resize with CSS: <code>resize: vertical</code> (recommended — height only), <code>resize: none</code> (fixed size), or <code>resize: both</code>.</li>
+            <li><code>maxlength</code> stops users from typing beyond the character limit. Show a counter so users know how many characters remain.</li>
           </ul>
+          <div class="live-form-demo" style="margin-top:.4rem;">
+            <label class="demo-lbl">▶ Live textarea — watch the character counter:</label>
+            <textarea class="demo-inp" rows="3" maxlength="200" placeholder="Type here..."
+                      oninput="updateTextareaCount(this)"></textarea>
+            <div class="code-live" id="ta-count">0 / 200 characters</div>
+          </div>
         </div>
         <div>
           <h3>🔍 Datalist — autocomplete suggestions</h3>
-          <p>Suggests options as the user types, but still allows free-text entry. Hybrid of <code>&lt;input&gt;</code> and <code>&lt;select&gt;</code>.</p>
-          <pre><code>&lt;input type="text" name="browser"
+          <p>A <code>&lt;datalist&gt;</code> is a hybrid of <code>&lt;input&gt;</code> and <code>&lt;select&gt;</code>. It shows suggestions as the user types, but unlike a <code>&lt;select&gt;</code>, the user can ignore all suggestions and type anything they want. The value is never restricted to the list.</p>
+          <pre><code>&lt;label for="browser"&gt;Favorite Browser&lt;/label&gt;
+&lt;input type="text" id="browser"
+       name="browser"
        list="browser-list"
        placeholder="Start typing..."&gt;
 
@@ -536,10 +643,24 @@ slider.addEventListener('input', () => {
   &lt;option value="Edge"&gt;
 &lt;/datalist&gt;</code></pre>
           <ul style="margin-top:.3rem;">
-            <li>The <code>list</code> attribute must match the <code>datalist</code>'s <code>id</code></li>
-            <li>User can ignore suggestions and type anything</li>
+            <li>The <code>list</code> attribute on the input must match the <code>datalist</code>'s <code>id</code></li>
+            <li>Suggestions appear as the user types and filter automatically</li>
+            <li>The user can still type values not in the list</li>
           </ul>
-          <img src="assets/fig-13.3-datalist.png" alt="Datalist suggestions dropdown appearing as user types" class="slide-img" style="margin-top:.4rem;">
+          <div class="live-form-demo" style="margin-top:.4rem;">
+            <label class="demo-lbl" for="d-browser">▶ Type a browser name — see suggestions appear:</label>
+            <input class="demo-inp" type="text" id="d-browser" list="d-browser-list"
+                   placeholder="e.g. Ch..." oninput="updateDatalistPreview(this)">
+            <datalist id="d-browser-list">
+              <option value="Chrome">
+              <option value="Firefox">
+              <option value="Safari">
+              <option value="Edge">
+              <option value="Opera">
+              <option value="Brave">
+            </datalist>
+            <div class="code-live" id="dl-preview">browser=  (type to see suggestions)</div>
+          </div>
         </div>
       </div>
     </div>
@@ -554,7 +675,7 @@ slider.addEventListener('input', () => {
       <h2>Grouping with <code>&lt;fieldset&gt;</code> &amp; <code>&lt;legend&gt;</code></h2>
       <div class="two-col">
         <div>
-          <p>Wrap related inputs in <code>&lt;fieldset&gt;</code> and label the group with <code>&lt;legend&gt;</code>.</p>
+          <p>Wrap related inputs in <code>&lt;fieldset&gt;</code> and label the entire group with <code>&lt;legend&gt;</code>. This is not just visual decoration — it gives screen readers the context they need to describe the group correctly.</p>
           <pre><code>&lt;fieldset&gt;
   &lt;legend&gt;Contact Preferences&lt;/legend&gt;
 
@@ -572,18 +693,21 @@ slider.addEventListener('input', () => {
   &lt;/label&gt;
 
 &lt;/fieldset&gt;</code></pre>
+          <p style="margin-top:.5rem;font-size:.9rem;">Use <code>&lt;fieldset&gt;</code> for any logically related group: radio buttons, a section of shipping address fields, or an entire billing form section.</p>
         </div>
         <div>
           <img src="assets/fig-13.4-fieldset.png" alt="Fieldset with visible border and legend label positioned at the top" class="slide-img">
           <p class="img-caption">Legend appears inside the fieldset border by default</p>
           <div class="note" style="margin-top:.5rem;">
-            <strong>Screen reader experience:</strong><br>
-            With fieldset + legend, a screen reader announces:<br>
-            <em>"Contact Preferences, Email, radio button, 1 of 3"</em><br><br>
-            Without fieldset, it only announces:<br>
-            <em>"Email, radio button"</em> — no group context!
+            <strong>Screen reader comparison:</strong><br><br>
+            <strong>Without fieldset:</strong><br>
+            <em>"Email, radio button, 1 of 3"</em> — no group context!<br><br>
+            <strong>With fieldset + legend:</strong><br>
+            <em>"Contact Preferences, Email, radio button, 1 of 3"</em> — the user knows exactly what they're choosing.
           </div>
-          <p style="margin-top:.4rem;font-size:.9rem;">Use <code>&lt;fieldset&gt;</code> whenever you have a group of radio buttons, or logically related sections like billing vs. shipping address.</p>
+          <div class="tip" style="margin-top:.4rem;">
+            You can style away the default border with CSS (<code>border: none</code>), but keep the <code>&lt;fieldset&gt;</code> and <code>&lt;legend&gt;</code> in your HTML for accessibility. The semantic value is in the markup, not the visual border.
+          </div>
         </div>
       </div>
     </div>
@@ -611,49 +735,52 @@ slider.addEventListener('input', () => {
       <div class="three-col">
         <div class="card">
           <h3>🙈 Hidden Inputs</h3>
-          <p>Store data submitted with the form but not visible or editable by the user.</p>
+          <p>Store data that is submitted with the form but is never shown to the user — no input box, no label visible on screen.</p>
           <pre><code>&lt;input type="hidden"
   name="user_id"
   value="1042"&gt;
 &lt;input type="hidden"
   name="source"
   value="homepage"&gt;</code></pre>
+          <p style="font-size:.85rem;margin-top:.3rem;">Common uses: passing a CSRF security token, tracking which page the user came from, storing a record ID for "edit" forms.</p>
           <div class="caution" style="margin-top:.4rem;">
-            Not secure — anyone can view page source. Use for reference values only, never secrets.
+            Hidden inputs are visible in page source — anyone can read or change them. Never use them for passwords, tokens that grant permissions, or anything security-sensitive.
           </div>
         </div>
         <div class="card">
-          <h3>🔘 Button vs Input Submit</h3>
-          <p>Prefer <code>&lt;button&gt;</code> — it can contain HTML markup.</p>
-          <pre><code>&lt;!-- Old approach --&gt;
+          <h3>🔘 Button Types</h3>
+          <p>Prefer <code>&lt;button&gt;</code> over <code>&lt;input type="submit"&gt;</code> — it can contain HTML, icons, and images.</p>
+          <pre><code>&lt;!-- Old approach (text only) --&gt;
 &lt;input type="submit"
   value="Send"&gt;
 
 &lt;!-- Modern (preferred) --&gt;
 &lt;button type="submit"&gt;
-  Send
+  ✉ Send Message
 &lt;/button&gt;
 
-&lt;!-- With icon --&gt;
-&lt;button type="submit"&gt;
-  ✉ Send Message
+&lt;!-- Non-submit button --&gt;
+&lt;button type="button"
+  onclick="clearForm()"&gt;
+  Clear
 &lt;/button&gt;</code></pre>
-          <div class="tip" style="margin-top:.3rem;">Always include <code>type="submit"</code> explicitly — it's the default but being explicit makes intent clear.</div>
+          <div class="tip" style="margin-top:.3rem;">Always include <code>type="submit"</code> or <code>type="button"</code> explicitly. Inside a <code>&lt;form&gt;</code>, a button's default type is <code>"submit"</code> — an untyped button can accidentally trigger form submission.</div>
         </div>
         <div class="card">
           <h3>📊 The <code>&lt;output&gt;</code> Element</h3>
-          <p>Displays a calculated result, often paired with a range or number input.</p>
+          <p>A semantic container for a computed or calculated result. It's more meaningful than a plain <code>&lt;span&gt;</code> because browsers and accessibility tools understand it represents a "result" value, not just arbitrary text.</p>
           <pre><code>&lt;label for="price"&gt;
-  Price:
-  $&lt;output id="price-out"&gt;
+  Price: $&lt;output id="price-out"&gt;
     10
   &lt;/output&gt;
 &lt;/label&gt;
 &lt;input type="range"
-  id="price"
-  min="10" max="100"
-  step="5" value="10"&gt;</code></pre>
-          <p style="font-size:.85rem;margin-top:.3rem;">Wire with JavaScript — update <code>output.textContent</code> on the input's <code>input</code> event.</p>
+  id="price" name="price"
+  min="10" max="100" step="5"
+  value="10"
+  oninput="document.
+   getElementById('price-out')
+   .textContent = this.value"&gt;</code></pre>
           <div class="live-form-demo" style="margin-top:.4rem;">
             <p style="font-size:.75rem;opacity:.8;margin-bottom:.3rem;">▶ Live demo:</p>
             <label class="demo-lbl" for="d-price">Price: $<output id="d-price-out" style="color:#4ade80;font-weight:700;">10</output></label>
@@ -672,18 +799,27 @@ slider.addEventListener('input', () => {
     <div class="slide-content">
       <div class="slide-label">Validation</div>
       <h2>HTML5 Validation Attributes</h2>
-      <p style="margin-bottom:.5rem;">Browsers enforce these rules before submitting — <strong>no JavaScript required.</strong></p>
+      <p style="margin-bottom:.4rem;">Browsers enforce these rules automatically before submitting — <strong>no JavaScript required.</strong> If a field fails validation, the browser shows a native tooltip and the form never submits.</p>
       <div class="two-col">
         <div>
           <table class="cmp">
             <tr><th>Attribute</th><th>What it does</th></tr>
-            <tr><td><code>required</code></td><td>Field must not be empty</td></tr>
-            <tr><td><code>minlength / maxlength</code></td><td>Character count limits for text</td></tr>
-            <tr><td><code>min / max</code></td><td>Value range for number, date, time</td></tr>
-            <tr><td><code>pattern</code></td><td>Regex the value must match</td></tr>
+            <tr><td><code>required</code></td><td>Field must not be empty on submit</td></tr>
+            <tr><td><code>minlength</code></td><td>Text must be at least N characters</td></tr>
+            <tr><td><code>maxlength</code></td><td>Physically prevents typing beyond N characters</td></tr>
+            <tr><td><code>min / max</code></td><td>Value range for number, date, time, range</td></tr>
+            <tr><td><code>pattern</code></td><td>Value must match a regular expression</td></tr>
             <tr><td><code>step</code></td><td>Valid increment (e.g. multiples of 5)</td></tr>
-            <tr><td><code>autocomplete</code></td><td>Hints for browser autofill</td></tr>
+            <tr><td><code>autocomplete</code></td><td>Hints browser autofill with token like <code>"email"</code></td></tr>
+            <tr><td><code>disabled</code></td><td>Field cannot be interacted with; NOT submitted</td></tr>
+            <tr><td><code>readonly</code></td><td>Value is visible but not editable; IS submitted</td></tr>
           </table>
+          <div class="note" style="margin-top:.4rem;">
+            <strong>Common autocomplete tokens:</strong><br>
+            <code>"given-name"</code> <code>"family-name"</code> <code>"email"</code> <code>"tel"</code><br>
+            <code>"street-address"</code> <code>"postal-code"</code> <code>"new-password"</code><br>
+            <a href="https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes/autocomplete" target="_blank" rel="noopener noreferrer">Full list on MDN ↗</a>
+          </div>
         </div>
         <div>
           <pre><code>&lt;!-- Required field --&gt;
@@ -693,17 +829,32 @@ slider.addEventListener('input', () => {
 &lt;input type="text" name="user"
        minlength="3" maxlength="20"&gt;
 
-&lt;!-- Custom regex pattern + helpful title --&gt;
+&lt;!-- Custom regex + descriptive title --&gt;
 &lt;input type="text" id="zip" name="zip"
        pattern="[0-9]{5}(-[0-9]{4})?"
        title="5-digit ZIP, e.g. 12345"
        placeholder="12345"
-       required&gt;</code></pre>
-          <div class="note" style="margin-top:.4rem;">
-            <strong>Autocomplete tokens:</strong><br>
-            <code>"given-name"</code> <code>"family-name"</code> <code>"email"</code> <code>"tel"</code><br>
-            <code>"street-address"</code> <code>"postal-code"</code> <code>"new-password"</code><br>
-            <a href="https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes/autocomplete" target="_blank" rel="noopener noreferrer">Full list on MDN ↗</a>
+       required&gt;
+
+&lt;!-- Read-only pre-filled value --&gt;
+&lt;input type="text" name="plan"
+       value="Pro Plan" readonly&gt;</code></pre>
+          <div class="live-form-demo" style="margin-top:.4rem;">
+            <p style="font-size:.75rem;opacity:.8;margin-bottom:.35rem;">▶ Try triggering validation — then click Submit:</p>
+            <form onsubmit="valSubmit(event)" novalidate style="display:flex;flex-direction:column;gap:.3rem;">
+              <div>
+                <label class="demo-lbl" for="d-val-name" style="margin-bottom:.15rem;">Username (3–20 chars, required)</label>
+                <input class="demo-inp" type="text" id="d-val-name" name="username" style="margin:0;"
+                       required minlength="3" maxlength="20" placeholder="e.g. alex">
+              </div>
+              <div>
+                <label class="demo-lbl" for="d-val-zip" style="margin-bottom:.15rem;">US ZIP Code (5 digits, optional)</label>
+                <input class="demo-inp" type="text" id="d-val-zip" name="zip" style="margin:0;"
+                       pattern="[0-9]{5}" title="Must be exactly 5 digits" placeholder="e.g. 12345">
+              </div>
+              <button type="submit" class="demo-btn" style="width:100%;margin-top:.15rem;">Submit →</button>
+            </form>
+            <div class="code-live" id="val-result" style="display:none;margin-top:.3rem;"></div>
           </div>
         </div>
       </div>
@@ -731,29 +882,29 @@ slider.addEventListener('input', () => {
       <h2>Form Pseudo-Classes</h2>
       <div class="two-col">
         <div>
-          <p>Style inputs based on their current state — no JavaScript needed.</p>
+          <p>Style inputs based on their current state — no JavaScript needed. The browser applies and removes these pseudo-classes automatically as the user interacts with the form.</p>
           <table class="cmp" style="margin:.4rem 0;">
-            <tr><th>Pseudo-class</th><th>When it matches</th></tr>
+            <tr><th>Pseudo-class</th><th>When it applies</th></tr>
+            <tr><td><code>:focus</code></td><td>Field currently has keyboard focus</td></tr>
             <tr><td><code>:valid</code></td><td>Value passes all constraints</td></tr>
-            <tr><td><code>:invalid</code></td><td>Value fails any constraint</td></tr>
+            <tr><td><code>:invalid</code></td><td>Value fails any constraint — fires on page load! ⚠️</td></tr>
+            <tr><td><code>:user-invalid</code></td><td>Invalid <em>after</em> user interaction — use this instead</td></tr>
             <tr><td><code>:required</code></td><td>Has the <code>required</code> attribute</td></tr>
             <tr><td><code>:optional</code></td><td>Does NOT have <code>required</code></td></tr>
-            <tr><td><code>:placeholder-shown</code></td><td>Field is empty (placeholder visible)</td></tr>
-            <tr><td><code>:user-invalid</code></td><td>Invalid <em>after user interaction</em></td></tr>
-            <tr><td><code>:focus</code></td><td>Has keyboard focus</td></tr>
+            <tr><td><code>:placeholder-shown</code></td><td>Placeholder visible (field is empty)</td></tr>
+            <tr><td><code>:disabled</code></td><td>Has the <code>disabled</code> attribute</td></tr>
+            <tr><td><code>:read-only</code></td><td>Has the <code>readonly</code> attribute</td></tr>
           </table>
         </div>
         <div>
           <pre><code>/* GREEN border when valid */
-input:valid {
+input:valid:not(:placeholder-shown) {
   border-color: #22c55e;
-  background: #f0fdf4;
 }
 
-/* RED border — but ONLY after user typed */
+/* RED border after user types something invalid */
 input:user-invalid {
   border-color: #ef4444;
-  background: #fef2f2;
 }
 
 /* Fallback for older browsers */
@@ -761,19 +912,23 @@ input:not(:placeholder-shown):invalid {
   border-color: #ef4444;
 }
 
-/* Required field accent */
+/* Blue left bar on required fields */
 input:required {
   border-left: 4px solid #4f6df5;
 }</code></pre>
           <div class="caution" style="margin-top:.4rem;">
-            <strong>⚠️ Avoid bare <code>:invalid</code></strong> — it matches empty required fields on page load, showing red errors before the user touches anything. Use <code>:user-invalid</code> instead.
+            <strong>⚠️ Avoid bare <code>:invalid</code></strong> — it immediately matches empty <code>required</code> fields on page load, showing red errors before the user has done anything. Always use <code>:user-invalid</code> instead.
           </div>
-          <div class="live-form-demo" style="margin-top:.5rem;">
-            <p style="font-size:.75rem;opacity:.8;margin-bottom:.4rem;">▶ Type to see pseudo-classes fire in real time:</p>
-            <label class="demo-lbl" for="d-pseudo">Email address</label>
+          <div class="highlight" style="margin-top:.4rem;">
+            👆 Watch the <strong>border color</strong> of the input below change automatically — pure CSS, no JavaScript!
+          </div>
+          <div class="live-form-demo" style="margin-top:.4rem;">
+            <p style="font-size:.75rem;opacity:.8;margin-bottom:.35rem;">▶ Click the field, type something, then try an invalid email:</p>
+            <label class="demo-lbl" for="d-pseudo">Email address <span style="font-weight:normal;opacity:.7;">(required)</span></label>
             <input class="demo-inp" type="email" id="d-pseudo" required placeholder="type an email address"
                    onfocus="psFocus(true)" onblur="psFocus(false)" oninput="psInput(this)">
-            <div style="display:flex;gap:.4rem;flex-wrap:wrap;margin-top:.25rem;">
+            <p style="font-size:.72rem;opacity:.7;margin:.2rem 0 .1rem;">Active pseudo-classes:</p>
+            <div style="display:flex;gap:.4rem;flex-wrap:wrap;">
               <span id="ps-focus"   class="ps-chip" style="background:rgba(79,109,245,.2);border:1px solid rgba(79,109,245,.35);">:focus</span>
               <span id="ps-valid"   class="ps-chip" style="background:rgba(34,197,94,.2);border:1px solid rgba(34,197,94,.3);">:valid</span>
               <span id="ps-invalid" class="ps-chip" style="background:rgba(239,68,68,.2);border:1px solid rgba(239,68,68,.3);">:user-invalid</span>
@@ -806,7 +961,7 @@ input:required {
       <div class="three-col">
         <div class="card">
           <h3><code>aria-describedby</code></h3>
-          <p>Links help text to its input. Screen reader announces both label AND description when field is focused.</p>
+          <p>Connects a visible help-text paragraph to an input. When the user tabs into the field, the screen reader reads: the label, the input type, then the description text. Use this for instructions, format hints, or character limits.</p>
           <pre><code>&lt;label for="user"&gt;
   Username
 &lt;/label&gt;
@@ -817,11 +972,11 @@ input:required {
   3–20 characters.
   Letters &amp; numbers only.
 &lt;/p&gt;</code></pre>
-          <p style="font-size:.82rem;margin-top:.3rem;">Screen reader says: "Username — 3–20 characters, letters and numbers only"</p>
+          <p style="font-size:.82rem;margin-top:.3rem;">Screen reader announces: "Username — 3–20 characters, letters and numbers only"</p>
         </div>
         <div class="card">
           <h3><code>aria-invalid</code></h3>
-          <p>Set to <code>"true"</code> on a failing field after submission. Screen readers announce the invalid state when the field is focused.</p>
+          <p>Set <code>aria-invalid="true"</code> via JavaScript when you detect an error — typically after a failed submit or after the user leaves a field invalid. When true, screen readers announce "invalid entry" when the user re-focuses that field.</p>
           <pre><code>&lt;input type="email"
   id="email"
   aria-invalid="true"
@@ -832,19 +987,19 @@ input:required {
   Please enter a valid
   email address.
 &lt;/p&gt;</code></pre>
-          <p style="font-size:.82rem;margin-top:.3rem;"><code>aria-invalid</code> is typically toggled via JavaScript after the user attempts to submit.</p>
+          <p style="font-size:.82rem;margin-top:.3rem;">Toggle back to <code>aria-invalid="false"</code> when the user fixes the error so screen reader users know it's resolved.</p>
         </div>
         <div class="card">
           <h3><code>role="alert"</code></h3>
-          <p>Makes error messages announce immediately when they appear in the DOM — even if focus hasn't moved there.</p>
+          <p>Elements with <code>role="alert"</code> are "live regions" — when their content changes (even without focus moving there), the screen reader <em>interrupts</em> and reads the new content aloud immediately. Perfect for error messages and success confirmations.</p>
           <pre><code>&lt;p id="err-msg"
    role="alert"
    hidden&gt;
   Field is required.
 &lt;/p&gt;</code></pre>
-          <p style="font-size:.82rem;margin-top:.3rem;">When you remove <code>hidden</code> via JavaScript, the screen reader announces the message automatically.</p>
+          <p style="font-size:.82rem;margin-top:.3rem;">When JavaScript removes the <code>hidden</code> attribute, the screen reader announces the message automatically — no user navigation required.</p>
           <div class="tip" style="margin-top:.4rem;">
-            Use <code>novalidate</code> on the <code>&lt;form&gt;</code> to disable browser popups and handle all errors with your own ARIA-friendly UI.
+            Add <code>novalidate</code> to the <code>&lt;form&gt;</code> to disable browser native popups and manage all validation feedback with your own ARIA-friendly UI instead.
           </div>
         </div>
       </div>
@@ -860,34 +1015,51 @@ input:required {
       <h2>Tab Order &amp; Keyboard Navigation</h2>
       <div class="two-col">
         <div>
-          <p>Every form must be fully usable with a keyboard alone.</p>
+          <p>Every form must be fully usable with a keyboard alone. Power users, motor-disabled users, and anyone without a mouse all navigate using <strong>Tab</strong> (next field), <strong>Shift+Tab</strong> (previous), <strong>Space/Enter</strong> (activate), and arrow keys (radio groups, selects).</p>
           <ul style="margin:.4rem 0;">
             <li>Inputs, selects, textareas, and buttons are in the tab order by default</li>
-            <li>Tab order follows <strong>DOM order</strong> — if CSS repositions elements visually, keyboard users experience HTML order</li>
+            <li>Tab order follows <strong>DOM order</strong> (the HTML source) — not the visual position on screen</li>
+            <li>CSS flexbox, grid, and absolute positioning can make visual and keyboard order diverge — test both!</li>
           </ul>
           <h3 style="margin-top:.6rem;"><code>tabindex</code> values</h3>
           <table class="cmp">
             <tr><th>Value</th><th>Effect</th></tr>
-            <tr><td><code>tabindex="0"</code></td><td>Add custom element to natural tab order</td></tr>
-            <tr><td><code>tabindex="-1"</code></td><td>Focusable via JS only; not in tab sequence</td></tr>
-            <tr><td><code>tabindex="3"</code></td><td>❌ Avoid positive values — breaks natural order</td></tr>
+            <tr><td><code>tabindex="0"</code></td><td>Add a custom element (div, span) to the natural tab flow</td></tr>
+            <tr><td><code>tabindex="-1"</code></td><td>Focusable via JavaScript only; excluded from Tab sequence</td></tr>
+            <tr><td><code>tabindex="2"</code></td><td>❌ Avoid — positive values break the natural, predictable order</td></tr>
           </table>
           <div class="tip" style="margin-top:.5rem;">
-            <strong>Manual test:</strong> Set your mouse aside and Tab through the form. Every field should be reachable, every label clearly readable, and Enter should submit the form.
+            <strong>Manual test:</strong> Set your mouse aside, tab from the first field to the submit button. Every label should be readable, every field reachable, and Enter should submit.
           </div>
         </div>
         <div>
           <img src="assets/fig-13.5-focus-order.png" alt="DevTools accessibility panel showing form tab focus order" class="slide-img">
-          <p class="img-caption">DevTools → Accessibility panel shows the focus order</p>
-          <div class="note" style="margin-top:.5rem;">
-            Keep your visual layout and DOM order in sync. If they differ, keyboard users experience a disorienting non-linear tab flow.
+          <p class="img-caption">DevTools → Accessibility panel reveals the focus order</p>
+          <div class="note" style="margin-top:.4rem;">
+            When visual layout and DOM order differ, keyboard users experience a disorienting non-linear tab flow. Always keep the HTML source order matching the logical reading order of your form.
           </div>
-          <p style="margin-top:.5rem;font-size:.9rem;">Tools for testing keyboard accessibility:</p>
-          <ul style="font-size:.88rem;">
-            <li><a href="https://wave.webaim.org" target="_blank" rel="noopener noreferrer">WAVE Accessibility Evaluator ↗</a></li>
-            <li><a href="https://www.deque.com/axe/devtools/" target="_blank" rel="noopener noreferrer">axe DevTools ↗</a></li>
-            <li>Chrome DevTools → Accessibility tab</li>
-          </ul>
+          <div class="live-form-demo" style="margin-top:.4rem;">
+            <p style="font-size:.75rem;opacity:.8;margin-bottom:.4rem;">▶ Use your Tab key — the yellow border shows which field has focus:</p>
+            <div style="display:flex;flex-direction:column;gap:.3rem;">
+              <input class="demo-inp" type="text" placeholder="① First Name" style="margin:0;"
+                     onfocus="this.style.borderColor='#fbbf24';this.style.boxShadow='0 0 0 3px rgba(251,191,36,.35)'"
+                     onblur="this.style.borderColor='';this.style.boxShadow=''">
+              <input class="demo-inp" type="text" placeholder="② Last Name" style="margin:0;"
+                     onfocus="this.style.borderColor='#fbbf24';this.style.boxShadow='0 0 0 3px rgba(251,191,36,.35)'"
+                     onblur="this.style.borderColor='';this.style.boxShadow=''">
+              <input class="demo-inp" type="email" placeholder="③ Email Address" style="margin:0;"
+                     onfocus="this.style.borderColor='#fbbf24';this.style.boxShadow='0 0 0 3px rgba(251,191,36,.35)'"
+                     onblur="this.style.borderColor='';this.style.boxShadow=''">
+              <select class="demo-inp" style="margin:0;"
+                      onfocus="this.style.borderColor='#fbbf24';this.style.boxShadow='0 0 0 3px rgba(251,191,36,.35)'"
+                      onblur="this.style.borderColor='';this.style.boxShadow=''">
+                <option>④ Country — United States</option>
+                <option>Canada</option>
+                <option>United Kingdom</option>
+              </select>
+            </div>
+          </div>
+          <p style="margin-top:.4rem;font-size:.88rem;">Tools: <a href="https://wave.webaim.org" target="_blank" rel="noopener noreferrer">WAVE ↗</a> · <a href="https://www.deque.com/axe/devtools/" target="_blank" rel="noopener noreferrer">axe DevTools ↗</a> · Chrome DevTools Accessibility tab</p>
         </div>
       </div>
     </div>
@@ -905,32 +1077,34 @@ input:required {
           <h3>Choosing an input type</h3>
           <table class="cmp">
             <tr><th>Situation</th><th>Use</th></tr>
-            <tr><td>Single line of text</td><td><code>type="text"</code></td></tr>
+            <tr><td>Single line of free text</td><td><code>type="text"</code></td></tr>
             <tr><td>Email address</td><td><code>type="email"</code></td></tr>
-            <tr><td>Password</td><td><code>type="password"</code></td></tr>
-            <tr><td>Date / time</td><td><code>type="date"</code> etc.</td></tr>
+            <tr><td>Password / secret</td><td><code>type="password"</code></td></tr>
+            <tr><td>Phone number</td><td><code>type="tel"</code> + <code>pattern</code></td></tr>
+            <tr><td>Date / time</td><td><code>type="date"</code>, <code>type="time"</code></td></tr>
             <tr><td>Multiple paragraphs</td><td><code>&lt;textarea&gt;</code></td></tr>
-            <tr><td>One from many (≤5 options)</td><td>Radio buttons in <code>&lt;fieldset&gt;</code></td></tr>
-            <tr><td>One from many (6+ options)</td><td><code>&lt;select&gt;</code></td></tr>
+            <tr><td>One choice (≤ 4 options)</td><td>Radio buttons in <code>&lt;fieldset&gt;</code></td></tr>
+            <tr><td>One choice (5+ options)</td><td><code>&lt;select&gt;</code></td></tr>
             <tr><td>Zero or more from a set</td><td>Checkboxes</td></tr>
             <tr><td>Suggested but free text OK</td><td><code>&lt;datalist&gt;</code></td></tr>
-            <tr><td>Number in a range</td><td><code>type="range"</code></td></tr>
+            <tr><td>Number in a range</td><td><code>type="range"</code> + <code>&lt;output&gt;</code></td></tr>
           </table>
         </div>
         <div>
-          <h3>Validation checklist</h3>
+          <h3>Accessibility checklist</h3>
           <ul>
-            <li>✅ Every input has a <code>&lt;label&gt;</code></li>
-            <li>✅ Radio groups wrapped in <code>&lt;fieldset&gt;</code></li>
+            <li>✅ Every input has a visible <code>&lt;label&gt;</code></li>
+            <li>✅ Icon-only inputs use <code>aria-label</code></li>
+            <li>✅ Radio groups wrapped in <code>&lt;fieldset&gt;</code> + <code>&lt;legend&gt;</code></li>
             <li>✅ <code>required</code> on mandatory fields</li>
             <li>✅ <code>pattern</code> + <code>title</code> for custom formats</li>
-            <li>✅ <code>:user-invalid</code> (not bare <code>:invalid</code>) for CSS</li>
+            <li>✅ <code>:user-invalid</code> CSS (not bare <code>:invalid</code>)</li>
             <li>✅ <code>aria-describedby</code> for help text</li>
             <li>✅ <code>aria-invalid</code> + <code>role="alert"</code> for errors</li>
             <li>✅ Tested by tabbing through without a mouse</li>
           </ul>
           <div class="note" style="margin-top:.6rem;">
-            <strong>Always validate server-side too!</strong> Browser validation (HTML5 or JavaScript) can be bypassed. Server validation is your last line of defense.
+            <strong>Always validate server-side too!</strong> Browser and JavaScript validation can both be bypassed by anyone with DevTools or Postman. Server-side validation is your final and most important line of defense.
           </div>
         </div>
       </div>
@@ -947,39 +1121,39 @@ input:required {
       <div class="summary-grid">
         <div class="summary-card">
           <strong>form element</strong>
-          <code>action</code> = where data goes. <code>method="get"</code> for searches, <code>method="post"</code> for sensitive/state-changing data.
+          <code>action</code> = where data goes. <code>method="get"</code> for searches (bookmarkable URL). <code>method="post"</code> for sensitive or state-changing data.
         </div>
         <div class="summary-card">
           <strong>Labels are mandatory</strong>
-          Every input needs a <code>&lt;label&gt;</code>. Use <code>for</code>/<code>id</code> or wrap the input. Never substitute <code>placeholder</code>.
+          Every input needs a <code>&lt;label&gt;</code>. Use <code>for</code>/<code>id</code>, wrap the input, or use <code>aria-label</code>. Never substitute <code>placeholder</code> for a real label.
         </div>
         <div class="summary-card">
           <strong>Input types</strong>
-          Use the right type — <code>email</code>, <code>tel</code>, <code>date</code>, <code>number</code> unlock mobile keyboards, native pickers, and autofill.
+          Always use the right type — <code>email</code>, <code>tel</code>, <code>date</code>, <code>number</code> unlock mobile keyboards, native pickers, built-in validation, and smarter autofill.
         </div>
         <div class="summary-card">
           <strong>Grouping controls</strong>
-          <code>&lt;fieldset&gt;</code> + <code>&lt;legend&gt;</code> groups related inputs and gives screen readers essential context.
+          <code>&lt;fieldset&gt;</code> + <code>&lt;legend&gt;</code> groups related inputs and gives screen readers the context to announce the group name with each option.
         </div>
         <div class="summary-card">
           <strong>HTML5 validation</strong>
-          <code>required</code>, <code>minlength</code>, <code>maxlength</code>, <code>min</code>, <code>max</code>, <code>pattern</code>, <code>step</code> — no JavaScript needed.
+          <code>required</code>, <code>minlength</code>, <code>maxlength</code>, <code>min</code>, <code>max</code>, <code>pattern</code>, <code>step</code> — browser enforces these before submit, no JavaScript needed.
         </div>
         <div class="summary-card">
           <strong>CSS pseudo-classes</strong>
-          Style based on state: <code>:valid</code>, <code>:invalid</code>, <code>:required</code>. Use <code>:user-invalid</code> to avoid errors on page load.
+          Style based on state: <code>:valid</code>, <code>:focus</code>, <code>:required</code>. Always use <code>:user-invalid</code> (not bare <code>:invalid</code>) to avoid red borders on page load.
         </div>
         <div class="summary-card">
           <strong>ARIA &amp; accessibility</strong>
-          <code>aria-describedby</code> for help text, <code>aria-invalid</code> for errors, <code>role="alert"</code> to announce dynamic messages.
+          <code>aria-describedby</code> for help text, <code>aria-invalid</code> for errors, <code>role="alert"</code> to announce dynamic messages to screen reader users.
         </div>
         <div class="summary-card">
           <strong>Keyboard navigation</strong>
-          Keep DOM order = visual order. Avoid positive <code>tabindex</code>. Test by tabbing through the form yourself.
+          Keep DOM order = visual order. Avoid positive <code>tabindex</code>. Tab through your own forms to verify every field is reachable and every label is clear.
         </div>
         <div class="summary-card">
           <strong>Server validation too</strong>
-          Browser validation can always be bypassed. Validate server-side as well for real security.
+          Browser validation is user-friendly but can always be bypassed. Real security and data integrity require server-side validation as the final authority.
         </div>
       </div>
     </div>
@@ -1003,22 +1177,91 @@ function showQS(e) {
   e.preventDefault();
   const params = new URLSearchParams(new FormData(e.target)).toString();
   const preview = document.getElementById('qs-preview');
-  preview.textContent = 'GET /search?' + params + '\n\nPOST would send: ' + params + '\nin the request body — NOT visible in the URL.';
+  preview.textContent =
+    'GET URL:  https://shopfinder.com/search?' + params +
+    '\n\nPOST would send: "' + params + '"\nin the request body — NOT visible in the URL.';
+}
+
+// Slide 6 — Date/time value format demo
+function updateDatePreview() {
+  const parts = [];
+  const d  = document.getElementById('d-date').value;
+  const t  = document.getElementById('d-time').value;
+  const dt = document.getElementById('d-datetime').value;
+  if (d)  parts.push('date value:           "' + d  + '"');
+  if (t)  parts.push('time value:           "' + t  + '"');
+  if (dt) parts.push('datetime-local value: "' + dt + '"');
+  document.getElementById('date-preview').textContent =
+    parts.length ? parts.join('\n') : 'Pick a date or time above...';
 }
 
 // Slide 7 — Checkbox submitted data preview
 function updateCBPreview() {
-  const checked = [...document.querySelectorAll('#cb-preview').item(0).closest('.live-form-demo').querySelectorAll('input[type="checkbox"]')]
+  const checked = [...document.querySelectorAll('input[name="toppings"]')]
     .filter(cb => cb.checked).map(cb => 'toppings=' + cb.value);
-  document.getElementById('cb-preview').textContent = checked.length ? checked.join('&') : 'toppings=  (none checked)';
+  document.getElementById('cb-preview').textContent =
+    checked.length ? checked.join('&') : 'toppings=  (none checked)';
+}
+
+// Slide 7 — Radio submitted data preview
+function updateRadioPreview() {
+  const selected = document.querySelector('input[name="d-size"]:checked');
+  document.getElementById('radio-preview').textContent =
+    selected ? 'size=' + selected.value : 'size=  (none selected)';
+}
+
+// Slide 10 — Select submitted value preview
+function updateSelectPreview(sel) {
+  document.getElementById('select-preview').textContent =
+    sel.value ? 'country=' + sel.value : 'country=  (nothing selected)';
+}
+
+// Slide 11 — Textarea character counter
+function updateTextareaCount(ta) {
+  document.getElementById('ta-count').textContent =
+    ta.value.length + ' / ' + ta.maxLength + ' characters';
+}
+
+// Slide 11 — Datalist preview
+function updateDatalistPreview(input) {
+  document.getElementById('dl-preview').textContent =
+    input.value ? 'browser=' + input.value : 'browser=  (empty)';
+}
+
+// Slide 15 — Validation mini-form
+function valSubmit(e) {
+  e.preventDefault();
+  const form = e.target;
+  const result = document.getElementById('val-result');
+  result.style.display = 'block';
+
+  // Reset field colors
+  form.querySelectorAll('.demo-inp').forEach(el => {
+    el.style.borderColor = '';
+    el.style.boxShadow = '';
+  });
+
+  if (!form.checkValidity()) {
+    result.textContent = '❌ Fix the errors above and try again.';
+    result.style.color = '#fca5a5';
+    form.querySelectorAll(':invalid').forEach(el => {
+      el.style.borderColor = '#ef4444';
+      el.style.boxShadow = '0 0 0 3px rgba(239,68,68,.3)';
+    });
+    return;
+  }
+
+  const data = new URLSearchParams(new FormData(form)).toString();
+  result.textContent = '✓ Valid! Data submitted: ' + data;
+  result.style.color = '#86efac';
 }
 
 // Slide 17 — CSS pseudo-class visual indicators
 function psFocus(on) {
   const el = document.getElementById('ps-focus');
-  el.style.background = on ? 'rgba(79,109,245,.75)' : 'rgba(79,109,245,.2)';
+  el.style.background  = on ? 'rgba(79,109,245,.75)' : 'rgba(79,109,245,.2)';
   el.style.borderColor = on ? '#4f6df5' : 'rgba(79,109,245,.35)';
-  el.style.fontWeight   = on ? '700' : 'normal';
+  el.style.fontWeight  = on ? '700' : 'normal';
 }
 function psInput(input) {
   const hasVal = input.value.length > 0;
