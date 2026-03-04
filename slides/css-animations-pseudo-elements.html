@@ -193,10 +193,12 @@
     .dir-bar.alt-rev      {animation:anim-scale-x 1.4s ease-in-out alternate-reverse infinite;}
 
     /* ==================== SLIDE 9: Fill mode ==================== */
-    .fill-box{width:70px;height:44px;background:#22c55e;border-radius:8px;display:flex;align-items:center;justify-content:center;color:white;font-size:.72rem;font-weight:700;opacity:1;transform:translateY(0);}
-    .fill-box.anim-none     {animation:anim-slide-up .5s ease-out .8s none;}
-    .fill-box.anim-forwards {animation:anim-slide-up .5s ease-out .8s forwards;}
-    .fill-box.anim-both     {animation:anim-slide-up .5s ease-out .8s both;}
+    @keyframes fill-demo-anim{from{opacity:0;transform:translateY(22px);}to{opacity:1;transform:translateY(0);}}
+    .fill-el{width:80px;height:46px;border-radius:8px;display:flex;align-items:center;justify-content:center;color:white;font-size:.78rem;font-weight:700;opacity:0;transform:translateY(22px);}
+    .fill-el.fill-none{background:#ef4444;}
+    .fill-el.fill-both{background:#22c55e;}
+    .fill-el.play-none{animation:fill-demo-anim .6s ease-out .9s none;}
+    .fill-el.play-both{animation:fill-demo-anim .6s ease-out .9s both;}
 
     /* ==================== SLIDE 12: Rocket ==================== */
     .rocket-stage{display:flex;justify-content:center;align-items:flex-end;height:90px;overflow:visible;}
@@ -240,6 +242,16 @@
     /* ==================== SLIDE 24: Drop cap ==================== */
     .drop-cap p::first-letter{float:left;font-size:3rem;font-weight:700;line-height:.82;margin-right:.1em;color:#4f6df5;}
 
+    /* ==================== SLIDE 10: Play-state multi-element demo ==================== */
+    .ps-spinner{width:38px;height:38px;border:4px solid rgba(255,255,255,.22);border-top-color:#4f6df5;border-radius:50%;animation:anim-spin .8s linear infinite;}
+    .ps-pulse-ball{width:38px;height:38px;background:#ec4899;border-radius:50%;animation:anim-pulse 1s ease-in-out infinite;}
+    .ps-float-emoji{font-size:1.9rem;display:inline-block;animation:anim-float 2s ease-in-out infinite;}
+
+    /* ==================== SLIDE 18: view() IntersectionObserver demo ==================== */
+    .view-demo-wrap{height:140px;overflow-y:auto;background:rgba(0,0,0,.25);border-radius:6px;padding:.35rem .55rem;}
+    .view-card-el{background:rgba(79,109,245,.25);border:1px solid rgba(79,109,245,.42);border-radius:6px;padding:.38rem .65rem;margin:.3rem 0;font-size:.82rem;opacity:0;transform:translateY(18px);transition:opacity .45s ease,transform .45s ease;}
+    .view-card-el.visible{opacity:1;transform:translateY(0);}
+
     /* ==================== SLIDE 25: CSS Spinner ==================== */
     .spinner-demo{width:42px;height:42px;border:4px solid rgba(255,255,255,.22);border-top-color:#4f6df5;border-radius:50%;animation:anim-spin .8s linear infinite;}
     .spinner-demo.paused{animation-play-state:paused;}
@@ -257,10 +269,6 @@
     /* ==================== SLIDE 27: Glow badge for alternate demo ==================== */
     .glow-badge{display:inline-block;padding:.45rem 1.2rem;background:#4f6df5;border-radius:20px;font-weight:700;animation:anim-glow 1.2s ease-in-out infinite alternate;}
 
-    /* ==================== Q&A ==================== */
-    .qa-item{background:rgba(0,0,0,.2);border-radius:8px;padding:.6rem .9rem;margin:.3rem 0;}
-    .qa-q{font-weight:700;color:#ffeaa7;font-size:clamp(.82rem,1.85vw,.97rem);margin-bottom:.2rem;}
-    .qa-a{font-size:clamp(.78rem,1.75vw,.92rem);line-height:1.5;opacity:.9;}
   </style>
 </head>
 <body>
@@ -589,61 +597,83 @@
         </div>
         <div>
           <div class="live-demo">
-            <p style="font-size:.78rem;opacity:.7;margin-bottom:.4rem;">Each box has a 0.8s delay then 0.5s animation. Watch what happens after it ends:</p>
-            <div style="display:flex;gap:1rem;align-items:flex-end;flex-wrap:wrap;min-height:70px;margin-bottom:.5rem;">
+            <p style="font-size:.78rem;opacity:.7;margin-bottom:.55rem;">0.9s delay → 0.6s fade-in. Watch what each element does after it finishes:</p>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:.9rem;margin-bottom:.6rem;">
               <div style="text-align:center;">
-                <div class="fill-box" id="fb-none">none</div>
-                <div style="font-size:.7rem;margin-top:.2rem;opacity:.6;">snaps back</div>
+                <div style="font-size:.73rem;color:#fca5a5;font-weight:700;margin-bottom:.45rem;">fill-mode: none</div>
+                <div style="height:56px;display:flex;align-items:center;justify-content:center;">
+                  <div class="fill-el fill-none" id="feNone">none</div>
+                </div>
+                <div style="font-size:.72rem;margin-top:.38rem;min-height:1.4em;opacity:.82;" id="feNoneStatus">click Play ▶</div>
               </div>
               <div style="text-align:center;">
-                <div class="fill-box" id="fb-fwd">fwd</div>
-                <div style="font-size:.7rem;margin-top:.2rem;opacity:.6;">holds end</div>
-              </div>
-              <div style="text-align:center;">
-                <div class="fill-box" id="fb-both">both</div>
-                <div style="font-size:.7rem;margin-top:.2rem;opacity:.6;">best ✓</div>
+                <div style="font-size:.73rem;color:#86efac;font-weight:700;margin-bottom:.45rem;">fill-mode: both ✓</div>
+                <div style="height:56px;display:flex;align-items:center;justify-content:center;">
+                  <div class="fill-el fill-both" id="feBoth">both</div>
+                </div>
+                <div style="font-size:.72rem;margin-top:.38rem;min-height:1.4em;opacity:.82;" id="feBothStatus">click Play ▶</div>
               </div>
             </div>
-            <button class="demo-btn" onclick="replayFillMode()">▶ Play all (watch closely!)</button>
+            <button class="demo-btn" onclick="runFillDemo()">▶ Play</button>
           </div>
-          <div class="caution" style="margin-top:.35rem;"><strong>The snap-back bug</strong> is the #1 beginner animation frustration. Always add <code>fill-mode: both</code> to animations that slide, fade, or transform elements into their final position.</div>
+          <div class="caution" style="margin-top:.38rem;"><strong>The snap-back bug</strong> is the #1 beginner animation frustration. <code>fill: both</code> hides the element during the delay period <em>and</em> holds its final state — the only pattern that reliably works.</div>
         </div>
       </div>
     </div>
   </div>
 
   <!-- ═══════════════════════════════════════════════════════════════
-       SLIDE 10 — animation-play-state (CodePen 15.1)
+       SLIDE 10 — animation-play-state
        ═══════════════════════════════════════════════════════════════ -->
   <div class="slide">
     <div class="slide-label">Animation Properties</div>
     <div class="slide-content">
       <h2><code>animation-play-state</code></h2>
       <div class="two-col" style="align-items:start;">
-        <div style="flex-shrink:0;">
-          <p>Switches a running animation between <code>running</code> and <code>paused</code>. Useful for accessibility and interactive media.</p>
+        <div>
+          <p>Switches a running animation between <code>running</code> and <code>paused</code>. The animation freezes mid-cycle and resumes from exactly that position.</p>
           <pre><code>/* CSS: pause on hover */
-.spinner:hover {
+.card:hover {
   animation-play-state: paused;
 }
 
 /* JS: toggle pause */
 el.style.animationPlayState
-  = 'paused';   // pause
+  = 'paused';   // freeze mid-cycle
 el.style.animationPlayState
-  = 'running';  // resume</code></pre>
-          <div class="note">Resuming from <code>paused</code> continues from exactly where it stopped — it does <em>not</em> restart from the beginning.</div>
-          <div class="live-demo" style="margin-top:.4rem;">
-            <p style="font-size:.78rem;opacity:.7;margin-bottom:.4rem;">In-slide spinner demo:</p>
-            <div style="display:flex;align-items:center;gap:1rem;">
-              <div class="spinner-demo" id="spinnerDemo"></div>
-              <button class="demo-btn" onclick="toggleSpinner()" id="spinToggleBtn">⏸ Pause</button>
+  = 'running';  // continue from there</code></pre>
+          <div class="note">Resuming from <code>paused</code> continues from exactly where it stopped — it does <em>not</em> restart from the beginning. This is the key difference from removing and re-adding the animation.</div>
+          <div class="tip" style="margin-top:.3rem;">A common accessibility pattern: pause all animations when the user enables "Reduce Motion", but let them resume individual animations on demand.</div>
+        </div>
+        <div>
+          <div class="live-demo">
+            <p style="font-size:.78rem;opacity:.7;margin-bottom:.4rem;">Three independent animations — one button freezes all three mid-cycle:</p>
+            <div style="display:flex;gap:1.8rem;align-items:center;justify-content:center;padding:.7rem 0;flex-wrap:wrap;">
+              <div style="text-align:center;">
+                <div class="ps-spinner"></div>
+                <div style="font-size:.7rem;margin-top:.32rem;opacity:.6;">spin</div>
+              </div>
+              <div style="text-align:center;">
+                <div class="ps-pulse-ball"></div>
+                <div style="font-size:.7rem;margin-top:.32rem;opacity:.6;">pulse</div>
+              </div>
+              <div style="text-align:center;">
+                <div class="ps-float-emoji">🎈</div>
+                <div style="font-size:.7rem;margin-top:.32rem;opacity:.6;">float</div>
+              </div>
+            </div>
+            <div style="text-align:center;margin-top:.3rem;">
+              <button class="demo-btn" onclick="togglePlayState()" id="psToggleBtn" data-state="running" style="padding:.38rem 1.1rem;">⏸ Pause all</button>
             </div>
           </div>
-        </div>
-        <div class="demo-wrap">
-          <div class="demo-label">CodePen 15.1 — animation-play-state</div>
-          <iframe title="Codepen - 15.1" src="https://codepen.io/mattkearl/embed/QwKyjgj?default-tab=css%2Cresult&editable=true" loading="lazy"></iframe>
+          <div class="card" style="margin-top:.4rem;">
+            <h3>Notice</h3>
+            <ul style="font-size:.82rem;">
+              <li>Each animation has a different duration and timing</li>
+              <li>Pause freezes each exactly mid-cycle</li>
+              <li>Resume continues from that exact position</li>
+            </ul>
+          </div>
         </div>
       </div>
     </div>
@@ -868,7 +898,7 @@ card.addEventListener('animationend',
     <div class="slide-label">Accessibility</div>
     <div class="slide-content">
       <h2>Respecting <code>prefers-reduced-motion</code></h2>
-      <div class="two-col">
+      <div class="two-col" style="flex-shrink:0;">
         <div>
           <p>Many people experience dizziness or nausea from on-screen motion. OS settings expose this preference to CSS:</p>
           <img src="assets/day-15-img-03-reduce-motion.png" alt="macOS, iOS, Android, and Windows reduce motion settings" class="slide-img" onerror="this.style.display='none'">
@@ -896,84 +926,74 @@ card.addEventListener('animationend',
     animation-iteration-count: 1 !important;
   }
 }</code></pre>
-          <div class="demo-wrap" style="min-height:0;flex:0;">
-            <div class="demo-label">CodePen 15.3 — prefers-reduced-motion</div>
-            <iframe title="Codepen - 15.3" src="https://codepen.io/mattkearl/embed/EagPVvw?default-tab=css%2Cresult&editable=true" loading="lazy" style="min-height:220px;"></iframe>
-          </div>
         </div>
+      </div>
+      <div class="demo-wrap" style="margin-top:.4rem;">
+        <div class="demo-label">CodePen 15.3 — prefers-reduced-motion</div>
+        <iframe title="Codepen - 15.3" src="https://codepen.io/mattkearl/embed/EagPVvw?default-tab=css%2Cresult&editable=true" loading="lazy"></iframe>
       </div>
     </div>
   </div>
 
   <!-- ═══════════════════════════════════════════════════════════════
-       SLIDE 17 — Scroll-Driven Animations: Intro
+       SLIDE 17 — Scroll-Driven Animations: scroll() Timeline
        ═══════════════════════════════════════════════════════════════ -->
   <div class="slide">
     <div class="slide-label">Modern CSS</div>
     <div class="slide-content">
-      <h2>Scroll-Driven Animations</h2>
+      <h2>Scroll-Driven Animations: <code>scroll()</code></h2>
       <div class="two-col">
         <div>
-          <p>Traditionally, scroll animations required JavaScript — attaching a <code>scroll</code> event listener, computing scroll position, updating styles on every frame.</p>
-          <p><code>animation-timeline</code> brings this natively to CSS (Chrome 115+, 2023):</p>
-          <ul>
-            <li><code>scroll()</code> — ties animation to scroll progress of a scrollable container</li>
-            <li><code>view()</code> — triggers animation based on how much the element is visible in the viewport</li>
-          </ul>
-          <div class="caution"><strong>Browser support (early 2025):</strong> Chrome &amp; Edge only. Not yet in Firefox or Safari stable. <a href="https://caniuse.com/css-scroll-driven-animations" target="_blank" rel="noopener noreferrer">Check caniuse.com</a><br>Always wrap in: <code>@supports (animation-timeline: scroll()) { }</code></div>
-        </div>
-        <div>
-          <img src="assets/fig-15.1-caniuse-scroll-driven.png" alt="caniuse.com browser support table for CSS scroll-driven animations" class="slide-img" onerror="this.style.display='none'">
-          <div class="card" style="margin-top:.4rem;">
-            <h3>The old way (JavaScript)</h3>
-            <pre style="font-size:.7rem;"><code>window.addEventListener('scroll', () => {
-  const progress = window.scrollY
-    / document.body.scrollHeight;
-  progressBar.style.width
-    = (progress * 100) + '%';
-});</code></pre>
-            <p style="font-size:.78rem;opacity:.7;margin-top:.3rem;">CSS scroll-driven animations eliminate this pattern entirely — no JS, no event listeners, no performance risk of heavy scroll handlers.</p>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- ═══════════════════════════════════════════════════════════════
-       SLIDE 18 — scroll() + view() Timelines
-       ═══════════════════════════════════════════════════════════════ -->
-  <div class="slide">
-    <div class="slide-label">Modern CSS</div>
-    <div class="slide-content">
-      <h2><code>scroll()</code> and <code>view()</code> Timelines</h2>
-      <div class="two-col">
-        <div>
-          <h3>scroll() — Reading Progress Bar</h3>
+          <p>Instead of a clock driving your animation, the scroll position drives it. As the user scrolls, the animation progresses — no JavaScript needed.</p>
           <pre><code>@keyframes growWidth {
   from { transform: scaleX(0); }
   to   { transform: scaleX(1); }
 }
-.progress-bar {
-  position: fixed; top: 0; left: 0;
+
+.reading-progress {
+  position: fixed;
+  top: 0; left: 0;
   width: 100%; height: 4px;
   transform-origin: left;
 
+  /* No duration — scroll drives it */
   animation: growWidth linear;
   animation-timeline: scroll(root block);
-  /* duration omitted — scroll drives it */
+}
+
+@supports not
+  (animation-timeline: scroll()) {
+  .reading-progress { display: none; }
 }</code></pre>
-          <div class="live-demo">
-            <p style="font-size:.78rem;opacity:.7;margin-bottom:.32rem;">JS-equivalent scroll demo (scroll the box):</p>
-            <div id="scrollDemoWrap" style="height:90px;overflow-y:auto;position:relative;background:rgba(0,0,0,.25);border-radius:6px;">
-              <div id="scrollPB" style="position:sticky;top:0;height:4px;background:#4f6df5;transform-origin:left;transform:scaleX(0);transition:transform .08s linear;"></div>
-              <div style="padding:.6rem .8rem;font-size:.82rem;opacity:.7;line-height:2;">
-                Scroll this box to see the bar grow →<br>More content...<br>Keep scrolling...<br>Almost there...<br>End of content.
-              </div>
-            </div>
-          </div>
+          <div class="caution"><strong>Browser support (2025):</strong> Chrome &amp; Edge only. Always wrap in <code>@supports (animation-timeline: scroll()) { }</code>. <a href="https://caniuse.com/css-scroll-driven-animations" target="_blank" rel="noopener noreferrer">Check caniuse.com</a></div>
         </div>
         <div>
-          <h3>view() — Entrance on Scroll</h3>
+          <div class="live-demo">
+            <p style="font-size:.78rem;opacity:.7;margin-bottom:.35rem;">JS-equivalent demo — scroll the box to see the progress bar grow:</p>
+            <div id="scrollDemoWrap" style="height:100px;overflow-y:auto;position:relative;background:rgba(0,0,0,.25);border-radius:6px;">
+              <div id="scrollPB" style="position:sticky;top:0;height:4px;background:#4f6df5;transform-origin:left;transform:scaleX(0);transition:transform .08s linear;"></div>
+              <div style="padding:.6rem .8rem;font-size:.82rem;opacity:.7;line-height:2.2;">
+                Scroll this box ↓<br>More content...<br>Keep going...<br>Almost there...<br>End.
+              </div>
+            </div>
+            <p style="font-size:.72rem;opacity:.6;margin-top:.35rem;">This demo uses a JS scroll listener to simulate the CSS <code>animation-timeline: scroll()</code> behavior.</p>
+          </div>
+          <img src="assets/fig-15.1-caniuse-scroll-driven.png" alt="caniuse.com browser support for CSS scroll-driven animations" class="slide-img" style="margin-top:.4rem;" onerror="this.style.display:'none'">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       SLIDE 18 — view() Timeline
+       ═══════════════════════════════════════════════════════════════ -->
+  <div class="slide">
+    <div class="slide-label">Modern CSS</div>
+    <div class="slide-content">
+      <h2>Scroll-Driven Animations: <code>view()</code></h2>
+      <div class="two-col">
+        <div>
+          <p><code>view()</code> animates an element based on <em>how much of it is visible</em> in the scrollport. Each element gets its own independent timeline as it enters or exits the view.</p>
           <pre><code>@keyframes revealCard {
   from {
     opacity: 0;
@@ -984,18 +1004,42 @@ card.addEventListener('animationend',
     transform: translateY(0);
   }
 }
+
 .card {
+  /* animation-range: when to run */
   animation: revealCard linear both;
   animation-timeline: view();
   animation-range: entry 0% entry 40%;
+  /* ↑ fade in as the element enters
+     the top 40% of the viewport */
 }
 
-/* Fallback for unsupported browsers */
-@supports not
-  (animation-timeline: view()) {
+@supports not (animation-timeline: view()) {
   .card { opacity: 1; transform: none; }
 }</code></pre>
           <img src="assets/day-15-img-04-scroll-timeline.png" alt="scroll-driven animation timeline diagram" class="slide-img" onerror="this.style.display='none'">
+        </div>
+        <div>
+          <div class="live-demo">
+            <p style="font-size:.78rem;opacity:.7;margin-bottom:.35rem;">Scroll the box — cards reveal as they enter the viewport (IntersectionObserver simulating <code>view()</code>):</p>
+            <div class="view-demo-wrap" id="viewDemoWrap">
+              <div class="view-card-el">📦 Item 1 — first in the list</div>
+              <div class="view-card-el">🎨 Item 2 — scroll to reveal</div>
+              <div class="view-card-el">⚡ Item 3 — getting closer</div>
+              <div class="view-card-el">🚀 Item 4 — almost there</div>
+              <div class="view-card-el">✅ Item 5 — you made it!</div>
+            </div>
+            <p style="font-size:.72rem;opacity:.6;margin-top:.35rem;">Each card fades and slides in individually as it enters the container, just like <code>animation-timeline: view()</code> in Chrome.</p>
+          </div>
+          <div class="card" style="margin-top:.4rem;">
+            <h3>scroll() vs view()</h3>
+            <ul style="font-size:.82rem;">
+              <li><code>scroll()</code> — tied to the scroll container's total progress</li>
+              <li><code>view()</code> — tied to each element's own visibility</li>
+              <li>Use <code>scroll()</code> for progress bars, parallax</li>
+              <li>Use <code>view()</code> for card entrances, fade-ins</li>
+            </ul>
+          </div>
         </div>
       </div>
     </div>
@@ -1237,7 +1281,7 @@ ol li::marker {
     <div class="slide-label">Pseudo-elements</div>
     <div class="slide-content">
       <h2><code>::first-letter</code> &amp; <code>::first-line</code></h2>
-      <div class="two-col">
+      <div class="two-col" style="flex-shrink:0;">
         <div>
           <h3>::first-letter — Drop Cap</h3>
           <pre><code>.article p:first-of-type::first-letter {
@@ -1248,7 +1292,6 @@ ol li::marker {
   margin-right: 0.1em;
   color: #4f6df5;
 }</code></pre>
-          <img src="assets/day-15-img-05-drop-cap.png" alt="Drop cap typographic example showing large decorative first letter" class="slide-img" style="max-height:120px;object-fit:contain;" onerror="this.style.display='none'">
           <h3 style="margin-top:.3rem;">::first-line</h3>
           <p style="font-size:.85rem;">Styles only the first <em>rendered line</em> — the browser automatically adjusts which words are in the first line as the container resizes.</p>
           <pre><code>p::first-line {
@@ -1260,14 +1303,15 @@ ol li::marker {
           <div class="live-demo">
             <p style="font-size:.78rem;opacity:.7;margin-bottom:.4rem;">Drop cap — live demo:</p>
             <div class="drop-cap" style="background:rgba(0,0,0,.2);border-radius:6px;padding:.6rem .8rem;">
-              <p style="font-size:.88rem;line-height:1.6;color:white;">Once upon a time, CSS did not have pseudo-elements, and developers had to manually wrap the first letter in a <code>&lt;span&gt;</code> every time. Now the browser handles it automatically based on rendered width.</p>
+              <p style="font-size:.88rem;line-height:1.6;color:white;">Once upon a time, CSS did not have pseudo-elements, and developers had to manually wrap the first letter in a <code>&lt;span&gt;</code> every time. Now the browser handles it automatically.</p>
             </div>
           </div>
-          <div class="demo-wrap" style="min-height:0;flex:0;margin-top:.4rem;">
-            <div class="demo-label">CodePen 15.5 — ::first-letter and ::first-line</div>
-            <iframe title="Codepen - 15.5" src="https://codepen.io/mattkearl/embed/ogzbjGM?default-tab=css%2Cresult&editable=true" loading="lazy" style="min-height:220px;"></iframe>
-          </div>
+          <img src="assets/day-15-img-05-drop-cap.png" alt="Drop cap typographic example" class="slide-img" style="max-height:80px;object-fit:contain;margin-top:.4rem;" onerror="this.style.display='none'">
         </div>
+      </div>
+      <div class="demo-wrap" style="margin-top:.4rem;">
+        <div class="demo-label">CodePen 15.5 — ::first-letter and ::first-line</div>
+        <iframe title="Codepen - 15.5" src="https://codepen.io/mattkearl/embed/ogzbjGM?default-tab=css%2Cresult&editable=true" loading="lazy"></iframe>
       </div>
     </div>
   </div>
@@ -1400,31 +1444,40 @@ ol li::marker {
     <div class="slide-label">Practical Patterns</div>
     <div class="slide-content">
       <h2>Pattern: Tooltip Arrow with <code>::before</code></h2>
-      <div class="two-col">
+      <div class="two-col" style="flex-shrink:0;">
         <div>
           <h3>The CSS Border Triangle Trick</h3>
           <p>A triangle is drawn by making an element's width and height 0, and coloring only one border — adjacent borders become transparent, forming a triangle.</p>
           <pre><code>.tooltip::after {
   content: "";
   position: absolute;
-  top: 100%; /* below the tooltip */
+  top: 100%; /* below tooltip */
   left: 50%;
   transform: translateX(-50%);
   border-width: 6px;
   border-style: solid;
   border-color:
-    #1e293b  /* top    — visible */
-    transparent  /* right  — hidden */
-    transparent  /* bottom — hidden */
-    transparent; /* left   — hidden */
-  /* Result: ▼ pointing down */
+    #1e293b      /* top    ▼ */
+    transparent  /* right  */
+    transparent  /* bottom */
+    transparent; /* left   */
 }</code></pre>
-          <div class="tip" style="margin-top:.3rem;">Rotate the visible border side to point in any direction: <code>border-bottom-color</code> for ▲ pointing up, <code>border-right-color</code> for ◀ pointing left.</div>
         </div>
-        <div class="demo-wrap">
-          <div class="demo-label">CodePen 15.6 — Practical animation patterns</div>
-          <iframe title="Codepen - 15.6" src="https://codepen.io/mattkearl/embed/gbwPaGJ?default-tab=css%2Cresult&editable=true" loading="lazy"></iframe>
+        <div style="display:flex;flex-direction:column;justify-content:center;">
+          <div class="tip">Rotate the visible border side to point in any direction: <code>border-bottom-color</code> for ▲ up, <code>border-right-color</code> for ◀ left.</div>
+          <div class="live-demo" style="margin-top:.4rem;">
+            <p style="font-size:.75rem;opacity:.6;margin-bottom:.5rem;">Hover these buttons — tooltip arrows are drawn with the border trick:</p>
+            <div style="display:flex;gap:1rem;flex-wrap:wrap;padding:.8rem 0;">
+              <button class="tt-btn" data-tooltip="Opens your saved items">Cart 🛒</button>
+              <button class="tt-btn" data-tooltip="Go back to the home page">Home 🏠</button>
+              <button class="tt-btn" data-tooltip="View account settings">Settings ⚙</button>
+            </div>
+          </div>
         </div>
+      </div>
+      <div class="demo-wrap" style="margin-top:.4rem;">
+        <div class="demo-label">CodePen 15.6 — Practical animation patterns</div>
+        <iframe title="Codepen - 15.6" src="https://codepen.io/mattkearl/embed/gbwPaGJ?default-tab=css%2Cresult&editable=true" loading="lazy"></iframe>
       </div>
     </div>
   </div>
@@ -1484,18 +1537,20 @@ ol li::marker {
     <div class="slide-label">Q &amp; A</div>
     <div class="slide-content">
       <h2>Q &amp; A</h2>
-      <div class="qa-item">
-        <div class="qa-q">Q. What is the difference between a CSS transition and a CSS animation?</div>
-        <div class="qa-a">A. A <strong>transition</strong> reacts to a state change — it only plays when a property changes (hover, focus, class toggle). An <strong>animation</strong> is proactive: it starts automatically, can loop, reverse, and pass through any number of keyframe stops. Transitions are best for interactive feedback; animations are best for motion that needs to play on its own schedule.</div>
-      </div>
-      <div class="qa-item">
-        <div class="qa-q">Q. My animation runs once and the element snaps back to its original style. How do I fix it?</div>
-        <div class="qa-a">A. Add <code>animation-fill-mode: forwards</code> (or <code>both</code> if you also have a delay and want starting styles applied immediately). <code>forwards</code> tells the browser to hold the styles from the last keyframe after the animation completes.</div>
-      </div>
-      <div class="qa-item">
-        <div class="qa-q">Q. Can I animate a pseudo-element independently from the element itself?</div>
-        <div class="qa-a">A. Yes. Attach an <code>animation</code> directly to the pseudo-element selector: <code>.card::before { animation: spin 1s linear infinite; }</code>. The pseudo-element's animation runs entirely separately from any animation on <code>.card</code>.</div>
-      </div>
+      <dl style="display:grid;gap:.55rem;">
+        <div class="card">
+          <dt style="color:#ffeaa7;font-weight:700;margin-bottom:.2rem;">What is the difference between a CSS transition and a CSS animation?</dt>
+          <dd style="font-size:.88rem;opacity:.9;line-height:1.5;">A <strong>transition</strong> reacts to a state change — it only plays when a property changes (hover, focus, class toggle). An <strong>animation</strong> is proactive: it starts automatically, can loop, reverse, and pass through any number of keyframe stops. Transitions are best for interactive feedback; animations are best for motion that needs to play on its own schedule.</dd>
+        </div>
+        <div class="card">
+          <dt style="color:#ffeaa7;font-weight:700;margin-bottom:.2rem;">My animation runs once and the element snaps back to its original style. How do I fix it?</dt>
+          <dd style="font-size:.88rem;opacity:.9;line-height:1.5;">Add <code>animation-fill-mode: both</code>. This tells the browser to hold the styles from the last keyframe after the animation completes, <em>and</em> to apply the first keyframe during any delay — so the element never flashes to its natural state unexpectedly.</dd>
+        </div>
+        <div class="card">
+          <dt style="color:#ffeaa7;font-weight:700;margin-bottom:.2rem;">Can I animate a pseudo-element independently from the element itself?</dt>
+          <dd style="font-size:.88rem;opacity:.9;line-height:1.5;">Yes. Attach an <code>animation</code> directly to the pseudo-element selector: <code>.card::before { animation: spin 1s linear infinite; }</code>. The pseudo-element's animation runs entirely separately from any animation on <code>.card</code>.</dd>
+        </div>
+      </dl>
     </div>
   </div>
 
@@ -1505,19 +1560,21 @@ ol li::marker {
   <div class="slide">
     <div class="slide-label">Q &amp; A</div>
     <div class="slide-content">
-      <h2>Q &amp; A (continued)</h2>
-      <div class="qa-item">
-        <div class="qa-q">Q. Do screen readers read content generated by <code>::before</code> and <code>::after</code>?</div>
-        <div class="qa-a">A. Browser behavior is inconsistent, but most modern screen readers <em>do</em> read generated content. However, generated content should only be used for <strong>purely decorative purposes</strong>. Any meaningful text belongs in your HTML. Use <code>content: "" / ""</code> (the second empty string is an accessibility alt-text value) to explicitly hide decorative pseudo-content from assistive technology.</div>
-      </div>
-      <div class="qa-item">
-        <div class="qa-q">Q. How does a negative <code>animation-delay</code> work?</div>
-        <div class="qa-a">A. A negative delay starts the animation as if it already started that many seconds ago. <code>animation-delay: -1s</code> on a 3-second animation begins playback at the 1-second mark. This technique is used to stagger looping animations so they do not all start at <code>0%</code> simultaneously — useful for a wave of loading dots.</div>
-      </div>
-      <div class="qa-item">
-        <div class="qa-q">Q. What does <code>animation-timeline: view()</code> actually measure?</div>
-        <div class="qa-a">A. It measures the element's progress through the viewport — specifically, how much of the element has entered the scrollport. The animation's <code>0%</code> keyframe corresponds to when the element begins entering the viewport from below, and <code>100%</code> when it has fully entered. The <code>animation-range</code> property with <code>entry</code> and <code>exit</code> keywords lets you target just the entering or just the exiting phase.</div>
-      </div>
+      <h2>Q &amp; A</h2>
+      <dl style="display:grid;gap:.55rem;">
+        <div class="card">
+          <dt style="color:#ffeaa7;font-weight:700;margin-bottom:.2rem;">Do screen readers read content generated by <code>::before</code> and <code>::after</code>?</dt>
+          <dd style="font-size:.88rem;opacity:.9;line-height:1.5;">Browser behavior is inconsistent, but many modern screen readers <em>do</em> read generated content. Use pseudo-elements only for <strong>decorative purposes</strong>. Any meaningful text belongs in your HTML. Add <code>aria-hidden="true"</code> to the parent element to explicitly hide decorative pseudo-content from assistive technology.</dd>
+        </div>
+        <div class="card">
+          <dt style="color:#ffeaa7;font-weight:700;margin-bottom:.2rem;">How does a negative <code>animation-delay</code> work?</dt>
+          <dd style="font-size:.88rem;opacity:.9;line-height:1.5;">A negative delay starts the animation as if it already started that many seconds ago. <code>animation-delay: -1s</code> on a 3-second animation begins playback at the 1-second mark. This technique staggers looping animations so they do not all start at <code>0%</code> simultaneously — useful for a wave of loading dots.</dd>
+        </div>
+        <div class="card">
+          <dt style="color:#ffeaa7;font-weight:700;margin-bottom:.2rem;">What does <code>animation-timeline: view()</code> actually measure?</dt>
+          <dd style="font-size:.88rem;opacity:.9;line-height:1.5;">It measures the element's progress through the viewport — how much of the element has entered the scrollport. The animation's <code>0%</code> keyframe maps to when the element first enters from below, and <code>100%</code> to when it has fully entered. The <code>animation-range</code> property with <code>entry</code> and <code>exit</code> keywords lets you target just the entering or just the exiting phase.</dd>
+        </div>
+      </dl>
     </div>
   </div>
 
@@ -1651,28 +1708,42 @@ ol li::marker {
   }
 
   // ──────────────────────────────────────────
-  //  Slide 9 — Fill mode demo
+  //  Slide 9 — Fill mode demo (none vs both)
   // ──────────────────────────────────────────
-  function replayFillMode() {
-    ['fb-none','fb-fwd','fb-both'].forEach(id => {
-      const el = document.getElementById(id);
-      if (!el) return;
-      el.classList.remove('anim-none','anim-forwards','anim-both');
-      void el.offsetWidth;
-    });
-    document.getElementById('fb-none').classList.add('anim-none');
-    document.getElementById('fb-fwd').classList.add('anim-forwards');
-    document.getElementById('fb-both').classList.add('anim-both');
+  function runFillDemo() {
+    const elNone = document.getElementById('feNone');
+    const elBoth = document.getElementById('feBoth');
+    const stNone = document.getElementById('feNoneStatus');
+    const stBoth = document.getElementById('feBothStatus');
+    if (!elNone || !elBoth) return;
+    elNone.classList.remove('play-none');
+    elBoth.classList.remove('play-both');
+    void elNone.offsetWidth;
+    void elBoth.offsetWidth;
+    stNone.textContent = '⏳ delay (0.9s)...';
+    stBoth.textContent = '⏳ delay (0.9s)...';
+    elNone.classList.add('play-none');
+    elBoth.classList.add('play-both');
+    setTimeout(() => {
+      stNone.textContent = '▶ animating...';
+      stBoth.textContent = '▶ animating...';
+    }, 900);
+    setTimeout(() => {
+      stNone.textContent = '✗ snapped back!';
+      stBoth.textContent = '✓ held in place!';
+    }, 1600);
   }
 
   // ──────────────────────────────────────────
-  //  Slide 10 — Spinner toggle
+  //  Slide 10 — Play-state multi-element demo
   // ──────────────────────────────────────────
-  function toggleSpinner() {
-    const el = document.getElementById('spinnerDemo');
-    const btn = document.getElementById('spinToggleBtn');
-    const paused = el.classList.toggle('paused');
-    btn.textContent = paused ? '▶ Resume' : '⏸ Pause';
+  function togglePlayState() {
+    const btn = document.getElementById('psToggleBtn');
+    const isPaused = btn.dataset.state === 'paused';
+    const els = document.querySelectorAll('.ps-spinner, .ps-pulse-ball, .ps-float-emoji');
+    els.forEach(el => { el.style.animationPlayState = isPaused ? 'running' : 'paused'; });
+    btn.dataset.state = isPaused ? 'running' : 'paused';
+    btn.textContent = isPaused ? '⏸ Pause all' : '▶ Resume all';
   }
 
   // ──────────────────────────────────────────
@@ -1689,7 +1760,7 @@ ol li::marker {
   }
 
   // ──────────────────────────────────────────
-  //  Slide 18 — Scroll progress bar (JS-powered demo)
+  //  Slide 17 — Scroll progress bar (JS-powered demo)
   // ──────────────────────────────────────────
   const scrollDemoWrap = document.getElementById('scrollDemoWrap');
   const scrollPB       = document.getElementById('scrollPB');
@@ -1699,6 +1770,21 @@ ol li::marker {
       scrollPB.style.transform = 'scaleX(' + Math.min(1, pct) + ')';
     });
   }
+
+  // ──────────────────────────────────────────
+  //  Slide 18 — view() IntersectionObserver demo
+  // ──────────────────────────────────────────
+  (function() {
+    const wrap = document.getElementById('viewDemoWrap');
+    if (!wrap) return;
+    const cards = wrap.querySelectorAll('.view-card-el');
+    const obs = new IntersectionObserver(function(entries) {
+      entries.forEach(function(e) {
+        if (e.isIntersecting) e.target.classList.add('visible');
+      });
+    }, { root: wrap, threshold: 0.25 });
+    cards.forEach(function(c) { obs.observe(c); });
+  })();
 
   // ──────────────────────────────────────────
   //  Slide 25 — Spinner all-pause toggle + speed
