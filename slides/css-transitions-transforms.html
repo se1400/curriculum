@@ -151,7 +151,7 @@
 
     /* Slide 4 — Sub-property playground */
     .sp-box{width:96px;height:58px;border-radius:8px;background:#4f6df5;display:flex;align-items:center;justify-content:center;color:white;font-size:.72rem;font-weight:700;cursor:pointer;transition-property:transform,background-color;transition-duration:var(--sp-dur,.3s);transition-timing-function:var(--sp-timing,ease);transition-delay:var(--sp-delay,0s);}
-    .sp-box.hit{background:#e74c3c;transform:translateY(-22px) scale(1.1);}
+    .sp-box:hover{background:#e74c3c;transform:translateY(-22px) scale(1.1);}
     .sp-select{background:rgba(0,0,0,.4);color:white;border:1px solid rgba(255,255,255,.3);border-radius:4px;padding:.2rem .5rem;font-size:.75rem;cursor:pointer;}
     .sp-code{font-size:.68rem;font-family:monospace;opacity:.75;line-height:1.7;white-space:pre;}
 
@@ -208,8 +208,8 @@
     .origin-box.rotated{transform:rotate(135deg);}
 
     /* Slide 18 — Perspective slider */
-    .persp-scene{display:flex;justify-content:center;padding:.5rem 0;margin:.2rem 0;perspective:600px;}
-    .persp-card{width:110px;height:70px;border-radius:8px;background:linear-gradient(135deg,#4f6df5,#764ba2);display:flex;align-items:center;justify-content:center;color:white;font-size:.72rem;font-weight:700;transform:rotateY(45deg);transition:none;}
+    .persp-scene{display:flex;justify-content:center;padding:.5rem 0;margin:.2rem 0;}
+    .persp-card{width:110px;height:70px;border-radius:8px;background:linear-gradient(135deg,#4f6df5,#764ba2);display:flex;align-items:center;justify-content:center;color:white;font-size:.72rem;font-weight:700;}
 
     /* Slide 19 — Inline card flip */
     .flip-scene{width:150px;height:96px;perspective:700px;cursor:pointer;margin:.4rem auto;display:block;}
@@ -232,6 +232,13 @@
     /* New Slide — Stagger effect */
     .stagger-item{height:34px;border-radius:6px;background:#4f6df5;display:flex;align-items:center;padding-left:.75rem;font-size:.78rem;font-weight:600;color:white;opacity:0;transform:translateX(-24px);transition:opacity .35s ease,transform .35s ease;margin-bottom:.3rem;}
     .stagger-item.shown{opacity:1;transform:translateX(0);}
+
+    /* @keyframes teaser slide */
+    @keyframes kf-pulse{0%,100%{transform:scale(1);}50%{transform:scale(1.18);}}
+    @keyframes kf-spin{to{transform:rotate(360deg);}}
+    @keyframes kf-bounce{from{transform:translateY(0);}to{transform:translateY(-18px);}}
+    @keyframes kf-progress{from{width:15%;}to{width:85%;}}
+    @media(prefers-reduced-motion:reduce){.kf-pulse,.kf-spin,.kf-bounce,.kf-progress{animation:none;}}
 
     /* New Slide — Rendering pipeline */
     .pipeline{display:flex;align-items:stretch;gap:.25rem;flex-wrap:wrap;margin:.5rem 0;}
@@ -282,13 +289,27 @@
       <h2>The Evolution of Web Animation</h2>
       <div class="two-col">
         <div>
-          <ul>
-            <li><strong>Flash (2000s)</strong> — frame-by-frame motion graphics. Fell from favor due to security issues and no mobile support.</li>
-            <li><strong>jQuery.animate()</strong> — JavaScript nudged property values 60×/sec via <code>setInterval</code>. Ran on the browser's <strong>main thread</strong>. Under load it caused <em>jank</em> — choppy or frozen animations.</li>
-            <li><strong>CSS Transitions &amp; Transforms</strong> — work is handed to the browser's <strong>compositor</strong> and GPU. Smooth 60fps without touching the main thread at all.</li>
-          </ul>
-          <div class="note" style="margin-top:.5rem;">
-            <strong>Vendor prefixes:</strong> Old code had <code>-webkit-transform</code>, <code>-moz-transform</code>, <code>-ms-transform</code>. You do <em>not</em> need these for new projects — write the unprefixed standard property and move on.
+          <div style="display:grid;gap:.28rem;">
+            <div class="card" style="padding:.32rem .65rem;">
+              <strong style="color:#ffeaa7;font-size:.78rem;">1990s — Animated GIFs &amp; <code>&lt;marquee&gt;</code></strong>
+              <p style="font-size:.74rem;margin-top:.1rem;opacity:.9;"><code>&lt;blink&gt;</code>, <code>&lt;marquee&gt;</code>, and looping GIF images were the only "animation." Everything else either snapped instantly or didn't move at all.</p>
+            </div>
+            <div class="card" style="padding:.32rem .65rem;">
+              <strong style="color:#ffeaa7;font-size:.78rem;">Late 1990s — DHTML &amp; <code>setInterval</code></strong>
+              <p style="font-size:.74rem;margin-top:.1rem;opacity:.9;">Developers used JavaScript to nudge <code>element.style.left</code> every 16ms via <code>setInterval</code>. Brittle and browser-inconsistent — the UI froze whenever the tab was under load.</p>
+            </div>
+            <div class="card" style="padding:.32rem .65rem;">
+              <strong style="color:#ffeaa7;font-size:.78rem;">2000–2010 — Flash Dominates</strong>
+              <p style="font-size:.74rem;margin-top:.1rem;opacity:.9;">Adobe Flash brought true frame-by-frame motion to the web. Then Apple refused Flash on iPhone (2007). HTML5 + CSS finished its replacement by 2015.</p>
+            </div>
+            <div class="card" style="padding:.32rem .65rem;">
+              <strong style="color:#ffeaa7;font-size:.78rem;">2006–2012 — jQuery.animate() &amp; <code>requestAnimationFrame</code></strong>
+              <p style="font-size:.74rem;margin-top:.1rem;opacity:.9;"><code>$.animate()</code> made JS animation approachable — but it ran on the <strong>main thread</strong>. Under load: dropped frames and visible jank. <code>requestAnimationFrame</code> (2012) improved timing but didn't fix the thread problem.</p>
+            </div>
+            <div class="card" style="padding:.32rem .65rem;border-left:3px solid #22c55e;">
+              <strong style="color:#86efac;font-size:.78rem;">2004–2012 — CSS Transitions Emerge ✅</strong>
+              <p style="font-size:.74rem;margin-top:.1rem;opacity:.9;">Apple shipped <code>-webkit-transition</code> in Safari (~2004). W3C Working Draft published 2009. All major browsers shipped by 2012. Animation work moved to the <strong>GPU</strong> — completely off the main thread.</p>
+            </div>
           </div>
         </div>
         <div>
@@ -297,11 +318,15 @@
    -moz-transform: rotate(45deg);
     -ms-transform: rotate(45deg);
         transform: rotate(45deg);  /* ← just this */</code></pre>
-          <table class="cmp" style="margin-top:.6rem;">
-            <tr><th>Era</th><th>Problem</th></tr>
-            <tr><td>Flash</td><td>Plugin required; no mobile</td></tr>
-            <tr><td>JS animation</td><td>Main thread; jank under load</td></tr>
-            <tr><td>CSS transitions</td><td>GPU compositor; smooth 60fps</td></tr>
+          <div class="note" style="margin-top:.4rem;font-size:.81rem;">
+            <strong>Vendor prefixes:</strong> Tutorials from 2009–2013 show <code>-webkit-</code>, <code>-moz-</code>, and <code>-ms-</code> variants. All modern browsers (since ~2015) only need the unprefixed version. Never copy the prefixed forms into new projects.
+          </div>
+          <table class="cmp" style="margin-top:.45rem;">
+            <tr><th>Era</th><th>Core Problem</th></tr>
+            <tr><td>GIF / marquee</td><td>No interactivity; no real control</td></tr>
+            <tr><td>Flash</td><td>Plugin required; excluded from mobile</td></tr>
+            <tr><td>JS (jQuery / setInterval)</td><td>Main thread; jank under load</td></tr>
+            <tr><td>CSS transitions ✅</td><td>GPU compositor; smooth 60fps</td></tr>
           </table>
         </div>
       </div>
@@ -397,7 +422,7 @@ button:hover {
         </div>
       </div>
       <div class="live-demo" style="margin-top:.5rem;">
-        <p style="font-size:.78rem;opacity:.75;margin-bottom:.4rem;"><strong>Playground:</strong> adjust each sub-property then click <em>Animate</em> to see the effect:</p>
+        <p style="font-size:.78rem;opacity:.75;margin-bottom:.4rem;"><strong>Playground:</strong> adjust each sub-property, then <strong>hover over the box</strong> to see the effect — this is a CSS transition, not an animation:</p>
         <div style="display:flex;gap:.65rem;align-items:center;flex-wrap:wrap;margin-bottom:.45rem;">
           <label style="font-size:.75rem;">Duration
             <select id="sp-dur" class="sp-select" onchange="spUpdate()">
@@ -424,7 +449,6 @@ button:hover {
               <option value="1s">1s</option>
             </select>
           </label>
-          <button class="demo-btn" onclick="spAnimate()">▶ Animate</button>
         </div>
         <div style="display:flex;gap:1.5rem;align-items:center;flex-wrap:wrap;">
           <div class="sp-box" id="sp-box">Box</div>
@@ -497,9 +521,10 @@ transition-delay:     0s</pre>
   <div class="slide">
     <div class="slide-content">
       <div class="slide-label">CSS Transitions</div>
-      <h2>The Shorthand &amp; The Key Rule</h2>
+      <h2>The Shorthand &amp; The One Rule You Must Know</h2>
       <div class="two-col">
         <div>
+          <h3>The Shorthand Syntax</h3>
           <pre><code>/* Single property */
 button {
   transition: background-color 0.2s ease-out;
@@ -515,16 +540,32 @@ button {
 button {
   transition: all 0.2s ease-out;
 }</code></pre>
-          <div class="caution" style="margin-top:.4rem;">
-            <strong>Avoid <code>transition: all</code></strong> in production — it watches every property, including ones you don't want to animate. Name them explicitly.
+          <div class="tip" style="margin-top:.35rem;font-size:.83rem;">
+            <strong>Order:</strong> <code>property</code> &nbsp;<code>duration</code> &nbsp;<code>timing</code> &nbsp;<code>delay</code><br>
+            Only <code>duration</code> is required. The rest default to <code>all</code>, <code>ease</code>, <code>0s</code>.
+          </div>
+          <div class="caution" style="margin-top:.35rem;font-size:.82rem;">
+            <strong>Avoid <code>transition: all</code></strong> in production — it watches every CSS property, including ones you don't intend to animate. Always name them explicitly.
           </div>
         </div>
         <div>
-          <div class="note">
-            <strong>Put the transition on the DEFAULT state — not on <code>:hover</code>.</strong><br>
-            This makes it animate both entering <em>and</em> leaving the hover state.
+          <h3>The One Rule: Default State, Not <code>:hover</code></h3>
+          <div class="highlight" style="margin-bottom:.4rem;">
+            <strong>Put <code>transition</code> on the element's default state, never on <code>:hover</code>.</strong><br>
+            <span style="font-size:.84rem;">When the transition lives on the default state, the browser animates <em>both</em> entering and leaving the hover. Put it on <code>:hover</code> and the return snap instantly — because leaving hover removes the transition rule itself.</span>
           </div>
-          <p style="font-size:.85rem;opacity:.8;margin:.5rem 0 .25rem;">Hover both buttons to see the difference:</p>
+          <pre><code>/* ✅ Correct — animates IN and OUT */
+button {
+  transition: background-color 0.3s ease;
+}
+button:hover { background-color: #2ecc71; }
+
+/* ❌ Wrong — animates IN, snaps back */
+button:hover {
+  background-color: #2ecc71;
+  transition: background-color 0.3s ease;
+}</code></pre>
+          <p style="font-size:.82rem;opacity:.8;margin:.4rem 0 .25rem;">Hover both buttons to feel the difference:</p>
           <div style="display:flex;gap:1.5rem;flex-wrap:wrap;align-items:flex-start;">
             <div>
               <button class="rule-btn ok">✅ Default state</button>
@@ -534,9 +575,6 @@ button {
               <button class="rule-btn bad">❌ :hover only</button>
               <p style="font-size:.72rem;opacity:.65;">Animates in, snaps back</p>
             </div>
-          </div>
-          <div class="tip" style="margin-top:.5rem;font-size:.82rem;">
-            Order: <code>property</code> <code>duration</code> <code>timing</code> <code>delay</code>
           </div>
         </div>
       </div>
@@ -741,58 +779,58 @@ transition: background-position 0.8s steps(8);
   <div class="slide">
     <div class="slide-content">
       <div class="slide-label">Modern CSS</div>
-      <h2>Animating <code>display: none</code> — The Modern Solution</h2>
-      <p>The long-standing problem: you couldn't transition <em>into or out of</em> <code>display: none</code>. Now solved with two 2023 features.</p>
+      <h2>Animating <code>display: none</code> — Finally Solved</h2>
+      <p style="font-size:.88rem;opacity:.9;margin-bottom:.4rem;">You toggle a dropdown or modal with <code>display: none</code>. You add a transition. Nothing animates — because <code>display</code> has no "halfway" value between <code>none</code> and <code>block</code>. Two features added in 2023 fix this.</p>
       <div class="two-col">
         <div>
-          <pre><code>.dialog {
+          <pre><code>/* Step 1: define transition on the hidden state
+   — include display with allow-discrete */
+.panel {
   display: none;
   opacity: 0;
   transform: translateY(12px);
-
-  /* transition-behavior: allow-discrete
-     tells the browser to include display
-     in the transition sequence */
   transition: opacity 0.3s ease,
               transform 0.3s ease,
               display 0.3s allow-discrete;
 }
 
-.dialog.is-open {
+/* Step 2: open state — what it animates TO */
+.panel.open {
   display: block;
   opacity: 1;
   transform: translateY(0);
 }
 
-/* @starting-style defines the "from" values
-   when the element first becomes visible */
+/* Step 3: @starting-style — what it animates
+   FROM when first appearing. Without this, the
+   browser has no "before" and entry snaps. */
 @starting-style {
-  .dialog.is-open {
+  .panel.open {
     opacity: 0;
     transform: translateY(12px);
   }
 }</code></pre>
         </div>
         <div>
-          <div class="note">
-            <strong>What each part does:</strong>
-            <ul style="margin-top:.3rem;">
-              <li><code>transition-behavior: allow-discrete</code> — includes <code>display</code> in the transition. The "off" value is held until the exit animation finishes.</li>
-              <li><code>@starting-style</code> — defines values the element transitions <em>FROM</em> when it first appears. Without it, entry has no animation.</li>
+          <div class="highlight">
+            <strong>How it works — plain language:</strong>
+            <ul style="margin-top:.3rem;font-size:.84rem;line-height:1.65;">
+              <li><strong><code>allow-discrete</code></strong> opts <code>display</code> into the transition. On <strong>enter</strong>: the element becomes visible immediately (display: block) and then the opacity/transform animate in. On <strong>exit</strong>: opacity/transform animate out <em>first</em>, and only then does <code>display: none</code> apply — so the element doesn't vanish mid-animation.</li>
+              <li><strong><code>@starting-style</code></strong> is the "before" snapshot for elements entering from <code>display: none</code>. It gives the browser a starting point so it can interpolate.</li>
             </ul>
           </div>
-          <div class="note" style="margin-top:.5rem;">
-            <strong>Browser support:</strong> Chrome 117+, Firefox 129+, Safari 17.5+ — all current as of 2025. For older support, use JavaScript class toggling.
+          <div class="tip" style="margin-top:.4rem;font-size:.82rem;">
+            <strong>The old workaround:</strong> developers combined <code>visibility: hidden</code> + <code>pointer-events: none</code> + <code>opacity: 0</code>, or used JS libraries. This is the native CSS solution.
           </div>
-          <div class="tip" style="margin-top:.4rem;">
-            Before this, developers used <code>visibility: hidden</code> + <code>pointer-events: none</code> + <code>opacity: 0</code> — or JS libraries like GSAP.
+          <div class="note" style="margin-top:.35rem;font-size:.82rem;">
+            <strong>Browser support:</strong> Chrome 117+, Firefox 129+, Safari 17.5+ (all current as of 2025).
           </div>
-          <div class="live-demo" style="margin-top:.5rem;">
-            <p style="font-size:.76rem;opacity:.75;margin-bottom:.35rem;"><strong>Live demo</strong> — uses <code>@starting-style</code> + <code>allow-discrete</code> right on this page:</p>
+          <div class="live-demo" style="margin-top:.4rem;">
+            <p style="font-size:.76rem;opacity:.75;margin-bottom:.35rem;"><strong>Live demo</strong> — this exact code runs on the slide right now:</p>
             <button class="demo-btn" id="ss-btn" onclick="ssToggle()">▶ Show Panel</button>
             <div class="ss-panel" id="ss-panel">
-              ✅ This panel faded <em>and</em> slid in from below — no JavaScript animation, no opacity hacks.<br>
-              Click the button again to watch it animate <em>out</em> before <code>display:none</code> kicks in.
+              ✅ Faded in <em>and</em> slid up — from <code>display: none</code>, with no JS animation.<br>
+              Click again to watch it animate <em>out</em> before hiding.
             </div>
           </div>
         </div>
@@ -806,32 +844,41 @@ transition: background-position 0.8s steps(8);
   <div class="slide">
     <div class="slide-content">
       <div class="slide-label">Performance</div>
-      <h2>GPU-Accelerated Properties</h2>
+      <h2>Why <code>transform</code> &amp; <code>opacity</code> Are Faster</h2>
+      <p style="font-size:.88rem;opacity:.9;margin-bottom:.4rem;">Not all CSS properties are equal when animated. Two properties get a special fast path through the browser — everything else takes the slow road.</p>
       <div class="two-col">
         <div>
-          <h3>The Two GPU-Safe Properties</h3>
-          <ul>
-            <li><strong><code>transform</code></strong> — Moving, rotating, scaling, skewing never triggers layout or paint. The element is promoted to a <strong>compositor layer</strong>; the GPU handles interpolation.</li>
-            <li><strong><code>opacity</code></strong> — Fading is also compositor-only.</li>
-          </ul>
-          <div class="note" style="margin-top:.4rem;">
-            <strong>Rule of thumb:</strong> Prefer <code>transform: translateX(100px)</code> over <code>left: 100px</code>. Prefer <code>opacity</code> over toggling <code>visibility</code>. The visual result looks the same — the browser work is dramatically different.
+          <div class="highlight">
+            <strong>The fast lane: <code>transform</code> and <code>opacity</code></strong><br>
+            <span style="font-size:.84rem;">The browser treats elements with <code>transform</code> or <code>opacity</code> transitions like a separate pre-painted image. During the animation, it only moves or fades that image — it doesn't touch the rest of the page at all. The GPU handles it independently.</span>
           </div>
-          <p style="margin-top:.5rem;font-size:.85rem;opacity:.8;">Hover both boxes — both move identically, but one triggers full page reflow on every frame:</p>
+          <div class="caution" style="margin-top:.4rem;">
+            <strong>The slow road: everything else</strong><br>
+            <span style="font-size:.84rem;">Animating <code>left</code>, <code>width</code>, <code>height</code>, <code>margin</code>, or <code>padding</code> forces the browser to recalculate the size and position of <em>every element on the page</em> on every frame. At 60fps, that's 60 full-page recalculations per second — which causes dropped frames and jank, especially on mobile.</span>
+          </div>
+          <div class="note" style="margin-top:.4rem;font-size:.83rem;">
+            <strong>Practical rule:</strong> To move something, use <code>transform: translateX()</code> — not <code>left</code>. To fade something, use <code>opacity</code> — not <code>visibility</code>. The visual result is usually identical. The browser work is not.
+          </div>
+          <p style="margin-top:.45rem;font-size:.84rem;opacity:.85;"><strong>Hover both boxes</strong> — they move the same distance, but by very different means:</p>
           <div class="perf-demo">
             <div>
               <div class="perf-box bad">❌ left</div>
-              <p style="font-size:.7rem;opacity:.65;margin-top:.25rem;">left: triggers layout</p>
+              <pre style="font-size:.62rem;margin:.2rem 0 0;opacity:.7;">left: 60px</pre>
+              <p style="font-size:.68rem;opacity:.6;margin-top:.1rem;">Recalculates layout<br>every frame</p>
             </div>
             <div>
               <div class="perf-box good">✅ transform</div>
-              <p style="font-size:.7rem;opacity:.65;margin-top:.25rem;">transform: GPU only</p>
+              <pre style="font-size:.62rem;margin:.2rem 0 0;opacity:.7;">translateX(60px)</pre>
+              <p style="font-size:.68rem;opacity:.6;margin-top:.1rem;">GPU moves a layer.<br>Page untouched.</p>
             </div>
           </div>
         </div>
         <div>
           <img src="assets/fig-14.4-performance.png" alt="Layout trigger vs compositor-only animation path diagram" class="slide-img">
-          <p class="img-caption">Animating layout properties (left, width, height) forces the browser through all three pipeline stages. transform and opacity skip directly to compositing.</p>
+          <p class="img-caption" style="margin-bottom:.5rem;">Animating layout properties forces the browser through all three pipeline stages. <code>transform</code> and <code>opacity</code> skip straight to the GPU step.</p>
+          <div class="tip" style="font-size:.82rem;">
+            <strong>You can confirm this in Chrome DevTools:</strong> Open the Performance panel, record while hovering both boxes, and look at the "Layout" rows in the flame chart. The <code>left</code> box triggers layout events on every frame; the <code>transform</code> box shows none.
+          </div>
         </div>
       </div>
     </div>
@@ -843,37 +890,37 @@ transition: background-position 0.8s steps(8);
   <div class="slide">
     <div class="slide-content">
       <div class="slide-label">Performance</div>
-      <h2>The Browser Rendering Pipeline</h2>
-      <p style="font-size:.87rem;opacity:.9;margin-bottom:.4rem;">Every time CSS changes, the browser may run through up to three stages. The more stages it runs, the more expensive the operation — and the higher the risk of dropped frames.</p>
+      <h2>How the Browser Draws a Page</h2>
+      <p style="font-size:.87rem;opacity:.9;margin-bottom:.4rem;">When a CSS property changes during a transition, the browser may need to redo some or all of its drawing work. There are three stages — and the earlier in the chain a property change starts, the more expensive it is.</p>
       <div class="pipeline">
         <div class="pipe-stage">
-          <h4>1. Layout (Reflow)</h4>
-          <p>Calculate the size and position of every element on the page. Any property that changes an element's box model triggers this — <code>width</code>, <code>height</code>, <code>padding</code>, <code>margin</code>, <code>top</code>, <code>left</code>, <code>font-size</code>.</p>
-          <p style="margin-top:.3rem;color:#fca5a5;font-size:.72rem;">Most expensive. Invalidates everything downstream.</p>
+          <h4>① Layout</h4>
+          <p style="font-size:.78rem;">"Where does everything go?" The browser calculates the size and position of every element. A change to <code>width</code>, <code>height</code>, <code>padding</code>, <code>margin</code>, <code>top</code>, <code>left</code>, or <code>font-size</code> starts here.</p>
+          <p style="margin-top:.3rem;color:#fca5a5;font-size:.7rem;font-weight:600;">🔴 Most expensive — forces Paint and Composite too.</p>
         </div>
         <div class="pipe-arrow">→</div>
         <div class="pipe-stage">
-          <h4>2. Paint (Repaint)</h4>
-          <p>Fill in the pixels — colors, backgrounds, borders, text, shadows. Triggered by visual-only changes that don't move boxes: <code>background-color</code>, <code>color</code>, <code>box-shadow</code>, <code>border-color</code>.</p>
-          <p style="margin-top:.3rem;color:#fde68a;font-size:.72rem;">Medium cost. Skips layout but must re-rasterize.</p>
+          <h4>② Paint</h4>
+          <p style="font-size:.78rem;">"What does it look like?" Fill in colors, borders, shadows, text. A change to <code>background-color</code>, <code>color</code>, <code>box-shadow</code>, or <code>border-color</code> starts here — it already knows where things are.</p>
+          <p style="margin-top:.3rem;color:#fde68a;font-size:.7rem;font-weight:600;">🟡 Medium cost — skips Layout, but must redraw pixels.</p>
         </div>
         <div class="pipe-arrow">→</div>
         <div class="pipe-stage active">
-          <h4>3. Composite ✅</h4>
-          <p>Move pre-painted layers around on screen. Only <code>transform</code> and <code>opacity</code> reach this stage — they never trigger layout or paint.</p>
-          <p style="margin-top:.3rem;color:#86efac;font-size:.72rem;">Cheapest. Runs on the GPU compositor thread — independent of the main thread entirely.</p>
+          <h4>③ Composite ✅</h4>
+          <p style="font-size:.78rem;">"Move the layers." The browser keeps elements on pre-drawn layers and simply repositions them on screen. <code>transform</code> and <code>opacity</code> only trigger this step — the page is never re-calculated or redrawn.</p>
+          <p style="margin-top:.3rem;color:#86efac;font-size:.7rem;font-weight:600;">🟢 Cheapest — handled by the GPU, independent of the page.</p>
         </div>
       </div>
       <div class="two-col" style="margin-top:.4rem;">
         <div class="caution">
-          <strong>Animating <code>left: 100px</code></strong> runs all three stages on every frame at 60fps — 60 layout passes per second. On a complex page this causes visible jank, especially on mobile.
+          <strong>Animating <code>left</code></strong> starts at Layout — the browser recalculates every element's position on every single frame. At 60fps on a complex page, this causes visible dropped frames.
         </div>
         <div class="note">
-          <strong>Animating <code>transform: translateX(100px)</code></strong> skips Layout and Paint entirely. The browser just moves a pre-composited GPU layer. Same visual result; dramatically less work.
+          <strong>Animating <code>transform: translateX()</code></strong> jumps straight to Composite — the browser moves a pre-drawn layer. The page itself is never touched. Same visual result; far less work.
         </div>
       </div>
       <div class="highlight" style="margin-top:.35rem;font-size:.84rem;">
-        <strong>The rule:</strong> If you can achieve an effect with <code>transform</code> or <code>opacity</code> instead of a layout or paint property, do it. The visual result is often identical — the browser work is not.
+        <strong>The takeaway:</strong> For smooth transitions at 60fps, keep your animated properties in the Composite column — <code>transform</code> and <code>opacity</code>. Avoid animating layout properties like <code>width</code>, <code>height</code>, <code>left</code>, or <code>top</code>.
       </div>
     </div>
   </div>
@@ -884,14 +931,14 @@ transition: background-position 0.8s steps(8);
   <div class="slide">
     <div class="slide-content">
       <div class="slide-label">Performance &amp; Accessibility</div>
-      <h2>Two Things Every Animated Page Needs</h2>
+      <h2>Two CSS Properties Every Animated Page Needs</h2>
       <div class="two-col">
         <div>
-          <h3>1. <code>will-change</code> — eliminate the first-frame flash</h3>
-          <p style="font-size:.82rem;opacity:.9;margin-bottom:.3rem;">The browser composites <code>transform</code> on its own layer — but it <em>creates</em> that layer when the transition starts. On slow hardware this causes a visible flash or stutter on the very first hover.</p>
-          <p style="font-size:.82rem;opacity:.9;margin-bottom:.3rem;"><code>will-change</code> tells the browser: <strong>"create the compositor layer now, before any animation happens."</strong></p>
-          <pre><code>/* The browser composites this card NOW —
-   so the first hover is instant and smooth */
+          <h3>1. <code>will-change</code> — warn the browser ahead of time</h3>
+          <p style="font-size:.82rem;opacity:.9;margin-bottom:.3rem;">Even though <code>transform</code> is GPU-accelerated, the browser still has to <em>set up</em> the GPU layer when the transition first starts. On slow or busy hardware, that setup takes a moment and causes a stutter on the very first hover.</p>
+          <p style="font-size:.82rem;opacity:.9;margin-bottom:.3rem;"><code>will-change</code> is like calling ahead to reserve a table: it tells the browser <strong>"prepare the GPU layer now — before any animation happens."</strong></p>
+          <pre><code>/* Browser prepares the GPU layer immediately,
+   so the very first hover is instant */
 .card {
   will-change: transform;
 }
@@ -900,15 +947,15 @@ transition: background-position 0.8s steps(8);
   transition: transform 0.2s ease-out;
 }</code></pre>
           <div class="caution" style="margin-top:.3rem;font-size:.82rem;">
-            <strong>Use sparingly — each declaration costs GPU memory.</strong> Only use it for elements you know will animate. Never apply <code>will-change: transform</code> to every element on the page — that defeats the purpose and can degrade performance.
+            <strong>Use sparingly.</strong> Each <code>will-change</code> declaration reserves GPU memory. Only add it to elements you <em>know</em> will animate. Never apply it to every element — that wastes memory and can actually hurt performance.
           </div>
           <div class="tip" style="margin-top:.3rem;font-size:.82rem;">
-            <strong>Best practice:</strong> Add <code>will-change</code> with JavaScript on <code>mouseenter</code>, remove it on <code>transitionend</code>. The browser pre-promotes the layer only when needed.
+            <strong>Pro tip:</strong> Add <code>will-change</code> via JavaScript on <code>mouseenter</code>, and remove it on <code>transitionend</code> — so it only reserves memory exactly when needed.
           </div>
         </div>
         <div>
-          <h3>2. <code>prefers-reduced-motion</code> — respect the user</h3>
-          <p style="font-size:.82rem;opacity:.9;margin-bottom:.3rem;">Some users have vestibular disorders where motion on screen causes nausea, dizziness, or headaches. macOS, iOS, Windows, and Android all have an "Reduce Motion" system setting. When enabled, <code>@media (prefers-reduced-motion: reduce)</code> matches.</p>
+          <h3>2. <code>prefers-reduced-motion</code> — include every user</h3>
+          <p style="font-size:.82rem;opacity:.9;margin-bottom:.3rem;">Some people have conditions where screen motion causes real physical discomfort — nausea, dizziness, or headaches. Every major OS (macOS, iOS, Windows, Android) has a "Reduce Motion" accessibility setting. When it's on, this media query matches:</p>
           <pre><code>/* Default: animated */
 .button {
   transition: transform 0.2s ease-out,
@@ -916,19 +963,19 @@ transition: background-position 0.8s steps(8);
 }
 .button:hover { transform: translateY(-3px); }
 
-/* User has "Reduce Motion" turned on */
+/* User turned on "Reduce Motion" in their OS */
 @media (prefers-reduced-motion: reduce) {
   .button {
-    transition: none; /* instant — no animation */
+    transition: none; /* make it instant instead */
   }
 }</code></pre>
           <div class="note" style="margin-top:.3rem;font-size:.82rem;">
-            <strong>"Reduced motion" ≠ "no motion at all."</strong><br>
-            ✅ OK: a button color change, a simple fade<br>
-            ❌ Remove: parallax scrolling, fly-in animations, looping spinners, anything that moves large elements across the screen
+            <strong>"Reduce motion" doesn't mean "no motion."</strong><br>
+            ✅ Fine: color changes, simple fades, state feedback<br>
+            ❌ Disable: parallax, large fly-in animations, looping spinners, anything that moves large elements across the screen
           </div>
           <div class="tip" style="margin-top:.3rem;font-size:.82rem;">
-            <strong>Test in Chrome DevTools:</strong> More tools → Rendering → Emulate CSS media feature → <code>prefers-reduced-motion: reduce</code>
+            <strong>Test it:</strong> Chrome DevTools → More tools → Rendering → Emulate CSS media → <code>prefers-reduced-motion: reduce</code>
           </div>
         </div>
       </div>
@@ -968,14 +1015,16 @@ transform: rotate(1turn);     /* full spin */</code></pre>
         </div>
       </div>
       <div class="live-demo" style="margin-top:.45rem;">
-        <p style="font-size:.76rem;opacity:.75;margin-bottom:.35rem;"><strong>Click a button</strong> — watch the box transform. Notice the box stays in flow; surrounding content does not shift:</p>
+        <p style="font-size:.76rem;opacity:.75;margin-bottom:.35rem;"><strong>Click a button</strong> — watch the box transform. The CSS code updates live. Notice the box stays in flow — surrounding text does not shift:</p>
         <div style="display:flex;gap:.8rem;align-items:flex-start;flex-wrap:wrap;">
-          <div style="flex:0 0 auto;">
+          <div style="flex:0 0 auto;display:flex;flex-direction:column;align-items:center;gap:.4rem;">
             <div class="tx-exp-box" id="tx-exp-box">Box</div>
+            <pre id="tx-code-display" style="font-size:.62rem;line-height:1.5;text-align:left;margin:0;min-width:120px;">transform: none</pre>
           </div>
           <div class="tx-exp-btns" style="flex:1;">
             <button class="demo-btn" onclick="txApply('translateX(60px)')">translateX(60px) →</button>
             <button class="demo-btn" onclick="txApply('translateY(-24px)')">translateY(-24px) ↑</button>
+            <button class="demo-btn" onclick="txApply('translate(-40px, 20px)')">translate(-40px, 20px) ↙</button>
             <button class="demo-btn" onclick="txApply('rotate(45deg)')">rotate(45deg) ↻</button>
             <button class="demo-btn" onclick="txApply('rotate(-90deg)')">rotate(-90deg) ↺</button>
             <button class="demo-btn" onclick="txApply('translate(40px,-20px) rotate(30deg)')">translate + rotate</button>
@@ -1061,15 +1110,15 @@ transform-origin: 0 50%;      /* left edge, centered */</code></pre>
           <div style="display:flex;gap:1.2rem;align-items:flex-start;flex-wrap:wrap;margin:.2rem 0;">
             <div style="text-align:center;">
               <div class="origin-box center-origin" id="orig-center">center</div>
-              <p style="font-size:.6rem;opacity:.6;margin-top:.3rem;font-family:monospace;">center center<br>(default)</p>
+              <pre style="font-size:.6rem;margin:.25rem 0 0;opacity:.75;line-height:1.4;">transform-origin:<br>  center center;<br>(default)</pre>
             </div>
             <div style="text-align:center;">
               <div class="origin-box topleft-origin" id="orig-tl">top left</div>
-              <p style="font-size:.6rem;opacity:.6;margin-top:.3rem;font-family:monospace;">top left<br>(page-turn)</p>
+              <pre style="font-size:.6rem;margin:.25rem 0 0;opacity:.75;line-height:1.4;">transform-origin:<br>  top left;<br>(page-turn)</pre>
             </div>
             <div style="text-align:center;">
               <div class="origin-box bottomright-origin" id="orig-br">bottom right</div>
-              <p style="font-size:.6rem;opacity:.6;margin-top:.3rem;font-family:monospace;">bottom right</p>
+              <pre style="font-size:.6rem;margin:.25rem 0 0;opacity:.75;line-height:1.4;">transform-origin:<br>  bottom right;</pre>
             </div>
             <button class="demo-btn" onclick="originDemo()" style="align-self:center;">▶ Rotate All</button>
           </div>
@@ -1138,34 +1187,35 @@ transform-origin: 0 50%;      /* left edge, centered */</code></pre>
   transform: rotateY(30deg); /* now has depth */
 }</code></pre>
           <div class="note" style="margin-top:.3rem;font-size:.85rem;">
-            <code>perspective</code> goes on the <strong>parent element</strong> (the "scene"), not on the element being transformed. This establishes the viewer's distance from the z=0 plane.
+            <code>perspective</code> goes on the <strong>parent element</strong> (the "scene"), not on the element being transformed. Think of it as the viewer's distance from the screen — smaller = more dramatic.
+          </div>
+          <div class="tip" style="margin-top:.3rem;font-size:.83rem;">
+            <strong>3D rotation axes — think of your head:</strong><br>
+            <code>rotateX</code> = nod (up/down) &nbsp;·&nbsp; <code>rotateY</code> = shake (left/right) &nbsp;·&nbsp; <code>rotateZ</code> = tilt (like 2D rotate)
           </div>
         </div>
         <div>
-          <p style="font-size:.76rem;opacity:.75;margin-bottom:.3rem;"><strong>Drag the slider</strong> — same <code>rotateY(45deg)</code>, watch how perspective changes the depth illusion:</p>
-          <div id="persp-scene" class="persp-scene">
-            <div class="persp-card">rotateY<br>(45deg)</div>
+          <p style="font-size:.76rem;opacity:.75;margin-bottom:.3rem;"><strong>Click axis buttons</strong> to rotate in each direction. <strong>Drag the slider</strong> to change perspective. The live code updates below:</p>
+          <div id="persp-scene" class="persp-scene" style="perspective:600px;">
+            <div class="persp-card" id="persp-card" style="transform:rotateY(0deg);transition:transform .45s ease-out;">3D Card</div>
           </div>
-          <div style="display:flex;align-items:center;gap:.6rem;margin:.3rem 0;">
-            <span style="font-size:.7rem;opacity:.7;font-family:monospace;">100px</span>
+          <pre id="persp-code" style="font-size:.64rem;line-height:1.5;margin:.3rem 0;text-align:left;">.scene { perspective: 600px; }
+.card  { transform: rotateY(0deg); }</pre>
+          <div style="display:flex;flex-wrap:wrap;gap:.3rem;margin-bottom:.3rem;">
+            <button class="demo-btn" onclick="tilt3d('rotateX',45)">rotateX +45° ↑</button>
+            <button class="demo-btn" onclick="tilt3d('rotateX',-45)">rotateX -45° ↓</button>
+            <button class="demo-btn" onclick="tilt3d('rotateY',45)">rotateY +45° →</button>
+            <button class="demo-btn" onclick="tilt3d('rotateY',-45)">rotateY -45° ←</button>
+            <button class="demo-btn" onclick="tilt3d('rotateZ',45)">rotateZ +45° ↻</button>
+            <button class="demo-btn" onclick="tilt3d('rotateZ',-45)">rotateZ -45° ↺</button>
+            <button class="demo-btn" onclick="tilt3d('reset',0)">↩ Reset</button>
+          </div>
+          <div style="display:flex;align-items:center;gap:.5rem;">
+            <span style="font-size:.68rem;opacity:.65;font-family:monospace;flex-shrink:0;">perspective:</span>
             <input type="range" id="persp-slider" min="100" max="1200" value="600" oninput="perspChange(this.value)" style="flex:1;cursor:pointer;">
-            <span style="font-size:.7rem;opacity:.7;font-family:monospace;">1200px</span>
+            <strong id="persp-val" style="font-size:.68rem;font-family:monospace;min-width:45px;">600px</strong>
           </div>
-          <p style="font-size:.72rem;text-align:center;font-family:monospace;margin-bottom:.3rem;">perspective: <strong id="persp-val">600px</strong></p>
-          <p class="img-caption">Small value = dramatic/exaggerated. Large value = subtle/flat. Typical UI: 600–900px.</p>
-          <h3 style="margin-top:.4rem;">3D Rotation Functions</h3>
-          <pre><code>/* Tilt top toward viewer (nod) */
-transform: rotateX(45deg);
-
-/* Spin left-right (shake head) */
-transform: rotateY(180deg);
-
-/* Same as 2D rotate() */
-transform: rotateZ(45deg);
-
-/* Move toward/away on Z axis */
-transform: translateZ(100px);
-transform: translateZ(-100px);</code></pre>
+          <p class="img-caption" style="margin-top:.2rem;">Small value = dramatic. Large = subtle. Typical UI: 600–900px.</p>
         </div>
       </div>
     </div>
@@ -1342,6 +1392,76 @@ transform: translateZ(-100px);</code></pre>
   </div>
 
   <!-- ══════════════════════════════════
+       SLIDE — @KEYFRAMES TEASER
+  ══════════════════════════════════ -->
+  <div class="slide">
+    <div class="slide-content">
+      <div class="slide-label">What's Next</div>
+      <h2>Transitions Need a Trigger — Animations Don't</h2>
+      <p style="font-size:.88rem;opacity:.9;margin-bottom:.4rem;">CSS transitions are reactive: they only run when a property changes (hover, class toggle, focus). For motion that plays automatically — on load, in a loop, or with multiple steps — you need <strong>CSS Animations with <code>@keyframes</code></strong>.</p>
+      <div class="two-col">
+        <div>
+          <h3>Transition — needs a trigger</h3>
+          <pre><code>/* This does NOTHING until you hover */
+.button {
+  background: #4f6df5;
+  transition: background 0.3s ease;
+}
+.button:hover {
+  background: #e74c3c;  /* ← the trigger */
+}</code></pre>
+          <div class="caution" style="margin-top:.4rem;font-size:.83rem;">
+            <strong>Limitation:</strong> You cannot chain multiple steps, loop automatically, or play on page load without JavaScript toggling a class.
+          </div>
+        </div>
+        <div>
+          <h3>@keyframes Animation — self-contained</h3>
+          <pre><code>/* Define the motion sequence */
+@keyframes pulse {
+  0%   { transform: scale(1); }
+  50%  { transform: scale(1.1); }
+  100% { transform: scale(1); }
+}
+
+/* Attach it — plays immediately, loops forever */
+.badge {
+  animation: pulse 1.2s ease-in-out infinite;
+}</code></pre>
+          <div class="note" style="margin-top:.4rem;font-size:.83rem;">
+            <strong>Key differences:</strong> Animations have multiple steps (keyframes), run on their own, can loop, can alternate direction, and can pause. Use <code>animation-fill-mode</code> to control the element's state before/after the animation plays.
+          </div>
+        </div>
+      </div>
+      <div class="live-demo" style="margin-top:.4rem;">
+        <p style="font-size:.76rem;opacity:.75;margin-bottom:.4rem;">These elements are running <code>@keyframes</code> animations right now — no JavaScript, no hover needed:</p>
+        <div style="display:flex;gap:1.5rem;align-items:center;flex-wrap:wrap;">
+          <div style="text-align:center;">
+            <div style="width:54px;height:54px;border-radius:50%;background:#4f6df5;animation:kf-pulse 1.4s ease-in-out infinite;margin:0 auto .3rem;"></div>
+            <code style="font-size:.62rem;opacity:.7;">pulse (scale)</code>
+          </div>
+          <div style="text-align:center;">
+            <div style="width:54px;height:54px;border-radius:8px;background:#e74c3c;animation:kf-spin 2s linear infinite;margin:0 auto .3rem;"></div>
+            <code style="font-size:.62rem;opacity:.7;">spin (rotate)</code>
+          </div>
+          <div style="text-align:center;">
+            <div style="width:54px;height:54px;border-radius:8px;background:#2ecc71;animation:kf-bounce 1s ease-in-out infinite alternate;margin:0 auto .3rem;"></div>
+            <code style="font-size:.62rem;opacity:.7;">bounce (translateY)</code>
+          </div>
+          <div style="text-align:center;">
+            <div style="width:110px;height:16px;border-radius:8px;background:rgba(0,0,0,.3);overflow:hidden;margin:0 auto .3rem;position:relative;">
+              <div style="height:100%;width:40%;border-radius:8px;background:#ffeaa7;animation:kf-progress 2s ease-in-out infinite alternate;"></div>
+            </div>
+            <code style="font-size:.62rem;opacity:.7;">progress (width)</code>
+          </div>
+        </div>
+      </div>
+      <div class="highlight" style="margin-top:.4rem;font-size:.84rem;">
+        <strong>Rule of thumb:</strong> Use <em>transitions</em> for state changes driven by user interaction (hover, click, focus). Use <em>@keyframes animations</em> for anything autonomous — loading states, attention pulses, page-load reveals, looping decorative motion.
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════
        SLIDE 24 — SUMMARY
   ══════════════════════════════════ -->
   <div class="slide">
@@ -1421,7 +1541,7 @@ transform: translateZ(-100px);</code></pre>
 
 <div class="navigation">
   <button class="nav-btn" id="prev-btn" onclick="changeSlide(-1)">&#8592; Prev</button>
-  <span class="slide-counter" id="counter">1 / 27</span>
+  <span class="slide-counter" id="counter">1 / 28</span>
   <button class="nav-btn" id="next-btn" onclick="changeSlide(1)">Next &#8594;</button>
 </div>
 
@@ -1444,13 +1564,6 @@ function spUpdate() {
     'transition-timing:    ' + timing + '\n' +
     'transition-delay:     ' + delay;
 }
-function spAnimate() {
-  const box = document.getElementById('sp-box');
-  if (!box) return;
-  spUpdate();
-  box.classList.toggle('hit');
-}
-
 // ─────────────────────────────────────────
 // Slide 7 — Timing function race
 // ─────────────────────────────────────────
@@ -1478,11 +1591,13 @@ function ssToggle() {
 }
 
 // ─────────────────────────────────────────
-// Slide 14 — Transform explorer
+// Slide 16 — Transform explorer
 // ─────────────────────────────────────────
 function txApply(t) {
   const box = document.getElementById('tx-exp-box');
+  const code = document.getElementById('tx-code-display');
   if (box) box.style.transform = t;
+  if (code) code.textContent = 'transform: ' + t + ';';
 }
 
 // ─────────────────────────────────────────
@@ -1508,13 +1623,29 @@ function originDemo() {
 }
 
 // ─────────────────────────────────────────
-// Slide 18 — Perspective slider
+// Slide 20 — 3D perspective + rotation demo
 // ─────────────────────────────────────────
+let _3dAxis = 'rotateY', _3dDeg = 0;
+function tilt3d(axis, deg) {
+  const card = document.getElementById('persp-card');
+  const code = document.getElementById('persp-code');
+  const persp = document.getElementById('persp-val') ? document.getElementById('persp-val').textContent : '600px';
+  if (axis === 'reset') { _3dAxis = 'rotateY'; _3dDeg = 0; }
+  else { _3dAxis = axis; _3dDeg = deg; }
+  const t = _3dDeg === 0 ? 'none' : _3dAxis + '(' + _3dDeg + 'deg)';
+  if (card) card.style.transform = t;
+  if (code) code.textContent = '.scene { perspective: ' + persp + '; }\n.card  { transform: ' + (_3dDeg === 0 ? 'none' : _3dAxis + '(' + _3dDeg + 'deg)') + '; }';
+}
 function perspChange(val) {
   const scene = document.getElementById('persp-scene');
   const label = document.getElementById('persp-val');
+  const code = document.getElementById('persp-code');
   if (scene) scene.style.perspective = val + 'px';
   if (label) label.textContent = val + 'px';
+  if (code) {
+    const t = _3dDeg === 0 ? 'none' : _3dAxis + '(' + _3dDeg + 'deg)';
+    code.textContent = '.scene { perspective: ' + val + 'px; }\n.card  { transform: ' + t + '; }';
+  }
 }
 
 // ─────────────────────────────────────────
