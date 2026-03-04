@@ -207,9 +207,19 @@
     .origin-box.bottomright-origin{transform-origin:bottom right;}
     .origin-box.rotated{transform:rotate(135deg);}
 
-    /* Slide 18 — Perspective slider */
-    .persp-scene{display:flex;justify-content:center;padding:.5rem 0;margin:.2rem 0;}
-    .persp-card{width:110px;height:70px;border-radius:8px;background:linear-gradient(135deg,#4f6df5,#764ba2);display:flex;align-items:center;justify-content:center;color:white;font-size:.72rem;font-weight:700;}
+    /* Slide 20 — 3D cube demo */
+    .cube-scene{display:flex;justify-content:center;padding:.9rem 0 .5rem;margin:.1rem 0;}
+    .cube-wrap{width:80px;height:80px;position:relative;transform-style:preserve-3d;transition:transform .08s linear;}
+    .cube-face{position:absolute;width:80px;height:80px;display:flex;align-items:center;justify-content:center;font-size:.58rem;font-weight:700;color:white;border:2px solid rgba(255,255,255,.28);border-radius:4px;}
+    .cf-front {background:rgba(79,109,245,.92); transform:translateZ(40px);}
+    .cf-back  {background:rgba(118,75,162,.92); transform:rotateY(180deg) translateZ(40px);}
+    .cf-left  {background:rgba(46,204,113,.92); transform:rotateY(-90deg) translateZ(40px);}
+    .cf-right {background:rgba(231,76,60,.92);  transform:rotateY(90deg)  translateZ(40px);}
+    .cf-top   {background:rgba(241,196,15,.92); transform:rotateX(90deg)  translateZ(40px);color:#222;}
+    .cf-bottom{background:rgba(52,152,219,.92); transform:rotateX(-90deg) translateZ(40px);}
+    .axis-row{display:flex;align-items:center;gap:.45rem;margin-bottom:.2rem;}
+    .axis-lbl{font-size:.68rem;font-family:monospace;width:68px;flex-shrink:0;font-weight:700;}
+    .axis-val{font-size:.66rem;font-family:monospace;min-width:38px;text-align:right;}
 
     /* Slide 19 — Inline card flip */
     .flip-scene{width:150px;height:96px;perspective:700px;cursor:pointer;margin:.4rem auto;display:block;}
@@ -1195,27 +1205,47 @@ transform-origin: 0 50%;      /* left edge, centered */</code></pre>
           </div>
         </div>
         <div>
-          <p style="font-size:.76rem;opacity:.75;margin-bottom:.3rem;"><strong>Click axis buttons</strong> to rotate in each direction. <strong>Drag the slider</strong> to change perspective. The live code updates below:</p>
-          <div id="persp-scene" class="persp-scene" style="perspective:600px;">
-            <div class="persp-card" id="persp-card" style="transform:rotateY(0deg);transition:transform .45s ease-out;">3D Card</div>
+          <p style="font-size:.76rem;opacity:.75;margin-bottom:.2rem;"><strong>Drag each slider</strong> to rotate the cube along that axis. Because it's a cube, you see multiple colored faces at once — making 3D depth obvious in a way a flat card never can:</p>
+          <div id="persp-scene" class="cube-scene" style="perspective:600px;">
+            <div class="cube-wrap" id="persp-card" style="transform:rotateX(-18deg) rotateY(28deg) rotateZ(0deg);">
+              <div class="cube-face cf-front">Front</div>
+              <div class="cube-face cf-back">Back</div>
+              <div class="cube-face cf-left">Left</div>
+              <div class="cube-face cf-right">Right</div>
+              <div class="cube-face cf-top">Top</div>
+              <div class="cube-face cf-bottom">Bottom</div>
+            </div>
           </div>
-          <pre id="persp-code" style="font-size:.64rem;line-height:1.5;margin:.3rem 0;text-align:left;">.scene { perspective: 600px; }
-.card  { transform: rotateY(0deg); }</pre>
-          <div style="display:flex;flex-wrap:wrap;gap:.3rem;margin-bottom:.3rem;">
-            <button class="demo-btn" onclick="tilt3d('rotateX',45)">rotateX +45° ↑</button>
-            <button class="demo-btn" onclick="tilt3d('rotateX',-45)">rotateX -45° ↓</button>
-            <button class="demo-btn" onclick="tilt3d('rotateY',45)">rotateY +45° →</button>
-            <button class="demo-btn" onclick="tilt3d('rotateY',-45)">rotateY -45° ←</button>
-            <button class="demo-btn" onclick="tilt3d('rotateZ',45)">rotateZ +45° ↻</button>
-            <button class="demo-btn" onclick="tilt3d('rotateZ',-45)">rotateZ -45° ↺</button>
-            <button class="demo-btn" onclick="tilt3d('reset',0)">↩ Reset</button>
+          <pre id="persp-code" style="font-size:.61rem;line-height:1.5;margin:.2rem 0;">.scene { perspective: 600px; }
+.cube  { transform: rotateX(-18deg)
+                    rotateY(28deg)
+                    rotateZ(0deg); }</pre>
+          <div style="display:grid;gap:.22rem;margin-bottom:.3rem;">
+            <div class="axis-row">
+              <span class="axis-lbl" style="color:#93c5fd;">rotateX</span>
+              <input type="range" id="rx-slider" min="-180" max="180" value="-18" oninput="update3d()" style="flex:1;cursor:pointer;">
+              <span class="axis-val" id="rx-val">-18°</span>
+            </div>
+            <div class="axis-row">
+              <span class="axis-lbl" style="color:#86efac;">rotateY</span>
+              <input type="range" id="ry-slider" min="-180" max="180" value="28" oninput="update3d()" style="flex:1;cursor:pointer;">
+              <span class="axis-val" id="ry-val">28°</span>
+            </div>
+            <div class="axis-row">
+              <span class="axis-lbl" style="color:#fde68a;">rotateZ</span>
+              <input type="range" id="rz-slider" min="-180" max="180" value="0" oninput="update3d()" style="flex:1;cursor:pointer;">
+              <span class="axis-val" id="rz-val">0°</span>
+            </div>
+            <div class="axis-row">
+              <span class="axis-lbl" style="color:rgba(255,255,255,.55);">perspective</span>
+              <input type="range" id="persp-slider" min="100" max="1200" value="600" oninput="perspChange(this.value)" style="flex:1;cursor:pointer;">
+              <span class="axis-val" id="persp-val">600px</span>
+            </div>
           </div>
-          <div style="display:flex;align-items:center;gap:.5rem;">
-            <span style="font-size:.68rem;opacity:.65;font-family:monospace;flex-shrink:0;">perspective:</span>
-            <input type="range" id="persp-slider" min="100" max="1200" value="600" oninput="perspChange(this.value)" style="flex:1;cursor:pointer;">
-            <strong id="persp-val" style="font-size:.68rem;font-family:monospace;min-width:45px;">600px</strong>
+          <div style="display:flex;align-items:center;gap:.65rem;">
+            <button class="demo-btn" onclick="reset3d()">↩ Reset</button>
+            <span style="font-size:.68rem;opacity:.6;line-height:1.35;">X = nod · Y = shake · Z = tilt<br>Small perspective = dramatic depth</span>
           </div>
-          <p class="img-caption" style="margin-top:.2rem;">Small value = dramatic. Large = subtle. Typical UI: 600–900px.</p>
         </div>
       </div>
     </div>
@@ -1623,29 +1653,41 @@ function originDemo() {
 }
 
 // ─────────────────────────────────────────
-// Slide 20 — 3D perspective + rotation demo
+// Slide 20 — 3D cube demo
 // ─────────────────────────────────────────
-let _3dAxis = 'rotateY', _3dDeg = 0;
-function tilt3d(axis, deg) {
-  const card = document.getElementById('persp-card');
+function update3d() {
+  const rx = document.getElementById('rx-slider').value;
+  const ry = document.getElementById('ry-slider').value;
+  const rz = document.getElementById('rz-slider').value;
+  const persp = document.getElementById('persp-val').textContent;
+  document.getElementById('rx-val').textContent = rx + '°';
+  document.getElementById('ry-val').textContent = ry + '°';
+  document.getElementById('rz-val').textContent = rz + '°';
+  const cube = document.getElementById('persp-card');
   const code = document.getElementById('persp-code');
-  const persp = document.getElementById('persp-val') ? document.getElementById('persp-val').textContent : '600px';
-  if (axis === 'reset') { _3dAxis = 'rotateY'; _3dDeg = 0; }
-  else { _3dAxis = axis; _3dDeg = deg; }
-  const t = _3dDeg === 0 ? 'none' : _3dAxis + '(' + _3dDeg + 'deg)';
-  if (card) card.style.transform = t;
-  if (code) code.textContent = '.scene { perspective: ' + persp + '; }\n.card  { transform: ' + (_3dDeg === 0 ? 'none' : _3dAxis + '(' + _3dDeg + 'deg)') + '; }';
+  if (cube) cube.style.transform = 'rotateX(' + rx + 'deg) rotateY(' + ry + 'deg) rotateZ(' + rz + 'deg)';
+  if (code) code.textContent = '.scene { perspective: ' + persp + '; }\n.cube  { transform: rotateX(' + rx + 'deg)\n                    rotateY(' + ry + 'deg)\n                    rotateZ(' + rz + 'deg); }';
+}
+function reset3d() {
+  const cube = document.getElementById('persp-card');
+  if (cube) cube.style.transition = 'transform .4s ease-out';
+  const defaults = { 'rx-slider': -18, 'ry-slider': 28, 'rz-slider': 0 };
+  Object.entries(defaults).forEach(([id, val]) => {
+    const el = document.getElementById(id);
+    if (el) el.value = val;
+  });
+  update3d();
+  setTimeout(() => {
+    const c = document.getElementById('persp-card');
+    if (c) c.style.transition = 'transform .08s linear';
+  }, 450);
 }
 function perspChange(val) {
   const scene = document.getElementById('persp-scene');
   const label = document.getElementById('persp-val');
-  const code = document.getElementById('persp-code');
   if (scene) scene.style.perspective = val + 'px';
   if (label) label.textContent = val + 'px';
-  if (code) {
-    const t = _3dDeg === 0 ? 'none' : _3dAxis + '(' + _3dDeg + 'deg)';
-    code.textContent = '.scene { perspective: ' + val + 'px; }\n.card  { transform: ' + t + '; }';
-  }
+  update3d();
 }
 
 // ─────────────────────────────────────────
