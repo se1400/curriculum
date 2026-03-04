@@ -1,0 +1,1740 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CSS Animations &amp; Pseudo-elements</title>
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box;}
+    :root{
+      --primary-color:#1a1a2e;
+      --secondary-color:#4f6df5;
+      --code-bg:#0f0f1a;
+      --code-text:#d4d4d4;
+    }
+    html,body{height:100%;font-family:'Segoe UI',system-ui,sans-serif;background:var(--primary-color);overflow:hidden;display:flex;flex-direction:column;}
+
+    /* Progress bar */
+    .progress-bar{width:100%;height:4px;background:rgba(255,255,255,.12);flex-shrink:0;}
+    .progress{height:100%;background:var(--secondary-color);transition:width .3s ease;}
+
+    /* Slideshow */
+    .slideshow-container{flex:1;display:flex;flex-direction:column;overflow:hidden;min-height:0;}
+    .slide{display:none;flex:1;padding:1.1rem 1.65rem;color:#fff;overflow-y:auto;animation:s-fadeIn .32s ease;min-height:0;flex-direction:column;}
+    .slide.active{display:flex;}
+    @keyframes s-fadeIn{from{opacity:0;transform:translateX(16px);}to{opacity:1;transform:translateX(0);}}
+
+    /* Backgrounds */
+    .slide:nth-child(odd) {background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);}
+    .slide:nth-child(even){background:linear-gradient(135deg,#11998e 0%,#38ef7d 100%);}
+    .slide:nth-child(3n)  {background:linear-gradient(135deg,#ee0979 0%,#ff6a00 100%);}
+    .slide:nth-child(4n)  {background:linear-gradient(135deg,#2193b0 0%,#6dd5ed 100%);}
+    .slide:nth-child(5n)  {background:linear-gradient(135deg,#c31432 0%,#240b36 100%);}
+    .slide:nth-child(7n)  {background:linear-gradient(135deg,#0f0c29 0%,#302b63 50%,#24243e 100%);}
+    .slide:nth-child(9n)  {background:linear-gradient(135deg,#1a1a2e 0%,#16213e 50%,#0f3460 100%);}
+
+    /* Label */
+    .slide-label{font-size:.68rem;text-transform:uppercase;letter-spacing:.12em;color:rgba(255,255,255,.42);margin-bottom:.25rem;flex-shrink:0;}
+
+    /* Content wrapper */
+    .slide-content{max-width:1400px;width:100%;margin:0 auto;flex:1;display:flex;flex-direction:column;min-height:0;}
+    .slide-content.centered{justify-content:center;align-items:center;text-align:center;}
+
+    /* Typography */
+    h1{font-size:clamp(1.75rem,5vw,3rem);margin-bottom:.9rem;line-height:1.2;text-shadow:0 2px 6px rgba(0,0,0,.3);}
+    h2{font-size:clamp(1.25rem,3.5vw,1.9rem);margin-bottom:.35rem;color:#ffeaa7;line-height:1.25;}
+    h3{font-size:clamp(.92rem,2.2vw,1.25rem);margin:.35rem 0 .18rem;color:#81ecec;}
+    p{font-size:clamp(.85rem,1.95vw,1.02rem);line-height:1.5;margin-bottom:.28rem;}
+    ul,ol{font-size:clamp(.82rem,1.85vw,.98rem);line-height:1.55;margin-left:1.25rem;margin-bottom:.28rem;}
+    li{margin-bottom:.13rem;}
+    a{color:#ffeaa7;text-decoration:underline;}
+    a:hover{color:#fdcb6e;}
+    code{background:rgba(0,0,0,.38);padding:.14em .42em;border-radius:4px;font-family:'Consolas','Monaco',monospace;font-size:.87em;}
+    pre{background:var(--code-bg);color:var(--code-text);padding:.5rem .8rem;border-radius:8px;overflow-x:auto;margin:.28rem 0;font-size:clamp(.7rem,1.55vw,.86rem);line-height:1.42;flex-shrink:0;}
+    pre code{background:none;padding:0;font-size:inherit;}
+
+    /* Callouts */
+    .note{background:rgba(34,197,94,.14);border-left:4px solid #22c55e;padding:.42rem .75rem;border-radius:6px;margin:.28rem 0;font-size:clamp(.8rem,1.75vw,.94rem);}
+    .caution{background:rgba(239,68,68,.14);border-left:4px solid #ef4444;padding:.42rem .75rem;border-radius:6px;margin:.28rem 0;font-size:clamp(.8rem,1.75vw,.94rem);}
+    .tip{background:rgba(79,109,245,.18);border-left:4px solid #4f6df5;padding:.42rem .75rem;border-radius:6px;margin:.28rem 0;font-size:clamp(.8rem,1.75vw,.94rem);}
+    .highlight{background:rgba(255,255,255,.13);border-left:4px solid #ffeaa7;padding:.42rem .75rem;border-radius:6px;margin:.28rem 0;font-size:clamp(.8rem,1.75vw,.94rem);}
+
+    /* Buttons */
+    .demo-btn{padding:.28rem .6rem;font-size:.78rem;border:1px solid rgba(255,255,255,.32);border-radius:4px;cursor:pointer;background:rgba(0,0,0,.3);color:white;transition:all .2s;}
+    .demo-btn:hover{background:rgba(255,255,255,.15);}
+    .demo-btn.active{background:rgba(52,152,219,.65);border-color:#3498db;}
+    .live-demo{background:rgba(0,0,0,.22);border-radius:8px;padding:.5rem .85rem;margin:.28rem 0;border:1px solid rgba(255,255,255,.14);}
+
+    /* Layout */
+    .two-col{display:grid;grid-template-columns:1fr 1fr;gap:.9rem;align-items:start;}
+    .three-col{display:grid;grid-template-columns:repeat(3,1fr);gap:.75rem;align-items:start;}
+    @media(max-width:900px){.three-col{grid-template-columns:1fr 1fr;}}
+    @media(max-width:700px){.two-col,.three-col{grid-template-columns:1fr;}.slide{padding:.9rem .9rem;}}
+
+    /* Cards */
+    .card{background:rgba(0,0,0,.22);padding:.6rem .8rem;border-radius:8px;border:1px solid rgba(255,255,255,.13);}
+    .card-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:.55rem;margin:.35rem 0;}
+
+    /* Images */
+    .slide-img{max-width:100%;border-radius:8px;border:1px solid rgba(255,255,255,.18);margin:.35rem 0;box-shadow:0 4px 16px rgba(0,0,0,.4);}
+    .img-caption{font-size:.73rem;opacity:.58;text-align:center;margin-top:.18rem;}
+
+    /* Learn grid (cover) */
+    .learn-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:.4rem;margin:.45rem 0;}
+    .learn-item{background:rgba(0,0,0,.22);border-left:3px solid #81ecec;border-radius:6px;padding:.4rem .7rem;font-size:clamp(.78rem,1.75vw,.93rem);line-height:1.45;}
+
+    /* Summary cards */
+    .summary-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(195px,1fr));gap:.5rem;margin:.45rem 0;}
+    .summary-card{background:rgba(0,0,0,.22);border-radius:8px;padding:.6rem .85rem;border:1px solid rgba(255,255,255,.13);font-size:clamp(.76rem,1.65vw,.9rem);line-height:1.45;}
+    .summary-card strong{color:#ffeaa7;display:block;margin-bottom:.18rem;font-size:.88em;}
+
+    /* Table */
+    table.cmp{width:100%;border-collapse:collapse;font-size:clamp(.78rem,1.75vw,.96rem);margin:.35rem 0;}
+    table.cmp th,table.cmp td{border:1px solid rgba(255,255,255,.22);padding:.28rem .52rem;text-align:left;vertical-align:top;}
+    table.cmp th{background:rgba(0,0,0,.28);color:#ffeaa7;}
+    table.cmp td:first-child{color:#93c5fd;font-weight:600;white-space:nowrap;}
+
+    /* CodePen iframe */
+    .demo-wrap{flex:1;min-height:0;display:flex;flex-direction:column;border-radius:10px;overflow:hidden;margin:.35rem 0;border:1px solid rgba(255,255,255,.18);}
+    .demo-wrap iframe{flex:1;border:none;width:100%!important;height:100%!important;min-height:400px;background:#fff;}
+    .demo-label{font-size:.72rem;text-transform:uppercase;letter-spacing:.1em;color:rgba(255,255,255,.48);margin-bottom:.28rem;text-align:center;}
+
+    /* Badges */
+    .badge{display:inline-block;background:rgba(79,109,245,.38);border:1px solid rgba(79,109,245,.58);border-radius:20px;padding:.18em .65em;font-size:.76em;margin:.13rem;}
+    .badge.green{background:rgba(34,197,94,.22);border-color:rgba(34,197,94,.48);color:#86efac;}
+    .badge.yellow{background:rgba(234,179,8,.18);border-color:rgba(234,179,8,.42);color:#fde68a;}
+    .badge.red{background:rgba(239,68,68,.18);border-color:rgba(239,68,68,.42);color:#fca5a5;}
+
+    /* Navigation */
+    .nav{display:flex;align-items:center;justify-content:center;gap:1rem;padding:.38rem 1rem;background:rgba(0,0,0,.42);flex-shrink:0;}
+    .nav-btn{background:rgba(255,255,255,.13);border:1px solid rgba(255,255,255,.28);color:white;width:34px;height:34px;border-radius:50%;cursor:pointer;font-size:.95rem;display:flex;align-items:center;justify-content:center;transition:background .2s;}
+    .nav-btn:hover:not(:disabled){background:rgba(255,255,255,.28);}
+    .nav-btn:disabled{opacity:.32;cursor:not-allowed;}
+    .nav-counter{color:rgba(255,255,255,.68);font-size:.83rem;min-width:52px;text-align:center;}
+
+    /* ================================================================
+       DEMO-SPECIFIC KEYFRAMES (all prefixed anim- to avoid conflicts)
+       ================================================================ */
+    @keyframes anim-fade-in{from{opacity:0;}to{opacity:1;}}
+    @keyframes anim-bounce{
+      0%  {transform:translateY(0);}
+      30% {transform:translateY(-40px);}
+      60% {transform:translateY(-20px);}
+      80% {transform:translateY(-10px);}
+      100%{transform:translateY(0);}
+    }
+    @keyframes anim-spin{to{transform:rotate(360deg);}}
+    @keyframes anim-pulse{0%,100%{transform:scale(1);}50%{transform:scale(1.25);}}
+    @keyframes anim-slide-up{from{opacity:0;transform:translateY(26px);}to{opacity:1;transform:translateY(0);}}
+    @keyframes anim-float{0%,100%{transform:translateY(0);}50%{transform:translateY(-13px);}}
+    @keyframes anim-glow{from{box-shadow:0 0 4px rgba(79,109,245,.28);}to{box-shadow:0 0 22px rgba(79,109,245,.95);}}
+    @keyframes anim-scale-x{from{transform:scaleX(0);}to{transform:scaleX(1);}}
+    @keyframes anim-item-in{from{opacity:0;transform:translateX(-20px);}to{opacity:1;transform:translateX(0);}}
+    @keyframes anim-color-cycle{
+      0%  {background:#4f6df5;}
+      33% {background:#ec4899;}
+      66% {background:#f59e0b;}
+      100%{background:#4f6df5;}
+    }
+    @keyframes anim-rocket{
+      0%  {transform:translateY(0) scale(1) rotate(0deg);opacity:1;}
+      50% {transform:translateY(-50px) scale(1.1) rotate(-5deg);opacity:1;}
+      100%{transform:translateY(-160px) scale(0.7) rotate(10deg);opacity:0;}
+    }
+
+    /* ==================== SLIDE 3: Fade demo ==================== */
+    .fade-box{width:100px;height:55px;background:#4f6df5;border-radius:8px;display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:.85rem;opacity:0;}
+    .fade-box.go{animation:anim-fade-in 0.8s ease-out forwards;}
+
+    /* ==================== SLIDE 4: Bounce demo ==================== */
+    .bounce-ball{width:50px;height:50px;background:radial-gradient(circle at 35% 35%,#7dd3fc,#4f6df5);border-radius:50%;display:inline-block;}
+    .bounce-ball.go{animation:anim-bounce 0.8s ease-out;}
+    .bounce-shadow{width:40px;height:8px;background:rgba(0,0,0,.35);border-radius:50%;margin-top:4px;transition:transform .1s;}
+
+    /* ==================== SLIDE 6: Duration slider ==================== */
+    .dur-box{width:64px;height:64px;background:#f59e0b;border-radius:50%;display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:.82rem;}
+    .dur-box.go{animation:anim-spin var(--dur,1s) linear infinite;}
+
+    /* ==================== SLIDE 6: Timing race ==================== */
+    .race-track{background:rgba(0,0,0,.18);border-radius:6px;padding:.28rem .5rem;margin:.18rem 0;display:flex;align-items:center;gap:.55rem;height:32px;}
+    .race-lbl{font-size:.7rem;font-family:monospace;width:92px;flex-shrink:0;color:#fde68a;}
+    .race-bar{height:16px;border-radius:4px;background:#4f6df5;transform-origin:left;transform:scaleX(0);flex:1;}
+    .race-bar.go-ease        {animation:anim-scale-x 2s ease        both;}
+    .race-bar.go-linear      {animation:anim-scale-x 2s linear      both;}
+    .race-bar.go-ease-in     {animation:anim-scale-x 2s ease-in     both;}
+    .race-bar.go-ease-out    {animation:anim-scale-x 2s ease-out    both;}
+    .race-bar.go-ease-in-out {animation:anim-scale-x 2s ease-in-out both;}
+    .race-bar.go-steps       {animation:anim-scale-x 2s steps(8)    both;}
+
+    /* ==================== SLIDE 7: Delay dots ==================== */
+    .delay-dots{display:flex;gap:.75rem;align-items:flex-end;padding:.4rem 0;}
+    .delay-dot{width:28px;height:28px;border-radius:50%;background:#4f6df5;opacity:0;transform:translateY(18px);}
+    .delay-dot.go{animation:anim-slide-up .5s ease-out both;}
+    .delay-dot.go:nth-child(1){animation-delay:0s;}
+    .delay-dot.go:nth-child(2){animation-delay:.12s;}
+    .delay-dot.go:nth-child(3){animation-delay:.24s;}
+    .delay-dot.go:nth-child(4){animation-delay:.36s;}
+    .delay-dot.go:nth-child(5){animation-delay:.48s;}
+    .neg-bar-wrap{height:10px;background:rgba(0,0,0,.2);border-radius:4px;overflow:hidden;}
+    .neg-bar{height:100%;background:#ec4899;transform-origin:left;transform:scaleX(0);}
+    .neg-bar.go{animation:anim-scale-x 2s linear forwards;animation-delay:-1s;}
+
+    /* ==================== SLIDE 8: Iteration + Direction ==================== */
+    .iter-box{width:56px;height:56px;background:#ec4899;border-radius:8px;display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:.78rem;}
+    .iter-box.anim-1   {animation:anim-pulse .6s ease-in-out 1    both;}
+    .iter-box.anim-3   {animation:anim-pulse .6s ease-in-out 3    both;}
+    .iter-box.anim-inf {animation:anim-pulse .6s ease-in-out infinite;}
+
+    .dir-track{height:28px;background:rgba(0,0,0,.18);border-radius:6px;overflow:hidden;margin:.2rem 0;}
+    .dir-bar{height:100%;background:#4f6df5;transform-origin:left;transform:scaleX(0);}
+    .dir-bar.normal       {animation:anim-scale-x 1.4s linear      normal          infinite;}
+    .dir-bar.reverse      {animation:anim-scale-x 1.4s linear      reverse         infinite;}
+    .dir-bar.alternate    {animation:anim-scale-x 1.4s ease-in-out alternate       infinite;}
+    .dir-bar.alt-rev      {animation:anim-scale-x 1.4s ease-in-out alternate-reverse infinite;}
+
+    /* ==================== SLIDE 9: Fill mode ==================== */
+    .fill-box{width:70px;height:44px;background:#22c55e;border-radius:8px;display:flex;align-items:center;justify-content:center;color:white;font-size:.72rem;font-weight:700;opacity:1;transform:translateY(0);}
+    .fill-box.anim-none     {animation:anim-slide-up .5s ease-out .8s none;}
+    .fill-box.anim-forwards {animation:anim-slide-up .5s ease-out .8s forwards;}
+    .fill-box.anim-both     {animation:anim-slide-up .5s ease-out .8s both;}
+
+    /* ==================== SLIDE 12: Rocket ==================== */
+    .rocket-stage{display:flex;justify-content:center;align-items:flex-end;height:90px;overflow:visible;}
+    .rocket-emoji{font-size:2.8rem;display:inline-block;cursor:pointer;transition:filter .2s;}
+    .rocket-emoji.go{animation:anim-rocket 1.2s ease-in forwards;}
+
+    /* ==================== SLIDE 15: Pipeline ==================== */
+    .pipeline-row{display:flex;align-items:stretch;gap:.42rem;margin:.28rem 0;}
+    .pipe-stage{flex:1;padding:.42rem .35rem;border-radius:6px;text-align:center;font-size:clamp(.7rem,1.55vw,.83rem);font-weight:700;line-height:1.3;}
+    .pipe-arrow{color:rgba(255,255,255,.48);font-size:1rem;display:flex;align-items:center;}
+    .pipe-style {background:rgba(52,152,219,.38);border:1px solid rgba(52,152,219,.65);}
+    .pipe-layout{background:rgba(239,68,68,.38);border:1px solid rgba(239,68,68,.65);}
+    .pipe-paint {background:rgba(234,179,8,.32);border:1px solid rgba(234,179,8,.58);}
+    .pipe-comp  {background:rgba(34,197,94,.28);border:1px solid rgba(34,197,94,.58);}
+    .pipe-sub   {font-size:.65rem;opacity:.72;font-weight:400;margin-top:.18rem;}
+
+    /* ==================== SLIDE 20: Pseudo-element quote ==================== */
+    .quote-demo{position:relative;padding:1rem 1rem 1rem 2.4rem;background:rgba(0,0,0,.22);border-radius:8px;font-style:italic;font-size:.88rem;line-height:1.55;}
+    .quote-demo::before{content:"\201C";position:absolute;left:.15rem;top:-.25rem;font-size:3.2rem;color:#4f6df5;line-height:1;font-family:Georgia,serif;}
+
+    /* ==================== SLIDE 21: Animated underline ==================== */
+    .nav-link-demo{display:inline-block;position:relative;text-decoration:none;font-size:1.05rem;font-weight:600;padding:.08rem 0;color:white;margin-right:1.2rem;}
+    .nav-link-demo::after{content:"";position:absolute;bottom:-2px;left:0;width:100%;height:2px;background:#4f6df5;transform:scaleX(0);transform-origin:right;transition:transform .3s ease;}
+    .nav-link-demo:hover::after{transform:scaleX(1);transform-origin:left;}
+
+    /* ==================== SLIDE 22: content property / tooltip ==================== */
+    .tt-btn{position:relative;display:inline-block;padding:.38rem .75rem;background:#4f6df5;border:none;border-radius:6px;color:white;cursor:pointer;font-size:.85rem;}
+    .tt-btn::before{content:attr(data-tooltip);position:absolute;bottom:calc(100% + 8px);left:50%;transform:translateX(-50%);background:#1e293b;color:white;font-size:.75rem;padding:.32rem .6rem;border-radius:4px;white-space:nowrap;opacity:0;transition:opacity .2s;pointer-events:none;}
+    .tt-btn::after{content:"";position:absolute;top:-8px;left:50%;transform:translateX(-50%);border:5px solid transparent;border-top-color:#1e293b;opacity:0;transition:opacity .2s;pointer-events:none;}
+    .tt-btn:hover::before,.tt-btn:hover::after{opacity:1;}
+
+    /* ==================== SLIDE 23: Placeholder / Selection / Marker ==================== */
+    .ph-input{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.32);border-radius:6px;padding:.45rem .7rem;color:white;font-size:.88rem;width:100%;outline:none;}
+    .ph-input::placeholder{color:#93c5fd;font-style:italic;}
+    .ph-input:focus{border-color:#4f6df5;}
+    .sel-demo::selection{background:#4f6df5;color:white;}
+    .sel-yellow::selection{background:#fde68a;color:#1e293b;}
+    ul.marker-custom li::marker{color:#4f6df5;font-size:1.15em;}
+    ol.marker-num li::marker{color:#ec4899;font-weight:700;}
+
+    /* ==================== SLIDE 24: Drop cap ==================== */
+    .drop-cap p::first-letter{float:left;font-size:3rem;font-weight:700;line-height:.82;margin-right:.1em;color:#4f6df5;}
+
+    /* ==================== SLIDE 25: CSS Spinner ==================== */
+    .spinner-demo{width:42px;height:42px;border:4px solid rgba(255,255,255,.22);border-top-color:#4f6df5;border-radius:50%;animation:anim-spin .8s linear infinite;}
+    .spinner-demo.paused{animation-play-state:paused;}
+
+    /* ==================== SLIDE 26: Staggered list ==================== */
+    .stagger-list{list-style:none;margin:0;padding:0;}
+    .stagger-item{padding:.38rem .65rem;background:rgba(0,0,0,.2);border-radius:6px;margin-bottom:.28rem;font-size:.86rem;opacity:0;transform:translateX(-20px);}
+    .stagger-item.go{animation:anim-item-in .4s ease-out both;}
+    .stagger-item.go:nth-child(1){animation-delay:0s;}
+    .stagger-item.go:nth-child(2){animation-delay:.07s;}
+    .stagger-item.go:nth-child(3){animation-delay:.14s;}
+    .stagger-item.go:nth-child(4){animation-delay:.21s;}
+    .stagger-item.go:nth-child(5){animation-delay:.28s;}
+
+    /* ==================== SLIDE 27: Glow badge for alternate demo ==================== */
+    .glow-badge{display:inline-block;padding:.45rem 1.2rem;background:#4f6df5;border-radius:20px;font-weight:700;animation:anim-glow 1.2s ease-in-out infinite alternate;}
+
+    /* ==================== Q&A ==================== */
+    .qa-item{background:rgba(0,0,0,.2);border-radius:8px;padding:.6rem .9rem;margin:.3rem 0;}
+    .qa-q{font-weight:700;color:#ffeaa7;font-size:clamp(.82rem,1.85vw,.97rem);margin-bottom:.2rem;}
+    .qa-a{font-size:clamp(.78rem,1.75vw,.92rem);line-height:1.5;opacity:.9;}
+  </style>
+</head>
+<body>
+
+<div class="progress-bar"><div class="progress" id="progress"></div></div>
+<div class="slideshow-container" id="slides">
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       SLIDE 1 — Cover / What You'll Learn
+       ═══════════════════════════════════════════════════════════════ -->
+  <div class="slide">
+    <div class="slide-content centered">
+      <div class="slide-label">Lesson 15</div>
+      <h1>CSS Animations &amp;<br>Pseudo-elements</h1>
+      <p style="opacity:.75;margin-bottom:.75rem;">From keyframes to generated content — motion with purpose</p>
+      <div class="learn-grid">
+        <div class="learn-item">▶ Define multi-step animations with <code>@keyframes</code></div>
+        <div class="learn-item">▶ Master the eight animation sub-properties</div>
+        <div class="learn-item">▶ Use the <code>animation</code> shorthand</div>
+        <div class="learn-item">▶ Layer multiple animations on one element</div>
+        <div class="learn-item">▶ Animate with <code>transform</code> &amp; <code>opacity</code> for performance</div>
+        <div class="learn-item">▶ Respect motion preferences with <code>prefers-reduced-motion</code></div>
+        <div class="learn-item">▶ Scroll-driven animations with <code>animation-timeline</code></div>
+        <div class="learn-item">▶ Generate decorative content with <code>::before</code> / <code>::after</code></div>
+        <div class="learn-item">▶ Style <code>::placeholder</code>, <code>::selection</code>, <code>::marker</code>, and drop caps</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       SLIDE 2 — Transitions vs Animations
+       ═══════════════════════════════════════════════════════════════ -->
+  <div class="slide">
+    <div class="slide-label">Overview</div>
+    <div class="slide-content">
+      <h2>Transitions → Animations</h2>
+      <div class="two-col">
+        <div class="card">
+          <h3>Transitions — Reactive</h3>
+          <ul>
+            <li>Triggered by a <strong>state change</strong> (hover, focus, class toggle)</li>
+            <li>A → B only (two states)</li>
+            <li>Cannot loop, cannot auto-start</li>
+            <li>Best for: hover effects, interactive feedback</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>Animations — Proactive</h3>
+          <ul>
+            <li>Start <strong>automatically</strong> — on load, or when class is added</li>
+            <li>Any number of keyframe stops</li>
+            <li>Can loop, reverse, pause/resume</li>
+            <li>Best for: spinners, entrance effects, looping motion</li>
+          </ul>
+        </div>
+      </div>
+      <h3 style="margin-top:.4rem;">When to choose animations</h3>
+      <ul>
+        <li>Element should animate <strong>on page load</strong> without user action</li>
+        <li>Effect should <strong>loop</strong> (spinner, pulse, marquee)</li>
+        <li>Motion passes through <strong>three or more states</strong></li>
+        <li>Animation needs to <strong>reverse, hold end state, or pause</strong></li>
+      </ul>
+      <div class="note" style="margin-top:.4rem;">Before CSS animations: developers used JavaScript <code>setInterval</code> loops or Flash. CSS animations move that rendering logic where it belongs — the stylesheet.</div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       SLIDE 3 — @keyframes: from / to
+       ═══════════════════════════════════════════════════════════════ -->
+  <div class="slide">
+    <div class="slide-label">@keyframes</div>
+    <div class="slide-content">
+      <h2>Defining Animations with <code>@keyframes</code></h2>
+      <div class="two-col">
+        <div>
+          <h3>The <code>from</code> / <code>to</code> Shorthand</h3>
+          <p><code>from</code> = <code>0%</code> &nbsp;|&nbsp; <code>to</code> = <code>100%</code></p>
+          <pre><code>@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.hero {
+  animation: fadeIn 0.6s ease-out;
+}</code></pre>
+          <p>When the browser sees <code>.hero</code>, it immediately interpolates <code>opacity</code> from 0 to 1 over 0.6 seconds.</p>
+          <div class="note">Give keyframes <strong>descriptive, intention-revealing names</strong>: <code>slideInLeft</code>, <code>pulseRed</code>, <code>spin</code>. camelCase and kebab-case are both valid.</div>
+        </div>
+        <div>
+          <div class="live-demo">
+            <p style="font-size:.8rem;margin-bottom:.5rem;opacity:.7;">▶ Live demo — Click to replay</p>
+            <div style="display:flex;align-items:center;gap:1rem;flex-wrap:wrap;">
+              <div class="fade-box" id="fadeBox">Fade In</div>
+              <button class="demo-btn" onclick="replayFade()">▶ Play</button>
+            </div>
+          </div>
+          <div class="live-demo" style="margin-top:.4rem;">
+            <p style="font-size:.75rem;opacity:.6;">The animation uses: <code>animation-fill-mode: forwards</code> to hold the final state after completing.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       SLIDE 4 — @keyframes: Percentage Stops
+       ═══════════════════════════════════════════════════════════════ -->
+  <div class="slide">
+    <div class="slide-label">@keyframes</div>
+    <div class="slide-content">
+      <h2>Percentage-Based Keyframes</h2>
+      <div class="two-col">
+        <div>
+          <p>Use percentages for <strong>3+ states</strong>. Percentages = <em>progress through the cycle</em>, not clock time.</p>
+          <pre><code>@keyframes bounce {
+  0%   { transform: translateY(0); }
+  30%  { transform: translateY(-40px); }
+  60%  { transform: translateY(-20px); }
+  80%  { transform: translateY(-10px); }
+  100% { transform: translateY(0); }
+}</code></pre>
+          <p>If duration = 2s, the <code>50%</code> keyframe occurs at exactly 1 second.</p>
+          <div class="tip">You can <strong>share a keyframe stop</strong> across multiple percentages:<br><code>0%, 100% { opacity: 1; }</code></div>
+          <div class="tip">You can also mix <code>from</code>/<code>to</code> with percentage stops in the same rule.</div>
+        </div>
+        <div>
+          <div class="live-demo">
+            <p style="font-size:.8rem;margin-bottom:.6rem;opacity:.7;">▶ 5-stop bounce animation</p>
+            <div style="display:flex;flex-direction:column;align-items:center;gap:.3rem;">
+              <div class="bounce-ball" id="bounceBall"></div>
+              <div class="bounce-shadow" id="bounceShadow"></div>
+              <button class="demo-btn" onclick="replayBounce()" style="margin-top:.4rem;">▶ Bounce</button>
+            </div>
+          </div>
+          <div class="card" style="margin-top:.4rem;">
+            <p style="font-size:.78rem;opacity:.75;">The 5 keyframe stops create the realistic squash-and-stretch feel. Two stops would just go up and come straight back down.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       SLIDE 5 — The 8 Animation Properties (overview)
+       ═══════════════════════════════════════════════════════════════ -->
+  <div class="slide">
+    <div class="slide-label">Animation Properties</div>
+    <div class="slide-content">
+      <h2>The Eight Animation Properties</h2>
+      <table class="cmp">
+        <thead>
+          <tr><th>Property</th><th>What it controls</th><th>Default</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>animation-name</td><td>Which <code>@keyframes</code> to play</td><td><code>none</code></td></tr>
+          <tr><td>animation-duration</td><td>Length of one full cycle</td><td><code>0s</code> — invisible!</td></tr>
+          <tr><td>animation-timing-function</td><td>Speed curve within each interval</td><td><code>ease</code></td></tr>
+          <tr><td>animation-delay</td><td>Wait before starting; negative = start mid-cycle</td><td><code>0s</code></td></tr>
+          <tr><td>animation-iteration-count</td><td>How many times to run; <code>infinite</code> to loop</td><td><code>1</code></td></tr>
+          <tr><td>animation-direction</td><td>Forward, reverse, or alternating</td><td><code>normal</code></td></tr>
+          <tr><td>animation-fill-mode</td><td>Styles before start / after end</td><td><code>none</code> — snaps back!</td></tr>
+          <tr><td>animation-play-state</td><td><code>running</code> or <code>paused</code></td><td><code>running</code></td></tr>
+        </tbody>
+      </table>
+      <div class="highlight">The most commonly forgotten properties are <strong>animation-duration</strong> (omitting it = invisible animation) and <strong>animation-fill-mode</strong> (omitting it = element snaps back to original style when done).</div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       SLIDE 6 — duration + timing-function (+ race demo)
+       ═══════════════════════════════════════════════════════════════ -->
+  <div class="slide">
+    <div class="slide-label">Animation Properties</div>
+    <div class="slide-content">
+      <h2><code>animation-duration</code> &amp; <code>animation-timing-function</code></h2>
+      <div class="two-col">
+        <div>
+          <h3>animation-duration</h3>
+          <p>How long <em>one full cycle</em> takes. No default — omit = <code>0s</code> = nothing visible.</p>
+          <div class="live-demo">
+            <p style="font-size:.78rem;opacity:.7;margin-bottom:.4rem;">Duration slider:</p>
+            <div style="display:flex;align-items:center;gap:.75rem;flex-wrap:wrap;">
+              <div class="dur-box go" id="durBox">spin</div>
+              <div>
+                <input type="range" id="durSlider" min="1" max="40" value="8" oninput="updateDur(this.value)" style="cursor:pointer;width:120px;">
+                <span id="durVal" style="font-size:.8rem;font-family:monospace;margin-left:.4rem;">0.8s</span>
+              </div>
+            </div>
+          </div>
+          <h3 style="margin-top:.4rem;">animation-timing-function</h3>
+          <p>Controls the speed curve. Same values as <code>transition-timing-function</code>. Can also be set <em>per keyframe stop</em>.</p>
+          <p style="font-size:.82rem;"><a href="https://cubic-bezier.com" target="_blank" rel="noopener noreferrer">cubic-bezier.com</a> — visual editor for custom curves</p>
+        </div>
+        <div>
+          <div class="live-demo">
+            <p style="font-size:.78rem;opacity:.7;margin-bottom:.32rem;">Timing function race — all run for 2s:</p>
+            <button class="demo-btn" onclick="startRace()" style="margin-bottom:.4rem;">▶ Race!</button>
+            <div class="race-track"><span class="race-lbl">ease</span><div class="race-bar" id="rb-ease"></div></div>
+            <div class="race-track"><span class="race-lbl">linear</span><div class="race-bar" id="rb-linear"></div></div>
+            <div class="race-track"><span class="race-lbl">ease-in</span><div class="race-bar" id="rb-ease-in"></div></div>
+            <div class="race-track"><span class="race-lbl">ease-out</span><div class="race-bar" id="rb-ease-out"></div></div>
+            <div class="race-track"><span class="race-lbl">ease-in-out</span><div class="race-bar" id="rb-ease-io"></div></div>
+            <div class="race-track"><span class="race-lbl">steps(8)</span><div class="race-bar" id="rb-steps"></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       SLIDE 7 — animation-delay (+ negative delay trick)
+       ═══════════════════════════════════════════════════════════════ -->
+  <div class="slide">
+    <div class="slide-label">Animation Properties</div>
+    <div class="slide-content">
+      <h2><code>animation-delay</code></h2>
+      <div class="two-col">
+        <div>
+          <p><strong>Positive delay</strong> — wait before starting.</p>
+          <p><strong>Negative delay</strong> — start mid-cycle as if already running. This is the stagger trick:</p>
+          <pre><code>.card:nth-child(1) { animation-delay: 0s; }
+.card:nth-child(2) { animation-delay: 0.1s; }
+.card:nth-child(3) { animation-delay: 0.2s; }</code></pre>
+          <h3 style="margin-top:.4rem;">Negative delay for loopers</h3>
+          <p><code>animation-delay: -1s</code> on a 3s animation → starts at the 1-second mark. Items in a loading-dots row can all loop at different phases so they're never all in the same position.</p>
+          <div class="live-demo">
+            <p style="font-size:.78rem;opacity:.7;margin-bottom:.3rem;">Negative delay — bar starts at 50% progress:</p>
+            <div class="neg-bar-wrap"><div class="neg-bar" id="negBar"></div></div>
+            <button class="demo-btn" onclick="replayNeg()" style="margin-top:.3rem;">▶ Replay (delay: -1s)</button>
+          </div>
+        </div>
+        <div>
+          <div class="live-demo">
+            <p style="font-size:.78rem;opacity:.7;margin-bottom:.35rem;">Staggered entrance — dots with increasing delay:</p>
+            <div class="delay-dots" id="delayDots">
+              <div class="delay-dot"></div>
+              <div class="delay-dot" style="background:#ec4899;"></div>
+              <div class="delay-dot" style="background:#f59e0b;"></div>
+              <div class="delay-dot" style="background:#22c55e;"></div>
+              <div class="delay-dot" style="background:#a78bfa;"></div>
+            </div>
+            <button class="demo-btn" onclick="replayStagger()">▶ Stagger</button>
+          </div>
+          <div class="card" style="margin-top:.4rem;">
+            <p style="font-size:.78rem;opacity:.75;">Delays: 0s, 0.12s, 0.24s, 0.36s, 0.48s — each dot appears slightly later than the previous, creating a cascading wave effect.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       SLIDE 8 — iteration-count + direction
+       ═══════════════════════════════════════════════════════════════ -->
+  <div class="slide">
+    <div class="slide-label">Animation Properties</div>
+    <div class="slide-content">
+      <h2><code>animation-iteration-count</code> &amp; <code>animation-direction</code></h2>
+      <div class="two-col">
+        <div>
+          <h3>animation-iteration-count</h3>
+          <p>How many times the animation runs. Accepts numbers, fractions, or <code>infinite</code>.</p>
+          <div class="live-demo">
+            <p style="font-size:.78rem;opacity:.7;margin-bottom:.4rem;">Click to run with each count:</p>
+            <div style="display:flex;gap:.6rem;align-items:center;flex-wrap:wrap;margin-bottom:.5rem;">
+              <div class="iter-box" id="iterBox">pulse</div>
+              <div style="display:flex;gap:.35rem;flex-wrap:wrap;">
+                <button class="demo-btn" onclick="setIter('1')">× 1</button>
+                <button class="demo-btn" onclick="setIter('3')">× 3</button>
+                <button class="demo-btn" onclick="setIter('inf')">∞ infinite</button>
+                <button class="demo-btn" onclick="setIter('2.5')">× 2.5</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div>
+          <h3>animation-direction</h3>
+          <ul style="font-size:.82rem;margin-bottom:.4rem;">
+            <li><code>normal</code> — 0% → 100% every cycle</li>
+            <li><code>reverse</code> — 100% → 0% every cycle</li>
+            <li><code>alternate</code> — forward then backward (breathing effect)</li>
+            <li><code>alternate-reverse</code> — backward then forward</li>
+          </ul>
+          <div class="live-demo">
+            <p style="font-size:.78rem;opacity:.7;margin-bottom:.3rem;">All 4 directions, looping:</p>
+            <div style="margin-bottom:.22rem;font-size:.72rem;opacity:.7;">normal</div>
+            <div class="dir-track"><div class="dir-bar normal"></div></div>
+            <div style="margin:.22rem 0 .12rem;font-size:.72rem;opacity:.7;">reverse</div>
+            <div class="dir-track"><div class="dir-bar reverse"></div></div>
+            <div style="margin:.22rem 0 .12rem;font-size:.72rem;opacity:.7;">alternate</div>
+            <div class="dir-track"><div class="dir-bar alternate"></div></div>
+            <div style="margin:.22rem 0 .12rem;font-size:.72rem;opacity:.7;">alternate-reverse</div>
+            <div class="dir-track"><div class="dir-bar alt-rev"></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       SLIDE 9 — animation-fill-mode
+       ═══════════════════════════════════════════════════════════════ -->
+  <div class="slide">
+    <div class="slide-label">Animation Properties</div>
+    <div class="slide-content">
+      <h2><code>animation-fill-mode</code></h2>
+      <p><em>What styles apply before the animation starts and after it ends?</em> By default: none — element snaps back.</p>
+      <div class="two-col">
+        <div>
+          <table class="cmp">
+            <thead><tr><th>Value</th><th>Behavior</th></tr></thead>
+            <tbody>
+              <tr><td>none</td><td>Uses normal styles before &amp; after — <strong>snaps back</strong></td></tr>
+              <tr><td>forwards</td><td>Holds the <code>100%</code> keyframe styles after ending</td></tr>
+              <tr><td>backwards</td><td>Applies <code>0%</code> styles during the delay period</td></tr>
+              <tr><td>both</td><td>Combines forwards + backwards — <strong>most commonly needed</strong></td></tr>
+            </tbody>
+          </table>
+          <img src="assets/day-15-img-01-fill-mode.png" alt="Fill mode diagram showing none vs forwards vs both" class="slide-img" onerror="this.style.display='none'">
+          <pre style="margin-top:.3rem;"><code>/* The most reliable pattern */
+.notification {
+  animation: slideInUp 0.4s
+             ease-out both;
+}</code></pre>
+        </div>
+        <div>
+          <div class="live-demo">
+            <p style="font-size:.78rem;opacity:.7;margin-bottom:.4rem;">Each box has a 0.8s delay then 0.5s animation. Watch what happens after it ends:</p>
+            <div style="display:flex;gap:1rem;align-items:flex-end;flex-wrap:wrap;min-height:70px;margin-bottom:.5rem;">
+              <div style="text-align:center;">
+                <div class="fill-box" id="fb-none">none</div>
+                <div style="font-size:.7rem;margin-top:.2rem;opacity:.6;">snaps back</div>
+              </div>
+              <div style="text-align:center;">
+                <div class="fill-box" id="fb-fwd">fwd</div>
+                <div style="font-size:.7rem;margin-top:.2rem;opacity:.6;">holds end</div>
+              </div>
+              <div style="text-align:center;">
+                <div class="fill-box" id="fb-both">both</div>
+                <div style="font-size:.7rem;margin-top:.2rem;opacity:.6;">best ✓</div>
+              </div>
+            </div>
+            <button class="demo-btn" onclick="replayFillMode()">▶ Play all (watch closely!)</button>
+          </div>
+          <div class="caution" style="margin-top:.35rem;"><strong>The snap-back bug</strong> is the #1 beginner animation frustration. Always add <code>fill-mode: both</code> to animations that slide, fade, or transform elements into their final position.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       SLIDE 10 — animation-play-state (CodePen 15.1)
+       ═══════════════════════════════════════════════════════════════ -->
+  <div class="slide">
+    <div class="slide-label">Animation Properties</div>
+    <div class="slide-content">
+      <h2><code>animation-play-state</code></h2>
+      <div class="two-col" style="align-items:start;">
+        <div style="flex-shrink:0;">
+          <p>Switches a running animation between <code>running</code> and <code>paused</code>. Useful for accessibility and interactive media.</p>
+          <pre><code>/* CSS: pause on hover */
+.spinner:hover {
+  animation-play-state: paused;
+}
+
+/* JS: toggle pause */
+el.style.animationPlayState
+  = 'paused';   // pause
+el.style.animationPlayState
+  = 'running';  // resume</code></pre>
+          <div class="note">Resuming from <code>paused</code> continues from exactly where it stopped — it does <em>not</em> restart from the beginning.</div>
+          <div class="live-demo" style="margin-top:.4rem;">
+            <p style="font-size:.78rem;opacity:.7;margin-bottom:.4rem;">In-slide spinner demo:</p>
+            <div style="display:flex;align-items:center;gap:1rem;">
+              <div class="spinner-demo" id="spinnerDemo"></div>
+              <button class="demo-btn" onclick="toggleSpinner()" id="spinToggleBtn">⏸ Pause</button>
+            </div>
+          </div>
+        </div>
+        <div class="demo-wrap">
+          <div class="demo-label">CodePen 15.1 — animation-play-state</div>
+          <iframe title="Codepen - 15.1" src="https://codepen.io/mattkearl/embed/QwKyjgj?default-tab=css%2Cresult&editable=true" loading="lazy"></iframe>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       SLIDE 11 — The animation Shorthand
+       ═══════════════════════════════════════════════════════════════ -->
+  <div class="slide">
+    <div class="slide-label">Shorthand</div>
+    <div class="slide-content">
+      <h2>The <code>animation</code> Shorthand</h2>
+      <p>Combines all 8 sub-properties. Only <code>name</code> and <code>duration</code> are required.</p>
+      <pre><code>/* Full form (for learning): */
+animation-name:             slideInUp;
+animation-duration:         0.5s;
+animation-timing-function:  ease-out;
+animation-delay:            0.2s;
+animation-iteration-count:  1;
+animation-direction:        normal;
+animation-fill-mode:        both;
+animation-play-state:       running;
+
+/* Shorthand equivalent: */
+animation: slideInUp 0.5s ease-out 0.2s 1 normal both running;
+
+/* Most common simplified form: */
+animation: slideInUp 0.5s ease-out 0.2s both;</code></pre>
+      <div class="two-col" style="margin-top:.3rem;">
+        <div class="card">
+          <p style="font-size:.82rem;"><strong style="color:#fde68a;">Order mnemonic:</strong><br>
+          <code>name</code> <code>duration</code> <code>timing</code> <code>delay</code> <code>count</code> <code>direction</code> <code>fill</code> <code>state</code></p>
+        </div>
+        <div class="caution">
+          <strong>⚠ Two time values:</strong> The <strong>first</strong> time value is always <code>duration</code>, the <strong>second</strong> is always <code>delay</code>.<br>
+          <code>animation: spin 1s 0.5s</code> = duration 1s, delay 0.5s — not the other way around.
+        </div>
+      </div>
+      <div class="note" style="margin-top:.3rem;">For multiple animations, comma-separate the entire shorthand:<br><code>animation: floatUp 3s ease-in-out infinite, colorShift 6s linear infinite;</code></div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       SLIDE 12 — Transforms in Animations (Rocket demo)
+       ═══════════════════════════════════════════════════════════════ -->
+  <div class="slide">
+    <div class="slide-label">Combining with Transforms</div>
+    <div class="slide-content">
+      <h2>Combining Animations with <code>transform</code></h2>
+      <div class="two-col">
+        <div>
+          <p>Animations are most powerful with <code>transform</code> + <code>opacity</code>. Multiple transform functions combine at each keyframe stop.</p>
+          <pre><code>@keyframes launch {
+  0% {
+    transform: translateY(0)
+               scale(1)
+               rotate(0deg);
+    opacity: 1;
+  }
+  50% {
+    transform: translateY(-60px)
+               scale(1.1)
+               rotate(-5deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(-200px)
+               scale(0.8)
+               rotate(10deg);
+    opacity: 0;
+  }
+}
+
+.rocket {
+  animation: launch 1.2s ease-in forwards;
+}</code></pre>
+          <div class="caution" style="font-size:.8rem;"><strong>Order matters!</strong> <code>translateY(-60px) scale(1.1)</code> first moves, then scales — swapping them changes the result.</div>
+        </div>
+        <div>
+          <div class="live-demo">
+            <p style="font-size:.8rem;opacity:.7;margin-bottom:.5rem;">Click the rocket to launch it:</p>
+            <div class="rocket-stage">
+              <span class="rocket-emoji" id="rocketEmoji" onclick="launchRocket()" title="Click to launch!">🚀</span>
+            </div>
+            <div style="text-align:center;margin-top:.4rem;">
+              <button class="demo-btn" onclick="resetRocket()">↩ Reset</button>
+            </div>
+          </div>
+          <div class="card" style="margin-top:.4rem;">
+            <p style="font-size:.78rem;line-height:1.5;opacity:.85;">Three transform functions run simultaneously: <code>translateY</code> moves up, <code>scale</code> shrinks it, <code>rotate</code> adds a tilting wobble — all in a single keyframe.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       SLIDE 13 — Layering Multiple Animations (CodePen 15.2)
+       ═══════════════════════════════════════════════════════════════ -->
+  <div class="slide">
+    <div class="slide-label">Multiple Animations</div>
+    <div class="slide-content">
+      <h2>Layering Multiple Animations</h2>
+      <div class="two-col">
+        <div>
+          <p>Comma-separate names (and all their corresponding values) to stack animations on one element. Each runs on its own independent timeline.</p>
+          <pre><code>@keyframes floatUp {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-12px); }
+}
+@keyframes colorShift {
+  0%   { color: #4f6df5; }
+  50%  { color: #ec4899; }
+  100% { color: #4f6df5; }
+}
+
+.floating-title {
+  animation:
+    floatUp    3s ease-in-out infinite,
+    colorShift 6s linear     infinite;
+}
+/* floatUp completes 2 cycles
+   while colorShift completes 1 */</code></pre>
+          <div class="note" style="font-size:.8rem;"><strong>Values map by position:</strong> first duration → first animation, second duration → second animation, and so on.</div>
+          <div style="margin-top:.5rem;">
+            <span class="glow-badge" id="floatTitle" style="animation:anim-float 3s ease-in-out infinite,anim-color-cycle 6s linear infinite;">Floating &amp; Color-Shifting Title</span>
+          </div>
+        </div>
+        <div class="demo-wrap">
+          <div class="demo-label">CodePen 15.2 — Multiple animations</div>
+          <iframe title="Codepen - 15.2" src="https://codepen.io/mattkearl/embed/YPGwyQJ?default-tab=css%2Cresult&editable=true" loading="lazy"></iframe>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       SLIDE 14 — Animation Performance
+       ═══════════════════════════════════════════════════════════════ -->
+  <div class="slide">
+    <div class="slide-label">Performance</div>
+    <div class="slide-content">
+      <h2>Animation Performance</h2>
+      <p>The browser's rendering pipeline — animating the wrong properties forces expensive work on every frame:</p>
+      <div class="pipeline-row">
+        <div class="pipe-stage pipe-style">🎨 Style<div class="pipe-sub">Compute styles</div></div>
+        <div class="pipe-arrow">→</div>
+        <div class="pipe-stage pipe-layout">📐 Layout<div class="pipe-sub">width · height · margin · top/left<br><span style="color:#fca5a5;">Triggers reflow!</span></div></div>
+        <div class="pipe-arrow">→</div>
+        <div class="pipe-stage pipe-paint">🖌 Paint<div class="pipe-sub">background · color · box-shadow<br><span style="color:#fde68a;">Triggers repaint</span></div></div>
+        <div class="pipe-arrow">→</div>
+        <div class="pipe-stage pipe-comp">⚡ Composite<div class="pipe-sub">transform · opacity<br><span style="color:#86efac;">GPU only ✓</span></div></div>
+      </div>
+      <img src="assets/day-15-img-02-performance.png" alt="Rendering pipeline performance comparison" class="slide-img" onerror="this.style.display='none'">
+      <div class="two-col" style="margin-top:.3rem;">
+        <div>
+          <h3 style="color:#fca5a5;">❌ Avoid — triggers layout every frame</h3>
+          <pre><code>@keyframes moveLeft-bad {
+  from { left: 0; }
+  to   { left: 300px; }
+}</code></pre>
+        </div>
+        <div>
+          <h3 style="color:#86efac;">✓ Prefer — GPU compositor only</h3>
+          <pre><code>@keyframes moveLeft-good {
+  from { transform: translateX(0); }
+  to   { transform: translateX(300px); }
+}</code></pre>
+        </div>
+      </div>
+      <div class="tip"><strong>Gold standard:</strong> animate only <code>transform</code> and <code>opacity</code>. They bypass layout and paint entirely, handing work to the GPU.</div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       SLIDE 15 — will-change
+       ═══════════════════════════════════════════════════════════════ -->
+  <div class="slide">
+    <div class="slide-label">Performance</div>
+    <div class="slide-content">
+      <h2>The <code>will-change</code> Property</h2>
+      <div class="two-col">
+        <div>
+          <p>A hint to the browser that this element is about to be animated — promotes it to its own GPU layer <em>before</em> the animation starts, eliminating the first-frame startup cost.</p>
+          <pre><code>.animated-card {
+  will-change: transform, opacity;
+}
+
+/* Remove the hint once done (JS) */
+card.addEventListener('animationend',
+  () => {
+    card.style.willChange = 'auto';
+  }
+);</code></pre>
+          <div class="caution"><strong>⚠ Frequently misused.</strong> Do <em>not</em> apply it to every element as a blanket optimization. Each promoted layer consumes GPU memory. Only use it where you have measured a real performance problem, and <strong>always remove it</strong> after the animation completes.</div>
+        </div>
+        <div>
+          <div class="card">
+            <h3>When to use will-change</h3>
+            <ul>
+              <li>Element animates immediately on page load (hero entrance)</li>
+              <li>High-frequency animation (real-time game, particle effect)</li>
+              <li>You've profiled and confirmed a jank issue</li>
+            </ul>
+            <h3 style="margin-top:.5rem;">When NOT to use it</h3>
+            <ul>
+              <li>On hover (too early — element may never animate)</li>
+              <li>On every card, image, or button as a "precaution"</li>
+              <li>On static elements</li>
+            </ul>
+          </div>
+          <div class="tip" style="margin-top:.4rem;">The browser already does a good job of promoting animated elements automatically. <code>will-change</code> is an override, not a default.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       SLIDE 16 — prefers-reduced-motion (CodePen 15.3)
+       ═══════════════════════════════════════════════════════════════ -->
+  <div class="slide">
+    <div class="slide-label">Accessibility</div>
+    <div class="slide-content">
+      <h2>Respecting <code>prefers-reduced-motion</code></h2>
+      <div class="two-col">
+        <div>
+          <p>Many people experience dizziness or nausea from on-screen motion. OS settings expose this preference to CSS:</p>
+          <img src="assets/day-15-img-03-reduce-motion.png" alt="macOS, iOS, Android, and Windows reduce motion settings" class="slide-img" onerror="this.style.display='none'">
+          <div class="note">OS settings: <em>Reduce Motion</em> on macOS/iOS, <em>Remove Animations</em> on Android, <em>Show Animations</em> toggle on Windows.</div>
+          <div class="caution"><strong>Never skip this check for looping animations.</strong> A continuously spinning element is one of the most commonly reported accessibility barriers on the web.</div>
+        </div>
+        <div>
+          <pre><code>/* Default: full animation */
+.hero-text {
+  animation: slideInUp 0.6s ease-out both;
+}
+
+/* Reduced motion: keep fade,
+   remove spatial movement */
+@media (prefers-reduced-motion: reduce) {
+  .hero-text {
+    animation: fadeIn 0.2s ease both;
+  }
+}
+
+/* Nuclear option: disable everything */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}</code></pre>
+          <div class="demo-wrap" style="min-height:0;flex:0;">
+            <div class="demo-label">CodePen 15.3 — prefers-reduced-motion</div>
+            <iframe title="Codepen - 15.3" src="https://codepen.io/mattkearl/embed/EagPVvw?default-tab=css%2Cresult&editable=true" loading="lazy" style="min-height:220px;"></iframe>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       SLIDE 17 — Scroll-Driven Animations: Intro
+       ═══════════════════════════════════════════════════════════════ -->
+  <div class="slide">
+    <div class="slide-label">Modern CSS</div>
+    <div class="slide-content">
+      <h2>Scroll-Driven Animations</h2>
+      <div class="two-col">
+        <div>
+          <p>Traditionally, scroll animations required JavaScript — attaching a <code>scroll</code> event listener, computing scroll position, updating styles on every frame.</p>
+          <p><code>animation-timeline</code> brings this natively to CSS (Chrome 115+, 2023):</p>
+          <ul>
+            <li><code>scroll()</code> — ties animation to scroll progress of a scrollable container</li>
+            <li><code>view()</code> — triggers animation based on how much the element is visible in the viewport</li>
+          </ul>
+          <div class="caution"><strong>Browser support (early 2025):</strong> Chrome &amp; Edge only. Not yet in Firefox or Safari stable. <a href="https://caniuse.com/css-scroll-driven-animations" target="_blank" rel="noopener noreferrer">Check caniuse.com</a><br>Always wrap in: <code>@supports (animation-timeline: scroll()) { }</code></div>
+        </div>
+        <div>
+          <img src="assets/fig-15.1-caniuse-scroll-driven.png" alt="caniuse.com browser support table for CSS scroll-driven animations" class="slide-img" onerror="this.style.display='none'">
+          <div class="card" style="margin-top:.4rem;">
+            <h3>The old way (JavaScript)</h3>
+            <pre style="font-size:.7rem;"><code>window.addEventListener('scroll', () => {
+  const progress = window.scrollY
+    / document.body.scrollHeight;
+  progressBar.style.width
+    = (progress * 100) + '%';
+});</code></pre>
+            <p style="font-size:.78rem;opacity:.7;margin-top:.3rem;">CSS scroll-driven animations eliminate this pattern entirely — no JS, no event listeners, no performance risk of heavy scroll handlers.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       SLIDE 18 — scroll() + view() Timelines
+       ═══════════════════════════════════════════════════════════════ -->
+  <div class="slide">
+    <div class="slide-label">Modern CSS</div>
+    <div class="slide-content">
+      <h2><code>scroll()</code> and <code>view()</code> Timelines</h2>
+      <div class="two-col">
+        <div>
+          <h3>scroll() — Reading Progress Bar</h3>
+          <pre><code>@keyframes growWidth {
+  from { transform: scaleX(0); }
+  to   { transform: scaleX(1); }
+}
+.progress-bar {
+  position: fixed; top: 0; left: 0;
+  width: 100%; height: 4px;
+  transform-origin: left;
+
+  animation: growWidth linear;
+  animation-timeline: scroll(root block);
+  /* duration omitted — scroll drives it */
+}</code></pre>
+          <div class="live-demo">
+            <p style="font-size:.78rem;opacity:.7;margin-bottom:.32rem;">JS-equivalent scroll demo (scroll the box):</p>
+            <div id="scrollDemoWrap" style="height:90px;overflow-y:auto;position:relative;background:rgba(0,0,0,.25);border-radius:6px;">
+              <div id="scrollPB" style="position:sticky;top:0;height:4px;background:#4f6df5;transform-origin:left;transform:scaleX(0);transition:transform .08s linear;"></div>
+              <div style="padding:.6rem .8rem;font-size:.82rem;opacity:.7;line-height:2;">
+                Scroll this box to see the bar grow →<br>More content...<br>Keep scrolling...<br>Almost there...<br>End of content.
+              </div>
+            </div>
+          </div>
+        </div>
+        <div>
+          <h3>view() — Entrance on Scroll</h3>
+          <pre><code>@keyframes revealCard {
+  from {
+    opacity: 0;
+    transform: translateY(40px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.card {
+  animation: revealCard linear both;
+  animation-timeline: view();
+  animation-range: entry 0% entry 40%;
+}
+
+/* Fallback for unsupported browsers */
+@supports not
+  (animation-timeline: view()) {
+  .card { opacity: 1; transform: none; }
+}</code></pre>
+          <img src="assets/day-15-img-04-scroll-timeline.png" alt="scroll-driven animation timeline diagram" class="slide-img" onerror="this.style.display='none'">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       SLIDE 19 — Pseudo-elements Introduction
+       ═══════════════════════════════════════════════════════════════ -->
+  <div class="slide">
+    <div class="slide-label">Pseudo-elements</div>
+    <div class="slide-content">
+      <h2>Pseudo-elements</h2>
+      <div class="two-col">
+        <div>
+          <p>Pseudo-elements style a <em>part</em> of an element, or generate new content — without touching HTML. They use <strong>double-colon syntax</strong> to distinguish from pseudo-classes:</p>
+          <table class="cmp">
+            <thead><tr><th>Selector</th><th>Type</th><th>What it does</th></tr></thead>
+            <tbody>
+              <tr><td>::before</td><td>pseudo-element</td><td>Inserts generated child at start of content</td></tr>
+              <tr><td>::after</td><td>pseudo-element</td><td>Inserts generated child at end of content</td></tr>
+              <tr><td>::placeholder</td><td>pseudo-element</td><td>Styles input placeholder text</td></tr>
+              <tr><td>::selection</td><td>pseudo-element</td><td>Styles highlighted/selected text</td></tr>
+              <tr><td>::marker</td><td>pseudo-element</td><td>Styles list bullets or numbers</td></tr>
+              <tr><td>::first-letter</td><td>pseudo-element</td><td>Targets the first rendered character</td></tr>
+              <tr><td>:hover</td><td>pseudo-class</td><td>State — not a pseudo-element</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div>
+          <div class="card">
+            <h3>Three key rules</h3>
+            <ul>
+              <li><strong><code>::before</code>/<code>::after</code> MUST have a <code>content</code> property</strong> — without it, the browser won't render them at all (use <code>content: ""</code> for pure shapes)</li>
+              <li>Generated content is <strong>not in the DOM</strong> — invisible to most screen readers — ideal for decorative additions only</li>
+              <li>Positioning pseudo-elements absolutely requires <code>position: relative</code> on the parent</li>
+            </ul>
+          </div>
+          <div class="note" style="margin-top:.4rem;">Older browsers support single-colon <code>:before</code> and <code>:after</code>. Most still accept it, but the <strong>double-colon <code>::</code> is the modern standard</strong>.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       SLIDE 20 — ::before & ::after
+       ═══════════════════════════════════════════════════════════════ -->
+  <div class="slide">
+    <div class="slide-label">Pseudo-elements</div>
+    <div class="slide-content">
+      <h2><code>::before</code> and <code>::after</code></h2>
+      <div class="two-col">
+        <div>
+          <h3>Decorative Quotation Marks</h3>
+          <pre><code>.styled-quote {
+  position: relative;   /* ← required */
+  padding: 1.5rem 1.5rem
+           1.5rem 3rem;
+  font-style: italic;
+}
+
+.styled-quote::before {
+  content: "\201C"; /* opening " */
+  position: absolute;
+  left: 0.25rem;
+  top: -0.25rem;
+  font-size: 4rem;
+  color: #4f6df5;
+  line-height: 1;
+}</code></pre>
+          <div class="live-demo" style="margin-top:.4rem;">
+            <div class="quote-demo">Design is not just what it looks like and feels like. Design is how it works.</div>
+          </div>
+        </div>
+        <div>
+          <h3>Animated Underline with <code>::after</code></h3>
+          <pre style="font-size:.68rem;"><code>.nav-link {
+  position: relative;
+  text-decoration: none;
+}
+.nav-link::after {
+  content: "";
+  position: absolute;
+  bottom: -2px; left: 0;
+  width: 100%; height: 2px;
+  background: #4f6df5;
+  transform: scaleX(0);
+  transform-origin: right;
+  transition: transform 0.3s ease;
+}
+.nav-link:hover::after {
+  transform: scaleX(1);
+  transform-origin: left;
+}</code></pre>
+          <div class="live-demo" style="margin-top:.3rem;">
+            <p style="font-size:.75rem;opacity:.6;margin-bottom:.4rem;">Hover the links — grows from right to left:</p>
+            <a class="nav-link-demo" href="#" onclick="return false;">Home</a>
+            <a class="nav-link-demo" href="#" onclick="return false;">About</a>
+            <a class="nav-link-demo" href="#" onclick="return false;">Work</a>
+            <a class="nav-link-demo" href="#" onclick="return false;">Contact</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       SLIDE 21 — Animated Underline CodePen 15.4
+       ═══════════════════════════════════════════════════════════════ -->
+  <div class="slide">
+    <div class="slide-label">Pseudo-elements</div>
+    <div class="slide-content">
+      <h2><code>::before</code> / <code>::after</code> — Live Examples</h2>
+      <div class="demo-wrap">
+        <div class="demo-label">CodePen 15.4 — ::before and ::after animations</div>
+        <iframe title="Codepen - 15.4" src="https://codepen.io/mattkearl/embed/emdJpGW?default-tab=css%2Cresult&editable=true" loading="lazy"></iframe>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       SLIDE 22 — The content Property + attr() Tooltip
+       ═══════════════════════════════════════════════════════════════ -->
+  <div class="slide">
+    <div class="slide-label">Pseudo-elements</div>
+    <div class="slide-content">
+      <h2>The <code>content</code> Property</h2>
+      <div class="two-col">
+        <div>
+          <table class="cmp">
+            <thead><tr><th>Value</th><th>What it inserts</th></tr></thead>
+            <tbody>
+              <tr><td><code>"text"</code></td><td>A string literal, including Unicode: <code>"\2713"</code> = ✓</td></tr>
+              <tr><td><code>attr(data-x)</code></td><td>The value of an HTML attribute — reads dynamically</td></tr>
+              <tr><td><code>counter(name)</code></td><td>An incrementing CSS counter value</td></tr>
+              <tr><td><code>""</code></td><td>Empty string — required when you want a visible shape with no text</td></tr>
+              <tr><td><code>none</code></td><td>Suppresses a pseudo-element inherited from another rule</td></tr>
+            </tbody>
+          </table>
+          <h3 style="margin-top:.4rem;">CSS-only Tooltip with <code>attr()</code></h3>
+          <pre style="font-size:.69rem;"><code>&lt;button data-tooltip="Opens your saved items"&gt;
+  Cart
+&lt;/button&gt;
+
+[data-tooltip]::before {
+  content: attr(data-tooltip);
+  /* reads the HTML attribute! */
+  position: absolute;
+  bottom: calc(100% + 6px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: #1e293b; color: white;
+  border-radius: 4px;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+[data-tooltip]:hover::before { opacity: 1; }</code></pre>
+        </div>
+        <div>
+          <div class="live-demo">
+            <p style="font-size:.78rem;opacity:.7;margin-bottom:.6rem;">Hover the buttons — tooltips are pure CSS using <code>attr(data-tooltip)</code>:</p>
+            <div style="display:flex;gap:1rem;flex-wrap:wrap;padding:.8rem 0;">
+              <button class="tt-btn" data-tooltip="Opens your saved items">Cart 🛒</button>
+              <button class="tt-btn" data-tooltip="Go back to the home page">Home 🏠</button>
+              <button class="tt-btn" data-tooltip="View account settings">Settings ⚙</button>
+            </div>
+            <p style="font-size:.75rem;opacity:.6;margin-top:.5rem;">Changing the tooltip text is as simple as editing the <code>data-tooltip</code> HTML attribute — no CSS changes needed.</p>
+          </div>
+          <div class="tip" style="margin-top:.4rem;">The tooltip arrow (pointing down from the bubble) is drawn using the <strong>border trick</strong>: set one border color, make adjacent borders transparent = triangle. See CodePen 15.6 for the full pattern.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       SLIDE 23 — ::placeholder, ::selection, ::marker
+       ═══════════════════════════════════════════════════════════════ -->
+  <div class="slide">
+    <div class="slide-label">Pseudo-elements</div>
+    <div class="slide-content">
+      <h2><code>::placeholder</code> &nbsp;·&nbsp; <code>::selection</code> &nbsp;·&nbsp; <code>::marker</code></h2>
+      <div class="three-col">
+        <div class="card">
+          <h3>::placeholder</h3>
+          <p style="font-size:.82rem;">Styles hint text shown before user types. Browser defaults often fail WCAG contrast.</p>
+          <pre style="font-size:.68rem;"><code>input::placeholder {
+  color: #93c5fd;
+  font-style: italic;
+}</code></pre>
+          <div class="live-demo" style="margin-top:.4rem;">
+            <input class="ph-input" type="text" placeholder="Search for anything…">
+          </div>
+          <div class="caution" style="margin-top:.35rem;font-size:.78rem;"><strong>Not a label replacement.</strong> Placeholder disappears when user starts typing. Always use a visible <code>&lt;label&gt;</code>.</div>
+        </div>
+        <div class="card">
+          <h3>::selection</h3>
+          <p style="font-size:.82rem;">Styles the background and text color of highlighted/selected content.</p>
+          <pre style="font-size:.68rem;"><code>::selection {
+  background-color: #4f6df5;
+  color: white;
+}</code></pre>
+          <div class="live-demo" style="margin-top:.4rem;">
+            <p class="sel-demo" style="font-size:.85rem;line-height:1.6;">Try selecting this text — it highlights in brand blue!</p>
+            <p class="sel-demo-yellow" style="font-size:.85rem;line-height:1.6;margin-top:.3rem;">And this paragraph uses a yellow selection.</p>
+          </div>
+          <p style="font-size:.75rem;opacity:.65;margin-top:.25rem;">Only <code>color</code>, <code>background-color</code>, <code>cursor</code>, <code>text-shadow</code>, and a few others are allowed on <code>::selection</code>.</p>
+        </div>
+        <div class="card">
+          <h3>::marker</h3>
+          <p style="font-size:.82rem;">Targets the bullet point or number of list items — no hack required.</p>
+          <pre style="font-size:.68rem;"><code>ul li::marker {
+  color: #4f6df5;
+  font-size: 1.2em;
+}
+ol li::marker {
+  color: #ec4899;
+  font-weight: 700;
+}</code></pre>
+          <div class="live-demo" style="margin-top:.4rem;">
+            <ul class="marker-custom" style="font-size:.85rem;">
+              <li>Apples</li>
+              <li>Oranges</li>
+              <li>Bananas</li>
+            </ul>
+            <ol class="marker-num" style="font-size:.85rem;margin-top:.35rem;">
+              <li>First step</li>
+              <li>Second step</li>
+              <li>Third step</li>
+            </ol>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       SLIDE 24 — ::first-letter & ::first-line + CodePen 15.5
+       ═══════════════════════════════════════════════════════════════ -->
+  <div class="slide">
+    <div class="slide-label">Pseudo-elements</div>
+    <div class="slide-content">
+      <h2><code>::first-letter</code> &amp; <code>::first-line</code></h2>
+      <div class="two-col">
+        <div>
+          <h3>::first-letter — Drop Cap</h3>
+          <pre><code>.article p:first-of-type::first-letter {
+  float: left;
+  font-size: 3.5rem;
+  font-weight: 700;
+  line-height: 0.85;
+  margin-right: 0.1em;
+  color: #4f6df5;
+}</code></pre>
+          <img src="assets/day-15-img-05-drop-cap.png" alt="Drop cap typographic example showing large decorative first letter" class="slide-img" style="max-height:120px;object-fit:contain;" onerror="this.style.display='none'">
+          <h3 style="margin-top:.3rem;">::first-line</h3>
+          <p style="font-size:.85rem;">Styles only the first <em>rendered line</em> — the browser automatically adjusts which words are in the first line as the container resizes.</p>
+          <pre><code>p::first-line {
+  font-weight: 700;
+  color: #fde68a;
+}</code></pre>
+        </div>
+        <div>
+          <div class="live-demo">
+            <p style="font-size:.78rem;opacity:.7;margin-bottom:.4rem;">Drop cap — live demo:</p>
+            <div class="drop-cap" style="background:rgba(0,0,0,.2);border-radius:6px;padding:.6rem .8rem;">
+              <p style="font-size:.88rem;line-height:1.6;color:white;">Once upon a time, CSS did not have pseudo-elements, and developers had to manually wrap the first letter in a <code>&lt;span&gt;</code> every time. Now the browser handles it automatically based on rendered width.</p>
+            </div>
+          </div>
+          <div class="demo-wrap" style="min-height:0;flex:0;margin-top:.4rem;">
+            <div class="demo-label">CodePen 15.5 — ::first-letter and ::first-line</div>
+            <iframe title="Codepen - 15.5" src="https://codepen.io/mattkearl/embed/ogzbjGM?default-tab=css%2Cresult&editable=true" loading="lazy" style="min-height:220px;"></iframe>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       SLIDE 25 — Practical: CSS Spinner
+       ═══════════════════════════════════════════════════════════════ -->
+  <div class="slide">
+    <div class="slide-label">Practical Patterns</div>
+    <div class="slide-content">
+      <h2>Pattern: CSS Spinner / Loading Indicator</h2>
+      <div class="two-col">
+        <div>
+          <p>A pure-CSS spinner uses a border and <code>rotate</code> animation — no images, no JavaScript.</p>
+          <pre><code>&lt;div class="spinner"
+     aria-label="Loading"
+     role="status"&gt;&lt;/div&gt;
+
+.spinner {
+  width: 40px; height: 40px;
+  border: 4px solid #e2e8f0; /* track */
+  border-top-color: #4f6df5; /* segment */
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Accessibility: respect motion prefs */
+@media (prefers-reduced-motion: reduce) {
+  .spinner { animation: none; }
+}</code></pre>
+          <div class="note"><strong>Accessibility:</strong> <code>role="status"</code> and <code>aria-label="Loading"</code> are required — screen readers need these to announce that loading is in progress.</div>
+        </div>
+        <div>
+          <div class="live-demo">
+            <p style="font-size:.78rem;opacity:.7;margin-bottom:.6rem;">Live CSS spinners — different sizes and colors:</p>
+            <div style="display:flex;gap:1.5rem;align-items:center;flex-wrap:wrap;margin-bottom:.6rem;">
+              <div class="spinner-demo" id="spin1"></div>
+              <div class="spinner-demo" style="width:56px;height:56px;border-width:5px;border-top-color:#ec4899;"></div>
+              <div class="spinner-demo" style="width:28px;height:28px;border-width:3px;border-top-color:#22c55e;animation-duration:.5s;"></div>
+              <div class="spinner-demo" style="width:64px;height:64px;border-width:6px;border-top-color:#f59e0b;animation-duration:1.4s;"></div>
+            </div>
+            <div style="display:flex;gap:.5rem;flex-wrap:wrap;">
+              <button class="demo-btn" onclick="toggleSpinDemo()" id="spinDemoBtn">⏸ Pause all</button>
+              <button class="demo-btn" onclick="changeSpinSpeed()">⚡ Speed up</button>
+            </div>
+          </div>
+          <div class="card" style="margin-top:.4rem;">
+            <h3>How it works</h3>
+            <ul style="font-size:.82rem;">
+              <li>The full circle has a <code>border</code> track color</li>
+              <li>Only <code>border-top-color</code> is set to the accent color</li>
+              <li><code>rotate(360deg)</code> spins it — the colored segment moves around the track</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       SLIDE 26 — Practical: Staggered List Entrance
+       ═══════════════════════════════════════════════════════════════ -->
+  <div class="slide">
+    <div class="slide-label">Practical Patterns</div>
+    <div class="slide-content">
+      <h2>Pattern: Staggered List Entrance</h2>
+      <div class="two-col">
+        <div>
+          <p>Give each item a slightly later <code>animation-delay</code> for a cascading reveal that draws the eye down the list.</p>
+          <pre><code>@keyframes itemIn {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.menu-item {
+  animation: itemIn 0.4s ease-out both;
+}
+
+/* Each child gets a slightly later start */
+.menu-item:nth-child(1) { animation-delay: 0s; }
+.menu-item:nth-child(2) { animation-delay: 0.05s; }
+.menu-item:nth-child(3) { animation-delay: 0.1s; }
+.menu-item:nth-child(4) { animation-delay: 0.15s; }
+.menu-item:nth-child(5) { animation-delay: 0.2s; }</code></pre>
+          <div class="tip">Combine with <code>fill-mode: both</code> so items start invisible (during their delay) and hold their final position after appearing.</div>
+        </div>
+        <div>
+          <div class="live-demo">
+            <p style="font-size:.78rem;opacity:.7;margin-bottom:.4rem;">Click to trigger the staggered entrance:</p>
+            <ul class="stagger-list" id="staggerList">
+              <li class="stagger-item">🏠 Home</li>
+              <li class="stagger-item">📖 About</li>
+              <li class="stagger-item">💼 Portfolio</li>
+              <li class="stagger-item">✉️ Contact</li>
+              <li class="stagger-item">⚙️ Settings</li>
+            </ul>
+            <div style="display:flex;gap:.5rem;margin-top:.5rem;">
+              <button class="demo-btn" onclick="replayStaggerList()">▶ Play</button>
+              <button class="demo-btn" onclick="resetStaggerList()">↩ Reset</button>
+            </div>
+          </div>
+          <div class="card" style="margin-top:.4rem;">
+            <h3>When to use stagger</h3>
+            <ul style="font-size:.82rem;">
+              <li>Navigation menus opening</li>
+              <li>Card grids loading in</li>
+              <li>Search results appearing</li>
+              <li>Any list where items arriving one-by-one adds clarity</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       SLIDE 27 — Practical: Tooltip Arrow + CodePen 15.6
+       ═══════════════════════════════════════════════════════════════ -->
+  <div class="slide">
+    <div class="slide-label">Practical Patterns</div>
+    <div class="slide-content">
+      <h2>Pattern: Tooltip Arrow with <code>::before</code></h2>
+      <div class="two-col">
+        <div>
+          <h3>The CSS Border Triangle Trick</h3>
+          <p>A triangle is drawn by making an element's width and height 0, and coloring only one border — adjacent borders become transparent, forming a triangle.</p>
+          <pre><code>.tooltip::after {
+  content: "";
+  position: absolute;
+  top: 100%; /* below the tooltip */
+  left: 50%;
+  transform: translateX(-50%);
+  border-width: 6px;
+  border-style: solid;
+  border-color:
+    #1e293b  /* top    — visible */
+    transparent  /* right  — hidden */
+    transparent  /* bottom — hidden */
+    transparent; /* left   — hidden */
+  /* Result: ▼ pointing down */
+}</code></pre>
+          <div class="tip" style="margin-top:.3rem;">Rotate the visible border side to point in any direction: <code>border-bottom-color</code> for ▲ pointing up, <code>border-right-color</code> for ◀ pointing left.</div>
+        </div>
+        <div class="demo-wrap">
+          <div class="demo-label">CodePen 15.6 — Practical animation patterns</div>
+          <iframe title="Codepen - 15.6" src="https://codepen.io/mattkearl/embed/gbwPaGJ?default-tab=css%2Cresult&editable=true" loading="lazy"></iframe>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       SLIDE 28 — Summary
+       ═══════════════════════════════════════════════════════════════ -->
+  <div class="slide">
+    <div class="slide-label">Summary</div>
+    <div class="slide-content">
+      <h2>What You Learned</h2>
+      <div class="summary-grid">
+        <div class="summary-card">
+          <strong>@keyframes</strong>
+          Named sequences of style snapshots. Use <code>from</code>/<code>to</code> for two states, percentages for multiple stops.
+        </div>
+        <div class="summary-card">
+          <strong>The 8 Properties</strong>
+          name · duration · timing-function · delay · iteration-count · direction · <strong>fill-mode</strong> · play-state
+        </div>
+        <div class="summary-card">
+          <strong>animation Shorthand</strong>
+          First time value = duration, second = delay. Most common form: <code>name duration timing delay fill-mode</code>
+        </div>
+        <div class="summary-card">
+          <strong>Performance</strong>
+          Animate only <code>transform</code> and <code>opacity</code> — they skip Layout and Paint, going straight to the GPU Compositor.
+        </div>
+        <div class="summary-card">
+          <strong>prefers-reduced-motion</strong>
+          Always override looping animations inside <code>@media (prefers-reduced-motion: reduce)</code>. Accessibility is not optional.
+        </div>
+        <div class="summary-card">
+          <strong>Scroll-Driven</strong>
+          <code>animation-timeline: scroll()</code> and <code>view()</code> bring scroll animations to CSS — Chrome/Edge only in 2025. Always add a <code>@supports</code> fallback.
+        </div>
+        <div class="summary-card">
+          <strong>::before &amp; ::after</strong>
+          Generate decorative content without HTML. Must have <code>content</code> property. Require <code>position: relative</code> on parent for absolute positioning.
+        </div>
+        <div class="summary-card">
+          <strong>::placeholder &amp; ::selection</strong>
+          Style form hints and highlighted text. Only <code>color</code>/<code>background-color</code> work on <code>::selection</code>.
+        </div>
+        <div class="summary-card">
+          <strong>Drop Cap / ::first-letter</strong>
+          Classic typographic technique — no extra HTML needed. Browser automatically tracks which characters are in the first line.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       SLIDE 29 — Q&A Part 1
+       ═══════════════════════════════════════════════════════════════ -->
+  <div class="slide">
+    <div class="slide-label">Q &amp; A</div>
+    <div class="slide-content">
+      <h2>Q &amp; A</h2>
+      <div class="qa-item">
+        <div class="qa-q">Q. What is the difference between a CSS transition and a CSS animation?</div>
+        <div class="qa-a">A. A <strong>transition</strong> reacts to a state change — it only plays when a property changes (hover, focus, class toggle). An <strong>animation</strong> is proactive: it starts automatically, can loop, reverse, and pass through any number of keyframe stops. Transitions are best for interactive feedback; animations are best for motion that needs to play on its own schedule.</div>
+      </div>
+      <div class="qa-item">
+        <div class="qa-q">Q. My animation runs once and the element snaps back to its original style. How do I fix it?</div>
+        <div class="qa-a">A. Add <code>animation-fill-mode: forwards</code> (or <code>both</code> if you also have a delay and want starting styles applied immediately). <code>forwards</code> tells the browser to hold the styles from the last keyframe after the animation completes.</div>
+      </div>
+      <div class="qa-item">
+        <div class="qa-q">Q. Can I animate a pseudo-element independently from the element itself?</div>
+        <div class="qa-a">A. Yes. Attach an <code>animation</code> directly to the pseudo-element selector: <code>.card::before { animation: spin 1s linear infinite; }</code>. The pseudo-element's animation runs entirely separately from any animation on <code>.card</code>.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       SLIDE 30 — Q&A Part 2
+       ═══════════════════════════════════════════════════════════════ -->
+  <div class="slide">
+    <div class="slide-label">Q &amp; A</div>
+    <div class="slide-content">
+      <h2>Q &amp; A (continued)</h2>
+      <div class="qa-item">
+        <div class="qa-q">Q. Do screen readers read content generated by <code>::before</code> and <code>::after</code>?</div>
+        <div class="qa-a">A. Browser behavior is inconsistent, but most modern screen readers <em>do</em> read generated content. However, generated content should only be used for <strong>purely decorative purposes</strong>. Any meaningful text belongs in your HTML. Use <code>content: "" / ""</code> (the second empty string is an accessibility alt-text value) to explicitly hide decorative pseudo-content from assistive technology.</div>
+      </div>
+      <div class="qa-item">
+        <div class="qa-q">Q. How does a negative <code>animation-delay</code> work?</div>
+        <div class="qa-a">A. A negative delay starts the animation as if it already started that many seconds ago. <code>animation-delay: -1s</code> on a 3-second animation begins playback at the 1-second mark. This technique is used to stagger looping animations so they do not all start at <code>0%</code> simultaneously — useful for a wave of loading dots.</div>
+      </div>
+      <div class="qa-item">
+        <div class="qa-q">Q. What does <code>animation-timeline: view()</code> actually measure?</div>
+        <div class="qa-a">A. It measures the element's progress through the viewport — specifically, how much of the element has entered the scrollport. The animation's <code>0%</code> keyframe corresponds to when the element begins entering the viewport from below, and <code>100%</code> when it has fully entered. The <code>animation-range</code> property with <code>entry</code> and <code>exit</code> keywords lets you target just the entering or just the exiting phase.</div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- end #slides -->
+
+<!-- Navigation -->
+<nav class="nav">
+  <button class="nav-btn" id="prevBtn" onclick="changeSlide(-1)" title="Previous (←)">&#8592;</button>
+  <span class="nav-counter" id="counter">1 / 30</span>
+  <button class="nav-btn" id="nextBtn" onclick="changeSlide(1)" title="Next (→)">&#8594;</button>
+</nav>
+
+<script>
+  // ──────────────────────────────────────────
+  //  Slideshow core
+  // ──────────────────────────────────────────
+  const slides = document.querySelectorAll('.slide');
+  const total  = slides.length;
+  let current  = 0;
+
+  function showSlide(n) {
+    slides[current].classList.remove('active');
+    current = (n + total) % total;
+    slides[current].classList.add('active');
+    document.getElementById('counter').textContent = (current + 1) + ' / ' + total;
+    document.getElementById('prevBtn').disabled = (current === 0);
+    document.getElementById('nextBtn').disabled = (current === total - 1);
+    const pct = (current / (total - 1)) * 100;
+    document.getElementById('progress').style.width = pct + '%';
+  }
+  function changeSlide(dir) { showSlide(current + dir); }
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown')  changeSlide(1);
+    if (e.key === 'ArrowLeft'  || e.key === 'ArrowUp')    changeSlide(-1);
+  });
+  showSlide(0);
+
+  // ──────────────────────────────────────────
+  //  Helper: replay animation by removing/re-adding class
+  // ──────────────────────────────────────────
+  function replay(el, cls) {
+    el.classList.remove(cls);
+    void el.offsetWidth; // force reflow
+    el.classList.add(cls);
+  }
+
+  // ──────────────────────────────────────────
+  //  Slide 3 — Fade demo
+  // ──────────────────────────────────────────
+  function replayFade() {
+    const box = document.getElementById('fadeBox');
+    replay(box, 'go');
+  }
+
+  // ──────────────────────────────────────────
+  //  Slide 4 — Bounce demo
+  // ──────────────────────────────────────────
+  function replayBounce() {
+    const ball = document.getElementById('bounceBall');
+    replay(ball, 'go');
+  }
+
+  // ──────────────────────────────────────────
+  //  Slide 6 — Duration slider
+  // ──────────────────────────────────────────
+  function updateDur(v) {
+    const dur = (v / 10).toFixed(1) + 's';
+    document.getElementById('durVal').textContent = dur;
+    const box = document.getElementById('durBox');
+    box.style.setProperty('--dur', dur);
+    replay(box, 'go');
+  }
+  // Init spinner
+  (function() {
+    const box = document.getElementById('durBox');
+    if (box) box.classList.add('go');
+  })();
+
+  // ──────────────────────────────────────────
+  //  Slide 6 — Timing function race
+  // ──────────────────────────────────────────
+  const raceMap = {
+    'rb-ease':     'go-ease',
+    'rb-linear':   'go-linear',
+    'rb-ease-in':  'go-ease-in',
+    'rb-ease-out': 'go-ease-out',
+    'rb-ease-io':  'go-ease-in-out',
+    'rb-steps':    'go-steps'
+  };
+  function startRace() {
+    Object.entries(raceMap).forEach(([id, cls]) => {
+      const el = document.getElementById(id);
+      if (el) replay(el, cls);
+    });
+  }
+
+  // ──────────────────────────────────────────
+  //  Slide 7 — Delay demos
+  // ──────────────────────────────────────────
+  function replayNeg() {
+    const bar = document.getElementById('negBar');
+    replay(bar, 'go');
+  }
+  function replayStagger() {
+    const dots = document.querySelectorAll('#delayDots .delay-dot');
+    dots.forEach(d => {
+      d.classList.remove('go');
+      void d.offsetWidth;
+    });
+    dots.forEach(d => d.classList.add('go'));
+  }
+
+  // ──────────────────────────────────────────
+  //  Slide 8 — Iteration count
+  // ──────────────────────────────────────────
+  function setIter(type) {
+    const box = document.getElementById('iterBox');
+    box.classList.remove('anim-1', 'anim-3', 'anim-inf', 'anim-25');
+    void box.offsetWidth;
+    if      (type === '1')   box.classList.add('anim-1');
+    else if (type === '3')   box.classList.add('anim-3');
+    else if (type === 'inf') box.classList.add('anim-inf');
+    else if (type === '2.5') {
+      box.style.animation = 'anim-pulse .6s ease-in-out 2.5 both';
+      void box.offsetWidth;
+      const clone = box.cloneNode(true);
+      box.parentNode.replaceChild(clone, box);
+      clone.style.animation = 'anim-pulse .6s ease-in-out 2.5 both';
+    }
+  }
+
+  // ──────────────────────────────────────────
+  //  Slide 9 — Fill mode demo
+  // ──────────────────────────────────────────
+  function replayFillMode() {
+    ['fb-none','fb-fwd','fb-both'].forEach(id => {
+      const el = document.getElementById(id);
+      if (!el) return;
+      el.classList.remove('anim-none','anim-forwards','anim-both');
+      void el.offsetWidth;
+    });
+    document.getElementById('fb-none').classList.add('anim-none');
+    document.getElementById('fb-fwd').classList.add('anim-forwards');
+    document.getElementById('fb-both').classList.add('anim-both');
+  }
+
+  // ──────────────────────────────────────────
+  //  Slide 10 — Spinner toggle
+  // ──────────────────────────────────────────
+  function toggleSpinner() {
+    const el = document.getElementById('spinnerDemo');
+    const btn = document.getElementById('spinToggleBtn');
+    const paused = el.classList.toggle('paused');
+    btn.textContent = paused ? '▶ Resume' : '⏸ Pause';
+  }
+
+  // ──────────────────────────────────────────
+  //  Slide 12 — Rocket
+  // ──────────────────────────────────────────
+  function launchRocket() {
+    const el = document.getElementById('rocketEmoji');
+    replay(el, 'go');
+  }
+  function resetRocket() {
+    const el = document.getElementById('rocketEmoji');
+    el.classList.remove('go');
+    void el.offsetWidth;
+  }
+
+  // ──────────────────────────────────────────
+  //  Slide 18 — Scroll progress bar (JS-powered demo)
+  // ──────────────────────────────────────────
+  const scrollDemoWrap = document.getElementById('scrollDemoWrap');
+  const scrollPB       = document.getElementById('scrollPB');
+  if (scrollDemoWrap) {
+    scrollDemoWrap.addEventListener('scroll', function() {
+      const pct = this.scrollTop / (this.scrollHeight - this.clientHeight);
+      scrollPB.style.transform = 'scaleX(' + Math.min(1, pct) + ')';
+    });
+  }
+
+  // ──────────────────────────────────────────
+  //  Slide 25 — Spinner all-pause toggle + speed
+  // ──────────────────────────────────────────
+  let spinnersPaused = false;
+  function toggleSpinDemo() {
+    spinnersPaused = !spinnersPaused;
+    document.querySelectorAll('.spinner-demo').forEach(s => {
+      s.style.animationPlayState = spinnersPaused ? 'paused' : 'running';
+    });
+    document.getElementById('spinDemoBtn').textContent =
+      spinnersPaused ? '▶ Resume all' : '⏸ Pause all';
+  }
+  let speedFast = false;
+  function changeSpinSpeed() {
+    speedFast = !speedFast;
+    document.querySelectorAll('.spinner-demo').forEach(s => {
+      s.style.animationDuration = speedFast ? '.2s' : '';
+    });
+  }
+
+  // ──────────────────────────────────────────
+  //  Slide 26 — Staggered list
+  // ──────────────────────────────────────────
+  function replayStaggerList() {
+    const items = document.querySelectorAll('#staggerList .stagger-item');
+    items.forEach(it => {
+      it.classList.remove('go');
+      void it.offsetWidth;
+    });
+    items.forEach(it => it.classList.add('go'));
+  }
+  function resetStaggerList() {
+    document.querySelectorAll('#staggerList .stagger-item')
+      .forEach(it => it.classList.remove('go'));
+  }
+</script>
+</body>
+</html>
