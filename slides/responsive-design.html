@@ -1,0 +1,1446 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Responsive Web Design</title>
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box;}
+    :root{
+      --primary-color:#1a1a2e;
+      --secondary-color:#4f6df5;
+      --code-bg:#0f0f1a;
+      --code-text:#d4d4d4;
+    }
+    html,body{height:100%;font-family:'Segoe UI',system-ui,sans-serif;background:var(--primary-color);overflow:hidden;display:flex;flex-direction:column;}
+
+    /* Progress bar */
+    .progress-bar{width:100%;height:4px;background:rgba(255,255,255,.12);flex-shrink:0;}
+    .progress{height:100%;background:var(--secondary-color);transition:width .3s ease;}
+
+    /* Slideshow */
+    .slideshow-container{flex:1;display:flex;flex-direction:column;overflow:hidden;min-height:0;}
+    .slide{display:none;flex:1;padding:1.1rem 1.65rem;color:#fff;overflow-y:auto;animation:s-fadeIn .32s ease;min-height:0;flex-direction:column;}
+    .slide.active{display:flex;}
+    @keyframes s-fadeIn{from{opacity:0;transform:translateX(16px);}to{opacity:1;transform:translateX(0);}}
+
+    /* Backgrounds */
+    .slide:nth-child(odd) {background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);}
+    .slide:nth-child(even){background:linear-gradient(135deg,#11998e 0%,#38ef7d 100%);}
+    .slide:nth-child(3n)  {background:linear-gradient(135deg,#ee0979 0%,#ff6a00 100%);}
+    .slide:nth-child(4n)  {background:linear-gradient(135deg,#2193b0 0%,#6dd5ed 100%);}
+    .slide:nth-child(5n)  {background:linear-gradient(135deg,#c31432 0%,#240b36 100%);}
+    .slide:nth-child(7n)  {background:linear-gradient(135deg,#0f0c29 0%,#302b63 50%,#24243e 100%);}
+    .slide:nth-child(9n)  {background:linear-gradient(135deg,#1a1a2e 0%,#16213e 50%,#0f3460 100%);}
+
+    /* Label */
+    .slide-label{font-size:.68rem;text-transform:uppercase;letter-spacing:.12em;color:rgba(255,255,255,.42);margin-bottom:.25rem;flex-shrink:0;}
+
+    /* Content wrapper */
+    .slide-content{max-width:1400px;width:100%;margin:0 auto;flex:1;display:flex;flex-direction:column;min-height:0;}
+    .slide-content.centered{justify-content:center;align-items:center;text-align:center;}
+
+    /* Typography */
+    h1{font-size:clamp(1.75rem,5vw,3rem);margin-bottom:.9rem;line-height:1.2;text-shadow:0 2px 6px rgba(0,0,0,.3);}
+    h2{font-size:clamp(1.25rem,3.5vw,1.9rem);margin-bottom:.35rem;color:#ffeaa7;line-height:1.25;}
+    h3{font-size:clamp(.92rem,2.2vw,1.25rem);margin:.35rem 0 .18rem;color:#81ecec;}
+    p{font-size:clamp(.85rem,1.95vw,1.02rem);line-height:1.5;margin-bottom:.28rem;}
+    ul,ol{font-size:clamp(.82rem,1.85vw,.98rem);line-height:1.55;margin-left:1.25rem;margin-bottom:.28rem;}
+    li{margin-bottom:.13rem;}
+    a{color:#ffeaa7;text-decoration:underline;}
+    a:hover{color:#fdcb6e;}
+    code{background:rgba(0,0,0,.38);padding:.14em .42em;border-radius:4px;font-family:'Consolas','Monaco',monospace;font-size:.87em;}
+    pre{background:var(--code-bg);color:var(--code-text);padding:.5rem .8rem;border-radius:8px;overflow-x:auto;margin:.28rem 0;font-size:clamp(.7rem,1.55vw,.86rem);line-height:1.42;flex-shrink:0;}
+    pre code{background:none;padding:0;font-size:inherit;}
+
+    /* Callouts */
+    .note{background:rgba(34,197,94,.14);border-left:4px solid #22c55e;padding:.42rem .75rem;border-radius:6px;margin:.28rem 0;font-size:clamp(.8rem,1.75vw,.94rem);}
+    .caution{background:rgba(239,68,68,.14);border-left:4px solid #ef4444;padding:.42rem .75rem;border-radius:6px;margin:.28rem 0;font-size:clamp(.8rem,1.75vw,.94rem);}
+    .tip{background:rgba(79,109,245,.18);border-left:4px solid #4f6df5;padding:.42rem .75rem;border-radius:6px;margin:.28rem 0;font-size:clamp(.8rem,1.75vw,.94rem);}
+    .highlight{background:rgba(255,255,255,.13);border-left:4px solid #ffeaa7;padding:.42rem .75rem;border-radius:6px;margin:.28rem 0;font-size:clamp(.8rem,1.75vw,.94rem);}
+
+    /* Buttons */
+    .demo-btn{padding:.28rem .6rem;font-size:.78rem;border:1px solid rgba(255,255,255,.32);border-radius:4px;cursor:pointer;background:rgba(0,0,0,.3);color:white;transition:all .2s;}
+    .demo-btn:hover{background:rgba(255,255,255,.15);}
+    .demo-btn.active{background:rgba(52,152,219,.65);border-color:#3498db;}
+    .live-demo{background:rgba(0,0,0,.22);border-radius:8px;padding:.5rem .85rem;margin:.28rem 0;border:1px solid rgba(255,255,255,.14);}
+
+    /* Layout */
+    .two-col{display:grid;grid-template-columns:1fr 1fr;gap:.9rem;align-items:start;}
+    .three-col{display:grid;grid-template-columns:repeat(3,1fr);gap:.75rem;align-items:start;}
+    @media(max-width:900px){.three-col{grid-template-columns:1fr 1fr;}}
+    @media(max-width:700px){.two-col,.three-col{grid-template-columns:1fr;}.slide{padding:.9rem .9rem;}}
+
+    /* Cards */
+    .card{background:rgba(0,0,0,.22);padding:.6rem .8rem;border-radius:8px;border:1px solid rgba(255,255,255,.13);}
+    .card-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:.55rem;margin:.35rem 0;}
+
+    /* Images */
+    .slide-img{max-width:100%;border-radius:8px;border:1px solid rgba(255,255,255,.18);margin:.35rem 0;box-shadow:0 4px 16px rgba(0,0,0,.4);}
+    .img-caption{font-size:.73rem;opacity:.58;text-align:center;margin-top:.18rem;}
+
+    /* Learn grid (cover) */
+    .learn-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:.4rem;margin:.45rem 0;}
+    .learn-item{background:rgba(0,0,0,.22);border-left:3px solid #81ecec;border-radius:6px;padding:.4rem .7rem;font-size:clamp(.78rem,1.75vw,.93rem);line-height:1.45;}
+
+    /* Summary cards */
+    .summary-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(195px,1fr));gap:.5rem;margin:.45rem 0;}
+    .summary-card{background:rgba(0,0,0,.22);border-radius:8px;padding:.6rem .85rem;border:1px solid rgba(255,255,255,.13);font-size:clamp(.76rem,1.65vw,.9rem);line-height:1.45;}
+    .summary-card strong{color:#ffeaa7;display:block;margin-bottom:.18rem;font-size:.88em;}
+
+    /* Table */
+    table.cmp{width:100%;border-collapse:collapse;font-size:clamp(.78rem,1.75vw,.96rem);margin:.35rem 0;}
+    table.cmp th,table.cmp td{border:1px solid rgba(255,255,255,.22);padding:.28rem .52rem;text-align:left;vertical-align:top;}
+    table.cmp th{background:rgba(0,0,0,.28);color:#ffeaa7;}
+    table.cmp td:first-child{color:#93c5fd;font-weight:600;white-space:nowrap;}
+
+    /* CodePen iframe */
+    .demo-wrap{flex:1;min-height:0;display:flex;flex-direction:column;border-radius:10px;overflow:hidden;margin:.35rem 0;border:1px solid rgba(255,255,255,.18);}
+    .demo-wrap iframe{flex:1;border:none;width:100%!important;height:100%!important;min-height:400px;background:#fff;}
+    .demo-label{font-size:.72rem;text-transform:uppercase;letter-spacing:.1em;color:rgba(255,255,255,.48);margin-bottom:.28rem;text-align:center;}
+
+    /* Badges */
+    .badge{display:inline-block;background:rgba(79,109,245,.38);border:1px solid rgba(79,109,245,.58);border-radius:20px;padding:.18em .65em;font-size:.76em;margin:.13rem;}
+    .badge.green{background:rgba(34,197,94,.22);border-color:rgba(34,197,94,.48);color:#86efac;}
+    .badge.yellow{background:rgba(234,179,8,.18);border-color:rgba(234,179,8,.42);color:#fde68a;}
+    .badge.red{background:rgba(239,68,68,.18);border-color:rgba(239,68,68,.42);color:#fca5a5;}
+
+    /* Navigation */
+    .nav{display:flex;align-items:center;justify-content:center;gap:1rem;padding:.38rem 1rem;background:rgba(0,0,0,.42);flex-shrink:0;}
+    .nav-btn{background:rgba(255,255,255,.13);border:1px solid rgba(255,255,255,.28);color:white;width:34px;height:34px;border-radius:50%;cursor:pointer;font-size:.95rem;display:flex;align-items:center;justify-content:center;transition:background .2s;}
+    .nav-btn:hover:not(:disabled){background:rgba(255,255,255,.28);}
+    .nav-btn:disabled{opacity:.32;cursor:not-allowed;}
+    .nav-counter{color:rgba(255,255,255,.68);font-size:.83rem;min-width:52px;text-align:center;}
+
+    /* ========================================================
+       DEMO-SPECIFIC STYLES
+       ======================================================== */
+
+    /* Breakpoint live indicator */
+    .bp-row{display:flex;align-items:baseline;gap:.65rem;flex-wrap:wrap;}
+    .bp-width-display{font-size:2rem;font-weight:800;letter-spacing:-.03em;transition:color .3s;}
+    .bp-name{font-size:.9rem;opacity:.78;}
+    .bp-scale{display:flex;gap:.35rem;margin-top:.38rem;flex-wrap:wrap;}
+    .bp-seg{padding:.18rem .5rem;border-radius:4px;font-size:.7rem;font-weight:600;opacity:.38;background:rgba(255,255,255,.1);transition:opacity .2s,background .2s;}
+    .bp-seg.bp-active{opacity:1;}
+    .bp-seg.bp-xs{background:rgba(239,68,68,.35);}
+    .bp-seg.bp-sm{background:rgba(245,158,11,.35);}
+    .bp-seg.bp-lg{background:rgba(34,197,94,.35);}
+    .bp-seg.bp-xl{background:rgba(79,109,245,.35);}
+
+    /* clamp() calculator */
+    .clamp-preview{border-radius:8px;background:rgba(0,0,0,.28);padding:.6rem .85rem;margin:.35rem 0;}
+    .clamp-h1-preview{font-weight:800;color:#ffeaa7;line-height:1.2;transition:font-size .1s;}
+    .clamp-p-preview{opacity:.85;line-height:1.5;transition:font-size .1s;}
+    .clamp-vals{display:flex;gap:.6rem;flex-wrap:wrap;margin-top:.35rem;}
+    .clamp-val{background:rgba(0,0,0,.35);padding:.18rem .5rem;border-radius:4px;font-family:monospace;font-size:.72rem;color:#81ecec;}
+
+    /* object-fit demo */
+    .objfit-wrap{display:flex;flex-direction:column;align-items:flex-start;gap:.4rem;}
+    .objfit-container{width:200px;height:130px;overflow:hidden;border-radius:6px;border:2px solid rgba(255,255,255,.32);background:#0f0f1a;flex-shrink:0;}
+    .objfit-img-el{width:100%;height:100%;display:block;transition:none;}
+    .objfit-label{font-family:monospace;font-size:.78rem;color:#81ecec;margin-top:.2rem;}
+    .objfit-btns{display:flex;flex-wrap:wrap;gap:.35rem;}
+
+    /* Container query simulator */
+    .cq-slider-row{display:flex;align-items:center;gap:.65rem;margin:.3rem 0;flex-wrap:wrap;}
+    .cq-outer{background:rgba(0,0,0,.2);padding:.4rem;border-radius:8px;overflow:hidden;}
+    .cq-container{container-type:inline-size;border:2px dashed rgba(255,255,255,.3);border-radius:6px;overflow:hidden;transition:width .18s;}
+    .cq-card{display:flex;flex-direction:column;background:rgba(0,0,0,.3);border-radius:4px;overflow:hidden;}
+    .cq-img{height:70px;background:linear-gradient(135deg,#4f6df5,#ec4899);flex-shrink:0;}
+    .cq-body{padding:.5rem .65rem;font-size:.75rem;line-height:1.45;}
+    @container(min-width:380px){.cq-card{flex-direction:row;}.cq-img{width:110px;height:auto;}}
+    .cq-indicator{font-size:.8rem;font-weight:600;margin-top:.3rem;transition:color .2s;}
+
+    /* Hamburger demo */
+    .hb-demo-wrap{background:rgba(0,0,0,.2);border-radius:10px;overflow:hidden;min-width:240px;}
+    .hb-header-bar{background:#0f172a;padding:.55rem .9rem;display:flex;align-items:center;justify-content:space-between;}
+    .hb-logo-txt{color:white;font-weight:800;font-size:.95rem;}
+    .hb-toggle-btn{background:none;border:none;cursor:pointer;padding:.25rem;display:flex;flex-direction:column;gap:4px;}
+    .hb-bar{display:block;width:20px;height:2px;background:white;border-radius:2px;transition:transform .25s ease,opacity .25s ease;}
+    .hb-toggle-btn[aria-expanded="true"] .hb-bar:nth-child(1){transform:translateY(6px) rotate(45deg);}
+    .hb-toggle-btn[aria-expanded="true"] .hb-bar:nth-child(2){opacity:0;}
+    .hb-toggle-btn[aria-expanded="true"] .hb-bar:nth-child(3){transform:translateY(-6px) rotate(-45deg);}
+    .hb-nav-menu{background:#1e293b;max-height:0;overflow:hidden;transition:max-height .28s ease;}
+    .hb-nav-menu.hb-open{max-height:200px;}
+    .hb-nav-link{display:block;color:#cbd5e1;text-decoration:none;padding:.5rem .9rem;font-size:.83rem;border-bottom:1px solid rgba(255,255,255,.06);}
+    .hb-nav-link:hover{color:white;background:rgba(255,255,255,.05);}
+
+    /* Viewport units diagram */
+    .vu-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:.55rem;margin:.35rem 0;}
+    .vu-box{border-radius:8px;padding:.55rem .7rem;border:1px solid rgba(255,255,255,.2);}
+    .vu-label{font-size:.8rem;font-weight:700;letter-spacing:.06em;margin-bottom:.2rem;}
+    .vu-desc{font-size:.73rem;opacity:.82;line-height:1.45;}
+
+    /* Min vs Max comparison table */
+    .cmp-row{display:grid;grid-template-columns:1fr 1fr;gap:.5rem;margin:.28rem 0;}
+    .cmp-cell{background:rgba(0,0,0,.22);border-radius:6px;padding:.45rem .65rem;font-size:.78rem;line-height:1.45;}
+    .cmp-cell strong{display:block;font-size:.82rem;margin-bottom:.18rem;}
+    .cmp-cell.good strong{color:#86efac;}
+    .cmp-cell.neutral strong{color:#fde68a;}
+  </style>
+</head>
+<body>
+
+  <div class="progress-bar"><div class="progress" id="progressBar"></div></div>
+
+  <div class="slideshow-container">
+
+    <!-- SLIDE 1: Cover -->
+    <div class="slide active">
+      <div class="slide-content centered">
+        <div class="slide-label">Lesson 16</div>
+        <h1>Responsive Web Design</h1>
+        <p style="font-size:clamp(1rem,2.5vw,1.3rem);opacity:.88;margin-bottom:1.1rem;">One codebase. Every screen. No compromises.</p>
+        <div class="learn-grid">
+          <div class="learn-item">Mobile-first philosophy &amp; the viewport meta tag</div>
+          <div class="learn-item"><code>@media</code> queries with <code>min-width</code></div>
+          <div class="learn-item">Fluid typography &amp; spacing with <code>clamp()</code></div>
+          <div class="learn-item">Responsive images: <code>srcset</code>, <code>sizes</code>, <code>&lt;picture&gt;</code></div>
+          <div class="learn-item">Intrinsic grid — zero media queries</div>
+          <div class="learn-item">Container queries (<code>@container</code>)</div>
+          <div class="learn-item">Dynamic viewport units: <code>dvh</code>, <code>svh</code>, <code>lvh</code></div>
+          <div class="learn-item">Hamburger nav &amp; testing responsive layouts</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SLIDE 2: The Problem with Fixed-Width Layouts -->
+    <div class="slide">
+      <div class="slide-content">
+        <div class="slide-label">The Problem</div>
+        <h2>Fixed-Width Layouts Break on Mobile</h2>
+        <div class="two-col">
+          <div>
+            <p>In the early 2000s, most sites were built at <strong>800px or 960px wide</strong> — because that's what desktop monitors were.</p>
+            <ul>
+              <li>When smartphones arrived, fixed sites <strong>overflowed</strong> the screen</li>
+              <li>Users had to pinch-zoom and pan horizontally</li>
+              <li>The "solution" was two separate sites: <code>www.</code> and <code>m.</code></li>
+              <li>Two codebases, two content sets, fragile user-agent detection</li>
+            </ul>
+            <div class="highlight" style="margin-top:.5rem;">
+              <strong>Ethan Marcotte coined "responsive web design" in 2010.</strong><br>
+              Three foundations: fluid grids, flexible images, CSS media queries.
+            </div>
+          </div>
+          <div>
+            <img src="assets/day-16-img-01-overflow.png" alt="Fixed-width site overflowing on mobile vs responsive site fitting perfectly" class="slide-img" onerror="this.style.display='none'">
+            <p class="img-caption">Fixed-width site vs responsive site on a mobile viewport</p>
+            <div class="note" style="margin-top:.4rem;">Mobile devices account for <strong>over 50%</strong> of all global web traffic (Statcounter). Designing only for desktop is a failure.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SLIDE 3: Mobile-First Design -->
+    <div class="slide">
+      <div class="slide-content">
+        <div class="slide-label">Philosophy</div>
+        <h2>Mobile-First Design</h2>
+        <p>Design and code for the <strong>smallest screen first</strong>, then progressively add layout complexity for larger screens.</p>
+        <div class="three-col" style="margin-top:.5rem;">
+          <div class="card">
+            <h3>📋 Content Priority</h3>
+            <p>Limited screen space forces you to identify what matters most. The most important content comes first — on all screens.</p>
+          </div>
+          <div class="card">
+            <h3>⚡ Performance</h3>
+            <p>Mobile users are often on slower networks. Start with a minimal, fast baseline. Add enhancements for larger, faster screens.</p>
+          </div>
+          <div class="card">
+            <h3>🎨 CSS Cascade Efficiency</h3>
+            <p>Adding styles for larger screens with <code>min-width</code> is simpler than stripping them back with <code>max-width</code>. Less to override.</p>
+          </div>
+        </div>
+        <div class="two-col" style="margin-top:.5rem;">
+          <div class="card" style="border-left:3px solid #22c55e;">
+            <strong style="color:#86efac;font-size:.82rem;">✓ MOBILE-FIRST (recommended)</strong>
+            <pre style="margin-top:.35rem;font-size:.72rem;">.nav { flex-direction: column; } /* mobile */
+
+@media (min-width: 640px) {
+  .nav { flex-direction: row; }  /* wider */
+}</pre>
+          </div>
+          <div class="card" style="border-left:3px solid #ef4444;">
+            <strong style="color:#fca5a5;font-size:.82rem;">✗ DESKTOP-FIRST (avoid)</strong>
+            <pre style="margin-top:.35rem;font-size:.72rem;">.nav { flex-direction: row; }   /* desktop */
+
+@media (max-width: 639px) {
+  .nav { flex-direction: column; } /* narrow */
+}</pre>
+          </div>
+        </div>
+        <div class="note">Mobile-first does not mean ignoring desktop — it means building the foundation for mobile, then enhancing.</div>
+      </div>
+    </div>
+
+    <!-- SLIDE 4: Viewport Meta Tag -->
+    <div class="slide">
+      <div class="slide-content">
+        <div class="slide-label">The Foundation</div>
+        <h2>The Viewport Meta Tag</h2>
+        <p>Before writing a single line of responsive CSS, this must be in your <code>&lt;head&gt;</code>:</p>
+        <pre><code>&lt;meta name="viewport" content="width=device-width, initial-scale=1"&gt;</code></pre>
+        <div class="two-col" style="margin-top:.4rem;">
+          <div>
+            <h3>Without it:</h3>
+            <ul>
+              <li>Mobile browsers apply a <strong>virtual viewport of ~980px</strong></li>
+              <li>The browser then zooms out to fit 980px onto a 375px screen</li>
+              <li>Your media queries appear to fire too late or not at all</li>
+              <li>Text is tiny; users must pinch-zoom to read anything</li>
+            </ul>
+          </div>
+          <div>
+            <h3>With it:</h3>
+            <ul>
+              <li><code>width=device-width</code> — viewport width = actual screen width</li>
+              <li><code>initial-scale=1</code> — start at 1:1 zoom, no scaling</li>
+              <li>Media queries fire at the right viewport widths</li>
+              <li>Text is readable at its natural size</li>
+            </ul>
+          </div>
+        </div>
+        <img src="assets/day-16-img-02-viewport-meta.png" alt="Side-by-side: page without viewport meta vs with it on mobile" class="slide-img" style="max-height:130px;object-fit:contain;" onerror="this.style.display='none'">
+        <div class="caution"><strong>Never use <code>maximum-scale=1, user-scalable=no</code>.</strong> Preventing zoom is an accessibility barrier. WCAG 1.4.4 requires text can be resized to 200%. Users with low vision depend on zoom.</div>
+      </div>
+    </div>
+
+    <!-- SLIDE 5: Media Queries Syntax -->
+    <div class="slide">
+      <div class="slide-content">
+        <div class="slide-label">CSS Media Queries</div>
+        <h2>Basic Media Query Syntax</h2>
+        <p>A media query is a <strong>conditional block of CSS</strong>: if the condition is true, the styles inside apply.</p>
+        <div class="two-col">
+          <div>
+            <pre><code>/* Applies to ALL screen sizes (default) */
+.container {
+  padding: 1rem;
+}
+
+/* Only when viewport is ≥ 640px */
+@media (min-width: 640px) {
+  .container {
+    padding: 2rem;
+  }
+}
+
+/* Only when viewport is ≥ 1024px */
+@media (min-width: 1024px) {
+  .container {
+    padding: 3rem;
+    max-width: 1200px;
+    margin-inline: auto;
+  }
+}</code></pre>
+          </div>
+          <div>
+            <h3>Media types</h3>
+            <ul>
+              <li><code>@media screen</code> — screens (default)</li>
+              <li><code>@media print</code> — print preview</li>
+              <li><code>@media all</code> — both (same as no type)</li>
+            </ul>
+            <h3 style="margin-top:.5rem;">Common feature queries</h3>
+            <ul>
+              <li><code>(min-width: 640px)</code> — viewport width</li>
+              <li><code>(prefers-color-scheme: dark)</code></li>
+              <li><code>(prefers-reduced-motion: reduce)</code></li>
+              <li><code>(orientation: landscape)</code></li>
+              <li><code>(hover: hover)</code> — pointer device</li>
+            </ul>
+            <div class="note" style="margin-top:.4rem;">The <code>@media</code> keyword is required. Parentheses wrap the condition. Curly braces contain the scoped CSS.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SLIDE 6: min-width vs max-width -->
+    <div class="slide">
+      <div class="slide-content">
+        <div class="slide-label">CSS Media Queries</div>
+        <h2><code>min-width</code> vs <code>max-width</code></h2>
+        <div class="cmp-row" style="margin-bottom:.4rem;">
+          <div class="cmp-cell good">
+            <strong>✓ min-width (mobile-first)</strong>
+            "Apply these styles when the screen is <em>at least</em> this wide." Styles stack upward.
+          </div>
+          <div class="cmp-cell neutral">
+            <strong>↓ max-width (desktop-first)</strong>
+            "Apply these styles when the screen is <em>at most</em> this wide." Styles override downward.
+          </div>
+        </div>
+        <pre><code>/* Mobile-first: single column → 2 col → 3 col */
+.card-grid {
+  display: grid;
+  grid-template-columns: 1fr;          /* mobile default */
+  gap: 1rem;
+}
+@media (min-width: 640px) {
+  .card-grid { grid-template-columns: repeat(2, 1fr); }
+}
+@media (min-width: 1024px) {
+  .card-grid { grid-template-columns: repeat(3, 1fr); }
+}</code></pre>
+        <table class="cmp" style="margin-top:.4rem;">
+          <thead><tr><th></th><th>min-width (mobile-first)</th><th>max-width (desktop-first)</th></tr></thead>
+          <tbody>
+            <tr><td>Start point</td><td>Minimal mobile styles</td><td>Full desktop styles</td></tr>
+            <tr><td>Direction</td><td>Add complexity upward</td><td>Strip styles downward</td></tr>
+            <tr><td>Override count</td><td>Fewer overrides needed</td><td>More overrides needed</td></tr>
+            <tr><td>Modern standard</td><td>✓ Yes</td><td>Avoid in new projects</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- SLIDE 7: Mobile-First Grid Code + Combining -->
+    <div class="slide">
+      <div class="slide-content">
+        <div class="slide-label">CSS Media Queries</div>
+        <h2>Combining Conditions</h2>
+        <div class="two-col">
+          <pre><code>/* Between 640px and 1023px only */
+@media (min-width: 640px)
+    and (max-width: 1023px) {
+  .sidebar { display: none; }
+}
+
+/* Screen OR print */
+@media screen, print {
+  .page { max-width: 1200px; }
+}
+
+/* NOT a narrow screen */
+@media not (max-width: 639px) {
+  .desktop-only { display: block; }
+}
+
+/* Level 4 range syntax (modern) */
+@media (640px <= width < 1024px) {
+  .sidebar { display: none; }
+}</code></pre>
+          <div>
+            <h3>Keywords</h3>
+            <ul>
+              <li><code>and</code> — both conditions must be true</li>
+              <li><code>,</code> (comma) — acts like <code>or</code></li>
+              <li><code>not</code> — negates the condition</li>
+              <li><code>only</code> — hides from older browsers (legacy)</li>
+            </ul>
+            <h3 style="margin-top:.45rem;">Level 4 Range Syntax</h3>
+            <p>The modern specification allows direct comparison operators:</p>
+            <pre style="font-size:.72rem;"><code>(640px <= width < 1024px)
+(height > 500px)
+(aspect-ratio >= 16/9)</code></pre>
+            <div class="note">Range syntax is supported in all modern browsers since 2023. Older projects still use <code>and</code> with two conditions.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SLIDE 8: CodePen 16.1 -->
+    <div class="slide">
+      <div class="slide-content">
+        <div class="slide-label">Interactive Demo</div>
+        <p class="demo-label">CodePen 16.1 — Media Queries: Mobile-First Layout (resize the preview pane)</p>
+        <div class="demo-wrap">
+          <iframe src="https://codepen.io/mattkearl/embed/vEXLLjL?default-tab=css%2Cresult&editable=true" loading="lazy" title="Media Queries Mobile-First Layout" allowfullscreen></iframe>
+        </div>
+      </div>
+    </div>
+
+    <!-- SLIDE 9: Choosing Breakpoints + live BP indicator -->
+    <div class="slide">
+      <div class="slide-content">
+        <div class="slide-label">CSS Media Queries</div>
+        <h2>Choosing Breakpoints</h2>
+        <div class="two-col">
+          <div>
+            <p><strong>Don't choose breakpoints based on device sizes</strong> ("375px for iPhone, 768px for iPad"). Device sizes change every product cycle.</p>
+            <p>Instead: <strong>let your content decide.</strong> Slowly resize your browser and add a breakpoint when the layout looks awkward.</p>
+            <h3 style="margin-top:.4rem;">Common starting framework:</h3>
+            <img src="assets/day-16-img-03-breakpoints.png" alt="Layout evolution from mobile to wide desktop" class="slide-img" onerror="this.style.display='none'">
+            <ul style="margin-top:.3rem;">
+              <li><strong>Default</strong> — &lt; 640px — single col, stacked nav</li>
+              <li><strong>Medium</strong> — ≥ 640px — 2-col, horizontal nav</li>
+              <li><strong>Large</strong> — ≥ 1024px — 3+ col, sidebar</li>
+              <li><strong>XL</strong> — ≥ 1280px — wide, generous whitespace</li>
+            </ul>
+          </div>
+          <div>
+            <h3>Live: Your Window Right Now</h3>
+            <div class="live-demo">
+              <div class="bp-row">
+                <div class="bp-width-display" id="bpWidth">—</div>
+                <div class="bp-name" id="bpLabel">—</div>
+              </div>
+              <div class="bp-scale">
+                <div class="bp-seg bp-xs bp-active" id="bpXs">&lt;640px</div>
+                <div class="bp-seg bp-sm" id="bpSm">≥640px</div>
+                <div class="bp-seg bp-lg" id="bpLg">≥1024px</div>
+                <div class="bp-seg bp-xl" id="bpXl">≥1280px</div>
+              </div>
+              <p style="font-size:.72rem;opacity:.6;margin-top:.4rem;">Resize your browser window to see the active breakpoint change in real time.</p>
+            </div>
+            <div class="note" style="margin-top:.4rem;">
+              <strong>Tailwind breakpoints</strong> (a popular framework reference):<br>
+              <code>sm: 640px</code> &nbsp;•&nbsp; <code>md: 768px</code> &nbsp;•&nbsp; <code>lg: 1024px</code> &nbsp;•&nbsp; <code>xl: 1280px</code>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SLIDE 10: clamp() Typography + calculator demo -->
+    <div class="slide">
+      <div class="slide-content">
+        <div class="slide-label">Fluid Typography</div>
+        <h2>Responsive Typography with <code>clamp()</code></h2>
+        <div class="two-col">
+          <div>
+            <p><code>clamp(minimum, preferred, maximum)</code> returns the <em>preferred</em> value clamped between min and max. Using <code>vw</code> as the preferred value makes fonts scale fluidly with the viewport.</p>
+            <pre><code>/* Scales from 1.5rem to 3rem */
+h1 {
+  font-size: clamp(1.5rem, 4vw + 1rem, 3rem);
+}
+
+h2 {
+  font-size: clamp(1.25rem, 3vw + 0.5rem, 2rem);
+}
+
+p {
+  font-size: clamp(1rem, 1.5vw + 0.5rem, 1.25rem);
+  line-height: clamp(1.5, 1.5 + 0.5vw, 1.8);
+}</code></pre>
+            <div class="note"><code>4vw + 1rem</code> means "4% of viewport width plus 16px offset." The <code>+ rem</code> offset prevents text from becoming too small at narrow widths.</div>
+          </div>
+          <div>
+            <h3>Live Calculator</h3>
+            <div class="live-demo">
+              <label style="font-size:.78rem;display:flex;align-items:center;gap:.5rem;">
+                Viewport: <input type="range" id="clampSlider" min="320" max="1280" value="768" style="flex:1;">
+                <span id="clampVpVal" style="font-weight:700;color:#ffeaa7;min-width:48px;">768px</span>
+              </label>
+              <div class="clamp-preview" style="margin-top:.38rem;">
+                <div class="clamp-h1-preview" id="clampH1" style="font-size:32px;">Fluid Heading</div>
+                <div class="clamp-p-preview" id="clampP" style="font-size:16px;">Body text scales fluidly between min and max values with no breakpoint jumps.</div>
+              </div>
+              <div class="clamp-vals">
+                <div class="clamp-val" id="clampV1">h1 → —</div>
+                <div class="clamp-val" id="clampV2">p → —</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SLIDE 11: clamp() Spacing -->
+    <div class="slide">
+      <div class="slide-content">
+        <div class="slide-label">Fluid Spacing</div>
+        <h2>Fluid Spacing with <code>clamp()</code></h2>
+        <div class="two-col">
+          <div>
+            <p><code>clamp()</code> works on any property that accepts a length — not just font sizes. Use it for padding, gap, and margin to make the entire page breathe proportionally.</p>
+            <pre><code>/* Padding scales 1rem → 3rem */
+.section {
+  padding-block:  clamp(1rem, 5vw, 3rem);
+  padding-inline: clamp(1rem, 8vw, 6rem);
+}
+
+/* Consistent fluid gap for grids and stacks */
+:root {
+  --space-fluid: clamp(1rem, 3vw, 2rem);
+}
+
+.card-grid { gap: var(--space-fluid); }
+
+/* Fluid max-width with centering */
+.container {
+  width: min(100% - 2rem, 1200px);
+  margin-inline: auto;
+}</code></pre>
+          </div>
+          <div>
+            <h3>The Formula</h3>
+            <div class="card">
+              <p style="font-family:monospace;font-size:.82rem;line-height:1.8;color:#ffeaa7;">clamp(<span style="color:#86efac;">minimum</span>, <span style="color:#93c5fd;">preferred</span>, <span style="color:#f9a8d4;">maximum</span>)</p>
+              <ul style="margin-top:.35rem;">
+                <li><span style="color:#86efac;">minimum</span> — floor: smallest allowed value</li>
+                <li><span style="color:#93c5fd;">preferred</span> — fluid middle: usually <code>Xvw + Yrem</code></li>
+                <li><span style="color:#f9a8d4;">maximum</span> — ceiling: largest allowed value</li>
+              </ul>
+            </div>
+            <h3 style="margin-top:.45rem;"><code>min()</code> and <code>max()</code></h3>
+            <pre style="font-size:.72rem;"><code>/* Fluid container: never wider than 1200px,
+   never narrower than its content */
+width: min(100% - 2rem, 1200px);
+
+/* Font never smaller than 1rem */
+font-size: max(1rem, 2vw);
+
+/* These nest: same as clamp() */
+font-size: max(1rem, min(4vw, 3rem));</code></pre>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SLIDE 12: CodePen 16.2 -->
+    <div class="slide">
+      <div class="slide-content">
+        <div class="slide-label">Interactive Demo</div>
+        <p class="demo-label">CodePen 16.2 — clamp() Fluid Typography &amp; Spacing (resize the preview pane)</p>
+        <div class="demo-wrap">
+          <iframe src="https://codepen.io/mattkearl/embed/KwgVVRo?default-tab=css%2Cresult&editable=true" loading="lazy" title="clamp() Fluid Typography" allowfullscreen></iframe>
+        </div>
+      </div>
+    </div>
+
+    <!-- SLIDE 13: Responsive Images: baseline + object-fit demo -->
+    <div class="slide">
+      <div class="slide-content">
+        <div class="slide-label">Responsive Images</div>
+        <h2>Responsive Images: The Baseline</h2>
+        <div class="two-col">
+          <div>
+            <h3>Global reset (every project)</h3>
+            <pre><code>img {
+  max-width: 100%;
+  height: auto;
+}</code></pre>
+            <p>Prevents images from overflowing their container. Maintains aspect ratio when width is constrained.</p>
+            <h3 style="margin-top:.45rem;"><code>object-fit</code></h3>
+            <p>When you need an image to fill a <strong>fixed-size container</strong> (card thumbnail, avatar, hero), <code>object-fit</code> controls how it's sized and positioned:</p>
+            <pre style="font-size:.72rem;"><code>.card-thumb {
+  width: 100%;
+  height: 200px;
+  object-fit: cover; /* fills, crops if needed */
+  object-position: top;
+}
+/* cover | contain | fill | none | scale-down */</code></pre>
+          </div>
+          <div>
+            <h3>Live: <code>object-fit</code> Demo</h3>
+            <div class="live-demo">
+              <div class="objfit-wrap">
+                <div class="objfit-container">
+                  <img id="objFitImg" src="https://picsum.photos/seed/mountain/400/250" alt="Mountain landscape" class="objfit-img-el" style="object-fit:cover;">
+                </div>
+                <div class="objfit-label" id="objFitLabel">object-fit: cover</div>
+                <div class="objfit-btns" style="margin-top:.4rem;">
+                  <button class="demo-btn objfit-btn active" data-val="cover" onclick="setObjFit('cover')">cover</button>
+                  <button class="demo-btn objfit-btn" data-val="contain" onclick="setObjFit('contain')">contain</button>
+                  <button class="demo-btn objfit-btn" data-val="fill" onclick="setObjFit('fill')">fill</button>
+                  <button class="demo-btn objfit-btn" data-val="none" onclick="setObjFit('none')">none</button>
+                  <button class="demo-btn objfit-btn" data-val="scale-down" onclick="setObjFit('scale-down')">scale-down</button>
+                </div>
+              </div>
+            </div>
+            <div class="note" style="margin-top:.4rem;">Container is fixed 200×130px. The image is 400×250px. Toggle <code>object-fit</code> values to see how each mode handles the size mismatch.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SLIDE 14: srcset & sizes -->
+    <div class="slide">
+      <div class="slide-content">
+        <div class="slide-label">Responsive Images</div>
+        <h2><code>srcset</code> and <code>sizes</code></h2>
+        <p>The <code>srcset</code> attribute lists multiple versions of the same image at different resolutions. The browser picks the most appropriate file based on screen density and display width — saving bandwidth on mobile.</p>
+        <div class="two-col">
+          <pre><code>&lt;img
+  src="hero-800.jpg"
+  srcset="hero-400.jpg  400w,
+          hero-800.jpg  800w,
+          hero-1600.jpg 1600w"
+  sizes="(max-width: 640px)  100vw,
+         (max-width: 1024px)  50vw,
+         800px"
+  alt="A panoramic mountain landscape"
+  width="800"
+  height="450"
+  loading="lazy"
+&gt;</code></pre>
+          <div>
+            <h3><code>srcset</code> descriptor</h3>
+            <ul>
+              <li><code>400w</code> — image is 400px wide</li>
+              <li>Browser chooses based on: available display width × device pixel ratio</li>
+            </ul>
+            <h3 style="margin-top:.42rem;"><code>sizes</code> attribute</h3>
+            <ul>
+              <li>Tells the browser how wide the image will <em>display</em> at each breakpoint</li>
+              <li>Last value is the default (no media condition)</li>
+              <li>Browser uses this + device pixel ratio to pick the right file</li>
+            </ul>
+            <div class="tip" style="margin-top:.35rem;">
+              Always include <code>width</code> and <code>height</code> attributes — they prevent layout shift (CLS) by reserving space before the image loads. Always add <code>loading="lazy"</code> for images below the fold.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SLIDE 15: <picture> art direction -->
+    <div class="slide">
+      <div class="slide-content">
+        <div class="slide-label">Responsive Images</div>
+        <h2>Art Direction with <code>&lt;picture&gt;</code></h2>
+        <p>The <code>&lt;picture&gt;</code> element lets you swap out a <strong>completely different image</strong> based on media conditions — not just a different resolution of the same image. Use it when a tightly cropped portrait works better on mobile than the wide landscape used on desktop.</p>
+        <div class="two-col">
+          <pre><code>&lt;picture&gt;
+  &lt;!-- WebP on supporting browsers --&gt;
+  &lt;source
+    type="image/webp"
+    srcset="hero-wide.webp 1200w,
+            hero-narrow.webp 600w"
+    sizes="(max-width: 640px) 100vw, 1200px"
+  &gt;
+  &lt;!-- Portrait crop on mobile --&gt;
+  &lt;source
+    media="(max-width: 640px)"
+    srcset="hero-portrait.jpg"
+  &gt;
+  &lt;!-- Fallback: wide landscape --&gt;
+  &lt;img
+    src="hero-wide.jpg"
+    alt="A mountain panorama at sunrise"
+    width="1200"
+    height="630"
+    loading="lazy"
+  &gt;
+&lt;/picture&gt;</code></pre>
+          <div>
+            <h3>How it works</h3>
+            <ul>
+              <li>Browser checks <code>&lt;source&gt;</code> elements <strong>in order</strong> — uses the first matching one</li>
+              <li>The <code>&lt;img&gt;</code> is the required fallback and carries <code>alt</code>, <code>width</code>, <code>height</code></li>
+              <li><code>type="image/webp"</code> — format switching (serve WebP to supporting browsers)</li>
+              <li><code>media="(max-width:640px)"</code> — art direction switching</li>
+            </ul>
+            <h3 style="margin-top:.42rem;">When to use which</h3>
+            <table class="cmp">
+              <thead><tr><th>Technique</th><th>Use case</th></tr></thead>
+              <tbody>
+                <tr><td><code>max-width:100%</code></td><td>Basic overflow prevention</td></tr>
+                <tr><td><code>srcset + sizes</code></td><td>Same image, multiple resolutions</td></tr>
+                <tr><td><code>&lt;picture&gt;</code></td><td>Different image at different sizes / formats</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SLIDE 16: Layout Patterns -->
+    <div class="slide">
+      <div class="slide-content">
+        <div class="slide-label">Layout Patterns</div>
+        <h2>Responsive Layout: Stack-to-Row</h2>
+        <p>The most common pattern: items stack vertically on small screens and line up horizontally on wider screens.</p>
+        <div class="two-col">
+          <div>
+            <pre><code>/* Stack-to-row navigation */
+.nav {
+  display: flex;
+  flex-direction: column;  /* stacked on mobile */
+  gap: 0.5rem;
+}
+
+@media (min-width: 640px) {
+  .nav {
+    flex-direction: row;   /* horizontal on tablet+ */
+    gap: 1.5rem;
+  }
+}
+
+/* Holy grail layout */
+.page {
+  display: grid;
+  grid-template-rows:
+    auto 1fr auto;     /* header / main / footer */
+}
+
+@media (min-width: 1024px) {
+  .page {
+    grid-template-columns: 240px 1fr;
+    /* sidebar + main */
+  }
+}</code></pre>
+          </div>
+          <div>
+            <h3>Pattern family</h3>
+            <div class="card-grid">
+              <div class="card">
+                <strong style="color:#ffeaa7;font-size:.82rem;">Stack → Row</strong><br>
+                <span style="font-size:.76rem;">Column on mobile, row on wider screens. Flexbox.</span>
+              </div>
+              <div class="card">
+                <strong style="color:#ffeaa7;font-size:.82rem;">Sidebar</strong><br>
+                <span style="font-size:.76rem;">Full-width stacked on mobile, sidebar+main on desktop. Grid.</span>
+              </div>
+              <div class="card">
+                <strong style="color:#ffeaa7;font-size:.82rem;">Card Grid</strong><br>
+                <span style="font-size:.76rem;">1 col → 2 col → 3 col. Grid with breakpoints or auto-fill.</span>
+              </div>
+              <div class="card">
+                <strong style="color:#ffeaa7;font-size:.82rem;">Off-Canvas</strong><br>
+                <span style="font-size:.76rem;">Nav slides in from the side on mobile. Transform + toggle.</span>
+              </div>
+            </div>
+            <div class="tip" style="margin-top:.45rem;">Flexbox for 1D layouts (navigation, toolbars, button groups). Grid for 2D layouts (page structure, card grids, form fields).</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SLIDE 17: Intrinsic Grid -->
+    <div class="slide">
+      <div class="slide-content">
+        <div class="slide-label">Layout Patterns</div>
+        <h2>Intrinsic Grid — Zero Media Queries</h2>
+        <p>CSS Grid's <code>auto-fill</code> with <code>minmax()</code> creates a truly responsive layout that adds and removes columns automatically — with <strong>no media queries at all</strong>.</p>
+        <div class="two-col">
+          <div>
+            <pre><code>/* The "RAM" pattern:
+   Repeat, Auto, Minmax */
+.card-grid {
+  display: grid;
+  grid-template-columns:
+    repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.5rem;
+}
+
+/*
+  This grid:
+  - Creates as many ≥280px cols as will fit
+  - Stretches all cols to equal widths (1fr)
+  - Adds/removes cols as container resizes
+  - Zero media queries!
+*/</code></pre>
+            <h3 style="margin-top:.4rem;"><code>auto-fill</code> vs <code>auto-fit</code></h3>
+            <div class="cmp-row">
+              <div class="cmp-cell">
+                <strong>auto-fill</strong>
+                Keeps empty column tracks. Items stay at minimum width. Consistent column widths.
+              </div>
+              <div class="cmp-cell">
+                <strong>auto-fit</strong>
+                Collapses empty tracks. Filled items expand to take all space. Fewer items = wider cards.
+              </div>
+            </div>
+          </div>
+          <div>
+            <div class="note">
+              <strong>When to use intrinsic grid vs media queries:</strong><br><br>
+              <ul>
+                <li>Intrinsic grid — content that naturally adapts (card grids, image galleries, product listings)</li>
+                <li>Media queries — explicit layout pivots (sidebar appears, navigation changes, hero switches orientation)</li>
+              </ul>
+            </div>
+            <pre style="margin-top:.4rem;font-size:.72rem;"><code>/* Common starting values */
+minmax(240px, 1fr)  /* compact cards */
+minmax(280px, 1fr)  /* standard cards */
+minmax(320px, 1fr)  /* content-rich cards */
+
+/* Limit max columns */
+grid-template-columns:
+  repeat(auto-fill,
+    minmax(min(280px, 100%), 1fr));</code></pre>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SLIDE 18: CodePen 16.3 -->
+    <div class="slide">
+      <div class="slide-content">
+        <div class="slide-label">Interactive Demo</div>
+        <p class="demo-label">CodePen 16.3 — Intrinsic Grid: auto-fill + minmax (drag the min-width slider)</p>
+        <div class="demo-wrap">
+          <iframe src="https://codepen.io/mattkearl/embed/GgjooGj?default-tab=css%2Cresult&editable=true" loading="lazy" title="Intrinsic Responsive Grid" allowfullscreen></iframe>
+        </div>
+      </div>
+    </div>
+
+    <!-- SLIDE 19: aspect-ratio -->
+    <div class="slide">
+      <div class="slide-content">
+        <div class="slide-label">Modern CSS</div>
+        <h2>The <code>aspect-ratio</code> Property</h2>
+        <p>Responsive video embeds have always required a CSS hack — a wrapper with a calculated <code>padding-bottom</code> percentage. The <code>aspect-ratio</code> property replaces it cleanly.</p>
+        <div class="two-col">
+          <div>
+            <pre><code>/* Old padding-bottom hack (no longer needed) */
+.video-wrapper-old {
+  position: relative;
+  padding-bottom: 56.25%; /* 16÷9 */
+  height: 0;
+}
+.video-wrapper-old iframe {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+}
+
+/* Modern: aspect-ratio */
+.video-wrapper {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+}
+.video-wrapper iframe {
+  width: 100%; height: 100%;
+}
+
+/* Card thumbnail */
+.card-image {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+}
+
+/* Perfect squares */
+.avatar { aspect-ratio: 1; }
+.icon-box { aspect-ratio: 1; width: 52px; }</code></pre>
+          </div>
+          <div>
+            <h3>Common ratios</h3>
+            <table class="cmp">
+              <thead><tr><th>Value</th><th>Use case</th></tr></thead>
+              <tbody>
+                <tr><td><code>16 / 9</code></td><td>Video, widescreen hero</td></tr>
+                <tr><td><code>4 / 3</code></td><td>Card thumbnails, older video</td></tr>
+                <tr><td><code>1 / 1</code></td><td>Avatars, icon boxes, squares</td></tr>
+                <tr><td><code>3 / 2</code></td><td>Photography (DSLR native)</td></tr>
+                <tr><td><code>2 / 3</code></td><td>Portrait orientation cards</td></tr>
+                <tr><td><code>21 / 9</code></td><td>Ultra-wide cinematic hero</td></tr>
+              </tbody>
+            </table>
+            <div class="note" style="margin-top:.45rem;">
+              <code>aspect-ratio</code> can be combined with <code>min-height</code> or <code>max-height</code> for flexibility.<br>
+              <code>aspect-ratio: auto</code> respects the intrinsic ratio of replaced elements (images, video).
+            </div>
+            <pre style="margin-top:.35rem;font-size:.72rem;"><code>/* Fallback for old browsers */
+.video {
+  aspect-ratio: 16/9; /* modern */
+}
+/* Older browsers see: auto height */</code></pre>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SLIDE 20: Dynamic Viewport Units -->
+    <div class="slide">
+      <div class="slide-content">
+        <div class="slide-label">Modern CSS</div>
+        <h2>Dynamic Viewport Units</h2>
+        <p>The old <code>100vh</code> has a problem on mobile: the address bar and tab bar take up part of the screen and appear/disappear as the user scrolls. A <code>100vh</code> hero is often taller than the visible area.</p>
+        <div class="vu-grid">
+          <div class="vu-box" style="border-color:#f59e0b;background:rgba(245,158,11,.1);">
+            <div class="vu-label" style="color:#fde68a;">svh / svw — Small</div>
+            <div class="vu-desc">Based on the <strong>smallest possible viewport</strong> (browser bars fully visible). Nothing will be cut off behind browser chrome. Safe for overlay content.</div>
+          </div>
+          <div class="vu-box" style="border-color:#22c55e;background:rgba(34,197,94,.1);">
+            <div class="vu-label" style="color:#86efac;">lvh / lvw — Large</div>
+            <div class="vu-desc">Based on the <strong>largest possible viewport</strong> (bars fully retracted). Use when you want to fill the full screen after browser chrome hides.</div>
+          </div>
+          <div class="vu-box" style="border-color:#4f6df5;background:rgba(79,109,245,.1);">
+            <div class="vu-label" style="color:#93c5fd;">dvh / dvw — Dynamic</div>
+            <div class="vu-desc">Updates <strong>in real time</strong> as browser chrome appears or disappears. Best for full-screen layouts that should always fill the visual area.</div>
+          </div>
+        </div>
+        <pre><code>/* Old approach — may be hidden behind mobile address bar */
+.hero { min-height: 100vh; }
+
+/* Better: dvh for full-screen sections */
+.hero { min-height: 100dvh; }
+
+/* Safe: svh guarantees nothing is cut off */
+.modal-overlay { height: 100svh; }
+
+/* With fallback for older browsers */
+.hero {
+  min-height: 100vh;    /* fallback */
+  min-height: 100dvh;   /* overrides if supported */
+}</code></pre>
+        <div class="note">Supported in Chrome 108+, Safari 15.4+, Firefox 101+. Always include a <code>vh</code> fallback for broader compatibility.</div>
+      </div>
+    </div>
+
+    <!-- SLIDE 21: Container Queries Concept + Simulator -->
+    <div class="slide">
+      <div class="slide-content">
+        <div class="slide-label">Container Queries</div>
+        <h2>Container Queries — Concept</h2>
+        <div class="two-col">
+          <div>
+            <p>Media queries respond to the <strong>viewport</strong> size. But components live inside containers of varying widths — a card in a narrow sidebar has less space than the same card in a wide main column.</p>
+            <p><strong>Container queries</strong> solve this: declare a container on a parent element, then write queries that respond to <em>that container's</em> width — not the viewport.</p>
+            <pre><code>/* Step 1: Declare containment context */
+.card-wrapper {
+  container-type: inline-size;
+}
+
+/* Optional: name the container */
+.sidebar {
+  container-type: inline-size;
+  container-name: sidebar;
+}
+
+/* Step 2: Query the container width */
+.card { display: flex; flex-direction: column; }
+
+@container (min-width: 400px) {
+  .card { flex-direction: row; }
+}
+
+/* Named container query */
+@container sidebar (min-width: 300px) {
+  .widget { font-size: 1.1rem; }
+}</code></pre>
+          </div>
+          <div>
+            <h3>Live: Container Width Simulator</h3>
+            <div class="live-demo">
+              <div class="cq-slider-row">
+                <label style="font-size:.75rem;">Width:</label>
+                <input type="range" id="cqSlider" min="150" max="480" value="250" style="flex:1;" oninput="updateCQ(this.value)">
+                <span id="cqWidthLabel" style="font-weight:700;color:#ffeaa7;min-width:46px;font-size:.8rem;">250px</span>
+              </div>
+              <div class="cq-outer">
+                <div class="cq-container" id="cqWrap" style="width:250px;">
+                  <div class="cq-card">
+                    <div class="cq-img"></div>
+                    <div class="cq-body">
+                      <strong style="font-size:.78rem;">Article Title</strong><br>
+                      <span style="opacity:.75;">Same card HTML. Layout adapts to container width.</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="cq-indicator" id="cqIndicator" style="color:#f59e0b;">⟷ column layout (&lt; 380px)</div>
+            </div>
+            <div class="note" style="margin-top:.4rem;">At 380px+ the container query fires and the card switches to <code>flex-direction: row</code>. This is <em>container-responsive</em> — the viewport width doesn't matter.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SLIDE 22: Container Queries Syntax + caniuse screenshot -->
+    <div class="slide">
+      <div class="slide-content">
+        <div class="slide-label">Container Queries</div>
+        <h2>Container Queries — Browser Support</h2>
+        <div class="two-col">
+          <div>
+            <h3>Container query syntax</h3>
+            <pre><code>/* container-type values */
+container-type: inline-size; /* tracks width */
+container-type: size;         /* tracks width + height */
+container-type: normal;       /* off (default) */
+
+/* Shorthand: name + type */
+.card-wrapper {
+  container: card / inline-size;
+}
+
+/* Container query conditions */
+@container (min-width: 400px) { }
+@container (max-width: 600px) { }
+@container (400px <= width < 700px) { }
+
+/* Container units (cqi, cqb, cqw, cqh) */
+.card-title {
+  font-size: clamp(1rem, 5cqi, 1.5rem);
+  /* 5% of the container's inline size */
+}</code></pre>
+            <div class="note" style="margin-top:.35rem;"><strong>Container units</strong> (<code>cqi</code>, <code>cqb</code>, <code>cqw</code>, <code>cqh</code>) are like <code>vw</code>/<code>vh</code> but relative to the nearest container — enabling truly encapsulated fluid components.</div>
+          </div>
+          <div>
+            <img src="assets/fig-16.1-caniuse-container-queries.png" alt="caniuse.com showing container queries browser support" class="slide-img" onerror="this.style.display='none'">
+            <p class="img-caption">Container queries — supported in all modern browsers (Chrome 105+, Firefox 110+, Safari 16+)</p>
+            <div class="note" style="margin-top:.35rem;">
+              Check current support: <a href="https://caniuse.com/css-container-queries" target="_blank" rel="noopener noreferrer">caniuse.com/css-container-queries</a>
+            </div>
+            <h3 style="margin-top:.45rem;">Media vs Container queries</h3>
+            <ul>
+              <li><strong>Media queries</strong> — page-level layout (columns, navigation mode)</li>
+              <li><strong>Container queries</strong> — component-level adaptation (card layout, widget density)</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SLIDE 23: CodePen 16.4 -->
+    <div class="slide">
+      <div class="slide-content">
+        <div class="slide-label">Interactive Demo</div>
+        <p class="demo-label">CodePen 16.4 — Container Queries (drag the left column to resize its container)</p>
+        <div class="demo-wrap">
+          <iframe src="https://codepen.io/mattkearl/embed/jEMWWKZ?default-tab=css%2Cresult&editable=true" loading="lazy" title="Container Queries Demo" allowfullscreen></iframe>
+        </div>
+      </div>
+    </div>
+
+    <!-- SLIDE 24: Responsive Navigation + hamburger demo -->
+    <div class="slide">
+      <div class="slide-content">
+        <div class="slide-label">Responsive Navigation</div>
+        <h2>The Hamburger Menu Pattern</h2>
+        <div class="two-col">
+          <div>
+            <pre style="font-size:.7rem;"><code>&lt;header&gt;
+  &lt;a href="/" class="logo"&gt;Brand&lt;/a&gt;
+  &lt;button class="menu-toggle"
+    aria-expanded="false"
+    aria-controls="nav-menu"
+    aria-label="Toggle navigation"&gt;
+    &lt;span&gt;&lt;/span&gt;&lt;span&gt;&lt;/span&gt;&lt;span&gt;&lt;/span&gt;
+  &lt;/button&gt;
+  &lt;nav id="nav-menu" class="nav-menu" hidden&gt;
+    &lt;a href="/"&gt;Home&lt;/a&gt;
+    &lt;a href="/about"&gt;About&lt;/a&gt;
+    &lt;a href="/contact"&gt;Contact&lt;/a&gt;
+  &lt;/nav&gt;
+&lt;/header&gt;</code></pre>
+            <pre style="font-size:.7rem;"><code>/* Desktop: always show */
+@media (min-width: 768px) {
+  .menu-toggle { display: none; }
+  .nav-menu[hidden] {
+    display: flex !important;
+    flex-direction: row;
+  }
+}
+
+// JavaScript toggle
+toggle.addEventListener('click', () => {
+  const exp =
+    toggle.getAttribute('aria-expanded') === 'true';
+  toggle.setAttribute('aria-expanded', !exp);
+  menu.hidden = exp;
+  menu.classList.toggle('is-open', !exp);
+});</code></pre>
+          </div>
+          <div>
+            <h3>Live Demo</h3>
+            <div class="live-demo">
+              <div class="hb-demo-wrap">
+                <div class="hb-header-bar">
+                  <span class="hb-logo-txt">Brand</span>
+                  <button class="hb-toggle-btn" id="hbBtn" aria-expanded="false" onclick="toggleHB()">
+                    <span class="hb-bar"></span>
+                    <span class="hb-bar"></span>
+                    <span class="hb-bar"></span>
+                  </button>
+                </div>
+                <nav class="hb-nav-menu" id="hbNav">
+                  <a href="#" class="hb-nav-link" onclick="return false;">Home</a>
+                  <a href="#" class="hb-nav-link" onclick="return false;">About</a>
+                  <a href="#" class="hb-nav-link" onclick="return false;">Work</a>
+                  <a href="#" class="hb-nav-link" onclick="return false;">Contact</a>
+                </nav>
+              </div>
+              <p style="font-size:.73rem;opacity:.65;margin-top:.35rem;">Click ☰ to toggle the nav open/closed. The icon animates to ✕.</p>
+            </div>
+            <h3 style="margin-top:.45rem;">Accessibility checklist</h3>
+            <ul>
+              <li><code>aria-expanded</code> on the button — announces state to screen readers</li>
+              <li><code>aria-controls</code> — links the button to the nav it controls</li>
+              <li><code>aria-label</code> — names the button for screen readers</li>
+              <li><code>hidden</code> attribute (not just CSS) — removes from accessibility tree</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SLIDE 25: CodePen 16.5 -->
+    <div class="slide">
+      <div class="slide-content">
+        <div class="slide-label">Interactive Demo</div>
+        <p class="demo-label">CodePen 16.5 — Responsive Navigation with Hamburger Menu</p>
+        <div class="demo-wrap">
+          <iframe src="https://codepen.io/mattkearl/embed/LERGGBY?default-tab=css%2Cresult&editable=true" loading="lazy" title="Responsive Navigation Hamburger Menu" allowfullscreen></iframe>
+        </div>
+      </div>
+    </div>
+
+    <!-- SLIDE 26: Testing Responsive Designs -->
+    <div class="slide">
+      <div class="slide-content">
+        <div class="slide-label">Testing</div>
+        <h2>Testing Responsive Designs</h2>
+        <div class="two-col">
+          <div>
+            <h3>Chrome/Edge DevTools Device Mode</h3>
+            <p>Open DevTools (<kbd>F12</kbd>), click the device toolbar icon (or <kbd>Ctrl+Shift+M</kbd> / <kbd>Cmd+Shift+M</kbd>):</p>
+            <ul>
+              <li>Select preset devices (iPhone, Pixel, iPad, Galaxy)</li>
+              <li>Enter custom dimensions manually</li>
+              <li>Simulate different device pixel ratios (1×, 2×, 3×)</li>
+              <li>Throttle network to simulate slow mobile</li>
+              <li><strong>Drag the viewport edge</strong> to watch breakpoints fire in real time</li>
+            </ul>
+            <img src="assets/fig-16.2-devtools-device-mode.png" alt="Chrome DevTools device mode showing responsive preview" class="slide-img" onerror="this.style.display='none'">
+            <p class="img-caption">Chrome DevTools Device Mode — Ctrl+Shift+M</p>
+          </div>
+          <div>
+            <h3>Testing workflow</h3>
+            <div class="card" style="margin-bottom:.45rem;">
+              <strong style="color:#ffeaa7;display:block;margin-bottom:.28rem;">1. Resize your browser</strong>
+              Drag the window narrow and watch the layout adapt. Test at 320px, 375px, 768px, 1024px, 1440px.
+            </div>
+            <div class="card" style="margin-bottom:.45rem;">
+              <strong style="color:#ffeaa7;display:block;margin-bottom:.28rem;">2. DevTools emulation</strong>
+              Use device presets to check common phone/tablet sizes. Enable "responsive" mode for free-drag.
+            </div>
+            <div class="card">
+              <strong style="color:#ffeaa7;display:block;margin-bottom:.28rem;">3. Real devices</strong>
+              Test on at least one real iOS and one real Android device. Touch, font rendering, scroll behavior, and browser chrome differ from emulation.
+            </div>
+            <div class="caution" style="margin-top:.45rem;">DevTools emulation is a useful starting point — not a substitute for physical device testing.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SLIDE 27: CodePen 16.6 -->
+    <div class="slide">
+      <div class="slide-content">
+        <div class="slide-label">Interactive Demo</div>
+        <p class="demo-label">CodePen 16.6 — Responsive Design Playground (everything together — resize to see it all adapt)</p>
+        <div class="demo-wrap">
+          <iframe src="https://codepen.io/mattkearl/embed/ByLjjPZ?default-tab=css%2Cresult&editable=true" loading="lazy" title="Responsive Design Playground" allowfullscreen></iframe>
+        </div>
+      </div>
+    </div>
+
+    <!-- SLIDE 28: Summary -->
+    <div class="slide">
+      <div class="slide-content">
+        <div class="slide-label">Summary</div>
+        <h2>What You Learned</h2>
+        <div class="summary-grid">
+          <div class="summary-card">
+            <strong>Mobile-First</strong>
+            Design for small screens first. Add complexity upward with <code>min-width</code> media queries. Less CSS to override.
+          </div>
+          <div class="summary-card">
+            <strong>Viewport Meta Tag</strong>
+            Non-negotiable. Without it, mobile browsers render at 980px virtual width — your media queries won't work.
+          </div>
+          <div class="summary-card">
+            <strong>@media Queries</strong>
+            Conditional CSS based on viewport width, color scheme, motion preference, and more. Mobile-first = <code>min-width</code>.
+          </div>
+          <div class="summary-card">
+            <strong>clamp()</strong>
+            Fluid values between a minimum and maximum — no breakpoint jumps. Works on font sizes, spacing, and any length.
+          </div>
+          <div class="summary-card">
+            <strong>Responsive Images</strong>
+            <code>srcset + sizes</code> for resolution switching. <code>&lt;picture&gt;</code> for art direction. <code>object-fit</code> for contained thumbnails.
+          </div>
+          <div class="summary-card">
+            <strong>Intrinsic Grid</strong>
+            <code>repeat(auto-fill, minmax())</code> — grid adds/removes columns as space changes. Zero media queries.
+          </div>
+          <div class="summary-card">
+            <strong>dvh / svh / lvh</strong>
+            New dynamic viewport units that account for mobile browser chrome appearing and disappearing.
+          </div>
+          <div class="summary-card">
+            <strong>Container Queries</strong>
+            <code>@container</code> responds to a component's parent width — not the viewport. Portable, context-aware components.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SLIDE 29: Q&A Part 1 -->
+    <div class="slide">
+      <div class="slide-content">
+        <div class="slide-label">Q &amp; A</div>
+        <h2>Common Questions</h2>
+        <dl style="display:grid;gap:.55rem;">
+          <div class="card">
+            <dt style="color:#ffeaa7;font-weight:700;margin-bottom:.2rem;">What is the difference between responsive and adaptive design?</dt>
+            <dd style="font-size:.88rem;opacity:.9;line-height:1.5;">Responsive design uses a fluid, flexible layout that adjusts continuously to any screen size through CSS. Adaptive design uses multiple fixed layouts, each designed for a specific breakpoint — the server or client detects the device and serves the appropriate layout. Responsive is the industry standard because one codebase handles the full spectrum of sizes.</dd>
+          </div>
+          <div class="card">
+            <dt style="color:#ffeaa7;font-weight:700;margin-bottom:.2rem;">Should I use <code>px</code> or <code>rem</code> for breakpoints?</dt>
+            <dd style="font-size:.88rem;opacity:.9;line-height:1.5;">Many accessibility experts recommend <code>rem</code>: if a user's browser base font size is larger than 16px, <code>px</code>-based queries fire at the same viewport width regardless — potentially breaking the layout for users with enlarged text settings. <code>rem</code> breakpoints scale with the user's font size preference. In practice, <code>px</code> is used in most popular frameworks (Tailwind, Bootstrap). The impact is small for most sites, but <code>rem</code> is the more accessible choice.</dd>
+          </div>
+          <div class="card">
+            <dt style="color:#ffeaa7;font-weight:700;margin-bottom:.2rem;">What is the difference between <code>auto-fill</code> and <code>auto-fit</code> in CSS Grid?</dt>
+            <dd style="font-size:.88rem;opacity:.9;line-height:1.5;">Both create as many columns as will fit in the available space. The difference appears when there are fewer items than possible columns. <code>auto-fill</code> maintains the column tracks even if some are empty, keeping item widths consistent. <code>auto-fit</code> collapses empty tracks and stretches the filled items to take all available space. For most card layouts, <code>auto-fill</code> produces more predictable column widths.</dd>
+          </div>
+        </dl>
+      </div>
+    </div>
+
+    <!-- SLIDE 30: Q&A Part 2 -->
+    <div class="slide">
+      <div class="slide-content">
+        <div class="slide-label">Q &amp; A</div>
+        <h2>More Common Questions</h2>
+        <dl style="display:grid;gap:.55rem;">
+          <div class="card">
+            <dt style="color:#ffeaa7;font-weight:700;margin-bottom:.2rem;">When should I use container queries instead of media queries?</dt>
+            <dd style="font-size:.88rem;opacity:.9;line-height:1.5;">Use container queries for <em>components</em> that need to adapt to their context, not the viewport. A card used in both a narrow sidebar and a wide main column should use container queries so it adapts to available container width. Use media queries for <em>page-level</em> layout changes — shifting to two columns, showing or hiding the mobile navigation, adjusting the hero layout.</dd>
+          </div>
+          <div class="card">
+            <dt style="color:#ffeaa7;font-weight:700;margin-bottom:.2rem;">Is it okay to use <code>display: none</code> to hide content on mobile?</dt>
+            <dd style="font-size:.88rem;opacity:.9;line-height:1.5;">From a CSS perspective, yes — <code>display: none</code> removes the element from the rendering tree and it consumes no space. However, the HTML is still downloaded, and screen readers may or may not ignore it. If you need to hide content from all users including screen readers, pair <code>display: none</code> with <code>aria-hidden="true"</code> or the <code>hidden</code> attribute. Never hide content that is the only way to access important information — always provide an alternative.</dd>
+          </div>
+          <div class="card">
+            <dt style="color:#ffeaa7;font-weight:700;margin-bottom:.2rem;">Do I need to add a fallback for <code>dvh</code>?</dt>
+            <dd style="font-size:.88rem;opacity:.9;line-height:1.5;">Yes, for broader compatibility. Add the <code>vh</code> value first, then <code>dvh</code> on the next line — browsers that support <code>dvh</code> will apply it; older browsers use the <code>vh</code> fallback. Example: <code>min-height: 100vh; min-height: 100dvh;</code> Supported in Chrome 108+, Safari 15.4+, Firefox 101+.</dd>
+          </div>
+        </dl>
+      </div>
+    </div>
+
+  </div><!-- end .slideshow-container -->
+
+  <nav class="nav">
+    <button class="nav-btn" id="prevBtn" onclick="goTo(currentSlide-1)">&#8592;</button>
+    <span class="nav-counter" id="slideNum">1 / 30</span>
+    <button class="nav-btn" id="nextBtn" onclick="goTo(currentSlide+1)">&#8594;</button>
+  </nav>
+
+  <script>
+    /* ---- Navigation ---- */
+    let currentSlide = 0;
+    const slides = document.querySelectorAll('.slide');
+    const total = slides.length;
+
+    function goTo(n) {
+      slides[currentSlide].classList.remove('active');
+      currentSlide = Math.max(0, Math.min(n, total - 1));
+      slides[currentSlide].classList.add('active');
+      updateNav();
+    }
+
+    function updateNav() {
+      document.getElementById('slideNum').textContent = (currentSlide + 1) + ' / ' + total;
+      document.getElementById('prevBtn').disabled = currentSlide === 0;
+      document.getElementById('nextBtn').disabled = currentSlide === total - 1;
+      const pct = total > 1 ? (currentSlide / (total - 1)) * 100 : 100;
+      document.getElementById('progressBar').style.width = pct + '%';
+    }
+
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'ArrowRight' || e.key === 'ArrowDown') goTo(currentSlide + 1);
+      if (e.key === 'ArrowLeft'  || e.key === 'ArrowUp')   goTo(currentSlide - 1);
+    });
+
+    updateNav();
+
+    /* ---- Breakpoint live indicator (Slide 9) ---- */
+    function updateBP() {
+      const w = window.innerWidth;
+      const disp = document.getElementById('bpWidth');
+      const lbl  = document.getElementById('bpLabel');
+      if (!disp) return;
+      disp.textContent = w + 'px';
+      const xs = document.getElementById('bpXs');
+      const sm = document.getElementById('bpSm');
+      const lg = document.getElementById('bpLg');
+      const xl = document.getElementById('bpXl');
+      if (!xs) return;
+      xs.classList.remove('bp-active');
+      sm.classList.remove('bp-active');
+      lg.classList.remove('bp-active');
+      xl.classList.remove('bp-active');
+      if (w >= 1280) {
+        disp.style.color = '#93c5fd';
+        lbl.textContent  = 'xl — wide desktop';
+        xl.classList.add('bp-active');
+      } else if (w >= 1024) {
+        disp.style.color = '#86efac';
+        lbl.textContent  = 'lg — desktop';
+        lg.classList.add('bp-active');
+      } else if (w >= 640) {
+        disp.style.color = '#fde68a';
+        lbl.textContent  = 'sm — tablet';
+        sm.classList.add('bp-active');
+      } else {
+        disp.style.color = '#fca5a5';
+        lbl.textContent  = 'xs — mobile';
+        xs.classList.add('bp-active');
+      }
+    }
+    window.addEventListener('resize', updateBP);
+    updateBP();
+
+    /* ---- clamp() calculator (Slide 10) ---- */
+    (function() {
+      const slider = document.getElementById('clampSlider');
+      if (!slider) return;
+      slider.addEventListener('input', function() { updateClamp(this.value); });
+      updateClamp(slider.value);
+    })();
+
+    function updateClamp(vpStr) {
+      const vp = parseInt(vpStr);
+      const vpEl = document.getElementById('clampVpVal');
+      if (vpEl) vpEl.textContent = vp + 'px';
+      /* h1: clamp(1.5rem, 4vw + 1rem, 3rem) */
+      const h1px = Math.min(Math.max(1.5 * 16, vp * 0.04 + 16), 3 * 16);
+      /* p: clamp(1rem, 1.5vw + 0.5rem, 1.25rem) */
+      const ppx  = Math.min(Math.max(1 * 16, vp * 0.015 + 0.5 * 16), 1.25 * 16);
+      const h1El = document.getElementById('clampH1');
+      const pEl  = document.getElementById('clampP');
+      if (h1El) h1El.style.fontSize = h1px + 'px';
+      if (pEl)  pEl.style.fontSize  = ppx  + 'px';
+      const v1 = document.getElementById('clampV1');
+      const v2 = document.getElementById('clampV2');
+      if (v1) v1.textContent = 'h1 → ' + (h1px / 16).toFixed(2) + 'rem (' + Math.round(h1px) + 'px)';
+      if (v2) v2.textContent = 'p → '  + (ppx  / 16).toFixed(2) + 'rem (' + Math.round(ppx)  + 'px)';
+    }
+
+    /* ---- object-fit demo (Slide 13) ---- */
+    function setObjFit(val) {
+      const img = document.getElementById('objFitImg');
+      if (img) img.style.objectFit = val;
+      document.querySelectorAll('.objfit-btn').forEach(function(b) {
+        b.classList.toggle('active', b.dataset.val === val);
+      });
+      const lbl = document.getElementById('objFitLabel');
+      if (lbl) lbl.textContent = 'object-fit: ' + val;
+    }
+
+    /* ---- Container query simulator (Slide 21) ---- */
+    function updateCQ(w) {
+      const wrap = document.getElementById('cqWrap');
+      const lbl  = document.getElementById('cqWidthLabel');
+      const ind  = document.getElementById('cqIndicator');
+      if (!wrap) return;
+      wrap.style.width = w + 'px';
+      if (lbl) lbl.textContent = w + 'px';
+      if (ind) {
+        const wide = parseInt(w) >= 380;
+        ind.textContent = wide ? '⟷ row layout (≥ 380px)' : '⟷ column layout (< 380px)';
+        ind.style.color = wide ? '#86efac' : '#fde68a';
+      }
+    }
+
+    /* ---- Hamburger demo (Slide 24) ---- */
+    function toggleHB() {
+      const btn = document.getElementById('hbBtn');
+      const nav = document.getElementById('hbNav');
+      if (!btn || !nav) return;
+      const isOpen = nav.classList.toggle('hb-open');
+      btn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+    }
+  </script>
+</body>
+</html>
