@@ -1,0 +1,1454 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CSS Transitions &amp; Transforms</title>
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box;}
+    :root{
+      --primary-color:#2c3e50;
+      --secondary-color:#3498db;
+      --code-bg:#1e1e1e;
+      --code-text:#d4d4d4;
+    }
+    html,body{height:100%;font-family:'Segoe UI',system-ui,sans-serif;background:var(--primary-color);overflow:hidden;display:flex;flex-direction:column;}
+
+    /* Progress bar */
+    .progress-bar{width:100%;height:4px;background:rgba(255,255,255,.15);flex-shrink:0;}
+    .progress{height:100%;background:var(--secondary-color);transition:width .3s ease;}
+
+    /* Slideshow */
+    .slideshow-container{flex:1;display:flex;flex-direction:column;overflow:hidden;min-height:0;}
+    .slide{display:none;flex:1;padding:1.2rem 1.75rem;color:#fff;overflow-y:auto;animation:fadeIn .35s ease;min-height:0;flex-direction:column;}
+    .slide.active{display:flex;}
+    @keyframes fadeIn{from{opacity:0;transform:translateX(18px);}to{opacity:1;transform:translateX(0);}}
+
+    /* Slide backgrounds — cycling */
+    .slide:nth-child(odd) {background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);}
+    .slide:nth-child(even){background:linear-gradient(135deg,#11998e 0%,#38ef7d 100%);}
+    .slide:nth-child(3n)  {background:linear-gradient(135deg,#ee0979 0%,#ff6a00 100%);}
+    .slide:nth-child(4n)  {background:linear-gradient(135deg,#2193b0 0%,#6dd5ed 100%);}
+    .slide:nth-child(5n)  {background:linear-gradient(135deg,#c31432 0%,#240b36 100%);}
+
+    /* Slide label */
+    .slide-label{font-size:.7rem;text-transform:uppercase;letter-spacing:.12em;color:rgba(255,255,255,.45);margin-bottom:.3rem;}
+
+    /* Content wrapper */
+    .slide-content{max-width:1400px;width:100%;margin:0 auto;flex:1;display:flex;flex-direction:column;min-height:0;}
+    .slide-content.centered{justify-content:center;align-items:center;text-align:center;}
+
+    /* Typography */
+    h1{font-size:clamp(1.8rem,5vw,3rem);margin-bottom:1rem;line-height:1.2;text-shadow:0 2px 6px rgba(0,0,0,.3);}
+    h2{font-size:clamp(1.3rem,3.5vw,2rem);margin-bottom:.4rem;color:#ffeaa7;}
+    h3{font-size:clamp(.95rem,2.2vw,1.3rem);margin:.4rem 0 .2rem;color:#81ecec;}
+    p{font-size:clamp(.88rem,2vw,1.05rem);line-height:1.5;margin-bottom:.3rem;}
+    ul,ol{font-size:clamp(.83rem,1.9vw,1rem);line-height:1.55;margin-left:1.3rem;margin-bottom:.3rem;}
+    li{margin-bottom:.15rem;}
+    a{color:#ffeaa7;text-decoration:underline;}
+    a:hover{color:#fdcb6e;}
+    code{background:rgba(0,0,0,.35);padding:.15em .45em;border-radius:4px;font-family:'Consolas','Monaco',monospace;font-size:.88em;}
+    pre{background:var(--code-bg);color:var(--code-text);padding:.5rem .85rem;border-radius:8px;overflow-x:auto;margin:.3rem 0;font-size:clamp(.72rem,1.6vw,.88rem);line-height:1.42;flex-shrink:0;}
+    pre code{background:none;padding:0;font-size:inherit;}
+
+    /* Callouts */
+    .note{background:rgba(34,197,94,.15);border-left:4px solid #22c55e;padding:.45rem .8rem;border-radius:6px;margin:.3rem 0;font-size:clamp(.82rem,1.8vw,.97rem);}
+    .caution{background:rgba(239,68,68,.15);border-left:4px solid #ef4444;padding:.45rem .8rem;border-radius:6px;margin:.3rem 0;font-size:clamp(.82rem,1.8vw,.97rem);}
+    .tip{background:rgba(79,109,245,.2);border-left:4px solid #4f6df5;padding:.45rem .8rem;border-radius:6px;margin:.3rem 0;font-size:clamp(.82rem,1.8vw,.97rem);}
+    .highlight{background:rgba(255,255,255,.15);border-left:4px solid #ffeaa7;padding:.45rem .8rem;border-radius:6px;margin:.3rem 0;font-size:clamp(.82rem,1.8vw,.97rem);}
+
+    /* Interactive in-slide demos */
+    .demo-btn{padding:.3rem .65rem;font-size:.8rem;border:1px solid rgba(255,255,255,.35);border-radius:4px;cursor:pointer;background:rgba(0,0,0,.3);color:white;transition:all .2s;}
+    .demo-btn:hover{background:rgba(255,255,255,.15);}
+    .demo-btn.active{background:rgba(52,152,219,.7);border-color:#3498db;}
+    .live-demo{background:rgba(0,0,0,.25);border-radius:8px;padding:.55rem .9rem;margin:.3rem 0;border:1px solid rgba(255,255,255,.15);}
+
+    /* Layout */
+    .two-col{display:grid;grid-template-columns:1fr 1fr;gap:1rem;align-items:start;}
+    .three-col{display:grid;grid-template-columns:repeat(3,1fr);gap:.85rem;align-items:start;}
+    @media(max-width:900px){.three-col{grid-template-columns:1fr 1fr;}}
+    @media(max-width:700px){.two-col,.three-col{grid-template-columns:1fr;}.slide{padding:1rem 1rem;}}
+
+    /* Cards */
+    .card{background:rgba(0,0,0,.25);padding:.65rem .85rem;border-radius:8px;border:1px solid rgba(255,255,255,.15);}
+    .card-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:.6rem;margin:.4rem 0;}
+
+    /* Slides img */
+    .slide-img{max-width:100%;border-radius:8px;border:1px solid rgba(255,255,255,.2);margin:.4rem 0;box-shadow:0 4px 16px rgba(0,0,0,.4);}
+    .img-caption{font-size:.75rem;opacity:.6;text-align:center;margin-top:.2rem;}
+
+    /* Learn grid (cover/summary) */
+    .learn-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:.45rem;margin:.5rem 0;}
+    .learn-item{background:rgba(0,0,0,.25);border-left:3px solid #81ecec;border-radius:6px;padding:.45rem .75rem;font-size:clamp(.8rem,1.8vw,.96rem);line-height:1.45;}
+
+    /* Summary cards */
+    .summary-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:.55rem;margin:.5rem 0;}
+    .summary-card{background:rgba(0,0,0,.25);border-radius:8px;padding:.65rem .9rem;border:1px solid rgba(255,255,255,.15);font-size:clamp(.78rem,1.7vw,.93rem);line-height:1.45;}
+    .summary-card strong{color:#ffeaa7;display:block;margin-bottom:.2rem;font-size:.9em;}
+
+    /* Compare table */
+    table.cmp{width:100%;border-collapse:collapse;font-size:clamp(.8rem,1.8vw,1rem);margin:.4rem 0;}
+    table.cmp th,table.cmp td{border:1px solid rgba(255,255,255,.25);padding:.3rem .55rem;text-align:left;}
+    table.cmp th{background:rgba(0,0,0,.3);color:#ffeaa7;}
+    table.cmp td:first-child{color:#93c5fd;font-weight:600;}
+
+    /* CodePen / demo iframe container */
+    .demo-wrap{flex:1;min-height:0;display:flex;flex-direction:column;border-radius:10px;overflow:hidden;margin:.4rem 0;border:1px solid rgba(255,255,255,.2);}
+    .demo-wrap iframe{flex:1;border:none;width:100%!important;height:100%!important;min-height:420px;background:#fff;}
+    .demo-label{font-size:.75rem;text-transform:uppercase;letter-spacing:.1em;color:rgba(255,255,255,.5);margin-bottom:.3rem;text-align:center;}
+
+    /* Badge chip */
+    .badge{display:inline-block;background:rgba(79,109,245,.4);border:1px solid rgba(79,109,245,.6);border-radius:20px;padding:.2em .7em;font-size:.78em;margin:.15rem;}
+    .badge.green{background:rgba(34,197,94,.25);border-color:rgba(34,197,94,.5);color:#86efac;}
+    .badge.yellow{background:rgba(234,179,8,.2);border-color:rgba(234,179,8,.45);color:#fde68a;}
+    .badge.red{background:rgba(239,68,68,.2);border-color:rgba(239,68,68,.45);color:#fca5a5;}
+
+    /* Inline transition comparison demos */
+    .tx-demo-box{
+      width:110px;height:58px;border-radius:8px;
+      background:#4f6df5;display:flex;align-items:center;justify-content:center;
+      color:white;font-size:.78rem;font-weight:700;cursor:pointer;
+      border:2px solid rgba(255,255,255,.3);
+    }
+    .tx-demo-box.snap:hover{background:#e74c3c;transform:translateY(-6px);}
+    .tx-demo-box.smooth{transition:background .4s ease,transform .3s ease-out;}
+    .tx-demo-box.smooth:hover{background:#e74c3c;transform:translateY(-6px);}
+
+    /* Rule demo buttons */
+    .rule-btn{padding:.55rem 1.1rem;border:none;border-radius:6px;font-size:.85rem;font-weight:700;cursor:pointer;background:#4f6df5;color:white;display:block;margin:.4rem 0;}
+    .rule-btn.ok{transition:background-color .4s ease,transform .35s ease;}
+    .rule-btn.ok:hover{background:#2ecc71;transform:scale(1.12);}
+    .rule-btn.bad:hover{transition:background-color .4s ease,transform .35s ease;background:#e74c3c;transform:scale(1.12);}
+
+    /* Performance comparison */
+    .perf-demo{display:flex;gap:1rem;align-items:center;margin:.3rem 0;flex-wrap:wrap;}
+    .perf-box{
+      width:90px;height:44px;border-radius:6px;background:#4f6df5;
+      display:flex;align-items:center;justify-content:center;
+      color:white;font-size:.72rem;font-weight:700;cursor:pointer;
+    }
+    .perf-box.bad {transition:left .4s ease;position:relative;left:0;}
+    .perf-box.bad:hover{left:60px;}
+    .perf-box.good{transition:transform .4s ease;}
+    .perf-box.good:hover{transform:translateX(60px);}
+
+    /* Navigation */
+    .navigation{display:flex;justify-content:center;align-items:center;gap:1rem;padding:.65rem 1rem;background:var(--primary-color);flex-shrink:0;flex-wrap:wrap;}
+    .nav-btn{padding:.5rem 1.2rem;font-size:.95rem;border:none;border-radius:5px;cursor:pointer;background:var(--secondary-color);color:#fff;transition:all .25s;font-weight:600;}
+    .nav-btn:hover{background:#2980b9;transform:translateY(-1px);}
+    .nav-btn:disabled{background:#4b5563;cursor:not-allowed;transform:none;}
+    .slide-counter{color:#fff;font-size:.95rem;min-width:90px;text-align:center;opacity:.85;}
+
+    @media(max-width:480px){
+      h1{font-size:1.5rem;}
+      .navigation{gap:.5rem;padding:.5rem;}
+      .nav-btn{padding:.45rem .9rem;font-size:.85rem;}
+    }
+  </style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════════
+     CODEPEN TEMPLATES — content loaded into iframes
+     ══════════════════════════════════════════════ -->
+
+<template id="cp1">
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CSS Transitions</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:system-ui,sans-serif;padding:2rem;background:#f8f9fa;color:#333;}
+h1{font-size:1.4rem;margin-bottom:.5rem;}
+.intro{color:#555;margin-bottom:2rem;}
+.demo-row{display:flex;gap:1.5rem;margin-bottom:2.5rem;align-items:flex-start;flex-wrap:wrap;}
+.demo{display:flex;flex-direction:column;gap:.5rem;}
+.label{font-size:.75rem;color:#666;font-family:monospace;max-width:220px;}
+.btn{padding:.7rem 1.4rem;border:none;border-radius:6px;font-size:.9rem;font-weight:600;cursor:pointer;color:white;}
+.btn--basic{background-color:#4f6df5;transition:background-color .3s ease;}
+.btn--basic:hover{background-color:#c0392b;}
+.btn--delayed{background-color:#2ecc71;transition:background-color .5s ease .2s;}
+.btn--delayed:hover{background-color:#1a6b3c;}
+.btn--multi{background-color:#9b59b6;box-shadow:0 2px 6px rgba(0,0,0,.15);transition:background-color .2s ease-out,transform .15s ease-out,box-shadow .2s ease-out;}
+.btn--multi:hover{background-color:#6c3483;transform:translateY(-3px);box-shadow:0 8px 20px rgba(0,0,0,.2);}
+.btn--multi:active{transform:translateY(-1px);box-shadow:0 4px 10px rgba(0,0,0,.15);}
+.box{width:120px;height:80px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-weight:700;color:white;font-size:.9rem;cursor:pointer;}
+.box--color{background-color:#e67e22;transition:background-color .4s ease;}
+.box--color:hover{background-color:#1abc9c;}
+.box--size{background-color:#e74c3c;transition:width .3s ease,height .3s ease;}
+.box--size:hover{width:180px;height:120px;}
+.box--transform{background-color:#3498db;transition:transform .3s ease;}
+.box--transform:hover{transform:scale(1.4);}
+.note{padding:1rem 1.25rem;background:#fff8e1;border-left:4px solid #f39c12;border-radius:0 6px 6px 0;font-size:.875rem;line-height:1.5;max-width:600px;}
+</style>
+</head>
+<body>
+<h1>CSS Transition Properties</h1>
+<p class="intro">Hover each button to see how each sub-property affects the animation.</p>
+<div class="demo-row">
+  <div class="demo"><button class="btn btn--basic">Basic (0.3s ease)</button><p class="label">transition: background-color 0.3s ease</p></div>
+  <div class="demo"><button class="btn btn--delayed">Delayed (0.5s, 0.2s delay)</button><p class="label">transition: background-color 0.5s ease 0.2s</p></div>
+  <div class="demo"><button class="btn btn--multi">Multi-Property</button><p class="label">background-color + transform + box-shadow</p></div>
+</div>
+<div class="demo-row">
+  <div class="demo"><div class="box box--color"><span>Color</span></div><p class="label">Hover: color transition</p></div>
+  <div class="demo"><div class="box box--size"><span>Size</span></div><p class="label">Hover: width + height (layout shift!)</p></div>
+  <div class="demo"><div class="box box--transform"><span>Transform</span></div><p class="label">Hover: transform (no layout shift)</p></div>
+</div>
+<div class="note"><strong>Key observation:</strong> The "Size" box pushes other elements when it grows. The "Transform" box does not — transform never affects layout.</div>
+</body>
+</html>
+</template>
+
+<template id="cp2">
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Timing Functions</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:system-ui,sans-serif;padding:2rem;background:#1a1a2e;color:#eee;}
+h1{font-size:1.4rem;margin-bottom:.5rem;}
+.intro{color:#aaa;margin-bottom:1.5rem;font-size:.95rem;}
+#go-btn{padding:.6rem 2rem;background:#4f6df5;color:white;border:none;border-radius:6px;font-size:1rem;font-weight:700;cursor:pointer;margin-bottom:2rem;transition:background .15s;}
+#go-btn:hover{background:#3a56d4;}
+.tracks{display:flex;flex-direction:column;gap:1rem;}
+.track{display:flex;align-items:center;gap:1rem;}
+.track__label{width:180px;font-size:.8rem;font-family:monospace;color:#bbb;flex-shrink:0;}
+.track__rail{flex:1;height:46px;background:rgba(255,255,255,.06);border-radius:6px;position:relative;overflow:hidden;}
+.ball{position:absolute;left:4px;top:50%;transform:translateY(-50%);width:80px;height:36px;border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:700;color:white;transition:left 1.4s;}
+.animating .ball{left:calc(100% - 84px);}
+.ball--ease{background:#4f6df5;transition-timing-function:ease;}
+.ball--linear{background:#2ecc71;transition-timing-function:linear;}
+.ball--ease-in{background:#e67e22;transition-timing-function:ease-in;}
+.ball--ease-out{background:#e74c3c;transition-timing-function:ease-out;}
+.ball--ease-in-out{background:#9b59b6;transition-timing-function:ease-in-out;}
+.ball--spring{background:#1abc9c;transition-timing-function:cubic-bezier(.34,1.56,.64,1);}
+</style>
+</head>
+<body>
+<h1>Timing Functions</h1>
+<p class="intro">Click <strong>Go!</strong> to animate all tracks at once. Watch how each easing function affects the pace.</p>
+<button id="go-btn">Go!</button>
+<div class="tracks">
+  <div class="track"><div class="track__label">ease (default)</div><div class="track__rail"><div class="ball ball--ease">ease</div></div></div>
+  <div class="track"><div class="track__label">linear</div><div class="track__rail"><div class="ball ball--linear">linear</div></div></div>
+  <div class="track"><div class="track__label">ease-in</div><div class="track__rail"><div class="ball ball--ease-in">ease-in</div></div></div>
+  <div class="track"><div class="track__label">ease-out</div><div class="track__rail"><div class="ball ball--ease-out">ease-out</div></div></div>
+  <div class="track"><div class="track__label">ease-in-out</div><div class="track__rail"><div class="ball ball--ease-in-out">ease-in-out</div></div></div>
+  <div class="track"><div class="track__label">cubic-bezier (springy)</div><div class="track__rail"><div class="ball ball--spring">spring</div></div></div>
+</div>
+<script>
+const btn = document.getElementById('go-btn');
+const rail = document.querySelector('.tracks');
+let animating = false;
+btn.addEventListener('click', () => {
+  animating = !animating;
+  rail.classList.toggle('animating', animating);
+  btn.textContent = animating ? 'Reset' : 'Go!';
+});
+</script>
+</body>
+</html>
+</template>
+
+<template id="cp3">
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>2D Transforms Explorer</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:system-ui,sans-serif;padding:2rem;background:#f0f2f5;color:#333;}
+h1{font-size:1.4rem;margin-bottom:.4rem;}
+.intro{color:#666;margin-bottom:2rem;font-size:.95rem;}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:1.25rem;}
+.tile{background:white;border-radius:10px;padding:1.5rem 1rem;text-align:center;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.08);display:flex;flex-direction:column;gap:.35rem;transition:transform .3s ease,box-shadow .3s ease;}
+.tile strong{font-size:.95rem;color:#222;}
+.tile code{font-size:.65rem;color:#666;line-height:1.4;word-break:break-all;}
+.tile__icon{font-size:1.6rem;margin-bottom:.25rem;}
+.tile--translate:hover{transform:translateX(20px) translateY(-20px);box-shadow:0 8px 20px rgba(0,0,0,.12);}
+.tile--rotate:hover{transform:rotate(45deg);}
+.tile--scale-up:hover{transform:scale(1.3);box-shadow:0 12px 30px rgba(0,0,0,.15);}
+.tile--scale-down:hover{transform:scale(.7);}
+.tile--skew:hover{transform:skewX(20deg);}
+.tile--combined:hover{transform:rotate(15deg) scale(1.1) translateY(-8px);box-shadow:0 12px 30px rgba(0,0,0,.15);}
+.tile--origin-tl{transform-origin:top left;}
+.tile--origin-tl:hover{transform:rotate(45deg);}
+.tile--origin-br{transform-origin:bottom right;}
+.tile--origin-br:hover{transform:rotate(45deg);}
+.tile--translate{border-top:3px solid #4f6df5;}
+.tile--rotate{border-top:3px solid #e67e22;}
+.tile--scale-up{border-top:3px solid #2ecc71;}
+.tile--scale-down{border-top:3px solid #e74c3c;}
+.tile--skew{border-top:3px solid #9b59b6;}
+.tile--combined{border-top:3px solid #1abc9c;}
+.tile--origin-tl{border-top:3px solid #f39c12;}
+.tile--origin-br{border-top:3px solid #34495e;}
+</style>
+</head>
+<body>
+<h1>2D Transforms</h1>
+<p class="intro">Hover each tile to see the transform in action.</p>
+<div class="grid">
+  <div class="tile tile--translate"><span class="tile__icon">↗</span><strong>translate</strong><code>translateX(20px) translateY(-20px)</code></div>
+  <div class="tile tile--rotate"><span class="tile__icon">↻</span><strong>rotate</strong><code>rotate(45deg)</code></div>
+  <div class="tile tile--scale-up"><span class="tile__icon">⊕</span><strong>scale up</strong><code>scale(1.3)</code></div>
+  <div class="tile tile--scale-down"><span class="tile__icon">⊖</span><strong>scale down</strong><code>scale(0.7)</code></div>
+  <div class="tile tile--skew"><span class="tile__icon">//</span><strong>skewX</strong><code>skewX(20deg)</code></div>
+  <div class="tile tile--combined"><span class="tile__icon">★</span><strong>combined</strong><code>rotate(15deg) scale(1.1) translateY(-8px)</code></div>
+  <div class="tile tile--origin-tl"><span class="tile__icon">◤</span><strong>origin: top left</strong><code>rotate(45deg) — origin: top left</code></div>
+  <div class="tile tile--origin-br"><span class="tile__icon">◢</span><strong>origin: bottom right</strong><code>rotate(45deg) — origin: bottom right</code></div>
+</div>
+</body>
+</html>
+</template>
+
+<template id="cp4">
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>3D Card Flip</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:system-ui,sans-serif;padding:2rem;background:#1a1a2e;color:white;min-height:100vh;}
+h1{font-size:1.4rem;margin-bottom:.4rem;}
+.intro{color:#aaa;margin-bottom:2.5rem;font-size:.95rem;}
+.cards{display:flex;gap:2rem;flex-wrap:wrap;}
+.scene{perspective:800px;width:220px;height:300px;}
+.card{width:100%;height:100%;position:relative;transform-style:preserve-3d;transition:transform .6s cubic-bezier(.4,0,.2,1);cursor:pointer;}
+.scene:hover .card{transform:rotateY(180deg);}
+.card.is-flipped{transform:rotateY(180deg);}
+.card__face{position:absolute;width:100%;height:100%;border-radius:14px;backface-visibility:hidden;display:flex;align-items:center;justify-content:center;padding:1.5rem;}
+.card__face--front{background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);}
+.card__face--back{transform:rotateY(180deg);background:linear-gradient(135deg,#f093fb 0%,#f5576c 100%);}
+.card__content{text-align:center;color:white;}
+.card__emoji{font-size:2.5rem;display:block;margin-bottom:.75rem;}
+.card__content h2{font-size:1.3rem;margin-bottom:.5rem;}
+.card__content p{font-size:.85rem;opacity:.85;line-height:1.5;}
+</style>
+</head>
+<body>
+<h1>3D Card Flip</h1>
+<p class="intro">Hover the card to flip it. Click to keep it flipped.</p>
+<div class="cards">
+  <div class="scene"><div class="card" id="card1"><div class="card__face card__face--front"><div class="card__content"><span class="card__emoji">🌐</span><h2>HTML</h2><p>Hover to flip</p></div></div><div class="card__face card__face--back"><div class="card__content"><span class="card__emoji">📄</span><h2>Structure</h2><p>HTML defines the content and meaning of a web page.</p></div></div></div></div>
+  <div class="scene"><div class="card" id="card2"><div class="card__face card__face--front"><div class="card__content"><span class="card__emoji">🎨</span><h2>CSS</h2><p>Hover to flip</p></div></div><div class="card__face card__face--back"><div class="card__content"><span class="card__emoji">✨</span><h2>Presentation</h2><p>CSS controls layout, color, typography, and animation.</p></div></div></div></div>
+  <div class="scene"><div class="card" id="card3"><div class="card__face card__face--front"><div class="card__content"><span class="card__emoji">⚡</span><h2>JavaScript</h2><p>Hover to flip</p></div></div><div class="card__face card__face--back"><div class="card__content"><span class="card__emoji">🔧</span><h2>Behavior</h2><p>JavaScript adds interactivity, logic, and dynamic content.</p></div></div></div></div>
+</div>
+<script>
+document.querySelectorAll('.card').forEach(card => {
+  card.addEventListener('click', () => { card.classList.toggle('is-flipped'); });
+});
+</script>
+</body>
+</html>
+</template>
+
+<template id="cp5">
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Practical Hover Effects</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:system-ui,sans-serif;padding:2rem;background:#f5f6fa;color:#333;}
+h1{font-size:1.4rem;margin-bottom:.4rem;}
+.intro{color:#666;margin-bottom:2rem;font-size:.95rem;}
+.section{margin-bottom:3rem;}
+.section h2{font-size:.8rem;color:#666;text-transform:uppercase;letter-spacing:.06em;margin-bottom:1rem;}
+.demo-row{display:flex;gap:1rem;align-items:center;flex-wrap:wrap;}
+.btn-lift{padding:.7rem 1.6rem;border:none;border-radius:7px;font-size:.9rem;font-weight:600;cursor:pointer;transform:translateY(0);box-shadow:0 2px 6px rgba(0,0,0,.12);transition:transform .15s ease-out,box-shadow .15s ease-out,background-color .15s ease;}
+.btn-lift--primary{background:#4f6df5;color:white;}
+.btn-lift--ghost{background:white;color:#4f6df5;border:2px solid #4f6df5;}
+.btn-lift--danger{background:#e74c3c;color:white;}
+.btn-lift:hover{transform:translateY(-3px);box-shadow:0 8px 20px rgba(0,0,0,.18);}
+.btn-lift:active{transform:translateY(-1px);box-shadow:0 4px 10px rgba(0,0,0,.15);}
+.cards-row{display:flex;gap:1.25rem;flex-wrap:wrap;}
+.card-raise{background:white;border-radius:12px;width:180px;box-shadow:0 2px 8px rgba(0,0,0,.08);overflow:hidden;transform:translateY(0);transition:transform .25s ease-out,box-shadow .25s ease-out;cursor:pointer;}
+.card-raise:hover{transform:translateY(-8px);box-shadow:0 16px 40px rgba(0,0,0,.14);}
+.card-raise__img{height:90px;display:flex;align-items:center;justify-content:center;font-size:2rem;}
+.card-raise__body{padding:1rem;}
+.card-raise__body h3{font-size:.95rem;margin-bottom:.3rem;}
+.card-raise__body p{font-size:.8rem;color:#666;}
+.img-zoom{width:200px;height:130px;border-radius:10px;overflow:hidden;}
+.img-zoom__inner{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:.85rem;font-weight:700;color:white;transform:scale(1);transition:transform .4s ease-out;}
+.img-zoom:hover .img-zoom__inner{transform:scale(1.15);}
+.icon-btn{display:flex;flex-direction:column;align-items:center;gap:.4rem;padding:1rem 1.25rem;background:white;border:1.5px solid #ddd;border-radius:10px;cursor:pointer;font-size:.8rem;color:#444;transition:border-color .2s,box-shadow .2s;}
+.icon-btn:hover{border-color:#4f6df5;box-shadow:0 4px 12px rgba(79,109,245,.15);}
+.icon-btn__icon{font-size:1.6rem;display:block;transition:transform .3s ease;}
+.icon-btn:hover .icon-btn__icon{transform:translateY(3px);}
+.icon-btn--rotate:hover .icon-btn__icon{transform:rotate(90deg);}
+.icon-btn--scale:hover .icon-btn__icon{transform:scale(1.4);color:#e74c3c;}
+</style>
+</head>
+<body>
+<h1>Practical Hover Effects</h1>
+<p class="intro">Hover each element to see transitions + transforms working together.</p>
+<section class="section"><h2>Button Lift</h2><div class="demo-row"><button class="btn-lift btn-lift--primary">Primary Action</button><button class="btn-lift btn-lift--ghost">Ghost Button</button><button class="btn-lift btn-lift--danger">Delete</button></div></section>
+<section class="section"><h2>Card Raise</h2><div class="cards-row"><div class="card-raise"><div class="card-raise__img" style="background:linear-gradient(135deg,#667eea,#764ba2);">🎨</div><div class="card-raise__body"><h3>Design</h3><p>Visual structure and aesthetics</p></div></div><div class="card-raise"><div class="card-raise__img" style="background:linear-gradient(135deg,#f093fb,#f5576c);">⚡</div><div class="card-raise__body"><h3>Performance</h3><p>Speed and efficiency</p></div></div><div class="card-raise"><div class="card-raise__img" style="background:linear-gradient(135deg,#4facfe,#00f2fe);">♿</div><div class="card-raise__body"><h3>Accessibility</h3><p>Usable by everyone</p></div></div></div></section>
+<section class="section"><h2>Image Zoom</h2><div class="demo-row"><div class="img-zoom"><div class="img-zoom__inner" style="background:linear-gradient(135deg,#a18cd1,#fbc2eb);"><span>Zoom on hover</span></div></div><div class="img-zoom"><div class="img-zoom__inner" style="background:linear-gradient(135deg,#fccb90,#d57eeb);"><span>Zoom on hover</span></div></div></div></section>
+<section class="section"><h2>Icon Interactions</h2><div class="demo-row"><button class="icon-btn"><span class="icon-btn__icon">↓</span><span>Download</span></button><button class="icon-btn icon-btn--rotate"><span class="icon-btn__icon">⚙</span><span>Settings</span></button><button class="icon-btn icon-btn--scale"><span class="icon-btn__icon">♥</span><span>Like</span></button></div></section>
+</body>
+</html>
+</template>
+
+<template id="cp6">
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>prefers-reduced-motion</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:system-ui,sans-serif;padding:2rem;background:#1a1a2e;color:#eee;line-height:1.6;}
+h1{font-size:1.4rem;margin-bottom:.5rem;}
+.intro{color:#aaa;margin-bottom:1.5rem;font-size:.9rem;max-width:560px;}
+.toggle-row{display:flex;align-items:center;gap:1rem;margin-bottom:2.5rem;flex-wrap:wrap;}
+#toggle-btn{padding:.5rem 1.25rem;background:#4f6df5;color:white;border:none;border-radius:6px;font-size:.9rem;font-weight:600;cursor:pointer;transition:background .15s;}
+#toggle-btn:hover{background:#3a56d4;}
+#toggle-btn.reduced{background:#e74c3c;}
+#status-label{font-size:.85rem;color:#aaa;}
+.demos{display:flex;gap:2rem;flex-wrap:wrap;margin-bottom:2rem;}
+.demo-box{background:rgba(255,255,255,.06);border-radius:12px;padding:2rem 1.5rem;text-align:center;min-width:160px;}
+.demo-label{font-weight:600;font-size:.85rem;margin-top:1rem;margin-bottom:.2rem;}
+.demo-sub{font-size:.75rem;color:#888;}
+.spinner{font-size:2.5rem;display:inline-block;animation:spin 1.5s linear infinite;}
+@keyframes spin{from{transform:rotate(0deg);}to{transform:rotate(360deg);}}
+.bouncer{font-size:2rem;display:inline-block;animation:bounce .6s ease-in-out infinite alternate;}
+@keyframes bounce{from{transform:translateY(0);}to{transform:translateY(-24px);}}
+.hover-btn{padding:.6rem 1.4rem;background:#2ecc71;color:white;border:none;border-radius:6px;font-size:.9rem;font-weight:600;cursor:pointer;transform:translateY(0);box-shadow:0 2px 6px rgba(0,0,0,.2);transition:transform .2s ease-out,box-shadow .2s ease-out;}
+.hover-btn:hover{transform:translateY(-4px);box-shadow:0 10px 24px rgba(0,0,0,.3);}
+@media(prefers-reduced-motion:reduce){
+  .spinner{animation:none;}
+  .bouncer{animation:none;transform:none;}
+  .hover-btn{transition:none;}
+}
+#demo-area.force-reduced .spinner{animation:none;}
+#demo-area.force-reduced .bouncer{animation:none;transform:none;}
+#demo-area.force-reduced .hover-btn{transition:none;}
+.note{background:rgba(255,255,255,.06);border-left:4px solid #f39c12;border-radius:0 8px 8px 0;padding:1rem 1.25rem;font-size:.85rem;max-width:520px;}
+.note ul{margin-top:.5rem;padding-left:1.25rem;}
+.note li{margin-bottom:.3rem;}
+</style>
+</head>
+<body>
+<h1>Respecting Motion Preferences</h1>
+<p class="intro">Some users set their OS to <strong>Reduce Motion</strong> due to vestibular disorders, migraines, or personal preference.</p>
+<div class="toggle-row">
+  <button id="toggle-btn">Simulate: Reduce Motion OFF</button>
+  <span id="status-label">Status: Full motion active</span>
+</div>
+<div class="demos" id="demo-area">
+  <div class="demo-box"><div class="spinner">🌀</div><p class="demo-label">Continuous spin</p><p class="demo-sub">Reduced: pauses</p></div>
+  <div class="demo-box"><div class="bouncer">⚽</div><p class="demo-label">Bounce animation</p><p class="demo-sub">Reduced: no bounce</p></div>
+  <div class="demo-box"><button class="hover-btn">Hover me</button><p class="demo-label">Hover transition</p><p class="demo-sub">Reduced: instant snap</p></div>
+</div>
+<div class="note"><p><strong>How to test for real:</strong></p><ul><li><strong>Mac:</strong> System Settings → Accessibility → Display → Reduce Motion</li><li><strong>Windows:</strong> Settings → Ease of Access → Display → Show animations</li><li><strong>Chrome DevTools:</strong> Rendering panel → Emulate CSS media feature <code>prefers-reduced-motion</code></li></ul></div>
+<script>
+const btn = document.getElementById('toggle-btn');
+const label = document.getElementById('status-label');
+const demoArea = document.getElementById('demo-area');
+let reduced = false;
+btn.addEventListener('click', () => {
+  reduced = !reduced;
+  demoArea.classList.toggle('force-reduced', reduced);
+  btn.textContent = reduced ? 'Simulate: Reduce Motion ON' : 'Simulate: Reduce Motion OFF';
+  btn.classList.toggle('reduced', reduced);
+  label.textContent = reduced ? 'Status: Reduced motion active — animations paused' : 'Status: Full motion active';
+});
+</script>
+</body>
+</html>
+</template>
+
+<!-- ══════════════════════════════════════════════
+     PROGRESS BAR + SLIDESHOW
+     ══════════════════════════════════════════════ -->
+
+<div class="progress-bar"><div class="progress" id="progress"></div></div>
+
+<div class="slideshow-container" id="slideshow">
+
+  <!-- ══════════════════════════════════
+       SLIDE 1 — COVER
+  ══════════════════════════════════ -->
+  <div class="slide active">
+    <div class="slide-content centered">
+      <h1>CSS Transitions &amp;<br>Transforms</h1>
+      <p style="font-size:clamp(1rem,2.5vw,1.25rem);opacity:.8;margin-bottom:1.25rem;">
+        Motion that guides attention, communicates state, and makes interfaces feel alive.
+      </p>
+      <div class="learn-grid" style="max-width:820px;">
+        <div class="learn-item">⚡ What CSS transitions are &amp; how to control them</div>
+        <div class="learn-item">📐 Timing functions — keywords, cubic-bezier, linear()</div>
+        <div class="learn-item">🚀 GPU-accelerated properties vs. layout-triggering ones</div>
+        <div class="learn-item">🔄 2D transforms: translate, rotate, scale, skew</div>
+        <div class="learn-item">🎴 3D transforms &amp; the card flip pattern</div>
+        <div class="learn-item">♿ Respecting prefers-reduced-motion</div>
+        <div class="learn-item">✨ Practical hover effects for real projects</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════
+       SLIDE 2 — EVOLUTION
+  ══════════════════════════════════ -->
+  <div class="slide">
+    <div class="slide-content">
+      <div class="slide-label">Background</div>
+      <h2>The Evolution of Web Animation</h2>
+      <div class="two-col">
+        <div>
+          <ul>
+            <li><strong>Flash (2000s)</strong> — frame-by-frame motion graphics. Fell from favor due to security issues and no mobile support.</li>
+            <li><strong>jQuery.animate()</strong> — JavaScript nudged property values 60×/sec via <code>setInterval</code>. Ran on the browser's <strong>main thread</strong>. Under load it caused <em>jank</em> — choppy or frozen animations.</li>
+            <li><strong>CSS Transitions &amp; Transforms</strong> — work is handed to the browser's <strong>compositor</strong> and GPU. Smooth 60fps without touching the main thread at all.</li>
+          </ul>
+          <div class="note" style="margin-top:.5rem;">
+            <strong>Vendor prefixes:</strong> Old code had <code>-webkit-transform</code>, <code>-moz-transform</code>, <code>-ms-transform</code>. You do <em>not</em> need these for new projects — write the unprefixed standard property and move on.
+          </div>
+        </div>
+        <div>
+          <pre><code>/* You may see this in OLD code — do not copy */
+-webkit-transform: rotate(45deg);
+   -moz-transform: rotate(45deg);
+    -ms-transform: rotate(45deg);
+        transform: rotate(45deg);  /* ← just this */</code></pre>
+          <table class="cmp" style="margin-top:.6rem;">
+            <tr><th>Era</th><th>Problem</th></tr>
+            <tr><td>Flash</td><td>Plugin required; no mobile</td></tr>
+            <tr><td>JS animation</td><td>Main thread; jank under load</td></tr>
+            <tr><td>CSS transitions</td><td>GPU compositor; smooth 60fps</td></tr>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════
+       SLIDE 3 — WHAT IS A TRANSITION?
+  ══════════════════════════════════ -->
+  <div class="slide">
+    <div class="slide-content">
+      <div class="slide-label">CSS Transitions</div>
+      <h2>What is a CSS Transition?</h2>
+      <p>A transition watches a CSS property for changes. When the property changes — hover, class toggle, focus — the browser <strong>animates smoothly</strong> from the old value to the new one instead of snapping instantly.</p>
+      <div class="two-col" style="margin-top:.5rem;">
+        <div>
+          <pre><code>/* Without transition — instant */
+button {
+  background-color: #4f6df5;
+}
+button:hover {
+  background-color: #e74c3c;  /* SNAP */
+}
+
+/* With transition — animated */
+button {
+  background-color: #4f6df5;
+  transition: background-color 0.3s ease;
+}
+button:hover {
+  background-color: #e74c3c;  /* SMOOTH */
+}</code></pre>
+        </div>
+        <div>
+          <p style="font-size:.85rem;opacity:.8;margin-bottom:.5rem;">Hover the boxes to compare:</p>
+          <div style="display:flex;gap:1.5rem;align-items:flex-start;flex-wrap:wrap;margin:.3rem 0;">
+            <div style="text-align:center;">
+              <div class="tx-demo-box snap">No Transition</div>
+              <p style="font-size:.72rem;opacity:.65;margin-top:.3rem;">Instant snap</p>
+            </div>
+            <div style="text-align:center;">
+              <div class="tx-demo-box smooth">With Transition</div>
+              <p style="font-size:.72rem;opacity:.65;margin-top:.3rem;">Smooth animation</p>
+            </div>
+          </div>
+          <div class="highlight" style="margin-top:.5rem;">
+            The CSS is identical except one line:<br><code>transition: background .4s ease, transform .3s ease-out;</code>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════
+       SLIDE 4 — THE FOUR SUB-PROPERTIES
+  ══════════════════════════════════ -->
+  <div class="slide">
+    <div class="slide-content">
+      <div class="slide-label">CSS Transitions</div>
+      <h2>The Four Transition Sub-Properties</h2>
+      <div class="two-col">
+        <div>
+          <pre><code>button {
+  background-color: #4f6df5;
+
+  /* WHAT to watch */
+  transition-property: background-color, transform;
+
+  /* HOW LONG */
+  transition-duration: 0.2s;
+
+  /* THE PACE */
+  transition-timing-function: ease-out;
+
+  /* WAIT BEFORE STARTING */
+  transition-delay: 0s;
+}
+
+button:hover {
+  background-color: #3a56d4;
+  transform: translateY(-2px);
+}</code></pre>
+        </div>
+        <div>
+          <table class="cmp">
+            <tr><th>Property</th><th>What it controls</th></tr>
+            <tr><td>transition-property</td><td>Which CSS property to animate (<code>all</code>, <code>opacity</code>, <code>transform</code>, etc.)</td></tr>
+            <tr><td>transition-duration</td><td>How long the animation takes (<code>0.3s</code> = <code>300ms</code>)</td></tr>
+            <tr><td>transition-timing-function</td><td>The pace curve (ease, linear, cubic-bezier…)</td></tr>
+            <tr><td>transition-delay</td><td>Wait time before animation starts — useful for stagger effects</td></tr>
+          </table>
+          <img src="assets/fig-14.1-button-states.png" alt="Button default and hover states" class="slide-img" style="margin-top:.4rem;">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════
+       SLIDE 5 — SHORTHAND + KEY RULE
+  ══════════════════════════════════ -->
+  <div class="slide">
+    <div class="slide-content">
+      <div class="slide-label">CSS Transitions</div>
+      <h2>The Shorthand &amp; The Key Rule</h2>
+      <div class="two-col">
+        <div>
+          <pre><code>/* Single property */
+button {
+  transition: background-color 0.2s ease-out;
+}
+
+/* Multiple — comma-separated */
+button {
+  transition: background-color 0.2s ease-out,
+              transform 0.15s ease-out;
+}
+
+/* All (use with caution) */
+button {
+  transition: all 0.2s ease-out;
+}</code></pre>
+          <div class="caution" style="margin-top:.4rem;">
+            <strong>Avoid <code>transition: all</code></strong> in production — it watches every property, including ones you don't want to animate. Name them explicitly.
+          </div>
+        </div>
+        <div>
+          <div class="note">
+            <strong>Put the transition on the DEFAULT state — not on <code>:hover</code>.</strong><br>
+            This makes it animate both entering <em>and</em> leaving the hover state.
+          </div>
+          <p style="font-size:.85rem;opacity:.8;margin:.5rem 0 .25rem;">Hover both buttons to see the difference:</p>
+          <div style="display:flex;gap:1.5rem;flex-wrap:wrap;align-items:flex-start;">
+            <div>
+              <button class="rule-btn ok">✅ Default state</button>
+              <p style="font-size:.72rem;opacity:.65;">Animates in AND out</p>
+            </div>
+            <div>
+              <button class="rule-btn bad">❌ :hover only</button>
+              <p style="font-size:.72rem;opacity:.65;">Animates in, snaps back</p>
+            </div>
+          </div>
+          <div class="tip" style="margin-top:.5rem;font-size:.82rem;">
+            Order: <code>property</code> <code>duration</code> <code>timing</code> <code>delay</code>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════
+       SLIDE 6 — CODEPEN 1
+  ══════════════════════════════════ -->
+  <div class="slide">
+    <div class="slide-content">
+      <div class="demo-label">Interactive Demo — Basic Transitions</div>
+      <div class="demo-wrap">
+        <iframe id="demo-1" title="Basic Transitions Demo"></iframe>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════
+       SLIDE 7 — TIMING FUNCTIONS: KEYWORDS
+  ══════════════════════════════════ -->
+  <div class="slide">
+    <div class="slide-content">
+      <div class="slide-label">Timing Functions</div>
+      <h2>Timing Functions: Built-in Keywords</h2>
+      <div class="two-col">
+        <div>
+          <table class="cmp">
+            <tr><th>Value</th><th>Feel</th><th>Best for</th></tr>
+            <tr><td>ease</td><td>Slow start → fast → slow end</td><td>Default; most UI interactions</td></tr>
+            <tr><td>ease-out</td><td>Fast start → slow end</td><td>Hover effects; elements "landing"</td></tr>
+            <tr><td>ease-in</td><td>Slow start → fast end</td><td>Elements leaving the screen</td></tr>
+            <tr><td>ease-in-out</td><td>Slow → fast → slow</td><td>Longer, across-screen motion</td></tr>
+            <tr><td>linear</td><td>Constant speed</td><td>Spinning loaders; looping animations</td></tr>
+          </table>
+          <div class="tip" style="margin-top:.4rem;">
+            <strong>ease-out</strong> is the most natural for hover effects — things arrive fast and settle gently, like a real object.
+          </div>
+        </div>
+        <div>
+          <img src="assets/fig-14.2-timing-functions.png" alt="Timing function curves compared" class="slide-img">
+          <p class="img-caption">All five keyword values as cubic-bezier curves — visualized as speed over time.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════
+       SLIDE 8 — cubic-bezier / steps / linear()
+  ══════════════════════════════════ -->
+  <div class="slide">
+    <div class="slide-content">
+      <div class="slide-label">Timing Functions</div>
+      <h2>Custom Curves: cubic-bezier(), steps(), linear()</h2>
+      <div class="two-col">
+        <div>
+          <pre><code>/* All keywords are cubic-bezier shortcuts */
+/* ease = */ cubic-bezier(0.25, 0.1, 0.25, 1.0)
+
+/* Springy overshoot — bounces past target */
+cubic-bezier(0.34, 1.56, 0.64, 1)
+
+/* Sharp deceleration (snappy landing) */
+cubic-bezier(0.22, 1, 0.36, 1)
+
+/* steps() — discrete jumps, no smooth interpolation */
+transition: background-position 0.8s steps(8);
+
+/* linear() — piecewise spring (2023+) */
+.spring {
+  transition: transform 0.6s linear(
+    0, 0.5, 1.05, 0.95, 1.02, 0.98, 1
+  );
+}</code></pre>
+          <div class="note" style="margin-top:.4rem;">
+            <strong>Chrome DevTools</strong> has a built-in cubic-bezier visual editor — click the curve icon next to any timing-function value in the Styles panel.
+          </div>
+        </div>
+        <div>
+          <div class="two-col" style="gap:.5rem;">
+            <div>
+              <img src="assets/fig-14.6-cubic-bezier-tool.png" alt="cubic-bezier.com visual editor" class="slide-img">
+              <p class="img-caption"><a href="https://cubic-bezier.com" target="_blank" rel="noopener noreferrer">cubic-bezier.com</a> — drag control points to craft a curve</p>
+            </div>
+            <div>
+              <img src="assets/fig-14.7-linear-easing-generator.png" alt="linear easing generator tool" class="slide-img">
+              <p class="img-caption"><a href="https://linear-easing-generator.netlify.app/" target="_blank" rel="noopener noreferrer">linear-easing-generator.netlify.app</a> — generate spring physics as <code>linear()</code></p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════
+       SLIDE 9 — CODEPEN 2
+  ══════════════════════════════════ -->
+  <div class="slide">
+    <div class="slide-content">
+      <div class="demo-label">Interactive Demo — Timing Functions Visualizer</div>
+      <div class="demo-wrap">
+        <iframe id="demo-2" title="Timing Functions Visualizer"></iframe>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════
+       SLIDE 10 — WHAT CAN BE TRANSITIONED
+  ══════════════════════════════════ -->
+  <div class="slide">
+    <div class="slide-content">
+      <div class="slide-label">Transitions</div>
+      <h2>What Can (and Cannot) Be Transitioned</h2>
+      <div class="two-col">
+        <div>
+          <h3>✅ Can transition (numeric/color values)</h3>
+          <ul>
+            <li><code>opacity</code> — 0 to 1 (GPU-accelerated)</li>
+            <li><code>transform</code> — all functions (GPU-accelerated)</li>
+            <li><code>background-color</code>, <code>color</code>, <code>border-color</code></li>
+            <li><code>box-shadow</code>, <code>text-shadow</code></li>
+            <li><code>width</code>, <code>height</code>, <code>padding</code>, <code>margin</code></li>
+            <li><code>font-size</code>, <code>border-radius</code>, <code>max-height</code></li>
+          </ul>
+        </div>
+        <div>
+          <h3>❌ Cannot smoothly transition (discrete values)</h3>
+          <ul>
+            <li><code>display</code> — none / block / flex (no interpolation)</li>
+            <li><code>font-family</code> — no middle value between fonts</li>
+            <li><code>position</code> — static / relative / absolute</li>
+            <li><code>visibility</code> — partially supported</li>
+          </ul>
+          <div class="caution" style="margin-top:.4rem;">
+            <strong>Avoid transitioning layout properties</strong> (<code>width</code>, <code>height</code>, <code>margin</code>, <code>padding</code>) — they trigger browser layout recalculation on every frame. Prefer <code>transform</code> and <code>opacity</code>.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════
+       SLIDE 11 — display:none + @starting-style
+  ══════════════════════════════════ -->
+  <div class="slide">
+    <div class="slide-content">
+      <div class="slide-label">Modern CSS</div>
+      <h2>Animating <code>display: none</code> — The Modern Solution</h2>
+      <p>The long-standing problem: you couldn't transition <em>into or out of</em> <code>display: none</code>. Now solved with two 2023 features.</p>
+      <div class="two-col">
+        <div>
+          <pre><code>.dialog {
+  display: none;
+  opacity: 0;
+  transform: translateY(12px);
+
+  /* transition-behavior: allow-discrete
+     tells the browser to include display
+     in the transition sequence */
+  transition: opacity 0.3s ease,
+              transform 0.3s ease,
+              display 0.3s allow-discrete;
+}
+
+.dialog.is-open {
+  display: block;
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* @starting-style defines the "from" values
+   when the element first becomes visible */
+@starting-style {
+  .dialog.is-open {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+}</code></pre>
+        </div>
+        <div>
+          <div class="note">
+            <strong>What each part does:</strong>
+            <ul style="margin-top:.3rem;">
+              <li><code>transition-behavior: allow-discrete</code> — includes <code>display</code> in the transition. The "off" value is held until the exit animation finishes.</li>
+              <li><code>@starting-style</code> — defines values the element transitions <em>FROM</em> when it first appears. Without it, entry has no animation.</li>
+            </ul>
+          </div>
+          <div class="note" style="margin-top:.5rem;">
+            <strong>Browser support:</strong> Chrome 117+, Firefox 129+, Safari 17.5+ — all current as of 2025. For older support, use JavaScript class toggling.
+          </div>
+          <div class="tip" style="margin-top:.4rem;">
+            Before this, developers used <code>visibility: hidden</code> + <code>pointer-events: none</code> + <code>opacity: 0</code> — or JS libraries like GSAP.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════
+       SLIDE 12 — GPU PERFORMANCE
+  ══════════════════════════════════ -->
+  <div class="slide">
+    <div class="slide-content">
+      <div class="slide-label">Performance</div>
+      <h2>GPU-Accelerated Properties</h2>
+      <div class="two-col">
+        <div>
+          <h3>The Two GPU-Safe Properties</h3>
+          <ul>
+            <li><strong><code>transform</code></strong> — Moving, rotating, scaling, skewing never triggers layout or paint. The element is promoted to a <strong>compositor layer</strong>; the GPU handles interpolation.</li>
+            <li><strong><code>opacity</code></strong> — Fading is also compositor-only.</li>
+          </ul>
+          <div class="note" style="margin-top:.4rem;">
+            <strong>Rule of thumb:</strong> Prefer <code>transform: translateX(100px)</code> over <code>left: 100px</code>. Prefer <code>opacity</code> over toggling <code>visibility</code>. The visual result looks the same — the browser work is dramatically different.
+          </div>
+          <p style="margin-top:.5rem;font-size:.85rem;opacity:.8;">Hover both boxes — both move identically, but one triggers full page reflow on every frame:</p>
+          <div class="perf-demo">
+            <div>
+              <div class="perf-box bad">❌ left</div>
+              <p style="font-size:.7rem;opacity:.65;margin-top:.25rem;">left: triggers layout</p>
+            </div>
+            <div>
+              <div class="perf-box good">✅ transform</div>
+              <p style="font-size:.7rem;opacity:.65;margin-top:.25rem;">transform: GPU only</p>
+            </div>
+          </div>
+        </div>
+        <div>
+          <img src="assets/fig-14.4-performance.png" alt="Layout trigger vs compositor-only animation path diagram" class="slide-img">
+          <p class="img-caption">Animating layout properties (left, width, height) forces the browser through all three pipeline stages. transform and opacity skip directly to compositing.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════
+       SLIDE 13 — will-change + prefers-reduced-motion
+  ══════════════════════════════════ -->
+  <div class="slide">
+    <div class="slide-content">
+      <div class="slide-label">Performance &amp; Accessibility</div>
+      <h2><code>will-change</code> &amp; <code>prefers-reduced-motion</code></h2>
+      <div class="two-col">
+        <div>
+          <h3><code>will-change</code></h3>
+          <pre><code>/* Hints browser to prep a compositor layer in advance */
+.card {
+  will-change: transform;
+}
+.card:hover {
+  transform: scale(1.03);
+  transition: transform 0.2s ease-out;
+}</code></pre>
+          <div class="caution" style="margin-top:.3rem;font-size:.85rem;">
+            <strong>Use sparingly.</strong> Every <code>will-change</code> declaration consumes GPU memory. Do not apply to large numbers of elements. Prefer adding it with JS just before animation starts, then removing it after.
+          </div>
+        </div>
+        <div>
+          <h3><code>prefers-reduced-motion</code></h3>
+          <pre><code>/* Default: animated */
+.button {
+  transition: transform 0.2s ease-out,
+              box-shadow 0.2s ease-out;
+}
+
+.button:hover {
+  transform: translateY(-3px);
+}
+
+/* Reduced motion: instant change */
+@media (prefers-reduced-motion: reduce) {
+  .button {
+    transition: none;
+  }
+}</code></pre>
+          <div class="tip" style="margin-top:.3rem;font-size:.85rem;">
+            <strong>Test in Chrome:</strong> DevTools → More tools → Rendering → Emulate CSS media feature <code>prefers-reduced-motion</code>
+          </div>
+          <div class="note" style="margin-top:.3rem;font-size:.82rem;">
+            "Reduced motion" ≠ "no motion." A simple opacity fade is fine. A parallax effect sliding 20 elements is not.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════
+       SLIDE 14 — 2D TRANSFORMS: translate + rotate
+  ══════════════════════════════════ -->
+  <div class="slide">
+    <div class="slide-content">
+      <div class="slide-label">2D Transforms</div>
+      <h2>2D Transforms: <code>translate()</code> &amp; <code>rotate()</code></h2>
+      <p style="font-size:.88rem;opacity:.8;"><code>transform</code> visually repositions/reshapes an element <strong>without affecting document flow</strong> — other elements don't shift to accommodate it.</p>
+      <div class="two-col" style="margin-top:.3rem;">
+        <div>
+          <h3>translate() — Move</h3>
+          <pre><code>/* Move 50px right, 20px down */
+transform: translate(50px, 20px);
+
+/* Single axis shortcuts */
+transform: translateX(50px);
+transform: translateY(-20px);  /* UP */
+
+/* % = relative to element's own size */
+transform: translateX(100%);  /* = element width */</code></pre>
+        </div>
+        <div>
+          <h3>rotate() — Spin</h3>
+          <pre><code>transform: rotate(45deg);     /* clockwise */
+transform: rotate(-90deg);    /* counter-clockwise */
+transform: rotate(0.25turn);  /* quarter turn */
+transform: rotate(1turn);     /* full spin */</code></pre>
+          <div class="note" style="margin-top:.4rem;">
+            A positive Y value moves DOWN. Positive X moves RIGHT. Degrees: positive = clockwise.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════
+       SLIDE 15 — scale, skew, combining
+  ══════════════════════════════════ -->
+  <div class="slide">
+    <div class="slide-content">
+      <div class="slide-label">2D Transforms</div>
+      <h2><code>scale()</code>, <code>skew()</code> &amp; Combining Transforms</h2>
+      <div class="two-col">
+        <div>
+          <h3>scale() — Resize from center</h3>
+          <pre><code>transform: scale(1.2);        /* 20% larger */
+transform: scale(1.5, 0.8);   /* wider &amp; shorter */
+transform: scaleX(2);         /* double width only */
+transform: scale(0);          /* shrink to nothing */</code></pre>
+          <h3>skew() — Shear/Slant</h3>
+          <pre><code>transform: skewX(15deg);      /* slant left-to-right */
+transform: skewY(5deg);       /* slant top-to-bottom */
+transform: skew(15deg, 5deg); /* both axes */</code></pre>
+        </div>
+        <div>
+          <h3>Combining — order matters!</h3>
+          <pre><code>/* Applied right-to-left */
+/* translate first, then rotate */
+transform: translateX(100px) rotate(45deg);
+
+/* rotate first, then translate along rotated axis */
+transform: rotate(45deg) translateX(100px);
+
+/* Practical hover effect */
+.card:hover {
+  transform: translateY(-8px) scale(1.02) rotate(-1deg);
+}</code></pre>
+          <div class="caution" style="margin-top:.3rem;font-size:.85rem;">
+            <strong>Transforms are applied right to left.</strong> <code>rotate(45deg) translateX(100px)</code> translates along the rotated axis — very different from the reverse order.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════
+       SLIDE 16 — transform-origin + centering + modern
+  ══════════════════════════════════ -->
+  <div class="slide">
+    <div class="slide-content">
+      <div class="slide-label">2D Transforms</div>
+      <h2>transform-origin, Centering Trick &amp; Modern Syntax</h2>
+      <div class="two-col">
+        <div>
+          <h3>transform-origin — change the pivot</h3>
+          <pre><code>/* Default: center center */
+transform-origin: top left;   /* page-turn effect */
+transform-origin: bottom center; /* grow upward */
+transform-origin: 0 50%;      /* left edge, centered */</code></pre>
+          <img src="assets/fig-14.3-transform-origin.png" alt="Three boxes showing rotation from center, top-left, and bottom-right" class="slide-img">
+          <p class="img-caption">Same <code>rotate(45deg)</code> — three different origins produce three very different results.</p>
+        </div>
+        <div>
+          <h3>Centering trick with translate</h3>
+          <pre><code>.centered {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  /* top-left corner is now at center;
+     shift back by 50% of own size */
+  transform: translate(-50%, -50%);
+}</code></pre>
+          <h3>Modern individual properties (2022+)</h3>
+          <pre><code>.card {
+  translate: 0 0;
+  scale: 1;
+  rotate: 0deg;
+  /* Transition each independently */
+  transition: translate 0.2s ease-out,
+              scale 0.15s ease-out;
+}
+.card:hover {
+  translate: 0 -8px;
+  scale: 1.02;
+}</code></pre>
+          <div class="tip" style="font-size:.82rem;">Individual properties are applied in fixed order: translate → rotate → scale, regardless of CSS order. More predictable than combined <code>transform</code>.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════
+       SLIDE 17 — CODEPEN 3
+  ══════════════════════════════════ -->
+  <div class="slide">
+    <div class="slide-content">
+      <div class="demo-label">Interactive Demo — 2D Transforms Explorer</div>
+      <div class="demo-wrap">
+        <iframe id="demo-3" title="2D Transforms Explorer"></iframe>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════
+       SLIDE 18 — 3D TRANSFORMS: perspective + rotation
+  ══════════════════════════════════ -->
+  <div class="slide">
+    <div class="slide-content">
+      <div class="slide-label">3D Transforms</div>
+      <h2>3D Transforms: Perspective &amp; Rotation</h2>
+      <div class="two-col">
+        <div>
+          <h3>perspective — set on the PARENT</h3>
+          <pre><code>/* Small value = dramatic depth effect */
+.scene { perspective: 200px; }
+
+/* Typical UI range: 600–1000px */
+.scene { perspective: 800px; }
+
+/* Large value = subtle perspective */
+.scene { perspective: 1200px; }
+
+.card {
+  transform: rotateY(30deg); /* now has depth */
+}</code></pre>
+          <div class="note" style="margin-top:.3rem;font-size:.85rem;">
+            <code>perspective</code> goes on the <strong>parent element</strong> (the "scene"), not on the element being transformed. This establishes the viewer's distance from the z=0 plane.
+          </div>
+        </div>
+        <div>
+          <img src="assets/fig-14.5-perspective.png" alt="Three perspective values compared: 200px, 600px, 1200px" class="slide-img">
+          <p class="img-caption">Same <code>rotateY(45deg)</code> — dramatic difference in perceived depth with different perspective values.</p>
+          <h3 style="margin-top:.4rem;">3D Rotation Functions</h3>
+          <pre><code>/* Tilt top toward viewer (nod) */
+transform: rotateX(45deg);
+
+/* Spin left-right (shake head) */
+transform: rotateY(180deg);
+
+/* Same as 2D rotate() */
+transform: rotateZ(45deg);
+
+/* Move toward/away on Z axis */
+transform: translateZ(100px);
+transform: translateZ(-100px);</code></pre>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════
+       SLIDE 19 — preserve-3d + backface-visibility
+  ══════════════════════════════════ -->
+  <div class="slide">
+    <div class="slide-content">
+      <div class="slide-label">3D Transforms</div>
+      <h2><code>transform-style: preserve-3d</code> &amp; <code>backface-visibility</code></h2>
+      <div class="two-col">
+        <div>
+          <pre><code>/* The scene provides perspective */
+.scene {
+  perspective: 800px;
+  width: 300px;
+  height: 200px;
+}
+
+/* The card flips — MUST have preserve-3d
+   so children exist in 3D space */
+.card {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  transform-style: preserve-3d;
+  transition: transform 0.6s ease-in-out;
+}
+
+.scene:hover .card {
+  transform: rotateY(180deg);
+}
+
+/* Both faces fill the card absolutely */
+.card__face {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  backface-visibility: hidden; /* hide when facing away */
+}
+
+/* Back face starts pre-rotated */
+.card__face--back {
+  transform: rotateY(180deg);
+}</code></pre>
+        </div>
+        <div>
+          <h3>How it works:</h3>
+          <ul>
+            <li><strong><code>transform-style: preserve-3d</code></strong> on the card container — keeps children in 3D space. Without it, children are "flattened" to the parent's 2D plane.</li>
+            <li><strong><code>backface-visibility: hidden</code></strong> on both faces — makes each face invisible when its back is toward the viewer.</li>
+            <li><strong>Back face starts at <code>rotateY(180deg)</code></strong> — so it faces away from the viewer by default and only becomes visible after a flip.</li>
+          </ul>
+          <div class="caution" style="margin-top:.5rem;">
+            <strong>Common bug:</strong> <code>overflow: hidden</code>, <code>clip-path</code>, <code>filter</code>, or <code>mix-blend-mode</code> on an ancestor element will <strong>break</strong> <code>preserve-3d</code> and flatten the 3D context.
+          </div>
+          <div class="tip" style="margin-top:.4rem;">
+            <strong>Links:</strong> <a href="https://developer.mozilla.org/en-US/docs/Web/CSS/transform-style" target="_blank" rel="noopener noreferrer">MDN: transform-style</a> · <a href="https://developer.mozilla.org/en-US/docs/Web/CSS/backface-visibility" target="_blank" rel="noopener noreferrer">MDN: backface-visibility</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════
+       SLIDE 20 — CODEPEN 4
+  ══════════════════════════════════ -->
+  <div class="slide">
+    <div class="slide-content">
+      <div class="demo-label">Interactive Demo — 3D Card Flip</div>
+      <div class="demo-wrap">
+        <iframe id="demo-4" title="3D Card Flip Demo"></iframe>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════
+       SLIDE 21 — PRACTICAL PATTERNS
+  ══════════════════════════════════ -->
+  <div class="slide">
+    <div class="slide-content">
+      <div class="slide-label">Practical Patterns</div>
+      <h2>Transitions + Transforms in Practice</h2>
+      <div class="three-col">
+        <div class="card">
+          <h3>Button Lift</h3>
+          <pre><code>.btn {
+  transform: translateY(0);
+  box-shadow: 0 2px 6px rgba(0,0,0,.12);
+  transition:
+    transform .15s ease-out,
+    box-shadow .15s ease-out;
+}
+.btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(0,0,0,.18);
+}
+.btn:active {
+  transform: translateY(-1px);
+}</code></pre>
+        </div>
+        <div class="card">
+          <h3>Image Zoom</h3>
+          <pre><code>.image-wrapper {
+  overflow: hidden;   /* clips zoom */
+  border-radius: 8px;
+}
+
+.image-wrapper img {
+  width: 100%;
+  display: block;
+  transform: scale(1);
+  transition: transform .4s ease-out;
+}
+
+.image-wrapper:hover img {
+  transform: scale(1.08);
+}</code></pre>
+        </div>
+        <div class="card">
+          <h3>Fade + Slide In</h3>
+          <pre><code>.panel {
+  opacity: 0;
+  transform: translateY(12px);
+  transition:
+    opacity .3s ease,
+    transform .3s ease;
+}
+
+.panel.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .panel { transition: none; }
+}</code></pre>
+        </div>
+      </div>
+      <div class="highlight" style="margin-top:.4rem;">
+        <strong>The pattern:</strong> Define transition on the default state. Define the changed values in <code>:hover</code> or a toggled class. CSS handles the smooth interpolation automatically.
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════
+       SLIDE 22 — CODEPEN 5
+  ══════════════════════════════════ -->
+  <div class="slide">
+    <div class="slide-content">
+      <div class="demo-label">Interactive Demo — Practical Hover Effects</div>
+      <div class="demo-wrap">
+        <iframe id="demo-5" title="Practical Hover Effects Demo"></iframe>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════
+       SLIDE 23 — CODEPEN 6
+  ══════════════════════════════════ -->
+  <div class="slide">
+    <div class="slide-content">
+      <div class="demo-label">Interactive Demo — prefers-reduced-motion</div>
+      <div class="demo-wrap">
+        <iframe id="demo-6" title="prefers-reduced-motion Demo"></iframe>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════
+       SLIDE 24 — SUMMARY
+  ══════════════════════════════════ -->
+  <div class="slide">
+    <div class="slide-content">
+      <div class="slide-label">Summary</div>
+      <h2>Summary</h2>
+      <div class="summary-grid">
+        <div class="summary-card">
+          <strong>CSS Transitions</strong>
+          4 sub-properties: <code>property</code>, <code>duration</code>, <code>timing-function</code>, <code>delay</code>. Put the transition on the <strong>default state</strong>, not <code>:hover</code>.
+        </div>
+        <div class="summary-card">
+          <strong>Timing Functions</strong>
+          <code>ease-out</code> for most hover effects. <code>cubic-bezier()</code> for custom curves. <code>linear()</code> for spring physics (2023+).
+        </div>
+        <div class="summary-card">
+          <strong>GPU Performance</strong>
+          Only <code>transform</code> and <code>opacity</code> are compositor-only. All other properties trigger layout/paint. Use sparingly — avoid <code>transition: all</code>.
+        </div>
+        <div class="summary-card">
+          <strong>2D Transforms</strong>
+          <code>translate</code>, <code>rotate</code>, <code>scale</code>, <code>skew</code> never affect document flow. Order matters when combining. Modern: use individual <code>translate</code>/<code>rotate</code>/<code>scale</code> properties.
+        </div>
+        <div class="summary-card">
+          <strong>3D Transforms</strong>
+          <code>perspective</code> on the parent. <code>transform-style: preserve-3d</code> on the container. <code>backface-visibility: hidden</code> on both faces. Back face pre-rotated 180°.
+        </div>
+        <div class="summary-card">
+          <strong>Accessibility</strong>
+          Always add <code>@media (prefers-reduced-motion: reduce)</code>. Functional transitions (state change) = OK. Decorative parallax/fly-ins = disable.
+        </div>
+        <div class="summary-card">
+          <strong>display: none</strong>
+          Use <code>@starting-style</code> + <code>transition-behavior: allow-discrete</code> for enter/exit animations. Chrome 117+, Firefox 129+, Safari 17.5+.
+        </div>
+        <div class="summary-card">
+          <strong>Common Patterns</strong>
+          Button lift (translateY + box-shadow), image zoom (scale inside overflow:hidden), fade+slide in (opacity + translateY).
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════
+       SLIDE 25 — Q&A
+  ══════════════════════════════════ -->
+  <div class="slide">
+    <div class="slide-content">
+      <div class="slide-label">Q &amp; A</div>
+      <h2>Common Questions</h2>
+      <dl style="display:grid;gap:.55rem;">
+        <div class="card">
+          <dt style="color:#ffeaa7;font-weight:700;margin-bottom:.2rem;">What's the difference between <code>left: 100px</code> and <code>transform: translateX(100px)</code>? They look the same.</dt>
+          <dd style="font-size:.88rem;opacity:.9;line-height:1.5;">They look identical, but the browser work is very different. Animating <code>left</code> requires layout recalculation on every frame. <code>transform: translateX()</code> is handled by the GPU compositor — it just moves a pre-composited layer. On a complex page, this is the difference between smooth 60fps motion and visible jank.</dd>
+        </div>
+        <div class="card">
+          <dt style="color:#ffeaa7;font-weight:700;margin-bottom:.2rem;">Should I always use <code>transition: all</code> to keep CSS simple?</dt>
+          <dd style="font-size:.88rem;opacity:.9;line-height:1.5;">Avoid it in production. <code>transition: all</code> monitors every property — including ones you didn't intend to animate. If a CSS variable changes during a theme switch, it will animate unexpectedly. Always name your properties: <code>transition: transform 0.2s ease-out, opacity 0.2s ease-out</code>.</dd>
+        </div>
+        <div class="card">
+          <dt style="color:#ffeaa7;font-weight:700;margin-bottom:.2rem;">The card flip shows the front face through the back. What's wrong?</dt>
+          <dd style="font-size:.88rem;opacity:.9;line-height:1.5;">Almost always: missing <code>transform-style: preserve-3d</code> on the card container, or missing <code>backface-visibility: hidden</code> on the faces. Also check that no ancestor has <code>overflow: hidden</code>, <code>filter</code>, <code>clip-path</code>, or <code>mix-blend-mode</code> — these break the 3D context.</dd>
+        </div>
+        <div class="card">
+          <dt style="color:#ffeaa7;font-weight:700;margin-bottom:.2rem;">How do I animate an element only in one direction — in on hover, but snap back instantly?</dt>
+          <dd style="font-size:.88rem;opacity:.9;line-height:1.5;">Put the transition on the <code>:hover</code> rule instead of the default state. When hover ends, the <code>:hover</code> styles (including the transition) are removed, so the return snaps instantly. Use sparingly — two-way transitions usually feel more polished.</dd>
+        </div>
+        <div class="card">
+          <dt style="color:#ffeaa7;font-weight:700;margin-bottom:.2rem;">I want an animation to play on page load, not just on hover. Can transitions do that?</dt>
+          <dd style="font-size:.88rem;opacity:.9;line-height:1.5;">Transitions need a property change (before/after). Classic approach: JS sets initial state in CSS, then <code>setTimeout</code> adds a class to trigger the transition. Modern approach: use <code>@starting-style</code> — define starting values, and the browser auto-transitions from them when the element first renders. Supported in all current browsers since 2024.</dd>
+        </div>
+      </dl>
+    </div>
+  </div>
+
+</div><!-- end slideshow-container -->
+
+<div class="navigation">
+  <button class="nav-btn" id="prev-btn" onclick="changeSlide(-1)">&#8592; Prev</button>
+  <span class="slide-counter" id="counter">1 / 25</span>
+  <button class="nav-btn" id="next-btn" onclick="changeSlide(1)">Next &#8594;</button>
+</div>
+
+<script>
+// ─────────────────────────────────────────
+// Load CodePen templates into iframes
+// ─────────────────────────────────────────
+function loadDemo(iframeId, templateId) {
+  const iframe = document.getElementById(iframeId);
+  const tpl = document.getElementById(templateId);
+  if (iframe && tpl) {
+    iframe.srcdoc = tpl.innerHTML;
+  }
+}
+
+loadDemo('demo-1', 'cp1');
+loadDemo('demo-2', 'cp2');
+loadDemo('demo-3', 'cp3');
+loadDemo('demo-4', 'cp4');
+loadDemo('demo-5', 'cp5');
+loadDemo('demo-6', 'cp6');
+
+// ─────────────────────────────────────────
+// Slide navigation
+// ─────────────────────────────────────────
+const slides = document.querySelectorAll('.slide');
+const totalSlides = slides.length;
+let current = 0;
+
+function goTo(index) {
+  slides[current].classList.remove('active');
+  current = Math.max(0, Math.min(index, totalSlides - 1));
+  slides[current].classList.add('active');
+  updateUI();
+}
+
+function changeSlide(dir) {
+  goTo(current + dir);
+}
+
+function updateUI() {
+  document.getElementById('counter').textContent = (current + 1) + ' / ' + totalSlides;
+  document.getElementById('prev-btn').disabled = current === 0;
+  document.getElementById('next-btn').disabled = current === totalSlides - 1;
+  const pct = ((current + 1) / totalSlides) * 100;
+  document.getElementById('progress').style.width = pct + '%';
+}
+
+// Keyboard navigation
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'ArrowRight' || e.key === 'ArrowDown' || e.key === ' ') {
+    e.preventDefault();
+    changeSlide(1);
+  } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+    e.preventDefault();
+    changeSlide(-1);
+  } else if (e.key === 'Home') {
+    e.preventDefault();
+    goTo(0);
+  } else if (e.key === 'End') {
+    e.preventDefault();
+    goTo(totalSlides - 1);
+  }
+});
+
+updateUI();
+</script>
+
+</body>
+</html>
