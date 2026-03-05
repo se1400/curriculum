@@ -126,6 +126,12 @@
     .srcset-result{background:rgba(0,0,0,.3);border-radius:6px;padding:.5rem .7rem;margin:.35rem 0;font-family:monospace;font-size:.74rem;line-height:1.65;}
     .srcset-chosen{color:#86efac;font-weight:700;font-size:.85rem;}
     .srcset-reason{color:#93c5fd;}
+    .srcset-candidates{display:flex;gap:.35rem;margin-top:.4rem;}
+    .srcset-candidate{border-radius:6px;overflow:hidden;border:2px solid rgba(255,255,255,.18);opacity:.35;transition:opacity .2s,border-color .2s;flex:1;cursor:default;}
+    .srcset-candidate.sc-chosen{opacity:1;border-color:#86efac;box-shadow:0 0 0 3px rgba(134,239,172,.25);}
+    .srcset-cand-img{width:100%;height:62px;object-fit:cover;display:block;}
+    .srcset-cand-label{background:rgba(0,0,0,.6);font-size:.62rem;font-family:monospace;padding:.2rem .3rem;text-align:center;line-height:1.4;}
+    .srcset-cand-label strong{display:block;color:#ffeaa7;}
 
     /* picture demo (Slide 16) */
     .pic-swatch{border-radius:6px;padding:2rem 1rem;text-align:center;font-weight:700;font-size:.85rem;border:2px solid rgba(255,255,255,.3);transition:all .3s;}
@@ -851,18 +857,21 @@ img, video, svg {
                 <div class="srcset-reason" id="srcReason">—</div>
                 <div class="srcset-chosen" id="srcChosen">→ Loading: —</div>
               </div>
-              <!-- Real image preview showing the loaded size -->
-              <div style="margin-top:.4rem;display:flex;align-items:flex-end;gap:.5rem;flex-wrap:wrap;">
-                <div style="font-size:.7rem;opacity:.7;">Live preview:</div>
-                <img id="srcsetPreviewImg"
-                  src="https://picsum.photos/seed/peaks/800/500"
-                  srcset="https://picsum.photos/seed/peaks/400/250 400w,
-                          https://picsum.photos/seed/peaks/800/500 800w,
-                          https://picsum.photos/seed/peaks/1600/1000 1600w"
-                  sizes="100vw"
-                  alt="Mountain peaks — srcset demo"
-                  style="max-width:100%;height:70px;object-fit:cover;border-radius:5px;border:1px solid rgba(255,255,255,.25);display:block;">
-                <div style="font-size:.65rem;font-family:monospace;opacity:.65;" id="srcImgSize">400w / 800w / 1600w available</div>
+              <!-- Three candidate files — chosen one highlights -->
+              <div style="font-size:.7rem;opacity:.72;margin-top:.4rem;margin-bottom:.2rem;">Which file gets downloaded?</div>
+              <div class="srcset-candidates">
+                <div class="srcset-candidate" id="srcCand400">
+                  <img src="https://picsum.photos/seed/alpine/400/250" alt="400w candidate" class="srcset-cand-img">
+                  <div class="srcset-cand-label"><strong>400w</strong>hero-400.jpg<br>~80 KB</div>
+                </div>
+                <div class="srcset-candidate sc-chosen" id="srcCand800">
+                  <img src="https://picsum.photos/seed/alpine/800/500" alt="800w candidate" class="srcset-cand-img">
+                  <div class="srcset-cand-label"><strong>800w</strong>hero-800.jpg<br>~250 KB</div>
+                </div>
+                <div class="srcset-candidate" id="srcCand1600">
+                  <img src="https://picsum.photos/seed/alpine/1600/1000" alt="1600w candidate" class="srcset-cand-img">
+                  <div class="srcset-cand-label"><strong>1600w</strong>hero-1600.jpg<br>~800 KB</div>
+                </div>
               </div>
             </div>
           </div>
@@ -907,19 +916,21 @@ img, video, svg {
                 Viewport: <input type="range" id="picVpSlider" min="320" max="1400" value="400" style="flex:1;" oninput="updatePicDemo(this.value)">
                 <span id="picVpVal" style="font-weight:700;color:#ffeaa7;min-width:44px;font-size:.78rem;">400px</span>
               </label>
-              <div style="margin-top:.4rem;overflow:hidden;border-radius:6px;border:1px solid rgba(255,255,255,.2);">
-                <!-- Portrait crop: tall image, matches (max-width: 640px) -->
+              <div style="margin-top:.4rem;position:relative;border-radius:6px;overflow:hidden;border:1px solid rgba(255,255,255,.25);">
+                <!-- Mobile: close-up portrait — completely different scene & composition -->
                 <img id="picPortrait"
-                  src="https://picsum.photos/seed/forest/400/600"
-                  alt="Portrait crop — forest path, tall"
-                  style="width:100%;max-height:160px;object-fit:cover;display:block;">
-                <!-- Landscape: wide image, fallback img -->
+                  src="https://picsum.photos/seed/street42/400/560"
+                  alt="Mobile: close-up portrait crop"
+                  style="width:100%;height:155px;object-fit:cover;display:block;">
+                <!-- Desktop: wide panoramic landscape — totally different scene -->
                 <img id="picLandscape"
-                  src="https://picsum.photos/seed/forest/800/300"
-                  alt="Landscape — forest panorama, wide"
-                  style="width:100%;max-height:160px;object-fit:cover;display:none;">
+                  src="https://picsum.photos/seed/ridge77/900/260"
+                  alt="Desktop: wide panoramic landscape"
+                  style="width:100%;height:155px;object-fit:cover;display:none;">
+                <!-- Source badge -->
+                <div id="picBadge" style="position:absolute;top:.4rem;left:.4rem;background:rgba(0,0,0,.7);font-size:.65rem;font-family:monospace;padding:.2rem .45rem;border-radius:4px;color:#81ecec;"></div>
               </div>
-              <div id="picStatus" style="font-size:.7rem;font-family:monospace;margin-top:.35rem;color:#81ecec;"></div>
+              <div id="picStatus" style="font-size:.7rem;font-family:monospace;margin-top:.35rem;color:#fde68a;"></div>
             </div>
             <table class="cmp" style="margin-top:.4rem;">
               <thead><tr><th>Technique</th><th>Use case</th></tr></thead>
@@ -1665,6 +1676,12 @@ toggle.addEventListener('click', () =&gt; {
       document.getElementById('srcPixels').textContent = displayW + ' × ' + currentDPR + 'x DPR = ' + needed + 'px needed';
       document.getElementById('srcReason').textContent = 'Smallest srcset ≥ ' + needed + 'px:';
       document.getElementById('srcChosen').textContent = '→ Browser downloads: ' + chosen + ' (' + size + ')';
+      /* Highlight the matching candidate card */
+      const candMap = { 'hero-400.jpg': 'srcCand400', 'hero-800.jpg': 'srcCand800', 'hero-1600.jpg': 'srcCand1600' };
+      ['srcCand400','srcCand800','srcCand1600'].forEach(function(id) {
+        const el = document.getElementById(id);
+        if (el) el.classList.toggle('sc-chosen', candMap[chosen] === id);
+      });
     }
     updateSrcset();
     document.getElementById('srcsetVp').addEventListener('input', updateSrcset);
@@ -1682,6 +1699,8 @@ toggle.addEventListener('click', () =&gt; {
       if (sEl) sEl.textContent = portrait
         ? '<source media="(max-width:640px)" srcset="hero-portrait.jpg"> ← MATCHES'
         : '<img src="hero-wide.jpg"> ← fallback used (no source matched)';
+      const badge = document.getElementById('picBadge');
+      if (badge) badge.textContent = portrait ? '📱 Portrait source matched' : '🖥 Wide fallback img';
     }
     updatePicDemo(400);
     const picSlider = document.getElementById('picVpSlider');
