@@ -333,28 +333,54 @@
         <div class="tip" style="margin-top:.35rem;"><strong>Why this matters:</strong> Responsive overrides stay next to the base styles they modify. No more scrolling to find the media query.</div>
       </div>
       <div>
-        <h3>Live Nesting Demo</h3>
-        <p style="font-size:.78rem;opacity:.88;margin-bottom:.35rem;">Hover over the card — styles applied via nested CSS:</p>
-        <style>
-          .nest-card{background:rgba(255,255,255,.1);border-radius:10px;padding:.65rem .85rem;border:1px solid rgba(255,255,255,.2);transition:box-shadow .25s,transform .25s;cursor:default;margin-bottom:.4rem;}
-          .nest-card:hover{box-shadow:0 8px 24px rgba(0,0,0,.35);transform:translateY(-2px);}
-          .nest-card .nest-title{font-size:1rem;font-weight:700;color:#ffeaa7;margin-bottom:.2rem;}
-          .nest-card .nest-title:first-child{margin-top:0;}
-          .nest-card .nest-body{font-size:.8rem;opacity:.85;line-height:1.45;}
-          .nest-card .nest-tag{display:inline-block;background:rgba(79,109,245,.4);border-radius:4px;padding:.1em .4em;font-size:.68rem;margin-top:.3rem;}
-        </style>
-        <div class="nest-card">
-          <div class="nest-title">CSS Nesting is Live</div>
-          <div class="nest-body">Hover me! The :hover, .nest-title, and .nest-body rules are all written as nested CSS inside .nest-card</div>
-          <span class="nest-tag">No preprocessor needed</span>
-        </div>
-        <pre style="font-size:.65rem;"><code>.nest-card {
-  background: ...;
-  &:hover { box-shadow: ...; }
-  .nest-title { color: #ffeaa7; }
-  .nest-body { opacity: .85; }
-  .nest-tag { ... }
+        <h3>What the Browser Compiles To</h3>
+        <p style="font-size:.76rem;opacity:.88;margin-bottom:.3rem;">Nesting is syntax sugar. The browser expands it into flat selectors — the same CSS you'd have written before:</p>
+        <div class="two-col" style="gap:.4rem;">
+          <div>
+            <p style="font-size:.68rem;text-transform:uppercase;letter-spacing:.08em;opacity:.55;margin-bottom:.18rem;">You write (nested)</p>
+            <pre><code>.card {
+  background: white;
+  border-radius: 8px;
+
+  &:hover {
+    box-shadow: 0 4px 12px
+      rgba(0,0,0,.2);
+    transform: translateY(-2px);
+  }
+
+  .card-title {
+    font-size: 1.25rem;
+    &:first-child { margin-top: 0; }
+  }
+
+  @media (min-width: 768px) {
+    padding: 2rem;
+  }
 }</code></pre>
+          </div>
+          <div>
+            <p style="font-size:.68rem;text-transform:uppercase;letter-spacing:.08em;opacity:.55;margin-bottom:.18rem;">Browser sees (compiled)</p>
+            <pre><code>.card {
+  background: white;
+  border-radius: 8px;
+}
+.card:hover {
+  box-shadow: 0 4px 12px
+    rgba(0,0,0,.2);
+  transform: translateY(-2px);
+}
+.card .card-title {
+  font-size: 1.25rem;
+}
+.card .card-title:first-child {
+  margin-top: 0;
+}
+@media (min-width: 768px) {
+  .card { padding: 2rem; }
+}</code></pre>
+          </div>
+        </div>
+        <div class="note" style="margin-top:.3rem;font-size:.76rem;"><strong>Same result, less repetition.</strong> You write <code>.card</code> once. The browser handles expanding every nested rule into its full selector path.</div>
       </div>
     </div>
   </div>
@@ -393,23 +419,52 @@ form:has(:invalid) {
 li:has(ul) { list-style-type: "▸ "; }</code></pre>
       </div>
       <div>
-        <h3>Interactive Demo</h3>
-        <p style="font-size:.76rem;opacity:.88;margin-bottom:.28rem;">Click inside the field — watch the <em>parent</em> container react using CSS <code>:has()</code>:</p>
-        <div class="has-field">
-          <div class="has-lbl">Email Address</div>
-          <input class="has-inp" type="email" placeholder="Click me to focus..." id="hasInput">
-        </div>
-        <div style="display:flex;gap:.4rem;margin:.25rem 0;flex-wrap:wrap;">
-          <button class="demo-btn" onclick="hasInput.classList.toggle('invalid');this.classList.toggle('active')">Toggle Invalid State</button>
-        </div>
-        <div class="card" style="font-size:.76rem;margin-top:.25rem;">
-          <div class="has-img-slot" id="hasImgSlot"><img src="" alt="" style="display:none"> &lt;img&gt; detected — padding-top: 0</div>
-          <div class="has-card-body">
-            <h4>Profile Card</h4>
-            <p>This card uses <code>:has(img)</code> to remove top padding when an image is present. The label color uses <code>:has(input:focus)</code>.</p>
+        <h3>The HTML Structure</h3>
+        <p style="font-size:.76rem;opacity:.88;margin-bottom:.3rem;">Here is the HTML. The CSS selects the <em>parent</em> by checking what's <em>inside</em> it:</p>
+        <pre><code>&lt;!-- The PARENT we want to style --&gt;
+&lt;div class="field"&gt;
+  &lt;label&gt;Email Address&lt;/label&gt;
+  &lt;input type="email"&gt;
+&lt;/div&gt;</code></pre>
+        <pre style="margin-top:.3rem;"><code>/* Before :has(): needed JavaScript to
+   add a class to .field on focus */
+
+/* With :has(): pure CSS — no JS */
+.field:has(input:focus) {
+  border-color: #4f6df5; /* parent changes */
+}
+.field:has(input:focus) label {
+  color: #4f6df5;        /* sibling changes */
+  font-weight: 700;
+}</code></pre>
+        <h3 style="margin-top:.4rem;">Before &amp; After Focus</h3>
+        <style>
+          .has-demo-row{display:flex;gap:.5rem;margin:.2rem 0;}
+          .has-demo-box{flex:1;background:rgba(0,0,0,.22);border:2px solid rgba(255,255,255,.15);border-radius:8px;padding:.5rem .7rem;transition:all .2s;}
+          .has-demo-box.focused{border-color:#4f6df5;background:rgba(79,109,245,.07);}
+          .has-demo-lbl{font-size:.72rem;display:block;margin-bottom:.22rem;transition:color .2s;}
+          .has-demo-box.focused .has-demo-lbl{color:#81ecec;font-weight:700;}
+          .has-demo-inp-vis{background:rgba(0,0,0,.28);border:1px solid rgba(255,255,255,.2);border-radius:5px;padding:.25rem .45rem;font-size:.74rem;color:rgba(255,255,255,.55);}
+          .has-demo-box.focused .has-demo-inp-vis{border-color:#4f6df5;}
+          .has-demo-cap{font-size:.64rem;text-align:center;opacity:.5;margin-top:.18rem;}
+        </style>
+        <div class="has-demo-row">
+          <div>
+            <div class="has-demo-box">
+              <span class="has-demo-lbl">Email Address</span>
+              <div class="has-demo-inp-vis">not focused</div>
+            </div>
+            <div class="has-demo-cap">Default state</div>
+          </div>
+          <div>
+            <div class="has-demo-box focused">
+              <span class="has-demo-lbl">Email Address</span>
+              <div class="has-demo-inp-vis" style="border-color:#4f6df5;color:white;">user@example.com|</div>
+            </div>
+            <div class="has-demo-cap">When input is focused — parent &amp; label react via <code>:has()</code></div>
           </div>
         </div>
-        <div class="note" style="font-size:.74rem;margin-top:.25rem;">No JavaScript! These reactions are pure CSS <code>:has()</code>.</div>
+        <div class="note" style="font-size:.74rem;">No JavaScript. CSS reads the input's focus state and styles the <em>parent</em> container and the <em>label sibling</em>. This was impossible in CSS before <code>:has()</code>.</div>
       </div>
     </div>
   </div>
@@ -433,6 +488,7 @@ li:has(ul) { list-style-type: "▸ "; }</code></pre>
     <span class="part-badge css">⬡ CSS Features</span>
     <h2><code>:is()</code> and <code>:where()</code></h2>
     <p>Both match any element that matches at least one selector in their list. They are identical <strong>except for one thing: specificity.</strong></p>
+    <div class="note" style="margin-bottom:.3rem;font-size:.82rem;"><strong>The Problem They Solve:</strong> Targeting heading elements in multiple containers used to mean writing every combination separately: <code>header h1, header h2, main h1, main h2 { }</code> — six selectors for two containers and two tags. <code>:is(header, main) :is(h1, h2)</code> does the same in one line. <code>:where()</code> adds zero specificity, making it perfect for resets that shouldn't fight your own styles.</div>
     <div class="spec-cmp">
       <div class="spec-box is">
         <strong>:is(selector-list)</strong>
@@ -471,6 +527,7 @@ li:has(ul) { list-style-type: "▸ "; }</code></pre>
     <span class="part-badge css">⬡ CSS Features</span>
     <h2>CSS Cascade Layers with <code>@layer</code></h2>
     <p>Specificity wars happen when you write increasingly specific selectors just to beat library styles. <code>@layer</code> solves this by letting you declare which styles win — regardless of specificity.</p>
+    <div class="caution" style="font-size:.82rem;margin-bottom:.3rem;"><strong>Without @layer:</strong> You import Bootstrap or Tailwind, then fight its styles with <code>!important</code> or increasingly specific selectors like <code>.my-app .container .card.special button</code>. That's the specificity war. <strong>With @layer:</strong> you put third-party CSS in a <code>layer(vendor)</code> layer and <em>all</em> of your styles beat it — regardless of specificity — because you control the layer order.</div>
     <div class="two-col">
       <div>
         <h3>Declaring Layers</h3>
@@ -542,6 +599,7 @@ li:has(ul) { list-style-type: "▸ "; }</code></pre>
   <p class="slide-label">Modern CSS — Dark Mode</p>
   <div class="slide-content">
     <span class="part-badge css">⬡ CSS Features</span>
+    <p style="font-size:.84rem;margin-bottom:.3rem;"><strong>Why it matters:</strong> 82% of smartphone users prefer dark mode (Android Authority, 2023). Users with migraines, light sensitivity, or low-vision conditions depend on it. Dark mode is a WCAG-adjacent accessibility feature — ignoring it means ignoring a large segment of your users.</p>
     <h2>Dark Mode with <code>prefers-color-scheme</code></h2>
     <div class="two-col">
       <div>
@@ -568,6 +626,7 @@ li:has(ul) { list-style-type: "▸ "; }</code></pre>
 body { background: var(--color-bg);
        color: var(--color-text); }
 .card { background: var(--color-surface); }</code></pre>
+        <div class="tip" style="font-size:.76rem;margin-top:.28rem;"><strong>The key insight:</strong> You define color <em>tokens</em> on <code>:root</code> (like <code>--color-bg</code>), then every component uses those tokens. When the media query flips the token values, every component updates automatically — without touching the component code.</div>
       </div>
       <div>
         <h3>Live Toggle Demo</h3>
@@ -583,7 +642,8 @@ body { background: var(--color-bg);
             <div class="dark-demo-pill">Primary Action</div>
           </div>
         </div>
-        <div class="tip" style="margin-top:.35rem;font-size:.75rem;">For a <strong>manual toggle button</strong> that overrides the OS setting, set <code>data-theme="dark"</code> on <code>&lt;html&gt;</code> and store preference in <code>localStorage</code>.</div>
+        <div class="tip" style="margin-top:.28rem;font-size:.75rem;"><strong>The key insight:</strong> You define color <em>tokens</em> (like <code>--color-bg</code>), then every component uses those tokens. When the media query flips the token values, the entire site updates automatically — without touching any component code. One override location controls everything.</div>
+        <div class="tip" style="margin-top:.25rem;font-size:.75rem;">For a <strong>manual toggle button</strong> that overrides the OS setting, set <code>data-theme="dark"</code> on <code>&lt;html&gt;</code> and store preference in <code>localStorage</code>.</div>
       </div>
     </div>
   </div>
@@ -595,6 +655,7 @@ body { background: var(--color-bg);
   <div class="slide-content">
     <span class="part-badge css">⬡ CSS Features</span>
     <h2><code>light-dark()</code> &amp; <code>color-mix()</code></h2>
+    <p style="font-size:.84rem;margin-bottom:.3rem;"><strong>Why these exist:</strong> <code>light-dark()</code> reduces dark mode from "define tokens in two places" to a single function call per property. <code>color-mix()</code> eliminates hard-coding hover states — instead of calculating a lighter version of your brand color manually, you describe the intent: "80% brand + 20% white."</p>
     <div class="two-col">
       <div>
         <h3>light-dark() — One Line Theming</h3>
@@ -678,6 +739,7 @@ body {
     <span class="part-badge css">⬡ CSS Features</span>
     <h2>Feature Queries with <code>@supports</code></h2>
     <p>Tests whether a browser supports a CSS property before applying a block. Enables <strong>progressive enhancement</strong> — working styles for all browsers, enhanced styles for modern ones.</p>
+    <div class="tip" style="margin-bottom:.3rem;font-size:.82rem;"><strong>Real-world scenario:</strong> You want to use <code>display: grid</code> with subgrid, but Safari just got support in 2023. Without <code>@supports</code>, you either drop the feature for everyone or accept broken layouts for older Safari users. With <code>@supports</code>, old browsers get a solid flexbox layout; modern browsers get the enhanced grid layout. Both work. No one sees broken CSS.</div>
     <div class="two-col">
       <div>
         <pre><code>/* Basic layout — works everywhere */
@@ -721,6 +783,8 @@ body {
         <div class="card" style="margin-top:.28rem;font-size:.76rem;">
           <strong style="color:#ffeaa7;">Check support:</strong> <a href="https://caniuse.com" target="_blank" rel="noopener">caniuse.com</a> — paste any CSS property to see browser support tables instantly.
         </div>
+        <div class="note" style="margin-top:.28rem;font-size:.76rem;"><strong>Test in the console:</strong> <code>CSS.supports("display", "grid")</code> returns <code>true</code> or <code>false</code>. In Chrome DevTools Styles panel, rules inside an unmatched <code>@supports</code> block appear greyed out — a quick visual indicator that the feature wasn't supported.</div>
+        <div class="note" style="margin-top:.28rem;font-size:.76rem;"><strong>How to check:</strong> In Chrome DevTools → Sources, search for <code>@supports</code> to see which blocks matched. Unmatched blocks are greyed out in the Styles panel. You can also test <code>CSS.supports("display", "grid")</code> in the console — returns <code>true</code> or <code>false</code>.</div>
       </div>
     </div>
   </div>
@@ -779,42 +843,59 @@ body {
   <div class="slide-content">
     <span class="part-badge a11y">♿ Web Accessibility</span>
     <h2>The Accessibility Tree</h2>
-    <p>The browser maintains two representations of a page: the <strong>DOM</strong> (your HTML structure) and the <strong>accessibility tree</strong> — a semantic version that screen readers and assistive technology use.</p>
+    <p>Your browser builds <strong>two trees</strong> from your HTML. The DOM is for rendering and JavaScript. The <strong>Accessibility Tree</strong> is a parallel, stripped-down version that screen readers and assistive technology read from — not the pixels.</p>
     <div class="two-col">
       <div>
+        <h3>Same Page — Two Representations</h3>
         <div class="tree-cmp">
           <div class="tree-box bad">
-            <strong>❌ Non-semantic HTML</strong>
-            <div class="tn">&lt;div&gt;</div>
-            <div class="tn" style="padding-left:1.2rem;">&lt;div onclick&gt; (generic)</div>
-            <div class="tn" style="padding-left:1.2rem;">&lt;span&gt; "Submit" (text)</div>
-            <div class="tn" style="font-size:.74em;color:rgba(255,255,255,.45);padding-left:1.2rem;">→ Screen reader hears nothing useful</div>
+            <strong>❌ What you wrote</strong>
+            <div class="tn">&lt;div class="nav"&gt;</div>
+            <div class="tn" style="padding-left:1rem;">&lt;div onclick&gt; Menu &lt;/div&gt;</div>
+            <div class="tn" style="padding-left:1rem;">&lt;div onclick&gt; Shop &lt;/div&gt;</div>
+            <div style="font-size:.7rem;color:rgba(255,255,255,.38);padding:.1rem .5rem;font-style:italic;">Screen reader sees: "Menu Shop" — no roles, no hints</div>
           </div>
           <div class="tree-box good">
-            <strong>✓ Semantic HTML</strong>
-            <div class="tn role">role: "form"</div>
-            <div class="tn role" style="padding-left:1rem;">role: "button"</div>
-            <div class="tn name" style="padding-left:1rem;">name: "Submit"</div>
-            <div class="tn desc" style="padding-left:1rem;">state: focusable</div>
+            <strong>✓ What the tree sees</strong>
+            <div class="tn role">navigation landmark</div>
+            <div class="tn role" style="padding-left:1rem;">link · "Menu"</div>
+            <div class="tn role" style="padding-left:1rem;">link · "Shop"</div>
+            <div style="font-size:.7rem;color:rgba(134,239,172,.7);padding:.1rem .5rem;font-style:italic;">Announces: "navigation, Menu link, Shop link"</div>
           </div>
         </div>
-        <img src="assets/day-17-img-01-accessibility-tree.png" alt="Chrome DevTools Accessibility panel showing the accessibility tree for a web page" class="slide-img" onerror="this.style.display='none'">
-        <p class="img-caption">Chrome DevTools → Elements → Accessibility tab</p>
+        <div class="note" style="margin-top:.3rem;font-size:.76rem;">
+          <strong>Every element gets mapped:</strong> the tree records each element's <em>role</em> (what it is), <em>name</em> (what it's called), <em>state</em> (checked? expanded? disabled?), and <em>properties</em>. Semantic HTML fills these in automatically. Non-semantic HTML leaves them blank.
+        </div>
+        <pre style="font-size:.65rem;margin-top:.3rem;"><code>&lt;!-- Correct: semantic HTML → rich tree --&gt;
+&lt;nav aria-label="Main navigation"&gt;
+  &lt;a href="/"&gt;Menu&lt;/a&gt;
+  &lt;a href="/shop"&gt;Shop&lt;/a&gt;
+&lt;/nav&gt;
+
+&lt;!-- Wrong: divs → empty tree entries --&gt;
+&lt;div class="nav"&gt;
+  &lt;div onclick="..."&gt;Menu&lt;/div&gt;
+&lt;/div&gt;</code></pre>
       </div>
       <div>
-        <h3>Semantic HTML = Free Accessibility</h3>
-        <ul>
-          <li>Use <code>&lt;button&gt;</code> not <code>&lt;div onclick&gt;</code></li>
-          <li>Use <code>&lt;nav&gt;</code> not <code>&lt;div class="nav"&gt;</code></li>
-          <li>Use <code>&lt;h1&gt;</code>–<code>&lt;h6&gt;</code> in meaningful hierarchy</li>
-          <li>Use <code>&lt;main&gt;</code>, <code>&lt;header&gt;</code>, <code>&lt;footer&gt;</code>, <code>&lt;aside&gt;</code></li>
-          <li>Use <code>&lt;label&gt;</code> with every form input</li>
-        </ul>
-        <div class="note" style="margin-top:.35rem;">
-          <strong>Inspect the tree in Chrome DevTools:</strong><br>
-          Open Elements panel → select an element → click the <strong>"Accessibility"</strong> tab in the right panel. You'll see the element's role, name, states, and properties as assistive technology sees them.
-        </div>
-        <div class="tip" style="margin-top:.28rem;font-size:.78rem;"><strong>Semantic HTML is the single most impactful accessibility technique.</strong> Using correct elements provides roles, names, and keyboard behavior — for free.</div>
+        <h3>How to Inspect the Tree in Chrome</h3>
+        <ol style="font-size:.8rem;line-height:1.7;margin-left:1.2rem;">
+          <li>Open DevTools (<kbd class="kbd">F12</kbd>)</li>
+          <li>Select any element in the <strong>Elements</strong> panel</li>
+          <li>Look for the <strong>Accessibility</strong> tab in the right panel</li>
+          <li>You'll see: Role · Name · Description · States</li>
+        </ol>
+        <img src="assets/day-17-img-01-accessibility-tree.png" alt="Chrome DevTools Accessibility panel showing role, name, and state for a button element" class="slide-img" style="margin:.3rem 0;" onerror="this.style.display='none'">
+        <p class="img-caption">Chrome DevTools → Elements → Accessibility tab</p>
+        <h3 style="margin-top:.3rem;">The Golden Rule</h3>
+        <table class="cmp">
+          <tr><th>Use this…</th><th>Not this…</th><th>Why</th></tr>
+          <tr><td><code>&lt;button&gt;</code></td><td><code>&lt;div onclick&gt;</code></td><td>Keyboard + role free</td></tr>
+          <tr><td><code>&lt;nav&gt;</code></td><td><code>&lt;div class="nav"&gt;</code></td><td>Landmark role free</td></tr>
+          <tr><td><code>&lt;label&gt;</code></td><td>placeholder text</td><td>Name never disappears</td></tr>
+          <tr><td><code>&lt;h1&gt;–&lt;h6&gt;</code></td><td><code>&lt;div class="title"&gt;</code></td><td>Document outline free</td></tr>
+        </table>
+        <div class="tip" style="margin-top:.3rem;font-size:.76rem;"><strong>Semantic HTML is the highest-leverage accessibility technique.</strong> It gives you roles, names, keyboard behavior, and focus management — all for free, before you write a single line of ARIA.</div>
       </div>
     </div>
   </div>
@@ -860,6 +941,7 @@ body {
   <div class="slide-content">
     <span class="part-badge a11y">♿ Web Accessibility</span>
     <h2>ARIA Roles &amp; Labels</h2>
+    <p style="font-size:.84rem;margin-bottom:.3rem;"><strong>Why labels matter:</strong> A screen reader announces elements by their <em>accessible name</em>. An icon button with no label gets announced as "button" — no context. A close button with <code>aria-label="Close dialog"</code> gets announced as "Close dialog, button." The label is what tells the user what the control does.</p>
     <div class="two-col">
       <div>
         <h3>Landmark Roles</h3>
@@ -893,6 +975,9 @@ body {
 &lt;!-- Distinguish multiple navs on a page --&gt;
 &lt;nav aria-label="Main navigation"&gt;...&lt;/nav&gt;
 &lt;nav aria-label="Breadcrumb"&gt;...&lt;/nav&gt;</code></pre>
+        <div class="caution" style="margin-top:.28rem;font-size:.76rem;">
+          <strong>Common mistake:</strong> Using <code>aria-label</code> on elements that already have visible text creates two competing names. Only use <code>aria-label</code> when there is <em>no visible text</em> (icon buttons, search inputs without visible labels). Use <code>aria-labelledby</code> to point to visible text that already exists.
+        </div>
       </div>
     </div>
   </div>
@@ -905,6 +990,7 @@ body {
   <div class="slide-content">
     <span class="part-badge a11y">♿ Web Accessibility</span>
     <h2>ARIA States &amp; Properties</h2>
+    <p style="font-size:.84rem;margin-bottom:.3rem;"><strong>Why states matter:</strong> When you build a dropdown that opens and closes visually, sighted users see it happen. A screen reader user hears nothing — the visual change was never communicated. <code>aria-expanded</code>, <code>aria-checked</code>, and <code>aria-invalid</code> are the vocabulary for telling assistive technology: "this thing changed, here's how." Without them, your custom UI is invisible to a screen reader.</p>
     <div class="two-col">
       <div>
         <pre><code>&lt;!-- aria-expanded: toggle state --&gt;
@@ -960,7 +1046,8 @@ body {
   <div class="slide-content">
     <span class="part-badge a11y">♿ Web Accessibility</span>
     <h2>Focus Management &amp; Keyboard Navigation</h2>
-    <p>Every interactive element must be reachable and operable by keyboard alone — essential for users who cannot use a mouse.</p>
+    <p style="font-size:.84rem;margin-bottom:.2rem;"><strong>Who depends on this:</strong> Keyboard navigation is essential for users with motor disabilities who cannot use a mouse, for power users who navigate faster with a keyboard, and for anyone using a keyboard-heavy device. The hard rule: if an interactive element can't be reached by pressing <kbd class="kbd">Tab</kbd>, a large portion of your users simply cannot use it.</p>
+    <p>Every interactive element must be reachable and operable by keyboard alone.</p>
     <div class="two-col">
       <div>
         <h3>Tab Key Behavior</h3>
@@ -1007,6 +1094,7 @@ body {
   <div class="slide-content">
     <span class="part-badge a11y">♿ Web Accessibility</span>
     <h2>Focus Styles &amp; <code>:focus-visible</code></h2>
+    <p style="font-size:.84rem;margin-bottom:.2rem;"><strong>The dilemma:</strong> Default browser focus outlines look jarring to mouse users — they appear when you click a button. So developers write <code>*:focus { outline: none }</code> to remove them. This destroys keyboard navigation: users literally cannot see where they are on the page. <code>:focus-visible</code> solves this by showing the ring <em>only during keyboard navigation</em> — invisible to mouse users, essential for keyboard users.</p>
     <p>Visible focus indicators are <strong>required by WCAG 2.4.7 (Level AA)</strong>. Never write <code>*:focus { outline: none }</code> without providing an alternative.</p>
     <div class="two-col">
       <div>
@@ -1066,6 +1154,7 @@ body {
   <div class="slide-content">
     <span class="part-badge a11y">♿ Web Accessibility</span>
     <h2>The <code>inert</code> Attribute</h2>
+    <p style="font-size:.84rem;margin-bottom:.2rem;"><strong>The problem it solves:</strong> When a modal opens, sighted mouse users see a dimmed background and can't click behind it. Keyboard users can still Tab to every link and button hidden behind the modal — called "focus leak." Before <code>inert</code>, you had to manually set <code>tabindex="-1"</code> on every focusable descendant, add <code>aria-hidden="true"</code>, and apply <code>pointer-events: none</code>. Miss one element and focus leaks through. <code>inert</code> does all of that with one attribute.</p>
     <p>Makes an element and <strong>all its descendants</strong> unfocusable, unclickable, and invisible to screen readers — with a single attribute. Supported in all modern browsers.</p>
     <div class="two-col">
       <div>
@@ -1124,6 +1213,7 @@ modal.addEventListener('close', () =&gt; {
   <div class="slide-content">
     <span class="part-badge a11y">♿ Web Accessibility</span>
     <h2>The Native <code>&lt;dialog&gt;</code> Element</h2>
+    <p style="font-size:.84rem;margin-bottom:.2rem;"><strong>Before <code>&lt;dialog&gt;</code>:</strong> Building a correct accessible modal meant: trap Tab/Shift+Tab inside it, listen for <kbd class="kbd">Esc</kbd>, move focus to the first element on open, return focus to the trigger on close, add <code>role="dialog"</code>, <code>aria-modal="true"</code>, <code>aria-labelledby</code> pointing to the title, and lock body scroll. Miss any one step and the modal fails for keyboard and screen reader users. <code>&lt;dialog&gt;</code> gets you most of this automatically.</p>
     <p>Building an accessible modal from scratch requires focus trapping, Escape key handling, <code>aria-modal</code>, focus return on close, and scroll lock. <code>&lt;dialog&gt;</code> handles most of this automatically.</p>
     <div class="two-col">
       <div>
@@ -1203,6 +1293,7 @@ document.getElementById('cancelBtn')
   <div class="slide-content">
     <span class="part-badge a11y">♿ Web Accessibility</span>
     <h2>Live Regions with <code>aria-live</code></h2>
+    <p style="font-size:.84rem;margin-bottom:.2rem;"><strong>The problem:</strong> Screen readers follow focus. When content changes <em>without focus moving</em> — a form error appears, a notification pops up, a cart count updates — a screen reader user hears nothing. They have no idea the page changed. <code>aria-live</code> solves this: it tells the browser "watch this region; announce any text changes to the user, even without a focus event."</p>
     <p>When content changes dynamically (error after form submit, chat message, notification), screen readers don't automatically notice. <code>aria-live</code> tells the browser to announce changes.</p>
     <div class="two-col">
       <div>
@@ -1257,6 +1348,7 @@ document.getElementById('status').textContent
   <div class="slide-content">
     <span class="part-badge a11y">♿ Web Accessibility</span>
     <h2>Skip Navigation Links</h2>
+    <p style="font-size:.84rem;margin-bottom:.2rem;"><strong>The problem:</strong> Imagine being blind and loading any page on a large site. The navigation has 25 links. Every single page load means pressing Tab 25 times before you can read any content. A skip link is the <em>very first</em> focusable element on the page — pressing Enter jumps the user straight to the main content, skipping the nav entirely. <strong>WCAG 2.4.1 (Level A) requires it.</strong> It's invisible to mouse users but critical for keyboard users.</p>
     <p>Keyboard users tab through every link at the top of a page before reaching content. A 30-link nav means 30 Tab presses. A <strong>skip link</strong> jumps directly to main content.</p>
     <div class="two-col">
       <div>
@@ -1320,39 +1412,39 @@ document.getElementById('status').textContent
   <div class="slide-content">
     <span class="part-badge a11y">♿ Web Accessibility</span>
     <h2>Common Accessibility Mistakes</h2>
-    <p>These errors account for the <strong>majority of accessibility failures</strong> found in web audits:</p>
+    <p>These errors account for the <strong>majority of accessibility failures</strong> found in web audits. Each has a fast fix:</p>
     <div class="mistakes-grid">
       <div class="mistake">
         <strong>Missing or empty alt text</strong>
-        Every <code>&lt;img&gt;</code> needs <code>alt</code>. Decorative images use <code>alt=""</code>. Meaningful images need descriptive text.
+        Without <code>alt</code>, a screen reader reads the filename: <em>"img-hero-banner-2024.jpg."</em> Decorative images: <code>alt=""</code> (skipped). Meaningful images: describe the content concisely — not "image of a…"
       </div>
       <div class="mistake">
         <strong>Insufficient color contrast</strong>
-        WCAG 1.4.3 (AA) requires <strong>4.5:1</strong> ratio for normal text, 3:1 for large text. Use <a href="https://webaim.org/resources/contrastchecker/" target="_blank" rel="noopener">WebAIM Contrast Checker</a>.
+        Light gray on white looks clean but is illegible for low-vision users. WCAG 1.4.3 (AA) requires <strong>4.5:1</strong> for body text, 3:1 for large text. Fix: <a href="https://webaim.org/resources/contrastchecker/" target="_blank" rel="noopener">WebAIM Contrast Checker</a>.
       </div>
       <div class="mistake">
         <strong>Removing focus outlines</strong>
-        <code>outline: none</code> without a replacement makes keyboard navigation invisible. Always use <code>:focus-visible</code> with a visible style.
+        <code>outline: none</code> makes keyboard users blind — they cannot see where focus is. Fix: never remove focus styles without an equally visible replacement. Use <code>:focus-visible</code>.
       </div>
       <div class="mistake">
         <strong>Interactive &lt;div&gt;s and &lt;span&gt;s</strong>
-        <code>&lt;div onclick&gt;</code> isn't keyboard-focusable and has no role. Use <code>&lt;button&gt;</code> for actions, <code>&lt;a&gt;</code> for navigation.
+        <code>&lt;div onclick&gt;</code> cannot receive keyboard focus and announces no role. Screen reader users and keyboard users can never activate it. Fix: <code>&lt;button&gt;</code> for actions, <code>&lt;a href&gt;</code> for links — always.
       </div>
       <div class="mistake">
         <strong>Form inputs without labels</strong>
-        Every input needs an associated <code>&lt;label&gt;</code> or <code>aria-label</code>. Placeholder text is not a substitute — it disappears on typing.
+        Placeholder text disappears on typing and is not reliably announced. Screen readers need a permanent <code>&lt;label for="..."&gt;</code> or <code>aria-label</code>. Fix: every input gets a label — no exceptions.
       </div>
       <div class="mistake">
         <strong>Inaccessible modals</strong>
-        Modals that don't trap focus, don't close on <kbd class="kbd">Esc</kbd>, or don't return focus to the trigger when closed strand keyboard users.
+        A modal that leaks focus to the background, ignores <kbd class="kbd">Esc</kbd>, or loses focus on close strands keyboard users. Fix: use native <code>&lt;dialog&gt;</code> with <code>showModal()</code> and <code>inert</code> on background content.
       </div>
       <div class="mistake">
         <strong>Auto-playing media</strong>
-        Video or audio that plays automatically is disorienting and impossible to stop for some users. Always provide pause controls.
+        Autoplay competes with screen reader audio and can trigger seizures for photosensitive users. WCAG 1.4.2 (A) says stop/pause must be available within 3 seconds. Fix: autoplay off by default; provide visible controls.
       </div>
       <div class="mistake">
         <strong>Non-descriptive link text</strong>
-        Links labeled "click here" or "read more" provide no context for screen reader users who navigate by listing all links on a page.
+        Screen readers can list all links on a page. A page with 15 "Read more" links is unusable. Fix: link text must describe the destination — "Download the 2024 Annual Report (PDF, 2.3 MB)" not "Download here."
       </div>
     </div>
   </div>
@@ -1365,6 +1457,7 @@ document.getElementById('status').textContent
     <span class="part-badge a11y">♿ Web Accessibility</span>
     <h2>Accessibility Testing Tools</h2>
     <p>Automated tools catch a large percentage of common errors instantly — but <strong>no tool catches everything</strong>. They are the starting point, not the finish line.</p>
+    <div class="tip" style="margin-bottom:.3rem;font-size:.82rem;"><strong>Why automated tools aren't enough:</strong> Tools can verify presence of alt text, check color contrast ratios, and validate ARIA syntax. They cannot judge whether the alt text is <em>meaningful</em>, whether the page's reading order makes sense, or whether a screen reader experience feels confusing. Studies show automated tools catch roughly 30–40% of real-world issues. A manual screen reader test is the only way to hear what your users actually hear.</div>
     <div class="two-col">
       <div>
         <div class="tool-grid" style="grid-template-columns:1fr;">
@@ -1414,6 +1507,7 @@ document.getElementById('status').textContent
   <div class="slide-content">
     <span class="part-badge a11y">♿ Web Accessibility</span>
     <h2>Testing with Screen Readers</h2>
+    <p style="font-size:.84rem;margin-bottom:.2rem;"><strong>Why test with a real screen reader:</strong> A screen reader announces page structure, element roles, labels, and state changes exactly as a blind user hears them — in sequence, no visual context. Only by listening do you discover: "this form is confusing," "this modal announcement is jarring," "this table is read in the wrong order." It takes 10 minutes and reveals what no automated tool can.</p>
     <p>Automated tools find code-level issues. <strong>Screen readers reveal the actual user experience.</strong> Test with at least one screen reader before shipping.</p>
     <div class="sr-grid" style="margin-bottom:.35rem;">
       <div class="sr-card">
