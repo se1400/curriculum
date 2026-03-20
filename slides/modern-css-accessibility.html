@@ -443,36 +443,44 @@ li:has(ul) { list-style-type: "▸ "; }</code></pre>
   <div class="slide-content">
     <span class="part-badge css">⬡ CSS Features</span>
     <h2><code>:is()</code> and <code>:where()</code></h2>
-    <p>Both match any element that matches at least one selector in their list. They are identical <strong>except for one thing: specificity.</strong></p>
-    <div class="note" style="margin-bottom:.3rem;font-size:.82rem;"><strong>The Problem They Solve:</strong> Targeting heading elements in multiple containers used to mean writing every combination separately: <code>header h1, header h2, main h1, main h2 { }</code> — six selectors for two containers and two tags. <code>:is(header, main) :is(h1, h2)</code> does the same in one line. <code>:where()</code> adds zero specificity, making it perfect for resets that shouldn't fight your own styles.</div>
-    <div class="spec-cmp">
-      <div class="spec-box is">
-        <strong>:is(selector-list)</strong>
-        <p style="font-size:.78rem;">Takes the <em>highest</em> specificity of any selector in the list.</p>
-        <pre style="font-size:.68rem;margin:.28rem 0;"><code>/* Replaces 6 selectors */
-:is(header, main) :is(h1, h2, h3) {
+    <p style="font-size:.82rem;margin-bottom:.3rem;">Both accept a list of selectors and match any element that fits <em>at least one</em>. They are identical except for <strong>specificity</strong> — which determines when to use which.</p>
+    <div class="two-col" style="align-items:start;gap:.6rem;">
+      <div>
+        <h3 style="color:#93c5fd;">:is() — shorten selector lists</h3>
+        <p style="font-size:.7rem;text-transform:uppercase;letter-spacing:.07em;opacity:.5;margin-bottom:.12rem;">Before — 6 separate selectors</p>
+        <pre style="font-size:.67rem;"><code>header h1, header h2, header h3,
+main   h1, main   h2, main   h3 {
   color: #0f172a;
+  line-height: 1.2;
 }</code></pre>
-        <div class="spec-pill">Specificity: inherits from list</div>
+        <p style="font-size:.7rem;text-transform:uppercase;letter-spacing:.07em;opacity:.5;margin:.3rem 0 .12rem;">After — 1 selector, same result</p>
+        <pre style="font-size:.67rem;"><code>:is(header, main) :is(h1, h2, h3) {
+  color: #0f172a;
+  line-height: 1.2;
+}</code></pre>
+        <div class="tip" style="font-size:.74rem;margin-top:.25rem;"><strong>Specificity:</strong> takes the <em>highest</em> specificity of any selector in the list. Use for component and utility styles where normal specificity is expected.</div>
       </div>
-      <div class="spec-box where">
-        <strong>:where(selector-list)</strong>
-        <p style="font-size:.78rem;"><strong>Always zero specificity</strong> — any selector overrides it.</p>
-        <pre style="font-size:.68rem;margin:.28rem 0;"><code>/* Base styles — easy to override */
+      <div>
+        <h3 style="color:#86efac;">:where() — zero-specificity base styles</h3>
+        <p style="font-size:.7rem;text-transform:uppercase;letter-spacing:.07em;opacity:.5;margin-bottom:.12rem;">Before — reset fights your own styles</p>
+        <pre style="font-size:.67rem;"><code>/* specificity: (0,0,1) */
+p, ul, ol, dl {
+  margin-block: 1em;
+}
+/* must match or beat (0,0,1) to win */
+.prose p { margin-block: 1.5em; } ✓
+p        { margin-block: 0; }     ✓
+.no-gap  { margin-block: 0; }     ✗</code></pre>
+        <p style="font-size:.7rem;text-transform:uppercase;letter-spacing:.07em;opacity:.5;margin:.3rem 0 .12rem;">After — anything beats it</p>
+        <pre style="font-size:.67rem;"><code>/* specificity: (0,0,0) — always loseable */
 :where(p, ul, ol, dl) {
   margin-block: 1em;
-  /* 0 specificity */
-}</code></pre>
-        <div class="spec-pill">Specificity: always 0</div>
+}
+/* any selector now wins */
+.no-gap { margin-block: 0; }      ✓</code></pre>
+        <div class="tip" style="font-size:.74rem;margin-top:.25rem;"><strong>Specificity: always 0.</strong> Perfect for CSS resets and base styles — they set defaults without ever blocking your own overrides.</div>
       </div>
     </div>
-    <table class="cmp" style="margin-top:.35rem;">
-      <tr><th>Use case</th><th>Choose</th><th>Why</th></tr>
-      <tr><td>Reset / base styles</td><td><code>:where()</code></td><td>Zero specificity — any rule can override</td></tr>
-      <tr><td>Component / utility styles</td><td><code>:is()</code></td><td>Normal specificity behavior expected</td></tr>
-      <tr><td>Reduce repetitive selectors</td><td>Either</td><td>Both collapse long selector lists</td></tr>
-    </table>
-    <div class="note"><strong>MDN Reference:</strong> <a href="https://developer.mozilla.org/en-US/docs/Web/CSS/:is" target="_blank" rel="noopener">:is()</a> · <a href="https://developer.mozilla.org/en-US/docs/Web/CSS/:where" target="_blank" rel="noopener">:where()</a></div>
   </div>
 </div>
 
