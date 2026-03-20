@@ -744,7 +744,32 @@ color-mix(in oklch, blue, red)               /* perceptual blend */</code></pre>
         <p style="font-size:.8rem;line-height:1.5;margin-top:.2rem;">Closed captions were invented for deaf viewers — now everyone uses them in noisy coffee shops. Curb cuts were built for wheelchairs — now everyone uses them with strollers and bikes. <strong>Accessibility features almost always improve the experience for everyone.</strong> Plus, Google Search ranks accessible sites higher.</p>
       </div>
     </div>
-    <div class="note"><strong>Disabilities aren't just permanent.</strong> They're also situational: trying to use a phone in bright sunlight (low contrast), holding a baby and only having one hand free (motor), watching a video at the library with no headphones (no audio), or recovering from eye surgery (temporarily low vision). You build for all of these at once.</div>
+    <div class="two-col" style="margin-top:.35rem;align-items:start;">
+      <div>
+        <h3>❌ What an inaccessible page looks like</h3>
+        <pre style="font-size:.67rem;"><code>&lt;!-- Can't Tab to it. Screen reader: "Place Order" — no role --&gt;
+&lt;div onclick="submitOrder()"&gt;Place Order&lt;/div&gt;
+
+&lt;!-- Screen reader reads filename: "pizza-2024-final.jpg" --&gt;
+&lt;img src="pizza-2024-final.jpg"&gt;
+
+&lt;!-- Placeholder disappears. Screen reader says nothing useful --&gt;
+&lt;input placeholder="Your address"&gt;</code></pre>
+      </div>
+      <div>
+        <h3>✓ The same page, done right</h3>
+        <pre style="font-size:.67rem;"><code>&lt;!-- Tab-focusable. Screen reader: "Place Order, button" ✓ --&gt;
+&lt;button onclick="submitOrder()"&gt;Place Order&lt;/button&gt;
+
+&lt;!-- Screen reader: "Large pepperoni pizza, image" ✓ --&gt;
+&lt;img src="pizza.jpg" alt="Large pepperoni pizza"&gt;
+
+&lt;!-- Label stays visible. Screen reader: "Your address, edit text" ✓ --&gt;
+&lt;label for="addr"&gt;Your address&lt;/label&gt;
+&lt;input id="addr" type="text"&gt;</code></pre>
+        <div class="tip" style="font-size:.75rem;margin-top:.25rem;">Three small changes. Same visual result. One version works for everyone — the other locks out millions of users.</div>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -756,10 +781,31 @@ color-mix(in oklch, blue, red)               /* perceptual blend */</code></pre>
     <h2>WCAG — Web Content Accessibility Guidelines</h2>
     <p>WCAG is the rulebook for web accessibility, written by the W3C (the people who define how the web works). Think of it like building codes for houses — specific rules that professionals are expected to follow. The current version is <strong>WCAG 2.2</strong> (2023). Every rule fits into one of four principles called <strong>POUR</strong>:</p>
     <div class="pour-grid">
-      <div class="pour-card p"><strong>P — Perceivable</strong><span>Can every user <em>receive</em> the content? A blind student can't see your image — so it needs alt text that describes it. A deaf student can't hear your video — so it needs captions. If someone can't perceive it, it doesn't exist for them.</span></div>
-      <div class="pour-card o"><strong>O — Operable</strong><span>Can every user <em>control</em> the interface? Someone with a broken arm may use only a keyboard. Someone with a tremor can't precisely click small targets. Every button, link, and form must be reachable and usable without a mouse.</span></div>
-      <div class="pour-card u"><strong>U — Understandable</strong><span>Can every user <em>make sense of</em> the content? A form that just flashes red when you submit it — but never says <em>what</em> is wrong — fails this. Error messages need to say "Your email is missing an @ symbol", not just highlight in red.</span></div>
-      <div class="pour-card r"><strong>R — Robust</strong><span>Does it work with <em>any</em> assistive technology, now and in the future? When Apple updates VoiceOver next year, your site should still work. Valid, semantic HTML is the foundation — it's what makes your content readable by tools you've never heard of.</span></div>
+      <div class="pour-card p">
+        <strong>P — Perceivable</strong>
+        <span>Can every user <em>receive</em> the content? If someone can't perceive it, it doesn't exist for them.</span>
+        <pre style="font-size:.63rem;margin:.2rem 0;"><code>&lt;img src="dog.jpg"&gt;              &lt;!-- ✗ blind user hears nothing --&gt;
+&lt;img src="dog.jpg" alt="Golden retriever running"&gt; &lt;!-- ✓ --&gt;</code></pre>
+      </div>
+      <div class="pour-card o">
+        <strong>O — Operable</strong>
+        <span>Can every user <em>control</em> the interface? Everything must work without a mouse.</span>
+        <pre style="font-size:.63rem;margin:.2rem 0;"><code>&lt;div onclick="buy()"&gt;Buy&lt;/div&gt;  &lt;!-- ✗ can't Tab to it --&gt;
+&lt;button onclick="buy()"&gt;Buy&lt;/button&gt; &lt;!-- ✓ keyboard works --&gt;</code></pre>
+      </div>
+      <div class="pour-card u">
+        <strong>U — Understandable</strong>
+        <span>Can every user <em>make sense of</em> the content? Errors must explain what went wrong.</span>
+        <pre style="font-size:.63rem;margin:.2rem 0;"><code>&lt;input style="border:red"&gt;         &lt;!-- ✗ what's wrong? --&gt;
+&lt;input aria-describedby="err"&gt;
+&lt;p id="err"&gt;Enter a valid email&lt;/p&gt; &lt;!-- ✓ explains it --&gt;</code></pre>
+      </div>
+      <div class="pour-card r">
+        <strong>R — Robust</strong>
+        <span>Does it work with <em>any</em> assistive technology? Valid semantic HTML is the foundation.</span>
+        <pre style="font-size:.63rem;margin:.2rem 0;"><code>&lt;div class="btn" role="button"&gt;Save&lt;/div&gt; &lt;!-- ✗ fragile --&gt;
+&lt;button&gt;Save&lt;/button&gt;  &lt;!-- ✓ works in every AT, forever --&gt;</code></pre>
+      </div>
     </div>
     <h3>Conformance Levels — think of them like difficulty settings</h3>
     <div class="wcag-levels">
@@ -1023,13 +1069,18 @@ aria-hidden="true"    &lt;!-- hide from screen reader --&gt;</code></pre>
           <li><kbd class="kbd">Esc</kbd> — close modal / dismiss popup</li>
           <li>Arrow keys — navigate within components (menus, tabs)</li>
         </ul>
-        <h3 style="margin-top:.4rem;">tabindex Values</h3>
-        <table class="cmp">
-          <tr><th>Value</th><th>Behavior</th></tr>
-          <tr><td>tabindex="0"</td><td>Add custom element to natural tab order</td></tr>
-          <tr><td>tabindex="-1"</td><td>Focusable via JS only — removed from tab order</td></tr>
-          <tr><td>tabindex="1+"</td><td style="color:#fca5a5;">⚠ Never use — overrides document order</td></tr>
-        </table>
+        <h3 style="margin-top:.4rem;">tabindex — when and how to use it</h3>
+        <pre style="font-size:.66rem;"><code>&lt;!-- tabindex="0": add a non-interactive element to tab order --&gt;
+&lt;div role="button" tabindex="0" onclick="open()"&gt;Open&lt;/div&gt;
+&lt;!-- Now Tab reaches it. But just use &lt;button&gt; instead! --&gt;
+
+&lt;!-- tabindex="-1": focusable by JS only, not by Tab --&gt;
+&lt;div id="modal" tabindex="-1"&gt;...&lt;/div&gt;
+&lt;!-- Use when you need to move focus programmatically: --&gt;
+document.getElementById('modal').focus();
+
+&lt;!-- tabindex="1" or higher: NEVER do this --&gt;
+&lt;button tabindex="3"&gt;...&lt;/button&gt;  &lt;!-- ✗ breaks tab order --&gt;</code></pre>
       </div>
       <div>
         <h3>Keyboard Navigation Demo</h3>
@@ -1102,10 +1153,7 @@ aria-hidden="true"    &lt;!-- hide from screen reader --&gt;</code></pre>
           <strong>The "Bad" button has outline: none with no replacement.</strong> Keyboard users have no idea where focus is — this is a WCAG 2.4.7 Level AA violation.
         </div>
         <div class="tip" style="margin-top:.25rem;font-size:.74rem;">
-          <strong>Contrast requirements:</strong> WCAG 2.4.11 (Level AA in 2.2) requires the focus indicator to have a minimum area and contrast ratio. A 3px outline with good color contrast meets this.
-        </div>
-        <div class="card" style="margin-top:.28rem;font-size:.74rem;">
-          <strong>Quick test:</strong> <a href="https://www.a11yproject.com/posts/how-to-use-the-tabindex-attribute/" target="_blank" rel="noopener">a11yproject.com</a> — guides on keyboard navigation and focus management.
+          <strong>Test it:</strong> Tab through your own page right now. Can you see where focus is at all times? If you lose track of where you are — so will your users.
         </div>
       </div>
     </div>
@@ -1118,29 +1166,25 @@ aria-hidden="true"    &lt;!-- hide from screen reader --&gt;</code></pre>
   <div class="slide-content">
     <span class="part-badge a11y">♿ Web Accessibility</span>
     <h2>The <code>inert</code> Attribute</h2>
-    <p style="font-size:.84rem;margin-bottom:.2rem;"><strong>Picture this:</strong> A "Confirm Delete" popup appears on screen. Mouse users see the dimmed background and know they can't click behind it. But a keyboard user presses Tab — and instead of staying inside the popup, focus escapes to a link hidden behind it that they can't even see. They're now clicking things in the background by accident. This is called <strong>focus leaking</strong>, and it's one of the most common accessibility failures in modals. <code>inert</code> is a single HTML attribute that locks down the background — making everything behind the modal completely untouchable and unannounced by screen readers until the modal closes.</p>
-    <p>One attribute — <code>inert</code> — replaces what used to take 10+ lines of JavaScript to do correctly.</p>
+    <p style="font-size:.84rem;margin-bottom:.2rem;"><strong>The problem: focus leaks through modals.</strong> A popup opens — but keyboard users can still Tab to links and buttons hiding behind it that they can't even see. They end up triggering things in the background by accident. The <code>inert</code> attribute fixes this: add it to the background content when a modal opens, and everything inside becomes untouchable, unclickable, and invisible to screen readers.</p>
     <div class="two-col">
       <div>
-        <h3>Before inert (the old way)</h3>
-        <pre><code>&lt;!-- Had to do ALL of this manually --&gt;
-&lt;main id="bg-content"
-  aria-hidden="true"&gt;
-  &lt;a href="/" tabindex="-1"&gt;...&lt;/a&gt;
-  &lt;button tabindex="-1"&gt;...&lt;/button&gt;
-  &lt;input tabindex="-1"&gt;
-  &lt;!-- style="pointer-events:none" too --&gt;
+        <h3>Without inert — focus leaks everywhere</h3>
+        <pre style="font-size:.67rem;"><code>&lt;!-- Modal is open. But Tab still reaches these: --&gt;
+&lt;main id="bg"&gt;
+  &lt;a href="/about"&gt;About&lt;/a&gt;     &lt;!-- ✗ Tab reaches it --&gt;
+  &lt;button&gt;Delete account&lt;/button&gt; &lt;!-- ✗ Tab reaches it --&gt;
+  &lt;!-- User can trigger these without seeing them --&gt;
 &lt;/main&gt;</code></pre>
-        <h3 style="margin-top:.35rem;">With inert (the new way)</h3>
-        <pre><code>&lt;main id="page-content" inert&gt;
-  &lt;!-- Everything inside is unreachable
-       while the modal is open --&gt;
-  &lt;a href="/"&gt;Unreachable&lt;/a&gt;
-  &lt;button&gt;Unreachable&lt;/button&gt;
+        <h3 style="margin-top:.3rem;">With inert — background is completely locked</h3>
+        <pre style="font-size:.67rem;"><code>&lt;main id="bg" inert&gt;
+  &lt;a href="/about"&gt;About&lt;/a&gt;     &lt;!-- ✓ Tab skips it --&gt;
+  &lt;button&gt;Delete account&lt;/button&gt; &lt;!-- ✓ Tab skips it --&gt;
+  &lt;!-- Screen reader also skips everything inside --&gt;
 &lt;/main&gt;
 
 &lt;dialog id="modal"&gt;
-  &lt;!-- Focus stays here --&gt;
+  &lt;!-- All Tab focus stays trapped in here --&gt;
 &lt;/dialog&gt;</code></pre>
       </div>
       <div>
@@ -1180,42 +1224,54 @@ modal.addEventListener('close', () =&gt; {
     <p style="font-size:.84rem;margin-bottom:.2rem;"><strong>Building a popup correctly is harder than it looks.</strong> Before the native <code>&lt;dialog&gt;</code> element, developers had to manually: trap Tab and Shift+Tab inside the popup, close it on Escape, move focus to the first item inside when it opened, return focus back to the button that opened it when it closed, add <code>role="dialog"</code> and <code>aria-modal="true"</code> so screen readers knew what it was, and prevent the page from scrolling in the background. Miss any one of those steps and keyboard or screen reader users get stuck. The native <code>&lt;dialog&gt;</code> element handles all of this automatically with a single method call: <code>showModal()</code>.</p>
     <div class="two-col">
       <div>
-        <pre><code>&lt;button id="openBtn"&gt;Open Dialog&lt;/button&gt;
+        <pre style="font-size:.66rem;"><code>&lt;button id="openBtn"&gt;Delete photo&lt;/button&gt;
 
 &lt;dialog id="myDialog"&gt;
   &lt;h2&gt;Confirm Delete&lt;/h2&gt;
   &lt;p&gt;This cannot be undone.&lt;/p&gt;
-  &lt;div class="actions"&gt;
-    &lt;button id="cancelBtn"&gt;Cancel&lt;/button&gt;
-    &lt;button id="deleteBtn"&gt;Delete&lt;/button&gt;
-  &lt;/div&gt;
+  &lt;button id="cancelBtn"&gt;Cancel&lt;/button&gt;
+  &lt;button id="deleteBtn"&gt;Delete&lt;/button&gt;
 &lt;/dialog&gt;
 
 &lt;script&gt;
 const dialog = document.getElementById('myDialog');
 
-// showModal() = true modal:
-// - adds ::backdrop
-// - traps keyboard focus
-// - Escape closes it
-document.getElementById('openBtn')
-  .addEventListener('click', () =&gt;
-    dialog.showModal());
+document.getElementById('openBtn').addEventListener('click', () =&gt; {
+  dialog.showModal();
+  // Screen reader announces: "Confirm Delete, dialog"
+  // Focus moves to first element inside automatically
+  // Tab is now trapped inside — can't escape to background
+});
 
-document.getElementById('cancelBtn')
-  .addEventListener('click', () =&gt;
-    dialog.close()); // Returns focus to opener
+document.getElementById('cancelBtn').addEventListener('click', () =&gt; {
+  dialog.close();
+  // Focus returns to #openBtn automatically
+  // Screen reader: back where the user started
+});
 &lt;/script&gt;</code></pre>
       </div>
       <div>
-        <h3>What showModal() Provides Free</h3>
-        <ul>
-          <li>✓ <code>::backdrop</code> pseudo-element (semi-transparent overlay)</li>
-          <li>✓ Keyboard <strong>focus trapped</strong> inside dialog</li>
-          <li>✓ <kbd class="kbd">Esc</kbd> closes the dialog</li>
-          <li>✓ Focus <strong>returns to the trigger</strong> on close</li>
-          <li>✓ Correct <code>role="dialog"</code> in accessibility tree</li>
-        </ul>
+        <h3>What you get free with showModal()</h3>
+        <pre style="font-size:.66rem;"><code>&lt;!-- Without &lt;dialog&gt;, you'd have to build all this: --&gt;
+
+// 1. Move focus into modal on open
+firstFocusable.focus();
+
+// 2. Trap Tab/Shift+Tab inside
+modal.addEventListener('keydown', trapFocus);
+
+// 3. Close on Escape
+document.addEventListener('keydown', e =&gt;
+  e.key === 'Escape' &amp;&amp; modal.close());
+
+// 4. Return focus to trigger on close
+modal.addEventListener('close', () =&gt; openBtn.focus());
+
+// 5. Add to accessibility tree
+modal.setAttribute('role', 'dialog');
+modal.setAttribute('aria-modal', 'true');
+
+// showModal() does ALL of this in one line ↑</code></pre>
         <h3 style="margin-top:.4rem;">Try it Live</h3>
         <dialog class="demo-dialog" id="demoDialog">
           <h3>Confirm Delete</h3>
@@ -1260,28 +1316,30 @@ document.getElementById('cancelBtn')
     <p>Use it for: form success/error messages, chat notifications, cart updates, loading states, search results — anywhere content updates without a page reload.</p>
     <div class="two-col">
       <div>
-        <pre><code>&lt;!-- Polite: announces when user isn't busy --&gt;
-&lt;div aria-live="polite" aria-atomic="true"&gt;
-  &lt;p id="status"&gt;&lt;/p&gt;
-&lt;/div&gt;
+        <h3>Without aria-live — silent update</h3>
+        <pre style="font-size:.67rem;"><code>&lt;!-- User submits a form. Success message appears. --&gt;
+&lt;p id="msg"&gt;&lt;/p&gt;
 
-&lt;!-- Assertive: interrupts immediately --&gt;
-&lt;div role="alert" aria-live="assertive"&gt;
-  &lt;p id="error"&gt;&lt;/p&gt;
-&lt;/div&gt;
+document.getElementById('msg').textContent
+  = 'Order confirmed!';
 
-&lt;script&gt;
-// Updating content inside a live region
-// triggers screen reader announcement
-document.getElementById('status').textContent
-  = 'Your changes have been saved.';
-&lt;/script&gt;</code></pre>
-        <table class="cmp" style="margin-top:.3rem;">
-          <tr><th>Value</th><th>When to use</th></tr>
-          <tr><td>polite</td><td>Status msgs, search results, chat</td></tr>
-          <tr><td>assertive</td><td>Critical errors blocking the user</td></tr>
-          <tr><td>aria-atomic="true"</td><td>Announce entire region on any change</td></tr>
-        </table>
+&lt;!-- Screen reader says: NOTHING
+     Focus didn't move, so nothing was announced.
+     Blind user has no idea if the form worked. --&gt;</code></pre>
+        <h3 style="margin-top:.3rem;">With aria-live — update announced automatically</h3>
+        <pre style="font-size:.67rem;"><code>&lt;!-- Add aria-live to the region BEFORE updating it --&gt;
+&lt;p id="msg" aria-live="polite"&gt;&lt;/p&gt;
+
+document.getElementById('msg').textContent
+  = 'Order confirmed! Arriving in 25 min.';
+
+&lt;!-- Screen reader says: "Order confirmed! Arriving in 25 min." ✓
+     Announced automatically when text changes. --&gt;
+
+&lt;!-- For critical errors, use assertive (interrupts immediately) --&gt;
+&lt;p role="alert"&gt;Card number is invalid.&lt;/p&gt;
+&lt;!-- Screen reader interrupts whatever it's reading: "Card number is invalid" --&gt;</code></pre>
+        <div class="note" style="font-size:.74rem;margin-top:.25rem;"><strong>polite</strong> waits for the screen reader to finish what it's saying before announcing. <strong>assertive</strong> interrupts immediately — only use for errors that block the user.</div>
       </div>
       <div>
         <h3>Interactive Live Region Demo</h3>
@@ -1480,11 +1538,12 @@ document.getElementById('modal').showModal();</code></pre>
           </div>
         </div>
         <div class="note" style="margin-top:.3rem;">
-          <strong>Testing workflow:</strong><br>
-          1. Run Lighthouse for a quick score<br>
-          2. Run axe DevTools for detailed violations<br>
-          3. Use WAVE to see structural issues visually<br>
-          4. Test with an actual screen reader
+          <strong>Run your first audit right now:</strong><br>
+          1. Open any page in Chrome<br>
+          2. Press <kbd class="kbd">F12</kbd> → click <strong>Lighthouse</strong> tab<br>
+          3. Check <strong>Accessibility</strong> → click <strong>Analyze page load</strong><br>
+          4. Read the failing items — each one tells you exactly what to fix<br><br>
+          Then install the <strong>axe DevTools</strong> extension for deeper issues Lighthouse misses.
         </div>
       </div>
     </div>
@@ -1526,21 +1585,27 @@ document.getElementById('modal').showModal();</code></pre>
     </div>
     <div class="two-col" style="margin-top:.35rem;">
       <div class="card">
-        <strong style="color:#ffeaa7;">What to listen for:</strong>
-        <ul style="font-size:.78rem;margin-top:.2rem;margin-left:1rem;">
-          <li>Does every control have a useful label?</li>
-          <li>Do headings create a logical outline?</li>
-          <li>Are error messages announced when they appear?</li>
-          <li>When a modal opens, is focus moved inside it?</li>
-        </ul>
+        <strong style="color:#ffeaa7;">VoiceOver quick start (Mac — built in, free)</strong>
+        <table class="cmp" style="font-size:.74rem;margin-top:.3rem;">
+          <tr><th>Action</th><th>Keys</th></tr>
+          <tr><td>Turn on/off</td><td><kbd class="kbd">⌘F5</kbd></td></tr>
+          <tr><td>Next item</td><td><kbd class="kbd">⌃⌥→</kbd></td></tr>
+          <tr><td>Previous item</td><td><kbd class="kbd">⌃⌥←</kbd></td></tr>
+          <tr><td>Activate (click)</td><td><kbd class="kbd">⌃⌥Space</kbd></td></tr>
+          <tr><td>List all headings</td><td><kbd class="kbd">⌃⌥U</kbd> then H</td></tr>
+          <tr><td>List all links</td><td><kbd class="kbd">⌃⌥U</kbd> then L</td></tr>
+          <tr><td>Stop reading</td><td><kbd class="kbd">⌃</kbd></td></tr>
+        </table>
       </div>
       <div class="card">
-        <strong style="color:#81ecec;">Further reading:</strong>
-        <ul style="font-size:.78rem;margin-top:.2rem;margin-left:1rem;">
-          <li><a href="https://www.a11yproject.com/" target="_blank" rel="noopener">The A11y Project</a></li>
-          <li><a href="https://webaim.org/techniques/screenreader/" target="_blank" rel="noopener">WebAIM: Screen Reader User Survey</a></li>
-          <li><a href="https://www.w3.org/WAI/ARIA/apg/" target="_blank" rel="noopener">ARIA Authoring Practices Guide</a></li>
-          <li><a href="https://developer.mozilla.org/en-US/docs/Web/Accessibility" target="_blank" rel="noopener">MDN Web Accessibility Guide</a></li>
+        <strong style="color:#81ecec;">What to check while listening</strong>
+        <ul style="font-size:.78rem;margin-top:.2rem;margin-left:1rem;line-height:1.7;">
+          <li>Does every button and link have a <em>useful</em> label? (not just "button" or "link")</li>
+          <li>Can you tell what each form field is asking for?</li>
+          <li>When an error appears, is it announced?</li>
+          <li>When a modal opens, does focus move inside it?</li>
+          <li>Can you navigate by headings and landmarks?</li>
+          <li>Does the reading order make sense without seeing the layout?</li>
         </ul>
       </div>
     </div>
