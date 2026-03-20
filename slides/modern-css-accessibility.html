@@ -626,30 +626,31 @@ body {
 }</code></pre>
       </div>
       <div>
-        <h3>color-mix() Swatches</h3>
-        <p style="font-size:.76rem;margin-bottom:.28rem;">Brand color <code>#4f6df5</code> mixed with white at different percentages:</p>
-        <div class="colormix-row">
-          <div class="cm-swatch" style="background:#4f6df5;">0%</div>
-          <div class="cm-swatch" style="background:color-mix(in srgb,#4f6df5,white 20%);">20%</div>
-          <div class="cm-swatch" style="background:color-mix(in srgb,#4f6df5,white 40%);">40%</div>
-          <div class="cm-swatch" style="background:color-mix(in srgb,#4f6df5,white 60%);">60%</div>
-          <div class="cm-swatch" style="background:color-mix(in srgb,#4f6df5,white 80%);color:rgba(0,0,0,.6);">80%</div>
+        <h3>Live color-mix() Demo</h3>
+        <div style="display:flex;align-items:center;gap:.45rem;flex-wrap:wrap;margin-bottom:.25rem;">
+          <label style="font-size:.75rem;display:flex;align-items:center;gap:.3rem;">Base color:
+            <input type="color" id="cmBase" value="#4f6df5" oninput="updateCmDemo()" style="width:36px;height:26px;border:none;border-radius:4px;cursor:pointer;padding:0;background:none;">
+          </label>
+          <span style="font-size:.74rem;opacity:.65;">Mix with:</span>
+          <button class="demo-btn active" id="cmBtnWhite"       onclick="setCmMix('white')">white</button>
+          <button class="demo-btn"        id="cmBtnBlack"       onclick="setCmMix('black')">black</button>
+          <button class="demo-btn"        id="cmBtnTransparent" onclick="setCmMix('transparent')">transparent</button>
         </div>
-        <p style="font-size:.76rem;margin:.28rem 0;">Mixed with <code>black</code> (shades):</p>
-        <div class="colormix-row">
-          <div class="cm-swatch" style="background:#4f6df5;">0%</div>
-          <div class="cm-swatch" style="background:color-mix(in srgb,#4f6df5,black 20%);">20%</div>
-          <div class="cm-swatch" style="background:color-mix(in srgb,#4f6df5,black 40%);">40%</div>
-          <div class="cm-swatch" style="background:color-mix(in srgb,#4f6df5,black 60%);">60%</div>
-          <div class="cm-swatch" style="background:color-mix(in srgb,#4f6df5,black 80%);">80%</div>
+        <div style="display:flex;align-items:center;gap:.4rem;margin-bottom:.25rem;">
+          <span style="font-size:.7rem;opacity:.55;">0%</span>
+          <input type="range" id="cmSlider" min="0" max="100" value="40" oninput="updateCmDemo()" style="flex:1;accent-color:#4f6df5;">
+          <span id="cmPctLabel" style="font-size:.74rem;min-width:2.2rem;text-align:right;font-weight:700;">40%</span>
         </div>
-        <p style="font-size:.76rem;margin:.28rem 0;">Ghost button tints (<code>transparent</code>):</p>
+        <div id="cmResultSwatch" style="height:58px;border-radius:8px;transition:background .1s;margin-bottom:.22rem;display:flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:600;letter-spacing:.01em;text-shadow:0 1px 3px rgba(0,0,0,.4);"></div>
+        <pre style="font-size:.66rem;margin:0 0 .22rem;"><code id="cmCode">background: color-mix(in srgb, #4f6df5, white 40%);</code></pre>
         <div class="colormix-row">
-          <div class="cm-swatch" style="background:color-mix(in srgb,#4f6df5,transparent 70%);border:1px solid rgba(79,109,245,.5);">70%</div>
-          <div class="cm-swatch" style="background:color-mix(in srgb,#4f6df5,transparent 80%);border:1px solid rgba(79,109,245,.4);">80%</div>
-          <div class="cm-swatch" style="background:color-mix(in srgb,#4f6df5,transparent 90%);border:1px solid rgba(79,109,245,.3);">90%</div>
+          <div class="cm-swatch" id="cmSw0">0%</div>
+          <div class="cm-swatch" id="cmSw25">25%</div>
+          <div class="cm-swatch" id="cmSw50">50%</div>
+          <div class="cm-swatch" id="cmSw75">75%</div>
+          <div class="cm-swatch" id="cmSw100">100%</div>
         </div>
-        <div class="note" style="font-size:.74rem;margin-top:.35rem;"><strong>MDN:</strong> <a href="https://developer.mozilla.org/en-US/docs/Web/CSS/color_value/color-mix" target="_blank" rel="noopener">color-mix()</a> · <a href="https://developer.mozilla.org/en-US/docs/Web/CSS/color_value/light-dark" target="_blank" rel="noopener">light-dark()</a></div>
+        <div class="note" style="font-size:.73rem;margin-top:.25rem;">The browser runs <code>color-mix()</code> natively — no JS color math. Pick any color, choose what to mix with, and drag the slider.</div>
       </div>
     </div>
   </div>
@@ -1742,6 +1743,43 @@ function resetSkipDemo() {
 }
 
 showSlide(0);
+
+/* ── color-mix() interactive demo (slide 11) ── */
+let cmMixWith = 'white';
+function setCmMix(val) {
+  cmMixWith = val;
+  ['White','Black','Transparent'].forEach(x => {
+    const el = document.getElementById('cmBtn' + x);
+    if (el) el.classList.remove('active');
+  });
+  const map = { white: 'White', black: 'Black', transparent: 'Transparent' };
+  const btn = document.getElementById('cmBtn' + map[val]);
+  if (btn) btn.classList.add('active');
+  updateCmDemo();
+}
+function updateCmDemo() {
+  const base = document.getElementById('cmBase')?.value || '#4f6df5';
+  const pct  = document.getElementById('cmSlider')?.value ?? 40;
+  const lbl  = document.getElementById('cmPctLabel');
+  if (lbl) lbl.textContent = pct + '%';
+
+  const rs = document.getElementById('cmResultSwatch');
+  if (rs) {
+    rs.style.background = `color-mix(in srgb, ${base}, ${cmMixWith} ${pct}%)`;
+    rs.textContent = `color-mix(in srgb, ${base}, ${cmMixWith} ${pct}%)`;
+  }
+  const code = document.getElementById('cmCode');
+  if (code) code.textContent = `background: color-mix(in srgb, ${base}, ${cmMixWith} ${pct}%);`;
+
+  [0, 25, 50, 75, 100].forEach(p => {
+    const sw = document.getElementById('cmSw' + p);
+    if (!sw) return;
+    sw.style.background = p === 0 ? base : `color-mix(in srgb, ${base}, ${cmMixWith} ${p}%)`;
+    const light = (cmMixWith === 'white' && p >= 55) || (cmMixWith === 'transparent' && p >= 70);
+    sw.style.color = light ? 'rgba(0,0,0,.65)' : 'white';
+  });
+}
+updateCmDemo();
 </script>
 </body>
 </html>
