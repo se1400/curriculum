@@ -1340,10 +1340,53 @@ modal.addEventListener('close', () =&gt; {
     <span class="part-badge a11y">♿ Web Accessibility</span>
     <h2>The Native <code>&lt;dialog&gt;</code> Element</h2>
     <p style="font-size:.84rem;margin-bottom:.2rem;"><strong>Building a popup correctly is harder than it looks.</strong> Before the native <code>&lt;dialog&gt;</code> element, developers had to manually: trap Tab and Shift+Tab inside the popup, close it on Escape, move focus to the first item inside when it opened, return focus back to the button that opened it when it closed, add <code>role="dialog"</code> and <code>aria-modal="true"</code> so screen readers knew what it was, and prevent the page from scrolling in the background. Miss any one of those steps and keyboard or screen reader users get stuck. The native <code>&lt;dialog&gt;</code> element handles all of this automatically with a single method call: <code>showModal()</code>.</p>
+    <!-- Syntax table -->
+    <table style="width:100%;border-collapse:collapse;font-size:.7rem;margin-bottom:.4rem;">
+      <thead><tr style="background:rgba(0,0,0,.3);">
+        <th style="padding:.22rem .45rem;text-align:left;border:1px solid rgba(255,255,255,.15);">Piece</th>
+        <th style="padding:.22rem .45rem;text-align:left;border:1px solid rgba(255,255,255,.15);">What it does</th>
+        <th style="padding:.22rem .45rem;text-align:left;border:1px solid rgba(255,255,255,.15);">Example</th>
+      </tr></thead>
+      <tbody>
+        <tr style="background:rgba(255,255,255,.04);">
+          <td style="padding:.2rem .45rem;border:1px solid rgba(255,255,255,.1);font-family:monospace;">&lt;dialog&gt;</td>
+          <td style="padding:.2rem .45rem;border:1px solid rgba(255,255,255,.1);">The element itself — hidden until opened</td>
+          <td style="padding:.2rem .45rem;border:1px solid rgba(255,255,255,.1);font-family:monospace;opacity:.85;">&lt;dialog id="confirm"&gt;…&lt;/dialog&gt;</td>
+        </tr>
+        <tr>
+          <td style="padding:.2rem .45rem;border:1px solid rgba(255,255,255,.1);font-family:monospace;">showModal()</td>
+          <td style="padding:.2rem .45rem;border:1px solid rgba(255,255,255,.1);">Opens as a modal — traps focus, adds dark backdrop, Esc closes</td>
+          <td style="padding:.2rem .45rem;border:1px solid rgba(255,255,255,.1);font-family:monospace;opacity:.85;">dialog.showModal()</td>
+        </tr>
+        <tr style="background:rgba(255,255,255,.04);">
+          <td style="padding:.2rem .45rem;border:1px solid rgba(255,255,255,.1);font-family:monospace;">close(value)</td>
+          <td style="padding:.2rem .45rem;border:1px solid rgba(255,255,255,.1);">Closes it; optional string records <em>why</em> it closed</td>
+          <td style="padding:.2rem .45rem;border:1px solid rgba(255,255,255,.1);font-family:monospace;opacity:.85;">dialog.close("deleted")</td>
+        </tr>
+        <tr>
+          <td style="padding:.2rem .45rem;border:1px solid rgba(255,255,255,.1);font-family:monospace;">returnValue</td>
+          <td style="padding:.2rem .45rem;border:1px solid rgba(255,255,255,.1);">The string passed to <code>close()</code> — read it in the close event</td>
+          <td style="padding:.2rem .45rem;border:1px solid rgba(255,255,255,.1);font-family:monospace;opacity:.85;">dialog.returnValue → "deleted"</td>
+        </tr>
+        <tr style="background:rgba(255,255,255,.04);">
+          <td style="padding:.2rem .45rem;border:1px solid rgba(255,255,255,.1);font-family:monospace;">"close" event</td>
+          <td style="padding:.2rem .45rem;border:1px solid rgba(255,255,255,.1);">Fires every time the dialog closes — the place to react</td>
+          <td style="padding:.2rem .45rem;border:1px solid rgba(255,255,255,.1);font-family:monospace;opacity:.85;">dialog.addEventListener('close', fn)</td>
+        </tr>
+        <tr>
+          <td style="padding:.2rem .45rem;border:1px solid rgba(255,255,255,.1);font-family:monospace;">dialog::backdrop</td>
+          <td style="padding:.2rem .45rem;border:1px solid rgba(255,255,255,.1);">CSS pseudo-element — style the dark overlay behind the dialog</td>
+          <td style="padding:.2rem .45rem;border:1px solid rgba(255,255,255,.1);font-family:monospace;opacity:.85;">dialog::backdrop { background: … }</td>
+        </tr>
+      </tbody>
+    </table>
     <div class="two-col">
       <div>
-        <pre style="font-size:.66rem;"><code>&lt;button id="openBtn"&gt;Delete photo&lt;/button&gt;
+        <h3>Putting it all together</h3>
+        <pre style="font-size:.64rem;"><code>&lt;!-- 1. The button that opens the dialog --&gt;
+&lt;button id="openBtn"&gt;Delete photo&lt;/button&gt;
 
+&lt;!-- 2. The dialog — hidden until showModal() --&gt;
 &lt;dialog id="myDialog"&gt;
   &lt;h2&gt;Confirm Delete&lt;/h2&gt;
   &lt;p&gt;This cannot be undone.&lt;/p&gt;
@@ -1354,54 +1397,57 @@ modal.addEventListener('close', () =&gt; {
 &lt;script&gt;
 const dialog = document.getElementById('myDialog');
 
+// 3. Open it — one line does everything
 document.getElementById('openBtn').addEventListener('click', () =&gt; {
   dialog.showModal();
-  // Screen reader announces: "Confirm Delete, dialog"
-  // Focus moves to first element inside automatically
-  // Tab is now trapped inside — can't escape to background
+  // ✓ Screen reader: "Confirm Delete, dialog"
+  // ✓ Focus moves inside automatically
+  // ✓ Tab trapped — can't reach background page
+  // ✓ Esc key closes it
 });
 
+// 4. Close with a reason
 document.getElementById('cancelBtn').addEventListener('click', () =&gt; {
-  dialog.close();
-  // Focus returns to #openBtn automatically
-  // Screen reader: back where the user started
+  dialog.close('cancelled');
+  // ✓ Focus returns to #openBtn automatically
 });
-&lt;/script&gt;</code></pre>
+document.getElementById('deleteBtn').addEventListener('click', () =&gt; {
+  dialog.close('deleted');
+});
+
+// 5. React to the close event
+dialog.addEventListener('close', () =&gt; {
+  console.log(dialog.returnValue); // "cancelled" or "deleted"
+});
+&lt;/script&gt;
+
+&lt;!-- 6. Style the dark overlay in CSS --&gt;
+&lt;style&gt;
+dialog::backdrop {
+  background: rgba(0, 0, 0, 0.6);
+}
+&lt;/style&gt;</code></pre>
       </div>
       <div>
-        <h3>What you get free with showModal()</h3>
-        <pre style="font-size:.66rem;"><code>&lt;!-- Without &lt;dialog&gt;, you'd have to build all this: --&gt;
-
-// 1. Move focus into modal on open
-firstFocusable.focus();
-
-// 2. Trap Tab/Shift+Tab inside
-modal.addEventListener('keydown', trapFocus);
-
-// 3. Close on Escape
-document.addEventListener('keydown', e =&gt;
-  e.key === 'Escape' &amp;&amp; modal.close());
-
-// 4. Return focus to trigger on close
-modal.addEventListener('close', () =&gt; openBtn.focus());
-
-// 5. Add to accessibility tree
-modal.setAttribute('role', 'dialog');
-modal.setAttribute('aria-modal', 'true');
-
-// showModal() does ALL of this in one line ↑</code></pre>
-        <h3 style="margin-top:.4rem;">Try it Live</h3>
+        <h3>Try it Live</h3>
+        <p style="font-size:.76rem;margin-bottom:.22rem;">Work through these steps to see every piece in action:</p>
+        <ol style="font-size:.75rem;line-height:1.8;margin-left:1.1rem;margin-bottom:.3rem;">
+          <li>Click <strong>Open Dialog Demo</strong> — notice focus jumps inside</li>
+          <li>Press <kbd class="kbd">Tab</kbd> — it cycles between Cancel and Delete only (trapped)</li>
+          <li>Press <kbd class="kbd">Esc</kbd> — the dialog closes, watch the result below</li>
+          <li>Open it again, click <strong>Delete</strong> — see the <code>returnValue</code> change</li>
+        </ol>
         <dialog class="demo-dialog" id="demoDialog">
           <h3>Confirm Delete</h3>
           <p>Are you sure? This action cannot be undone.</p>
           <div class="demo-dialog-btns">
-            <button class="demo-btn" onclick="document.getElementById('demoDialog').close()">Cancel</button>
+            <button class="demo-btn" onclick="document.getElementById('demoDialog').close('cancelled')">Cancel</button>
             <button class="demo-btn active" onclick="document.getElementById('demoDialog').close('deleted')">Delete</button>
           </div>
         </dialog>
-        <button class="demo-btn active" style="margin-top:.25rem;" onclick="document.getElementById('demoDialog').showModal()">Open Dialog Demo</button>
-        <div id="dialogResult" style="font-size:.76rem;margin-top:.28rem;opacity:.75;"></div>
-        <div class="note" style="margin-top:.3rem;font-size:.76rem;">Press <kbd class="kbd">Esc</kbd> to close. Try tabbing — focus is trapped inside the dialog while it's open.</div>
+        <button class="demo-btn active" style="margin-top:.1rem;" onclick="document.getElementById('demoDialog').showModal()">Open Dialog Demo</button>
+        <div id="dialogResult" style="font-size:.76rem;margin-top:.28rem;min-height:1.2em;opacity:.85;"></div>
+        <div class="note" style="margin-top:.3rem;font-size:.74rem;"><strong>What you get for free:</strong> focus trapping, Esc to close, focus return, backdrop, and the right accessibility role — all from one <code>showModal()</code> call.</div>
       </div>
     </div>
     <script>
@@ -1431,51 +1477,97 @@ modal.setAttribute('aria-modal', 'true');
     <span class="part-badge a11y">♿ Web Accessibility</span>
     <h2>Live Regions with <code>aria-live</code></h2>
     <p style="font-size:.84rem;margin-bottom:.2rem;"><strong>Imagine ordering food delivery with your eyes closed.</strong> You submit the order, and 30 seconds later the page updates to say "Order confirmed! Arriving in 25 minutes." But nobody told you. You're still sitting there wondering if it worked. That's the experience of a blind user on most websites — content updates happen visually, but screen readers only announce things when focus moves. If focus doesn't move, the update is silent. <code>aria-live</code> fixes this by telling the browser: <em>"watch this region — whenever the text inside it changes, read it aloud immediately, even if focus didn't move."</em></p>
-    <p>Use it for: form success/error messages, chat notifications, cart updates, loading states, search results — anywhere content updates without a page reload.</p>
+    <p style="font-size:.82rem;margin-bottom:.3rem;">Use it for: form success/error messages, chat notifications, cart updates, loading states, search results — anywhere content updates without a page reload.</p>
+
+    <!-- Syntax table -->
+    <table style="width:100%;border-collapse:collapse;font-size:.7rem;margin-bottom:.4rem;">
+      <thead><tr style="background:rgba(0,0,0,.3);">
+        <th style="padding:.22rem .45rem;text-align:left;border:1px solid rgba(255,255,255,.15);">Syntax</th>
+        <th style="padding:.22rem .45rem;text-align:left;border:1px solid rgba(255,255,255,.15);">What it does</th>
+        <th style="padding:.22rem .45rem;text-align:left;border:1px solid rgba(255,255,255,.15);">When to use it</th>
+      </tr></thead>
+      <tbody>
+        <tr style="background:rgba(255,255,255,.04);">
+          <td style="padding:.2rem .45rem;border:1px solid rgba(255,255,255,.1);font-family:monospace;">aria-live="polite"</td>
+          <td style="padding:.2rem .45rem;border:1px solid rgba(255,255,255,.1);">Waits for screen reader to finish, then announces</td>
+          <td style="padding:.2rem .45rem;border:1px solid rgba(255,255,255,.1);">Success messages, cart updates, search results</td>
+        </tr>
+        <tr>
+          <td style="padding:.2rem .45rem;border:1px solid rgba(255,255,255,.1);font-family:monospace;">aria-live="assertive"</td>
+          <td style="padding:.2rem .45rem;border:1px solid rgba(255,255,255,.1);">Interrupts immediately — reads now, no waiting</td>
+          <td style="padding:.2rem .45rem;border:1px solid rgba(255,255,255,.1);">Blocking errors only — use sparingly</td>
+        </tr>
+        <tr style="background:rgba(255,255,255,.04);">
+          <td style="padding:.2rem .45rem;border:1px solid rgba(255,255,255,.1);font-family:monospace;">aria-live="off"</td>
+          <td style="padding:.2rem .45rem;border:1px solid rgba(255,255,255,.1);">Never announce changes (the default)</td>
+          <td style="padding:.2rem .45rem;border:1px solid rgba(255,255,255,.1);">Areas you don't want read aloud</td>
+        </tr>
+        <tr>
+          <td style="padding:.2rem .45rem;border:1px solid rgba(255,255,255,.1);font-family:monospace;">role="status"</td>
+          <td style="padding:.2rem .45rem;border:1px solid rgba(255,255,255,.1);">Shorthand for <code>aria-live="polite"</code></td>
+          <td style="padding:.2rem .45rem;border:1px solid rgba(255,255,255,.1);">Non-urgent status messages</td>
+        </tr>
+        <tr style="background:rgba(255,255,255,.04);">
+          <td style="padding:.2rem .45rem;border:1px solid rgba(255,255,255,.1);font-family:monospace;">role="alert"</td>
+          <td style="padding:.2rem .45rem;border:1px solid rgba(255,255,255,.1);">Shorthand for <code>aria-live="assertive"</code></td>
+          <td style="padding:.2rem .45rem;border:1px solid rgba(255,255,255,.1);">Error messages — reads immediately</td>
+        </tr>
+        <tr>
+          <td style="padding:.2rem .45rem;border:1px solid rgba(255,255,255,.1);font-family:monospace;">aria-atomic="true"</td>
+          <td style="padding:.2rem .45rem;border:1px solid rgba(255,255,255,.1);">Read the entire region, not just the changed part</td>
+          <td style="padding:.2rem .45rem;border:1px solid rgba(255,255,255,.1);">Counters, timers — context matters</td>
+        </tr>
+      </tbody>
+    </table>
+
     <div class="two-col">
       <div>
-        <h3>Without aria-live — silent update</h3>
-        <pre style="font-size:.67rem;"><code>&lt;!-- User submits a form. Success message appears. --&gt;
+        <h3>The pattern — always set it up in HTML first</h3>
+        <pre style="font-size:.66rem;"><code>&lt;!-- ✗ Wrong — added aria-live AFTER update; too late --&gt;
 &lt;p id="msg"&gt;&lt;/p&gt;
+&lt;script&gt;
+  msg.setAttribute('aria-live', 'polite'); // ignored
+  msg.textContent = 'Order confirmed!';    // silent
+&lt;/script&gt;
 
-document.getElementById('msg').textContent
-  = 'Order confirmed!';
-
-&lt;!-- Screen reader says: NOTHING
-     Focus didn't move, so nothing was announced.
-     Blind user has no idea if the form worked. --&gt;</code></pre>
-        <h3 style="margin-top:.3rem;">With aria-live — update announced automatically</h3>
-        <pre style="font-size:.67rem;"><code>&lt;!-- Add aria-live to the region BEFORE updating it --&gt;
+&lt;!-- ✓ Correct — aria-live is in the HTML from the start --&gt;
 &lt;p id="msg" aria-live="polite"&gt;&lt;/p&gt;
+&lt;script&gt;
+  // Now any text change is announced automatically
+  msg.textContent = 'Order confirmed! Arriving in 25 min.';
+  // Screen reader: "Order confirmed! Arriving in 25 min." ✓
+&lt;/script&gt;
 
-document.getElementById('msg').textContent
-  = 'Order confirmed! Arriving in 25 min.';
-
-&lt;!-- Screen reader says: "Order confirmed! Arriving in 25 min." ✓
-     Announced automatically when text changes. --&gt;
-
-&lt;!-- For critical errors, use assertive (interrupts immediately) --&gt;
-&lt;p role="alert"&gt;Card number is invalid.&lt;/p&gt;
-&lt;!-- Screen reader interrupts whatever it's reading: "Card number is invalid" --&gt;</code></pre>
-        <div class="note" style="font-size:.74rem;margin-top:.25rem;"><strong>polite</strong> waits for the screen reader to finish what it's saying before announcing. <strong>assertive</strong> interrupts immediately — only use for errors that block the user.</div>
+&lt;!-- ✓ For errors — role="alert" interrupts immediately --&gt;
+&lt;p id="err" role="alert"&gt;&lt;/p&gt;
+&lt;script&gt;
+  err.textContent = 'Card number is invalid.';
+  // Screen reader interrupts and reads this right now ✓
+&lt;/script&gt;</code></pre>
+        <div class="note" style="font-size:.74rem;margin-top:.25rem;"><strong>Key rule:</strong> the live region must exist in the HTML <em>before</em> you update it. Add <code>aria-live</code> to an empty element at page load — the announcement fires when you add text later.</div>
       </div>
       <div>
-        <h3>Interactive Live Region Demo</h3>
-        <p style="font-size:.76rem;margin-bottom:.28rem;">Click the buttons — a screen reader would announce the text that appears:</p>
+        <h3>Interactive Demo</h3>
+        <p style="font-size:.75rem;margin-bottom:.2rem;">Each box below is a live region. Use a screen reader (macOS: <kbd class="kbd">Cmd+F5</kbd> for VoiceOver) to hear the difference, or just watch the text appear:</p>
+        <ol style="font-size:.74rem;line-height:1.7;margin-left:1rem;margin-bottom:.25rem;">
+          <li>Click <strong>Trigger status update</strong> — polite waits its turn to announce</li>
+          <li>Click <strong>Trigger error alert</strong> — assertive interrupts immediately</li>
+          <li>Click <strong>Clear both</strong> to reset and try again</li>
+        </ol>
         <div class="lreg-box polite" id="lregPolite">
-          <div class="lreg-lbl">aria-live="polite" (status)</div>
+          <div class="lreg-lbl">aria-live="polite" — waits to announce</div>
           <div id="lregPoliteMsg" style="opacity:.7;font-size:.78rem;">Waiting for update…</div>
         </div>
         <div class="lreg-box assertive" id="lregAssertive" style="margin-top:.3rem;">
-          <div class="lreg-lbl">role="alert" / aria-live="assertive" (error)</div>
+          <div class="lreg-lbl">role="alert" — interrupts immediately</div>
           <div id="lregAssertiveMsg" style="opacity:.7;font-size:.78rem;">No errors yet…</div>
         </div>
-        <div style="display:flex;gap:.4rem;flex-wrap:wrap;margin-top:.35rem;">
+        <div style="display:flex;gap:.4rem;flex-wrap:wrap;margin-top:.3rem;">
           <button class="demo-btn" onclick="triggerLive('polite')">Trigger status update</button>
           <button class="demo-btn" onclick="triggerLive('assertive')">Trigger error alert</button>
           <button class="demo-btn" onclick="triggerLive('clear')">Clear both</button>
         </div>
-        <div class="caution" style="margin-top:.28rem;font-size:.74rem;"><strong>Don't overuse assertive.</strong> It interrupts the screen reader mid-sentence. Reserve it for errors that <em>block</em> the user.</div>
+        <div class="caution" style="margin-top:.25rem;font-size:.73rem;"><strong>Don't overuse assertive/alert.</strong> Interrupting the screen reader mid-sentence is disorienting. Reserve it for errors that <em>block the user from continuing</em>.</div>
       </div>
     </div>
   </div>
@@ -1538,7 +1630,7 @@ document.getElementById('msg').textContent
           <button class="demo-btn" onclick="activateSkipLink(null)">Activate skip link</button>
           <button class="demo-btn" onclick="resetSkipDemo()">Reset</button>
         </div>
-        <img src="assets/day-17-img-02-skip-nav.png" alt="Skip navigation link appearing at top of page when focused" class="slide-img" style="max-height:80px;object-fit:cover;" onerror="this.style.display='none'">
+        <img src="assets/day-17-img-02-skip-nav.png" alt="Skip navigation link appearing at top of page when focused" class="slide-img" style="width:100%;margin-top:.3rem;" onerror="this.style.display='none'">
       </div>
     </div>
   </div>
