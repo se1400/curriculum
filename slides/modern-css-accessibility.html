@@ -75,16 +75,6 @@
     .code-tab-btn{padding:.2rem .52rem;font-size:.73rem;border:1px solid rgba(255,255,255,.26);border-radius:4px;cursor:pointer;background:rgba(0,0,0,.2);color:rgba(255,255,255,.65);transition:all .16s;}
     .code-tab-btn.active{background:rgba(79,109,245,.48);border-color:#4f6df5;color:white;}
     .code-panel{display:none;}.code-panel.active{display:block;}
-    /* @layer demo */
-    .layer-stack{display:flex;flex-direction:column;gap:.3rem;margin:.3rem 0;}
-    .layer-item{border-radius:6px;padding:.38rem .65rem;font-size:.78rem;border:2px solid rgba(255,255,255,.1);display:flex;align-items:center;gap:.5rem;transition:all .2s;}
-    .layer-item.base{background:rgba(100,116,139,.25);border-color:rgba(100,116,139,.45);}
-    .layer-item.comp{background:rgba(79,109,245,.2);border-color:rgba(79,109,245,.42);}
-    .layer-item.util{background:rgba(34,197,94,.2);border-color:rgba(34,197,94,.42);}
-    .layer-item.winner{box-shadow:0 0 0 3px #ffeaa7;}
-    .layer-item.loser{opacity:.3;}
-    .layer-label{font-weight:700;min-width:90px;font-size:.76rem;}
-    .layer-target-el{background:rgba(0,0,0,.28);border-radius:8px;padding:.5rem .8rem;margin:.3rem 0;text-align:center;font-size:.92rem;font-weight:700;transition:all .25s;}
     /* Dark mode demo */
     .dark-demo{border-radius:10px;overflow:hidden;border:1px solid rgba(255,255,255,.18);max-width:360px;}
     .dark-demo-bar{padding:.38rem .65rem;font-size:.76rem;display:flex;align-items:center;justify-content:space-between;}
@@ -489,59 +479,40 @@ p        { margin-block: 0; }     ✓
   <p class="slide-label">Modern CSS — @layer</p>
   <div class="slide-content">
     <span class="part-badge css">⬡ CSS Features</span>
-    <h2>CSS Cascade Layers with <code>@layer</code></h2>
-    <p>Specificity wars happen when you write increasingly specific selectors just to beat library styles. <code>@layer</code> solves this by letting you declare which styles win — regardless of specificity.</p>
-    <div class="caution" style="font-size:.82rem;margin-bottom:.3rem;"><strong>Without @layer:</strong> You import Bootstrap or Tailwind, then fight its styles with <code>!important</code> or increasingly specific selectors like <code>.my-app .container .card.special button</code>. That's the specificity war. <strong>With @layer:</strong> you put third-party CSS in a <code>layer(vendor)</code> layer and <em>all</em> of your styles beat it — regardless of specificity — because you control the layer order.</div>
-    <div class="two-col">
+    <h2>CSS Cascade Layers — <code>@layer</code></h2>
+    <p style="font-size:.82rem;margin-bottom:.32rem;"><strong>The problem:</strong> You import Bootstrap. Both Bootstrap and you have a <code>.btn</code> rule. Bootstrap loads first — so when specificity ties, <em>your rule loses</em>. The only escape is writing longer, more specific selectors forever. <code>@layer</code> ends this by letting you declare a priority <em>stack</em> — layer position beats specificity.</p>
+    <div class="two-col" style="align-items:start;gap:.6rem;">
       <div>
-        <h3>Declaring Layers</h3>
-        <pre><code>/* Layer order: later = higher priority */
-@layer base, components, utilities;
+        <p style="font-size:.7rem;text-transform:uppercase;letter-spacing:.07em;opacity:.5;margin-bottom:.12rem;">Without @layer — the specificity war</p>
+        <pre style="font-size:.67rem;"><code>@import url("bootstrap.css");
+/* Bootstrap's .btn has specificity (0,1,0) */
 
-@layer base {
-  * { box-sizing: border-box; }
-  body { font-family: system-ui; }
-}
+/* Your rule — same specificity, Bootstrap loaded
+   first, so Bootstrap wins. Your green never shows. */
+.btn { background: green; }      /* ✗ loses */
 
-@layer components {
-  .card { background: white;
-          border-radius: 8px; }
-}
-
-@layer utilities {
-  /* Always wins */
-  .hidden { display: none; }
-}
-
-/* Import a library INTO a layer */
-@import url("bootstrap.css") layer(vendor);</code></pre>
+/* Forced to escalate specificity to win: */
+body .wrap .btn { background: green; } /* ✓ barely */
+/* …next week Bootstrap updates. You lose again. */</code></pre>
+        <div class="caution" style="font-size:.74rem;margin-top:.25rem;">This cycle — escalating selectors to beat a library — is called a <strong>specificity war</strong>. It makes stylesheets brittle and hard to maintain.</div>
       </div>
       <div>
-        <h3>Interactive Layer Demo</h3>
-        <p style="font-size:.76rem;margin-bottom:.28rem;">A <code>.btn</code> gets styles from three layers. Which one wins?</p>
-        <div class="layer-stack" id="layerStack">
-          <div class="layer-item base" id="layerBase">
-            <span class="layer-label" style="color:#94a3b8;">@layer base</span>
-            <span><code>.btn { color: #94a3b8; border-radius: 0; }</code></span>
-          </div>
-          <div class="layer-item comp" id="layerComp">
-            <span class="layer-label" style="color:#93c5fd;">@layer components</span>
-            <span><code>.btn { color: #93c5fd; border-radius: 6px; }</code></span>
-          </div>
-          <div class="layer-item util" id="layerUtil">
-            <span class="layer-label" style="color:#86efac;">@layer utilities</span>
-            <span><code>.btn { color: #86efac; border-radius: 999px; }</code></span>
-          </div>
-        </div>
-        <div class="layer-target-el" id="layerTarget" style="color:#86efac;border-radius:999px;">
-          .btn — styled by: <span id="layerWinner">utilities</span>
-        </div>
-        <div style="display:flex;gap:.4rem;flex-wrap:wrap;margin-top:.28rem;">
-          <button class="demo-btn active" onclick="setLayerOrder('all')" id="lbtnAll">All 3 layers</button>
-          <button class="demo-btn" onclick="setLayerOrder('base')" id="lbtnBase">Base only wins</button>
-          <button class="demo-btn" onclick="setLayerOrder('comp')" id="lbtnComp">Components wins</button>
-        </div>
-        <div class="note" style="margin-top:.28rem;font-size:.74rem;"><strong>Key rule:</strong> Unlayered styles (no <code>@layer</code>) <em>always</em> beat layered ones.</div>
+        <p style="font-size:.7rem;text-transform:uppercase;letter-spacing:.07em;opacity:.5;margin-bottom:.12rem;">With @layer — you control the priority stack</p>
+        <pre style="font-size:.67rem;"><code>/* Step 1: declare layer order (low → high priority) */
+@layer vendor, base, components, utilities;
+
+/* Step 2: put the library in the lowest layer */
+@import url("bootstrap.css") layer(vendor);
+
+/* Step 3: your styles go in a higher layer */
+@layer components {
+  /* Wins — even with lower specificity than Bootstrap */
+  .btn { background: green; }   /* ✓ always wins */
+}
+
+/* Unlayered styles beat everything layered */
+.override { color: red; }       /* ✓ beats all layers */</code></pre>
+        <div class="tip" style="font-size:.74rem;margin-top:.25rem;"><strong>One rule:</strong> later in the <code>@layer</code> declaration = higher priority. Layer position overrides specificity entirely. Styles written <em>outside</em> any layer always beat everything inside a layer.</div>
       </div>
     </div>
   </div>
@@ -1676,30 +1647,6 @@ function toggleDarkDemo() {
   const b = document.getElementById('darkToggleBtn');
   if (d.dataset.mode === 'light') { d.dataset.mode = 'dark'; b.textContent = '🌙 Dark'; }
   else { d.dataset.mode = 'light'; b.textContent = '☀ Light'; }
-}
-
-/* ── @layer demo (slide 8) ── */
-function setLayerOrder(mode) {
-  const base   = document.getElementById('layerBase');
-  const comp   = document.getElementById('layerComp');
-  const util   = document.getElementById('layerUtil');
-  const target = document.getElementById('layerTarget');
-  const winner = document.getElementById('layerWinner');
-  ['lbtnAll','lbtnBase','lbtnComp'].forEach(id => document.getElementById(id).classList.remove('active'));
-  [base, comp, util].forEach(el => el.classList.remove('winner','loser'));
-  if (mode === 'all') {
-    util.classList.add('winner'); base.classList.add('loser'); comp.classList.add('loser');
-    target.style.color = '#86efac'; target.style.borderRadius = '999px'; winner.textContent = 'utilities';
-    document.getElementById('lbtnAll').classList.add('active');
-  } else if (mode === 'base') {
-    base.classList.add('winner'); comp.classList.add('loser'); util.classList.add('loser');
-    target.style.color = '#94a3b8'; target.style.borderRadius = '0px'; winner.textContent = 'base';
-    document.getElementById('lbtnBase').classList.add('active');
-  } else {
-    comp.classList.add('winner'); base.classList.add('loser'); util.classList.add('loser');
-    target.style.color = '#93c5fd'; target.style.borderRadius = '6px'; winner.textContent = 'components';
-    document.getElementById('lbtnComp').classList.add('active');
-  }
 }
 
 /* ── ARIA accordion demo (slide 19) ── */
