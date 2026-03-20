@@ -281,64 +281,67 @@
   </div>
 </div>
 
-<!-- ═══════════════════════════════════════════════════ SLIDE 4: CSS Nesting — Nested vs Compiled -->
+<!-- ═══════════════════════════════════════════════════ SLIDE 4: CSS Nesting — Syntax Reference -->
 <div class="slide">
-  <p class="slide-label">CSS Nesting — How It Works</p>
+  <p class="slide-label">CSS Nesting — Syntax Reference</p>
   <div class="slide-content">
-    <h2>What the Browser Does With Nesting</h2>
-    <p style="font-size:.84rem;margin-bottom:.35rem;"><strong>Why this matters:</strong> Nesting is pure syntax sugar — the browser silently expands it into the flat CSS it has always understood. You write a component's styles in one place; the browser figures out the full selector paths. No preprocessor, no build step. Understanding this translation is the key to using nesting confidently.</p>
-    <div class="two-col" style="gap:.7rem;align-items:start;">
+    <h2>CSS Nesting — All the Syntax You Need</h2>
+    <p style="font-size:.82rem;margin-bottom:.3rem;">The core of nesting is the <strong><code>&</code> selector</strong> — it always means "the current parent selector." Everything else is just combining <code>&</code> with the selectors you already know.</p>
+    <div class="two-col" style="gap:.65rem;align-items:start;">
       <div>
-        <p style="font-size:.68rem;text-transform:uppercase;letter-spacing:.08em;opacity:.55;margin-bottom:.18rem;">You write (nested)</p>
-        <pre><code>.card {
-  background: white;
-  border-radius: 8px;
-
-  /* & = the parent selector */
-  &:hover {
-    box-shadow: 0 4px 12px rgba(0,0,0,.2);
-    transform: translateY(-2px);
-  }
-
-  /* child selectors nest inside */
-  .card-title {
-    font-size: 1.25rem;
-
-    &:first-child { margin-top: 0; }
-  }
-
-  /* even media queries can nest */
-  @media (min-width: 768px) {
-    padding: 2rem;
-  }
-}</code></pre>
+        <h3>Every form of <code>&</code></h3>
+        <table class="cmp" style="font-size:.72rem;">
+          <tr><th>You write</th><th>Compiles to</th><th>Use for</th></tr>
+          <tr><td><code>&:hover</code></td><td><code>.card:hover</code></td><td>Pseudo-classes</td></tr>
+          <tr><td><code>&:first-child</code></td><td><code>.card:first-child</code></td><td>Structural pseudo-classes</td></tr>
+          <tr><td><code>&::before</code></td><td><code>.card::before</code></td><td>Pseudo-elements</td></tr>
+          <tr><td><code>&.active</code></td><td><code>.card.active</code></td><td>Same element + extra class</td></tr>
+          <tr><td><code>&[disabled]</code></td><td><code>.card[disabled]</code></td><td>Attribute state</td></tr>
+          <tr><td><code>& .title</code></td><td><code>.card .title</code></td><td>Descendant child</td></tr>
+          <tr><td><code>.title</code></td><td><code>.card .title</code></td><td>Same — <code>&</code> implied</td></tr>
+          <tr><td><code>& + p</code></td><td><code>.card + p</code></td><td>Adjacent sibling</td></tr>
+          <tr><td><code>& ~ p</code></td><td><code>.card ~ p</code></td><td>General sibling</td></tr>
+          <tr><td><code>.dark &</code></td><td><code>.dark .card</code></td><td>Theme / context parent</td></tr>
+          <tr><td><code>@media (…) {…}</code></td><td>Scoped to <code>.card</code></td><td>Responsive overrides</td></tr>
+          <tr><td><code>@supports (…) {…}</code></td><td>Scoped to <code>.card</code></td><td>Feature queries</td></tr>
+        </table>
+        <div class="tip" style="font-size:.73rem;margin-top:.25rem;"><strong>No <code>&</code>?</strong> If you nest a plain class like <code>.title</code> with no <code>&</code>, the browser automatically reads it as <code>& .title</code> (descendant). But if you need a pseudo-class or modifier on the <em>same</em> element, <code>&</code> is required: <code>&:hover</code> not <code>:hover</code>.</div>
       </div>
       <div>
-        <p style="font-size:.68rem;text-transform:uppercase;letter-spacing:.08em;opacity:.55;margin-bottom:.18rem;">Browser expands to (flat CSS)</p>
-        <pre><code>.card {
-  background: white;
-  border-radius: 8px;
-}
+        <h3>All forms in one example</h3>
+        <pre style="font-size:.64rem;"><code>.btn {
+  background: blue;        /* own styles */
 
-.card:hover {
-  box-shadow: 0 4px 12px rgba(0,0,0,.2);
-  transform: translateY(-2px);
-}
+  &:hover { opacity: .85; }    /* pseudo-class */
+  &:focus-visible {             /* keyboard focus */
+    outline: 3px solid blue;
+  }
+  &::after {                    /* pseudo-element */
+    content: " →";
+  }
+  &.active {                    /* same element + class */
+    background: darkblue;
+  }
+  &[disabled] {                 /* attribute state */
+    opacity: .4;
+    cursor: not-allowed;
+  }
 
-.card .card-title {
-  font-size: 1.25rem;
-}
+  .btn-label {                  /* descendant (& implied) */
+    font-weight: 700;
+  }
+  & + .btn { margin-left: .5rem; }  /* adjacent sibling */
 
-.card .card-title:first-child {
-  margin-top: 0;
-}
+  .dark-theme & {               /* context parent */
+    background: #7c9bff;
+  }
 
-@media (min-width: 768px) {
-  .card { padding: 2rem; }
+  @media (max-width: 480px) {   /* nested media query */
+    width: 100%;
+  }
 }</code></pre>
       </div>
     </div>
-    <div class="note" style="margin-top:.4rem;font-size:.8rem;"><strong>Same output — one place to look.</strong> The left side is what you maintain; the right side is what the browser runs. When you add a new <code>.card</code> variant, all its styles live in one block instead of scattered across the file.</div>
   </div>
 </div>
 
@@ -592,38 +595,33 @@ body { background: var(--color-bg);
     <p style="font-size:.84rem;margin-bottom:.3rem;"><strong>Why these exist:</strong> <code>light-dark()</code> reduces dark mode from "define tokens in two places" to a single function call per property. <code>color-mix()</code> eliminates hard-coding hover states — instead of calculating a lighter version of your brand color manually, you describe the intent: "80% brand + 20% white."</p>
     <div class="two-col">
       <div>
-        <h3>light-dark() — One Line Theming</h3>
-        <pre><code>:root {
-  /* Required opt-in */
-  color-scheme: light dark;
-}
+        <h3>light-dark() syntax</h3>
+        <pre style="font-size:.67rem;"><code>/* Opt in — required on :root */
+:root { color-scheme: light dark; }
 
+/* light-dark(value-for-light, value-for-dark) */
 body {
-  /* light-dark(light-value, dark-value) */
   background: light-dark(#ffffff, #0f172a);
   color:       light-dark(#0f172a, #f1f5f9);
-}
-
-.card {
-  background: light-dark(#f8f9fa, #1e293b);
 }</code></pre>
-        <div class="note" style="font-size:.74rem;">Supported in all modern browsers since 2024. Requires <code>color-scheme: light dark</code> on the root element.</div>
-        <h3>color-mix()</h3>
-        <pre><code>:root { --brand: #4f6df5; }
+        <div class="note" style="font-size:.72rem;margin-bottom:.3rem;">Two arguments — light value first, dark value second. The browser picks which one based on the OS setting. Requires <code>color-scheme: light dark</code> on <code>:root</code>.</div>
 
-.btn-hover {
-  /* 20% lighter: mix with white */
-  background: color-mix(
-    in srgb, var(--brand), white 20%
-  );
-}
-
-.btn-ghost {
-  /* Very light tint */
-  background: color-mix(
-    in srgb, var(--brand), transparent 85%
-  );
-}</code></pre>
+        <h3>color-mix() — full syntax</h3>
+        <pre style="font-size:.65rem;"><code>color-mix(in &lt;color-space&gt;, &lt;color1&gt; [pct%], &lt;color2&gt; [pct%])</code></pre>
+        <table class="cmp" style="font-size:.7rem;margin:.2rem 0;">
+          <tr><th>Part</th><th>What it means</th></tr>
+          <tr><td><code>in srgb</code></td><td>Color space — how colors are blended. <code>srgb</code> is standard web. <code>oklch</code> is perceptually uniform (better for gradients).</td></tr>
+          <tr><td><code>color1</code></td><td>Any CSS color — hex, rgb(), hsl(), named color, or custom property</td></tr>
+          <tr><td><code>pct%</code> (optional)</td><td>How much of color1 to use. Omit = browser calculates from color2's %</td></tr>
+          <tr><td><code>color2</code></td><td>The color to mix in</td></tr>
+          <tr><td><code>pct%</code> (optional)</td><td>How much of color2. If both omitted → 50/50 split</td></tr>
+        </table>
+        <pre style="font-size:.65rem;"><code>/* Common recipes */
+color-mix(in srgb, #4f6df5, white 20%)       /* lighten */
+color-mix(in srgb, #4f6df5, black 30%)       /* darken */
+color-mix(in srgb, #4f6df5, transparent 85%) /* tint/ghost */
+color-mix(in srgb, blue, red)                /* 50/50 blend */
+color-mix(in oklch, blue, red)               /* perceptual blend */</code></pre>
       </div>
       <div>
         <h3>Live color-mix() Demo</h3>
