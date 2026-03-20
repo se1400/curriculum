@@ -779,56 +779,51 @@ color-mix(in oklch, blue, red)               /* perceptual blend */</code></pre>
     <p>Your browser secretly builds <strong>two versions</strong> of every page. The first is the <strong>DOM</strong> — that's the one you see. The second is the <strong>Accessibility Tree</strong> — a parallel, stripped-down version that screen readers and assistive technology read from. It contains no colors, no fonts, no layout. Just: <em>what is this element, what is it called, and what state is it in?</em> Screen readers read the tree, not the screen.</p>
     <div class="two-col">
       <div>
-        <h3>Same Page — Two Representations</h3>
-        <div class="tree-cmp">
-          <div class="tree-box bad">
-            <strong>❌ What you wrote</strong>
-            <div class="tn">&lt;div class="nav"&gt;</div>
-            <div class="tn" style="padding-left:1rem;">&lt;div onclick&gt; Menu &lt;/div&gt;</div>
-            <div class="tn" style="padding-left:1rem;">&lt;div onclick&gt; Shop &lt;/div&gt;</div>
-            <div style="font-size:.7rem;color:rgba(255,255,255,.38);padding:.1rem .5rem;font-style:italic;">Screen reader sees: "Menu Shop" — no roles, no hints</div>
-          </div>
-          <div class="tree-box good">
-            <strong>✓ What the tree sees</strong>
-            <div class="tn role">navigation landmark</div>
-            <div class="tn role" style="padding-left:1rem;">link · "Menu"</div>
-            <div class="tn role" style="padding-left:1rem;">link · "Shop"</div>
-            <div style="font-size:.7rem;color:rgba(134,239,172,.7);padding:.1rem .5rem;font-style:italic;">Announces: "navigation, Menu link, Shop link"</div>
-          </div>
-        </div>
-        <div class="note" style="margin-top:.3rem;font-size:.76rem;">
-          <strong>Every element gets mapped:</strong> the tree records each element's <em>role</em> (what it is), <em>name</em> (what it's called), <em>state</em> (checked? expanded? disabled?), and <em>properties</em>. Semantic HTML fills these in automatically. Non-semantic HTML leaves them blank.
-        </div>
-        <pre style="font-size:.65rem;margin-top:.3rem;"><code>&lt;!-- Correct: semantic HTML → rich tree --&gt;
-&lt;nav aria-label="Main navigation"&gt;
-  &lt;a href="/"&gt;Menu&lt;/a&gt;
+        <h3>Bad HTML — what the screen reader hears</h3>
+        <pre style="font-size:.67rem;"><code>&lt;div class="nav"&gt;
+  &lt;div onclick="go('/')"&gt;Home&lt;/div&gt;
+  &lt;div onclick="go('/shop')"&gt;Shop&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;!-- Screen reader announces:
+  "Home"   ← just text, no role
+  "Shop"   ← just text, no role
+
+  Can't Tab to either. No hint they're
+  clickable. A keyboard user is stuck. --&gt;</code></pre>
+        <h3 style="margin-top:.4rem;">Good HTML — same page, night-and-day difference</h3>
+        <pre style="font-size:.67rem;"><code>&lt;nav aria-label="Main"&gt;
+  &lt;a href="/"&gt;Home&lt;/a&gt;
   &lt;a href="/shop"&gt;Shop&lt;/a&gt;
 &lt;/nav&gt;
 
-&lt;!-- Wrong: divs → empty tree entries --&gt;
-&lt;div class="nav"&gt;
-  &lt;div onclick="..."&gt;Menu&lt;/div&gt;
-&lt;/div&gt;</code></pre>
+&lt;!-- Screen reader announces:
+  "Main, navigation"  ← landmark found!
+  "Home, link"        ← role + name
+  "Shop, link"        ← role + name
+
+  Tab reaches both. User knows what
+  each item is and what it does. --&gt;</code></pre>
+        <div class="tip" style="font-size:.75rem;margin-top:.25rem;"><strong>The rule:</strong> Use real HTML elements — <code>&lt;nav&gt;</code>, <code>&lt;button&gt;</code>, <code>&lt;a&gt;</code>, <code>&lt;h1&gt;</code>–<code>&lt;h6&gt;</code>, <code>&lt;label&gt;</code>. Each one automatically populates the accessibility tree with the right role and behavior. A <code>&lt;div&gt;</code> gives the tree nothing.</div>
       </div>
       <div>
-        <h3>How to Inspect the Tree in Chrome</h3>
-        <ol style="font-size:.8rem;line-height:1.7;margin-left:1.2rem;">
-          <li>Open DevTools (<kbd class="kbd">F12</kbd>)</li>
-          <li>Select any element in the <strong>Elements</strong> panel</li>
-          <li>Look for the <strong>Accessibility</strong> tab in the right panel</li>
-          <li>You'll see: Role · Name · Description · States</li>
-        </ol>
-        <img src="assets/day-17-img-01-accessibility-tree.png" alt="Chrome DevTools Accessibility panel showing role, name, and state for a button element" class="slide-img" style="margin:.3rem 0;" onerror="this.style.display='none'">
-        <p class="img-caption">Chrome DevTools → Elements → Accessibility tab</p>
-        <h3 style="margin-top:.3rem;">The Golden Rule</h3>
-        <table class="cmp">
-          <tr><th>Use this…</th><th>Not this…</th><th>Why</th></tr>
-          <tr><td><code>&lt;button&gt;</code></td><td><code>&lt;div onclick&gt;</code></td><td>Keyboard + role free</td></tr>
-          <tr><td><code>&lt;nav&gt;</code></td><td><code>&lt;div class="nav"&gt;</code></td><td>Landmark role free</td></tr>
-          <tr><td><code>&lt;label&gt;</code></td><td>placeholder text</td><td>Name never disappears</td></tr>
-          <tr><td><code>&lt;h1&gt;–&lt;h6&gt;</code></td><td><code>&lt;div class="title"&gt;</code></td><td>Document outline free</td></tr>
+        <h3>Every element gets 4 properties in the tree</h3>
+        <table class="cmp" style="font-size:.75rem;">
+          <tr><th>Property</th><th>What it means</th><th>Example</th></tr>
+          <tr><td><strong>Role</strong></td><td>What kind of thing is it?</td><td>"button", "link", "heading"</td></tr>
+          <tr><td><strong>Name</strong></td><td>What is it called?</td><td>"Submit", "Close dialog"</td></tr>
+          <tr><td><strong>State</strong></td><td>What condition is it in?</td><td>"checked", "expanded", "disabled"</td></tr>
+          <tr><td><strong>Value</strong></td><td>What does it contain?</td><td>"50%" for a slider</td></tr>
         </table>
-        <div class="tip" style="margin-top:.3rem;font-size:.76rem;"><strong>Semantic HTML is the highest-leverage accessibility technique.</strong> It gives you roles, names, keyboard behavior, and focus management — all for free, before you write a single line of ARIA.</div>
+        <div class="note" style="margin-top:.3rem;font-size:.76rem;">Semantic HTML fills all four in automatically. A <code>&lt;div&gt;</code> fills in none of them — the screen reader gets a blank entry with no useful information.</div>
+        <h3 style="margin-top:.4rem;">See it in Chrome DevTools</h3>
+        <ol style="font-size:.78rem;line-height:1.7;margin-left:1.1rem;">
+          <li>Press <kbd class="kbd">F12</kbd> to open DevTools</li>
+          <li>Click any element in the <strong>Elements</strong> panel</li>
+          <li>Find the <strong>Accessibility</strong> tab on the right</li>
+          <li>You'll see: Role · Name · State for that element</li>
+        </ol>
+        <img src="assets/day-17-img-01-accessibility-tree.png" alt="Chrome DevTools Accessibility panel showing role, name, and state for a button element" class="slide-img" style="margin:.25rem 0;max-height:100px;object-fit:cover;" onerror="this.style.display='none'">
       </div>
     </div>
   </div>
@@ -842,27 +837,50 @@ color-mix(in oklch, blue, red)               /* perceptual blend */</code></pre>
     <h2>ARIA — Accessible Rich Internet Applications</h2>
     <p>Sometimes HTML doesn't have the right element for what you're building. There's no HTML element for a custom dropdown menu, a tab panel, or a live chat feed. ARIA is a set of attributes you add to your HTML to tell the browser: <em>"this div is actually a menu button"</em> or <em>"this section just updated — announce it."</em> Think of it like <strong>subtitles for your UI</strong> — the visual interface keeps playing, and ARIA writes the subtitle track that screen readers read aloud.</p>
     <div class="caution" style="font-size:.86rem;"><strong>The First Rule of ARIA — use HTML first:</strong> <em>Never use ARIA when a real HTML element can do the same job.</em><br>A real <code>&lt;button&gt;</code> is always better than <code>&lt;div role="button"&gt;</code>. Native HTML elements come with keyboard behavior, focus, and semantics built in. An ARIA role on a div only <em>labels</em> it in the accessibility tree — it does not make it focusable, it doesn't respond to the keyboard, and it doesn't look any different. You'd have to add all of that yourself. Save ARIA for when HTML genuinely doesn't have what you need.</div>
-    <div class="two-col" style="margin-top:.35rem;">
+    <div class="two-col" style="margin-top:.3rem;">
       <div>
-        <h3>What ARIA Adds</h3>
-        <table class="cmp">
-          <tr><th>ARIA adds…</th><th>ARIA does NOT add…</th></tr>
-          <tr><td>Roles to the tree</td><td>Keyboard behavior</td></tr>
-          <tr><td>Names &amp; descriptions</td><td>Visual changes</td></tr>
-          <tr><td>States (expanded, invalid)</td><td>Focus management</td></tr>
-          <tr><td>Live region announcements</td><td>Interaction events</td></tr>
-        </table>
+        <h3>❌ Wrong — fake button with div</h3>
+        <pre style="font-size:.67rem;"><code>&lt;!-- BROKEN for keyboard + screen reader --&gt;
+&lt;div class="btn" onclick="save()"&gt;
+  Save
+&lt;/div&gt;
+
+&lt;!-- Problems:
+  ✗ Tab key skips it entirely
+  ✗ Enter / Space don't trigger it
+  ✗ Screen reader says: "Save"
+      (no role — user doesn't know
+       it's a button they can click)
+  ✗ You'd have to add tabindex, keydown
+    listeners, and role="button" manually --&gt;</code></pre>
+        <h3 style="margin-top:.4rem;">✓ Right — real button, zero ARIA needed</h3>
+        <pre style="font-size:.67rem;"><code>&lt;!-- Works for everyone, out of the box --&gt;
+&lt;button onclick="save()"&gt;
+  Save
+&lt;/button&gt;
+
+&lt;!-- What you get free:
+  ✓ Tab key focuses it
+  ✓ Enter and Space activate it
+  ✓ Screen reader says: "Save, button"
+  ✓ Correct role in accessibility tree
+  ✓ Disabled state with disabled attr --&gt;</code></pre>
       </div>
       <div>
-        <h3>When ARIA IS Needed</h3>
-        <ul>
-          <li>Custom <strong>dropdown/combobox</strong> (not a native <code>&lt;select&gt;</code>)</li>
-          <li>Custom <strong>tab interface</strong></li>
-          <li>Custom <strong>date picker</strong></li>
-          <li><strong>Live notifications</strong> (chat messages, stock tickers)</li>
-          <li>Dynamic content that needs to be <strong>announced</strong></li>
-        </ul>
-        <div class="note" style="margin-top:.28rem;font-size:.76rem;"><strong>ARIA Authoring Practices Guide:</strong> <a href="https://www.w3.org/WAI/ARIA/apg/" target="_blank" rel="noopener">www.w3.org/WAI/ARIA/apg/</a> — keyboard patterns for every widget type.</div>
+        <h3>When you actually need ARIA</h3>
+        <p style="font-size:.78rem;margin-bottom:.25rem;">HTML doesn't have every widget. When you build something custom, ARIA tells the browser what it is:</p>
+        <pre style="font-size:.67rem;"><code>&lt;!-- Custom tab interface — no HTML tab element --&gt;
+&lt;div role="tablist"&gt;
+  &lt;button role="tab" aria-selected="true"
+          aria-controls="panel1"&gt;Profile&lt;/button&gt;
+  &lt;button role="tab" aria-selected="false"
+          aria-controls="panel2"&gt;Settings&lt;/button&gt;
+&lt;/div&gt;
+&lt;div role="tabpanel" id="panel1"&gt;...&lt;/div&gt;
+
+&lt;!-- Screen reader: "Profile, tab, 1 of 2, selected"
+                   "Settings, tab, 2 of 2" --&gt;</code></pre>
+        <div class="tip" style="font-size:.75rem;margin-top:.25rem;"><strong>The rule:</strong> Use real HTML elements whenever possible. Use ARIA only when no HTML element exists for what you're building — like a tab panel, combobox, or tree widget.</div>
       </div>
     </div>
   </div>
@@ -877,40 +895,52 @@ color-mix(in oklch, blue, red)               /* perceptual blend */</code></pre>
     <p style="font-size:.84rem;margin-bottom:.3rem;"><strong>Why labels matter:</strong> Imagine calling a phone number and someone just picks up and says nothing. You don't know who you reached or what to do next. That's what a screen reader user hears when they land on an unlabeled icon button — the screen reader just says <em>"button"</em>. Which button? What does it do? No idea. Add <code>aria-label="Close dialog"</code> and now the user hears <em>"Close dialog, button"</em> — suddenly it's clear. Labels are what turn a mystery into a usable interface.</p>
     <div class="two-col">
       <div>
-        <h3>Landmark Roles</h3>
-        <table class="cmp">
-          <tr><th>ARIA role</th><th>Semantic equivalent</th></tr>
-          <tr><td>role="banner"</td><td><code>&lt;header&gt;</code> (direct child of body)</td></tr>
-          <tr><td>role="navigation"</td><td><code>&lt;nav&gt;</code></td></tr>
-          <tr><td>role="main"</td><td><code>&lt;main&gt;</code></td></tr>
-          <tr><td>role="contentinfo"</td><td><code>&lt;footer&gt;</code></td></tr>
-          <tr><td>role="complementary"</td><td><code>&lt;aside&gt;</code></td></tr>
-          <tr><td>role="dialog"</td><td>Modal window</td></tr>
-          <tr><td>role="alert"</td><td>Error / critical message (live)</td></tr>
-          <tr><td>role="status"</td><td>Success / polite live message</td></tr>
-        </table>
+        <h3>Landmark roles — how screen readers navigate pages</h3>
+        <p style="font-size:.76rem;margin-bottom:.22rem;">Screen reader users press a single key to jump between page landmarks — like chapters in a book. These semantic elements create those landmarks automatically:</p>
+        <pre style="font-size:.67rem;"><code>&lt;header&gt;  &lt;!-- "banner" landmark --&gt;
+  &lt;nav aria-label="Main"&gt;  &lt;!-- "navigation" --&gt;
+    &lt;a href="/"&gt;Home&lt;/a&gt;
+  &lt;/nav&gt;
+&lt;/header&gt;
+
+&lt;main&gt;           &lt;!-- "main" landmark --&gt;
+  &lt;aside&gt;        &lt;!-- "complementary" --&gt;
+    &lt;h2&gt;Related&lt;/h2&gt;
+  &lt;/aside&gt;
+&lt;/main&gt;
+
+&lt;footer&gt;         &lt;!-- "contentinfo" landmark --&gt;&lt;/footer&gt;
+
+&lt;!-- With these, a screen reader user can press
+     a key to jump straight to "main" — skipping
+     the header and nav entirely. --&gt;</code></pre>
       </div>
       <div>
-        <h3>Accessible Labels</h3>
-        <pre><code>&lt;!-- aria-label: no visible text --&gt;
+        <h3>Labeling elements — what gets announced</h3>
+        <pre style="font-size:.67rem;"><code>&lt;!-- aria-label: button has no visible text --&gt;
 &lt;button aria-label="Close dialog"&gt;✕&lt;/button&gt;
+&lt;!-- Announces: "Close dialog, button" ✓ --&gt;
+&lt;!-- Without it: "✕, button" or just "button" ✗ --&gt;
 
-&lt;!-- aria-labelledby: point to another element --&gt;
-&lt;section aria-labelledby="pricing-h2"&gt;
-  &lt;h2 id="pricing-h2"&gt;Pricing Plans&lt;/h2&gt;
+
+&lt;!-- aria-labelledby: reuse text already on page --&gt;
+&lt;section aria-labelledby="cart-heading"&gt;
+  &lt;h2 id="cart-heading"&gt;Your Cart&lt;/h2&gt;
 &lt;/section&gt;
+&lt;!-- Announces: "Your Cart, region" ✓ --&gt;
 
-&lt;!-- aria-describedby: linked description --&gt;
-&lt;input type="password"
-  aria-describedby="pw-hint"&gt;
-&lt;p id="pw-hint"&gt;8+ chars, include a number&lt;/p&gt;
 
-&lt;!-- Distinguish multiple navs on a page --&gt;
-&lt;nav aria-label="Main navigation"&gt;...&lt;/nav&gt;
-&lt;nav aria-label="Breadcrumb"&gt;...&lt;/nav&gt;</code></pre>
-        <div class="caution" style="margin-top:.28rem;font-size:.76rem;">
-          <strong>Common mistake:</strong> Using <code>aria-label</code> on elements that already have visible text creates two competing names. Only use <code>aria-label</code> when there is <em>no visible text</em> (icon buttons, search inputs without visible labels). Use <code>aria-labelledby</code> to point to visible text that already exists.
-        </div>
+&lt;!-- aria-describedby: extra hint after the name --&gt;
+&lt;input type="password" aria-describedby="pw-hint"&gt;
+&lt;p id="pw-hint"&gt;Must be 8+ characters&lt;/p&gt;
+&lt;!-- Announces: "Password, edit text,
+                 Must be 8+ characters" ✓ --&gt;
+
+
+&lt;!-- Two navs need labels to tell them apart --&gt;
+&lt;nav aria-label="Main"&gt;...&lt;/nav&gt;
+&lt;nav aria-label="Breadcrumb"&gt;...&lt;/nav&gt;
+&lt;!-- Without labels both announce: "navigation" ✗ --&gt;</code></pre>
       </div>
     </div>
   </div>
@@ -926,29 +956,30 @@ color-mix(in oklch, blue, red)               /* perceptual blend */</code></pre>
     <p style="font-size:.84rem;margin-bottom:.3rem;"><strong>Why states matter:</strong> Imagine a door with no lock indicator — no red/green light, no padlock symbol, nothing. Every time you approach it, you'd have to try pulling the handle to find out if it's locked. That's the experience of a screen reader user on a page with no ARIA states. You click a "Menu" button and the menu opens — but the screen reader never announced that anything changed. Was it already open? Did the click work? Nobody knows. <code>aria-expanded="true"</code> is the green light that says: <em>"yes, it opened."</em></p>
     <div class="two-col">
       <div>
-        <pre><code>&lt;!-- aria-expanded: toggle state --&gt;
+        <pre style="font-size:.66rem;"><code>&lt;!-- aria-expanded: does the user know it opened? --&gt;
+
+&lt;!-- ✗ Without aria-expanded --&gt;
+&lt;button onclick="toggleMenu()"&gt;Menu ▼&lt;/button&gt;
+&lt;!-- Screen reader: "Menu ▼, button"
+     User clicks. Menu opens visually.
+     Screen reader says NOTHING.
+     Did it open? Did it close? No idea. --&gt;
+
+&lt;!-- ✓ With aria-expanded --&gt;
 &lt;button aria-expanded="false"
-        aria-controls="menu"&gt;Menu&lt;/button&gt;
-&lt;ul id="menu" hidden&gt;...&lt;/ul&gt;
+        aria-controls="mainMenu"
+        onclick="toggleMenu(this)"&gt;Menu ▼&lt;/button&gt;
+&lt;ul id="mainMenu" hidden&gt;...&lt;/ul&gt;
+&lt;!-- Screen reader: "Menu ▼, collapsed, button"
+     User clicks. JS flips to true + removes hidden.
+     Screen reader: "Menu ▼, expanded, button" ✓ --&gt;
 
-&lt;!-- aria-current: active page --&gt;
-&lt;nav&gt;
-  &lt;a href="/"&gt;Home&lt;/a&gt;
-  &lt;a href="/about"
-     aria-current="page"&gt;About&lt;/a&gt;
-&lt;/nav&gt;
-
-&lt;!-- aria-hidden: remove from tree --&gt;
-&lt;span aria-hidden="true"&gt;★★★★☆&lt;/span&gt;
-&lt;span class="sr-only"&gt;4 out of 5 stars&lt;/span&gt;
-
-&lt;!-- aria-invalid: validation errors --&gt;
-&lt;input type="email"
-  aria-invalid="true"
-  aria-describedby="email-err"&gt;
-&lt;p id="email-err" role="alert"&gt;
-  Enter a valid email address.
-&lt;/p&gt;</code></pre>
+&lt;!-- Other common states --&gt;
+aria-checked="true"   &lt;!-- custom checkbox/toggle --&gt;
+aria-invalid="true"   &lt;!-- form field has an error --&gt;
+aria-disabled="true"  &lt;!-- item is not interactive --&gt;
+aria-current="page"   &lt;!-- active nav link --&gt;
+aria-hidden="true"    &lt;!-- hide from screen reader --&gt;</code></pre>
       </div>
       <div>
         <h3>Live aria-expanded Demo</h3>
@@ -1346,36 +1377,64 @@ document.getElementById('status').textContent
     <p>The WebAIM Million report audits the top 1 million websites every year. In 2024, <strong>95.9% of home pages had detectable WCAG failures</strong>. These eight mistakes cause the majority of them — and every one has a fast fix:</p>
     <div class="mistakes-grid">
       <div class="mistake">
-        <strong>❌ Missing alt text on images</strong>
-        Without <code>alt</code>, a screen reader reads the filename aloud: <em>"img-hero-banner-2024-final-v3.jpg"</em>. That's useless. <strong>Fix:</strong> Decorative images get <code>alt=""</code> (screen reader skips it). Meaningful images get a description: <code>alt="Golden retriever puppy running on a beach"</code>.
+        <strong>❌ Missing alt text</strong>
+        <pre style="font-size:.64rem;margin:.2rem 0;"><code>&lt;img src="dog.jpg"&gt;             &lt;!-- ✗ reads filename --&gt;
+&lt;img src="dog.jpg" alt=""&gt;       &lt;!-- ✓ decorative, skip --&gt;
+&lt;img src="dog.jpg"
+     alt="Golden retriever puppy running on a beach"&gt; &lt;!-- ✓ --&gt;</code></pre>
       </div>
       <div class="mistake">
         <strong>❌ Low color contrast</strong>
-        That "clean" light gray text on white? Someone with low vision literally cannot read it. WCAG requires <strong>4.5:1 contrast ratio</strong> for body text. <strong>Fix:</strong> Check every color pair at <a href="https://webaim.org/resources/contrastchecker/" target="_blank" rel="noopener">WebAIM Contrast Checker</a> before shipping.
+        Requires 4.5:1 ratio for body text (AA). Light gray on white fails.
+        <pre style="font-size:.64rem;margin:.2rem 0;"><code>color: #aaaaaa;  /* on white bg — ratio 2.3:1 ✗ */
+color: #767676;  /* on white bg — ratio 4.5:1 ✓ */</code></pre>
+        Check any pair at <a href="https://webaim.org/resources/contrastchecker/" target="_blank" rel="noopener">webaim.org/resources/contrastchecker</a>
       </div>
       <div class="mistake">
-        <strong>❌ outline: none with no replacement</strong>
-        Somewhere a developer decided the blue focus ring was "ugly" and wrote <code>outline: none</code>. Now keyboard users are completely blind — they have no idea where they are on the page. <strong>Fix:</strong> Use <code>:focus-visible</code> to style it better, never just remove it.
+        <strong>❌ Removing focus outlines</strong>
+        <pre style="font-size:.64rem;margin:.2rem 0;"><code>*:focus { outline: none; }  /* ✗ keyboard users are blind */
+
+/* ✓ style it instead */
+:focus-visible {
+  outline: 3px solid #4f6df5;
+  outline-offset: 2px;
+}</code></pre>
       </div>
       <div class="mistake">
-        <strong>❌ &lt;div onclick&gt; instead of &lt;button&gt;</strong>
-        A <code>&lt;div&gt;</code> with a click handler looks like a button but isn't one. You can't Tab to it, you can't press Enter to activate it, and a screen reader announces nothing useful. <strong>Fix:</strong> Use <code>&lt;button&gt;</code> for actions, <code>&lt;a href&gt;</code> for navigation. Always.
+        <strong>❌ Interactive divs and spans</strong>
+        <pre style="font-size:.64rem;margin:.2rem 0;"><code>&lt;div onclick="buy()"&gt;Buy Now&lt;/div&gt; &lt;!-- ✗ can't Tab --&gt;
+&lt;button onclick="buy()"&gt;Buy Now&lt;/button&gt; &lt;!-- ✓ --&gt;
+
+&lt;span onclick="go('/home')"&gt;Home&lt;/span&gt; &lt;!-- ✗ --&gt;
+&lt;a href="/home"&gt;Home&lt;/a&gt;               &lt;!-- ✓ --&gt;</code></pre>
       </div>
       <div class="mistake">
-        <strong>❌ Inputs with only placeholder text</strong>
-        Placeholder text disappears the moment you start typing — and it's not reliably read by screen readers. A blind user filling out a form can't re-check what a field is for mid-typing. <strong>Fix:</strong> Every input needs a real <code>&lt;label&gt;</code> element linked with <code>for</code>. No exceptions.
+        <strong>❌ Inputs without labels</strong>
+        <pre style="font-size:.64rem;margin:.2rem 0;"><code>&lt;input placeholder="Email"&gt; &lt;!-- ✗ disappears on type --&gt;
+
+&lt;label for="email"&gt;Email address&lt;/label&gt;
+&lt;input id="email" type="email"&gt;   &lt;!-- ✓ always visible --&gt;</code></pre>
       </div>
       <div class="mistake">
         <strong>❌ Inaccessible modals</strong>
-        A popup that lets keyboard focus escape to the background, or doesn't close with Escape, strands keyboard users inside a broken experience. <strong>Fix:</strong> Use native <code>&lt;dialog showModal()&gt;</code> — it handles focus trapping, Escape, and focus return for free.
+        <pre style="font-size:.64rem;margin:.2rem 0;"><code>&lt;!-- ✗ Custom div modal — focus leaks, Esc broken --&gt;
+&lt;div class="modal"&gt;...&lt;/div&gt;
+
+&lt;!-- ✓ Native dialog — focus trapped, Esc works free --&gt;
+&lt;dialog id="modal"&gt;...&lt;/dialog&gt;
+document.getElementById('modal').showModal();</code></pre>
       </div>
       <div class="mistake">
         <strong>❌ Autoplaying video or audio</strong>
-        Autoplay fights with screen reader audio — the user hears both at once and can't understand either. It can also trigger seizures in photosensitive users. <strong>Fix:</strong> Autoplay off by default. If you must autoplay, WCAG requires a stop button within 3 seconds.
+        Competes with screen reader audio. Triggers seizures for some users.
+        <pre style="font-size:.64rem;margin:.2rem 0;"><code>&lt;video autoplay src="..."&gt;&lt;/video&gt;  &lt;!-- ✗ --&gt;
+&lt;video src="..." controls&gt;&lt;/video&gt;  &lt;!-- ✓ user controls it --&gt;</code></pre>
       </div>
       <div class="mistake">
-        <strong>❌ "Click here" and "Read more" links</strong>
-        Screen reader users can pull up a list of every link on a page. A page with 12 links all saying "Read more" is completely unusable. <strong>Fix:</strong> Link text must describe the destination — <em>"Read the 2024 Annual Report (PDF)"</em> — not the action of clicking.
+        <strong>❌ Vague link text</strong>
+        Screen readers list all links on a page. 15 "Read more" links = unusable.
+        <pre style="font-size:.64rem;margin:.2rem 0;"><code>&lt;a href="/report"&gt;Read more&lt;/a&gt;  &lt;!-- ✗ --&gt;
+&lt;a href="/report"&gt;Download 2024 Annual Report (PDF)&lt;/a&gt; &lt;!-- ✓ --&gt;</code></pre>
       </div>
     </div>
   </div>
