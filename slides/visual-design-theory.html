@@ -1,0 +1,1704 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Visual Design Theory</title>
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box;}
+    :root{--primary-color:#1a1a2e;--secondary-color:#4f6df5;--code-bg:#0f0f1a;--code-text:#d4d4d4;}
+    html,body{height:100%;font-family:'Segoe UI',system-ui,sans-serif;background:var(--primary-color);overflow:hidden;display:flex;flex-direction:column;}
+    .progress-bar{width:100%;height:4px;background:rgba(255,255,255,.12);flex-shrink:0;}
+    .progress{height:100%;background:var(--secondary-color);transition:width .3s ease;}
+    .slideshow-container{flex:1;display:flex;flex-direction:column;overflow:hidden;min-height:0;}
+    .slide{display:none;flex:1;padding:1.1rem 1.65rem;color:#fff;overflow-y:auto;animation:s-fadeIn .32s ease;min-height:0;flex-direction:column;}
+    .slide.active{display:flex;}
+    @keyframes s-fadeIn{from{opacity:0;transform:translateX(16px);}to{opacity:1;transform:translateX(0);}}
+    .slide:nth-child(odd) {background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);}
+    .slide:nth-child(even){background:linear-gradient(135deg,#11998e 0%,#38ef7d 100%);}
+    .slide:nth-child(3n)  {background:linear-gradient(135deg,#ee0979 0%,#ff6a00 100%);}
+    .slide:nth-child(4n)  {background:linear-gradient(135deg,#2193b0 0%,#6dd5ed 100%);}
+    .slide:nth-child(5n)  {background:linear-gradient(135deg,#c31432 0%,#240b36 100%);}
+    .slide:nth-child(7n)  {background:linear-gradient(135deg,#0f0c29 0%,#302b63 50%,#24243e 100%);}
+    .slide:nth-child(9n)  {background:linear-gradient(135deg,#1a1a2e 0%,#16213e 50%,#0f3460 100%);}
+    .slide-label{font-size:.68rem;text-transform:uppercase;letter-spacing:.12em;color:rgba(255,255,255,.42);margin-bottom:.25rem;flex-shrink:0;}
+    .slide-content{max-width:1400px;width:100%;margin:0 auto;flex:1;display:flex;flex-direction:column;min-height:0;}
+    .slide-content.centered{justify-content:center;align-items:center;text-align:center;}
+    h1{font-size:clamp(1.75rem,5vw,3rem);margin-bottom:.9rem;line-height:1.2;text-shadow:0 2px 6px rgba(0,0,0,.3);}
+    h2{font-size:clamp(1.25rem,3.5vw,1.9rem);margin-bottom:.35rem;color:#ffeaa7;line-height:1.25;}
+    h3{font-size:clamp(.92rem,2.2vw,1.25rem);margin:.35rem 0 .18rem;color:#81ecec;}
+    p{font-size:clamp(.85rem,1.95vw,1.02rem);line-height:1.5;margin-bottom:.28rem;}
+    ul,ol{font-size:clamp(.82rem,1.85vw,.98rem);line-height:1.55;margin-left:1.25rem;margin-bottom:.28rem;}
+    li{margin-bottom:.13rem;}
+    a{color:#ffeaa7;text-decoration:underline;}
+    a:hover{color:#fdcb6e;}
+    code{background:rgba(0,0,0,.38);padding:.14em .42em;border-radius:4px;font-family:'Consolas','Monaco',monospace;font-size:.87em;}
+    pre{background:var(--code-bg);color:var(--code-text);padding:.5rem .8rem;border-radius:8px;overflow-x:auto;margin:.28rem 0;font-size:clamp(.7rem,1.55vw,.86rem);line-height:1.42;flex-shrink:0;}
+    pre code{background:none;padding:0;font-size:inherit;}
+    .note{background:rgba(34,197,94,.14);border-left:4px solid #22c55e;padding:.42rem .75rem;border-radius:6px;margin:.28rem 0;font-size:clamp(.8rem,1.75vw,.94rem);}
+    .caution{background:rgba(239,68,68,.14);border-left:4px solid #ef4444;padding:.42rem .75rem;border-radius:6px;margin:.28rem 0;font-size:clamp(.8rem,1.75vw,.94rem);}
+    .tip{background:rgba(79,109,245,.18);border-left:4px solid #4f6df5;padding:.42rem .75rem;border-radius:6px;margin:.28rem 0;font-size:clamp(.8rem,1.75vw,.94rem);}
+    .highlight{background:rgba(255,255,255,.13);border-left:4px solid #ffeaa7;padding:.42rem .75rem;border-radius:6px;margin:.28rem 0;font-size:clamp(.8rem,1.75vw,.94rem);}
+    .demo-btn{padding:.28rem .6rem;font-size:.78rem;border:1px solid rgba(255,255,255,.32);border-radius:4px;cursor:pointer;background:rgba(0,0,0,.3);color:white;transition:all .2s;}
+    .demo-btn:hover{background:rgba(255,255,255,.15);}
+    .demo-btn.active{background:rgba(52,152,219,.65);border-color:#3498db;}
+    .live-demo{background:rgba(0,0,0,.22);border-radius:8px;padding:.5rem .85rem;margin:.28rem 0;border:1px solid rgba(255,255,255,.14);}
+    .two-col{display:grid;grid-template-columns:1fr 1fr;gap:.9rem;align-items:start;}
+    .three-col{display:grid;grid-template-columns:repeat(3,1fr);gap:.75rem;align-items:start;}
+    @media(max-width:900px){.three-col{grid-template-columns:1fr 1fr;}}
+    @media(max-width:700px){.two-col,.three-col{grid-template-columns:1fr;}.slide{padding:.9rem .9rem;}}
+    .card{background:rgba(0,0,0,.22);padding:.6rem .8rem;border-radius:8px;border:1px solid rgba(255,255,255,.13);}
+    .card-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:.55rem;margin:.35rem 0;}
+    .slide-img{max-width:100%;border-radius:8px;border:1px solid rgba(255,255,255,.18);margin:.35rem 0;box-shadow:0 4px 16px rgba(0,0,0,.4);}
+    .img-caption{font-size:.73rem;opacity:.58;text-align:center;margin-top:.18rem;}
+    .learn-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:.4rem;margin:.45rem 0;}
+    .learn-item{background:rgba(0,0,0,.22);border-left:3px solid #81ecec;border-radius:6px;padding:.4rem .7rem;font-size:clamp(.78rem,1.75vw,.93rem);line-height:1.45;}
+    .summary-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(195px,1fr));gap:.5rem;margin:.45rem 0;}
+    .summary-card{background:rgba(0,0,0,.22);border-radius:8px;padding:.6rem .85rem;border:1px solid rgba(255,255,255,.13);font-size:clamp(.76rem,1.65vw,.9rem);line-height:1.45;}
+    .summary-card strong{color:#ffeaa7;display:block;margin-bottom:.18rem;font-size:.88em;}
+    table.cmp{width:100%;border-collapse:collapse;font-size:clamp(.78rem,1.75vw,.96rem);margin:.35rem 0;}
+    table.cmp th,table.cmp td{border:1px solid rgba(255,255,255,.22);padding:.28rem .52rem;text-align:left;vertical-align:top;}
+    table.cmp th{background:rgba(0,0,0,.28);color:#ffeaa7;}
+    table.cmp td:first-child{color:#93c5fd;font-weight:600;white-space:nowrap;}
+    .badge{display:inline-block;background:rgba(79,109,245,.38);border:1px solid rgba(79,109,245,.58);border-radius:20px;padding:.18em .65em;font-size:.76em;margin:.13rem;}
+    .badge.green{background:rgba(34,197,94,.22);border-color:rgba(34,197,94,.48);color:#86efac;}
+    .badge.yellow{background:rgba(234,179,8,.18);border-color:rgba(234,179,8,.42);color:#fde68a;}
+    .badge.red{background:rgba(239,68,68,.18);border-color:rgba(239,68,68,.42);color:#fca5a5;}
+    .nav{display:flex;align-items:center;justify-content:center;gap:1rem;padding:.38rem 1rem;background:rgba(0,0,0,.42);flex-shrink:0;}
+    .nav-btn{background:rgba(255,255,255,.13);border:1px solid rgba(255,255,255,.28);color:white;width:34px;height:34px;border-radius:50%;cursor:pointer;font-size:.95rem;display:flex;align-items:center;justify-content:center;transition:background .2s;}
+    .nav-btn:hover:not(:disabled){background:rgba(255,255,255,.28);}
+    .nav-btn:disabled{opacity:.32;cursor:not-allowed;}
+    .nav-counter{color:rgba(255,255,255,.68);font-size:.83rem;min-width:52px;text-align:center;}
+
+    /* Visual Weight demo */
+    .vw-demo-box{display:flex;align-items:center;justify-content:center;border-radius:8px;transition:all .3s;font-weight:700;cursor:default;}
+    .vw-row{display:flex;gap:.5rem;align-items:center;flex-wrap:wrap;margin:.35rem 0;}
+
+    /* Hierarchy demo */
+    .hier-demo{background:rgba(0,0,0,.22);border-radius:8px;padding:.85rem;border:1px solid rgba(255,255,255,.14);transition:all .3s;}
+    .hier-headline{transition:all .3s;margin-bottom:.25rem;}
+    .hier-sub{transition:all .3s;margin-bottom:.15rem;}
+    .hier-body{transition:all .3s;margin-bottom:.15rem;}
+    .hier-btn{transition:all .3s;display:inline-block;padding:.3rem .8rem;border-radius:4px;}
+
+    /* Proximity demo */
+    .prox-form{display:flex;flex-direction:column;gap:0;transition:all .3s;}
+    .prox-label{font-size:.82rem;font-weight:600;color:#ffeaa7;transition:all .3s;}
+    .prox-input{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);border-radius:4px;padding:.25rem .5rem;color:white;font-size:.82rem;width:100%;max-width:220px;}
+
+    /* Gestalt cards */
+    .gestalt-card{background:rgba(0,0,0,.22);border-radius:8px;padding:.5rem .7rem;border:1px solid rgba(255,255,255,.13);}
+    .gestalt-card strong{color:#ffeaa7;display:block;margin-bottom:.12rem;}
+
+    /* Color temp demo */
+    .ct-swatch{border-radius:8px;padding:.65rem;text-align:center;font-weight:700;font-size:.82rem;transition:all .3s;border:2px solid rgba(255,255,255,.2);}
+
+    /* 60-30-10 demo */
+    .color-page{border-radius:8px;overflow:hidden;border:1px solid rgba(255,255,255,.2);font-size:.75rem;}
+    .color-header{padding:.4rem .7rem;display:flex;justify-content:space-between;align-items:center;}
+    .color-hero{padding:1rem .7rem;text-align:center;}
+    .color-hero h3{margin:0 0 .25rem;font-size:1.1rem;}
+    .color-cards{display:grid;grid-template-columns:1fr 1fr 1fr;gap:.35rem;padding:.5rem .7rem;}
+    .color-card-item{border-radius:6px;padding:.4rem;text-align:center;font-size:.72rem;}
+    .color-cta{display:inline-block;padding:.3rem .8rem;border-radius:4px;font-weight:700;font-size:.78rem;cursor:pointer;border:none;}
+    .color-footer{padding:.3rem .7rem;text-align:center;font-size:.65rem;opacity:.6;}
+
+    /* Contrast demo */
+    .contrast-box{border-radius:8px;padding:.65rem .85rem;font-size:.88rem;line-height:1.5;transition:all .3s;min-height:52px;display:flex;align-items:center;}
+
+    /* Type demo */
+    .type-sample{background:rgba(0,0,0,.22);border-radius:8px;padding:.65rem .85rem;border:1px solid rgba(255,255,255,.13);transition:all .3s;}
+
+    /* Line length demo */
+    .ll-box{background:rgba(0,0,0,.22);border-radius:8px;padding:.5rem;border:1px solid rgba(255,255,255,.13);font-size:.8rem;line-height:1.55;transition:all .3s;}
+
+    /* Nielsen grid */
+    .nielsen-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:.4rem;margin:.35rem 0;}
+    .nielsen-card{background:rgba(0,0,0,.22);border-radius:8px;padding:.4rem .6rem;border:1px solid rgba(255,255,255,.13);font-size:.78rem;line-height:1.4;}
+    .nielsen-card strong{color:#ffeaa7;display:block;margin-bottom:.08rem;font-size:.72rem;}
+    .nielsen-num{display:inline-block;background:rgba(79,109,245,.4);border-radius:50%;width:20px;height:20px;text-align:center;line-height:20px;font-size:.65rem;font-weight:700;margin-right:.25rem;flex-shrink:0;}
+
+    /* Fitts demo */
+    .fitts-target{border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .2s;font-weight:700;border:2px solid rgba(255,255,255,.3);}
+    .fitts-target:hover{transform:scale(1.08);box-shadow:0 0 20px rgba(255,255,255,.3);}
+
+    /* Figure/ground demo */
+    .fg-demo{position:relative;border-radius:8px;overflow:hidden;min-height:200px;}
+    .fg-bg{padding:.5rem;font-size:.8rem;line-height:1.5;transition:all .4s;}
+    .fg-modal{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%) scale(0);background:white;color:#1e293b;border-radius:12px;padding:1rem;max-width:260px;width:80%;box-shadow:0 8px 32px rgba(0,0,0,.5);transition:all .35s;z-index:2;}
+    .fg-modal.visible{transform:translate(-50%,-50%) scale(1);}
+    .fg-overlay{position:absolute;inset:0;background:rgba(0,0,0,.6);opacity:0;transition:opacity .35s;z-index:1;}
+    .fg-overlay.visible{opacity:1;}
+
+    /* UX States demo */
+    .ux-state-box{border-radius:8px;border:1px solid rgba(255,255,255,.2);overflow:hidden;min-height:140px;transition:all .3s;}
+
+    /* Testing methods */
+    .test-method{background:rgba(0,0,0,.22);border-radius:8px;padding:.5rem .7rem;border:1px solid rgba(255,255,255,.13);}
+    .test-method strong{color:#ffeaa7;}
+
+    /* Wireframe demo */
+    .wf-block{background:rgba(255,255,255,.1);border:1px dashed rgba(255,255,255,.3);border-radius:4px;padding:.25rem .5rem;font-size:.7rem;text-align:center;color:rgba(255,255,255,.6);transition:all .4s;}
+    .wf-block.hifi{background:rgba(79,109,245,.25);border:1px solid rgba(79,109,245,.5);color:white;}
+
+    /* Q&A */
+    dl{margin:.35rem 0;}
+    dt{color:#ffeaa7;font-weight:700;font-size:clamp(.85rem,1.9vw,1rem);margin-top:.45rem;}
+    dd{font-size:clamp(.8rem,1.75vw,.92rem);opacity:.9;line-height:1.5;margin-bottom:.25rem;margin-left:0;}
+  </style>
+</head>
+<body>
+
+  <div class="progress-bar"><div class="progress" id="progressBar"></div></div>
+
+  <div class="slideshow-container">
+
+    <!-- ==================== SLIDE 1: COVER ==================== -->
+    <div class="slide active">
+      <div class="slide-content centered">
+        <div class="slide-label">Lesson 29</div>
+        <h1>Visual Design Theory</h1>
+        <p style="font-size:clamp(1rem,2.5vw,1.3rem);opacity:.88;margin-bottom:1.1rem;">The principles that separate confusing interfaces from clear ones.</p>
+        <div class="learn-grid">
+          <div class="learn-item">Visual hierarchy &mdash; guiding the eye with size, contrast, color, whitespace &amp; position</div>
+          <div class="learn-item">Gestalt principles &mdash; how the brain groups visual elements</div>
+          <div class="learn-item">Cognitive load &mdash; Miller's Law, Hick's Law &amp; progressive disclosure</div>
+          <div class="learn-item">Color theory &amp; the 60-30-10 rule</div>
+          <div class="learn-item">Typography &mdash; hierarchy, personality &amp; readability</div>
+          <div class="learn-item">Design heuristics &mdash; Jakob's Law, Fitts' Law &amp; affordances</div>
+          <div class="learn-item">UX fundamentals &amp; Nielsen's 10 usability heuristics</div>
+          <div class="learn-item">Usability testing methods &amp; mobile-first design</div>
+          <div class="learn-item">Wireframing &amp; prototyping before code</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== SLIDE 2: WHY DESIGN MATTERS ==================== -->
+    <div class="slide">
+      <div class="slide-content">
+        <div class="slide-label">Section 1 &mdash; Introduction</div>
+        <h2>Why Design Thinking Matters</h2>
+        <div class="two-col">
+          <div>
+            <p>Design is not about taste. It is about <strong>communication</strong>: guiding users to the right content with minimal friction.</p>
+            <ul>
+              <li>Users scan, they don't read &mdash; you get <strong>5&ndash;10 seconds</strong></li>
+              <li>They ask: "What is this?" and "What should I do?"</li>
+              <li>75% of users judge credibility by visual design (Stanford study)</li>
+              <li>Every CSS decision is a design decision</li>
+            </ul>
+            <div class="highlight" style="margin-top:.35rem;">
+              <strong>The hard truth:</strong> The back button is always one click away. If your design can't answer both questions in 10 seconds, the user leaves.
+            </div>
+          </div>
+          <div>
+            <img src="assets/craigslist-vs-airbnb.png" class="slide-img" alt="Craigslist vs Airbnb comparison" onerror="this.style.display='none'">
+            <p class="img-caption">Same function. Wildly different design. Both list rentals &mdash; one communicates trust and clarity from the first second.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== SLIDE 3: THE 5-10 SECOND TEST ==================== -->
+    <div class="slide">
+      <div class="slide-content">
+        <div class="slide-label">Section 1 &mdash; Introduction</div>
+        <h2>The 5-Second First Impression</h2>
+        <p>Try it yourself &mdash; click "Start" to see a page for 5 seconds, then answer the questions below.</p>
+        <div class="live-demo">
+          <div style="display:flex;gap:.5rem;align-items:center;margin-bottom:.35rem;">
+            <button class="demo-btn" onclick="startFiveSecTest()">Start 5-Second Test</button>
+            <span id="fiveSecTimer" style="font-family:monospace;font-size:1.1rem;font-weight:700;"></span>
+          </div>
+          <div id="fiveSecSite" style="background:white;color:#1e293b;border-radius:8px;padding:0;overflow:hidden;min-height:180px;display:none;">
+            <div style="background:#0f172a;color:white;padding:.4rem .8rem;display:flex;justify-content:space-between;align-items:center;">
+              <span style="font-weight:800;font-size:.9rem;">CloudSync</span>
+              <div style="display:flex;gap:.8rem;font-size:.78rem;">
+                <span>Features</span><span>Pricing</span><span>Docs</span>
+                <span style="background:#4f6df5;padding:.2rem .6rem;border-radius:4px;color:white;">Sign Up Free</span>
+              </div>
+            </div>
+            <div style="text-align:center;padding:1.2rem .8rem;">
+              <div style="font-size:1.4rem;font-weight:800;color:#0f172a;margin-bottom:.3rem;">Sync your files everywhere.</div>
+              <div style="font-size:.85rem;color:#64748b;margin-bottom:.6rem;">Fast, secure cloud storage for teams. Start free, upgrade when you're ready.</div>
+              <div style="display:inline-block;background:#4f6df5;color:white;padding:.4rem 1.2rem;border-radius:6px;font-weight:700;font-size:.85rem;">Get Started Free</div>
+            </div>
+          </div>
+          <div id="fiveSecQuestions" style="display:none;margin-top:.35rem;">
+            <p style="color:#ffeaa7;font-weight:700;">Now answer without scrolling back up:</p>
+            <ul>
+              <li>What does this company do?</li>
+              <li>What is the primary action they want you to take?</li>
+              <li>Did the design communicate trust?</li>
+            </ul>
+            <div class="note">If you could answer all three, the visual hierarchy worked. If not, it failed &mdash; and that's the lesson.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== SLIDE 4: F-PATTERN ==================== -->
+    <div class="slide">
+      <div class="slide-content">
+        <div class="slide-label">Section 2 &mdash; Visual Hierarchy</div>
+        <h2>The F-Pattern</h2>
+        <div class="two-col">
+          <div>
+            <p>On <strong>content-heavy pages</strong> (blogs, news, search results), eye-tracking studies show users read in an <strong>F shape</strong>:</p>
+            <ol>
+              <li>Read the top line fully (horizontal bar)</li>
+              <li>Scan down the left edge (vertical stripe)</li>
+              <li>Occasionally dart rightward (shorter bars)</li>
+            </ol>
+            <div class="tip" style="margin-top:.35rem;">
+              <strong>Design implication:</strong> Put your most important content on the left edge. Headlines, subheadings, and bullet points get the most attention.
+            </div>
+            <p style="margin-top:.35rem;"><strong>Best for:</strong> Articles, documentation, search results, email inboxes</p>
+            <p><a href="https://www.nngroup.com/articles/f-shaped-pattern-reading-web-content/" target="_blank" rel="noopener noreferrer">Read the original Nielsen Norman Group study &rarr;</a></p>
+          </div>
+          <div>
+            <img src="assets/f-pattern.png" class="slide-img" alt="F-pattern eye tracking heatmap" onerror="this.style.display='none'">
+            <p class="img-caption">Eye-tracking heatmap showing F-pattern on a content page. Bright = most viewed.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== SLIDE 5: Z-PATTERN ==================== -->
+    <div class="slide">
+      <div class="slide-content">
+        <div class="slide-label">Section 2 &mdash; Visual Hierarchy</div>
+        <h2>The Z-Pattern</h2>
+        <div class="two-col">
+          <div>
+            <p>On <strong>sparse, image-driven pages</strong> (landing pages, hero sections), the eye traces a <strong>Z shape</strong>:</p>
+            <ol>
+              <li><strong>Top-left:</strong> Logo / brand</li>
+              <li><strong>Top-right:</strong> Navigation / secondary action</li>
+              <li><strong>Diagonal:</strong> Across the page</li>
+              <li><strong>Bottom-right:</strong> Primary CTA &larr; <em>this is where the eye finishes</em></li>
+            </ol>
+            <div class="highlight" style="margin-top:.35rem;">
+              <strong>Key takeaway:</strong> Place your primary CTA at the terminal position of the Z (bottom-right). That's where the eye naturally lands.
+            </div>
+            <p style="margin-top:.35rem;"><strong>Best for:</strong> Landing pages, hero sections, marketing pages</p>
+          </div>
+          <div>
+            <img src="assets/z-pattern.png" class="slide-img" alt="Z-pattern layout diagram" onerror="this.style.display='none'">
+            <p class="img-caption">The Z-pattern traces: logo &rarr; nav &rarr; diagonal &rarr; CTA button</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== SLIDE 6: FIVE LEVERS OF VISUAL WEIGHT ==================== -->
+    <div class="slide">
+      <div class="slide-content">
+        <div class="slide-label">Section 2 &mdash; Visual Hierarchy</div>
+        <h2>The 5 Levers of Visual Weight</h2>
+        <p>Every design decision pulls one or more of these levers. Think of them as a mixing board.</p>
+        <table class="cmp">
+          <thead><tr><th>Lever</th><th>How It Works</th><th>Example</th></tr></thead>
+          <tbody>
+            <tr><td>Size</td><td>Larger elements attract attention first</td><td>48px headline dominates 14px text</td></tr>
+            <tr><td>Contrast</td><td>High contrast against the background stands out</td><td>Dark text on white; bright button on muted BG</td></tr>
+            <tr><td>Color</td><td>Saturated / warm colors pull focus</td><td>Red notification badge on gray toolbar</td></tr>
+            <tr><td>Whitespace</td><td>Isolation makes elements feel important</td><td>Apple product pages: photo + emptiness</td></tr>
+            <tr><td>Position</td><td>Top &amp; center carry implied importance</td><td>Hero headlines above the fold, never in footer</td></tr>
+          </tbody>
+        </table>
+        <div class="note"><strong>Test it:</strong> Squint at any web page. The elements you can still see are the ones with the most visual weight &mdash; they're the top of the hierarchy.</div>
+      </div>
+    </div>
+
+    <!-- ==================== SLIDE 7: VISUAL WEIGHT INTERACTIVE DEMO ==================== -->
+    <div class="slide">
+      <div class="slide-content">
+        <div class="slide-label">Section 2 &mdash; Visual Hierarchy</div>
+        <h2>Interactive: Mixing the Levers</h2>
+        <p>Adjust each lever to see how visual weight changes. The goal: make <strong>one</strong> element dominant.</p>
+        <div class="live-demo">
+          <div style="display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:.45rem;">
+            <label style="font-size:.78rem;display:flex;align-items:center;gap:.3rem;">Size: <input type="range" min="12" max="48" value="16" id="vwSize" oninput="updateVW()"></label>
+            <label style="font-size:.78rem;display:flex;align-items:center;gap:.3rem;">Contrast: <input type="range" min="0" max="100" value="50" id="vwContrast" oninput="updateVW()"></label>
+            <label style="font-size:.78rem;display:flex;align-items:center;gap:.3rem;">Color: <input type="range" min="0" max="360" value="0" id="vwHue" oninput="updateVW()"></label>
+            <label style="font-size:.78rem;display:flex;align-items:center;gap:.3rem;">Whitespace: <input type="range" min="4" max="60" value="8" id="vwSpace" oninput="updateVW()"></label>
+          </div>
+          <div style="background:rgba(0,0,0,.3);border-radius:8px;padding:.5rem;text-align:center;">
+            <div style="display:flex;align-items:center;justify-content:center;gap:.5rem;flex-wrap:wrap;">
+              <span style="font-size:.82rem;opacity:.6;">Other Element</span>
+              <span style="font-size:.82rem;opacity:.6;">Other Element</span>
+              <span id="vwTarget" style="font-size:16px;padding:8px;border-radius:6px;font-weight:700;transition:all .15s;">Target Element</span>
+              <span style="font-size:.82rem;opacity:.6;">Other Element</span>
+              <span style="font-size:.82rem;opacity:.6;">Other Element</span>
+            </div>
+          </div>
+          <p style="font-size:.78rem;opacity:.7;margin-top:.25rem;" id="vwDescription">Adjust the sliders above to see how each lever affects visual weight.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== SLIDE 8: WHITESPACE ==================== -->
+    <div class="slide">
+      <div class="slide-content">
+        <div class="slide-label">Section 2 &mdash; Visual Hierarchy</div>
+        <h2>Whitespace Is Not Empty Space</h2>
+        <div class="two-col">
+          <div>
+            <p>Whitespace is a <strong>deliberate design choice</strong> that communicates confidence and premium quality.</p>
+            <ul>
+              <li>Crowded pages feel chaotic</li>
+              <li>Spacious pages feel trustworthy</li>
+              <li>Isolation makes elements feel important</li>
+              <li><strong>When in doubt, add more space</strong></li>
+            </ul>
+            <div class="tip" style="margin-top:.35rem;">
+              <strong>Apple's approach:</strong> A single product photo floating in white, with a short headline. The whitespace <em>is</em> the message &mdash; premium, confident, nothing to prove.
+            </div>
+            <p style="margin-top:.25rem;"><a href="https://www.w3schools.com/css/css_margin.asp" target="_blank" rel="noopener noreferrer">CSS margins &amp; spacing on W3Schools &rarr;</a></p>
+          </div>
+          <div>
+            <img src="assets/whitespace.png" class="slide-img" alt="Apple product page whitespace example" onerror="this.style.display='none'">
+            <p class="img-caption">Intentional emptiness. Your eye has nowhere else to go &mdash; that's the point.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== SLIDE 9: HIERARCHY INTERACTIVE ==================== -->
+    <div class="slide">
+      <div class="slide-content">
+        <div class="slide-label">Section 2 &mdash; Visual Hierarchy</div>
+        <h2>Interactive: Build a Hierarchy</h2>
+        <p>Toggle between "No Hierarchy" and "Clear Hierarchy" to see the difference one principle makes.</p>
+        <div class="live-demo">
+          <div style="display:flex;gap:.5rem;margin-bottom:.35rem;">
+            <button class="demo-btn active" id="hierBad" onclick="setHierarchy('bad')">No Hierarchy</button>
+            <button class="demo-btn" id="hierGood" onclick="setHierarchy('good')">Clear Hierarchy</button>
+          </div>
+          <div class="hier-demo" id="hierDemo">
+            <div class="hier-headline" id="hierH">Welcome to Our Website</div>
+            <div class="hier-sub" id="hierS">We offer great services for your business needs</div>
+            <div class="hier-body" id="hierB">Our team has years of experience delivering quality results to clients worldwide. Contact us today to learn more about how we can help.</div>
+            <div class="hier-btn" id="hierCTA">Learn More</div>
+          </div>
+          <p style="font-size:.78rem;opacity:.7;margin-top:.2rem;" id="hierExplain">Currently: all text is the same size, weight, and color. Nothing stands out. This fails the 5-second test.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== SLIDE 10: GESTALT OVERVIEW ==================== -->
+    <div class="slide">
+      <div class="slide-content">
+        <div class="slide-label">Section 3 &mdash; Gestalt Principles</div>
+        <h2>How the Brain Groups Things</h2>
+        <p>German psychologists discovered: we perceive <strong>groups and patterns</strong> before individual elements. Design with the brain's wiring, not against it.</p>
+        <div class="card-grid" style="grid-template-columns:repeat(auto-fit,minmax(165px,1fr));">
+          <div class="gestalt-card"><strong>Proximity</strong>Close = related</div>
+          <div class="gestalt-card"><strong>Similarity</strong>Look alike = same type</div>
+          <div class="gestalt-card"><strong>Continuity</strong>Eye follows lines</div>
+          <div class="gestalt-card"><strong>Closure</strong>Brain completes shapes</div>
+          <div class="gestalt-card"><strong>Figure/Ground</strong>Foreground vs background</div>
+          <div class="gestalt-card"><strong>Common Fate</strong>Move together = grouped</div>
+          <div class="gestalt-card"><strong>Symmetry</strong>Symmetry = calm; asymmetry = energy</div>
+        </div>
+        <div class="highlight"><strong>The practical rule:</strong> If elements belong together, make them <em>look</em> together. If they don't, visually separate them.</div>
+      </div>
+    </div>
+
+    <!-- ==================== SLIDE 11: PROXIMITY DEMO ==================== -->
+    <div class="slide">
+      <div class="slide-content">
+        <div class="slide-label">Section 3 &mdash; Gestalt Principles</div>
+        <h2>Proximity: Space Creates Meaning</h2>
+        <div class="two-col">
+          <div>
+            <p>Elements close together are perceived as <strong>related</strong>. The classic failure: a form label equidistant between two fields.</p>
+            <div class="live-demo">
+              <p style="font-size:.78rem;color:#ffeaa7;font-weight:600;margin-bottom:.25rem;">Toggle to see the difference:</p>
+              <div style="display:flex;gap:.5rem;margin-bottom:.35rem;">
+                <button class="demo-btn active" id="proxBad" onclick="setProximity('bad')">Bad Proximity</button>
+                <button class="demo-btn" id="proxGood" onclick="setProximity('good')">Good Proximity</button>
+              </div>
+              <div class="prox-form" id="proxForm">
+                <div class="prox-label" id="proxL1">First Name</div>
+                <input class="prox-input" placeholder="John" disabled>
+                <div class="prox-label" id="proxL2" style="margin-top:16px;">Last Name</div>
+                <input class="prox-input" placeholder="Doe" disabled>
+                <div class="prox-label" id="proxL3" style="margin-top:16px;">Email</div>
+                <input class="prox-input" placeholder="john@example.com" disabled>
+              </div>
+              <p style="font-size:.75rem;opacity:.7;margin-top:.25rem;" id="proxExplain">Currently: labels are equidistant between fields. Which field does "Last Name" belong to?</p>
+            </div>
+          </div>
+          <div>
+            <img src="assets/proximity.jpg" class="slide-img" alt="Proximity in Google search results" onerror="this.style.display='none'">
+            <p class="img-caption">Google results: tight spacing within a result, wider gap between results. Your brain groups instantly.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== SLIDE 12: CONTINUITY & CLOSURE ==================== -->
+    <div class="slide">
+      <div class="slide-content">
+        <div class="slide-label">Section 3 &mdash; Gestalt Principles</div>
+        <h2>Continuity, Closure &amp; Similarity</h2>
+        <div class="three-col">
+          <div class="card">
+            <h3>Continuity</h3>
+            <p>The eye follows lines and curves. Netflix's horizontal scroll rows: thumbnails extend past the edge, implying "more."</p>
+            <div style="background:rgba(0,0,0,.3);border-radius:6px;padding:.35rem;display:flex;gap:.25rem;overflow:hidden;margin-top:.25rem;">
+              <div style="background:rgba(79,109,245,.4);border-radius:4px;min-width:60px;height:40px;flex-shrink:0;"></div>
+              <div style="background:rgba(236,72,153,.4);border-radius:4px;min-width:60px;height:40px;flex-shrink:0;"></div>
+              <div style="background:rgba(34,197,94,.4);border-radius:4px;min-width:60px;height:40px;flex-shrink:0;"></div>
+              <div style="background:rgba(234,179,8,.4);border-radius:4px;min-width:60px;height:40px;flex-shrink:0;"></div>
+              <div style="background:rgba(239,68,68,.4);border-radius:4px;min-width:60px;height:40px;flex-shrink:0;"></div>
+            </div>
+            <p style="font-size:.72rem;opacity:.6;margin-top:.15rem;">The partially visible card on the right invites scrolling.</p>
+          </div>
+          <div class="card">
+            <h3>Closure</h3>
+            <p>The brain completes incomplete shapes. The FedEx logo hides an arrow between E and x.</p>
+            <div style="text-align:center;margin:.35rem 0;">
+              <div style="display:inline-flex;gap:2px;">
+                <svg width="80" height="45" viewBox="0 0 80 45"><circle cx="22" cy="22" r="20" fill="none" stroke="rgba(255,255,255,.6)" stroke-width="3" stroke-dasharray="100 26"/><text x="22" y="28" text-anchor="middle" fill="white" font-size="14" font-weight="700">75%</text></svg>
+              </div>
+            </div>
+            <p style="font-size:.72rem;opacity:.6;">A partial circle &mdash; your brain fills in the rest.</p>
+          </div>
+          <div class="card">
+            <h3>Similarity</h3>
+            <p>Elements that look alike are perceived as the same type.</p>
+            <div style="display:flex;gap:.35rem;margin:.25rem 0;flex-wrap:wrap;">
+              <span style="background:rgba(79,109,245,.5);padding:.2rem .5rem;border-radius:4px;font-size:.72rem;">Home</span>
+              <span style="background:rgba(79,109,245,.5);padding:.2rem .5rem;border-radius:4px;font-size:.72rem;">About</span>
+              <span style="background:rgba(255,234,167,.8);color:#1e293b;padding:.2rem .5rem;border-radius:4px;font-size:.72rem;font-weight:700;">Products</span>
+              <span style="background:rgba(79,109,245,.5);padding:.2rem .5rem;border-radius:4px;font-size:.72rem;">Contact</span>
+            </div>
+            <p style="font-size:.72rem;opacity:.6;">The different one = "you are here."</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== SLIDE 13: FIGURE/GROUND DEMO ==================== -->
+    <div class="slide">
+      <div class="slide-content">
+        <div class="slide-label">Section 3 &mdash; Gestalt Principles</div>
+        <h2>Interactive: Figure / Ground</h2>
+        <p>Click "Show Modal" to see figure/ground in action. The dimmed overlay = ground. The modal = figure.</p>
+        <div class="live-demo">
+          <button class="demo-btn" onclick="toggleFGModal()" id="fgBtn">Show Modal</button>
+          <div class="fg-demo" style="margin-top:.35rem;">
+            <div class="fg-bg" id="fgBg" style="background:rgba(79,109,245,.25);padding:.65rem;">
+              <p style="margin-bottom:.2rem;">This is the main page content. It has text, images, and navigation elements. The user is reading this when suddenly...</p>
+              <p>...a modal appears! Watch how the background dims and the modal comes forward. Your brain instantly knows what to focus on.</p>
+              <div style="display:flex;gap:.5rem;margin-top:.25rem;">
+                <div style="background:rgba(255,255,255,.15);border-radius:4px;padding:.2rem .5rem;font-size:.72rem;">Nav Item</div>
+                <div style="background:rgba(255,255,255,.15);border-radius:4px;padding:.2rem .5rem;font-size:.72rem;">Nav Item</div>
+                <div style="background:rgba(255,255,255,.15);border-radius:4px;padding:.2rem .5rem;font-size:.72rem;">Nav Item</div>
+              </div>
+            </div>
+            <div class="fg-overlay" id="fgOverlay" onclick="toggleFGModal()"></div>
+            <div class="fg-modal" id="fgModal">
+              <div style="font-weight:700;font-size:.95rem;margin-bottom:.3rem;color:#0f172a;">Confirm Action</div>
+              <p style="font-size:.82rem;color:#475569;margin-bottom:.4rem;">Are you sure you want to proceed? This action cannot be undone.</p>
+              <div style="display:flex;gap:.35rem;">
+                <button style="background:#4f6df5;color:white;border:none;padding:.3rem .7rem;border-radius:4px;font-size:.78rem;cursor:pointer;" onclick="toggleFGModal()">Confirm</button>
+                <button style="background:#e2e8f0;color:#475569;border:none;padding:.3rem .7rem;border-radius:4px;font-size:.78rem;cursor:pointer;" onclick="toggleFGModal()">Cancel</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <img src="assets/figure-ground-modal.jpg" class="slide-img" style="max-height:180px;object-fit:contain;" alt="Figure/ground modal example" onerror="this.style.display='none'">
+      </div>
+    </div>
+
+    <!-- ==================== SLIDE 14: MILLER'S LAW ==================== -->
+    <div class="slide">
+      <div class="slide-content">
+        <div class="slide-label">Section 4 &mdash; Cognitive Load</div>
+        <h2>Miller's Law: The 7 &plusmn; 2 Rule</h2>
+        <div class="two-col">
+          <div>
+            <p>Short-term memory holds roughly <strong>7 &plusmn; 2 items</strong>. Chunking breaks information into digestible groups.</p>
+            <div class="live-demo">
+              <h3>Which is easier to remember?</h3>
+              <div style="display:flex;flex-direction:column;gap:.35rem;margin:.25rem 0;">
+                <div style="display:flex;align-items:center;gap:.5rem;">
+                  <span class="badge red">Hard</span>
+                  <code style="font-size:1rem;letter-spacing:.1em;">8005551234</code>
+                </div>
+                <div style="display:flex;align-items:center;gap:.5rem;">
+                  <span class="badge green">Easy</span>
+                  <code style="font-size:1rem;letter-spacing:.1em;">(800) 555-1234</code>
+                </div>
+              </div>
+            </div>
+            <ul style="margin-top:.35rem;">
+              <li><strong>Navigation:</strong> 5&ndash;7 top-level items (Apple.com has exactly 7)</li>
+              <li><strong>Forms:</strong> Break into steps (shipping &rarr; payment &rarr; review)</li>
+              <li><strong>Content:</strong> Organize under clear headings for scanning</li>
+            </ul>
+          </div>
+          <div>
+            <div class="live-demo">
+              <h3>Interactive: Count the Items</h3>
+              <p style="font-size:.78rem;margin-bottom:.25rem;">How many nav items feel comfortable? Click to add more:</p>
+              <div id="millerNav" style="display:flex;flex-wrap:wrap;gap:.25rem;margin:.25rem 0;"></div>
+              <div style="display:flex;gap:.35rem;">
+                <button class="demo-btn" onclick="millerAdd()">+ Add Item</button>
+                <button class="demo-btn" onclick="millerReset()">Reset</button>
+              </div>
+              <p style="font-size:.75rem;margin-top:.2rem;" id="millerCount">Items: 0 &mdash; Add items to see when it becomes overwhelming.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== SLIDE 15: HICK'S LAW ==================== -->
+    <div class="slide">
+      <div class="slide-content">
+        <div class="slide-label">Section 4 &mdash; Cognitive Load</div>
+        <h2>Hick's Law: Fewer Options, Faster Decisions</h2>
+        <div class="two-col">
+          <div>
+            <p>The more options a user has, the <strong>longer it takes to decide</strong>. The relationship is logarithmic.</p>
+            <img src="assets/hicks-law.jpg" class="slide-img" alt="Hick's Law remote comparison" onerror="this.style.display='none'">
+            <p class="img-caption">50-button remote vs. 5-button remote. Same TV. Different experience.</p>
+          </div>
+          <div>
+            <h3>Real-World Examples</h3>
+            <ul>
+              <li><strong>Netflix:</strong> 3 plans, not 10. Decide in seconds.</li>
+              <li><strong>E-commerce:</strong> Progressive filtering, not all 847 products at once</li>
+              <li><strong>Onboarding:</strong> One question per screen</li>
+            </ul>
+            <img src="assets/netflix-plans.png" class="slide-img" style="max-height:180px;object-fit:contain;" alt="Netflix plan selection" onerror="this.style.display='none'">
+            <div class="caution" style="margin-top:.25rem;">
+              <strong>Caution:</strong> Fewer is not always better. Removing <em>useful</em> options creates frustration. Eliminate unnecessary choices, not functionality.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== SLIDE 16: PROGRESSIVE DISCLOSURE ==================== -->
+    <div class="slide">
+      <div class="slide-content">
+        <div class="slide-label">Section 4 &mdash; Cognitive Load</div>
+        <h2>Progressive Disclosure</h2>
+        <p>Show only what's needed at each stage. Reveal complexity when the user is ready.</p>
+        <div class="two-col">
+          <div>
+            <div class="live-demo">
+              <h3>Interactive: Email Compose</h3>
+              <div style="background:white;color:#1e293b;border-radius:8px;padding:.5rem .65rem;font-size:.82rem;">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.35rem;">
+                  <strong>New Message</strong>
+                  <span style="cursor:pointer;font-size:.7rem;color:#64748b;" onclick="this.parentElement.parentElement.querySelector('.pd-advanced').style.display=this.parentElement.parentElement.querySelector('.pd-advanced').style.display==='none'?'block':'none';this.textContent=this.textContent==='Show Cc/Bcc'?'Hide Cc/Bcc':'Show Cc/Bcc'">Show Cc/Bcc</span>
+                </div>
+                <div style="border-bottom:1px solid #e2e8f0;padding:.2rem 0;">To: <span style="color:#94a3b8;">recipient@email.com</span></div>
+                <div class="pd-advanced" style="display:none;">
+                  <div style="border-bottom:1px solid #e2e8f0;padding:.2rem 0;color:#94a3b8;">Cc:</div>
+                  <div style="border-bottom:1px solid #e2e8f0;padding:.2rem 0;color:#94a3b8;">Bcc:</div>
+                </div>
+                <div style="border-bottom:1px solid #e2e8f0;padding:.2rem 0;">Subject: <span style="color:#94a3b8;">Meeting tomorrow</span></div>
+                <div style="padding:.35rem 0;min-height:40px;color:#94a3b8;">Type your message...</div>
+                <div style="display:flex;gap:.35rem;padding-top:.25rem;border-top:1px solid #e2e8f0;">
+                  <span style="background:#4f6df5;color:white;padding:.15rem .5rem;border-radius:4px;font-size:.72rem;">Send</span>
+                  <span style="color:#94a3b8;font-size:.72rem;cursor:pointer;" onclick="this.parentElement.parentElement.querySelector('.pd-formatting').style.display=this.parentElement.parentElement.querySelector('.pd-formatting').style.display==='none'?'flex':'none'">A &nbsp;Formatting</span>
+                </div>
+                <div class="pd-formatting" style="display:none;gap:.35rem;padding:.25rem 0;font-size:.72rem;color:#64748b;">
+                  <span style="font-weight:700;">B</span> <span style="font-style:italic;">I</span> <span style="text-decoration:underline;">U</span> <span>Font</span> <span>Size</span> <span>Color</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div>
+            <h3>Sources of Cognitive Load to Eliminate</h3>
+            <ul>
+              <li><strong>Jargon:</strong> "SKU," "node," "session ID" exposed to users</li>
+              <li><strong>Inconsistency:</strong> Blue buttons here, green buttons there</li>
+              <li><strong>Too many fonts:</strong> Each typeface demands decoding</li>
+              <li><strong>Unlabeled icons:</strong> Icon + label &gt; icon alone</li>
+            </ul>
+            <div class="note"><strong>Gmail pattern:</strong> Simple path is always visible. Advanced path is always available. Click "Compose" &rarr; To, Subject, Body. Formatting, CC, BCC, scheduling are behind toggles.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== SLIDE 17: COLOR TEMPERATURE ==================== -->
+    <div class="slide">
+      <div class="slide-content">
+        <div class="slide-label">Section 5 &mdash; Color &amp; Typography</div>
+        <h2>Color Temperature &amp; Psychology</h2>
+        <p>Color communicates emotion without words. These associations are <strong>not</strong> universal across cultures.</p>
+        <div class="live-demo">
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(90px,1fr));gap:.35rem;">
+            <div class="ct-swatch" style="background:#ef4444;color:white;">Red<br><span style="font-size:.65rem;font-weight:400;">Energy, urgency, danger</span></div>
+            <div class="ct-swatch" style="background:#f97316;color:white;">Orange<br><span style="font-size:.65rem;font-weight:400;">Warmth, creativity</span></div>
+            <div class="ct-swatch" style="background:#eab308;color:#1e293b;">Yellow<br><span style="font-size:.65rem;font-weight:400;">Optimism, attention</span></div>
+            <div class="ct-swatch" style="background:#22c55e;color:white;">Green<br><span style="font-size:.65rem;font-weight:400;">Growth, success</span></div>
+            <div class="ct-swatch" style="background:#3b82f6;color:white;">Blue<br><span style="font-size:.65rem;font-weight:400;">Trust, stability</span></div>
+            <div class="ct-swatch" style="background:#8b5cf6;color:white;">Purple<br><span style="font-size:.65rem;font-weight:400;">Creativity, luxury</span></div>
+          </div>
+        </div>
+        <div class="two-col" style="margin-top:.35rem;">
+          <div class="highlight">
+            <strong>Why banks use blue:</strong> Blue conveys trust and stability. Facebook, LinkedIn, PayPal &mdash; all blue for this reason.
+          </div>
+          <div class="caution">
+            <strong>Cultural variation:</strong> Red = danger (West) but luck &amp; celebration (China). Always design for your audience.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== SLIDE 18: 60-30-10 RULE DEMO ==================== -->
+    <div class="slide">
+      <div class="slide-content">
+        <div class="slide-label">Section 5 &mdash; Color &amp; Typography</div>
+        <h2>The 60-30-10 Rule</h2>
+        <div class="two-col">
+          <div>
+            <p>Allocate your color palette in this ratio:</p>
+            <ul>
+              <li><strong>60% dominant:</strong> Neutral background (white, light gray)</li>
+              <li><strong>30% secondary:</strong> Cards, sidebars, text blocks</li>
+              <li><strong>10% accent:</strong> CTAs, links, alerts &mdash; stands out because it's rare</li>
+            </ul>
+            <div class="live-demo" style="margin-top:.35rem;">
+              <p style="font-size:.78rem;color:#ffeaa7;font-weight:600;margin-bottom:.2rem;">Try different accent colors:</p>
+              <div style="display:flex;gap:.25rem;flex-wrap:wrap;">
+                <button class="demo-btn active" onclick="setAccent('#4f6df5',this)" style="background:rgba(79,109,245,.5);">Blue</button>
+                <button class="demo-btn" onclick="setAccent('#22c55e',this)" style="background:rgba(34,197,94,.5);">Green</button>
+                <button class="demo-btn" onclick="setAccent('#ef4444',this)" style="background:rgba(239,68,68,.5);">Red</button>
+                <button class="demo-btn" onclick="setAccent('#8b5cf6',this)" style="background:rgba(139,92,246,.5);">Purple</button>
+                <button class="demo-btn" onclick="setAccent('#f97316',this)" style="background:rgba(249,115,22,.5);">Orange</button>
+              </div>
+            </div>
+          </div>
+          <div>
+            <div class="color-page" id="colorPageDemo">
+              <div class="color-header" style="background:#0f172a;color:white;">
+                <span style="font-weight:800;">AppName</span>
+                <div style="display:flex;gap:.5rem;font-size:.72rem;align-items:center;">
+                  <span>Features</span><span>Pricing</span>
+                  <span class="color-cta" id="accentCTA" style="background:#4f6df5;color:white;">Sign Up</span>
+                </div>
+              </div>
+              <div class="color-hero" style="background:#f8fafc;color:#0f172a;">
+                <h3 style="color:#0f172a;">Build Faster. Ship Sooner.</h3>
+                <p style="color:#64748b;font-size:.78rem;">The developer platform that just works.</p>
+                <span class="color-cta" id="accentHero" style="background:#4f6df5;color:white;margin-top:.3rem;">Get Started Free</span>
+              </div>
+              <div class="color-cards" style="background:#f1f5f9;">
+                <div class="color-card-item" style="background:white;border:1px solid #e2e8f0;color:#1e293b;">Feature One</div>
+                <div class="color-card-item" style="background:white;border:1px solid #e2e8f0;color:#1e293b;">Feature Two</div>
+                <div class="color-card-item" style="background:white;border:1px solid #e2e8f0;color:#1e293b;">Feature Three</div>
+              </div>
+              <div class="color-footer" style="background:#0f172a;color:rgba(255,255,255,.5);">&copy; 2025 AppName &mdash; 60% white, 30% dark, <span id="accentLabel" style="color:#4f6df5;">10% accent</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== SLIDE 19: CONTRAST & ACCESSIBILITY ==================== -->
+    <div class="slide">
+      <div class="slide-content">
+        <div class="slide-label">Section 5 &mdash; Color &amp; Typography</div>
+        <h2>Contrast &amp; Accessibility</h2>
+        <div class="two-col">
+          <div>
+            <p>WCAG requires:</p>
+            <ul>
+              <li><strong>4.5:1</strong> ratio for normal text</li>
+              <li><strong>3:1</strong> ratio for large text (18px+ bold or 24px+)</li>
+            </ul>
+            <div class="live-demo" style="margin-top:.35rem;">
+              <h3>Interactive: Contrast Checker</h3>
+              <div style="display:flex;flex-direction:column;gap:.25rem;">
+                <label style="font-size:.78rem;display:flex;align-items:center;gap:.3rem;">Text color: <input type="color" value="#999999" id="contrastText" oninput="checkContrast()"></label>
+                <label style="font-size:.78rem;display:flex;align-items:center;gap:.3rem;">Background: <input type="color" value="#ffffff" id="contrastBg" oninput="checkContrast()"></label>
+              </div>
+              <div class="contrast-box" id="contrastPreview" style="background:#ffffff;color:#999999;margin-top:.25rem;border:1px solid rgba(255,255,255,.2);">
+                This is sample text. Can you read it comfortably?
+              </div>
+              <p style="font-size:.82rem;margin-top:.2rem;" id="contrastResult">Ratio: <strong>2.85:1</strong> <span class="badge red">FAIL</span> &mdash; Below 4.5:1 minimum</p>
+            </div>
+            <p style="margin-top:.25rem;"><a href="https://webaim.org/resources/contrastchecker/" target="_blank" rel="noopener noreferrer">WebAIM Contrast Checker &rarr;</a></p>
+          </div>
+          <div>
+            <img src="assets/contrast-ratio.png" class="slide-img" alt="Contrast ratio comparison" onerror="this.style.display='none'">
+            <p class="img-caption">Left: fails WCAG. Right: passes. The difference is dramatic outdoors.</p>
+            <div class="note" style="margin-top:.25rem;"><strong>Aesthetic-usability effect:</strong> Users perceive beautiful interfaces as more usable &mdash; even when they're not. Good design buys tolerance for friction.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== SLIDE 20: TYPOGRAPHY ==================== -->
+    <div class="slide">
+      <div class="slide-content">
+        <div class="slide-label">Section 5 &mdash; Color &amp; Typography</div>
+        <h2>Typography: Hierarchy &amp; Personality</h2>
+        <div class="two-col">
+          <div>
+            <h3>Type Hierarchy</h3>
+            <p>Each level has a distinct job:</p>
+            <div class="type-sample" style="margin:.25rem 0;">
+              <div style="font-size:1.4rem;font-weight:800;color:#ffeaa7;">Heading</div>
+              <div style="font-size:1rem;font-weight:600;color:#81ecec;">Subheading</div>
+              <div style="font-size:.88rem;opacity:.9;">Body text goes here with comfortable reading size.</div>
+              <div style="font-size:.72rem;opacity:.55;">Caption &mdash; small, muted, secondary information</div>
+            </div>
+            <h3>Typeface Personality</h3>
+            <table class="cmp">
+              <thead><tr><th>Category</th><th>Personality</th></tr></thead>
+              <tbody>
+                <tr><td style="font-family:Georgia,serif;">Serif</td><td>Trust, editorial (NYT, Vogue)</td></tr>
+                <tr><td style="font-family:system-ui;">Sans-serif</td><td>Modern, clean (Google, GitHub)</td></tr>
+                <tr><td style="font-family:monospace;">Monospace</td><td>Code, precision (terminals)</td></tr>
+                <tr><td style="font-family:cursive;">Script</td><td>Accents only &mdash; never body</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div>
+            <h3>The Two-Typeface Rule</h3>
+            <p>One for headings, one for body. Vary weight and size within those families before adding a third.</p>
+            <h3>Line Length &amp; Line Height</h3>
+            <div class="live-demo">
+              <p style="font-size:.78rem;color:#ffeaa7;font-weight:600;">Adjust line width:</p>
+              <input type="range" min="20" max="100" value="60" id="llSlider" oninput="updateLineLength()">
+              <div class="ll-box" id="llDemo" style="max-width:60ch;">
+                The quick brown fox jumps over the lazy dog. This sentence is here to demonstrate how line length affects readability. Too narrow feels choppy. Too wide makes your eyes lose their place on the return trip. The sweet spot is 45 to 75 characters.
+              </div>
+              <p style="font-size:.72rem;opacity:.6;margin-top:.15rem;" id="llLabel">Width: ~60 characters &mdash; <span style="color:#86efac;">Ideal range (45-75ch)</span></p>
+            </div>
+            <div class="tip" style="margin-top:.25rem;">
+              <strong>Line height:</strong> 1.4&ndash;1.6&times; font size for body text. Too tight = claustrophobic. Too loose = disconnected.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== SLIDE 21: JAKOB'S LAW ==================== -->
+    <div class="slide">
+      <div class="slide-content">
+        <div class="slide-label">Section 6 &mdash; Design Heuristics</div>
+        <h2>Jakob's Law: Users Expect Conventions</h2>
+        <div class="two-col">
+          <div>
+            <p>Users spend most of their time on <strong>other</strong> websites. They expect yours to work like those.</p>
+            <ul>
+              <li>Shopping cart &rarr; top-right corner</li>
+              <li>Logo &rarr; links to homepage</li>
+              <li>Hamburger &harr; toggles navigation</li>
+              <li>Back arrow &rarr; goes back</li>
+            </ul>
+            <div class="caution" style="margin-top:.35rem;">
+              <strong>Snapchat lesson:</strong> Counter-conventional interface caused user drop-off. They eventually added a conventional UI layer. Break conventions only when the payoff clearly outweighs the confusion.
+            </div>
+            <p><a href="https://lawsofux.com/jakobs-law/" target="_blank" rel="noopener noreferrer">Laws of UX: Jakob's Law &rarr;</a></p>
+          </div>
+          <div>
+            <img src="assets/jakobs-law.jpg" class="slide-img" alt="Common web conventions" onerror="this.style.display='none'">
+            <p class="img-caption">Common conventions: logo top-left, cart top-right, search in header. Move them and users get confused.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== SLIDE 22: FITTS' LAW ==================== -->
+    <div class="slide">
+      <div class="slide-content">
+        <div class="slide-label">Section 6 &mdash; Design Heuristics</div>
+        <h2>Fitts' Law: Size &amp; Distance Matter</h2>
+        <div class="two-col">
+          <div>
+            <p>Time to reach a target depends on its <strong>size</strong> and <strong>distance</strong>. Larger + closer = faster.</p>
+            <div class="live-demo">
+              <h3>Interactive: Click the Targets</h3>
+              <p style="font-size:.78rem;margin-bottom:.25rem;">Try clicking each. Notice which is easier to hit.</p>
+              <div style="display:flex;align-items:center;gap:1.5rem;justify-content:center;padding:.5rem 0;">
+                <div class="fitts-target" style="width:24px;height:24px;background:rgba(239,68,68,.5);font-size:.55rem;" onclick="fittsClick(this)">X</div>
+                <div class="fitts-target" style="width:44px;height:44px;background:rgba(234,179,8,.5);font-size:.72rem;" onclick="fittsClick(this)">OK</div>
+                <div class="fitts-target" style="width:72px;height:72px;background:rgba(34,197,94,.5);font-size:.88rem;" onclick="fittsClick(this)">Go!</div>
+              </div>
+              <p style="font-size:.75rem;opacity:.7;" id="fittsResult">Click a target to see the effect of size.</p>
+            </div>
+            <ul style="margin-top:.25rem;">
+              <li>Mobile tap targets: min <strong>44&times;44px</strong> (Apple) or <strong>48&times;48dp</strong> (Google)</li>
+              <li>Destructive buttons: <strong>small + far away</strong> = safety mechanism</li>
+              <li>macOS dock: icons expand on hover = adaptive Fitts'</li>
+            </ul>
+          </div>
+          <div>
+            <img src="assets/fitts-law.png" class="slide-img" alt="Fitts Law diagram" onerror="this.style.display='none'">
+            <p class="img-caption">Small + far = slow. Large + close = fast. Primary buttons should be the easiest to hit.</p>
+            <p><a href="https://lawsofux.com/fittss-law/" target="_blank" rel="noopener noreferrer">Laws of UX: Fitts' Law &rarr;</a></p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== SLIDE 23: AFFORDANCES ==================== -->
+    <div class="slide">
+      <div class="slide-content">
+        <div class="slide-label">Section 6 &mdash; Design Heuristics</div>
+        <h2>Affordances &amp; Signifiers</h2>
+        <div class="two-col">
+          <div>
+            <p>An <strong>affordance</strong> is a visual cue that tells users what an element does.</p>
+            <div class="live-demo">
+              <h3>Can You Tell What Each Does?</h3>
+              <div style="display:flex;flex-direction:column;gap:.45rem;margin:.35rem 0;">
+                <div style="display:flex;align-items:center;gap:.65rem;">
+                  <button style="background:#4f6df5;color:white;padding:.4rem 1rem;border-radius:6px;border:none;font-size:.82rem;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.3);">Click Me</button>
+                  <span style="font-size:.75rem;opacity:.7;">Button &rarr; affords clicking (raised, colored, labeled)</span>
+                </div>
+                <div style="display:flex;align-items:center;gap:.65rem;">
+                  <a href="#" onclick="return false" style="font-size:.88rem;">Learn more</a>
+                  <span style="font-size:.75rem;opacity:.7;">Link &rarr; affords clicking (underlined, colored text)</span>
+                </div>
+                <div style="display:flex;align-items:center;gap:.65rem;">
+                  <span style="font-size:1.2rem;cursor:grab;">&#x2807;</span>
+                  <span style="font-size:.75rem;opacity:.7;">Drag handle &rarr; affords dragging (six-dot grid)</span>
+                </div>
+                <div style="display:flex;align-items:center;gap:.65rem;">
+                  <span style="font-size:1rem;">&#128465;</span>
+                  <span style="font-size:.75rem;opacity:.7;">Icon alone &rarr; ambiguous. Delete? Clear? Discard?</span>
+                </div>
+                <div style="display:flex;align-items:center;gap:.65rem;">
+                  <span style="font-size:1rem;">&#128465; Delete</span>
+                  <span style="font-size:.75rem;opacity:.7;">Icon + label = affordance + signifier &mdash; <strong>always better</strong></span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div>
+            <img src="assets/affordances.png" class="slide-img" alt="Affordances comparison" onerror="this.style.display='none'">
+            <p class="img-caption">Each element's visual style communicates what it does before interaction.</p>
+            <h3>The 10-Second Test</h3>
+            <p>Show your page for 10 seconds, then ask:</p>
+            <ol>
+              <li>"What is this page for?"</li>
+              <li>"What should you do next?"</li>
+            </ol>
+            <p>If they can't answer both, the hierarchy failed.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== SLIDE 24: DESIGN CRITIQUE FRAMEWORK ==================== -->
+    <div class="slide">
+      <div class="slide-content">
+        <div class="slide-label">Section 6 &mdash; Design Heuristics</div>
+        <h2>The Design Critique Framework</h2>
+        <p>Five questions to evaluate any design. Ground feedback in <strong>principles, not preferences</strong>.</p>
+        <div class="card-grid" style="grid-template-columns:repeat(auto-fit,minmax(200px,1fr));">
+          <div class="card">
+            <span class="badge">1</span>
+            <strong style="color:#ffeaa7;">What is the hierarchy?</strong>
+            <p style="font-size:.8rem;">What draws the eye first, second, third?</p>
+          </div>
+          <div class="card">
+            <span class="badge">2</span>
+            <strong style="color:#ffeaa7;">What is the primary action?</strong>
+            <p style="font-size:.8rem;">One obvious CTA, or attention split?</p>
+          </div>
+          <div class="card">
+            <span class="badge">3</span>
+            <strong style="color:#ffeaa7;">What is the cognitive load?</strong>
+            <p style="font-size:.8rem;">How many decisions in the first 5 seconds?</p>
+          </div>
+          <div class="card">
+            <span class="badge">4</span>
+            <strong style="color:#ffeaa7;">Does it follow conventions?</strong>
+            <p style="font-size:.8rem;">What patterns are used or broken?</p>
+          </div>
+          <div class="card">
+            <span class="badge">5</span>
+            <strong style="color:#ffeaa7;">What would you change?</strong>
+            <p style="font-size:.8rem;">One specific improvement with a reason.</p>
+          </div>
+        </div>
+        <div class="highlight" style="margin-top:.35rem;">
+          <strong>Example:</strong> "I don't like blue" = preference. "The blue CTA doesn't contrast enough with the blue header, reducing its visual weight" = critique.
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== SLIDE 25: NIELSEN'S 10 HEURISTICS ==================== -->
+    <div class="slide">
+      <div class="slide-content">
+        <div class="slide-label">Section 7 &mdash; UX Fundamentals</div>
+        <h2>Nielsen's 10 Usability Heuristics</h2>
+        <p>Published 1994. Still the industry standard. Use as a checklist for any interface.</p>
+        <div class="nielsen-grid">
+          <div class="nielsen-card"><span class="nielsen-num">1</span><strong>System Status</strong>Keep users informed (progress bars, spinners)</div>
+          <div class="nielsen-card"><span class="nielsen-num">2</span><strong>Real-World Match</strong>"Check in" not "Reservation start date"</div>
+          <div class="nielsen-card"><span class="nielsen-num">3</span><strong>User Control</strong>Undo, cancel, back. Gmail's "Undo Send"</div>
+          <div class="nielsen-card"><span class="nielsen-num">4</span><strong>Consistency</strong>Same words &amp; actions everywhere</div>
+          <div class="nielsen-card"><span class="nielsen-num">5</span><strong>Error Prevention</strong>Date pickers &gt; free-text date fields</div>
+          <div class="nielsen-card"><span class="nielsen-num">6</span><strong>Recognition &gt; Recall</strong>Amazon's "Recently Viewed" bar</div>
+          <div class="nielsen-card"><span class="nielsen-num">7</span><strong>Flexibility</strong>Shortcuts for experts (Gmail: j/k keys)</div>
+          <div class="nielsen-card"><span class="nielsen-num">8</span><strong>Minimalist Design</strong>Every extra element competes</div>
+          <div class="nielsen-card"><span class="nielsen-num">9</span><strong>Error Recovery</strong>"Password must be 8+ chars" not "Error"</div>
+          <div class="nielsen-card"><span class="nielsen-num">10</span><strong>Help &amp; Docs</strong>Tooltips, inline hints, help centers</div>
+        </div>
+        <p style="margin-top:.25rem;"><a href="https://www.nngroup.com/articles/ten-usability-heuristics/" target="_blank" rel="noopener noreferrer">Read the full heuristics at Nielsen Norman Group &rarr;</a></p>
+      </div>
+    </div>
+
+    <!-- ==================== SLIDE 26: UX PATTERNS ==================== -->
+    <div class="slide">
+      <div class="slide-content">
+        <div class="slide-label">Section 7 &mdash; UX Fundamentals</div>
+        <h2>UX Patterns Every Designer Should Know</h2>
+        <div class="two-col">
+          <div>
+            <h3>Interactive: Toggle UX States</h3>
+            <div class="live-demo">
+              <div style="display:flex;gap:.25rem;flex-wrap:wrap;margin-bottom:.35rem;">
+                <button class="demo-btn active" onclick="showUXState('empty',this)">Empty State</button>
+                <button class="demo-btn" onclick="showUXState('loading',this)">Loading</button>
+                <button class="demo-btn" onclick="showUXState('error',this)">Error</button>
+                <button class="demo-btn" onclick="showUXState('success',this)">Success</button>
+              </div>
+              <div class="ux-state-box" id="uxStateBox">
+                <div id="uxEmpty" style="text-align:center;padding:1rem;">
+                  <div style="font-size:2rem;margin-bottom:.25rem;">&#128193;</div>
+                  <p style="font-weight:700;">No files yet</p>
+                  <p style="font-size:.82rem;opacity:.7;">Upload your first file to get started.</p>
+                  <button style="background:#4f6df5;color:white;border:none;padding:.3rem .8rem;border-radius:4px;margin-top:.25rem;cursor:pointer;font-size:.82rem;">Upload File</button>
+                </div>
+                <div id="uxLoading" style="display:none;padding:1rem;">
+                  <div style="display:flex;flex-direction:column;gap:.35rem;">
+                    <div style="background:rgba(255,255,255,.1);height:12px;border-radius:6px;animation:shimmer 1.5s infinite;"></div>
+                    <div style="background:rgba(255,255,255,.1);height:12px;border-radius:6px;width:75%;animation:shimmer 1.5s infinite .2s;"></div>
+                    <div style="display:flex;gap:.35rem;margin-top:.15rem;">
+                      <div style="background:rgba(255,255,255,.1);height:60px;border-radius:6px;flex:1;animation:shimmer 1.5s infinite .4s;"></div>
+                      <div style="background:rgba(255,255,255,.1);height:60px;border-radius:6px;flex:1;animation:shimmer 1.5s infinite .6s;"></div>
+                    </div>
+                  </div>
+                  <p style="font-size:.75rem;opacity:.6;text-align:center;margin-top:.25rem;">Skeleton screen &mdash; feels faster than a spinner</p>
+                </div>
+                <div id="uxError" style="display:none;text-align:center;padding:1rem;">
+                  <div style="font-size:2rem;margin-bottom:.25rem;">&#128566;</div>
+                  <p style="font-weight:700;color:#fca5a5;">Something went wrong</p>
+                  <p style="font-size:.82rem;opacity:.7;">We couldn't load your files. Check your connection and try again.</p>
+                  <button style="background:rgba(239,68,68,.3);color:white;border:1px solid rgba(239,68,68,.5);padding:.3rem .8rem;border-radius:4px;margin-top:.25rem;cursor:pointer;font-size:.82rem;">Retry</button>
+                </div>
+                <div id="uxSuccess" style="display:none;text-align:center;padding:1rem;">
+                  <div style="font-size:2rem;margin-bottom:.25rem;">&#9989;</div>
+                  <p style="font-weight:700;color:#86efac;">File uploaded successfully!</p>
+                  <p style="font-size:.82rem;opacity:.7;">report-q4.pdf (2.3 MB) is now available.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div>
+            <h3>Key States to Handle</h3>
+            <ul>
+              <li><strong>Empty:</strong> Guide the user to their first action (Dropbox illustration + CTA)</li>
+              <li><strong>Loading:</strong> Skeleton screens feel faster than spinners (Facebook/LinkedIn)</li>
+              <li><strong>Error:</strong> Plain language + next step (GitHub's 404 cat, Slack's refresh message)</li>
+              <li><strong>Success:</strong> Confirm the action worked (checkmark, toast, confetti)</li>
+              <li><strong>Onboarding:</strong> Teach by doing, not with tutorials (Duolingo)</li>
+            </ul>
+            <div class="highlight">
+              <strong>Silence after action = anxiety.</strong> Always confirm that something happened.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== SLIDE 27: USABILITY TESTING ==================== -->
+    <div class="slide">
+      <div class="slide-content">
+        <div class="slide-label">Section 8 &mdash; Usability Testing</div>
+        <h2>You Are Not the User</h2>
+        <div class="two-col">
+          <div>
+            <p>Once you know how your interface works, <strong>you can't un-know it</strong>. The only way to find real problems: watch someone else try.</p>
+            <h3>The 5-User Rule</h3>
+            <p>Testing with <strong>5 users</strong> reveals ~85% of usability problems. You don't need 50.</p>
+            <img src="assets/five-user-rule.jpg" class="slide-img" alt="5-user rule chart" onerror="this.style.display='none'">
+            <p class="img-caption">Steep climb through 5 users, then diminishing returns.</p>
+          </div>
+          <div>
+            <h3>Think-Aloud Protocol</h3>
+            <p>Ask users to narrate: "I'm looking for the login... I think it's up here..."</p>
+            <p>What to watch for:</p>
+            <ul>
+              <li><strong>Hesitation</strong> = confusion</li>
+              <li><strong>Backtracking</strong> = lost</li>
+              <li><strong>Misreading labels</strong> = naming problem</li>
+              <li><strong>Skipping elements</strong> = invisible affordance</li>
+            </ul>
+            <div class="caution"><strong>Critical rule:</strong> Stay silent. No hints. If they're stuck, that <em>is</em> the finding.</div>
+            <img src="assets/think-aloud.png" class="slide-img" style="max-height:120px;object-fit:contain;" alt="Think-aloud testing session" onerror="this.style.display='none'">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== SLIDE 28: TESTING METHODS ==================== -->
+    <div class="slide">
+      <div class="slide-content">
+        <div class="slide-label">Section 8 &mdash; Usability Testing</div>
+        <h2>Testing Methods</h2>
+        <div class="three-col">
+          <div class="card">
+            <h3>Task-Based Testing</h3>
+            <p style="font-size:.82rem;">Don't ask "What do you think?" Give specific tasks:</p>
+            <ul style="font-size:.78rem;">
+              <li>"Find the return policy"</li>
+              <li>"Book a flight SLC &rarr; Denver"</li>
+            </ul>
+            <p style="font-size:.78rem;"><strong>Measure:</strong> completion rate, time, errors</p>
+          </div>
+          <div class="card">
+            <h3>Guerrilla Testing</h3>
+            <p style="font-size:.82rem;">Quick, informal, low-cost. Grab anyone who hasn't seen your design.</p>
+            <ul style="font-size:.78rem;">
+              <li>Show for 10 seconds</li>
+              <li>Ask them to complete a task</li>
+              <li>Best for catching obvious problems early</li>
+            </ul>
+          </div>
+          <div class="card">
+            <h3>A/B Testing</h3>
+            <p style="font-size:.82rem;">Version A &rarr; 50% of users. Version B &rarr; other 50%. Measure.</p>
+            <img src="assets/ab-testing.png" class="slide-img" style="max-height:100px;object-fit:contain;" alt="A/B testing" onerror="this.style.display='none'">
+            <p style="font-size:.72rem;opacity:.7;">Google tested 41 shades of blue. Winner = $200M/year more revenue.</p>
+          </div>
+        </div>
+        <div class="two-col" style="margin-top:.35rem;">
+          <div class="note">
+            <strong>Heatmaps &amp; Analytics:</strong> Tools like <a href="https://www.hotjar.com/" target="_blank" rel="noopener noreferrer">Hotjar</a> and <a href="https://clarity.microsoft.com/" target="_blank" rel="noopener noreferrer">Microsoft Clarity</a> show where users click, scroll, and hover. Rage clicks = frustration.
+          </div>
+          <div class="highlight">
+            <strong>Red flags:</strong> High bounce rate on CTA pages, form abandonment, rage clicks, back-button bouncing.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== SLIDE 29: DARK PATTERNS WARNING ==================== -->
+    <div class="slide">
+      <div class="slide-content">
+        <div class="slide-label">Section 8 &mdash; Usability Testing</div>
+        <h2>Dark Patterns: What to Never Build</h2>
+        <div class="caution" style="font-size:clamp(.85rem,1.9vw,1rem);">
+          <p>Now that you know what good UX looks like, here's what to <strong>never</strong> build:</p>
+        </div>
+        <div class="card-grid" style="grid-template-columns:repeat(auto-fit,minmax(190px,1fr));margin-top:.35rem;">
+          <div class="card" style="border-left:3px solid #ef4444;">
+            <strong style="color:#fca5a5;">Confirm-shaming</strong>
+            <p style="font-size:.78rem;">"No thanks, I don't want to save money."</p>
+          </div>
+          <div class="card" style="border-left:3px solid #ef4444;">
+            <strong style="color:#fca5a5;">Hidden Unsubscribe</strong>
+            <p style="font-size:.78rem;">Opt-out buried in tiny text behind multiple clicks.</p>
+          </div>
+          <div class="card" style="border-left:3px solid #ef4444;">
+            <strong style="color:#fca5a5;">Forced Continuity</strong>
+            <p style="font-size:.78rem;">Free trial auto-converts to paid with no warning.</p>
+          </div>
+          <div class="card" style="border-left:3px solid #ef4444;">
+            <strong style="color:#fca5a5;">Misdirection</strong>
+            <p style="font-size:.78rem;">Visual hierarchy highlights the company's preferred option while hiding yours.</p>
+          </div>
+        </div>
+        <div class="highlight" style="margin-top:.35rem;">
+          These may boost short-term metrics but <strong>destroy trust</strong>, generate complaints, and increasingly violate consumer protection laws (EU Digital Services Act). Design ethically.
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== SLIDE 30: MOBILE-FIRST ==================== -->
+    <div class="slide">
+      <div class="slide-content">
+        <div class="slide-label">Section 9 &mdash; Mobile-First Design</div>
+        <h2>Mobile-First: A Design Philosophy</h2>
+        <div class="two-col">
+          <div>
+            <p>Mobile-first is not a CSS technique. It's a <strong>design philosophy</strong>: start with the smallest screen and add complexity as space allows.</p>
+            <h3>Three Questions at Every Stage</h3>
+            <ol>
+              <li>What is the single most important thing on this page?</li>
+              <li>What can be removed without losing the page's purpose?</li>
+              <li>What can move behind a tap, toggle, or "See more" link?</li>
+            </ol>
+            <div class="highlight" style="margin-top:.35rem;">
+              <strong>Desktop-first</strong> hides bad prioritization &mdash; there's always room for "one more thing." <strong>Mobile-first</strong> reveals it immediately.
+            </div>
+            <p style="font-size:.82rem;margin-top:.2rem;">Luke Wroblewski coined "Mobile First" in 2009. Twitter proved it: one input, "What's happening?" Mobile constraint forced clarity.</p>
+          </div>
+          <div>
+            <h3>Four Responsive Layout Patterns</h3>
+            <table class="cmp">
+              <thead><tr><th>Pattern</th><th>Behavior</th></tr></thead>
+              <tbody>
+                <tr><td>Mostly Fluid</td><td>Columns stack to single column. Most common.</td></tr>
+                <tr><td>Column Drop</td><td>Columns drop one at a time: 3 &rarr; 2+1 &rarr; 1+1+1</td></tr>
+                <tr><td>Layout Shifter</td><td>Layout fundamentally reorganizes. Most flexible.</td></tr>
+                <tr><td>Off Canvas</td><td>Content slides in/out from the side on demand.</td></tr>
+              </tbody>
+            </table>
+            <p style="font-size:.82rem;margin-top:.25rem;"><strong>Test:</strong> "What happens at phone / tablet / 27&Prime; monitor?" If you can't answer all three, it's not responsive.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== SLIDE 31: RESPONSIVE PATTERNS DEMO ==================== -->
+    <div class="slide">
+      <div class="slide-content">
+        <div class="slide-label">Section 9 &mdash; Mobile-First Design</div>
+        <h2>Interactive: Responsive Layout Patterns</h2>
+        <p>Drag the slider to simulate different screen widths and watch how each pattern adapts.</p>
+        <div class="live-demo">
+          <div style="display:flex;align-items:center;gap:.5rem;margin-bottom:.35rem;">
+            <label style="font-size:.78rem;">Width:</label>
+            <input type="range" min="200" max="800" value="800" id="respSlider" oninput="updateRespDemo()">
+            <span id="respWidth" style="font-family:monospace;font-size:.82rem;font-weight:700;">800px</span>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:.5rem;">
+            <div>
+              <p style="font-size:.72rem;font-weight:700;color:#ffeaa7;margin-bottom:.15rem;">Mostly Fluid</p>
+              <div id="respFluid" style="display:grid;gap:4px;grid-template-columns:1fr 1fr 1fr;transition:all .2s;">
+                <div style="background:rgba(79,109,245,.4);border-radius:4px;padding:.3rem;font-size:.65rem;text-align:center;">1</div>
+                <div style="background:rgba(79,109,245,.4);border-radius:4px;padding:.3rem;font-size:.65rem;text-align:center;">2</div>
+                <div style="background:rgba(79,109,245,.4);border-radius:4px;padding:.3rem;font-size:.65rem;text-align:center;">3</div>
+              </div>
+            </div>
+            <div>
+              <p style="font-size:.72rem;font-weight:700;color:#ffeaa7;margin-bottom:.15rem;">Column Drop</p>
+              <div id="respDrop" style="display:grid;gap:4px;grid-template-columns:1fr 1fr 1fr;transition:all .2s;">
+                <div style="background:rgba(34,197,94,.4);border-radius:4px;padding:.3rem;font-size:.65rem;text-align:center;">A</div>
+                <div style="background:rgba(34,197,94,.4);border-radius:4px;padding:.3rem;font-size:.65rem;text-align:center;">B</div>
+                <div style="background:rgba(34,197,94,.4);border-radius:4px;padding:.3rem;font-size:.65rem;text-align:center;">C</div>
+              </div>
+            </div>
+            <div>
+              <p style="font-size:.72rem;font-weight:700;color:#ffeaa7;margin-bottom:.15rem;">Layout Shifter</p>
+              <div id="respShifter" style="display:grid;gap:4px;grid-template-columns:80px 1fr;transition:all .2s;">
+                <div style="background:rgba(236,72,153,.4);border-radius:4px;padding:.3rem;font-size:.65rem;text-align:center;grid-row:1/3;">Side</div>
+                <div style="background:rgba(236,72,153,.4);border-radius:4px;padding:.3rem;font-size:.65rem;text-align:center;">Main</div>
+                <div style="background:rgba(236,72,153,.4);border-radius:4px;padding:.3rem;font-size:.65rem;text-align:center;">Footer</div>
+              </div>
+            </div>
+            <div>
+              <p style="font-size:.72rem;font-weight:700;color:#ffeaa7;margin-bottom:.15rem;">Off Canvas</p>
+              <div id="respCanvas" style="display:flex;gap:4px;overflow:hidden;transition:all .2s;">
+                <div id="respCanvasNav" style="background:rgba(234,179,8,.4);border-radius:4px;padding:.3rem;font-size:.65rem;text-align:center;min-width:60px;transition:all .2s;">Nav</div>
+                <div style="background:rgba(234,179,8,.4);border-radius:4px;padding:.3rem;font-size:.65rem;text-align:center;flex:1;">Content</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== SLIDE 32: WIREFRAMING ==================== -->
+    <div class="slide">
+      <div class="slide-content">
+        <div class="slide-label">Section 10 &mdash; Wireframing</div>
+        <h2>Wireframing: Plan Before You Build</h2>
+        <div class="two-col">
+          <div>
+            <p>A wireframe is a <strong>blueprint</strong>. No colors, no images, no final copy. Just boxes and labels showing what goes where.</p>
+            <h3>Why Wireframe?</h3>
+            <ul>
+              <li>Moving a box on paper: <strong>5 seconds</strong></li>
+              <li>Moving a styled section in code: <strong>1 hour</strong></li>
+              <li>Forces decisions about <em>what</em> and <em>where</em> before <em>how it looks</em></li>
+            </ul>
+            <img src="assets/wireframe.png" class="slide-img" style="max-height:200px;object-fit:contain;" alt="Low-fidelity wireframe" onerror="this.style.display='none'">
+            <p class="img-caption">Intentionally rough. Gray boxes, labels, no style to debate.</p>
+          </div>
+          <div>
+            <h3>Low-Fi vs High-Fi</h3>
+            <img src="assets/lofi-vs-hifi.jpg" class="slide-img" style="max-height:160px;object-fit:contain;" alt="Low-fi vs high-fi comparison" onerror="this.style.display='none'">
+            <div class="two-col" style="gap:.35rem;margin-top:.25rem;">
+              <div class="card" style="border-left:3px solid #81ecec;">
+                <strong style="color:#81ecec;">Low-Fi</strong>
+                <p style="font-size:.78rem;">Gray boxes, placeholders. Fast to create. Easy to throw away.</p>
+              </div>
+              <div class="card" style="border-left:3px solid #ffeaa7;">
+                <strong style="color:#ffeaa7;">High-Fi</strong>
+                <p style="font-size:.78rem;">Real colors, images, text. Looks final. Takes much longer.</p>
+              </div>
+            </div>
+            <div class="caution" style="margin-top:.25rem;">
+              <strong>The mistake:</strong> Jumping straight to high-fi. You fall in love with visuals and resist changing the layout &mdash; even when it's wrong.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== SLIDE 33: WIREFRAME INTERACTIVE ==================== -->
+    <div class="slide">
+      <div class="slide-content">
+        <div class="slide-label">Section 10 &mdash; Wireframing</div>
+        <h2>Interactive: Low-Fi &rarr; High-Fi</h2>
+        <p>Click the button to watch a wireframe evolve into a finished design.</p>
+        <div class="live-demo">
+          <div style="display:flex;gap:.5rem;margin-bottom:.35rem;">
+            <button class="demo-btn active" onclick="setFidelity('lofi',this)">Low-Fi Wireframe</button>
+            <button class="demo-btn" onclick="setFidelity('hifi',this)">High-Fi Mockup</button>
+          </div>
+          <div style="background:rgba(0,0,0,.3);border-radius:8px;padding:.65rem;max-width:500px;">
+            <div class="wf-block" id="wfNav" style="margin-bottom:.35rem;display:flex;justify-content:space-between;padding:.3rem .6rem;">
+              <span id="wfLogo">[ Logo ]</span>
+              <span id="wfLinks">[ Nav ] [ Nav ] [ Nav ]</span>
+            </div>
+            <div class="wf-block" id="wfHero" style="min-height:80px;display:flex;flex-direction:column;align-items:center;justify-content:center;margin-bottom:.35rem;">
+              <span id="wfH1" style="font-size:1rem;font-weight:700;">[ Headline ]</span>
+              <span id="wfSub" style="font-size:.78rem;">[ Subheading text goes here ]</span>
+              <span id="wfCTA" style="margin-top:.25rem;padding:.2rem .6rem;border:1px dashed rgba(255,255,255,.3);border-radius:4px;font-size:.78rem;">[ CTA Button ]</span>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:.25rem;margin-bottom:.35rem;">
+              <div class="wf-block" id="wfF1" style="min-height:50px;display:flex;align-items:center;justify-content:center;">[ Feature 1 ]</div>
+              <div class="wf-block" id="wfF2" style="min-height:50px;display:flex;align-items:center;justify-content:center;">[ Feature 2 ]</div>
+              <div class="wf-block" id="wfF3" style="min-height:50px;display:flex;align-items:center;justify-content:center;">[ Feature 3 ]</div>
+            </div>
+            <div class="wf-block" id="wfFooter" style="text-align:center;font-size:.7rem;">[ Footer ]</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== SLIDE 34: 5-STEP WIREFRAMING PROCESS ==================== -->
+    <div class="slide">
+      <div class="slide-content">
+        <div class="slide-label">Section 10 &mdash; Wireframing</div>
+        <h2>The 5-Step Wireframing Process</h2>
+        <img src="assets/wireframe-progression.jpg" class="slide-img" style="max-height:140px;object-fit:contain;" alt="Wireframe progression" onerror="this.style.display='none'">
+        <div class="card-grid" style="grid-template-columns:repeat(auto-fit,minmax(180px,1fr));margin-top:.35rem;">
+          <div class="card">
+            <span class="badge">1</span>
+            <strong style="color:#ffeaa7;">List the content</strong>
+            <p style="font-size:.78rem;">Bullet points, not design. What info must be on this page?</p>
+          </div>
+          <div class="card">
+            <span class="badge">2</span>
+            <strong style="color:#ffeaa7;">Rank by importance</strong>
+            <p style="font-size:.78rem;">What must users see first? This becomes your hierarchy.</p>
+          </div>
+          <div class="card">
+            <span class="badge">3</span>
+            <strong style="color:#ffeaa7;">Sketch 2&ndash;3 layouts</strong>
+            <p style="font-size:.78rem;">5 min each. No perfectionism. Rectangles + labels.</p>
+          </div>
+          <div class="card">
+            <span class="badge">4</span>
+            <strong style="color:#ffeaa7;">Pick the strongest</strong>
+            <p style="font-size:.78rem;">Which serves the hierarchy best? Passes the 10-second test?</p>
+          </div>
+          <div class="card">
+            <span class="badge">5</span>
+            <strong style="color:#ffeaa7;">Move to high-fi tool</strong>
+            <p style="font-size:.78rem;">Now &mdash; and only now &mdash; open a design tool.</p>
+          </div>
+        </div>
+        <div class="note" style="margin-top:.35rem;">
+          <strong>Steps 1&ndash;4 should take no more than 20 minutes.</strong> The most common mistake is skipping them and opening the design tool first. Start with paper. Always.
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== SLIDE 35: SUMMARY ==================== -->
+    <div class="slide">
+      <div class="slide-content">
+        <div class="slide-label">Summary</div>
+        <h2>Key Takeaways</h2>
+        <div class="summary-grid" style="grid-template-columns:repeat(auto-fit,minmax(220px,1fr));">
+          <div class="summary-card"><strong>Visual Hierarchy</strong>5 levers: size, contrast, color, whitespace, position. F-pattern for content pages, Z-pattern for landing pages.</div>
+          <div class="summary-card"><strong>Gestalt Principles</strong>If elements belong together, make them look together. Proximity, similarity, continuity, closure, figure/ground.</div>
+          <div class="summary-card"><strong>Cognitive Load</strong>Miller's 7&plusmn;2 for chunking. Hick's Law: fewer choices = faster decisions. Progressive disclosure.</div>
+          <div class="summary-card"><strong>Color &amp; Typography</strong>60-30-10 rule. 4.5:1 contrast minimum. Two typefaces max. 45&ndash;75 characters per line.</div>
+          <div class="summary-card"><strong>Design Heuristics</strong>Jakob's Law: follow conventions. Fitts' Law: big + close = fast. 5-question critique framework.</div>
+          <div class="summary-card"><strong>UX &amp; Testing</strong>Nielsen's 10 heuristics. Handle all states. Test with 5 users for 85% of problems.</div>
+          <div class="summary-card"><strong>Mobile-First</strong>Start with constraints. Four layout patterns: mostly fluid, column drop, layout shifter, off canvas.</div>
+          <div class="summary-card"><strong>Wireframing</strong>List &rarr; Rank &rarr; Sketch &rarr; Pick &rarr; Tool. Paper first. Always.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== SLIDE 36: Q&A ==================== -->
+    <div class="slide">
+      <div class="slide-content">
+        <div class="slide-label">Q&amp;A</div>
+        <h2>Questions &amp; Answers</h2>
+        <dl>
+          <div class="card" style="margin-bottom:.35rem;">
+            <dt>Q: Do I need to be artistic to be good at design?</dt>
+            <dd>No. Design is problem-solving, not art. Rough rectangles and clear thinking about content priority is all you need.</dd>
+          </div>
+          <div class="card" style="margin-bottom:.35rem;">
+            <dt>Q: What's the difference between UI and UX design?</dt>
+            <dd>UI = how it looks (colors, typography, layout). UX = how it works (task flows, error handling, navigation). Best products nail both.</dd>
+          </div>
+          <div class="card" style="margin-bottom:.35rem;">
+            <dt>Q: How do I choose colors if I'm not a designer?</dt>
+            <dd>Start with 60-30-10. White (60%), dark gray (30%), blue accent (10%). Verify with <a href="https://webaim.org/resources/contrastchecker/" target="_blank" rel="noopener noreferrer">WebAIM Contrast Checker</a>. Try <a href="https://coolors.co/" target="_blank" rel="noopener noreferrer">Coolors</a> for palettes.</dd>
+          </div>
+          <div class="card" style="margin-bottom:.35rem;">
+            <dt>Q: Why do so many websites use blue?</dt>
+            <dd>Blue is the most universally liked color across cultures. It conveys trust and stability. Facebook, LinkedIn, PayPal all use it.</dd>
+          </div>
+          <div class="card" style="margin-bottom:.35rem;">
+            <dt>Q: What's the most common beginner design mistake?</dt>
+            <dd>Making everything look important. Hierarchy requires contrast between levels. Design is subtraction, not addition.</dd>
+          </div>
+          <div class="card" style="margin-bottom:.35rem;">
+            <dt>Q: Do I really need to test with users?</dt>
+            <dd>Yes. Heuristics prevent common mistakes but can't predict real user behavior. 5 users + 30 minutes reveals problems no internal review catches.</dd>
+          </div>
+          <div class="card" style="margin-bottom:.35rem;">
+            <dt>Q: Why design mobile-first instead of desktop-first?</dt>
+            <dd>Mobile forces prioritization. 320px means you must decide what's essential. Desktop lets you avoid that decision because there's always room.</dd>
+          </div>
+          <div class="card" style="margin-bottom:.35rem;">
+            <dt>Q: What are dark patterns?</dt>
+            <dd>Deceptive techniques that trick users: confirm-shaming, hidden unsubscribe, forced continuity. They destroy trust and increasingly violate consumer protection laws.</dd>
+          </div>
+        </dl>
+      </div>
+    </div>
+
+    <!-- ==================== SLIDE 37: RESOURCES ==================== -->
+    <div class="slide">
+      <div class="slide-content centered">
+        <div class="slide-label">Resources</div>
+        <h2>Learn More</h2>
+        <div class="card-grid" style="grid-template-columns:repeat(auto-fit,minmax(220px,1fr));text-align:left;">
+          <div class="card">
+            <strong style="color:#ffeaa7;">Laws of UX</strong>
+            <p style="font-size:.82rem;"><a href="https://lawsofux.com/" target="_blank" rel="noopener noreferrer">lawsofux.com</a> &mdash; Visual cards for every design law covered today</p>
+          </div>
+          <div class="card">
+            <strong style="color:#ffeaa7;">Nielsen Norman Group</strong>
+            <p style="font-size:.82rem;"><a href="https://www.nngroup.com/articles/ten-usability-heuristics/" target="_blank" rel="noopener noreferrer">10 Usability Heuristics</a> &mdash; The canonical reference</p>
+          </div>
+          <div class="card">
+            <strong style="color:#ffeaa7;">WebAIM</strong>
+            <p style="font-size:.82rem;"><a href="https://webaim.org/resources/contrastchecker/" target="_blank" rel="noopener noreferrer">Contrast Checker</a> &mdash; Verify WCAG compliance</p>
+          </div>
+          <div class="card">
+            <strong style="color:#ffeaa7;">Coolors</strong>
+            <p style="font-size:.82rem;"><a href="https://coolors.co/" target="_blank" rel="noopener noreferrer">coolors.co</a> &mdash; Generate color palettes instantly</p>
+          </div>
+          <div class="card">
+            <strong style="color:#ffeaa7;">Hotjar</strong>
+            <p style="font-size:.82rem;"><a href="https://www.hotjar.com/" target="_blank" rel="noopener noreferrer">hotjar.com</a> &mdash; Heatmaps, recordings, and surveys</p>
+          </div>
+          <div class="card">
+            <strong style="color:#ffeaa7;">W3Schools CSS</strong>
+            <p style="font-size:.82rem;"><a href="https://www.w3schools.com/css/" target="_blank" rel="noopener noreferrer">w3schools.com/css</a> &mdash; CSS properties reference &amp; try-it editors</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /slideshow-container -->
+
+  <nav class="nav">
+    <button class="nav-btn" id="prevBtn" onclick="goTo(currentSlide-1)">&#8592;</button>
+    <span class="nav-counter" id="slideNum">1 / 37</span>
+    <button class="nav-btn" id="nextBtn" onclick="goTo(currentSlide+1)">&#8594;</button>
+  </nav>
+
+  <style>
+    @keyframes shimmer{0%{opacity:.3}50%{opacity:.6}100%{opacity:.3}}
+  </style>
+
+  <script>
+    /* ========== NAVIGATION ========== */
+    let currentSlide = 0;
+    const slides = document.querySelectorAll('.slide');
+    const total = slides.length;
+
+    function goTo(n) {
+      slides[currentSlide].classList.remove('active');
+      currentSlide = Math.max(0, Math.min(n, total - 1));
+      slides[currentSlide].classList.add('active');
+      updateNav();
+    }
+    function updateNav() {
+      document.getElementById('slideNum').textContent = (currentSlide + 1) + ' / ' + total;
+      document.getElementById('prevBtn').disabled = currentSlide === 0;
+      document.getElementById('nextBtn').disabled = currentSlide === total - 1;
+      var pct = total > 1 ? (currentSlide / (total - 1)) * 100 : 100;
+      document.getElementById('progressBar').style.width = pct + '%';
+    }
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'ArrowRight' || e.key === 'ArrowDown') goTo(currentSlide + 1);
+      if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') goTo(currentSlide - 1);
+    });
+    updateNav();
+
+    /* ========== 5-SECOND TEST ========== */
+    function startFiveSecTest() {
+      var site = document.getElementById('fiveSecSite');
+      var timer = document.getElementById('fiveSecTimer');
+      var qs = document.getElementById('fiveSecQuestions');
+      site.style.display = 'block';
+      qs.style.display = 'none';
+      var sec = 5;
+      timer.textContent = sec + 's';
+      var iv = setInterval(function() {
+        sec--;
+        timer.textContent = sec + 's';
+        if (sec <= 0) {
+          clearInterval(iv);
+          site.style.display = 'none';
+          timer.textContent = '';
+          qs.style.display = 'block';
+        }
+      }, 1000);
+    }
+
+    /* ========== VISUAL WEIGHT DEMO ========== */
+    function updateVW() {
+      var s = document.getElementById('vwSize').value;
+      var c = document.getElementById('vwContrast').value;
+      var h = document.getElementById('vwHue').value;
+      var sp = document.getElementById('vwSpace').value;
+      var t = document.getElementById('vwTarget');
+      t.style.fontSize = s + 'px';
+      t.style.color = 'hsl(' + h + ',80%,' + (100 - c * 0.6) + '%)';
+      t.style.background = 'hsla(' + h + ',70%,50%,.25)';
+      t.style.padding = sp + 'px';
+      var desc = [];
+      if (s > 30) desc.push('Large size dominates');
+      if (c > 70) desc.push('High contrast stands out');
+      if (h > 0 && h < 60) desc.push('Warm color pulls focus');
+      if (sp > 30) desc.push('Whitespace creates isolation');
+      document.getElementById('vwDescription').textContent = desc.length ? desc.join('. ') + '.' : 'Adjust the sliders to see effects.';
+    }
+
+    /* ========== HIERARCHY DEMO ========== */
+    function setHierarchy(mode) {
+      var h = document.getElementById('hierH');
+      var s = document.getElementById('hierS');
+      var b = document.getElementById('hierB');
+      var cta = document.getElementById('hierCTA');
+      document.getElementById('hierBad').classList.toggle('active', mode === 'bad');
+      document.getElementById('hierGood').classList.toggle('active', mode === 'good');
+      if (mode === 'bad') {
+        h.style.cssText = 'font-size:.9rem;font-weight:400;color:rgba(255,255,255,.8);';
+        s.style.cssText = 'font-size:.9rem;font-weight:400;color:rgba(255,255,255,.8);';
+        b.style.cssText = 'font-size:.9rem;font-weight:400;color:rgba(255,255,255,.8);';
+        cta.style.cssText = 'font-size:.9rem;font-weight:400;color:rgba(255,255,255,.8);display:inline-block;padding:.3rem .8rem;';
+        document.getElementById('hierExplain').textContent = 'Currently: all text is the same size, weight, and color. Nothing stands out. This fails the 5-second test.';
+      } else {
+        h.style.cssText = 'font-size:1.5rem;font-weight:800;color:#ffeaa7;margin-bottom:.25rem;';
+        s.style.cssText = 'font-size:1rem;font-weight:400;color:rgba(255,255,255,.7);margin-bottom:.15rem;';
+        b.style.cssText = 'font-size:.85rem;font-weight:400;color:rgba(255,255,255,.6);margin-bottom:.25rem;';
+        cta.style.cssText = 'font-size:.88rem;font-weight:700;background:#4f6df5;color:white;display:inline-block;padding:.4rem 1rem;border-radius:6px;';
+        document.getElementById('hierExplain').textContent = 'Now: headline is large and gold, subhead is lighter, body is smaller, CTA is a bright button. Clear hierarchy in 2 seconds.';
+      }
+    }
+    setHierarchy('bad');
+
+    /* ========== PROXIMITY DEMO ========== */
+    function setProximity(mode) {
+      document.getElementById('proxBad').classList.toggle('active', mode === 'bad');
+      document.getElementById('proxGood').classList.toggle('active', mode === 'good');
+      var labels = document.querySelectorAll('.prox-label');
+      if (mode === 'bad') {
+        labels.forEach(function(l) { l.style.marginTop = '16px'; l.style.marginBottom = '16px'; });
+        document.getElementById('proxExplain').textContent = 'Currently: labels are equidistant between fields. Which field does "Last Name" belong to?';
+      } else {
+        labels.forEach(function(l) { l.style.marginTop = '16px'; l.style.marginBottom = '2px'; });
+        document.getElementById('proxExplain').textContent = 'Fixed: each label is close to its field and far from the next. Grouping is instant and obvious.';
+      }
+    }
+
+    /* ========== FIGURE/GROUND MODAL ========== */
+    function toggleFGModal() {
+      var m = document.getElementById('fgModal');
+      var o = document.getElementById('fgOverlay');
+      var btn = document.getElementById('fgBtn');
+      var show = !m.classList.contains('visible');
+      m.classList.toggle('visible', show);
+      o.classList.toggle('visible', show);
+      btn.textContent = show ? 'Hide Modal' : 'Show Modal';
+    }
+
+    /* ========== MILLER'S LAW NAV DEMO ========== */
+    var millerItems = [];
+    var millerNames = ['Home','About','Products','Services','Blog','Contact','Support','FAQ','Careers','News','Events','Store','Resources','Community','Login'];
+    function millerAdd() {
+      if (millerItems.length >= millerNames.length) return;
+      millerItems.push(millerNames[millerItems.length]);
+      renderMiller();
+    }
+    function millerReset() {
+      millerItems = [];
+      renderMiller();
+    }
+    function renderMiller() {
+      var el = document.getElementById('millerNav');
+      el.innerHTML = '';
+      millerItems.forEach(function(n) {
+        var sp = document.createElement('span');
+        sp.style.cssText = 'background:rgba(79,109,245,.4);padding:.2rem .5rem;border-radius:4px;font-size:.75rem;';
+        sp.textContent = n;
+        el.appendChild(sp);
+      });
+      var count = millerItems.length;
+      var label = 'Items: ' + count;
+      if (count === 0) label += ' — Add items to see when it becomes overwhelming.';
+      else if (count <= 5) label += ' — Comfortable. Easy to scan.';
+      else if (count <= 7) label += ' — Miller\'s sweet spot (7±2). Still manageable.';
+      else if (count <= 9) label += ' — Getting crowded. Users start to struggle.';
+      else label += ' — Overwhelming! Cognitive load is too high. Time to group or hide items.';
+      document.getElementById('millerCount').innerHTML = label;
+    }
+
+    /* ========== 60-30-10 ACCENT ========== */
+    function setAccent(color, btn) {
+      document.querySelectorAll('.demo-btn').forEach(function(b) { if (b.parentElement === btn.parentElement) b.classList.remove('active'); });
+      btn.classList.add('active');
+      document.getElementById('accentCTA').style.background = color;
+      document.getElementById('accentHero').style.background = color;
+      document.getElementById('accentLabel').style.color = color;
+    }
+
+    /* ========== CONTRAST CHECKER ========== */
+    function checkContrast() {
+      var fg = document.getElementById('contrastText').value;
+      var bg = document.getElementById('contrastBg').value;
+      document.getElementById('contrastPreview').style.color = fg;
+      document.getElementById('contrastPreview').style.background = bg;
+      var r = getContrastRatio(hexToRgb(fg), hexToRgb(bg));
+      var pass = r >= 4.5;
+      document.getElementById('contrastResult').innerHTML = 'Ratio: <strong>' + r.toFixed(2) + ':1</strong> ' +
+        (pass ? '<span class="badge green">PASS</span> — Meets 4.5:1 minimum' : '<span class="badge red">FAIL</span> — Below 4.5:1 minimum');
+    }
+    function hexToRgb(hex) {
+      var r = parseInt(hex.substr(1,2),16), g = parseInt(hex.substr(3,2),16), b = parseInt(hex.substr(5,2),16);
+      return [r,g,b];
+    }
+    function luminance(rgb) {
+      var a = rgb.map(function(v) { v /= 255; return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4); });
+      return 0.2126 * a[0] + 0.7152 * a[1] + 0.0722 * a[2];
+    }
+    function getContrastRatio(rgb1, rgb2) {
+      var l1 = luminance(rgb1), l2 = luminance(rgb2);
+      var lighter = Math.max(l1, l2), darker = Math.min(l1, l2);
+      return (lighter + 0.05) / (darker + 0.05);
+    }
+
+    /* ========== LINE LENGTH DEMO ========== */
+    function updateLineLength() {
+      var v = document.getElementById('llSlider').value;
+      document.getElementById('llDemo').style.maxWidth = v + 'ch';
+      var label = 'Width: ~' + v + ' characters — ';
+      if (v < 45) label += '<span style="color:#fca5a5;">Too narrow (choppy reading)</span>';
+      else if (v <= 75) label += '<span style="color:#86efac;">Ideal range (45-75ch)</span>';
+      else label += '<span style="color:#fca5a5;">Too wide (eyes lose their place)</span>';
+      document.getElementById('llLabel').innerHTML = label;
+    }
+
+    /* ========== FITTS' LAW ========== */
+    function fittsClick(el) {
+      var size = el.offsetWidth;
+      var msg = '';
+      if (size <= 30) msg = 'Tiny target (24px)! Hard to hit, especially on mobile. Destructive actions use this intentionally.';
+      else if (size <= 50) msg = 'Medium target (44px). Minimum for mobile tap targets (Apple HIG). Acceptable but not ideal.';
+      else msg = 'Large target (72px)! Easy to hit. Primary actions should be this accessible.';
+      document.getElementById('fittsResult').textContent = msg;
+      el.style.background = 'rgba(79,109,245,.7)';
+      setTimeout(function() { el.style.background = ''; }, 400);
+    }
+
+    /* ========== UX STATES DEMO ========== */
+    function showUXState(state, btn) {
+      ['uxEmpty','uxLoading','uxError','uxSuccess'].forEach(function(id) {
+        document.getElementById(id).style.display = 'none';
+      });
+      document.getElementById('ux' + state.charAt(0).toUpperCase() + state.slice(1)).style.display = 'block';
+      btn.parentElement.querySelectorAll('.demo-btn').forEach(function(b) { b.classList.remove('active'); });
+      btn.classList.add('active');
+    }
+
+    /* ========== RESPONSIVE PATTERNS DEMO ========== */
+    function updateRespDemo() {
+      var w = parseInt(document.getElementById('respSlider').value);
+      document.getElementById('respWidth').textContent = w + 'px';
+      // Mostly Fluid
+      document.getElementById('respFluid').style.gridTemplateColumns = w < 400 ? '1fr' : w < 600 ? '1fr 1fr' : '1fr 1fr 1fr';
+      // Column Drop
+      document.getElementById('respDrop').style.gridTemplateColumns = w < 350 ? '1fr' : w < 550 ? '1fr 1fr' : '1fr 1fr 1fr';
+      // Layout Shifter
+      if (w < 400) {
+        document.getElementById('respShifter').style.gridTemplateColumns = '1fr';
+        document.getElementById('respShifter').querySelector('div').style.gridRow = 'auto';
+      } else {
+        document.getElementById('respShifter').style.gridTemplateColumns = '80px 1fr';
+        document.getElementById('respShifter').querySelector('div').style.gridRow = '1/3';
+      }
+      // Off Canvas
+      document.getElementById('respCanvasNav').style.marginLeft = w < 450 ? '-64px' : '0';
+      document.getElementById('respCanvasNav').style.opacity = w < 450 ? '0' : '1';
+    }
+
+    /* ========== WIREFRAME FIDELITY ========== */
+    function setFidelity(mode, btn) {
+      btn.parentElement.querySelectorAll('.demo-btn').forEach(function(b) { b.classList.remove('active'); });
+      btn.classList.add('active');
+      var blocks = document.querySelectorAll('.wf-block');
+      if (mode === 'hifi') {
+        blocks.forEach(function(b) { b.classList.add('hifi'); });
+        document.getElementById('wfLogo').innerHTML = '<span style="font-weight:800;color:#ffeaa7;">CloudSync</span>';
+        document.getElementById('wfLinks').innerHTML = '<span style="font-size:.72rem;">Features &nbsp; Pricing &nbsp; Docs &nbsp; <span style="background:#4f6df5;padding:.15rem .4rem;border-radius:3px;">Sign Up</span></span>';
+        document.getElementById('wfH1').innerHTML = '<span style="font-size:1.2rem;color:#ffeaa7;">Build Faster. Ship Sooner.</span>';
+        document.getElementById('wfSub').innerHTML = '<span style="opacity:.7;">The developer platform that just works.</span>';
+        document.getElementById('wfCTA').innerHTML = '<span style="background:#4f6df5;padding:.3rem .8rem;border-radius:4px;border:none;font-weight:700;">Get Started Free</span>';
+        document.getElementById('wfF1').textContent = 'Lightning Fast';
+        document.getElementById('wfF2').textContent = 'Secure by Default';
+        document.getElementById('wfF3').textContent = 'Team Collaboration';
+        document.getElementById('wfFooter').textContent = '© 2025 CloudSync — Terms · Privacy';
+      } else {
+        blocks.forEach(function(b) { b.classList.remove('hifi'); });
+        document.getElementById('wfLogo').textContent = '[ Logo ]';
+        document.getElementById('wfLinks').textContent = '[ Nav ] [ Nav ] [ Nav ]';
+        document.getElementById('wfH1').textContent = '[ Headline ]';
+        document.getElementById('wfSub').textContent = '[ Subheading text goes here ]';
+        document.getElementById('wfCTA').innerHTML = '[ CTA Button ]';
+        document.getElementById('wfF1').textContent = '[ Feature 1 ]';
+        document.getElementById('wfF2').textContent = '[ Feature 2 ]';
+        document.getElementById('wfF3').textContent = '[ Feature 3 ]';
+        document.getElementById('wfFooter').textContent = '[ Footer ]';
+      }
+    }
+
+    /* ========== TOUCH SWIPE ========== */
+    var touchStartX = 0;
+    document.addEventListener('touchstart', function(e) { touchStartX = e.changedTouches[0].screenX; }, {passive: true});
+    document.addEventListener('touchend', function(e) {
+      var diff = touchStartX - e.changedTouches[0].screenX;
+      if (Math.abs(diff) > 50) {
+        if (diff > 0) goTo(currentSlide + 1);
+        else goTo(currentSlide - 1);
+      }
+    }, {passive: true});
+  </script>
+</body>
+</html>
