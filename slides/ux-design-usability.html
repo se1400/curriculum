@@ -1,0 +1,923 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>UX Design &amp; Usability</title>
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box;}
+    :root{--primary-color:#1a1a2e;--secondary-color:#4f6df5;--code-bg:#0f0f1a;--code-text:#d4d4d4;}
+    html,body{height:100%;font-family:'Segoe UI',system-ui,sans-serif;background:var(--primary-color);overflow:hidden;display:flex;flex-direction:column;}
+    .progress-bar{width:100%;height:4px;background:rgba(255,255,255,.12);flex-shrink:0;}
+    .progress{height:100%;background:var(--secondary-color);transition:width .3s ease;}
+    .slideshow-container{flex:1;display:flex;flex-direction:column;overflow:hidden;min-height:0;}
+    .slide{display:none;flex:1;padding:1.1rem 1.65rem;color:#fff;overflow-y:auto;animation:s-fadeIn .32s ease;min-height:0;flex-direction:column;}
+    .slide.active{display:flex;}
+    @keyframes s-fadeIn{from{opacity:0;transform:translateX(16px);}to{opacity:1;transform:translateX(0);}}
+    .slide:nth-child(odd) {background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);}
+    .slide:nth-child(even){background:linear-gradient(135deg,#11998e 0%,#38ef7d 100%);}
+    .slide:nth-child(3n)  {background:linear-gradient(135deg,#ee0979 0%,#ff6a00 100%);}
+    .slide:nth-child(4n)  {background:linear-gradient(135deg,#2193b0 0%,#6dd5ed 100%);}
+    .slide:nth-child(5n)  {background:linear-gradient(135deg,#c31432 0%,#240b36 100%);}
+    .slide:nth-child(7n)  {background:linear-gradient(135deg,#0f0c29 0%,#302b63 50%,#24243e 100%);}
+    .slide:nth-child(9n)  {background:linear-gradient(135deg,#1a1a2e 0%,#16213e 50%,#0f3460 100%);}
+    .slide-label{font-size:.68rem;text-transform:uppercase;letter-spacing:.12em;color:rgba(255,255,255,.42);margin-bottom:.25rem;flex-shrink:0;}
+    .slide-content{max-width:1400px;width:100%;margin:0 auto;flex:1;display:flex;flex-direction:column;min-height:0;}
+    .slide-content.centered{justify-content:center;align-items:center;text-align:center;}
+    h1{font-size:clamp(1.75rem,5vw,3rem);margin-bottom:.9rem;line-height:1.2;text-shadow:0 2px 6px rgba(0,0,0,.3);}
+    h2{font-size:clamp(1.25rem,3.5vw,1.9rem);margin-bottom:.35rem;color:#ffeaa7;line-height:1.25;}
+    h3{font-size:clamp(.92rem,2.2vw,1.25rem);margin:.35rem 0 .18rem;color:#81ecec;}
+    p{font-size:clamp(.85rem,1.95vw,1.02rem);line-height:1.5;margin-bottom:.28rem;}
+    ul,ol{font-size:clamp(.82rem,1.85vw,.98rem);line-height:1.55;margin-left:1.25rem;margin-bottom:.28rem;}
+    li{margin-bottom:.13rem;}
+    a{color:#ffeaa7;text-decoration:underline;}
+    a:hover{color:#fdcb6e;}
+    code{background:rgba(0,0,0,.38);padding:.14em .42em;border-radius:4px;font-family:'Consolas','Monaco',monospace;font-size:.87em;}
+    .note{background:rgba(34,197,94,.14);border-left:4px solid #22c55e;padding:.42rem .75rem;border-radius:6px;margin:.28rem 0;font-size:clamp(.8rem,1.75vw,.94rem);}
+    .caution{background:rgba(239,68,68,.14);border-left:4px solid #ef4444;padding:.42rem .75rem;border-radius:6px;margin:.28rem 0;font-size:clamp(.8rem,1.75vw,.94rem);}
+    .tip{background:rgba(79,109,245,.18);border-left:4px solid #4f6df5;padding:.42rem .75rem;border-radius:6px;margin:.28rem 0;font-size:clamp(.8rem,1.75vw,.94rem);}
+    .highlight{background:rgba(255,255,255,.13);border-left:4px solid #ffeaa7;padding:.42rem .75rem;border-radius:6px;margin:.28rem 0;font-size:clamp(.8rem,1.75vw,.94rem);}
+    .demo-btn{padding:.28rem .6rem;font-size:.78rem;border:1px solid rgba(255,255,255,.32);border-radius:4px;cursor:pointer;background:rgba(0,0,0,.3);color:white;transition:all .2s;}
+    .demo-btn:hover{background:rgba(255,255,255,.15);}
+    .demo-btn.active{background:rgba(52,152,219,.65);border-color:#3498db;}
+    .live-demo{background:rgba(0,0,0,.22);border-radius:8px;padding:.5rem .85rem;margin:.28rem 0;border:1px solid rgba(255,255,255,.14);}
+    .two-col{display:grid;grid-template-columns:1fr 1fr;gap:.9rem;align-items:start;}
+    .three-col{display:grid;grid-template-columns:repeat(3,1fr);gap:.75rem;align-items:start;}
+    @media(max-width:900px){.three-col{grid-template-columns:1fr 1fr;}}
+    @media(max-width:700px){.two-col,.three-col{grid-template-columns:1fr;}.slide{padding:.9rem .9rem;}}
+    .card{background:rgba(0,0,0,.22);padding:.6rem .8rem;border-radius:8px;border:1px solid rgba(255,255,255,.13);}
+    .card-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:.55rem;margin:.35rem 0;}
+    .slide-img{max-width:100%;border-radius:8px;border:1px solid rgba(255,255,255,.18);margin:.35rem 0;box-shadow:0 4px 16px rgba(0,0,0,.4);}
+    .img-caption{font-size:.73rem;opacity:.58;text-align:center;margin-top:.18rem;}
+    .learn-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:.4rem;margin:.45rem 0;}
+    .learn-item{background:rgba(0,0,0,.22);border-left:3px solid #81ecec;border-radius:6px;padding:.4rem .7rem;font-size:clamp(.78rem,1.75vw,.93rem);line-height:1.45;}
+    .summary-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(195px,1fr));gap:.5rem;margin:.45rem 0;}
+    .summary-card{background:rgba(0,0,0,.22);border-radius:8px;padding:.6rem .85rem;border:1px solid rgba(255,255,255,.13);font-size:clamp(.76rem,1.65vw,.9rem);line-height:1.45;}
+    .summary-card strong{color:#ffeaa7;display:block;margin-bottom:.18rem;font-size:.88em;}
+    table.cmp{width:100%;border-collapse:collapse;font-size:clamp(.78rem,1.75vw,.96rem);margin:.35rem 0;}
+    table.cmp th,table.cmp td{border:1px solid rgba(255,255,255,.22);padding:.28rem .52rem;text-align:left;vertical-align:top;}
+    table.cmp th{background:rgba(0,0,0,.28);color:#ffeaa7;}
+    table.cmp td:first-child{color:#93c5fd;font-weight:600;white-space:nowrap;}
+    .badge{display:inline-block;background:rgba(79,109,245,.38);border:1px solid rgba(79,109,245,.58);border-radius:20px;padding:.18em .65em;font-size:.76em;margin:.13rem;}
+    .badge.green{background:rgba(34,197,94,.22);border-color:rgba(34,197,94,.48);color:#86efac;}
+    .badge.yellow{background:rgba(234,179,8,.18);border-color:rgba(234,179,8,.42);color:#fde68a;}
+    .badge.red{background:rgba(239,68,68,.18);border-color:rgba(239,68,68,.42);color:#fca5a5;}
+    .nav{display:flex;align-items:center;justify-content:center;gap:1rem;padding:.38rem 1rem;background:rgba(0,0,0,.42);flex-shrink:0;}
+    .nav-btn{background:rgba(255,255,255,.13);border:1px solid rgba(255,255,255,.28);color:white;width:34px;height:34px;border-radius:50%;cursor:pointer;font-size:.95rem;display:flex;align-items:center;justify-content:center;transition:background .2s;}
+    .nav-btn:hover:not(:disabled){background:rgba(255,255,255,.28);}
+    .nav-btn:disabled{opacity:.32;cursor:not-allowed;}
+    .nav-counter{color:rgba(255,255,255,.68);font-size:.83rem;min-width:52px;text-align:center;}
+    .nielsen-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:.4rem;margin:.35rem 0;}
+    .nielsen-card{background:rgba(0,0,0,.22);border-radius:8px;padding:.4rem .6rem;border:1px solid rgba(255,255,255,.13);font-size:.78rem;line-height:1.4;}
+    .nielsen-card strong{color:#ffeaa7;display:block;margin-bottom:.08rem;font-size:.72rem;}
+    .nielsen-num{display:inline-block;background:rgba(79,109,245,.4);border-radius:50%;width:20px;height:20px;text-align:center;line-height:20px;font-size:.65rem;font-weight:700;margin-right:.25rem;flex-shrink:0;}
+    .fitts-target{border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .2s;font-weight:700;border:2px solid rgba(255,255,255,.3);}
+    .fitts-target:hover{transform:scale(1.08);box-shadow:0 0 20px rgba(255,255,255,.3);}
+    dl{margin:.35rem 0;}
+    dt{color:#ffeaa7;font-weight:700;font-size:clamp(.85rem,1.9vw,1rem);margin-top:.45rem;}
+    dd{font-size:clamp(.8rem,1.75vw,.92rem);opacity:.9;line-height:1.5;margin-bottom:.25rem;margin-left:0;}
+  </style>
+</head>
+<body>
+
+  <div class="progress-bar"><div class="progress" id="progressBar"></div></div>
+
+  <div class="slideshow-container">
+
+    <!-- ==================== SLIDE 1: COVER ==================== -->
+    <div class="slide active">
+      <div class="slide-content centered">
+        <div class="slide-label">Lesson 29 &mdash; Part 2 of 2</div>
+        <h1>UX Design &amp; Usability</h1>
+        <p style="font-size:clamp(1rem,2.5vw,1.3rem);opacity:.88;margin-bottom:1.1rem;">How to design interfaces that actually work for real users.</p>
+        <div class="learn-grid">
+          <div class="learn-item">Design heuristics &mdash; Jakob's Law, Fitts' Law &amp; affordances</div>
+          <div class="learn-item">The Design Critique Framework &mdash; 5 questions to evaluate any UI</div>
+          <div class="learn-item">User-Centered Design &mdash; the Research &rarr; Design &rarr; Test &rarr; Iterate loop</div>
+          <div class="learn-item">Nielsen's 10 Usability Heuristics &mdash; the canonical UX checklist</div>
+          <div class="learn-item">UX patterns &mdash; empty states, loading states, error states, onboarding</div>
+          <div class="learn-item">Usability testing &mdash; think-aloud, task-based, A/B, heatmaps</div>
+          <div class="learn-item">Dark patterns &mdash; what good UX looks like, and what to never build</div>
+          <div class="learn-item">Mobile-first design &amp; four responsive layout patterns</div>
+          <div class="learn-item">Wireframing &amp; prototyping &mdash; plan before you build</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== JAKOB'S LAW ==================== -->
+    <div class="slide">
+      <div class="slide-content">
+        <div class="slide-label">Section 1 &mdash; Design Heuristics</div>
+        <h2>Jakob's Law: Users Expect Conventions</h2>
+        <div class="two-col">
+          <div>
+            <p>Users spend most of their time on <strong>other</strong> websites. They expect yours to work like those.</p>
+            <ul>
+              <li>Shopping cart &rarr; top-right corner</li>
+              <li>Logo &rarr; links to homepage</li>
+              <li>Hamburger &harr; toggles navigation</li>
+              <li>Back arrow &rarr; goes back</li>
+            </ul>
+            <div class="highlight" style="margin-top:.35rem;">
+              <strong>When to break a convention:</strong> Only when the payoff (clarity, brand differentiation) clearly outweighs the cost (confusion, learning curve). Every broken convention adds cognitive load.
+            </div>
+            <div class="caution" style="margin-top:.25rem;">
+              <strong>Snapchat lesson:</strong> Counter-conventional interface caused user drop-off. They eventually added a conventional UI layer. Innovate in content and value, not in where the shopping cart goes.
+            </div>
+            <p><a href="https://lawsofux.com/jakobs-law/" target="_blank" rel="noopener noreferrer">Laws of UX: Jakob's Law &rarr;</a></p>
+          </div>
+          <div>
+            <img src="assets/jakobs-law.jpg" class="slide-img" style="max-height:450px;object-fit:contain;" alt="Common web conventions" onerror="this.style.display='none'">
+            <p class="img-caption">Common conventions: logo top-left, cart top-right, search in header. Move them and users get confused.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== FITTS' LAW ==================== -->
+    <div class="slide">
+      <div class="slide-content">
+        <div class="slide-label">Section 1 &mdash; Design Heuristics</div>
+        <h2>Fitts' Law: Size &amp; Distance Matter</h2>
+        <div class="two-col">
+          <div>
+            <p>Time to reach a target depends on its <strong>size</strong> and <strong>distance</strong>. Larger + closer = faster.</p>
+            <div class="live-demo">
+              <h3>Interactive: Click the Targets</h3>
+              <p style="font-size:.78rem;margin-bottom:.25rem;">Try clicking each. Notice which is easiest to hit.</p>
+              <div style="display:flex;align-items:center;gap:1.5rem;justify-content:center;padding:.5rem 0;">
+                <div class="fitts-target" style="width:24px;height:24px;background:rgba(239,68,68,.5);font-size:.55rem;" onclick="fittsClick(this)">X</div>
+                <div class="fitts-target" style="width:44px;height:44px;background:rgba(234,179,8,.5);font-size:.72rem;" onclick="fittsClick(this)">OK</div>
+                <div class="fitts-target" style="width:72px;height:72px;background:rgba(34,197,94,.5);font-size:.88rem;" onclick="fittsClick(this)">Go!</div>
+              </div>
+              <p style="font-size:.75rem;opacity:.7;" id="fittsResult">Click a target to see the effect of size.</p>
+            </div>
+            <ul style="margin-top:.25rem;">
+              <li>Mobile tap targets: min <strong>44&times;44px</strong> (Apple HIG) or <strong>48&times;48dp</strong> (Google)</li>
+              <li>Destructive buttons (Delete, Remove): <strong>small + far away</strong> = intentional safety mechanism</li>
+              <li>macOS dock: icons expand on hover = adaptive Fitts' in action</li>
+            </ul>
+          </div>
+          <div>
+            <img src="assets/fitts-law.png" class="slide-img" style="max-height:420px;object-fit:contain;" alt="Fitts Law diagram" onerror="this.style.display='none'">
+            <p class="img-caption">Small + far = slow. Large + close = fast. Primary buttons should be the easiest to hit.</p>
+            <p><a href="https://lawsofux.com/fittss-law/" target="_blank" rel="noopener noreferrer">Laws of UX: Fitts' Law &rarr;</a></p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== AFFORDANCES ==================== -->
+    <div class="slide">
+      <div class="slide-content">
+        <div class="slide-label">Section 1 &mdash; Design Heuristics</div>
+        <h2>Affordances &amp; Signifiers</h2>
+        <div class="two-col">
+          <div>
+            <p>An <strong>affordance</strong> is a visual cue that tells users what an element does before they interact with it.</p>
+            <div class="live-demo">
+              <h3>Can You Tell What Each Does?</h3>
+              <div style="display:flex;flex-direction:column;gap:.45rem;margin:.35rem 0;">
+                <div style="display:flex;align-items:center;gap:.65rem;">
+                  <button style="background:#4f6df5;color:white;padding:.4rem 1rem;border-radius:6px;border:none;font-size:.82rem;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.3);">Click Me</button>
+                  <span style="font-size:.75rem;opacity:.7;">Button &rarr; affords clicking (raised, colored, labeled)</span>
+                </div>
+                <div style="display:flex;align-items:center;gap:.65rem;">
+                  <a href="#" onclick="return false" style="font-size:.88rem;">Learn more</a>
+                  <span style="font-size:.75rem;opacity:.7;">Link &rarr; affords clicking (underlined, colored text)</span>
+                </div>
+                <div style="display:flex;align-items:center;gap:.65rem;">
+                  <span style="font-size:1.2rem;cursor:grab;">&#x2807;</span>
+                  <span style="font-size:.75rem;opacity:.7;">Drag handle &rarr; affords dragging (six-dot grid)</span>
+                </div>
+                <div style="display:flex;align-items:center;gap:.65rem;">
+                  <span style="font-size:1rem;">&#128465;</span>
+                  <span style="font-size:.75rem;opacity:.7;">Icon alone &rarr; ambiguous. Delete? Clear? Discard?</span>
+                </div>
+                <div style="display:flex;align-items:center;gap:.65rem;">
+                  <span style="font-size:1rem;">&#128465; Delete</span>
+                  <span style="font-size:.75rem;opacity:.7;">Icon + label = affordance + signifier &mdash; <strong>always better</strong></span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div>
+            <img src="assets/affordances.png" class="slide-img" alt="Affordances comparison" onerror="this.style.display='none'">
+            <p class="img-caption">Each element's visual style communicates what it does before interaction.</p>
+            <h3>The 10-Second Test</h3>
+            <p>Show your page for 10 seconds, then ask:</p>
+            <ol>
+              <li>"What is this page for?"</li>
+              <li>"What should you do next?"</li>
+            </ol>
+            <p>If they can't answer both, the hierarchy and affordances failed.</p>
+            <div class="tip" style="margin-top:.25rem;"><strong>Signifiers:</strong> Labels and icons that make affordances explicit. An icon without a label works for experts but fails beginners. When in doubt, add the label.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== DESIGN CRITIQUE FRAMEWORK ==================== -->
+    <div class="slide">
+      <div class="slide-content">
+        <div class="slide-label">Section 1 &mdash; Design Heuristics</div>
+        <h2>The Design Critique Framework</h2>
+        <p>Five questions to evaluate any design. Ground feedback in <strong>principles, not preferences</strong>.</p>
+        <div class="two-col">
+          <div>
+            <div class="card" style="margin-bottom:.4rem;border-left:3px solid #4f6df5;">
+              <span class="badge">1</span>
+              <strong style="color:#ffeaa7;">What is the hierarchy?</strong>
+              <p style="font-size:.82rem;">What draws the eye first, second, third? Squint at the page. If the most important element doesn't stand out, the hierarchy is broken.</p>
+            </div>
+            <div class="card" style="margin-bottom:.4rem;border-left:3px solid #4f6df5;">
+              <span class="badge">2</span>
+              <strong style="color:#ffeaa7;">What is the primary action?</strong>
+              <p style="font-size:.82rem;">Is there one obvious CTA, or is the user's attention split between competing buttons? A great page has a single dominant action visually distinct from everything else.</p>
+            </div>
+            <div class="card" style="border-left:3px solid #4f6df5;">
+              <span class="badge">3</span>
+              <strong style="color:#ffeaa7;">What is the cognitive load?</strong>
+              <p style="font-size:.82rem;">How many decisions must the user make in the first 5 seconds? If it's more than 5&ndash;7 options, users feel overwhelmed. Apply Miller's Law and progressive disclosure.</p>
+            </div>
+          </div>
+          <div>
+            <div class="card" style="margin-bottom:.4rem;border-left:3px solid #4f6df5;">
+              <span class="badge">4</span>
+              <strong style="color:#ffeaa7;">Does it follow conventions?</strong>
+              <p style="font-size:.82rem;">What patterns from other sites are used or broken? Jakob's Law says users expect conventions. If conventions are broken, is the payoff worth the confusion cost?</p>
+            </div>
+            <div class="card" style="border-left:3px solid #4f6df5;">
+              <span class="badge">5</span>
+              <strong style="color:#ffeaa7;">What would you change?</strong>
+              <p style="font-size:.82rem;">Propose <strong>one specific improvement</strong> with a reason grounded in a design principle. "Make the CTA larger and add more whitespace" is good. "Make it pop more" is not.</p>
+            </div>
+            <div class="highlight" style="margin-top:.4rem;">
+              <strong>Preference vs. Critique:</strong><br>
+              &#x274C; "I don't like blue" = preference (subjective, not actionable).<br>
+              &#x2705; "The blue CTA doesn't contrast enough with the blue header" = critique (specific, principle-based, fixable).
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== USER-CENTERED DESIGN ==================== -->
+    <div class="slide">
+      <div class="slide-content">
+        <div class="slide-label">Section 2 &mdash; UX Fundamentals</div>
+        <h2>User-Centered Design</h2>
+        <div class="two-col">
+          <div>
+            <p>Visual design makes things look right. UX design makes things <strong>work</strong> right. The best interfaces do both.</p>
+            <h3>The UCD Loop</h3>
+            <div class="live-demo">
+              <div style="display:flex;justify-content:center;align-items:center;gap:0;flex-wrap:wrap;">
+                <div style="text-align:center;padding:.3rem .5rem;">
+                  <div style="background:rgba(79,109,245,.4);border-radius:50%;width:52px;height:52px;display:flex;align-items:center;justify-content:center;font-size:.7rem;font-weight:700;margin:0 auto .15rem;">Research</div>
+                  <span style="font-size:.6rem;opacity:.6;">Understand users</span>
+                </div>
+                <span style="font-size:1.2rem;opacity:.5;">&rarr;</span>
+                <div style="text-align:center;padding:.3rem .5rem;">
+                  <div style="background:rgba(34,197,94,.4);border-radius:50%;width:52px;height:52px;display:flex;align-items:center;justify-content:center;font-size:.7rem;font-weight:700;margin:0 auto .15rem;">Design</div>
+                  <span style="font-size:.6rem;opacity:.6;">Prototype solutions</span>
+                </div>
+                <span style="font-size:1.2rem;opacity:.5;">&rarr;</span>
+                <div style="text-align:center;padding:.3rem .5rem;">
+                  <div style="background:rgba(234,179,8,.4);border-radius:50%;width:52px;height:52px;display:flex;align-items:center;justify-content:center;font-size:.7rem;font-weight:700;margin:0 auto .15rem;">Test</div>
+                  <span style="font-size:.6rem;opacity:.6;">Watch real users</span>
+                </div>
+                <span style="font-size:1.2rem;opacity:.5;">&rarr;</span>
+                <div style="text-align:center;padding:.3rem .5rem;">
+                  <div style="background:rgba(236,72,153,.4);border-radius:50%;width:52px;height:52px;display:flex;align-items:center;justify-content:center;font-size:.7rem;font-weight:700;margin:0 auto .15rem;">Iterate</div>
+                  <span style="font-size:.6rem;opacity:.6;">Improve &amp; repeat</span>
+                </div>
+              </div>
+            </div>
+            <ul style="font-size:.84rem;margin-top:.25rem;">
+              <li><strong>Research:</strong> Talk to real users. Even 5 interviews reveal patterns.</li>
+              <li><strong>Design:</strong> Start with wireframes, not pixel-perfect mockups. Generate options first.</li>
+              <li><strong>Test:</strong> Put prototypes in front of real people and <strong>stay silent</strong>. Their struggle IS the data.</li>
+              <li><strong>Iterate:</strong> Fix what you learned, then test again. Most products need 2&ndash;3 cycles minimum.</li>
+            </ul>
+          </div>
+          <div>
+            <div class="highlight">
+              <strong>You are not the user.</strong> Your assumptions about what is "obvious" are wrong until tested. This is the <em>curse of knowledge</em> &mdash; once you know how your interface works, you can't un-know it. The only antidote is watching someone else try to use it.
+            </div>
+            <div class="note" style="margin-top:.25rem;">
+              <strong>Google's homepage:</strong> Minimal not by philosophy, but because Larry Page didn't know enough HTML to make it complex. One input, one button, zero cognitive load. Design by constraint became design by intent. Simplicity almost always wins.
+            </div>
+            <div class="caution" style="margin-top:.25rem;">
+              <strong>The #1 UCD mistake:</strong> Skipping Research and Test. Developers jump straight to Build because it feels productive. But building the wrong thing fast is worse than building the right thing slow.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== NIELSEN'S 10 HEURISTICS ==================== -->
+    <div class="slide">
+      <div class="slide-content">
+        <div class="slide-label">Section 2 &mdash; UX Fundamentals</div>
+        <h2>Nielsen's 10 Usability Heuristics</h2>
+        <p>Published in 1994 by Jakob Nielsen. Still the industry standard 30 years later. Use these as a checklist when evaluating <em>any</em> interface.</p>
+        <div style="text-align:center;margin:.35rem 0;">
+          <img src="assets/Nielsen's 10 Usability Heuristics.jpg" class="slide-img" style="max-height:55vh;object-fit:contain;" alt="Nielsen's 10 Usability Heuristics visual summary" onerror="this.style.display='none'">
+        </div>
+        <div class="two-col" style="font-size:.82rem;">
+          <div>
+            <div class="nielsen-grid" style="grid-template-columns:1fr;">
+              <div class="nielsen-card"><span class="nielsen-num">1</span><strong>System Status</strong>Progress bars, spinners, "Saving..." indicators. Never leave users wondering if anything happened.</div>
+              <div class="nielsen-card"><span class="nielsen-num">2</span><strong>Real-World Match</strong>User language, not jargon. "Check in" not "Reservation start date." "Shopping cart" not "Order queue."</div>
+              <div class="nielsen-card"><span class="nielsen-num">3</span><strong>User Control &amp; Freedom</strong>Undo, cancel, back. Gmail's "Undo Send" &mdash; a 30-second grace period that prevents regret.</div>
+              <div class="nielsen-card"><span class="nielsen-num">4</span><strong>Consistency</strong>Same words, same actions, everywhere. If "Save" is blue on one page, it's blue on every page.</div>
+              <div class="nielsen-card"><span class="nielsen-num">5</span><strong>Error Prevention</strong>Date pickers &gt; free-text date fields. Disable submit until required fields are filled.</div>
+            </div>
+          </div>
+          <div>
+            <div class="nielsen-grid" style="grid-template-columns:1fr;">
+              <div class="nielsen-card"><span class="nielsen-num">6</span><strong>Recognition &gt; Recall</strong>Recently viewed items, autofill, breadcrumbs. Don't make users remember what they did before.</div>
+              <div class="nielsen-card"><span class="nielsen-num">7</span><strong>Flexibility</strong>Keyboard shortcuts for experts (Gmail j/k) that don't burden beginners who click buttons.</div>
+              <div class="nielsen-card"><span class="nielsen-num">8</span><strong>Minimalist Design</strong>Every extra element competes with relevant info. Dialogues should contain nothing irrelevant.</div>
+              <div class="nielsen-card"><span class="nielsen-num">9</span><strong>Error Recovery</strong>"Password must be 8+ characters" not "Error: invalid input." Plain language + fix suggestion.</div>
+              <div class="nielsen-card"><span class="nielsen-num">10</span><strong>Help &amp; Docs</strong>Tooltips, inline hints, searchable help centers. Even obvious systems sometimes need documentation.</div>
+            </div>
+          </div>
+        </div>
+        <p style="margin-top:.15rem;"><a href="https://www.nngroup.com/articles/ten-usability-heuristics/" target="_blank" rel="noopener noreferrer">Read the full heuristics at Nielsen Norman Group &rarr;</a></p>
+      </div>
+    </div>
+
+    <!-- ==================== UX PATTERNS ==================== -->
+    <div class="slide">
+      <div class="slide-content">
+        <div class="slide-label">Section 2 &mdash; UX Fundamentals</div>
+        <h2>UX Patterns Every Designer Should Know</h2>
+        <p>Every app has these moments. Great designers plan for them. Bad designers forget they exist. <strong>Silence after action = anxiety.</strong> Always confirm that something happened.</p>
+        <div class="card-grid" style="grid-template-columns:1fr 1fr;gap:.6rem;margin:.35rem 0;">
+          <div class="card" style="text-align:center;padding:.5rem;">
+            <img src="assets/empty-state.png" class="slide-img" style="max-height:42vh;object-fit:contain;" alt="Empty state with friendly illustration and CTA" onerror="this.style.display='none'">
+            <p style="font-size:.82rem;font-weight:700;color:#ffeaa7;margin-top:.25rem;">Empty State</p>
+            <p style="font-size:.76rem;opacity:.8;">Friendly illustration + clear CTA to get started. Never leave a blank screen.</p>
+          </div>
+          <div class="card" style="text-align:center;padding:.5rem;">
+            <img src="assets/skeleton.jpeg" class="slide-img" style="max-height:42vh;object-fit:contain;" alt="Skeleton screen loading pattern" onerror="this.style.display='none'">
+            <p style="font-size:.82rem;font-weight:700;color:#ffeaa7;margin-top:.25rem;">Loading (Skeleton Screen)</p>
+            <p style="font-size:.76rem;opacity:.8;">Gray placeholders mimic the layout. Feels faster than a spinner.</p>
+          </div>
+          <div class="card" style="text-align:center;padding:.5rem;">
+            <img src="assets/github.jpeg" class="slide-img" style="max-height:42vh;object-fit:contain;" alt="GitHub 404 error page with Octocat" onerror="this.style.display='none'">
+            <p style="font-size:.82rem;font-weight:700;color:#ffeaa7;margin-top:.25rem;">Error State</p>
+            <p style="font-size:.76rem;opacity:.8;">GitHub's friendly 404: personality + clear next step.</p>
+          </div>
+          <div class="card" style="text-align:center;padding:.5rem;">
+            <img src="assets/errormessage.jpg" class="slide-img" style="max-height:42vh;object-fit:contain;" alt="Good vs bad error message comparison" onerror="this.style.display='none'">
+            <p style="font-size:.82rem;font-weight:700;color:#ffeaa7;margin-top:.25rem;">Error Messages</p>
+            <p style="font-size:.76rem;opacity:.8;">Good: says what went wrong + how to fix. Bad: "Error: invalid input."</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== USABILITY TESTING ==================== -->
+    <div class="slide">
+      <div class="slide-content">
+        <div class="slide-label">Section 3 &mdash; Usability Testing</div>
+        <h2>You Are Not the User</h2>
+        <p>Once you know how your interface works, <strong>you can't un-know it</strong>. That's the "curse of knowledge." The only way to find real problems: watch someone else try to use it.</p>
+        <div class="two-col">
+          <div>
+            <h3>The 5-User Rule (Jakob Nielsen)</h3>
+            <p>Testing with just <strong>5 users</strong> reveals ~85% of usability problems. You don't need 50 participants or a lab.</p>
+            <img src="assets/five-user-rule.jpg" class="slide-img" style="max-height:380px;object-fit:contain;" alt="5-user rule chart" onerror="this.style.display='none'">
+            <p class="img-caption">Steep climb through 5 users, then diminishing returns. Test early, test often, test cheap.</p>
+            <div class="note" style="margin-top:.25rem;">
+              <strong>The first iPhone</strong> had no copy-paste for 2 years. Apple's designers debated how to implement it. Users just wanted to copy a phone number. User testing drives features &mdash; not internal debates.
+            </div>
+          </div>
+          <div>
+            <h3>Think-Aloud Protocol</h3>
+            <p>The most common testing method. Ask users to narrate their thoughts while using your site:</p>
+            <p style="font-style:italic;opacity:.8;font-size:.88rem;">"I'm looking for the login... I think it's up here... Oh, it says 'Get Started' &mdash; is that the same thing?"</p>
+            <img src="assets/think-aloud-protocol.jpeg" class="slide-img" style="max-height:380px;object-fit:contain;" alt="Think-aloud protocol usability testing session" onerror="this.style.display='none'">
+            <p class="img-caption">A real think-aloud session. The tester stays silent and watches.</p>
+            <h3 style="margin-top:.25rem;">What to Watch For</h3>
+            <ul>
+              <li><strong>Hesitation</strong> = confusion (something isn't clear)</li>
+              <li><strong>Backtracking</strong> = lost (navigation failed)</li>
+              <li><strong>Misreading labels</strong> = naming problem</li>
+              <li><strong>Skipping elements</strong> = invisible affordance</li>
+            </ul>
+            <div class="caution"><strong>Critical rule:</strong> The tester stays <strong>silent</strong>. No hints, no "try clicking there." If they're stuck, that IS the finding.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== TESTING METHODS ==================== -->
+    <div class="slide">
+      <div class="slide-content">
+        <div class="slide-label">Section 3 &mdash; Usability Testing</div>
+        <h2>Testing Methods</h2>
+        <p>Different methods answer different questions. Use the right one for the right situation.</p>
+        <div class="two-col">
+          <div>
+            <div class="card" style="margin-bottom:.35rem;">
+              <h3>Task-Based Testing</h3>
+              <p style="font-size:.82rem;">Don't ask "What do you think of my site?" Give real tasks:</p>
+              <ul style="font-size:.78rem;">
+                <li>"Find the return policy"</li>
+                <li>"Add this item to your cart and check out"</li>
+                <li>"Book a flight from SLC to Denver for next Friday"</li>
+              </ul>
+              <p style="font-size:.78rem;"><strong>Measure:</strong> completion rate, time on task, number of errors, satisfaction rating</p>
+            </div>
+            <div class="card" style="margin-bottom:.35rem;">
+              <h3>Guerrilla Testing</h3>
+              <p style="font-size:.82rem;">Quick, informal, free. Grab a friend, classmate, or anyone who hasn't seen your design.</p>
+              <ul style="font-size:.78rem;">
+                <li>Show for 10 seconds (the 10-second test)</li>
+                <li>Ask: "What is this?" and "What would you click?"</li>
+                <li>Best for catching obvious problems <em>early</em></li>
+              </ul>
+              <p style="font-size:.78rem;opacity:.7;">Not a replacement for structured testing, but infinitely better than <em>no</em> testing.</p>
+            </div>
+          </div>
+          <div>
+            <div class="card" style="margin-bottom:.35rem;">
+              <h3>A/B Testing</h3>
+              <p style="font-size:.82rem;">Show version A to half your users, version B to the other half. Measure which performs better.</p>
+              <img src="assets/abtest.jpeg" class="slide-img" style="max-height:350px;object-fit:contain;" alt="A/B testing comparison of two versions" onerror="this.style.display='none'">
+              <p style="font-size:.78rem;margin-top:.15rem;"><strong>Famous example:</strong> Google tested 41 shades of blue for a link color. The winning shade generated <strong>$200 million</strong> more in annual revenue. Small details, massive impact.</p>
+              <div class="caution" style="margin-top:.15rem;">
+                <strong>Limitation:</strong> A/B testing tells you WHAT works, not WHY. Pair with qualitative testing (think-aloud) for the full picture.
+              </div>
+            </div>
+            <div class="highlight">
+              <strong>Usability Red Flags:</strong> High bounce rate on CTA pages, form abandonment, rage clicks (rapid clicking on non-interactive elements), back-button bouncing.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== HEATMAPS & ANALYTICS ==================== -->
+    <div class="slide">
+      <div class="slide-content">
+        <div class="slide-label">Section 3 &mdash; Usability Testing</div>
+        <h2>Heatmaps &amp; Analytics</h2>
+        <p>Tools like <a href="https://www.hotjar.com/" target="_blank" rel="noopener noreferrer">Hotjar</a> and <a href="https://clarity.microsoft.com/" target="_blank" rel="noopener noreferrer">Microsoft Clarity</a> record where users click, scroll, and hover. They turn raw data into visual patterns.</p>
+        <div class="two-col">
+          <div>
+            <h3>Real Heatmap Example</h3>
+            <img src="assets/heatmap1.jpg" class="slide-img" style="max-height:420px;object-fit:contain;" alt="Click heatmap showing where users interact on a webpage" onerror="this.style.display='none'">
+            <p class="img-caption">Bright spots = high engagement. Cold spots = ignored areas. Users focus on headlines and CTAs.</p>
+            <div class="note" style="margin-top:.25rem;">
+              <strong>Session recordings</strong> let you watch real users navigate your site. <strong>Rage clicks</strong> (rapid clicking on non-clickable elements) reveal frustration you'd never find by looking at your own design.
+            </div>
+          </div>
+          <div>
+            <h3>Scroll Depth: The Hidden Problem</h3>
+            <p>Most users <strong>never scroll past 50%</strong> of a long page. If your CTA is at the bottom, most users never see it.</p>
+            <div class="live-demo">
+              <div style="position:relative;height:200px;background:rgba(0,0,0,.2);border-radius:6px;overflow:hidden;">
+                <div style="position:absolute;top:0;left:0;right:0;height:20%;background:rgba(239,68,68,.4);display:flex;align-items:center;padding-left:.5rem;font-size:.72rem;font-weight:600;">100% see this <span style="margin-left:auto;padding-right:.5rem;opacity:.6;">Hero</span></div>
+                <div style="position:absolute;top:20%;left:0;right:0;height:20%;background:rgba(249,115,22,.3);display:flex;align-items:center;padding-left:.5rem;font-size:.72rem;">~80% reach here <span style="margin-left:auto;padding-right:.5rem;opacity:.6;">Features</span></div>
+                <div style="position:absolute;top:40%;left:0;right:0;height:20%;background:rgba(234,179,8,.2);display:flex;align-items:center;padding-left:.5rem;font-size:.72rem;">~50% reach here <span style="margin-left:auto;padding-right:.5rem;opacity:.6;">Testimonials</span></div>
+                <div style="position:absolute;top:60%;left:0;right:0;height:20%;background:rgba(34,197,94,.12);display:flex;align-items:center;padding-left:.5rem;font-size:.72rem;opacity:.7;">~30% reach here <span style="margin-left:auto;padding-right:.5rem;opacity:.6;">Pricing</span></div>
+                <div style="position:absolute;top:80%;left:0;right:0;height:20%;background:rgba(79,109,245,.08);display:flex;align-items:center;padding-left:.5rem;font-size:.72rem;opacity:.5;">~15% reach here <span style="margin-left:auto;padding-right:.5rem;opacity:.6;">Footer CTA</span></div>
+              </div>
+            </div>
+            <div class="highlight" style="margin-top:.25rem;">
+              <strong>The lesson:</strong> Put your most important CTA <strong>above the fold</strong>. Repeat it at strategic scroll depths if needed.
+            </div>
+            <h3 style="margin-top:.25rem;">Google Analytics Signals</h3>
+            <ul style="font-size:.82rem;">
+              <li><strong>Bounce rate:</strong> % of visitors who leave without interacting</li>
+              <li><strong>Exit pages:</strong> Where users abandon your site</li>
+              <li><strong>Conversion funnels:</strong> Where users drop off in a multi-step process</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== DARK PATTERNS ==================== -->
+    <div class="slide">
+      <div class="slide-content">
+        <div class="slide-label">Section 3 &mdash; Usability Testing</div>
+        <h2>Dark Patterns: What to Never Build</h2>
+        <p>Now that you know what good UX looks like, here's the opposite. These are <strong>deceptive design patterns</strong> that trick users into doing things they didn't intend.</p>
+        <div class="two-col">
+          <div>
+            <div class="card" style="border-left:3px solid #ef4444;margin-bottom:.35rem;">
+              <strong style="color:#fca5a5;">Confirm-Shaming</strong>
+              <p style="font-size:.82rem;">Making the "no" option guilt-inducing so users feel bad about declining:</p>
+              <div style="background:rgba(0,0,0,.3);border-radius:6px;padding:.4rem .6rem;margin-top:.2rem;font-size:.78rem;">
+                <div style="text-align:center;margin-bottom:.2rem;">Want 20% off?</div>
+                <div style="display:flex;gap:.35rem;justify-content:center;">
+                  <span style="background:#22c55e;color:white;padding:.2rem .5rem;border-radius:4px;font-weight:600;">Yes, save me money!</span>
+                  <span style="opacity:.5;font-size:.7rem;text-decoration:underline;align-self:center;">No thanks, I prefer paying full price</span>
+                </div>
+              </div>
+              <p style="font-size:.76rem;opacity:.7;margin-top:.2rem;"><strong>More examples:</strong> "No, I don't want to grow my business" &bull; "I'll pass on free shipping" &bull; "No thanks, I hate saving money"</p>
+            </div>
+            <div class="card" style="border-left:3px solid #ef4444;margin-bottom:.35rem;">
+              <strong style="color:#fca5a5;">Forced Continuity</strong>
+              <p style="font-size:.82rem;">Free trial silently auto-converts to paid. No warning email. Cancel button buried 5 clicks deep.</p>
+              <p style="font-size:.76rem;opacity:.7;"><strong>Real examples:</strong> Many services require a phone call or certified letter to cancel a digital subscription.</p>
+            </div>
+            <div class="card" style="border-left:3px solid #ef4444;">
+              <strong style="color:#fca5a5;">Roach Motel</strong>
+              <p style="font-size:.82rem;">Easy to sign up, nearly impossible to cancel. Amazon Prime's cancellation flow was 6+ pages before the EU forced a 2-click process.</p>
+            </div>
+          </div>
+          <div>
+            <div class="card" style="border-left:3px solid #ef4444;margin-bottom:.35rem;">
+              <strong style="color:#fca5a5;">Misdirection</strong>
+              <p style="font-size:.82rem;">Using visual hierarchy to guide users toward the company's preferred option:</p>
+              <div style="background:rgba(0,0,0,.3);border-radius:6px;padding:.4rem .6rem;margin-top:.2rem;font-size:.78rem;">
+                <div style="display:flex;gap:.35rem;justify-content:center;align-items:center;">
+                  <span style="background:#3b82f6;color:white;padding:.25rem .7rem;border-radius:4px;font-weight:700;font-size:.85rem;">Accept All Cookies</span>
+                  <span style="opacity:.35;font-size:.6rem;text-decoration:underline;">manage preferences</span>
+                </div>
+              </div>
+              <p style="font-size:.76rem;opacity:.7;margin-top:.2rem;">Cookie consent dialogs are the most common example.</p>
+            </div>
+            <div class="card" style="border-left:3px solid #ef4444;margin-bottom:.35rem;">
+              <strong style="color:#fca5a5;">Trick Questions</strong>
+              <p style="font-size:.82rem;">Double negatives and confusing checkboxes designed to trip you up:</p>
+              <div style="background:rgba(0,0,0,.3);border-radius:6px;padding:.35rem .6rem;margin-top:.2rem;font-size:.76rem;">
+                &#x2610; "Uncheck this box if you'd prefer not to not receive emails"<br>
+                &#x2611; "I do not wish to opt out of receiving promotional offers"
+              </div>
+            </div>
+            <div class="card" style="border-left:3px solid #ef4444;">
+              <strong style="color:#fca5a5;">Hidden Unsubscribe / Sneaking</strong>
+              <p style="font-size:.82rem;">Opt-outs buried in tiny gray text, or items added to your cart without consent. GoDaddy pre-checks "domain privacy" ($10/yr) during checkout.</p>
+            </div>
+          </div>
+        </div>
+        <div class="caution" style="margin-top:.35rem;">
+          <strong>The bottom line:</strong> Dark patterns destroy trust and increasingly violate consumer protection laws. In 2023, Epic Games paid $245M in FTC fines partly for dark patterns in Fortnite. Design ethically.
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== MOBILE-FIRST ==================== -->
+    <div class="slide">
+      <div class="slide-content">
+        <div class="slide-label">Section 4 &mdash; Mobile-First Design</div>
+        <h2>Mobile-First: A Design Philosophy</h2>
+        <p>Mobile-first is not a CSS technique &mdash; it's a <strong>way of thinking</strong>. Start with the smallest screen and only add complexity as space allows.</p>
+        <div class="two-col">
+          <div>
+            <img src="assets/mobilefirst.jpg" class="slide-img" style="max-height:400px;object-fit:contain;" alt="Mobile first vs desktop first design approach" onerror="this.style.display='none'">
+            <p class="img-caption">Start with mobile (constraints force clarity), then expand for larger screens.</p>
+            <h3>Three Questions at Every Stage</h3>
+            <ol>
+              <li>What is the <strong>single most important thing</strong> on this page?</li>
+              <li>What can be removed without losing the page's purpose?</li>
+              <li>What can move behind a tap, toggle, or "See more" link?</li>
+            </ol>
+            <div class="highlight" style="margin-top:.25rem;">
+              <strong>Desktop-first</strong> hides bad prioritization. <strong>Mobile-first</strong> reveals it. 320px means every element must earn its place.
+            </div>
+          </div>
+          <div>
+            <h3>Examples You Know</h3>
+            <ul>
+              <li><strong>Twitter/X:</strong> One text input &mdash; "What's happening?" Mobile constraint forced that clarity. Desktop inherited it.</li>
+              <li><strong>TikTok:</strong> One video fills the entire screen. Swipe for the next. Zero navigation clutter.</li>
+              <li><strong>Instagram:</strong> Photo feed, one column, thumb-friendly bottom navigation. Desktop is basically the mobile app stretched wider.</li>
+            </ul>
+            <p style="font-size:.82rem;margin-top:.2rem;">Luke Wroblewski coined "Mobile First" in 2009 &mdash; the idea that designing for mobile first leads to better experiences on <em>all</em> devices.</p>
+            <div class="note" style="margin-top:.25rem;">
+              <strong>The test:</strong> "What happens at phone / tablet / 27&Prime; monitor?" If you can't answer all three, you don't have a responsive design &mdash; you have a desktop design that shrinks.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== RESPONSIVE PATTERNS ==================== -->
+    <div class="slide">
+      <div class="slide-content">
+        <div class="slide-label">Section 4 &mdash; Mobile-First Design</div>
+        <h2>Four Responsive Layout Patterns</h2>
+        <p>You already know <code>@media</code> queries. Now learn the design vocabulary for what your layouts should <strong>do</strong> at each breakpoint.</p>
+        <div class="card-grid" style="grid-template-columns:1fr 1fr;gap:.5rem;">
+          <div class="card">
+            <h3>1. Mostly Fluid</h3>
+            <p style="font-size:.78rem;">Multi-column layout stacks to single column on small screens. The <strong>most common</strong> pattern.</p>
+            <img src="assets/mostlyfluid.jpg" class="slide-img" style="max-height:280px;object-fit:contain;" alt="Mostly fluid responsive layout pattern" onerror="this.style.display='none'">
+          </div>
+          <div class="card">
+            <h3>2. Column Drop</h3>
+            <p style="font-size:.78rem;">Columns drop one by one as the screen narrows: 3 &rarr; 2+1 &rarr; 1+1+1.</p>
+            <img src="assets/columndrops.jpg" class="slide-img" style="max-height:280px;object-fit:contain;" alt="Column drop responsive layout pattern" onerror="this.style.display='none'">
+          </div>
+          <div class="card">
+            <h3>3. Layout Shifter</h3>
+            <p style="font-size:.78rem;">Layout changes dramatically between breakpoints. Nav moves from sidebar to top to hamburger. Most flexible but hardest to maintain.</p>
+            <img src="assets/layoutshifter.jpg" class="slide-img" style="max-height:280px;object-fit:contain;" alt="Layout shifter responsive layout pattern" onerror="this.style.display='none'">
+          </div>
+          <div class="card">
+            <h3>4. Off Canvas</h3>
+            <p style="font-size:.78rem;">Content slides in/out from the side. Nav panels, filter drawers, settings trays. Used heavily in mobile apps.</p>
+            <img src="assets/offcanvas.jpg" class="slide-img" style="max-height:280px;object-fit:contain;" alt="Off canvas responsive layout pattern" onerror="this.style.display='none'">
+          </div>
+        </div>
+        <div class="two-col" style="margin-top:.25rem;gap:.35rem;">
+          <div class="highlight">
+            <strong>Which should you use?</strong> Start with Mostly Fluid &mdash; it handles 90% of cases. Only reach for Layout Shifter or Off Canvas when the content truly demands it.
+          </div>
+          <div class="note">
+            <strong>Bonus: Tiny Tweaks</strong> &mdash; Keep the same layout, just adjust font sizes, spacing, and image sizes at each breakpoint. Simplest approach for content-focused pages.
+            <img src="assets/tinytweaks.jpg" class="slide-img" style="max-height:200px;object-fit:contain;margin-top:.15rem;" alt="Tiny tweaks responsive pattern" onerror="this.style.display='none'">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== WIREFRAMING ==================== -->
+    <div class="slide">
+      <div class="slide-content">
+        <div class="slide-label">Section 5 &mdash; Wireframing</div>
+        <h2>Wireframing: Plan Before You Build</h2>
+        <p>A wireframe is a <strong>blueprint</strong>. You wouldn't build a house without one. Wireframing forces design decisions <em>before</em> you write a single line of code &mdash; when changes are cheap.</p>
+        <div class="two-col">
+          <div>
+            <h3>Why Wireframe First?</h3>
+            <ul>
+              <li>Moving a box on paper: <strong>5 seconds</strong></li>
+              <li>Moving a styled component in code: <strong>1 hour+</strong></li>
+              <li>Forces decisions about <em>what</em> goes on the page and <em>where</em>, before worrying about <em>how it looks</em></li>
+              <li>The tool doesn't matter &mdash; pen and paper is fastest</li>
+            </ul>
+            <img src="assets/wireframe.png" class="slide-img" style="max-height:380px;object-fit:contain;" alt="Low-fidelity wireframe sketch" onerror="this.style.display='none'">
+            <p class="img-caption">A wireframe: just gray boxes, lines, and labels. No colors. No polish. Pure structure.</p>
+          </div>
+          <div>
+            <h3>Low-Fi vs High-Fi</h3>
+            <img src="assets/lofi-vs-hifi.jpg" class="slide-img" style="max-height:380px;object-fit:contain;" alt="Low-fi wireframe versus high-fi mockup comparison" onerror="this.style.display='none'">
+            <div class="two-col" style="gap:.35rem;margin-top:.25rem;">
+              <div class="card" style="border-left:3px solid #81ecec;">
+                <strong style="color:#81ecec;">Low-Fi (Wireframe)</strong>
+                <p style="font-size:.78rem;">Gray boxes, "Lorem ipsum," no styling. Fast to create (5 min). Easy to throw away. Best for: exploring options, getting early feedback.</p>
+              </div>
+              <div class="card" style="border-left:3px solid #ffeaa7;">
+                <strong style="color:#ffeaa7;">High-Fi (Mockup)</strong>
+                <p style="font-size:.78rem;">Real colors, images, interactions. Looks like the final product. Best for: user testing, stakeholder approval, developer handoff.</p>
+              </div>
+            </div>
+            <div class="caution" style="margin-top:.25rem;">
+              <strong>The #1 mistake:</strong> Jumping straight to high-fi. You fall in love with the visual details and resist changing the layout &mdash; even when the layout is wrong. Always start low-fi.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== WIREFRAME CHECKLIST ==================== -->
+    <div class="slide">
+      <div class="slide-content">
+        <div class="slide-label">Section 5 &mdash; Wireframing</div>
+        <h2>What Every Wireframe Should Address</h2>
+        <p>Before opening any design tool, answer these five questions. They force you to think about <strong>structure and priority</strong> before pixels.</p>
+        <div class="two-col">
+          <div>
+            <div class="card" style="margin-bottom:.35rem;border-left:3px solid #81ecec;">
+              <span class="badge">1</span>
+              <strong style="color:#ffeaa7;">Content hierarchy</strong>
+              <p style="font-size:.82rem;">What is the most important thing on this page? That goes at the top and gets the most visual weight. If you can't rank your content, you don't understand your page's purpose yet.</p>
+            </div>
+            <div class="card" style="margin-bottom:.35rem;border-left:3px solid #81ecec;">
+              <span class="badge">2</span>
+              <strong style="color:#ffeaa7;">Navigation placement</strong>
+              <p style="font-size:.82rem;">Top bar, sidebar, or hamburger? For most sites, a top horizontal nav is the convention (Jakob's Law). Sidebars work for dashboards. Hamburger menus save space but hide options.</p>
+            </div>
+            <div class="card" style="border-left:3px solid #81ecec;">
+              <span class="badge">3</span>
+              <strong style="color:#ffeaa7;">CTA placement</strong>
+              <p style="font-size:.82rem;">Where is the primary action button? Is it the most visually prominent element? A wireframe should have <strong>one obvious CTA</strong> a user can identify within 3 seconds.</p>
+            </div>
+          </div>
+          <div>
+            <div class="card" style="margin-bottom:.35rem;border-left:3px solid #81ecec;">
+              <span class="badge">4</span>
+              <strong style="color:#ffeaa7;">Content blocks &amp; order</strong>
+              <p style="font-size:.82rem;">Hero, features, testimonials, pricing, footer &mdash; what order tells the best story? Mirror the user's decision process: "What is this?" &rarr; "Why should I care?" &rarr; "What do I do next?"</p>
+            </div>
+            <div class="card" style="border-left:3px solid #81ecec;">
+              <span class="badge">5</span>
+              <strong style="color:#ffeaa7;">Responsive plan</strong>
+              <p style="font-size:.82rem;">Sketch both mobile AND desktop. How does your 3-column feature grid behave on a phone? A wireframe without a responsive plan is only half a wireframe.</p>
+            </div>
+            <img src="assets/wireframe-progression.jpg" class="slide-img" style="max-height:350px;object-fit:contain;margin-top:.25rem;" alt="Wireframe to final design progression stages" onerror="this.style.display='none'">
+            <p class="img-caption">The journey: rough sketch &rarr; refined wireframe &rarr; high-fi mockup &rarr; final coded site.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== 5-STEP WIREFRAMING PROCESS ==================== -->
+    <div class="slide">
+      <div class="slide-content">
+        <div class="slide-label">Section 5 &mdash; Wireframing</div>
+        <h2>The 5-Step Wireframing Process</h2>
+        <p>Follow these steps for your assignment. Steps 1&ndash;4 should take <strong>no more than 20 minutes</strong>. The most common mistake? Skipping them entirely.</p>
+        <div class="two-col">
+          <div>
+            <div class="card" style="margin-bottom:.35rem;border-left:3px solid #4f6df5;">
+              <span class="badge" style="font-size:.82rem;">1</span>
+              <strong style="color:#ffeaa7;">List the content your page needs</strong>
+              <p style="font-size:.82rem;">Bullet points, not design. "Hero heading, subhead, 3 feature cards, testimonial, footer." Write it as a list first.</p>
+            </div>
+            <div class="card" style="margin-bottom:.35rem;border-left:3px solid #4f6df5;">
+              <span class="badge" style="font-size:.82rem;">2</span>
+              <strong style="color:#ffeaa7;">Rank by importance</strong>
+              <p style="font-size:.82rem;">What must the user see <em>first</em>? That's your hero. What's second? This IS your visual hierarchy.</p>
+            </div>
+            <div class="card" style="margin-bottom:.35rem;border-left:3px solid #4f6df5;">
+              <span class="badge" style="font-size:.82rem;">3</span>
+              <strong style="color:#ffeaa7;">Sketch 2&ndash;3 rough layouts on paper</strong>
+              <p style="font-size:.82rem;">5 minutes each. No perfectionism. Just rectangles and labels. Try different arrangements before committing.</p>
+            </div>
+          </div>
+          <div>
+            <div class="card" style="margin-bottom:.35rem;border-left:3px solid #4f6df5;">
+              <span class="badge" style="font-size:.82rem;">4</span>
+              <strong style="color:#ffeaa7;">Pick the strongest layout</strong>
+              <p style="font-size:.82rem;">Which one serves the hierarchy best? Which passes the 10-second test? Which makes the primary action obvious? Choose one and refine it.</p>
+            </div>
+            <div class="card" style="margin-bottom:.35rem;border-left:3px solid #4f6df5;">
+              <span class="badge" style="font-size:.82rem;">5</span>
+              <strong style="color:#ffeaa7;">Move to a high-fi tool</strong>
+              <p style="font-size:.82rem;">NOW &mdash; and only now &mdash; open a design tool (Google Stitch, Figma, etc.) to bring your layout to life with real colors, images, and text.</p>
+            </div>
+            <div class="highlight" style="margin-top:.25rem;">
+              <strong>For your assignment:</strong> Sketch wireframes FIRST, then use Google Stitch to generate high-fidelity mockups from your layout decisions. The wireframe is the thinking. The tool is the execution.
+            </div>
+            <div class="note" style="margin-top:.25rem;">
+              <strong>Remember:</strong> Pen and paper is fastest. Balsamiq, Figma, even PowerPoint all work. The tool doesn't matter &mdash; the <em>thinking</em> does.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== SUMMARY ==================== -->
+    <div class="slide">
+      <div class="slide-content">
+        <div class="slide-label">Summary</div>
+        <h2>Key Takeaways</h2>
+        <div class="summary-grid">
+          <div class="summary-card"><strong>Design Heuristics</strong>Jakob's Law: follow conventions unless the payoff is clear. Fitts' Law: big + close = fast. Affordances communicate function before interaction. Always add signifiers for beginners.</div>
+          <div class="summary-card"><strong>User-Centered Design</strong>You are not the user. Research &rarr; Design &rarr; Test &rarr; Iterate. Skipping Research and Test is the #1 mistake. Constraints produce better designs.</div>
+          <div class="summary-card"><strong>Nielsen's 10 Heuristics</strong>The canonical UX checklist since 1994. Status visibility, real-world language, undo, consistency, error prevention, recognition &gt; recall, flexibility, minimalism, recovery, help.</div>
+          <div class="summary-card"><strong>Usability Testing</strong>5 users reveals 85% of problems. Think-aloud protocol: stay silent. Task-based tasks beat abstract opinions. A/B tells you what, not why.</div>
+          <div class="summary-card"><strong>Dark Patterns</strong>Confirm-shaming, forced continuity, misdirection, trick questions. They destroy trust and violate consumer protection laws. Design ethically.</div>
+          <div class="summary-card"><strong>Mobile-First</strong>Constraints force prioritization. Start with 320px. Four patterns: mostly fluid, column drop, layout shifter, off canvas.</div>
+          <div class="summary-card"><strong>Wireframing</strong>List &rarr; Rank &rarr; Sketch &rarr; Pick &rarr; Tool. Paper first. Always. The wireframe is the thinking; the tool is the execution.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== Q&A ==================== -->
+    <div class="slide">
+      <div class="slide-content">
+        <div class="slide-label">Q&amp;A</div>
+        <h2>Questions &amp; Answers</h2>
+        <dl>
+          <div class="card" style="margin-bottom:.35rem;">
+            <dt>Q: What's the difference between UI and UX design?</dt>
+            <dd>UI = how it looks (colors, typography, layout, visual hierarchy). UX = how it works (task flows, error handling, navigation, usability). Both matter. A beautiful interface that confuses users is a failure.</dd>
+          </div>
+          <div class="card" style="margin-bottom:.35rem;">
+            <dt>Q: Do I really need to test with users?</dt>
+            <dd>Yes. Heuristics prevent common mistakes but can't predict real user behavior. 5 users + 30 minutes reveals problems no internal review catches. The first iPhone had no copy-paste for two years because internal debates replaced user testing.</dd>
+          </div>
+          <div class="card" style="margin-bottom:.35rem;">
+            <dt>Q: Is it ever OK to break Jakob's Law?</dt>
+            <dd>Yes, but only when the benefit clearly outweighs the cost. Every broken convention adds cognitive load. Innovate in your content and value proposition, not in where you put the shopping cart icon. Snapchat broke convention and paid for it in user drop-off.</dd>
+          </div>
+          <div class="card" style="margin-bottom:.35rem;">
+            <dt>Q: What are dark patterns?</dt>
+            <dd>Deceptive techniques that trick users: confirm-shaming, hidden unsubscribe, forced continuity, misdirection. They destroy trust, generate complaints, and increasingly violate consumer protection laws. Epic Games paid $245M in FTC fines partly for dark patterns.</dd>
+          </div>
+          <div class="card" style="margin-bottom:.35rem;">
+            <dt>Q: Why design mobile-first instead of desktop-first?</dt>
+            <dd>Mobile forces prioritization. 320px means you must decide what's essential. Desktop always has room to add "one more thing" and hide bad prioritization. Mobile-first forces you to be ruthless, and that clarity benefits all screen sizes.</dd>
+          </div>
+          <div class="card" style="margin-bottom:.35rem;">
+            <dt>Q: What's the difference between a wireframe and a mockup?</dt>
+            <dd>Wireframe = low-fi: gray boxes, placeholder text, no colors. Focuses on layout and structure. Mockup = high-fi: real colors, images, interactions. Looks like the final product. Always start with wireframes — jumping to high-fi makes you fall in love with the details and resist changing the layout.</dd>
+          </div>
+          <div class="card" style="margin-bottom:.35rem;">
+            <dt>Q: What is the think-aloud protocol and why is the tester supposed to stay silent?</dt>
+            <dd>Think-aloud asks users to narrate their thoughts while completing tasks. The tester stays silent because any hint (even "try clicking there") invalidates the finding. Their struggle IS the data. Helping them solves the symptom but hides the disease.</dd>
+          </div>
+          <div class="card" style="margin-bottom:.35rem;">
+            <dt>Q: What responsive layout pattern should I use for my first project?</dt>
+            <dd>Mostly Fluid. It handles 90% of use cases — multi-column on desktop, stacked on mobile. Only reach for Layout Shifter or Off Canvas when the content truly demands a different approach. Complexity is a cost; pay it only when you must.</dd>
+          </div>
+          <div class="card" style="margin-bottom:.35rem;">
+            <dt>Q: How do I know if my affordances are clear?</dt>
+            <dd>The 10-second test: show your page for 10 seconds and ask "What is this for?" and "What do you do next?" If users can't answer, your affordances failed. Also watch for rage clicks in heatmap recordings — repeated clicking on a non-interactive element means users expect it to respond.</dd>
+          </div>
+          <div class="card" style="margin-bottom:.35rem;">
+            <dt>Q: What's the most important of Nielsen's 10 heuristics?</dt>
+            <dd>Arguably #1 (Visibility of System Status) — users should always know what's happening. Silence after an action (no confirmation, no feedback) creates anxiety. But in practice, heuristics #3 (User Control) and #9 (Error Recovery) are the most commonly violated and the most visible to users when broken.</dd>
+          </div>
+        </dl>
+      </div>
+    </div>
+
+    <!-- ==================== RESOURCES ==================== -->
+    <div class="slide">
+      <div class="slide-content centered">
+        <div class="slide-label">Resources</div>
+        <h2>Learn More</h2>
+        <div class="card-grid" style="grid-template-columns:repeat(auto-fit,minmax(220px,1fr));text-align:left;">
+          <div class="card">
+            <strong style="color:#ffeaa7;">Laws of UX</strong>
+            <p style="font-size:.82rem;"><a href="https://lawsofux.com/" target="_blank" rel="noopener noreferrer">lawsofux.com</a> &mdash; Visual cards for Jakob's Law, Fitts' Law, and every design law covered today</p>
+          </div>
+          <div class="card">
+            <strong style="color:#ffeaa7;">Nielsen Norman Group</strong>
+            <p style="font-size:.82rem;"><a href="https://www.nngroup.com/articles/ten-usability-heuristics/" target="_blank" rel="noopener noreferrer">10 Usability Heuristics</a> &mdash; The canonical reference, free to read</p>
+          </div>
+          <div class="card">
+            <strong style="color:#ffeaa7;">Hotjar</strong>
+            <p style="font-size:.82rem;"><a href="https://www.hotjar.com/" target="_blank" rel="noopener noreferrer">hotjar.com</a> &mdash; Heatmaps, session recordings, and user surveys</p>
+          </div>
+          <div class="card">
+            <strong style="color:#ffeaa7;">Microsoft Clarity</strong>
+            <p style="font-size:.82rem;"><a href="https://clarity.microsoft.com/" target="_blank" rel="noopener noreferrer">clarity.microsoft.com</a> &mdash; Free heatmaps and session recordings</p>
+          </div>
+          <div class="card">
+            <strong style="color:#ffeaa7;">Deceptive Design</strong>
+            <p style="font-size:.82rem;"><a href="https://www.deceptive.design/" target="_blank" rel="noopener noreferrer">deceptive.design</a> &mdash; Hall of shame for dark patterns with real-world examples</p>
+          </div>
+          <div class="card">
+            <strong style="color:#ffeaa7;">Google Stitch</strong>
+            <p style="font-size:.82rem;">AI-powered design tool for generating high-fidelity mockups from wireframes &mdash; used for your assignment</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /slideshow-container -->
+
+  <nav class="nav">
+    <button class="nav-btn" id="prevBtn" onclick="goTo(currentSlide-1)">&#8592;</button>
+    <span class="nav-counter" id="slideNum">1 / 1</span>
+    <button class="nav-btn" id="nextBtn" onclick="goTo(currentSlide+1)">&#8594;</button>
+  </nav>
+
+  <script>
+    let currentSlide = 0;
+    const slides = document.querySelectorAll('.slide');
+    const total = slides.length;
+
+    function goTo(n) {
+      slides[currentSlide].classList.remove('active');
+      currentSlide = Math.max(0, Math.min(n, total - 1));
+      slides[currentSlide].classList.add('active');
+      updateNav();
+    }
+    function updateNav() {
+      document.getElementById('slideNum').textContent = (currentSlide + 1) + ' / ' + total;
+      document.getElementById('prevBtn').disabled = currentSlide === 0;
+      document.getElementById('nextBtn').disabled = currentSlide === total - 1;
+      var pct = total > 1 ? (currentSlide / (total - 1)) * 100 : 100;
+      document.getElementById('progressBar').style.width = pct + '%';
+    }
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'ArrowRight' || e.key === 'ArrowDown') goTo(currentSlide + 1);
+      if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') goTo(currentSlide - 1);
+    });
+    updateNav();
+
+    function fittsClick(el) {
+      var size = el.offsetWidth;
+      var msg = '';
+      if (size <= 30) msg = 'Tiny target (24px)! Hard to hit, especially on mobile. Destructive actions use this intentionally.';
+      else if (size <= 50) msg = 'Medium target (44px). Minimum for mobile tap targets (Apple HIG). Acceptable but not ideal.';
+      else msg = 'Large target (72px)! Easy to hit. Primary actions should be this accessible.';
+      document.getElementById('fittsResult').textContent = msg;
+      el.style.background = 'rgba(79,109,245,.7)';
+      setTimeout(function() { el.style.background = ''; }, 400);
+    }
+
+    var touchStartX = 0;
+    document.addEventListener('touchstart', function(e) { touchStartX = e.changedTouches[0].screenX; }, {passive: true});
+    document.addEventListener('touchend', function(e) {
+      var diff = touchStartX - e.changedTouches[0].screenX;
+      if (Math.abs(diff) > 50) { if (diff > 0) goTo(currentSlide + 1); else goTo(currentSlide - 1); }
+    }, {passive: true});
+  </script>
+</body>
+</html>
