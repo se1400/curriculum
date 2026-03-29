@@ -1,16 +1,12 @@
-# Day 18 CodePens — JavaScript Foundations: Data Types and Variables
+# Day 18 — CodePen Examples
+## The DOM Is Your Paintbrush: JavaScript Foundations
 
 ---
 
-## CODEPEN 1 — typeof and Data Types Explorer
+## CodePen 1 — Console Explorer
 
-**Placement:** After the `typeof` operator section (after LISTING 18.15)
-
-**Purpose:** Students interact with `typeof` on all primitive types including BigInt and Symbol. A live input lets them type any value and see its type.
-
----
-
-### HTML
+**Placement:** After the "Browser Console" section.
+**Demonstrates:** `console.log()`, `console.warn()`, `console.error()`, `console.table()` — output mirrored to a visible panel alongside DevTools.
 
 ```html
 <!DOCTYPE html>
@@ -18,402 +14,201 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>typeof Explorer</title>
-  <link rel="stylesheet" href="style.css">
+  <title>Console Explorer</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: #1a1a2e;
+      color: #eee;
+      min-height: 100vh;
+      padding: 2rem;
+      max-width: 640px;
+      margin: 0 auto;
+    }
+
+    h1 {
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: #a29bfe;
+      margin-bottom: 0.35rem;
+    }
+
+    .subtitle {
+      font-size: 0.85rem;
+      opacity: 0.6;
+      margin-bottom: 1.5rem;
+    }
+
+    .btn-row {
+      display: flex;
+      gap: 0.6rem;
+      flex-wrap: wrap;
+      margin-bottom: 1.5rem;
+    }
+
+    button {
+      padding: 0.45rem 1rem;
+      border: none;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .btn-log   { background: #6c5ce7; color: #fff; }
+    .btn-warn  { background: #fdcb6e; color: #2d2d2d; }
+    .btn-error { background: #d63031; color: #fff; }
+    .btn-table { background: #00b894; color: #fff; }
+    .btn-clear { background: #444; color: #ccc; }
+
+    .panel-label {
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #636e72;
+      margin-bottom: 0.5rem;
+    }
+
+    .console-panel {
+      background: #0d1117;
+      border: 1px solid #2d2d2d;
+      border-radius: 10px;
+      padding: 0.75rem;
+      font-family: 'Courier New', monospace;
+      font-size: 0.82rem;
+      min-height: 200px;
+      max-height: 320px;
+      overflow-y: auto;
+    }
+
+    .entry {
+      display: flex;
+      align-items: baseline;
+      gap: 0.5rem;
+      padding: 0.35rem 0.5rem;
+      border-radius: 4px;
+      margin-bottom: 0.3rem;
+      border-left: 3px solid transparent;
+    }
+
+    .tag {
+      font-size: 0.7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      min-width: 3.6rem;
+      opacity: 0.8;
+    }
+
+    .entry.log   { color: #dfe6e9; border-left-color: #6c5ce7; background: rgba(108,92,231,0.08); }
+    .entry.warn  { color: #fdcb6e; border-left-color: #fdcb6e; background: rgba(253,203,110,0.08); }
+    .entry.error { color: #ff7675; border-left-color: #d63031; background: rgba(214,48,49,0.08); }
+    .entry.table { color: #55efc4; border-left-color: #00b894; background: rgba(0,184,148,0.08); }
+
+    .empty {
+      color: #444;
+      font-style: italic;
+      padding: 0.5rem;
+    }
+  </style>
 </head>
 <body>
-  <div class="container">
-    <h1>typeof Explorer</h1>
-    <p class="subtitle">Explore JavaScript's type system — including BigInt and Symbol</p>
 
-    <section class="card">
-      <h2>Built-in Type Examples</h2>
-      <table class="type-table">
-        <thead>
-          <tr>
-            <th>Value</th>
-            <th>typeof result</th>
-            <th>Notes</th>
-          </tr>
-        </thead>
-        <tbody id="type-table-body"></tbody>
-      </table>
-    </section>
+  <h1>Console Explorer</h1>
+  <p class="subtitle">Click each button — output appears here AND in DevTools (F12 → Console tab).</p>
 
-    <section class="card">
-      <h2>Live typeof Tester</h2>
-      <p>Type a value below and see what <code>typeof</code> returns.</p>
-      <div class="input-row">
-        <input type="text" id="value-input" placeholder='Try: 42, "hello", true, null, undefined ...' autocomplete="off">
-        <button id="check-btn">Check Type</button>
-      </div>
-      <div id="result-display" class="result-display hidden">
-        <div class="result-inner">
-          <span class="result-label">typeof</span>
-          <span id="result-value" class="result-code"></span>
-          <span class="result-arrow">→</span>
-          <span id="result-type" class="result-type"></span>
-        </div>
-        <p id="result-note" class="result-note"></p>
-      </div>
-    </section>
-
-    <section class="card">
-      <h2>Important Quirks</h2>
-      <ul class="quirk-list">
-        <li><code>typeof null</code> returns <strong>"object"</strong> — a historical bug. Use <code>=== null</code> to check for null.</li>
-        <li><code>typeof []</code> returns <strong>"object"</strong> — arrays are objects. Use <code>Array.isArray()</code> to check for arrays.</li>
-        <li><code>typeof NaN</code> returns <strong>"number"</strong> — NaN is technically a numeric value.</li>
-        <li><code>typeof function(){}</code> returns <strong>"function"</strong> — functions get their own typeof result.</li>
-      </ul>
-    </section>
+  <div class="btn-row">
+    <button class="btn-log"   onclick="runLog()">console.log()</button>
+    <button class="btn-warn"  onclick="runWarn()">console.warn()</button>
+    <button class="btn-error" onclick="runError()">console.error()</button>
+    <button class="btn-table" onclick="runTable()">console.table()</button>
+    <button class="btn-clear" onclick="clearPanel()">Clear</button>
   </div>
 
-  <script src="script.js"></script>
+  <p class="panel-label">Output Panel</p>
+  <div class="console-panel" id="output">
+    <p class="empty">Click a button to run a console method…</p>
+  </div>
+
+  <script>
+    let logCount = 0;
+
+    // Adds a styled row to the on-screen panel
+    function addEntry(message, type) {
+      const panel = document.querySelector('#output');
+
+      // Remove the placeholder text on first entry
+      const placeholder = panel.querySelector('.empty');
+      if (placeholder) {
+        placeholder.remove();
+      }
+
+      const entry = document.createElement('div');
+      entry.classList.add('entry', type);
+
+      const tag = document.createElement('span');
+      tag.classList.add('tag');
+      tag.textContent = type;
+
+      const text = document.createElement('span');
+      text.textContent = message;
+
+      entry.appendChild(tag);
+      entry.appendChild(text);
+      panel.appendChild(entry);
+
+      // Keep the latest entry visible
+      panel.scrollTop = panel.scrollHeight;
+    }
+
+    function runLog() {
+      logCount = logCount + 1;
+      const message = 'Hello from console.log()  —  call #' + logCount;
+      console.log(message);
+      addEntry(message, 'log');
+    }
+
+    function runWarn() {
+      const message = 'Something to watch out for — this is a warning!';
+      console.warn(message);
+      addEntry(message, 'warn');
+    }
+
+    function runError() {
+      const message = 'Something went wrong — this is an error!';
+      console.error(message);
+      addEntry(message, 'error');
+    }
+
+    function runTable() {
+      const students = [
+        { name: 'Ada Lovelace', grade: 'A'  },
+        { name: 'Grace Hopper', grade: 'A+' },
+        { name: 'Alan Turing',  grade: 'A'  }
+      ];
+      console.table(students);
+      addEntry('Open DevTools (F12 → Console) to see the formatted table.', 'table');
+    }
+
+    function clearPanel() {
+      document.querySelector('#output').innerHTML =
+        '<p class="empty">Click a button to run a console method…</p>';
+    }
+  </script>
+
 </body>
 </html>
 ```
 
 ---
 
-### CSS
+## CodePen 2 — Variable Explorer
 
-```css
-*, *::before, *::after {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
-
-body {
-  font-family: system-ui, -apple-system, sans-serif;
-  background: #0f172a;
-  color: #e2e8f0;
-  min-height: 100vh;
-  padding: 2rem 1rem;
-}
-
-.container {
-  max-width: 760px;
-  margin: 0 auto;
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-}
-
-h1 {
-  font-size: 1.75rem;
-  font-weight: 700;
-  color: #f8fafc;
-}
-
-.subtitle {
-  color: #94a3b8;
-  margin-top: 0.25rem;
-  font-size: 0.95rem;
-}
-
-h2 {
-  font-size: 1.1rem;
-  font-weight: 600;
-  color: #cbd5e1;
-  margin-bottom: 1rem;
-}
-
-.card {
-  background: #1e293b;
-  border: 1px solid #334155;
-  border-radius: 12px;
-  padding: 1.5rem;
-}
-
-/* Type Table */
-.type-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 0.9rem;
-}
-
-.type-table th {
-  text-align: left;
-  padding: 0.5rem 0.75rem;
-  color: #64748b;
-  font-weight: 600;
-  border-bottom: 1px solid #334155;
-  font-size: 0.8rem;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-
-.type-table td {
-  padding: 0.55rem 0.75rem;
-  border-bottom: 1px solid #1e293b;
-  font-family: 'Fira Code', 'Courier New', monospace;
-  font-size: 0.875rem;
-}
-
-.type-table tr:last-child td {
-  border-bottom: none;
-}
-
-.type-table tr:hover td {
-  background: #263347;
-}
-
-.value-col {
-  color: #fbbf24;
-}
-
-.type-col {
-  font-weight: 700;
-}
-
-.type-string   { color: #34d399; }
-.type-number   { color: #60a5fa; }
-.type-boolean  { color: #f472b6; }
-.type-undefined { color: #94a3b8; }
-.type-object   { color: #fb923c; }
-.type-function { color: #a78bfa; }
-.type-symbol   { color: #f9a8d4; }
-.type-bigint   { color: #86efac; }
-
-.note-col {
-  color: #64748b;
-  font-family: system-ui, sans-serif;
-  font-size: 0.8rem;
-}
-
-/* Live tester */
-.input-row {
-  display: flex;
-  gap: 0.75rem;
-  margin-bottom: 1rem;
-}
-
-input[type="text"] {
-  flex: 1;
-  background: #0f172a;
-  border: 1px solid #475569;
-  border-radius: 8px;
-  padding: 0.6rem 0.9rem;
-  color: #e2e8f0;
-  font-family: 'Fira Code', 'Courier New', monospace;
-  font-size: 0.9rem;
-  outline: none;
-  transition: border-color 0.15s;
-}
-
-input[type="text"]:focus {
-  border-color: #60a5fa;
-}
-
-button {
-  background: #2563eb;
-  color: white;
-  border: none;
-  border-radius: 8px;
-  padding: 0.6rem 1.25rem;
-  font-size: 0.9rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background 0.15s;
-  white-space: nowrap;
-}
-
-button:hover {
-  background: #1d4ed8;
-}
-
-.result-display {
-  background: #0f172a;
-  border: 1px solid #334155;
-  border-radius: 8px;
-  padding: 1rem 1.25rem;
-}
-
-.result-display.hidden {
-  display: none;
-}
-
-.result-inner {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  flex-wrap: wrap;
-  font-family: 'Fira Code', 'Courier New', monospace;
-  font-size: 1rem;
-}
-
-.result-label {
-  color: #64748b;
-}
-
-.result-code {
-  color: #fbbf24;
-  font-weight: 600;
-}
-
-.result-arrow {
-  color: #475569;
-}
-
-.result-type {
-  font-weight: 700;
-  font-size: 1.1rem;
-}
-
-.result-note {
-  margin-top: 0.6rem;
-  font-size: 0.85rem;
-  color: #64748b;
-  font-family: system-ui, sans-serif;
-}
-
-/* Quirk list */
-.quirk-list {
-  list-style: none;
-  display: flex;
-  flex-direction: column;
-  gap: 0.6rem;
-}
-
-.quirk-list li {
-  padding-left: 1.25rem;
-  position: relative;
-  color: #94a3b8;
-  font-size: 0.9rem;
-  line-height: 1.5;
-}
-
-.quirk-list li::before {
-  content: '⚠';
-  position: absolute;
-  left: 0;
-  color: #fbbf24;
-  font-size: 0.8rem;
-}
-
-code {
-  background: #0f172a;
-  padding: 0.1em 0.4em;
-  border-radius: 4px;
-  font-family: 'Fira Code', 'Courier New', monospace;
-  font-size: 0.875em;
-  color: #f8fafc;
-}
-```
-
----
-
-### JS
-
-```js
-// Data for the type table
-const typeExamples = [
-  { value: '"hello"',       result: 'string',    note: 'Any text in quotes' },
-  { value: '42',            result: 'number',    note: 'Integers and decimals share this type' },
-  { value: '3.14',          result: 'number',    note: 'Same type as integers' },
-  { value: 'true',          result: 'boolean',   note: 'true or false' },
-  { value: 'false',         result: 'boolean',   note: 'true or false' },
-  { value: 'undefined',     result: 'undefined', note: 'Unassigned variable' },
-  { value: 'null',          result: 'object',    note: '⚠ Historical bug — null is NOT an object' },
-  { value: '{}',            result: 'object',    note: 'Plain objects' },
-  { value: '[]',            result: 'object',    note: '⚠ Arrays are objects — use Array.isArray()' },
-  { value: 'function(){}',  result: 'function',  note: 'Functions get their own result' },
-  { value: 'Symbol("x")',   result: 'symbol',    note: 'Unique identifiers (ES2015)' },
-  { value: '42n',           result: 'bigint',    note: 'Integers beyond MAX_SAFE_INTEGER (ES2020)' },
-  { value: 'NaN',           result: 'number',    note: '⚠ NaN is technically numeric type' },
-  { value: 'Infinity',      result: 'number',    note: 'Also a number' },
-];
-
-const colorMap = {
-  string:    'type-string',
-  number:    'type-number',
-  boolean:   'type-boolean',
-  undefined: 'type-undefined',
-  object:    'type-object',
-  function:  'type-function',
-  symbol:    'type-symbol',
-  bigint:    'type-bigint',
-};
-
-// Render the table
-const tbody = document.getElementById('type-table-body');
-
-typeExamples.forEach(({ value, result, note }) => {
-  const tr = document.createElement('tr');
-  tr.innerHTML = `
-    <td class="value-col">${value}</td>
-    <td class="type-col ${colorMap[result] || ''}">"${result}"</td>
-    <td class="note-col">${note}</td>
-  `;
-  tbody.appendChild(tr);
-});
-
-// Notes for the live tester
-const typeNotes = {
-  string:    'Strings represent text. Single quotes, double quotes, and backticks all produce strings.',
-  number:    'JavaScript has one number type for both integers and decimals (64-bit float).',
-  boolean:   'Booleans are true or false. They are the result of comparisons.',
-  undefined: 'undefined means no value has been assigned.',
-  object:    'Could be an object, array, or null. Use === null or Array.isArray() to distinguish.',
-  function:  'Functions are callable objects — they get their own typeof result.',
-  symbol:    'Symbols are unique, guaranteed-distinct values (ES2015+).',
-  bigint:    'BigInt handles integers larger than Number.MAX_SAFE_INTEGER (ES2020+).',
-};
-
-// Live tester
-const input   = document.getElementById('value-input');
-const btn     = document.getElementById('check-btn');
-const display = document.getElementById('result-display');
-const resultValue = document.getElementById('result-value');
-const resultType  = document.getElementById('result-type');
-const resultNote  = document.getElementById('result-note');
-
-function checkType() {
-  const raw = input.value.trim();
-  if (!raw) return;
-
-  let evaluated;
-  let typeResult;
-
-  try {
-    // Use Function constructor to safely evaluate the expression
-    evaluated = Function('"use strict"; return (' + raw + ')')();
-    typeResult = typeof evaluated;
-  } catch (e) {
-    display.classList.remove('hidden');
-    resultValue.textContent = raw;
-    resultType.textContent = 'SyntaxError';
-    resultType.className = 'result-type type-undefined';
-    resultNote.textContent = 'Could not evaluate that expression. Try: 42, "hello", true, null, undefined, [], {}, 42n';
-    return;
-  }
-
-  display.classList.remove('hidden');
-  resultValue.textContent = raw;
-  resultType.textContent = `"${typeResult}"`;
-  resultType.className = `result-type ${colorMap[typeResult] || ''}`;
-  resultNote.textContent = typeNotes[typeResult] || '';
-}
-
-btn.addEventListener('click', checkType);
-input.addEventListener('keydown', (e) => {
-  if (e.key === 'Enter') checkType();
-});
-```
-
----
-
-## CODEPEN 2 — Template Literals vs String Concatenation
-
-**Placement:** After the Strings in Depth section / template literals subsection (after LISTING 18.19)
-
-**Purpose:** Side-by-side comparison of old concatenation vs. modern template literals. Shows multi-line strings, expression evaluation, and a practical greeting builder.
-
----
-
-### HTML
+**Placement:** After the "Variables: const and let" section.
+**Demonstrates:** `const`, `let`, template literals with `${}`, and `style.setProperty()` updating a CSS custom property — all wired together to populate a profile card.
 
 ```html
 <!DOCTYPE html>
@@ -421,424 +216,184 @@ input.addEventListener('keydown', (e) => {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Template Literals vs Concatenation</title>
-  <link rel="stylesheet" href="style.css">
+  <title>Variable Explorer</title>
+  <style>
+    :root {
+      --accent: #6c5ce7;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: #1a1a2e;
+      color: #eee;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+      gap: 1.5rem;
+    }
+
+    .hint {
+      font-size: 0.8rem;
+      opacity: 0.5;
+      text-align: center;
+      max-width: 420px;
+    }
+
+    .profile-card {
+      background: #16213e;
+      border: 2px solid var(--accent);
+      border-radius: 16px;
+      padding: 2rem 2.5rem;
+      max-width: 420px;
+      width: 100%;
+      text-align: center;
+      transition: border-color 0.4s;
+    }
+
+    .avatar {
+      width: 72px;
+      height: 72px;
+      border-radius: 50%;
+      background: var(--accent);
+      color: #fff;
+      font-size: 1.6rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 1rem;
+      transition: background 0.4s;
+    }
+
+    .card-name {
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin-bottom: 0.3rem;
+    }
+
+    .card-role {
+      font-size: 0.9rem;
+      color: var(--accent);
+      margin-bottom: 0.75rem;
+      transition: color 0.4s;
+    }
+
+    .card-bio {
+      font-size: 0.85rem;
+      opacity: 0.7;
+      line-height: 1.6;
+    }
+
+    .code-panel {
+      background: #0d1117;
+      border-radius: 10px;
+      padding: 1rem 1.25rem;
+      font-family: 'Courier New', monospace;
+      font-size: 0.8rem;
+      max-width: 420px;
+      width: 100%;
+      line-height: 2;
+    }
+
+    .kw  { color: #a29bfe; }   /* const / let */
+    .vn  { color: #74b9ff; }   /* variable name */
+    .str { color: #55efc4; }   /* string value */
+    .num { color: #fdcb6e; }   /* number value */
+    .op  { color: #636e72; }   /* = sign */
+
+    .palette {
+      display: flex;
+      gap: 0.75rem;
+    }
+
+    .palette button {
+      width: 2.75rem;
+      height: 2.75rem;
+      border-radius: 50%;
+      border: 3px solid transparent;
+      cursor: pointer;
+      transition: transform 0.2s, border-color 0.2s;
+    }
+
+    .palette button:hover {
+      transform: scale(1.15);
+      border-color: rgba(255,255,255,0.5);
+    }
+  </style>
 </head>
 <body>
-  <div class="container">
-    <h1>Template Literals vs. Concatenation</h1>
-    <p class="subtitle">Two ways to build strings — one modern, one legacy</p>
 
-    <section class="card">
-      <h2>Greeting Builder</h2>
-      <p>Fill in the fields and watch both methods produce the same output — but notice which code is easier to read.</p>
-      <div class="form-grid">
-        <label for="first-name">First Name</label>
-        <input type="text" id="first-name" value="Jordan" maxlength="30">
+  <p class="hint">Change the variables at the top of the JS panel — the card updates instantly.</p>
 
-        <label for="last-name">Last Name</label>
-        <input type="text" id="last-name" value="Rivera" maxlength="30">
-
-        <label for="score">Score</label>
-        <input type="number" id="score" value="1450" min="0" max="99999">
-
-        <label for="rank">Rank</label>
-        <input type="number" id="rank" value="3" min="1" max="9999">
-      </div>
-    </section>
-
-    <div class="comparison">
-      <div class="panel">
-        <div class="panel-header old-header">
-          <span class="badge badge-old">Legacy</span>
-          String Concatenation with <code>+</code>
-        </div>
-        <div class="panel-code">
-          <pre id="concat-code"></pre>
-        </div>
-        <div class="panel-output">
-          <div class="output-label">Output</div>
-          <div id="concat-output" class="output-text"></div>
-        </div>
-      </div>
-
-      <div class="panel">
-        <div class="panel-header new-header">
-          <span class="badge badge-new">Modern</span>
-          Template Literal with <code>`${ }`</code>
-        </div>
-        <div class="panel-code">
-          <pre id="template-code"></pre>
-        </div>
-        <div class="panel-output">
-          <div class="output-label">Output</div>
-          <div id="template-output" class="output-text"></div>
-        </div>
-      </div>
-    </div>
-
-    <section class="card">
-      <h2>Multi-line Strings</h2>
-      <div class="comparison-small">
-        <div class="sub-panel">
-          <div class="sub-header old-header">Legacy — Concatenation</div>
-          <pre class="code-block"><code>"Dear " + name + ",\n" +
-"Thank you for your order.\n" +
-"Total: $" + total.toFixed(2)</code></pre>
-        </div>
-        <div class="sub-panel">
-          <div class="sub-header new-header">Modern — Template Literal</div>
-          <pre class="code-block"><code id="multiline-demo"></code></pre>
-        </div>
-      </div>
-      <div class="multiline-output">
-        <div class="output-label">Rendered Output</div>
-        <div id="multiline-result" class="output-text"></div>
-      </div>
-    </section>
-
-    <section class="card expressions-card">
-      <h2>Expressions Inside <code>${ }</code></h2>
-      <p>Any valid JavaScript expression works inside template literal placeholders.</p>
-      <div id="expression-examples"></div>
-    </section>
+  <div class="profile-card" id="profile-card">
+    <div class="avatar"    id="avatar"></div>
+    <p  class="card-name"  id="card-name"></p>
+    <p  class="card-role"  id="card-role"></p>
+    <p  class="card-bio"   id="card-bio"></p>
   </div>
 
-  <script src="script.js"></script>
+  <div class="code-panel" id="code-display"></div>
+
+  <div class="palette">
+    <button style="background:#6c5ce7;" onclick="updateAccent('#6c5ce7')" title="#6c5ce7 Violet"></button>
+    <button style="background:#00b894;" onclick="updateAccent('#00b894')" title="#00b894 Emerald"></button>
+    <button style="background:#e17055;" onclick="updateAccent('#e17055')" title="#e17055 Coral"></button>
+    <button style="background:#0984e3;" onclick="updateAccent('#0984e3')" title="#0984e3 Blue"></button>
+    <button style="background:#fd79a8;" onclick="updateAccent('#fd79a8')" title="#fd79a8 Rose"></button>
+  </div>
+
+  <script>
+    // ── Change these variables — watch the card update ────────────────
+    const firstName   = 'Ada';
+    const lastName    = 'Lovelace';
+    const jobTitle    = 'Mathematician & Pioneer Programmer';
+    const birthYear   = 1815;
+    let   accentColor = '#6c5ce7';
+
+    // Template literal: ${} works just like CSS var() — inserts a value
+    const fullName = `${firstName} ${lastName}`;
+    const initials = firstName[0] + lastName[0];
+    const bio      = `Born ${birthYear}. Wrote the first published algorithm — considered the world's first programmer.`;
+
+    // ── Write the variables into the card ────────────────────────────
+    document.querySelector('#avatar').textContent    = initials;
+    document.querySelector('#card-name').textContent = fullName;
+    document.querySelector('#card-role').textContent = jobTitle;
+    document.querySelector('#card-bio').textContent  = bio;
+
+    // ── style.setProperty() updates a CSS custom property from JS ─────
+    document.documentElement.style.setProperty('--accent', accentColor);
+
+    // ── Show the variables as a code reference ───────────────────────
+    document.querySelector('#code-display').innerHTML =
+      '<span class="kw">const</span> <span class="vn">firstName</span>   <span class="op">=</span> <span class="str">"' + firstName + '"</span><br>' +
+      '<span class="kw">const</span> <span class="vn">lastName</span>    <span class="op">=</span> <span class="str">"' + lastName + '"</span><br>' +
+      '<span class="kw">const</span> <span class="vn">jobTitle</span>    <span class="op">=</span> <span class="str">"' + jobTitle.slice(0, 24) + '…"</span><br>' +
+      '<span class="kw">const</span> <span class="vn">birthYear</span>   <span class="op">=</span> <span class="num">' + birthYear + '</span><br>' +
+      '<span class="kw">let</span>   <span class="vn">accentColor</span> <span class="op">=</span> <span class="str">"' + accentColor + '"</span>';
+
+    // ── Palette buttons reassign the let variable and update CSS ──────
+    function updateAccent(color) {
+      accentColor = color;    // let can be reassigned — const cannot
+      document.documentElement.style.setProperty('--accent', accentColor);
+    }
+  </script>
+
 </body>
 </html>
 ```
 
 ---
 
-### CSS
+## CodePen 3 — querySelector in Action
 
-```css
-*, *::before, *::after {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
-
-body {
-  font-family: system-ui, -apple-system, sans-serif;
-  background: #0f172a;
-  color: #e2e8f0;
-  min-height: 100vh;
-  padding: 2rem 1rem;
-}
-
-.container {
-  max-width: 900px;
-  margin: 0 auto;
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-}
-
-h1 {
-  font-size: 1.75rem;
-  font-weight: 700;
-  color: #f8fafc;
-}
-
-.subtitle {
-  color: #94a3b8;
-  margin-top: 0.25rem;
-  font-size: 0.95rem;
-}
-
-h2 {
-  font-size: 1.05rem;
-  font-weight: 600;
-  color: #cbd5e1;
-  margin-bottom: 1rem;
-}
-
-.card {
-  background: #1e293b;
-  border: 1px solid #334155;
-  border-radius: 12px;
-  padding: 1.5rem;
-}
-
-/* Form */
-.form-grid {
-  display: grid;
-  grid-template-columns: auto 1fr auto 1fr;
-  gap: 0.6rem 1rem;
-  align-items: center;
-}
-
-label {
-  color: #94a3b8;
-  font-size: 0.875rem;
-  font-weight: 500;
-  white-space: nowrap;
-}
-
-input[type="text"],
-input[type="number"] {
-  background: #0f172a;
-  border: 1px solid #475569;
-  border-radius: 6px;
-  padding: 0.45rem 0.75rem;
-  color: #e2e8f0;
-  font-family: 'Fira Code', 'Courier New', monospace;
-  font-size: 0.875rem;
-  outline: none;
-  width: 100%;
-  transition: border-color 0.15s;
-}
-
-input:focus {
-  border-color: #60a5fa;
-}
-
-/* Comparison panels */
-.comparison {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1rem;
-}
-
-@media (max-width: 600px) {
-  .comparison { grid-template-columns: 1fr; }
-  .form-grid  { grid-template-columns: auto 1fr; }
-}
-
-.panel {
-  background: #1e293b;
-  border: 1px solid #334155;
-  border-radius: 12px;
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-}
-
-.panel-header {
-  padding: 0.75rem 1rem;
-  font-size: 0.85rem;
-  font-weight: 600;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.old-header { background: #2d1f0e; color: #fb923c; border-bottom: 1px solid #7c3d14; }
-.new-header { background: #0d2537; color: #34d399; border-bottom: 1px solid #0e4f3a; }
-
-.badge {
-  display: inline-block;
-  padding: 0.15em 0.5em;
-  border-radius: 999px;
-  font-size: 0.7rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-
-.badge-old { background: #7c3d14; color: #fed7aa; }
-.badge-new { background: #064e3b; color: #a7f3d0; }
-
-.panel-code {
-  padding: 1rem;
-  flex: 1;
-}
-
-.panel-code pre {
-  font-family: 'Fira Code', 'Courier New', monospace;
-  font-size: 0.78rem;
-  color: #94a3b8;
-  white-space: pre-wrap;
-  word-break: break-word;
-  line-height: 1.6;
-}
-
-.panel-output {
-  border-top: 1px solid #334155;
-  padding: 0.75rem 1rem;
-}
-
-.output-label {
-  font-size: 0.7rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: #475569;
-  margin-bottom: 0.4rem;
-}
-
-.output-text {
-  font-size: 0.9rem;
-  color: #f8fafc;
-  line-height: 1.6;
-  white-space: pre-line;
-}
-
-/* Multi-line section */
-.comparison-small {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1rem;
-  margin-bottom: 1rem;
-}
-
-.sub-panel {
-  border-radius: 8px;
-  overflow: hidden;
-  border: 1px solid #334155;
-}
-
-.sub-header {
-  padding: 0.5rem 0.75rem;
-  font-size: 0.8rem;
-  font-weight: 600;
-}
-
-.code-block {
-  padding: 0.75rem;
-  background: #0f172a;
-  font-family: 'Fira Code', 'Courier New', monospace;
-  font-size: 0.8rem;
-  color: #94a3b8;
-  line-height: 1.6;
-  white-space: pre-wrap;
-}
-
-.multiline-output {
-  background: #0f172a;
-  border: 1px solid #334155;
-  border-radius: 8px;
-  padding: 0.75rem 1rem;
-  margin-top: 0.5rem;
-}
-
-/* Expression examples */
-.expression-examples {
-  margin-top: 0.5rem;
-}
-
-.expr-row {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 0.5rem 1.5rem;
-  padding: 0.5rem 0;
-  border-bottom: 1px solid #334155;
-  align-items: baseline;
-  font-family: 'Fira Code', 'Courier New', monospace;
-  font-size: 0.85rem;
-}
-
-.expr-row:last-child { border-bottom: none; }
-
-.expr-code  { color: #94a3b8; }
-.expr-result { color: #fbbf24; font-weight: 600; }
-
-code {
-  background: #0f172a;
-  padding: 0.1em 0.35em;
-  border-radius: 4px;
-  font-family: 'Fira Code', 'Courier New', monospace;
-  font-size: 0.85em;
-}
-```
-
----
-
-### JS
-
-```js
-const firstInput = document.getElementById('first-name');
-const lastInput  = document.getElementById('last-name');
-const scoreInput = document.getElementById('score');
-const rankInput  = document.getElementById('rank');
-
-const concatCode    = document.getElementById('concat-code');
-const templateCode  = document.getElementById('template-code');
-const concatOutput  = document.getElementById('concat-output');
-const templateOutput = document.getElementById('template-output');
-
-function update() {
-  const first = firstInput.value  || 'Jordan';
-  const last  = lastInput.value   || 'Rivera';
-  const score = Number(scoreInput.value) || 0;
-  const rank  = Number(rankInput.value)  || 1;
-  const full  = first + ' ' + last;
-
-  // Legacy code display
-  concatCode.textContent =
-    `var fullName = firstName + " " + lastName;\n` +
-    `var msg = "Hello, " + fullName + "!\\n" +\n` +
-    `          "Score: " + score + " pts\\n" +\n` +
-    `          "Global Rank: #" + rank;`;
-
-  // Modern code display
-  templateCode.textContent =
-    `const fullName = \`\${firstName} \${lastName}\`;\n` +
-    `const msg = \`Hello, \${fullName}!\\n\` +\n` +
-    `            \`Score: \${score} pts\\n\` +\n` +
-    `            \`Global Rank: #\${rank}\`;`;
-
-  const output =
-    `Hello, ${full}!\nScore: ${score} pts\nGlobal Rank: #${rank}`;
-
-  concatOutput.textContent  = output;
-  templateOutput.textContent = output;
-}
-
-// Multi-line demo
-const name  = 'Jordan';
-const total = 89.97;
-const multilineDemo = document.getElementById('multiline-demo');
-const multilineResult = document.getElementById('multiline-result');
-
-multilineDemo.textContent =
-  '`Dear ${name},\n' +
-  'Thank you for your order.\n' +
-  'Total: $${total.toFixed(2)}`';
-
-multilineResult.textContent =
-  `Dear ${name},\nThank you for your order.\nTotal: $${total.toFixed(2)}`;
-
-// Expression examples
-const exprContainer = document.getElementById('expression-examples');
-
-const expressions = [
-  { code: '`${2 + 2}`',                        result: `${2 + 2}` },
-  { code: '`${"hello".toUpperCase()}`',         result: `${'hello'.toUpperCase()}` },
-  { code: '`${true ? "yes" : "no"}`',           result: `${true ? 'yes' : 'no'}` },
-  { code: '`${(29.99 * 3).toFixed(2)}`',        result: `${(29.99 * 3).toFixed(2)}` },
-  { code: '`${new Date().getFullYear()}`',       result: `${new Date().getFullYear()}` },
-  { code: '`${[1,2,3].join(" + ")}`',           result: `${[1,2,3].join(' + ')}` },
-];
-
-expressions.forEach(({ code, result }) => {
-  const row = document.createElement('div');
-  row.className = 'expr-row';
-  row.innerHTML = `<span class="expr-code">${code}</span><span class="expr-result">"${result}"</span>`;
-  exprContainer.appendChild(row);
-});
-
-// Bind live updates
-[firstInput, lastInput, scoreInput, rankInput].forEach(el => {
-  el.addEventListener('input', update);
-});
-
-update();
-```
-
----
-
-## CODEPEN 3 — The Math Object Playground
-
-**Placement:** After the Math Object section (after LISTING 18.26)
-
-**Purpose:** Interactive demo of Math methods. Buttons for random number generation, a slider for rounding demos, and a display of Math constants.
-
----
-
-### HTML
+**Placement:** After the "querySelector — Finding Elements" section.
+**Demonstrates:** `querySelector()`, `querySelectorAll()`, `textContent`, `innerHTML`, and how CSS selector syntax transfers directly to JavaScript.
 
 ```html
 <!DOCTYPE html>
@@ -846,449 +401,163 @@ update();
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Math Object Playground</title>
-  <link rel="stylesheet" href="style.css">
+  <title>querySelector in Action</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: #1a1a2e;
+      color: #eee;
+      min-height: 100vh;
+      padding: 2rem;
+      max-width: 660px;
+      margin: 0 auto;
+    }
+
+    .section {
+      margin-bottom: 2rem;
+    }
+
+    .section-label {
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.09em;
+      color: #74b9ff;
+      margin-bottom: 0.75rem;
+    }
+
+    h1 {
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: #a29bfe;
+      margin-bottom: 0.35rem;
+    }
+
+    .hero-desc {
+      font-size: 0.9rem;
+      opacity: 0.7;
+      line-height: 1.6;
+      margin-bottom: 1.5rem;
+    }
+
+    .card {
+      background: #16213e;
+      border: 1px solid #2d3561;
+      border-radius: 10px;
+      padding: 1rem 1.25rem;
+      margin-bottom: 0.6rem;
+      font-size: 0.9rem;
+    }
+
+    .card strong { color: #a29bfe; }
+
+    .btn-row {
+      display: flex;
+      gap: 0.6rem;
+      flex-wrap: wrap;
+      margin-top: 1rem;
+    }
+
+    button {
+      padding: 0.45rem 1.1rem;
+      border: none;
+      border-radius: 6px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .btn-purple { background: #6c5ce7; color: #fff; }
+    .btn-teal   { background: #00b894; color: #fff; }
+    .btn-coral  { background: #e17055; color: #fff; }
+
+    #html-demo {
+      margin-top: 0.75rem;
+    }
+
+    .badge {
+      display: inline-block;
+      background: #6c5ce7;
+      color: #fff;
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 0.15rem 0.55rem;
+      border-radius: 100px;
+      margin-left: 0.4rem;
+      vertical-align: middle;
+    }
+  </style>
 </head>
 <body>
-  <div class="container">
-    <h1>Math Object Playground</h1>
-    <p class="subtitle">Explore JavaScript's built-in <code>Math</code> object interactively</p>
 
-    <div class="grid-two">
+  <!-- querySelector changes these on page load -->
+  <h1 id="page-heading">Waiting for JavaScript…</h1>
+  <p class="hero-desc" id="page-desc">querySelector has not run yet.</p>
 
-      <!-- Random Number Section -->
-      <section class="card">
-        <h2>Math.random()</h2>
-        <p class="card-desc">Returns a float in <strong>[0, 1)</strong> — 0 is possible, 1 is never returned.</p>
-        <div class="rand-display">
-          <div class="rand-value" id="rand-value">—</div>
-          <div class="rand-label">Math.random()</div>
-        </div>
-        <button class="btn" id="btn-random">Generate Random Float</button>
+  <div class="section">
+    <p class="section-label">querySelector — first match only</p>
+    <div class="card" id="target-card">This card has <code>id="target-card"</code>.</div>
 
-        <div class="divider"></div>
-
-        <p class="card-desc">Random integer in a range using <code>Math.floor(Math.random() * (max - min + 1)) + min</code>:</p>
-        <div class="range-controls">
-          <label>Min <input type="number" id="rand-min" value="1" min="-100" max="100"></label>
-          <span class="range-sep">to</span>
-          <label>Max <input type="number" id="rand-max" value="6" min="-100" max="100"></label>
-        </div>
-        <div class="rand-display">
-          <div class="rand-value rand-int" id="rand-int-value">—</div>
-          <div class="rand-label">Random Integer</div>
-        </div>
-        <button class="btn btn-secondary" id="btn-random-int">Generate Random Integer</button>
-      </section>
-
-      <!-- Rounding Section -->
-      <section class="card">
-        <h2>Rounding Methods</h2>
-        <p class="card-desc">Drag the slider to explore how each rounding method handles the value.</p>
-        <div class="slider-area">
-          <input type="range" id="round-slider" min="-3" max="3" step="0.1" value="1.7">
-          <div class="slider-value" id="slider-display">1.7</div>
-        </div>
-        <div class="rounding-results" id="rounding-results"></div>
-      </section>
+    <div class="btn-row">
+      <button class="btn-purple" onclick="document.querySelector('#target-card').textContent = 'querySelector(\'#target-card\') found me by ID!'">Find by ID</button>
+      <button class="btn-teal"   onclick="document.querySelector('.card').textContent = 'querySelector(\'.card\') — this is the FIRST .card on the page.'">Find First .card</button>
     </div>
-
-    <!-- More Math Methods -->
-    <section class="card">
-      <h2>More Math Methods</h2>
-      <div class="methods-grid" id="methods-grid"></div>
-    </section>
-
-    <!-- Constants -->
-    <section class="card constants-card">
-      <h2>Math Constants</h2>
-      <div class="constants-grid" id="constants-grid"></div>
-    </section>
-
   </div>
-  <script src="script.js"></script>
+
+  <div class="section">
+    <p class="section-label">innerHTML — inject real HTML tags</p>
+    <div id="html-demo"></div>
+    <div class="btn-row">
+      <button class="btn-coral" onclick="injectHTML()">Inject HTML</button>
+    </div>
+  </div>
+
+  <div class="section">
+    <p class="section-label">querySelectorAll — every match (preview: loops covered in Lesson 21)</p>
+    <div class="card team-member">Team Member</div>
+    <div class="card team-member">Team Member</div>
+    <div class="card team-member">Team Member</div>
+  </div>
+
+  <script>
+    // ── Runs immediately on page load ────────────────────────────────
+
+    // querySelector uses the SAME selector syntax as CSS
+    const heading = document.querySelector('h1');       // element selector
+    const desc    = document.querySelector('#page-desc'); // ID selector
+
+    heading.textContent = 'querySelector Found This Heading';
+    desc.textContent    = 'querySelector uses the same syntax as your CSS selectors. If you can write it in CSS, you can use it here.';
+
+    // querySelectorAll returns ALL matching elements, not just the first
+    const teamMembers = document.querySelectorAll('.team-member');
+
+    // Preview of for loops (Lesson 21) — showing the pattern early
+    const names = ['Ada Lovelace', 'Grace Hopper', 'Alan Turing'];
+    for (let i = 0; i < teamMembers.length; i++) {
+      teamMembers[i].textContent = names[i];
+    }
+
+    // ── Button function — injects HTML via innerHTML ──────────────────
+    function injectHTML() {
+      const demo = document.querySelector('#html-demo');
+      // innerHTML parses tags — they become real HTML elements
+      demo.innerHTML = '<div class="card"><strong>Built with innerHTML</strong> — tags are parsed as real HTML. <span class="badge">new</span></div>';
+    }
+  </script>
+
 </body>
 </html>
 ```
 
 ---
 
-### CSS
+## CodePen 4 — CSS Variable Controller
 
-```css
-*, *::before, *::after {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
-
-body {
-  font-family: system-ui, -apple-system, sans-serif;
-  background: #0f172a;
-  color: #e2e8f0;
-  min-height: 100vh;
-  padding: 2rem 1rem;
-}
-
-.container {
-  max-width: 800px;
-  margin: 0 auto;
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-}
-
-h1 {
-  font-size: 1.75rem;
-  font-weight: 700;
-  color: #f8fafc;
-}
-
-.subtitle {
-  color: #94a3b8;
-  margin-top: 0.25rem;
-  font-size: 0.95rem;
-}
-
-h2 {
-  font-size: 1.05rem;
-  font-weight: 600;
-  color: #cbd5e1;
-  margin-bottom: 0.75rem;
-}
-
-.card {
-  background: #1e293b;
-  border: 1px solid #334155;
-  border-radius: 12px;
-  padding: 1.5rem;
-}
-
-.card-desc {
-  font-size: 0.875rem;
-  color: #94a3b8;
-  line-height: 1.5;
-  margin-bottom: 1rem;
-}
-
-.grid-two {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1.5rem;
-}
-
-@media (max-width: 580px) {
-  .grid-two { grid-template-columns: 1fr; }
-}
-
-/* Random display */
-.rand-display {
-  text-align: center;
-  background: #0f172a;
-  border-radius: 10px;
-  padding: 1.2rem;
-  margin-bottom: 0.75rem;
-}
-
-.rand-value {
-  font-family: 'Fira Code', 'Courier New', monospace;
-  font-size: 1.6rem;
-  font-weight: 700;
-  color: #60a5fa;
-  letter-spacing: -0.02em;
-}
-
-.rand-int {
-  color: #34d399;
-  font-size: 2rem;
-}
-
-.rand-label {
-  font-size: 0.75rem;
-  color: #475569;
-  margin-top: 0.25rem;
-  font-family: 'Fira Code', 'Courier New', monospace;
-}
-
-.btn {
-  width: 100%;
-  padding: 0.65rem 1rem;
-  border: none;
-  border-radius: 8px;
-  background: #2563eb;
-  color: white;
-  font-weight: 600;
-  font-size: 0.875rem;
-  cursor: pointer;
-  transition: background 0.15s;
-}
-
-.btn:hover { background: #1d4ed8; }
-
-.btn-secondary {
-  background: #059669;
-}
-
-.btn-secondary:hover { background: #047857; }
-
-.divider {
-  border-top: 1px solid #334155;
-  margin: 1.25rem 0;
-}
-
-.range-controls {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  margin-bottom: 0.75rem;
-  flex-wrap: wrap;
-}
-
-.range-controls label {
-  font-size: 0.8rem;
-  color: #94a3b8;
-  display: flex;
-  align-items: center;
-  gap: 0.35rem;
-}
-
-.range-controls input[type="number"] {
-  width: 65px;
-  background: #0f172a;
-  border: 1px solid #475569;
-  border-radius: 6px;
-  padding: 0.3rem 0.5rem;
-  color: #e2e8f0;
-  font-family: 'Fira Code', monospace;
-  font-size: 0.875rem;
-  text-align: center;
-}
-
-.range-sep {
-  color: #475569;
-  font-size: 0.8rem;
-}
-
-/* Slider */
-.slider-area {
-  margin-bottom: 1rem;
-}
-
-input[type="range"] {
-  width: 100%;
-  accent-color: #8b5cf6;
-  cursor: pointer;
-}
-
-.slider-value {
-  text-align: center;
-  font-family: 'Fira Code', monospace;
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: #a78bfa;
-  margin-top: 0.5rem;
-}
-
-/* Rounding results */
-.rounding-results {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-.round-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  background: #0f172a;
-  padding: 0.5rem 0.75rem;
-  border-radius: 6px;
-  font-family: 'Fira Code', monospace;
-  font-size: 0.875rem;
-}
-
-.round-method { color: #94a3b8; }
-.round-result { color: #fbbf24; font-weight: 700; }
-
-/* Methods grid */
-.methods-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-  gap: 0.6rem;
-}
-
-.method-card {
-  background: #0f172a;
-  border-radius: 8px;
-  padding: 0.75rem;
-}
-
-.method-call {
-  font-family: 'Fira Code', monospace;
-  font-size: 0.8rem;
-  color: #94a3b8;
-  margin-bottom: 0.3rem;
-}
-
-.method-result {
-  font-family: 'Fira Code', monospace;
-  font-size: 1rem;
-  font-weight: 700;
-  color: #f8fafc;
-}
-
-/* Constants */
-.constants-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-  gap: 0.6rem;
-}
-
-.const-card {
-  background: #0f172a;
-  border-radius: 8px;
-  padding: 0.75rem;
-}
-
-.const-name {
-  font-family: 'Fira Code', monospace;
-  font-size: 0.8rem;
-  color: #f472b6;
-  margin-bottom: 0.25rem;
-}
-
-.const-value {
-  font-family: 'Fira Code', monospace;
-  font-size: 0.9rem;
-  font-weight: 600;
-  color: #f8fafc;
-}
-
-code {
-  background: #0f172a;
-  padding: 0.1em 0.35em;
-  border-radius: 4px;
-  font-family: 'Fira Code', 'Courier New', monospace;
-  font-size: 0.85em;
-}
-```
-
----
-
-### JS
-
-```js
-// Random Float
-const randValue  = document.getElementById('rand-value');
-const btnRandom  = document.getElementById('btn-random');
-
-btnRandom.addEventListener('click', () => {
-  const n = Math.random();
-  randValue.textContent = n.toFixed(10);
-  randValue.style.color = '#60a5fa';
-});
-
-// Random Integer
-const randIntValue = document.getElementById('rand-int-value');
-const btnRandomInt = document.getElementById('btn-random-int');
-const randMin = document.getElementById('rand-min');
-const randMax = document.getElementById('rand-max');
-
-btnRandomInt.addEventListener('click', () => {
-  const min = Number(randMin.value);
-  const max = Number(randMax.value);
-  if (min > max) {
-    randIntValue.textContent = 'min > max!';
-    return;
-  }
-  const result = Math.floor(Math.random() * (max - min + 1)) + min;
-  randIntValue.textContent = result;
-});
-
-// Rounding slider
-const slider        = document.getElementById('round-slider');
-const sliderDisplay = document.getElementById('slider-display');
-const roundingDiv   = document.getElementById('rounding-results');
-
-function updateRounding() {
-  const v = parseFloat(slider.value);
-  sliderDisplay.textContent = v.toFixed(1);
-
-  const methods = [
-    { label: 'Math.round(x)',  value: Math.round(v)  },
-    { label: 'Math.floor(x)',  value: Math.floor(v)  },
-    { label: 'Math.ceil(x)',   value: Math.ceil(v)   },
-    { label: 'Math.trunc(x)',  value: Math.trunc(v)  },
-  ];
-
-  roundingDiv.innerHTML = '';
-  methods.forEach(({ label, value }) => {
-    const row = document.createElement('div');
-    row.className = 'round-row';
-    row.innerHTML = `<span class="round-method">${label}</span><span class="round-result">${value}</span>`;
-    roundingDiv.appendChild(row);
-  });
-}
-
-slider.addEventListener('input', updateRounding);
-updateRounding();
-
-// More Methods
-const methodsGrid = document.getElementById('methods-grid');
-
-const methodExamples = [
-  { call: 'Math.abs(-42)',       result: Math.abs(-42) },
-  { call: 'Math.abs(42)',        result: Math.abs(42) },
-  { call: 'Math.pow(2, 10)',     result: Math.pow(2, 10) },
-  { call: '2 ** 10',             result: 2 ** 10 },
-  { call: 'Math.sqrt(144)',      result: Math.sqrt(144) },
-  { call: 'Math.cbrt(27)',       result: Math.cbrt(27) },
-  { call: 'Math.min(3,1,4,1,5)', result: Math.min(3,1,4,1,5) },
-  { call: 'Math.max(3,1,4,1,5)', result: Math.max(3,1,4,1,5) },
-  { call: 'Math.log2(8)',        result: Math.log2(8) },
-  { call: 'Math.log10(1000)',    result: Math.log10(1000) },
-  { call: 'Math.sign(-5)',       result: Math.sign(-5) },
-  { call: 'Math.sign(0)',        result: Math.sign(0) },
-];
-
-methodExamples.forEach(({ call, result }) => {
-  const card = document.createElement('div');
-  card.className = 'method-card';
-  card.innerHTML = `<div class="method-call">${call}</div><div class="method-result">${result}</div>`;
-  methodsGrid.appendChild(card);
-});
-
-// Constants
-const constantsGrid = document.getElementById('constants-grid');
-
-const constants = [
-  { name: 'Math.PI',      value: Math.PI },
-  { name: 'Math.E',       value: Math.E },
-  { name: 'Math.SQRT2',   value: Math.SQRT2 },
-  { name: 'Math.LN2',     value: Math.LN2 },
-  { name: 'Math.LN10',    value: Math.LN10 },
-  { name: 'Math.LOG2E',   value: Math.LOG2E },
-];
-
-constants.forEach(({ name, value }) => {
-  const card = document.createElement('div');
-  card.className = 'const-card';
-  card.innerHTML = `<div class="const-name">${name}</div><div class="const-value">${value}</div>`;
-  constantsGrid.appendChild(card);
-});
-```
-
----
-
-## CODEPEN 4 — Truthy and Falsy Explorer
-
-**Placement:** After the Truthy and Falsy section (after LISTING 18.28)
-
-**Purpose:** Shows all 6 falsy values. A list of various values with Boolean() evaluation, color-coded green/red for truthy/falsy.
-
----
-
-### HTML
+**Placement:** After the "Setting CSS Custom Properties from JavaScript" section.
+**Demonstrates:** `style.setProperty()` updating a CSS custom property (`--hue`) that cascades to all elements through `hsl(var(--hue), …)`. Combined with `Math.random()` and `Math.floor()` for visual randomization.
 
 ```html
 <!DOCTYPE html>
@@ -1296,451 +565,183 @@ constants.forEach(({ name, value }) => {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Truthy and Falsy Explorer</title>
-  <link rel="stylesheet" href="style.css">
+  <title>CSS Variable Controller</title>
+  <style>
+    :root {
+      --hue: 262;
+      --accent:    hsl(var(--hue), 70%, 62%);
+      --accent-bg: hsl(var(--hue), 70%, 20%);
+      --page-bg:   hsl(var(--hue), 30%, 10%);
+      --card-bg:   hsl(var(--hue), 30%, 16%);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: var(--page-bg);
+      color: #eee;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+      gap: 1.5rem;
+      transition: background 0.5s;
+    }
+
+    h1 {
+      font-size: 1.35rem;
+      font-weight: 700;
+      color: var(--accent);
+      text-align: center;
+      transition: color 0.5s;
+    }
+
+    .subtitle {
+      font-size: 0.85rem;
+      opacity: 0.65;
+      text-align: center;
+      max-width: 400px;
+      line-height: 1.5;
+    }
+
+    .card {
+      background: var(--card-bg);
+      border: 2px solid var(--accent);
+      border-radius: 16px;
+      padding: 2rem 2.5rem;
+      max-width: 400px;
+      width: 100%;
+      text-align: center;
+      transition: background 0.5s, border-color 0.5s;
+    }
+
+    .card .label {
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--accent);
+      margin-bottom: 0.5rem;
+      transition: color 0.5s;
+    }
+
+    .hue-number {
+      font-size: 3.5rem;
+      font-weight: 800;
+      color: var(--accent);
+      line-height: 1;
+      margin-bottom: 0.5rem;
+      font-variant-numeric: tabular-nums;
+      transition: color 0.5s;
+    }
+
+    .card .note {
+      font-size: 0.82rem;
+      opacity: 0.65;
+      line-height: 1.5;
+    }
+
+    .btn-row {
+      display: flex;
+      gap: 0.75rem;
+    }
+
+    .btn-primary {
+      padding: 0.65rem 1.75rem;
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.5s;
+    }
+
+    .btn-outline {
+      padding: 0.65rem 1.25rem;
+      background: transparent;
+      color: var(--accent);
+      border: 2px solid var(--accent);
+      border-radius: 8px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: color 0.5s, border-color 0.5s;
+    }
+
+    .code-line {
+      background: #0d1117;
+      border-radius: 8px;
+      padding: 0.75rem 1rem;
+      font-family: 'Courier New', monospace;
+      font-size: 0.8rem;
+      max-width: 400px;
+      width: 100%;
+      color: #aaa;
+      text-align: center;
+    }
+
+    .code-line .hl { color: #55efc4; }
+  </style>
 </head>
 <body>
-  <div class="container">
-    <h1>Truthy &amp; Falsy Explorer</h1>
-    <p class="subtitle">In JavaScript, every value has a boolean interpretation. Only 6 values are falsy — everything else is truthy.</p>
 
-    <div class="legend">
-      <div class="legend-item truthy-label">Truthy — evaluates to <code>true</code> in a boolean context</div>
-      <div class="legend-item falsy-label">Falsy — evaluates to <code>false</code> in a boolean context</div>
-    </div>
+  <h1>CSS Variable Controller</h1>
+  <p class="subtitle">
+    One JavaScript call updates <code>--hue</code>.<br>
+    Every element using <code>var(--accent)</code> shifts to the new color instantly.
+  </p>
 
-    <section class="card">
-      <h2>The 6 Falsy Values</h2>
-      <p class="card-note">Memorize these. Everything else is truthy.</p>
-      <div class="falsy-grid" id="falsy-grid"></div>
-    </section>
-
-    <section class="card">
-      <h2>Truthy &amp; Falsy Values in the Wild</h2>
-      <p class="card-note">Click <strong>Evaluate All</strong> to see each value's boolean interpretation.</p>
-      <button class="btn" id="btn-evaluate">Evaluate All with Boolean()</button>
-      <div class="values-list" id="values-list"></div>
-    </section>
-
-    <section class="card">
-      <h2>Live Boolean() Tester</h2>
-      <p class="card-note">Type any value and see if it is truthy or falsy.</p>
-      <div class="input-row">
-        <input type="text" id="live-input" placeholder='Try: 0, "", [], {}, "false", null ...'>
-        <button class="btn btn-test" id="btn-test">Test</button>
-      </div>
-      <div id="live-result" class="live-result hidden"></div>
-    </section>
-
-    <section class="card">
-      <h2>Common Gotchas</h2>
-      <ul class="gotcha-list">
-        <li><code>[]</code> — empty array is <strong>truthy</strong>. Use <code>arr.length === 0</code> to check if empty.</li>
-        <li><code>{}</code> — empty object is <strong>truthy</strong>. Use <code>Object.keys(obj).length === 0</code>.</li>
-        <li><code>"false"</code> — the string "false" is <strong>truthy</strong>. Only the boolean <code>false</code> is falsy.</li>
-        <li><code>"0"</code> — the string "0" is <strong>truthy</strong>. Only the number <code>0</code> is falsy.</li>
-        <li><code>-0</code> — negative zero is <strong>falsy</strong>. Same as <code>0</code> in boolean context.</li>
-        <li><code>0n</code> — BigInt zero is <strong>falsy</strong>. Any non-zero BigInt is truthy.</li>
-      </ul>
-    </section>
+  <div class="card">
+    <p class="label">Current <code>--hue</code> value</p>
+    <p class="hue-number" id="hue-display">—</p>
+    <p class="note">Borders, text, and buttons all read from <code>var(--accent)</code>, which is built from <code>--hue</code>. Change one variable, everything shifts.</p>
   </div>
-  <script src="script.js"></script>
+
+  <div class="btn-row">
+    <button class="btn-primary"  onclick="randomTheme()">New Random Theme</button>
+    <button class="btn-outline"  onclick="applyTheme(262)">Reset to Default</button>
+  </div>
+
+  <div class="code-line" id="code-display">
+    document.documentElement.style.setProperty(<span class="hl">'--hue'</span>, <span class="hl" id="hue-inline">…</span>);
+  </div>
+
+  <script>
+    function applyTheme(hue) {
+      // setProperty() updates a CSS custom property from JavaScript
+      document.documentElement.style.setProperty('--hue', hue);
+
+      // Update the display to show the new value
+      document.querySelector('#hue-display').textContent  = hue;
+      document.querySelector('#hue-inline').textContent   = hue;
+    }
+
+    function randomTheme() {
+      // Math.random() → a decimal from 0.0 to 0.9999
+      // Math.floor()  → rounds it down to a whole number
+      // * 360         → gives a hue from 0 to 359
+      const hue = Math.floor(Math.random() * 360);
+      applyTheme(hue);
+    }
+
+    // Run immediately on page load — page arrives with a random theme
+    randomTheme();
+  </script>
+
 </body>
 </html>
 ```
 
 ---
 
-### CSS
+## CodePen 5 — classList Toggle Demo
 
-```css
-*, *::before, *::after {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
-
-body {
-  font-family: system-ui, -apple-system, sans-serif;
-  background: #0f172a;
-  color: #e2e8f0;
-  min-height: 100vh;
-  padding: 2rem 1rem;
-}
-
-.container {
-  max-width: 680px;
-  margin: 0 auto;
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-}
-
-h1 {
-  font-size: 1.75rem;
-  font-weight: 700;
-  color: #f8fafc;
-}
-
-.subtitle {
-  color: #94a3b8;
-  margin-top: 0.25rem;
-  font-size: 0.95rem;
-  line-height: 1.5;
-}
-
-h2 {
-  font-size: 1.05rem;
-  font-weight: 600;
-  color: #cbd5e1;
-  margin-bottom: 0.5rem;
-}
-
-.card {
-  background: #1e293b;
-  border: 1px solid #334155;
-  border-radius: 12px;
-  padding: 1.5rem;
-}
-
-.card-note {
-  font-size: 0.875rem;
-  color: #64748b;
-  margin-bottom: 1rem;
-}
-
-/* Legend */
-.legend {
-  display: flex;
-  gap: 1rem;
-  flex-wrap: wrap;
-}
-
-.legend-item {
-  flex: 1;
-  min-width: 200px;
-  padding: 0.6rem 0.9rem;
-  border-radius: 8px;
-  font-size: 0.85rem;
-  font-weight: 500;
-}
-
-.truthy-label {
-  background: #052e16;
-  color: #86efac;
-  border: 1px solid #166534;
-}
-
-.falsy-label {
-  background: #2d0f0f;
-  color: #fca5a5;
-  border: 1px solid #7f1d1d;
-}
-
-/* Falsy grid */
-.falsy-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 0.6rem;
-}
-
-@media (max-width: 440px) {
-  .falsy-grid { grid-template-columns: repeat(2, 1fr); }
-}
-
-.falsy-chip {
-  background: #2d0f0f;
-  border: 1px solid #7f1d1d;
-  border-radius: 8px;
-  padding: 0.75rem;
-  text-align: center;
-}
-
-.falsy-value {
-  font-family: 'Fira Code', 'Courier New', monospace;
-  font-size: 1.1rem;
-  font-weight: 700;
-  color: #fca5a5;
-  display: block;
-  margin-bottom: 0.25rem;
-}
-
-.falsy-desc {
-  font-size: 0.7rem;
-  color: #64748b;
-}
-
-/* Values list */
-.values-list {
-  display: flex;
-  flex-direction: column;
-  gap: 0.4rem;
-  margin-top: 1rem;
-}
-
-.value-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0.55rem 0.9rem;
-  border-radius: 8px;
-  border: 1px solid #334155;
-  background: #0f172a;
-  transition: all 0.25s ease;
-}
-
-.value-row.truthy {
-  border-color: #166534;
-  background: #052e16;
-}
-
-.value-row.falsy {
-  border-color: #7f1d1d;
-  background: #2d0f0f;
-}
-
-.value-code {
-  font-family: 'Fira Code', 'Courier New', monospace;
-  font-size: 0.9rem;
-  color: #e2e8f0;
-  flex: 1;
-}
-
-.value-eval {
-  font-family: 'Fira Code', monospace;
-  font-size: 0.8rem;
-  color: #475569;
-  flex: 1;
-  text-align: center;
-}
-
-.value-badge {
-  font-size: 0.75rem;
-  font-weight: 700;
-  padding: 0.2em 0.6em;
-  border-radius: 999px;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  min-width: 60px;
-  text-align: center;
-}
-
-.badge-truthy { background: #166534; color: #bbf7d0; }
-.badge-falsy  { background: #7f1d1d; color: #fecaca; }
-.badge-pending { background: #334155; color: #64748b; }
-
-/* Buttons */
-.btn {
-  padding: 0.65rem 1.25rem;
-  border: none;
-  border-radius: 8px;
-  background: #2563eb;
-  color: white;
-  font-weight: 600;
-  font-size: 0.875rem;
-  cursor: pointer;
-  transition: background 0.15s;
-}
-
-.btn:hover { background: #1d4ed8; }
-.btn-test  { background: #7c3aed; flex-shrink: 0; }
-.btn-test:hover { background: #6d28d9; }
-
-/* Live tester */
-.input-row {
-  display: flex;
-  gap: 0.6rem;
-  margin-bottom: 0.75rem;
-}
-
-input[type="text"] {
-  flex: 1;
-  background: #0f172a;
-  border: 1px solid #475569;
-  border-radius: 8px;
-  padding: 0.55rem 0.85rem;
-  color: #e2e8f0;
-  font-family: 'Fira Code', monospace;
-  font-size: 0.875rem;
-  outline: none;
-  transition: border-color 0.15s;
-}
-
-input:focus { border-color: #60a5fa; }
-
-.live-result {
-  padding: 1rem 1.25rem;
-  border-radius: 8px;
-  font-family: 'Fira Code', monospace;
-  font-size: 1rem;
-  font-weight: 700;
-  text-align: center;
-  transition: all 0.2s;
-}
-
-.live-result.hidden { display: none; }
-.live-result.truthy { background: #052e16; color: #86efac; border: 1px solid #166534; }
-.live-result.falsy  { background: #2d0f0f; color: #fca5a5; border: 1px solid #7f1d1d; }
-.live-result.error  { background: #1c1205; color: #fde68a; border: 1px solid #92400e; }
-
-/* Gotcha list */
-.gotcha-list {
-  list-style: none;
-  display: flex;
-  flex-direction: column;
-  gap: 0.6rem;
-}
-
-.gotcha-list li {
-  padding-left: 1.25rem;
-  position: relative;
-  font-size: 0.875rem;
-  color: #94a3b8;
-  line-height: 1.5;
-}
-
-.gotcha-list li::before {
-  content: '!';
-  position: absolute;
-  left: 0;
-  color: #fbbf24;
-  font-weight: 900;
-  font-size: 0.8rem;
-}
-
-code {
-  background: #0f172a;
-  padding: 0.1em 0.4em;
-  border-radius: 4px;
-  font-family: 'Fira Code', monospace;
-  font-size: 0.85em;
-  color: #f8fafc;
-}
-```
-
----
-
-### JS
-
-```js
-// The 6 falsy values
-const falsyValues = [
-  { value: 'false',     desc: 'boolean false' },
-  { value: '0',         desc: 'number zero' },
-  { value: '""',        desc: 'empty string' },
-  { value: 'null',      desc: 'intentional absence' },
-  { value: 'undefined', desc: 'unassigned value' },
-  { value: 'NaN',       desc: 'Not a Number' },
-];
-
-const falsyGrid = document.getElementById('falsy-grid');
-falsyValues.forEach(({ value, desc }) => {
-  const chip = document.createElement('div');
-  chip.className = 'falsy-chip';
-  chip.innerHTML = `<span class="falsy-value">${value}</span><span class="falsy-desc">${desc}</span>`;
-  falsyGrid.appendChild(chip);
-});
-
-// Values list — mix of truthy and falsy
-const allValues = [
-  { display: 'false',       raw: false },
-  { display: '0',           raw: 0 },
-  { display: '""',          raw: '' },
-  { display: 'null',        raw: null },
-  { display: 'undefined',   raw: undefined },
-  { display: 'NaN',         raw: NaN },
-  { display: 'true',        raw: true },
-  { display: '1',           raw: 1 },
-  { display: '-1',          raw: -1 },
-  { display: '"hello"',     raw: 'hello' },
-  { display: '"0"',         raw: '0' },
-  { display: '"false"',     raw: 'false' },
-  { display: '[]',          raw: [] },
-  { display: '{}',          raw: {} },
-  { display: '[0]',         raw: [0] },
-  { display: 'Infinity',    raw: Infinity },
-];
-
-const valuesList = document.getElementById('values-list');
-let rows = [];
-
-allValues.forEach(({ display, raw }) => {
-  const row = document.createElement('div');
-  row.className = 'value-row';
-
-  const isTruthy = Boolean(raw);
-  row.innerHTML = `
-    <span class="value-code">${display}</span>
-    <span class="value-eval">Boolean(${display})</span>
-    <span class="value-badge badge-pending">?</span>
-  `;
-
-  row._isTruthy = isTruthy;
-  valuesList.appendChild(row);
-  rows.push(row);
-});
-
-let evaluated = false;
-
-document.getElementById('btn-evaluate').addEventListener('click', () => {
-  if (evaluated) {
-    // Reset
-    rows.forEach(row => {
-      row.className = 'value-row';
-      row.querySelector('.value-badge').className = 'value-badge badge-pending';
-      row.querySelector('.value-badge').textContent = '?';
-    });
-    document.getElementById('btn-evaluate').textContent = 'Evaluate All with Boolean()';
-    evaluated = false;
-  } else {
-    rows.forEach((row, i) => {
-      const isTruthy = row._isTruthy;
-      setTimeout(() => {
-        row.classList.add(isTruthy ? 'truthy' : 'falsy');
-        const badge = row.querySelector('.value-badge');
-        badge.className = `value-badge ${isTruthy ? 'badge-truthy' : 'badge-falsy'}`;
-        badge.textContent = isTruthy ? 'truthy' : 'falsy';
-      }, i * 60);
-    });
-    document.getElementById('btn-evaluate').textContent = 'Reset';
-    evaluated = true;
-  }
-});
-
-// Live tester
-const liveInput  = document.getElementById('live-input');
-const btnTest    = document.getElementById('btn-test');
-const liveResult = document.getElementById('live-result');
-
-function testValue() {
-  const raw = liveInput.value;
-  if (raw === '') return;
-
-  try {
-    const evaluated = Function('"use strict"; return Boolean(' + raw + ')')();
-    liveResult.className = `live-result ${evaluated ? 'truthy' : 'falsy'}`;
-    liveResult.textContent = `Boolean(${raw}) → ${evaluated} — "${raw}" is ${evaluated ? 'TRUTHY' : 'FALSY'}`;
-  } catch (e) {
-    liveResult.className = 'live-result error';
-    liveResult.textContent = `Could not evaluate: ${e.message}`;
-  }
-}
-
-btnTest.addEventListener('click', testValue);
-liveInput.addEventListener('keydown', e => { if (e.key === 'Enter') testValue(); });
-```
-
----
-
-## CODEPEN 5 — Equality Comparison: == vs ===
-
-**Placement:** After the Loose vs. Strict Equality section (after LISTING 18.30)
-
-**Purpose:** Visual table showing comparisons where == and === give different results. Color-coded true/false results for each operator.
-
----
-
-### HTML
+**Placement:** After the "classList — The Bridge Between JavaScript and CSS" section.
+**Demonstrates:** `classList.toggle()`, `classList.contains()`, and the core principle: CSS defines two visual states, JavaScript switches between them by toggling a class — the CSS transition fires automatically.
 
 ```html
 <!DOCTYPE html>
@@ -1748,457 +749,594 @@ liveInput.addEventListener('keydown', e => { if (e.key === 'Enter') testValue();
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>== vs === Equality Explorer</title>
-  <link rel="stylesheet" href="style.css">
+  <title>classList Toggle Demo</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: #1a1a2e;
+      color: #eee;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+      gap: 1.5rem;
+    }
+
+    /* ── State 1: default ─────────────────────────────────── */
+    .project-card {
+      background: #16213e;
+      border: 2px solid #2d3561;
+      border-radius: 14px;
+      padding: 2rem 2.5rem;
+      max-width: 380px;
+      width: 100%;
+      text-align: center;
+
+      /* CSS handles all the animation — JS only toggles the class */
+      transform: scale(1);
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+      transition: transform      0.3s ease,
+                  box-shadow     0.3s ease,
+                  border-color   0.3s ease,
+                  background     0.3s ease;
+    }
+
+    /* ── State 2: .featured ──────────────────────────────── */
+    .project-card.featured {
+      transform: scale(1.06);
+      box-shadow: 0 14px 44px rgba(108, 92, 231, 0.45);
+      border-color: #6c5ce7;
+      background: #1e1a3a;
+    }
+
+    .project-card h2 {
+      font-size: 1.2rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .project-card p {
+      font-size: 0.85rem;
+      opacity: 0.7;
+      line-height: 1.6;
+    }
+
+    /* ── Status badge ─────────────────────────────────────── */
+    .status-badge {
+      display: inline-block;
+      background: #2d3561;
+      color: #a29bfe;
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      padding: 0.2rem 0.65rem;
+      border-radius: 100px;
+      margin-top: 1rem;
+      transition: background 0.3s, color 0.3s;
+    }
+
+    .project-card.featured .status-badge {
+      background: #6c5ce7;
+      color: #fff;
+    }
+
+    /* ── Toggle button ─────────────────────────────────────── */
+    .toggle-btn {
+      padding: 0.65rem 1.75rem;
+      background: #6c5ce7;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    /* ── Explanation panel ────────────────────────────────── */
+    .explain {
+      background: #0d1117;
+      border-radius: 10px;
+      padding: 1rem 1.25rem;
+      font-family: 'Courier New', monospace;
+      font-size: 0.8rem;
+      max-width: 380px;
+      width: 100%;
+      line-height: 1.8;
+      color: #aaa;
+      text-align: center;
+    }
+
+    .explain .hl   { color: #55efc4; }
+    .explain .dim  { opacity: 0.45; }
+  </style>
 </head>
 <body>
-  <div class="container">
-    <h1>== vs. === Equality</h1>
-    <p class="subtitle">Loose equality (<code>==</code>) coerces types before comparing. Strict equality (<code>===</code>) never coerces — different types always return <code>false</code>.</p>
 
-    <div class="rule-banner">
-      Always use <code>===</code> and <code>!==</code>. Never use <code>==</code> or <code>!=</code>.
-    </div>
-
-    <section class="card">
-      <h2>Side-by-Side Comparison</h2>
-      <p class="card-note">These are real pairs where == and === give <em>different</em> results. This is why == causes bugs.</p>
-
-      <div class="comparison-header">
-        <span class="col-expr">Expression</span>
-        <span class="col-loose"><code>==</code> (loose)</span>
-        <span class="col-strict"><code>===</code> (strict)</span>
-        <span class="col-why">Why they differ</span>
-      </div>
-
-      <div id="comparison-rows"></div>
-    </section>
-
-    <section class="card">
-      <h2>Same-Type Comparisons — == and === Agree</h2>
-      <p class="card-note">When both values have the same type, == and === behave identically. The difference only appears across types.</p>
-      <div id="same-type-rows"></div>
-    </section>
-
-    <section class="card">
-      <h2>Live Equality Tester</h2>
-      <p class="card-note">Enter two values separated by a comma and compare them with both operators.</p>
-      <div class="live-row">
-        <input type="text" id="val-a" placeholder="Left value (e.g. 0)">
-        <span class="vs-label">vs</span>
-        <input type="text" id="val-b" placeholder="Right value (e.g. false)">
-        <button class="btn" id="btn-compare">Compare</button>
-      </div>
-      <div id="live-comparison" class="live-comparison hidden"></div>
-    </section>
-
-    <section class="card coercion-card">
-      <h2>How == Coercion Works (Simplified)</h2>
-      <ol class="coercion-steps">
-        <li>If types are the same, compare values directly (same as ===).</li>
-        <li>If one is <code>null</code> and the other is <code>undefined</code>, return <code>true</code>.</li>
-        <li>If one is a number and the other is a string, convert the string to a number, then compare.</li>
-        <li>If one is a boolean, convert it to a number (true → 1, false → 0), then compare.</li>
-        <li>If one is an object and the other is a primitive, convert the object to a primitive, then compare.</li>
-        <li>Otherwise, return <code>false</code>.</li>
-      </ol>
-      <p class="coercion-note">These rules are complex, context-dependent, and hard to memorize. This is why <strong>always using ===</strong> is the correct rule — not an opinion.</p>
-    </section>
+  <div class="project-card" id="project-card">
+    <h2>Portfolio Project</h2>
+    <p>CSS defines what both states look like.<br>
+    JavaScript flips between them with one line.</p>
+    <span class="status-badge" id="status-badge">default state</span>
   </div>
-  <script src="script.js"></script>
+
+  <button class="toggle-btn" onclick="toggleFeatured()">Toggle .featured Class</button>
+
+  <div class="explain">
+    <span class="dim">card.classList.</span><span class="hl" id="method-display">toggle</span><span class="dim">('featured')</span><br>
+    <span class="dim">class list: </span><span class="hl" id="class-display">card</span>
+  </div>
+
+  <script>
+    function toggleFeatured() {
+      const card = document.querySelector('#project-card');
+
+      // One line — CSS transition handles all the animation
+      card.classList.toggle('featured');
+
+      // classList.contains() returns true or false
+      // (if/else covered in Lesson 19 — preview below)
+      if (card.classList.contains('featured')) {
+        document.querySelector('#status-badge').textContent    = '.featured is active';
+        document.querySelector('#class-display').textContent   = 'card featured';
+        document.querySelector('#method-display').textContent  = 'toggle → added';
+      } else {
+        document.querySelector('#status-badge').textContent    = 'default state';
+        document.querySelector('#class-display').textContent   = 'card';
+        document.querySelector('#method-display').textContent  = 'toggle → removed';
+      }
+    }
+  </script>
+
 </body>
 </html>
 ```
 
 ---
 
-### CSS
+## CodePen 6 — Create and Remove Elements
 
-```css
-*, *::before, *::after {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
+**Placement:** After the "Creating and Removing Elements" section.
+**Demonstrates:** `document.createElement()`, `classList.add()`, `textContent`, `appendChild()`, and `element.remove()` — building and tearing down real DOM elements on demand.
 
-body {
-  font-family: system-ui, -apple-system, sans-serif;
-  background: #0f172a;
-  color: #e2e8f0;
-  min-height: 100vh;
-  padding: 2rem 1rem;
-}
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Create &amp; Remove Elements</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
 
-.container {
-  max-width: 760px;
-  margin: 0 auto;
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-}
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: #1a1a2e;
+      color: #eee;
+      min-height: 100vh;
+      padding: 2rem;
+      max-width: 640px;
+      margin: 0 auto;
+    }
 
-h1 {
-  font-size: 1.75rem;
-  font-weight: 700;
-  color: #f8fafc;
-}
+    h1 {
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: #a29bfe;
+      margin-bottom: 0.35rem;
+    }
 
-.subtitle {
-  color: #94a3b8;
-  margin-top: 0.25rem;
-  font-size: 0.95rem;
-  line-height: 1.5;
-}
+    .subtitle {
+      font-size: 0.85rem;
+      opacity: 0.6;
+      margin-bottom: 1.5rem;
+    }
 
-h2 {
-  font-size: 1.05rem;
-  font-weight: 600;
-  color: #cbd5e1;
-  margin-bottom: 0.6rem;
-}
+    .input-row {
+      display: flex;
+      gap: 0.6rem;
+      margin-bottom: 1.75rem;
+    }
 
-.card {
-  background: #1e293b;
-  border: 1px solid #334155;
-  border-radius: 12px;
-  padding: 1.5rem;
-}
+    input[type="text"] {
+      flex: 1;
+      padding: 0.6rem 1rem;
+      background: #16213e;
+      border: 1px solid #2d3561;
+      border-radius: 8px;
+      color: #eee;
+      font-size: 0.9rem;
+      font-family: inherit;
+      outline: none;
+    }
 
-.card-note {
-  font-size: 0.875rem;
-  color: #64748b;
-  margin-bottom: 1rem;
-  line-height: 1.5;
-}
+    input[type="text"]:focus {
+      border-color: #6c5ce7;
+    }
 
-/* Rule banner */
-.rule-banner {
-  background: #1a1a00;
-  border: 1px solid #ca8a04;
-  border-radius: 10px;
-  padding: 0.85rem 1.25rem;
-  color: #fde047;
-  font-weight: 600;
-  font-size: 0.95rem;
-  text-align: center;
-}
+    input::placeholder { opacity: 0.45; }
 
-/* Comparison table */
-.comparison-header {
-  display: grid;
-  grid-template-columns: 2fr 1fr 1fr 2fr;
-  gap: 0.5rem;
-  padding: 0.5rem 0.75rem;
-  font-size: 0.75rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.07em;
-  color: #475569;
-  border-bottom: 1px solid #334155;
-  margin-bottom: 0.5rem;
-}
+    .add-btn {
+      padding: 0.6rem 1.25rem;
+      background: #6c5ce7;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: 0.88rem;
+      font-weight: 600;
+      cursor: pointer;
+      white-space: nowrap;
+    }
 
-@media (max-width: 500px) {
-  .comparison-header { grid-template-columns: 2fr 1fr 1fr; }
-  .col-why { display: none; }
-  .why-cell { display: none; }
-}
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      gap: 0.75rem;
+    }
 
-.comparison-row {
-  display: grid;
-  grid-template-columns: 2fr 1fr 1fr 2fr;
-  gap: 0.5rem;
-  padding: 0.55rem 0.75rem;
-  border-radius: 6px;
-  margin-bottom: 0.35rem;
-  background: #0f172a;
-  align-items: center;
-  font-size: 0.875rem;
-}
+    .card {
+      background: #16213e;
+      border: 1px solid #2d3561;
+      border-radius: 10px;
+      padding: 1rem;
+      position: relative;
+      animation: appear 0.2s ease;
+    }
 
-.comparison-row:hover { background: #151f30; }
+    @keyframes appear {
+      from { opacity: 0; transform: scale(0.9); }
+      to   { opacity: 1; transform: scale(1); }
+    }
 
-.expr-cell {
-  font-family: 'Fira Code', 'Courier New', monospace;
-  color: #cbd5e1;
-}
+    .card-label {
+      font-size: 0.9rem;
+      font-weight: 600;
+      padding-right: 1.5rem;
+      word-break: break-word;
+    }
 
-.result-cell {
-  text-align: center;
-  font-family: 'Fira Code', monospace;
-  font-weight: 700;
-  padding: 0.2em 0.4em;
-  border-radius: 4px;
-  font-size: 0.875rem;
-}
+    .card-id {
+      font-size: 0.7rem;
+      opacity: 0.4;
+      font-family: 'Courier New', monospace;
+      margin-top: 0.35rem;
+    }
 
-.result-true  { color: #86efac; background: #052e16; }
-.result-false { color: #fca5a5; background: #2d0f0f; }
+    .remove-btn {
+      position: absolute;
+      top: 0.5rem;
+      right: 0.5rem;
+      width: 1.5rem;
+      height: 1.5rem;
+      background: transparent;
+      border: none;
+      color: #636e72;
+      font-size: 0.85rem;
+      cursor: pointer;
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.15s, color 0.15s;
+      padding: 0;
+    }
 
-.why-cell {
-  font-size: 0.78rem;
-  color: #64748b;
-  line-height: 1.4;
-}
+    .remove-btn:hover {
+      background: #d63031;
+      color: #fff;
+    }
 
-/* Same-type rows */
-#same-type-rows .comparison-row {
-  grid-template-columns: 2fr 1fr 1fr 2fr;
-}
+    .empty-state {
+      text-align: center;
+      padding: 2rem;
+      opacity: 0.35;
+      font-size: 0.9rem;
+      display: none;
+    }
 
-/* Live tester */
-.live-row {
-  display: flex;
-  gap: 0.5rem;
-  align-items: center;
-  flex-wrap: wrap;
-  margin-bottom: 0.75rem;
-}
+    .empty-state.visible {
+      display: block;
+    }
+  </style>
+</head>
+<body>
 
-input[type="text"] {
-  flex: 1;
-  min-width: 100px;
-  background: #0f172a;
-  border: 1px solid #475569;
-  border-radius: 8px;
-  padding: 0.55rem 0.85rem;
-  color: #e2e8f0;
-  font-family: 'Fira Code', monospace;
-  font-size: 0.875rem;
-  outline: none;
-  transition: border-color 0.15s;
-}
+  <h1>Create &amp; Remove Elements</h1>
+  <p class="subtitle">Type a name and click Add. Each card is created with JavaScript — no HTML was written for it.</p>
 
-input:focus { border-color: #60a5fa; }
+  <div class="input-row">
+    <input type="text" id="item-input" placeholder="Enter a name or label…" maxlength="40">
+    <button class="add-btn" onclick="addCard()">+ Add Card</button>
+  </div>
 
-.vs-label {
-  color: #475569;
-  font-weight: 600;
-  font-size: 0.9rem;
-}
+  <div class="grid"    id="card-grid"></div>
+  <p   class="empty-state visible" id="empty-state">No cards yet — add one above.</p>
 
-.btn {
-  padding: 0.6rem 1.1rem;
-  border: none;
-  border-radius: 8px;
-  background: #2563eb;
-  color: white;
-  font-weight: 600;
-  font-size: 0.875rem;
-  cursor: pointer;
-  transition: background 0.15s;
-  white-space: nowrap;
-}
+  <script>
+    let cardCount = 0;
 
-.btn:hover { background: #1d4ed8; }
+    function addCard() {
+      const input = document.querySelector('#item-input');
+      const text  = input.value.trim();
 
-.live-comparison {
-  background: #0f172a;
-  border: 1px solid #334155;
-  border-radius: 8px;
-  overflow: hidden;
-}
+      // Simple guard — stop if the input is empty (conditionals: Lesson 19)
+      if (text === '') {
+        return;
+      }
 
-.live-comparison.hidden { display: none; }
+      // ── Step 1: Create a new empty element ────────────────────────
+      const card = document.createElement('div');
 
-.live-result-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0.75rem 1rem;
-  font-family: 'Fira Code', monospace;
-  font-size: 0.95rem;
-  border-bottom: 1px solid #1e293b;
-}
+      // ── Step 2: Configure it ──────────────────────────────────────
+      card.classList.add('card');
+      cardCount = cardCount + 1;
+      card.id = 'card-' + cardCount;
 
-.live-result-row:last-child { border-bottom: none; }
+      // ── Build the label ───────────────────────────────────────────
+      const label = document.createElement('p');
+      label.classList.add('card-label');
+      label.textContent = text;
 
-.live-expr { color: #94a3b8; }
+      const idTag = document.createElement('p');
+      idTag.classList.add('card-id');
+      idTag.textContent = 'id="card-' + cardCount + '"';
 
-.live-badge {
-  font-weight: 700;
-  padding: 0.2em 0.65em;
-  border-radius: 5px;
-}
+      // ── Build the remove button ───────────────────────────────────
+      const removeBtn = document.createElement('button');
+      removeBtn.classList.add('remove-btn');
+      removeBtn.textContent = '✕';
+      removeBtn.title = 'Remove this card';
 
-.badge-true  { color: #86efac; background: #052e16; }
-.badge-false { color: #fca5a5; background: #2d0f0f; }
-.badge-error { color: #fde68a; background: #1c1205; }
+      // Store the card's id on the button as a data attribute
+      // so the remove function knows which card to delete
+      removeBtn.setAttribute('data-target', 'card-' + cardCount);
+      removeBtn.setAttribute('onclick', 'removeCard(this)');
 
-/* Coercion steps */
-.coercion-steps {
-  padding-left: 1.25rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
+      // ── Step 3: Assemble and append to the page ───────────────────
+      card.appendChild(label);
+      card.appendChild(idTag);
+      card.appendChild(removeBtn);
+      document.querySelector('#card-grid').appendChild(card);
 
-.coercion-steps li {
-  font-size: 0.875rem;
-  color: #94a3b8;
-  line-height: 1.5;
-}
+      // Clear input and hide empty state
+      input.value = '';
+      input.focus();
+      document.querySelector('#empty-state').classList.remove('visible');
+    }
 
-.coercion-note {
-  margin-top: 1rem;
-  font-size: 0.875rem;
-  color: #64748b;
-  line-height: 1.5;
-  padding: 0.75rem;
-  background: #0f172a;
-  border-radius: 8px;
-  border-left: 3px solid #ca8a04;
-}
+    function removeCard(btn) {
+      // Read the data attribute to find the right card
+      const targetId = btn.dataset.target;
+      document.querySelector('#' + targetId).remove();
 
-code {
-  background: #0f172a;
-  padding: 0.1em 0.4em;
-  border-radius: 4px;
-  font-family: 'Fira Code', monospace;
-  font-size: 0.85em;
-  color: #f8fafc;
-}
+      // Show empty state if grid is now empty
+      const grid = document.querySelector('#card-grid');
+      if (grid.children.length === 0) {
+        document.querySelector('#empty-state').classList.add('visible');
+      }
+    }
+  </script>
+
+</body>
+</html>
 ```
 
 ---
 
-### JS
+## CodePen 7 — data-* Color Swatches
 
-```js
-// Cross-type comparisons — where == and === differ
-const crossTypeComparisons = [
-  {
-    expr:   '0 == false',
-    left:   0,
-    right:  false,
-    why:    'false coerces to 0; 0 == 0 is true'
-  },
-  {
-    expr:   '"" == false',
-    left:   '',
-    right:  false,
-    why:    'false → 0, "" → 0; 0 == 0 is true'
-  },
-  {
-    expr:   '"" == 0',
-    left:   '',
-    right:  0,
-    why:    'empty string coerces to 0'
-  },
-  {
-    expr:   '"1" == 1',
-    left:   '1',
-    right:  1,
-    why:    '"1" coerces to the number 1'
-  },
-  {
-    expr:   'null == undefined',
-    left:   null,
-    right:  undefined,
-    why:    'special rule: these two are loosely equal'
-  },
-  {
-    expr:   'null == 0',
-    left:   null,
-    right:  0,
-    why:    'null only equals undefined loosely, nothing else'
-  },
-  {
-    expr:   '[0] == false',
-    left:   [0],
-    right:  false,
-    why:    '[0] → "0" → 0; false → 0; 0 == 0'
-  },
-  {
-    expr:   '"0" == false',
-    left:   '0',
-    right:  false,
-    why:    'false → 0; "0" → 0; 0 == 0'
-  },
-];
+**Placement:** After the "data-* Attributes and dataset" section.
+**Demonstrates:** Reading `data-color` and `data-name` from HTML via `dataset.color` and `dataset.name`, setting `style.backgroundColor` from those values, and using an inline `onclick` that reads the swatch's own dataset to update a global CSS custom property.
 
-// Same-type comparisons — both operators agree
-const sameTypeComparisons = [
-  { expr: '1 === 1',           left: 1,         right: 1,         why: 'Same type, same value' },
-  { expr: '"a" === "a"',       left: 'a',        right: 'a',       why: 'Same type, same value' },
-  { expr: 'null === null',     left: null,       right: null,      why: 'Same type, same value' },
-  { expr: '1 === 2',           left: 1,          right: 2,         why: 'Same type, different value' },
-  { expr: 'NaN === NaN',       left: NaN,        right: NaN,       why: 'NaN is the only value not equal to itself' },
-];
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>data-* Color Swatches</title>
+  <style>
+    :root {
+      --selected: #6c5ce7;
+    }
 
-function makeRow(comparison, container) {
-  /* eslint-disable eqeqeq */
-  let looseResult, strictResult;
-  try {
-    looseResult  = comparison.left == comparison.right;
-    strictResult = comparison.left === comparison.right;
-  } catch(e) {
-    return;
-  }
-  /* eslint-enable eqeqeq */
+    * { box-sizing: border-box; margin: 0; padding: 0; }
 
-  const row = document.createElement('div');
-  row.className = 'comparison-row';
-  row.innerHTML = `
-    <span class="expr-cell">${comparison.expr}</span>
-    <span class="result-cell ${looseResult ? 'result-true' : 'result-false'}">${looseResult}</span>
-    <span class="result-cell ${strictResult ? 'result-true' : 'result-false'}">${strictResult}</span>
-    <span class="why-cell">${comparison.why || ''}</span>
-  `;
-  container.appendChild(row);
-}
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: #1a1a2e;
+      color: #eee;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+      gap: 2rem;
+    }
 
-const crossContainer = document.getElementById('comparison-rows');
-crossTypeComparisons.forEach(c => makeRow(c, crossContainer));
+    h1 {
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: var(--selected);
+      text-align: center;
+      transition: color 0.3s;
+    }
 
-const sameContainer = document.getElementById('same-type-rows');
-sameTypeComparisons.forEach(c => makeRow(c, sameContainer));
+    .subtitle {
+      font-size: 0.85rem;
+      opacity: 0.6;
+      text-align: center;
+      max-width: 420px;
+      line-height: 1.5;
+      margin-top: -1rem;
+    }
 
-// Live tester
-const valA       = document.getElementById('val-a');
-const valB       = document.getElementById('val-b');
-const btnCompare = document.getElementById('btn-compare');
-const liveComp   = document.getElementById('live-comparison');
+    /* ── Swatch grid ───────────────────────────────────────── */
+    .swatch-row {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
 
-function compare() {
-  const rawA = valA.value.trim();
-  const rawB = valB.value.trim();
-  if (!rawA || !rawB) return;
+    /* data-color and data-name are in the HTML — JS reads them */
+    .swatch {
+      width: 90px;
+      height: 90px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: #fff;
+      text-shadow: 0 1px 3px rgba(0,0,0,0.4);
+      cursor: pointer;
+      border: 3px solid transparent;
+      transition: transform 0.2s, border-color 0.2s;
+    }
 
-  let a, b;
-  try {
-    a = Function('"use strict"; return (' + rawA + ')')();
-    b = Function('"use strict"; return (' + rawB + ')')();
-  } catch(e) {
-    liveComp.classList.remove('hidden');
-    liveComp.innerHTML = `<div class="live-result-row"><span class="live-expr">Error evaluating values</span><span class="live-badge badge-error">${e.message}</span></div>`;
-    return;
-  }
+    .swatch:hover {
+      transform: scale(1.08);
+    }
 
-  /* eslint-disable eqeqeq */
-  const loose  = a == b;
-  const strict = a === b;
-  /* eslint-enable eqeqeq */
+    .swatch.active {
+      border-color: #fff;
+      transform: scale(1.1);
+    }
 
-  liveComp.classList.remove('hidden');
-  liveComp.innerHTML = `
-    <div class="live-result-row">
-      <span class="live-expr">${rawA} == ${rawB}</span>
-      <span class="live-badge ${loose ? 'badge-true' : 'badge-false'}">${loose}</span>
-    </div>
-    <div class="live-result-row">
-      <span class="live-expr">${rawA} === ${rawB}</span>
-      <span class="live-badge ${strict ? 'badge-true' : 'badge-false'}">${strict}</span>
-    </div>
-    <div class="live-result-row">
-      <span class="live-expr" style="color:#475569; font-size:0.8rem">typeof: ${rawA} is "${typeof a}" — ${rawB} is "${typeof b}"</span>
-      <span class="live-badge" style="background:#1e293b; color:#64748b">${typeof a === typeof b ? 'same type' : 'different types'}</span>
-    </div>
-  `;
-}
+    /* ── Selected color display ─────────────────────────────── */
+    .selected-display {
+      background: #16213e;
+      border: 2px solid var(--selected);
+      border-radius: 12px;
+      padding: 1.25rem 2rem;
+      text-align: center;
+      max-width: 360px;
+      width: 100%;
+      transition: border-color 0.3s;
+    }
 
-btnCompare.addEventListener('click', compare);
-[valA, valB].forEach(el => el.addEventListener('keydown', e => {
-  if (e.key === 'Enter') compare();
-}));
+    .color-name {
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: var(--selected);
+      transition: color 0.3s;
+    }
+
+    .color-hex {
+      font-size: 0.9rem;
+      font-family: 'Courier New', monospace;
+      opacity: 0.65;
+      margin-top: 0.25rem;
+    }
+
+    /* ── Dataset reference panel ────────────────────────────── */
+    .code-panel {
+      background: #0d1117;
+      border-radius: 10px;
+      padding: 0.85rem 1.25rem;
+      font-family: 'Courier New', monospace;
+      font-size: 0.78rem;
+      max-width: 420px;
+      width: 100%;
+      color: #aaa;
+      line-height: 1.9;
+    }
+
+    .attr  { color: #74b9ff; }
+    .val   { color: #55efc4; }
+    .prop  { color: #a29bfe; }
+  </style>
+</head>
+<body>
+
+  <h1 id="page-title">Click a Swatch</h1>
+  <p class="subtitle">The color and name live in <code>data-*</code> attributes in the HTML. JavaScript reads them through <code>dataset</code>.</p>
+
+  <!--
+    The data-color and data-name values are stored here in the HTML.
+    JavaScript reads them with: swatch.dataset.color and swatch.dataset.name
+    Background colors are NOT set in CSS — JS applies them on page load.
+  -->
+  <div class="swatch-row">
+    <div class="swatch" data-color="#6c5ce7" data-name="Violet"  onclick="selectSwatch(this)"></div>
+    <div class="swatch" data-color="#00b894" data-name="Emerald" onclick="selectSwatch(this)"></div>
+    <div class="swatch" data-color="#e17055" data-name="Coral"   onclick="selectSwatch(this)"></div>
+    <div class="swatch" data-color="#0984e3" data-name="Cobalt"  onclick="selectSwatch(this)"></div>
+    <div class="swatch" data-color="#fdcb6e" data-name="Gold"    onclick="selectSwatch(this)"></div>
+    <div class="swatch" data-color="#fd79a8" data-name="Rose"    onclick="selectSwatch(this)"></div>
+  </div>
+
+  <div class="selected-display">
+    <p class="color-name" id="color-name">—</p>
+    <p class="color-hex"  id="color-hex">click a swatch to select</p>
+  </div>
+
+  <div class="code-panel" id="dataset-demo">
+    Reading dataset on page load…
+  </div>
+
+  <script>
+    // ── Read dataset on page load and apply background colors ─────────
+    const swatches = document.querySelectorAll('.swatch');
+
+    // Preview of for loops — covered fully in Lesson 21
+    for (let i = 0; i < swatches.length; i++) {
+      const swatch = swatches[i];
+
+      // dataset.color reads the data-color attribute
+      swatch.style.backgroundColor = swatch.dataset.color;
+
+      // dataset.name reads the data-name attribute
+      swatch.textContent = swatch.dataset.name;
+    }
+
+    // Show the dataset of the first swatch as a reference
+    const first = swatches[0];
+    document.querySelector('#dataset-demo').innerHTML =
+      '&lt;div <span class="attr">data-color</span>=<span class="val">"' + first.dataset.color + '"</span><br>' +
+      '     <span class="attr">data-name</span>=<span class="val">"' + first.dataset.name + '"</span>&gt;<br><br>' +
+      'element.<span class="prop">dataset.color</span>  →  <span class="val">"' + first.dataset.color + '"</span><br>' +
+      'element.<span class="prop">dataset.name</span>   →  <span class="val">"' + first.dataset.name + '"</span>';
+
+    // ── onClick: read dataset from the clicked swatch ─────────────────
+    function selectSwatch(el) {
+      // Read data-* attributes through dataset
+      const color = el.dataset.color;
+      const name  = el.dataset.name;
+
+      // Update the CSS custom property — affects everything using var(--selected)
+      document.documentElement.style.setProperty('--selected', color);
+
+      // Update the display panel
+      document.querySelector('#color-name').textContent = name;
+      document.querySelector('#color-hex').textContent  = color;
+      document.querySelector('#page-title').textContent = name + ' selected';
+
+      // Toggle .active class (classList covered earlier in this lesson)
+      const allSwatches = document.querySelectorAll('.swatch');
+      for (let i = 0; i < allSwatches.length; i++) {
+        allSwatches[i].classList.remove('active');
+      }
+      el.classList.add('active');
+
+      // Show this swatch's dataset in the reference panel
+      document.querySelector('#dataset-demo').innerHTML =
+        '&lt;div <span class="attr">data-color</span>=<span class="val">"' + color + '"</span><br>' +
+        '     <span class="attr">data-name</span>=<span class="val">"' + name + '"</span>&gt;<br><br>' +
+        'element.<span class="prop">dataset.color</span>  →  <span class="val">"' + color + '"</span><br>' +
+        'element.<span class="prop">dataset.name</span>   →  <span class="val">"' + name + '"</span>';
+    }
+
+    // Select the first swatch on page load
+    selectSwatch(swatches[0]);
+  </script>
+
+</body>
+</html>
 ```
