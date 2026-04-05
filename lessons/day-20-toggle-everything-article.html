@@ -1,0 +1,316 @@
+<h2>Lesson 20: Toggle Everything</h2>
+<h3>classList.toggle() and the UI Patterns Every Website Uses</h3>
+
+<hr>
+
+<p><strong>What You&rsquo;ll Learn in This Lesson:</strong></p>
+<ul style="list-style:none; padding-left:0;">
+  <li><span style="color:#c75c19; margin-right:8px;">&#9658;</span>The central principle of interactive UI: CSS defines states, JavaScript switches between them</li>
+  <li><span style="color:#c75c19; margin-right:8px;">&#9658;</span>How to build a dark mode toggle with one line of JavaScript</li>
+  <li><span style="color:#c75c19; margin-right:8px;">&#9658;</span>How to build an accordion using <code>max-height</code> transitions</li>
+  <li><span style="color:#c75c19; margin-right:8px;">&#9658;</span>How to replace the CSS-only hamburger menu hack with clean JavaScript</li>
+  <li><span style="color:#c75c19; margin-right:8px;">&#9658;</span>How to build a tab system and a modal dialog</li>
+  <li><span style="color:#c75c19; margin-right:8px;">&#9658;</span>How to schedule delayed actions with <code>setTimeout</code></li>
+  <li><span style="color:#c75c19; margin-right:8px;">&#9658;</span>How to run repeated actions with <code>setInterval</code></li>
+  <li><span style="color:#c75c19; margin-right:8px;">&#9658;</span>How to toggle <code>aria-expanded</code> for accessible interactive components</li>
+</ul>
+
+<hr>
+
+<p>You now have two powerful tools working together. CSS can define multiple visual states &mdash; a card can be small or large, a panel can be hidden or visible, a theme can be light or dark. JavaScript can respond to user events with <code>addEventListener</code>. This lesson brings both tools to their natural conclusion by combining them into the interactive patterns that appear on nearly every modern website.</p>
+
+<p>The insight that makes this day click: <strong>JavaScript does not create visual effects. CSS does.</strong> JavaScript&rsquo;s job is simply to switch a class on or off. Your CSS &mdash; the transitions and animations you built in Lessons 9 and 10, the custom properties from Lesson 5, the dark mode patterns from Lesson 15 &mdash; handles everything that moves and changes. One line of JavaScript. Everything you already wrote does the rest.</p>
+
+<blockquote>
+  <p><strong>NOTE</strong><br>
+  This principle has a name in the industry: <em>separation of concerns.</em> CSS concerns itself with appearance. JavaScript concerns itself with state. When you keep these separate, your code is cleaner, easier to debug, and easier to hand off. It also means your CSS transitions work automatically &mdash; you never have to write animation logic in JavaScript.</p>
+</blockquote>
+
+
+<h2>The Central Principle</h2>
+
+<p>Every pattern in this lesson follows the same structure. Your CSS defines two states for an element:</p>
+
+<pre><code>/* State 1: Default */
+.panel {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.4s ease;
+}
+
+/* State 2: Open */
+.panel.open {
+  max-height: 500px;
+}</code></pre>
+
+<p>Your JavaScript toggles between them with a single line:</p>
+
+<pre><code>panel.classList.toggle('open');</code></pre>
+
+<p>That&rsquo;s it. The CSS transition fires automatically the moment the class changes. You wrote the animation in CSS &mdash; JavaScript just flips the switch.</p>
+
+<p>[IMG - Diagram: two boxes labeled &ldquo;default state&rdquo; and &ldquo;.open state&rdquo; with a classList.toggle() arrow between them, and a CSS transition arrow showing the animated change]</p>
+
+<p>This exact pattern &mdash; CSS defines two states, JS toggles the class &mdash; powers dark mode, accordions, modals, navigation menus, tabs, tooltips, dropdowns, and virtually every other interactive UI component you have ever seen. Learn this once. Build everything.</p>
+
+
+<h2>Dark Mode Toggle</h2>
+
+<p>You spent time in Lessons 13 and 15 building dark mode with <code>prefers-color-scheme</code> &mdash; a CSS media query that reads the user&rsquo;s operating system preference. But what if the user wants to override that preference on your specific page? That requires JavaScript.</p>
+
+<p>The CSS pattern uses custom properties on two selectors: the default and the <code>.dark-mode</code> class applied to the body:</p>
+
+<pre><code>:root {
+  --bg:   #ffffff;
+  --text: #111111;
+  --card: #f5f5f5;
+}
+
+body.dark-mode {
+  --bg:   #1a1a2e;
+  --text: #eeeeee;
+  --card: #16213e;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  transition: background 0.3s, color 0.3s;
+}</code></pre>
+
+<p>The JavaScript is one line:</p>
+
+<pre><code>document.body.classList.toggle('dark-mode');</code></pre>
+
+<p>Because <code>--bg</code>, <code>--text</code>, and <code>--card</code> cascade to every element using them, that single class toggle updates the entire page simultaneously. The <code>transition</code> on body means the shift is smooth. You wrote all of this CSS in prior lessons &mdash; the JavaScript is the part you were missing.</p>
+
+<p>You can also update the button label and icon with the ternary operator you learned in Lesson 19:</p>
+
+<pre><code>const isDark = document.body.classList.contains('dark-mode');
+btn.textContent = isDark ? '☀ Light Mode' : '☾ Dark Mode';</code></pre>
+
+[CODEPEN 1]
+
+
+<h2>Accordion</h2>
+
+<p>An accordion is a list of sections where clicking a heading reveals or hides its content. The <code>max-height</code> transition trick makes this smooth without JavaScript needing to know the exact height of the content.</p>
+
+<pre><code>/* CSS */
+.accordion-body {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.35s ease;
+}
+
+.accordion-item.open .accordion-body {
+  max-height: 400px;  /* Must be larger than any content height */
+}</code></pre>
+
+<pre><code>// JavaScript
+const headers = document.querySelectorAll('.accordion-header');
+
+headers.forEach(function(header) {
+  header.addEventListener('click', function() {
+    const item = header.parentElement;
+
+    // Close all other items (single-open mode)
+    document.querySelectorAll('.accordion-item').forEach(function(el) {
+      if (el !== item) el.classList.remove('open');
+    });
+
+    // Toggle this one
+    item.classList.toggle('open');
+
+    // Update aria-expanded for accessibility
+    const isOpen = item.classList.contains('open');
+    header.setAttribute('aria-expanded', isOpen);
+  });
+});</code></pre>
+
+<blockquote>
+  <p><strong>NOTE</strong><br>
+  You saw <code>aria-expanded</code> in Lesson 15. Toggling it here keeps the accordion accessible to screen readers, which announce &ldquo;expanded&rdquo; or &ldquo;collapsed&rdquo; as the user navigates. It takes one line and makes your component usable by everyone.</p>
+</blockquote>
+
+[CODEPEN 2]
+
+
+<h2>Real Hamburger Menu</h2>
+
+<p>In Lesson 13, you built a hamburger menu using a hidden checkbox and the CSS sibling selector &mdash; a clever hack that required no JavaScript. Now you can do it properly. The CSS stays almost the same, but instead of relying on a checkbox&rsquo;s <code>:checked</code> state, you toggle a class on the navigation element directly.</p>
+
+<pre><code>/* CSS: nav hidden by default at mobile */
+.nav-links {
+  position: fixed;
+  top: 0; right: -100%;
+  width: 75%;
+  height: 100vh;
+  background: var(--card);
+  transition: right 0.3s ease;
+  padding-top: 5rem;
+}
+
+/* Class toggle reveals it */
+.nav-links.nav-open {
+  right: 0;
+}</code></pre>
+
+<pre><code>// JavaScript: three lines
+const menuBtn   = document.querySelector('.menu-btn');
+const navLinks  = document.querySelector('.nav-links');
+
+menuBtn.addEventListener('click', function() {
+  navLinks.classList.toggle('nav-open');
+  const isOpen = navLinks.classList.contains('nav-open');
+  menuBtn.setAttribute('aria-expanded', isOpen);
+  menuBtn.textContent = isOpen ? '✕' : '☰';
+});</code></pre>
+
+<p>The checkbox hack was a creative workaround for the absence of JavaScript. Now that you have JavaScript, the clean approach is always to toggle a class. The result is identical visually &mdash; but the code is simpler, more readable, and the <code>aria-expanded</code> attribute makes it accessible.</p>
+
+[CODEPEN 3]
+
+
+<h2>Tabs</h2>
+
+<p>A tab system shows one panel at a time. Clicking a tab activates it and shows its corresponding content panel. The pattern requires managing an &ldquo;active&rdquo; class across a set of elements: remove it from all, add it to the one that was clicked.</p>
+
+<pre><code>const tabs   = document.querySelectorAll('.tab');
+const panels = document.querySelectorAll('.tab-panel');
+
+tabs.forEach(function(tab) {
+  tab.addEventListener('click', function() {
+    // Deactivate everything
+    tabs.forEach(function(t)   { t.classList.remove('active'); });
+    panels.forEach(function(p) { p.classList.remove('active'); });
+
+    // Activate the clicked tab and its matching panel
+    tab.classList.add('active');
+    const targetId = tab.dataset.tab;
+    document.querySelector('#' + targetId).classList.add('active');
+  });
+});</code></pre>
+
+<p>The <code>data-tab</code> attribute on each button stores the ID of the panel it controls. This is the <code>data-*</code> and <code>dataset</code> connection from Lesson 18 &mdash; now used to wire up a real UI component.</p>
+
+
+<h2>Modal Dialog</h2>
+
+<p>A modal is an overlay that appears on top of the page, requiring the user&rsquo;s attention before returning to the main content. The pattern involves a backdrop element and a dialog box, both hidden by default:</p>
+
+<pre><code>/* CSS */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s;
+}
+
+.modal-overlay.open {
+  opacity: 1;
+  pointer-events: auto;
+}</code></pre>
+
+<pre><code>// JavaScript
+const overlay = document.querySelector('.modal-overlay');
+
+function openModal()  { overlay.classList.add('open'); }
+function closeModal() { overlay.classList.remove('open'); }
+
+document.querySelector('.open-modal-btn').addEventListener('click', openModal);
+document.querySelector('.close-btn').addEventListener('click', closeModal);
+
+// Close when clicking the backdrop (but not the dialog itself)
+overlay.addEventListener('click', function(event) {
+  if (event.target === overlay) closeModal();
+});</code></pre>
+
+<p>[IMG - Modal pattern: a dimmed backdrop with a centered white dialog box, showing the open and closed CSS states side by side]</p>
+
+<blockquote>
+  <p><strong>NOTE</strong><br>
+  Using <code>opacity: 0; pointer-events: none;</code> rather than <code>display: none</code> as the hidden state allows CSS transitions to work. <code>display: none</code> removes the element from the layout instantly &mdash; there is nothing to transition from. <code>opacity</code> and <code>pointer-events</code> keep the element present but invisible and non-interactive, so the transition has something to animate.</p>
+</blockquote>
+
+[CODEPEN 4]
+
+
+<h2>setTimeout &mdash; Delayed Actions</h2>
+
+<p><code>setTimeout</code> schedules a function to run once after a specified delay in milliseconds:</p>
+
+<pre><code>setTimeout(function() {
+  toast.classList.remove('visible');
+}, 3000);  // Runs after 3 seconds (3000 ms)</code></pre>
+
+<p>The most common use is a toast notification &mdash; a brief message that appears after an action and disappears automatically:</p>
+
+<pre><code>function showToast(message) {
+  const toast = document.querySelector('.toast');
+  toast.textContent = message;
+  toast.classList.add('visible');
+
+  setTimeout(function() {
+    toast.classList.remove('visible');
+  }, 3000);
+}</code></pre>
+
+<p><code>setTimeout</code> returns an ID you can use to cancel the scheduled action with <code>clearTimeout(id)</code> if you need to &mdash; for example, if the user manually dismisses the toast before the timer fires.</p>
+
+
+<h2>setInterval &mdash; Repeated Actions</h2>
+
+<p><code>setInterval</code> schedules a function to run repeatedly at a fixed interval:</p>
+
+<pre><code>const clockId = setInterval(function() {
+  updateClock();
+}, 1000);  // Runs every 1 second</code></pre>
+
+<p>Always cancel an interval when it is no longer needed using <code>clearInterval(id)</code>. A running interval that is never cancelled will keep executing even after the user has navigated away, which wastes resources and can cause bugs.</p>
+
+<pre><code>// Start and stop a clock
+let clockId = null;
+
+function startClock() {
+  clockId = setInterval(updateClock, 1000);
+}
+
+function stopClock() {
+  clearInterval(clockId);
+}</code></pre>
+
+<p>The classic use is a live clock, which connects to the <code>Date</code> object you may have seen in the Intro to JavaScript slide:</p>
+
+<pre><code>function updateClock() {
+  const now  = new Date();
+  const h    = String(now.getHours()).padStart(2, '0');
+  const m    = String(now.getMinutes()).padStart(2, '0');
+  const s    = String(now.getSeconds()).padStart(2, '0');
+  document.querySelector('#clock').textContent = h + ':' + m + ':' + s;
+}</code></pre>
+
+[CODEPEN 5]
+
+
+<h2>Best Practices</h2>
+
+<ul style="list-style:none; padding-left:0;">
+  <li><span style="color:#c75c19; margin-right:8px;">&#9658;</span><strong>Let CSS do the animating.</strong> Define both states in CSS with a <code>transition</code>. JavaScript only adds or removes the class. Never write animation timings or easing in JavaScript.</li>
+  <li><span style="color:#c75c19; margin-right:8px;">&#9658;</span><strong>Toggle <code>aria-expanded</code> on interactive components.</strong> Buttons that show/hide content should have <code>aria-expanded="true"</code> when open and <code>aria-expanded="false"</code> when closed. One line of JavaScript keeps your components accessible.</li>
+  <li><span style="color:#c75c19; margin-right:8px;">&#9658;</span><strong>Always clear intervals you no longer need.</strong> Every <code>setInterval</code> call should have a corresponding <code>clearInterval</code> that runs when the interval is done. Forgetting this is a common source of subtle bugs.</li>
+  <li><span style="color:#c75c19; margin-right:8px;">&#9658;</span><strong>Use <code>opacity + pointer-events</code> for animated show/hide.</strong> <code>display: none</code> makes transitions impossible. Use <code>opacity: 0; pointer-events: none;</code> as the hidden state and transition <code>opacity</code> to reveal the element.</li>
+  <li><span style="color:#c75c19; margin-right:8px;">&#9658;</span><strong>Keep modal close logic in one reusable function.</strong> Multiple triggers close the same modal (X button, backdrop click, Escape key). A <code>closeModal()</code> function called by all three is cleaner than duplicating the logic.</li>
+</ul>
+
+
+<h2>Summary</h2>
+
+<p>This lesson is the payoff of everything you have built in CSS. The transitions from Lesson 9, the <code>@keyframes</code> animations from Lesson 10, the CSS custom properties from Lesson 5, the dark mode patterns from Lessons 13 and 15, the hamburger menu from Lesson 13 &mdash; all of it now has a JavaScript remote control. The central insight is simple and applies universally: CSS defines two states, JavaScript switches between them with <code>classList.toggle()</code>. You built a dark mode toggle with one line, an accordion with three, a hamburger menu with four, and a modal with five. <code>setTimeout</code> lets you schedule actions for the future, and <code>setInterval</code> lets you repeat them on a cadence. None of these required you to write animation logic in JavaScript &mdash; the CSS you already know handles all of that.</p>
+
+<p>In the next lesson, you will learn to organize your JavaScript into reusable functions and combine them with loops to generate entire sections of HTML dynamically &mdash; turning an array of data into a styled card grid with just a few lines of code.</p>

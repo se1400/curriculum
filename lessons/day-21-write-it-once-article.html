@@ -1,0 +1,275 @@
+<h2>Lesson 21: Write It Once</h2>
+<h3>Functions, Loops, and Generating HTML</h3>
+
+<hr>
+
+<p><strong>What You&rsquo;ll Learn in This Lesson:</strong></p>
+<ul style="list-style:none; padding-left:0;">
+  <li><span style="color:#c75c19; margin-right:8px;">&#9658;</span>Why functions exist and how they make your code reusable</li>
+  <li><span style="color:#c75c19; margin-right:8px;">&#9658;</span>How to write function declarations with parameters and return values</li>
+  <li><span style="color:#c75c19; margin-right:8px;">&#9658;</span>Arrow function syntax &mdash; a shorter way to write the same thing</li>
+  <li><span style="color:#c75c19; margin-right:8px;">&#9658;</span>Default parameter values</li>
+  <li><span style="color:#c75c19; margin-right:8px;">&#9658;</span>The <code>for</code> loop and the <code>for...of</code> loop</li>
+  <li><span style="color:#c75c19; margin-right:8px;">&#9658;</span>How to generate entire sections of HTML using loops and template literals</li>
+  <li><span style="color:#c75c19; margin-right:8px;">&#9658;</span>The <code>renderCards()</code> pattern &mdash; passing data in, getting HTML out</li>
+</ul>
+
+<hr>
+
+<p>By now you have written a significant amount of JavaScript. Events, conditionals, DOM manipulation, class toggles &mdash; all of it works. But if you look back at your code, you may notice a problem: the same logic appears in multiple places. A click handler that runs the same update logic as a different click handler. DOM queries repeated three times. The same validation check written out twice.</p>
+
+<p>This lesson solves that problem with two tools: <strong>functions</strong> and <strong>loops</strong>. Functions give a block of code a name so you can call it anywhere without copying it. Loops repeat an action for every item in a collection without writing the action multiple times. Together, they unlock the most visually powerful pattern in this course: generating a full styled card grid from an array of data with a handful of lines.</p>
+
+
+<h2>Why Functions?</h2>
+
+<p>Consider the problem concretely. You have a dark mode toggle, an accordion button, and a preferences button &mdash; and all three need to run the same &ldquo;update the UI state&rdquo; logic after they fire. Without functions, you write that logic three times. When a bug appears, you fix it three times. When the logic changes, you update three places and probably miss one.</p>
+
+<pre><code>// Without a function — fragile, repetitive
+document.querySelector('#dark-btn').addEventListener('click', function() {
+  document.body.classList.toggle('dark-mode');
+  document.querySelector('#theme-label').textContent =
+    document.body.classList.contains('dark-mode') ? 'Light' : 'Dark';
+});
+
+document.querySelector('#pref-btn').addEventListener('click', function() {
+  document.body.classList.toggle('dark-mode');
+  document.querySelector('#theme-label').textContent =
+    document.body.classList.contains('dark-mode') ? 'Light' : 'Dark';
+  // ... same code, again
+});</code></pre>
+
+<pre><code>// With a function — write the logic once, call it anywhere
+function toggleDarkMode() {
+  document.body.classList.toggle('dark-mode');
+  document.querySelector('#theme-label').textContent =
+    document.body.classList.contains('dark-mode') ? 'Light' : 'Dark';
+}
+
+document.querySelector('#dark-btn').addEventListener('click', toggleDarkMode);
+document.querySelector('#pref-btn').addEventListener('click', toggleDarkMode);</code></pre>
+
+<p>The version with a function is shorter, clearer, and has a single place to fix if anything changes. Functions are named recipes: define the steps once, call the name whenever you need them.</p>
+
+<blockquote>
+  <p><strong>NOTE</strong><br>
+  You have already been calling functions since Lesson 18: <code>document.querySelector()</code>, <code>classList.toggle()</code>, <code>console.log()</code>, <code>Math.random()</code> are all functions that someone else wrote. In this lesson you write your own.</p>
+</blockquote>
+
+
+<h2>Function Declarations</h2>
+
+<p>A function declaration has four parts: the <code>function</code> keyword, a name, parentheses for parameters, and a body in curly braces:</p>
+
+<pre><code>function greet(name) {
+  document.querySelector('#message').textContent = 'Hello, ' + name + '!';
+}
+
+greet('Ada');    // Calls the function — runs the body with name = 'Ada'
+greet('Grace');  // Calls it again with a different argument</code></pre>
+
+<p><strong>Parameters</strong> are the variables listed in the parentheses. They receive the values you pass when calling the function. A function can have zero parameters, one, or many:</p>
+
+<pre><code>function showWelcome() {                          // No parameters
+  document.querySelector('h1').textContent = 'Welcome!';
+}
+
+function setTheme(hue, saturation) {             // Two parameters
+  document.documentElement.style.setProperty('--hue', hue);
+  document.documentElement.style.setProperty('--saturation', saturation);
+}</code></pre>
+
+<h3>Return Values</h3>
+
+<p>A function can compute a value and send it back to the caller using <code>return</code>:</p>
+
+<pre><code>function formatPrice(price) {
+  return '$' + price.toFixed(2);
+}
+
+const label = formatPrice(9.99);  // label = '$9.99'
+document.querySelector('.price').textContent = label;</code></pre>
+
+<p>Without <code>return</code>, the function returns <code>undefined</code>. Use <code>return</code> when the function produces a value someone else needs. Skip it when the function just performs an action (like updating the DOM).</p>
+
+<h3>Default Parameters</h3>
+
+<p>A parameter can have a default value used when no argument is passed:</p>
+
+<pre><code>function greet(name = 'friend') {
+  return 'Hello, ' + name + '!';
+}
+
+greet('Maria');  // 'Hello, Maria!'
+greet();         // 'Hello, friend!'  — default used</code></pre>
+
+[CODEPEN 1]
+
+
+<h2>Arrow Functions</h2>
+
+<p>Arrow functions are a shorter syntax for writing the same thing. They use <code>=&gt;</code> instead of the <code>function</code> keyword:</p>
+
+<pre><code>// Function declaration
+function formatPrice(price) {
+  return '$' + price.toFixed(2);
+}
+
+// Arrow function — identical behavior
+const formatPrice = (price) => {
+  return '$' + price.toFixed(2);
+}
+
+// Arrow function — even shorter when the body is a single expression
+const formatPrice = (price) => '$' + price.toFixed(2);</code></pre>
+
+<p>When the function body is a single expression, you can drop the curly braces and <code>return</code> &mdash; the value is returned automatically. This concise form is extremely common, especially inside array methods you will use in Lesson 23:</p>
+
+<pre><code>const double = (n) => n * 2;
+const isEven = (n) => n % 2 === 0;
+const toCard = (name) => `&lt;div class="card"&gt;${name}&lt;/div&gt;`;</code></pre>
+
+<p>[IMG - Side-by-side: function declaration syntax vs arrow function syntax, with labels pointing to each part]</p>
+
+<blockquote>
+  <p><strong>NOTE</strong><br>
+  Arrow functions and function declarations behave identically for everything you will do in this course. Use whichever feels more readable for the situation. Arrow functions are especially common in callbacks &mdash; functions passed to event listeners or array methods &mdash; because they are concise.</p>
+</blockquote>
+
+
+<h2>The for Loop</h2>
+
+<p>A <code>for</code> loop repeats a block of code a specific number of times. You have seen it previewed in earlier lessons. Here is the full syntax:</p>
+
+<pre><code>for (let i = 0; i &lt; 5; i++) {
+  console.log(i);  // 0, 1, 2, 3, 4
+}</code></pre>
+
+<p>Three parts sit inside the parentheses, separated by semicolons:</p>
+
+<ul style="list-style:none; padding-left:0;">
+  <li><span style="color:#c75c19; margin-right:8px;">&#9658;</span><strong>Initialization:</strong> <code>let i = 0</code> &mdash; create a counter starting at zero</li>
+  <li><span style="color:#c75c19; margin-right:8px;">&#9658;</span><strong>Condition:</strong> <code>i &lt; 5</code> &mdash; keep running while this is true</li>
+  <li><span style="color:#c75c19; margin-right:8px;">&#9658;</span><strong>Update:</strong> <code>i++</code> &mdash; increment the counter after each iteration</li>
+</ul>
+
+<p>To loop through an array by index:</p>
+
+<pre><code>const colors = ['red', 'blue', 'green'];
+
+for (let i = 0; i &lt; colors.length; i++) {
+  console.log(colors[i]);  // 'red', 'blue', 'green'
+}</code></pre>
+
+<h2>The for&hellip;of Loop</h2>
+
+<p>The <code>for...of</code> loop is a simpler way to iterate over arrays when you do not need the index:</p>
+
+<pre><code>const colors = ['red', 'blue', 'green'];
+
+for (const color of colors) {
+  console.log(color);  // 'red', 'blue', 'green'
+}</code></pre>
+
+<p>Cleaner and more readable. Use <code>for...of</code> as your default. Use the index-based <code>for</code> loop when you specifically need the position of each item.</p>
+
+
+<h2>Generating HTML with Loops</h2>
+
+<p>This is the pattern that makes card grids come alive. Instead of writing fifty <code>&lt;div class="card"&gt;</code> elements by hand, you store the data in an array and let a loop build the HTML:</p>
+
+<pre><code>const cities = ['Tokyo', 'Lisbon', 'Chicago', 'Nairobi', 'Sydney'];
+let html = '';
+
+for (const city of cities) {
+  html += `&lt;div class="card"&gt;${city}&lt;/div&gt;`;
+}
+
+document.querySelector('.grid').innerHTML = html;</code></pre>
+
+<p>Each iteration concatenates one card&rsquo;s HTML to the <code>html</code> string. After the loop, one <code>innerHTML</code> assignment injects the entire result. The CSS card styles you have been writing for weeks apply automatically &mdash; the elements are real HTML once they are in the DOM.</p>
+
+<p>[IMG - Diagram: an array of strings feeding into a for...of loop, building HTML string, then innerHTML inserting all cards into the grid]</p>
+
+
+<h2>The renderCards() Pattern</h2>
+
+<p>Wrapping the loop in a function makes it reusable. Call the function once to render the initial list, call it again after a shuffle or filter, and the grid rebuilds automatically:</p>
+
+<pre><code>const container = document.querySelector('.grid');
+
+function renderCards(items) {
+  let html = '';
+  for (const item of items) {
+    html += `
+      &lt;div class="card"&gt;
+        &lt;h3&gt;${item}&lt;/h3&gt;
+      &lt;/div&gt;
+    `;
+  }
+  container.innerHTML = html;
+}
+
+renderCards(cities);  // Initial render</code></pre>
+
+<p>An even more concise version uses the <code>map()</code> array method (you will learn this fully in Lesson 23) and <code>join('')</code>:</p>
+
+<pre><code>function renderCards(items) {
+  container.innerHTML = items.map(item => `
+    &lt;div class="card"&gt;
+      &lt;h3&gt;${item}&lt;/h3&gt;
+    &lt;/div&gt;
+  `).join('');
+}</code></pre>
+
+<p><code>map()</code> transforms each item in the array into a string of HTML. <code>join('')</code> combines the array of strings into one, removing the commas JavaScript would otherwise add between them. This two-method chain produces the same result as the loop, in two lines. You will use this pattern constantly in Lessons 22 and 23.</p>
+
+[CODEPEN 2]
+
+[CODEPEN 3]
+
+
+<h2>Putting It Together</h2>
+
+<p>Functions, loops, and template literals combine to create a clean separation between data and display. Your data lives in an array. Your function knows how to turn one item into HTML. Your loop (or <code>map()</code>) applies the function to every item. Changing what gets displayed means changing the array and calling the render function again &mdash; the CSS card layouts you have designed stay completely unchanged.</p>
+
+<pre><code>const projects = ['Portfolio Site', 'Weather App', 'Recipe Finder', 'Quiz Game'];
+
+function renderProjects(list) {
+  container.innerHTML = list.map(name => `
+    &lt;div class="card"&gt;
+      &lt;h3 class="card-title"&gt;${name}&lt;/h3&gt;
+      &lt;p class="card-meta"&gt;Web Project&lt;/p&gt;
+    &lt;/div&gt;
+  `).join('');
+}
+
+// Render on load
+renderProjects(projects);
+
+// "Shuffle" button — reverses and re-renders
+document.querySelector('#shuffle-btn').addEventListener('click', () => {
+  renderProjects([...projects].reverse());
+});</code></pre>
+
+[CODEPEN 4]
+
+[CODEPEN 5]
+
+
+<h2>Best Practices</h2>
+
+<ul style="list-style:none; padding-left:0;">
+  <li><span style="color:#c75c19; margin-right:8px;">&#9658;</span><strong>Name functions after what they do.</strong> <code>renderCards()</code>, <code>formatPrice()</code>, <code>showError()</code> &mdash; a reader should understand the function&rsquo;s purpose from its name alone.</li>
+  <li><span style="color:#c75c19; margin-right:8px;">&#9658;</span><strong>Keep functions focused.</strong> A function that renders cards should render cards, not also validate form input. When a function does two things, split it into two functions.</li>
+  <li><span style="color:#c75c19; margin-right:8px;">&#9658;</span><strong>Default to <code>for...of</code> for arrays.</strong> It is shorter and more readable than index-based <code>for</code> loops when you do not need the position. Use index-based loops only when the index matters.</li>
+  <li><span style="color:#c75c19; margin-right:8px;">&#9658;</span><strong>Use <code>join('')</code> when building HTML strings with <code>map()</code>.</strong> Without it, JavaScript adds a comma between each item in the resulting array, which will appear visibly in your rendered HTML.</li>
+  <li><span style="color:#c75c19; margin-right:8px;">&#9658;</span><strong>Escape user content before inserting it with <code>innerHTML</code>.</strong> When the data comes from user input, use <code>textContent</code> on individual elements rather than injecting untrusted strings directly into HTML. When the data is under your control (your own array), <code>innerHTML</code> is fine.</li>
+</ul>
+
+
+<h2>Summary</h2>
+
+<p>Functions give code a name and let you call it multiple times without copying it. You learned to write function declarations with parameters and return values, default parameter values for optional arguments, and the shorter arrow function syntax you will see everywhere in modern JavaScript. Loops &mdash; both the index-based <code>for</code> loop and the simpler <code>for...of</code> loop &mdash; repeat an action for every item in an array. Combining loops with template literals and <code>innerHTML</code> produces the render pattern: pass an array of data to a function, get a full card grid back. The CSS layouts you designed in the flexbox and grid lessons are now populated dynamically by data instead of written by hand.</p>
+
+<p>In the next lesson, you will upgrade from arrays of strings to arrays of objects &mdash; structured data with multiple properties per item. This turns your card grid into a real product catalog, portfolio gallery, or recipe list, complete with names, prices, categories, and images.</p>

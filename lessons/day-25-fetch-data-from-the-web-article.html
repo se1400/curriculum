@@ -1,0 +1,207 @@
+<h2>Lesson 25: Fetch &mdash; Data from the Web</h2>
+<h3>APIs, JSON, and Loading Real Data with fetch()</h3>
+
+<hr>
+
+<p><strong>What You&rsquo;ll Learn in This Lesson:</strong></p>
+<ul style="list-style:none; padding-left:0;">
+  <li><span style="color:#c75c19; margin-right:8px;">&#9658;</span>What an API is and how the browser requests data from one</li>
+  <li><span style="color:#c75c19; margin-right:8px;">&#9658;</span>The <code>fetch()</code> function &mdash; the browser&rsquo;s built-in tool for making HTTP requests</li>
+  <li><span style="color:#c75c19; margin-right:8px;">&#9658;</span>The <code>.then()</code> chain &mdash; how to work with data after it arrives</li>
+  <li><span style="color:#c75c19; margin-right:8px;">&#9658;</span>How to show a loading state while waiting for a response</li>
+  <li><span style="color:#c75c19; margin-right:8px;">&#9658;</span>How to handle errors with <code>.catch()</code></li>
+  <li><span style="color:#c75c19; margin-right:8px;">&#9658;</span>Why your <code>renderCards()</code> function works exactly the same whether data comes from an array or an API</li>
+</ul>
+
+<hr>
+
+<p>Every gallery, card grid, and list you have built so far used a hardcoded array &mdash; data written directly in the JavaScript file. Real websites do not work that way. Product listings come from a database. Weather data comes from a weather service. Movie details come from a film catalog API. The data lives on a server, and the browser requests it over the network.</p>
+
+<p><code>fetch()</code> is the browser&rsquo;s built-in function for making those requests. It sends an HTTP request to a URL and returns the response &mdash; usually as JSON, the same format you learned to read and write with <code>JSON.parse()</code> and <code>JSON.stringify()</code> in the previous lesson. The key insight: your <code>renderCards()</code> function does not need to change at all. The only thing that changes is where the data comes from.</p>
+
+
+<h2>What Is an API?</h2>
+
+<p>An <strong>API</strong> (Application Programming Interface) is a server that sends back data in response to a request. Instead of returning HTML for a browser to display, an API returns raw data &mdash; typically formatted as JSON &mdash; for JavaScript to use.</p>
+
+<p>You send a request to a URL like <code>https://api.example.com/products</code>. The server responds with JSON like this:</p>
+
+<pre><code>[
+  { "id": 1, "name": "Espresso", "category": "Coffee", "price": 3.50 },
+  { "id": 2, "name": "Cold Brew", "category": "Coffee", "price": 4.75 }
+]</code></pre>
+
+<p>That is exactly the same shape as the arrays of objects you have been building by hand. The only difference is the data comes from a server instead of being written in your code.</p>
+
+<p>[IMG - Diagram: browser sends a GET request to an API URL, server returns JSON, JavaScript parses it into an array of objects, renderCards() generates HTML]</p>
+
+
+<h2>The fetch() Function</h2>
+
+<p>The fetch recipe has four lines:</p>
+
+<pre><code>fetch('https://api.example.com/products')
+  .then(function(response) { return response.json(); })
+  .then(function(data) {
+    renderCards(data);
+  })
+  .catch(function(error) {
+    container.innerHTML = '&lt;p class="error"&gt;Failed to load data. Please try again.&lt;/p&gt;';
+  });</code></pre>
+
+<p>Here is what each line does:</p>
+
+<ul style="list-style:none; padding-left:0;">
+  <li><span style="color:#c75c19; margin-right:8px;">&#9658;</span><strong>Line 1: <code>fetch(url)</code></strong> &mdash; sends an HTTP GET request to the URL. This does not happen instantly. The response will arrive sometime in the future.</li>
+  <li><span style="color:#c75c19; margin-right:8px;">&#9658;</span><strong>Line 2: <code>.then(response =&gt; response.json())</code></strong> &mdash; when the response arrives, convert its body from a JSON string into a JavaScript array or object.</li>
+  <li><span style="color:#c75c19; margin-right:8px;">&#9658;</span><strong>Line 3: <code>.then(data =&gt; renderCards(data))</code></strong> &mdash; when the conversion is done, use the data. Pass it to your render function.</li>
+  <li><span style="color:#c75c19; margin-right:8px;">&#9658;</span><strong>Line 4: <code>.catch(error =&gt; { ... })</code></strong> &mdash; if anything goes wrong (network down, bad URL, server error), show a message. Never leave the user looking at a blank page.</li>
+</ul>
+
+<blockquote>
+  <p><strong>NOTE</strong><br>
+  <code>fetch()</code> is <em>asynchronous</em> &mdash; it does not wait for the response before moving on. The code after your <code>fetch()</code> call runs immediately while the request is still in flight. The <code>.then()</code> callbacks run later, when the response arrives. This is why the data is not available in a regular variable after the <code>fetch()</code> line &mdash; you must use it inside the <code>.then()</code>.</p>
+</blockquote>
+
+[CODEPEN 1]
+
+
+<h2>Loading States</h2>
+
+<p>Network requests take time &mdash; anywhere from a few milliseconds to several seconds depending on the connection. While the user is waiting, show a loading indicator rather than leaving the container empty:</p>
+
+<pre><code>// Show loading state before the request starts
+container.innerHTML = '&lt;p class="loading"&gt;Loading&hellip;&lt;/p&gt;';
+
+fetch('https://api.example.com/products')
+  .then(function(response) { return response.json(); })
+  .then(function(data) {
+    renderCards(data);  // Replaces the loading message
+  })
+  .catch(function(error) {
+    container.innerHTML = '&lt;p class="error"&gt;Failed to load. Please try again.&lt;/p&gt;';
+  });</code></pre>
+
+<p>Set the loading message before the request. When the data arrives, <code>renderCards()</code> overwrites it. If the request fails, <code>.catch()</code> overwrites it with an error message. The container never shows blank space.</p>
+
+<p>[IMG - Three states shown side by side: loading (spinner or text), loaded (card grid), error (message with retry hint)]</p>
+
+[CODEPEN 2]
+
+
+<h2>Replacing Hardcoded Data with fetch()</h2>
+
+<p>Here is how little changes when you swap a hardcoded array for an API. Before:</p>
+
+<pre><code>// Hardcoded array
+const products = [
+  { id: 1, name: 'Espresso',  category: 'Coffee', price: 3.50 },
+  { id: 2, name: 'Cold Brew', category: 'Coffee', price: 4.75 }
+];
+
+renderCards(products);</code></pre>
+
+<p>After, with <code>fetch()</code>:</p>
+
+<pre><code>// Same data, from the network
+container.innerHTML = '&lt;p class="loading"&gt;Loading&hellip;&lt;/p&gt;';
+
+fetch('https://www.themealdb.com/api/json/v1/1/search.php?s=pasta')
+  .then(function(response) { return response.json(); })
+  .then(function(data) {
+    renderCards(data.meals);  // The API wraps its array in a property
+  })
+  .catch(function() {
+    container.innerHTML = '&lt;p class="error"&gt;Failed to load.&lt;/p&gt;';
+  });</code></pre>
+
+<p>The <code>renderCards()</code> function is completely unchanged. The filter, search, modal, and localStorage patterns from the previous lessons are completely unchanged. The data just arrives from a different place.</p>
+
+<blockquote>
+  <p><strong>NOTE</strong><br>
+  Real APIs often wrap their data in a property. TheMealDB returns <code>{ meals: [ ... ] }</code>, not a bare array. Always check the structure of the response in the browser DevTools Network tab or the API&rsquo;s documentation so you know exactly which property to pass to your render function.</p>
+</blockquote>
+
+
+<h2>Reading the Response in DevTools</h2>
+
+<p>Before writing any code, look at what an API actually returns:</p>
+
+<ol>
+  <li>Open DevTools and click the <strong>Network</strong> tab</li>
+  <li>Filter by <strong>Fetch/XHR</strong></li>
+  <li>Run your fetch or visit the URL directly in a new tab</li>
+  <li>Click the request in the list, then open the <strong>Preview</strong> or <strong>Response</strong> tab</li>
+  <li>Inspect the structure: is the array at the top level, or inside a property like <code>data.results</code>?</li>
+</ol>
+
+<p>This single step saves most of the confusion when working with a new API. You are just reading a JSON object the same way you have been reading objects all week.</p>
+
+[IMG - Screenshot: DevTools Network tab showing a fetch request selected, with the Preview panel open displaying the JSON response structure]
+
+[CODEPEN 3]
+
+
+<h2>Free APIs to Explore</h2>
+
+<p>These APIs require no account or API key. Use them for practice:</p>
+
+<ul style="list-style:none; padding-left:0;">
+  <li><span style="color:#c75c19; margin-right:8px;">&#9658;</span><strong>TheMealDB</strong> &mdash; recipe data including names, categories, images, and instructions. Search by name or category.</li>
+  <li><span style="color:#c75c19; margin-right:8px;">&#9658;</span><strong>PokéAPI</strong> &mdash; Pokémon data. Each Pokémon has a name, ID, types, stats, and sprite image URLs. List endpoint returns pages of 20.</li>
+  <li><span style="color:#c75c19; margin-right:8px;">&#9658;</span><strong>Open Library</strong> &mdash; book search. Search by title or author and get back cover images, publication years, and author names.</li>
+  <li><span style="color:#c75c19; margin-right:8px;">&#9658;</span><strong>REST Countries</strong> &mdash; data about every country in the world: names, flags, populations, regions, capital cities.</li>
+</ul>
+
+<p>Each of these returns JSON arrays of objects. Your rendering patterns work with all of them.</p>
+
+[CODEPEN 4]
+
+
+<h2>async/await &mdash; A Cleaner Syntax for the Same Thing</h2>
+
+<p>The <code>.then()</code> chain works well, but there is a more readable syntax for the same operation: <code>async/await</code>. Both do exactly the same thing under the hood.</p>
+
+<pre><code>// .then() version
+fetch(url)
+  .then(response => response.json())
+  .then(data => renderCards(data))
+  .catch(error => { container.innerHTML = '&lt;p&gt;Error.&lt;/p&gt;'; });
+
+// async/await version — same result, reads like regular code
+async function loadData() {
+  try {
+    const response = await fetch(url);
+    const data     = await response.json();
+    renderCards(data);
+  } catch (error) {
+    container.innerHTML = '&lt;p&gt;Error.&lt;/p&gt;';
+  }
+}
+
+loadData();</code></pre>
+
+<p><code>await</code> pauses execution inside an <code>async</code> function until the promise resolves &mdash; meaning you can write asynchronous code that looks synchronous. The <code>try/catch</code> pattern you already know from the localStorage lesson handles errors here too.</p>
+
+<blockquote>
+  <p><strong>NOTE</strong><br>
+  Both syntaxes are common. Many real codebases use <code>async/await</code> because it is easier to read and debug. Start with <code>.then()</code> to understand what is happening, then try rewriting the same fetch with <code>async/await</code> to see the difference. They are interchangeable.</p>
+</blockquote>
+
+[CODEPEN 5]
+
+
+<h2>Best Practices</h2>
+
+<ul style="list-style:none; padding-left:0;">
+  <li><span style="color:#c75c19; margin-right:8px;">&#9658;</span><strong>Always show a loading state before fetching.</strong> Set the container content before the request. If the response is fast, users barely see it. If it is slow, they know the page is working.</li>
+  <li><span style="color:#c75c19; margin-right:8px;">&#9658;</span><strong>Always handle errors with <code>.catch()</code> or a <code>try/catch</code> block.</strong> Networks fail. Servers go down. A blank page with a console error is a broken experience; a friendly error message is not.</li>
+  <li><span style="color:#c75c19; margin-right:8px;">&#9658;</span><strong>Inspect the API response before writing any render code.</strong> Check the Network tab in DevTools. Know the exact shape of the data so you can access the right properties.</li>
+  <li><span style="color:#c75c19; margin-right:8px;">&#9658;</span><strong>Keep your render function generic.</strong> A <code>renderCards(items)</code> that takes an array works whether the array came from a hardcoded constant or an API. Do not mix fetch logic into your render function.</li>
+  <li><span style="color:#c75c19; margin-right:8px;">&#9658;</span><strong>Handle the empty state.</strong> Some API responses return an empty array (no results for a search query, for example). Your render function already handles this &mdash; make sure it does.</li>
+</ul>
+
+
+<h2>Summary</h2>
+
+<p>An API is a URL that returns data &mdash; usually JSON &mdash; instead of an HTML page. <code>fetch()</code> sends an HTTP request to that URL and returns the response asynchronously. The <code>.then()</code> chain handles the response in two steps: first <code>response.json()</code> converts the raw response into a JavaScript value, then the second <code>.then()</code> uses that value. <code>.catch()</code> handles anything that goes wrong. A loading state set before the request and replaced by real data (or an error) is a simple, professional UX pattern. <code>async/await</code> is an alternative syntax for the same operation that reads more like regular sequential code. Most importantly: the <code>renderCards()</code> function, the filter logic, the search, the modal pattern, and the localStorage persistence from previous lessons all work unchanged when the data source switches from a hardcoded array to a network request. Learning <code>fetch()</code> is the last piece. Everything else you already built.</p>

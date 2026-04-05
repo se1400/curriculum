@@ -1,0 +1,307 @@
+<h2>Lesson 24: Forms That Remember</h2>
+<h3>Validation, localStorage, and Data That Survives a Refresh</h3>
+
+<hr>
+
+<p><strong>What You&rsquo;ll Learn in This Lesson:</strong></p>
+<ul style="list-style:none; padding-left:0;">
+  <li><span style="color:#c75c19; margin-right:8px;">&#9658;</span>How to read every form input type from JavaScript</li>
+  <li><span style="color:#c75c19; margin-right:8px;">&#9658;</span>How to validate fields and show inline error messages</li>
+  <li><span style="color:#c75c19; margin-right:8px;">&#9658;</span><code>localStorage</code> &mdash; the browser&rsquo;s built-in storage that persists across refreshes</li>
+  <li><span style="color:#c75c19; margin-right:8px;">&#9658;</span>Why localStorage only stores strings &mdash; and how <code>JSON.stringify()</code> and <code>JSON.parse()</code> solve that</li>
+  <li><span style="color:#c75c19; margin-right:8px;">&#9658;</span>How to load saved data when the page starts</li>
+  <li><span style="color:#c75c19; margin-right:8px;">&#9658;</span>How to use <code>try/catch</code> to handle corrupted data gracefully</li>
+</ul>
+
+<hr>
+
+<p>You have built forms that look great and validate in CSS. You have written event handlers that read input values and conditionals that catch empty fields. But every time the page refreshes, everything disappears. Users have to start over. Data that should persist &mdash; saved entries, theme preferences, a half-filled form &mdash; is gone.</p>
+
+<p>This lesson fixes that. You will learn how to read every type of form input cleanly, validate it with helpful error messages, and save the result to <code>localStorage</code> &mdash; the browser&rsquo;s built-in key-value store that survives page refreshes, tab closes, and even browser restarts. The defining moment is when you submit a form, refresh the page, and see your data still there.</p>
+
+
+<h2>Reading Form Values</h2>
+
+<p>Different input types store their values in different ways. You need to know how to read each one:</p>
+
+<pre><code>// Text, email, password, textarea — all return a string
+const name     = document.querySelector('#name').value;
+const email    = document.querySelector('#email').value;
+
+// Number inputs — always convert with Number()
+const age      = Number(document.querySelector('#age').value);
+
+// Select (dropdown) — returns the selected option's value attribute
+const country  = document.querySelector('#country').value;
+
+// Checkbox — returns true or false, not a string
+const agreed   = document.querySelector('#terms').checked;
+
+// Radio buttons — find the one that is checked
+const size     = document.querySelector('input[name="size"]:checked').value;
+
+// Range slider — returns a string number; convert it
+const volume   = Number(document.querySelector('#volume').value);</code></pre>
+
+<blockquote>
+  <p><strong>NOTE</strong><br>
+  <code>.value</code> always returns a string &mdash; even for <code>&lt;input type="number"&gt;</code>. Wrap any input you need as a number in <code>Number()</code> immediately. The same applies to values read back from <code>localStorage</code>.</p>
+</blockquote>
+
+[CODEPEN 1]
+
+
+<h2>Validation with if Checks</h2>
+
+<p>HTML5 validation attributes (<code>required</code>, <code>minlength</code>, <code>pattern</code>) are a great first line of defense, but JavaScript validation gives you control over the exact messages users see and when they appear. The pattern is:</p>
+
+<ol>
+  <li>Set an <code>isValid</code> flag to <code>true</code></li>
+  <li>Check each field &mdash; flip the flag to <code>false</code> and show an error if it fails</li>
+  <li>Only save/submit if the flag is still <code>true</code> when all checks are done</li>
+</ol>
+
+<pre><code>form.addEventListener('submit', function(event) {
+  event.preventDefault();
+  let isValid = true;
+
+  // Check name
+  if (nameInput.value.trim() === '') {
+    showError(nameError, 'Name is required');
+    isValid = false;
+  } else {
+    clearError(nameError);
+  }
+
+  // Check email
+  if (!emailInput.value.includes('@')) {
+    showError(emailError, 'Enter a valid email address');
+    isValid = false;
+  } else {
+    clearError(emailError);
+  }
+
+  if (isValid) {
+    saveEntry();
+  }
+});</code></pre>
+
+<p><code>value.trim()</code> removes leading and trailing whitespace before checking. A field containing only spaces should fail the &ldquo;not empty&rdquo; test.</p>
+
+
+<h2>Showing and Hiding Error Messages</h2>
+
+<p>Each field gets a companion element for its error message. By default it is hidden. When a check fails, you set the text and make it visible using <code>classList</code>:</p>
+
+<pre><code>// HTML: &lt;span class="error-msg hidden" id="name-error"&gt;&lt;/span&gt;
+
+function showError(element, message) {
+  element.textContent = message;
+  element.classList.remove('hidden');
+}
+
+function clearError(element) {
+  element.textContent = '';
+  element.classList.add('hidden');
+}</code></pre>
+
+<p>With CSS transitions, the message can animate in smoothly &mdash; paying off everything you learned in the transitions and <code>classList.toggle()</code> lessons:</p>
+
+<pre><code>.error-msg {
+  color: #e74c3c;
+  font-size: 0.85rem;
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.2s ease;
+}
+
+.error-msg:not(.hidden) {
+  max-height: 40px;
+}</code></pre>
+
+[CODEPEN 2]
+
+
+<h2>localStorage &mdash; Data That Survives a Refresh</h2>
+
+<p><code>localStorage</code> is a key-value store built into every browser. Unlike regular JavaScript variables, data saved to <code>localStorage</code> persists after the page refreshes, after the tab closes, and after the browser restarts. It belongs to the current domain and is never sent to a server.</p>
+
+<p>Three methods cover almost everything you need:</p>
+
+<pre><code>// Save a value
+localStorage.setItem('username', 'Maria');
+
+// Read a value back
+const name = localStorage.getItem('username'); // 'Maria'
+
+// Delete a value
+localStorage.removeItem('username');
+
+// Delete everything in this domain's storage
+localStorage.clear();</code></pre>
+
+<p>You can inspect localStorage live in DevTools: open the Application tab, then expand Local Storage in the sidebar. Every key-value pair you set will appear there instantly.</p>
+
+[IMG - Screenshot: DevTools Application tab showing Local Storage panel with key-value pairs visible]
+
+<blockquote>
+  <p><strong>NOTE</strong><br>
+  <code>localStorage.getItem()</code> returns <code>null</code> &mdash; not <code>undefined</code>, not an empty string &mdash; when the key does not exist. Always check for this or use a fallback value when reading.</p>
+</blockquote>
+
+[CODEPEN 3]
+
+
+<h2>Storing Objects: JSON.stringify and JSON.parse</h2>
+
+<p><code>localStorage</code> can only store strings. If you try to save an array or object directly, it gets silently converted to <code>"[object Object]"</code> &mdash; useless. The solution is JSON:</p>
+
+<pre><code>const entries = [
+  { name: 'Maria', score: 92 },
+  { name: 'Luca',  score: 88 }
+];
+
+// Convert to string before saving
+localStorage.setItem('entries', JSON.stringify(entries));
+
+// Convert back from string when loading
+const saved = JSON.parse(localStorage.getItem('entries'));</code></pre>
+
+<p><strong><code>JSON.stringify()</code></strong> converts a JavaScript array or object into a JSON string &mdash; a text representation that looks like <code>'[{"name":"Maria","score":92},{"name":"Luca","score":88}]'</code>. This string can be stored in <code>localStorage</code>.</p>
+
+<p><strong><code>JSON.parse()</code></strong> does the reverse: converts a JSON string back into a usable JavaScript array or object.</p>
+
+<p>[IMG - Diagram: JavaScript array → JSON.stringify() → JSON string → localStorage → JSON.parse() → JavaScript array again]</p>
+
+
+<h2>The Null Guard</h2>
+
+<p>The first time a user visits your page, the <code>localStorage</code> key you are trying to read does not exist yet. <code>getItem()</code> returns <code>null</code>, and passing <code>null</code> to <code>JSON.parse()</code> returns <code>null</code>, not an empty array. Calling <code>.length</code> or <code>.forEach()</code> on <code>null</code> crashes your script.</p>
+
+<p>The null guard pattern uses <code>||</code> to provide a fallback:</p>
+
+<pre><code>const entries = JSON.parse(localStorage.getItem('entries')) || [];
+</code></pre>
+
+<p>Read this as: &ldquo;Parse the stored value. If the result is <code>null</code> (or any other falsy value), use an empty array instead.&rdquo; One line handles both the first visit and all subsequent visits.</p>
+
+
+<h2>Loading Saved Data on Page Start</h2>
+
+<p>To restore data when the page loads, run your load-and-render code at the top of your script &mdash; outside any event listener, so it runs immediately when the page is ready:</p>
+
+<pre><code>// At the top of your script — runs on every page load
+const entries = JSON.parse(localStorage.getItem('entries')) || [];
+renderEntries(entries);
+
+// Save a new entry
+function saveEntry() {
+  const entry = {
+    name:  nameInput.value.trim(),
+    email: emailInput.value.trim(),
+    date:  new Date().toLocaleDateString()
+  };
+
+  entries.push(entry);
+  localStorage.setItem('entries', JSON.stringify(entries));
+  renderEntries(entries);
+}</code></pre>
+
+<p>The variable <code>entries</code> starts with whatever was in storage (or an empty array). New submissions are pushed in, the array is saved back to storage, and the render function is called. Refresh the page &mdash; the top-of-script load restores everything.</p>
+
+[CODEPEN 4]
+
+
+<h2>try/catch for Corrupted Data</h2>
+
+<p><code>JSON.parse()</code> throws an error if it receives invalid JSON. This can happen if someone manually edits the browser&rsquo;s storage, if an older version of your app saved data in a different format, or if the storage was partially written due to a browser crash. A <code>try/catch</code> block handles this gracefully so the page never shows an error to the user:</p>
+
+<pre><code>let entries = [];
+
+try {
+  entries = JSON.parse(localStorage.getItem('entries')) || [];
+} catch {
+  // Storage was corrupted — start fresh
+  entries = [];
+  localStorage.removeItem('entries');
+}</code></pre>
+
+<p>The code inside <code>try</code> runs normally. If <code>JSON.parse()</code> throws, execution jumps immediately to the <code>catch</code> block. The page starts with a clean slate rather than crashing.</p>
+
+<blockquote>
+  <p><strong>NOTE</strong><br>
+  This is the same <code>try/catch</code> pattern from the JavaScript Foundations lesson. Any code that can fail for reasons outside your control &mdash; parsing data from external sources, reading storage written by older code &mdash; is a good candidate for wrapping in <code>try/catch</code>.</p>
+</blockquote>
+
+
+<h2>Putting It All Together</h2>
+
+<p>The complete pattern combines all of the above: read a form, validate it, build an object, push it to an array, save the array to localStorage, and re-render the list. On every page load, restore the array from storage and render immediately:</p>
+
+<pre><code>// 1. Load saved data on startup
+let entries = [];
+try {
+  entries = JSON.parse(localStorage.getItem('entries')) || [];
+} catch {
+  entries = [];
+}
+renderEntries(entries);
+
+// 2. Handle new submission
+form.addEventListener('submit', function(event) {
+  event.preventDefault();
+
+  // Validate
+  if (nameInput.value.trim() === '') {
+    showError(nameError, 'Name is required');
+    return;
+  }
+  clearError(nameError);
+
+  // Build the entry object
+  const entry = {
+    name: nameInput.value.trim(),
+    date: new Date().toLocaleDateString()
+  };
+
+  // Save and re-render
+  entries.push(entry);
+  localStorage.setItem('entries', JSON.stringify(entries));
+  renderEntries(entries);
+  form.reset();
+});
+
+// 3. Render function
+function renderEntries(list) {
+  if (list.length === 0) {
+    container.innerHTML = '&lt;p class="empty"&gt;No entries yet.&lt;/p&gt;';
+    return;
+  }
+  container.innerHTML = list.map(e => `
+    &lt;div class="card"&gt;
+      &lt;strong&gt;${e.name}&lt;/strong&gt;
+      &lt;span&gt;${e.date}&lt;/span&gt;
+    &lt;/div&gt;
+  `).join('');
+}</code></pre>
+
+[CODEPEN 5]
+
+
+<h2>Best Practices</h2>
+
+<ul style="list-style:none; padding-left:0;">
+  <li><span style="color:#c75c19; margin-right:8px;">&#9658;</span><strong>Always convert <code>.value</code> to the type you need.</strong> Every input returns a string. Wrap number inputs in <code>Number()</code>. Trim text inputs with <code>.trim()</code> before checking or saving.</li>
+  <li><span style="color:#c75c19; margin-right:8px;">&#9658;</span><strong>Always use the null guard.</strong> <code>JSON.parse(localStorage.getItem('key')) || []</code> handles both first-time visitors and returning users with one line. Never assume the key exists.</li>
+  <li><span style="color:#c75c19; margin-right:8px;">&#9658;</span><strong>Wrap <code>JSON.parse</code> in <code>try/catch</code> for data you didn&rsquo;t write.</strong> If there is any chance the stored data could be corrupted or in a format you don&rsquo;t expect, protect against it.</li>
+  <li><span style="color:#c75c19; margin-right:8px;">&#9658;</span><strong>Clear errors at the start of each submission.</strong> Run <code>clearError()</code> on all fields before checking them. Otherwise, an error from a previous failed submission stays visible even after the user fixes it.</li>
+  <li><span style="color:#c75c19; margin-right:8px;">&#9658;</span><strong>Reset the form after a successful save.</strong> <code>form.reset()</code> clears all fields and returns them to their default values. Without this, old values linger in the inputs after submission.</li>
+  <li><span style="color:#c75c19; margin-right:8px;">&#9658;</span><strong>Inspect localStorage in DevTools.</strong> Application &rarr; Local Storage. You can see every key, edit values, and delete entries to test your null guard and error handling during development.</li>
+</ul>
+
+
+<h2>Summary</h2>
+
+<p>Every form input type has its own way of reporting its value: <code>.value</code> for text-based inputs (always a string), <code>.checked</code> for checkboxes, and a <code>:checked</code> query for radio buttons. Validation with an <code>isValid</code> flag lets you check all fields at once and show specific inline error messages. <code>localStorage</code> stores key-value pairs that survive page refreshes and browser restarts. Because it only holds strings, arrays and objects must be converted with <code>JSON.stringify()</code> before saving and restored with <code>JSON.parse()</code> when loading. The null guard pattern (<code>|| []</code>) handles first-time visitors cleanly, and <code>try/catch</code> handles corrupted data without crashing the page. Loading saved data at the top of the script &mdash; before any event listeners &mdash; is what makes the &ldquo;survives a refresh&rdquo; moment work.</p>
+
+<p>In the next lesson, you will replace the hardcoded data arrays you have been using all week with data fetched from a real server. <code>fetch()</code> makes an HTTP request and returns the response as JSON &mdash; the same format you just learned to parse. Your <code>renderCards()</code> function will not change at all. Only the source of the data changes.</p>

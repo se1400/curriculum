@@ -1,0 +1,235 @@
+<h2>Lesson 22: Objects and Galleries</h2>
+<h3>Arrays of Objects and Data-Driven Interfaces</h3>
+
+<hr>
+
+<p><strong>What You&rsquo;ll Learn in This Lesson:</strong></p>
+<ul style="list-style:none; padding-left:0;">
+  <li><span style="color:#c75c19; margin-right:8px;">&#9658;</span>What JavaScript objects are and how to create them</li>
+  <li><span style="color:#c75c19; margin-right:8px;">&#9658;</span>How to read and write object properties with dot notation</li>
+  <li><span style="color:#c75c19; margin-right:8px;">&#9658;</span>Arrays of objects &mdash; the data structure that powers real web apps</li>
+  <li><span style="color:#c75c19; margin-right:8px;">&#9658;</span>How to render arrays of objects as styled card grids</li>
+  <li><span style="color:#c75c19; margin-right:8px;">&#9658;</span>How to sort arrays and re-render the result</li>
+  <li><span style="color:#c75c19; margin-right:8px;">&#9658;</span>How to use <code>data-id</code> to connect a rendered card back to its source object</li>
+  <li><span style="color:#c75c19; margin-right:8px;">&#9658;</span>How to handle empty states gracefully</li>
+</ul>
+
+<hr>
+
+<p>In Lesson 21, you built card grids from arrays of strings: <code>['Tokyo', 'Lisbon', 'Chicago']</code>. That works for simple lists, but real web applications deal with richer data. A product catalog needs names, prices, categories, and images. A recipe gallery needs titles, prep times, and difficulty levels. A team page needs names, roles, and bios.</p>
+
+<p>JavaScript objects solve this. An object groups multiple related values under one name. Instead of three separate arrays for names, prices, and categories, you have one array where each item is an object containing all three. This is the data structure that powers every product listing, portfolio grid, and content gallery you have ever used.</p>
+
+
+<h2>JavaScript Objects</h2>
+
+<p>An object is a collection of key-value pairs wrapped in curly braces. Each key is a property name; each value is the data stored under that name:</p>
+
+<pre><code>const product = {
+  name:     'Wireless Headphones',
+  price:    79.99,
+  category: 'Electronics',
+  inStock:  true
+};</code></pre>
+
+<p>Read this as a labeled container: a product with a name of <code>'Wireless Headphones'</code>, a price of <code>79.99</code>, and so on. Each piece of related data lives together in one object rather than spread across separate variables.</p>
+
+<h3>Dot Notation</h3>
+
+<p>Access any property using a dot followed by the property name:</p>
+
+<pre><code>console.log(product.name);      // 'Wireless Headphones'
+console.log(product.price);     // 79.99
+console.log(product.inStock);   // true</code></pre>
+
+<p>You can also set or add properties the same way:</p>
+
+<pre><code>product.price  = 69.99;   // Update an existing property
+product.rating = 4.5;     // Add a new property</code></pre>
+
+<h3>Bracket Notation</h3>
+
+<p>An alternative syntax uses square brackets and a string for the key. This is equivalent to dot notation but necessary when the property name is dynamic (stored in a variable):</p>
+
+<pre><code>const key = 'name';
+console.log(product[key]);   // 'Wireless Headphones' — same as product.name</code></pre>
+
+<blockquote>
+  <p><strong>NOTE</strong><br>
+  Use dot notation (<code>product.name</code>) in almost all cases &mdash; it is shorter and more readable. Use bracket notation (<code>product[key]</code>) only when the property name comes from a variable or is computed at runtime.</p>
+</blockquote>
+
+[CODEPEN 1]
+
+
+<h2>Arrays of Objects</h2>
+
+<p>Combine what you know about arrays with objects, and you get the core data structure of web development:</p>
+
+<pre><code>const products = [
+  { id: 1, name: 'Headphones',  price: 79.99, category: 'Electronics' },
+  { id: 2, name: 'Sneakers',    price: 49.99, category: 'Footwear'    },
+  { id: 3, name: 'Coffee Mug',  price: 12.99, category: 'Kitchen'     },
+  { id: 4, name: 'Yoga Mat',    price: 34.99, category: 'Fitness'     }
+];</code></pre>
+
+<p>Each object in the array is one <em>record</em> &mdash; one product, one recipe, one team member. The array holds all the records. Every real-world content gallery, product listing, or data table follows this exact shape.</p>
+
+<p>Note the <code>id</code> property. Every object should have a unique identifier. You will use it to connect rendered cards back to their source data when a user clicks one.</p>
+
+<h3>Accessing Nested Data</h3>
+
+<pre><code>const first = products[0];        // The first product object
+console.log(first.name);          // 'Headphones'
+console.log(products[1].price);   // 49.99 — second product's price</code></pre>
+
+<p>[IMG - Diagram: an array of objects with arrows showing how products[0].name and products[2].category are accessed]</p>
+
+
+<h2>Rendering Arrays of Objects as Cards</h2>
+
+<p>The <code>renderCards()</code> pattern from Lesson 21 works unchanged &mdash; you just access object properties in the template literal instead of the string directly:</p>
+
+<pre><code>const container = document.querySelector('.grid');
+
+function renderProducts(items) {
+  container.innerHTML = items.map(product => `
+    &lt;div class="card" data-id="${product.id}"&gt;
+      &lt;span class="badge"&gt;${product.category}&lt;/span&gt;
+      &lt;h3 class="card-title"&gt;${product.name}&lt;/h3&gt;
+      &lt;p class="card-price"&gt;$${product.price.toFixed(2)}&lt;/p&gt;
+    &lt;/div&gt;
+  `).join('');
+}
+
+renderProducts(products);</code></pre>
+
+<p>Two details to notice:</p>
+
+<ul style="list-style:none; padding-left:0;">
+  <li><span style="color:#c75c19; margin-right:8px;">&#9658;</span><strong><code>product.price.toFixed(2)</code></strong> formats the number to exactly two decimal places: <code>79.99</code>, not <code>79.9</code> or <code>79.990000001</code>.</li>
+  <li><span style="color:#c75c19; margin-right:8px;">&#9658;</span><strong><code>data-id="${product.id}"</code></strong> stores the record&rsquo;s ID in the HTML. When a user clicks the card, your JavaScript can read this attribute to identify which product was clicked.</li>
+</ul>
+
+[CODEPEN 2]
+
+
+<h2>Sorting Arrays</h2>
+
+<p>The <code>.sort()</code> method reorders an array in place. You provide a <em>comparator function</em> that tells JavaScript how to compare two items:</p>
+
+<pre><code>// Sort by price, low to high
+const byPriceAsc = [...products].sort((a, b) => a.price - b.price);
+
+// Sort by price, high to low
+const byPriceDesc = [...products].sort((a, b) => b.price - a.price);
+
+// Sort by name, alphabetically
+const byName = [...products].sort((a, b) => a.name.localeCompare(b.name));</code></pre>
+
+<blockquote>
+  <p><strong>CAUTION</strong><br>
+  <code>.sort()</code> modifies the original array. Always sort a copy using the spread operator: <code>[...products].sort()</code>. If you sort the original, there is no way to restore the default order without reloading the page.</p>
+</blockquote>
+
+<p>How the comparator works: if the function returns a negative number, <code>a</code> comes first. If positive, <code>b</code> comes first. If zero, their order is unchanged. For numbers, <code>a.price - b.price</code> produces the right sign automatically. For strings, <code>localeCompare()</code> handles alphabetical ordering correctly across all languages.</p>
+
+<p>After sorting, pass the sorted copy to <code>renderProducts()</code> &mdash; the grid rebuilds with the new order:</p>
+
+<pre><code>document.querySelector('#sort-price').addEventListener('click', () => {
+  const sorted = [...products].sort((a, b) => a.price - b.price);
+  renderProducts(sorted);
+});</code></pre>
+
+[CODEPEN 3]
+
+
+<h2>Connecting Cards to Data: the data-id Pattern</h2>
+
+<p>When a user clicks a rendered card, you need to know which item they clicked so you can look up the full object. The <code>data-id</code> attribute makes this clean: the card carries the ID in the HTML, and your JavaScript reads it back with <code>dataset.id</code>.</p>
+
+<pre><code>container.addEventListener('click', function(event) {
+  const card = event.target.closest('.card');
+  if (!card) return;  // Click was not on a card
+
+  const id      = Number(card.dataset.id);
+  const product = products.find(p => p.id === id);
+
+  if (product) {
+    showDetail(product);
+  }
+});</code></pre>
+
+<p>Three things are happening here:</p>
+
+<ul style="list-style:none; padding-left:0;">
+  <li><span style="color:#c75c19; margin-right:8px;">&#9658;</span><code>event.target.closest('.card')</code> &mdash; finds the nearest ancestor with class <code>card</code>, even if the user clicked a child element like the title or badge</li>
+  <li><span style="color:#c75c19; margin-right:8px;">&#9658;</span><code>Number(card.dataset.id)</code> &mdash; converts the ID string back to a number (dataset always returns strings)</li>
+  <li><span style="color:#c75c19; margin-right:8px;">&#9658;</span><code>products.find(p => p.id === id)</code> &mdash; locates the matching object in the original array (you will learn <code>find()</code> fully in Lesson 23)</li>
+</ul>
+
+<blockquote>
+  <p><strong>NOTE</strong><br>
+  You are using a single event listener on the parent container rather than one on each card. This is called <strong>event delegation</strong> and it works because click events bubble up through the DOM. It is especially important for dynamic content: cards generated by JavaScript are not in the HTML when the page loads, so you cannot attach listeners to them directly at startup. A listener on the static parent container catches all clicks regardless of when the cards were added.</p>
+</blockquote>
+
+[CODEPEN 4]
+
+
+<h2>Empty States</h2>
+
+<p>When filtering or searching produces zero results, your render function should show a helpful message rather than a blank space:</p>
+
+<pre><code>function renderProducts(items) {
+  if (items.length === 0) {
+    container.innerHTML = '&lt;p class="empty-state"&gt;No items match your search.&lt;/p&gt;';
+    return;
+  }
+
+  container.innerHTML = items.map(product => `
+    &lt;div class="card"&gt;...&lt;/div&gt;
+  `).join('');
+}</code></pre>
+
+<p>Good empty states are part of strong UX &mdash; the &ldquo;error prevention&rdquo; and &ldquo;visibility of system status&rdquo; heuristics from Lesson 17 apply here. The user should never wonder whether the page is broken or simply has no results.</p>
+
+
+<h2>Building the Object</h2>
+
+<p>Data does not have to be hardcoded. You can build an object from form values and push it into the array:</p>
+
+<pre><code>form.addEventListener('submit', function(event) {
+  event.preventDefault();
+
+  const newProduct = {
+    id:       products.length + 1,
+    name:     document.querySelector('#name').value,
+    price:    Number(document.querySelector('#price').value),
+    category: document.querySelector('#category').value
+  };
+
+  products.push(newProduct);
+  renderProducts(products);
+});</code></pre>
+
+<p>Form fields become object properties. The new object gets pushed to the array. <code>renderProducts()</code> is called again &mdash; and the new card appears alongside all the others.</p>
+
+[CODEPEN 5]
+
+
+<h2>Best Practices</h2>
+
+<ul style="list-style:none; padding-left:0;">
+  <li><span style="color:#c75c19; margin-right:8px;">&#9658;</span><strong>Give every object a unique <code>id</code>.</strong> Even if you do not need it immediately, you will need it the moment users start interacting with individual cards. Adding it from the start is cheap; retrofitting it later is not.</li>
+  <li><span style="color:#c75c19; margin-right:8px;">&#9658;</span><strong>Sort copies, not originals.</strong> <code>[...products].sort()</code> every time. The original array is your single source of truth &mdash; protect it.</li>
+  <li><span style="color:#c75c19; margin-right:8px;">&#9658;</span><strong>Convert numeric IDs immediately.</strong> <code>dataset.id</code> returns a string. Wrap it in <code>Number()</code> before comparing with <code>===</code> to numeric IDs.</li>
+  <li><span style="color:#c75c19; margin-right:8px;">&#9658;</span><strong>Always handle the empty state.</strong> A render function that returns nothing when its input is empty is not finished. Add a check and a message.</li>
+  <li><span style="color:#c75c19; margin-right:8px;">&#9658;</span><strong>Use data that feels real.</strong> Placeholder names like &ldquo;Item 1, Item 2&rdquo; make it hard to spot layout bugs. Use realistic names, prices, and categories from the start.</li>
+</ul>
+
+
+<h2>Summary</h2>
+
+<p>Objects group related data under one name using key-value pairs, and dot notation reads or writes any property. Arrays of objects are the core data structure of interactive web development: one array, one object per record, one render function that transforms them into HTML. You learned to sort arrays without mutating the original, use <code>.toFixed(2)</code> for formatted prices, store IDs in <code>data-id</code> attributes to connect rendered cards back to their source data, and handle empty states gracefully. The CSS card layouts you designed in earlier lessons are now powered entirely by data instead of handwritten HTML &mdash; and the data can come from anywhere.</p>
+
+<p>In the next lesson, you will add filtering and live search to this gallery. Three array methods &mdash; <code>filter()</code>, <code>map()</code>, and <code>find()</code> &mdash; will let you show only the items that match a category or a search query, updating the grid in real time as the user types.</p>

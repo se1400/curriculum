@@ -1,0 +1,228 @@
+<h2>Lesson 23: Filter, Search, Find</h2>
+<h3>Array Iteration Methods and Live Search</h3>
+
+<hr>
+
+<p><strong>What You&rsquo;ll Learn in This Lesson:</strong></p>
+<ul style="list-style:none; padding-left:0;">
+  <li><span style="color:#c75c19; margin-right:8px;">&#9658;</span><code>forEach()</code> &mdash; run a function for each item in an array</li>
+  <li><span style="color:#c75c19; margin-right:8px;">&#9658;</span><code>map()</code> &mdash; transform each item into something new</li>
+  <li><span style="color:#c75c19; margin-right:8px;">&#9658;</span><code>filter()</code> &mdash; keep only the items that pass a test</li>
+  <li><span style="color:#c75c19; margin-right:8px;">&#9658;</span><code>find()</code> &mdash; get the first item that matches a condition</li>
+  <li><span style="color:#c75c19; margin-right:8px;">&#9658;</span>How to build category filter buttons that update the gallery in real time</li>
+  <li><span style="color:#c75c19; margin-right:8px;">&#9658;</span>How to build a live search input that filters as you type</li>
+  <li><span style="color:#c75c19; margin-right:8px;">&#9658;</span>How to chain <code>filter()</code> and <code>map()</code> together</li>
+  <li><span style="color:#c75c19; margin-right:8px;">&#9658;</span>Event delegation for dynamically generated content</li>
+</ul>
+
+<hr>
+
+<p>You have a product gallery powered by an array of objects. It renders beautifully, sorts on command, and responds to clicks. Now you will add the two features that turn a static grid into something that feels like a real website: <strong>category filtering</strong> and <strong>live search</strong>.</p>
+
+<p>The tools that make both possible are four array methods: <code>forEach()</code>, <code>map()</code>, <code>filter()</code>, and <code>find()</code>. Each one takes a function as an argument and applies it to every item in an array. They are called <em>iteration methods</em> because they iterate &mdash; go through each item &mdash; rather than requiring you to write a loop manually. The result is code that reads almost like plain English.</p>
+
+
+<h2>forEach &mdash; Do Something With Each Item</h2>
+
+<p><code>forEach()</code> runs a function once for every item in an array. It is the functional equivalent of a <code>for...of</code> loop:</p>
+
+<pre><code>const products = ['Headphones', 'Shoes', 'Mug'];
+
+products.forEach(function(product) {
+  console.log(product);
+});
+// Logs: 'Headphones', 'Shoes', 'Mug'</code></pre>
+
+<p>Or with an arrow function:</p>
+
+<pre><code>products.forEach(product => console.log(product));</code></pre>
+
+<p><code>forEach()</code> does not return anything &mdash; it just runs your function for each item. Use it when you want to perform a side effect (like updating the DOM or logging) for each item, not when you want to produce a new array.</p>
+
+<p>A common use you have already seen: updating button states:</p>
+
+<pre><code>// Remove .active from all filter buttons
+filterBtns.forEach(btn => btn.classList.remove('active'));</code></pre>
+
+
+<h2>map &mdash; Transform Each Item</h2>
+
+<p><code>map()</code> takes every item in an array, runs a function on it, and returns a <strong>new array</strong> with the transformed results. The original array is unchanged:</p>
+
+<pre><code>const prices = [79.99, 49.99, 12.99];
+const formatted = prices.map(price => '$' + price.toFixed(2));
+// ['$79.99', '$49.99', '$12.99']</code></pre>
+
+<p>You have been using <code>map()</code> since Lesson 21 for generating HTML:</p>
+
+<pre><code>container.innerHTML = products.map(product => `
+  &lt;div class="card"&gt;${product.name}&lt;/div&gt;
+`).join('');</code></pre>
+
+<p><code>map()</code> transforms each object into a string of HTML. The resulting array of strings gets joined into one big string and assigned to <code>innerHTML</code>. The original <code>products</code> array is untouched.</p>
+
+<p>[IMG - Diagram: map() as a factory assembly line — each product goes in, an HTML string card comes out]</p>
+
+
+<h2>filter &mdash; Keep Only What Passes</h2>
+
+<p><code>filter()</code> tests each item with a function that returns <code>true</code> or <code>false</code>. Items that pass the test are kept. Items that fail are removed. The result is a new, shorter (or empty) array:</p>
+
+<pre><code>const products = [
+  { name: 'Headphones', price: 79.99, category: 'Electronics' },
+  { name: 'Shoes',      price: 49.99, category: 'Footwear'    },
+  { name: 'Mug',        price: 12.99, category: 'Kitchen'     }
+];
+
+// Keep only Electronics
+const electronics = products.filter(product => product.category === 'Electronics');
+// [{ name: 'Headphones', price: 79.99, category: 'Electronics' }]
+
+// Keep only items under $50
+const affordable = products.filter(product => product.price &lt; 50);
+// Shoes and Mug</code></pre>
+
+<p>The original <code>products</code> array is not modified. <code>filter()</code> always returns a new array.</p>
+
+<p>[IMG - Diagram: filter() as a sieve — items enter from the top, some pass through the mesh (true), others are caught and removed (false)]</p>
+
+
+<h2>find &mdash; Get the First Match</h2>
+
+<p><code>find()</code> works like <code>filter()</code> but returns the first matching item instead of an array of matches. If nothing matches, it returns <code>undefined</code>:</p>
+
+<pre><code>const product = products.find(p => p.id === 3);
+// Returns the single object with id 3, not an array</code></pre>
+
+<p>This is the method you use in the click-to-detail pattern from Lesson 22: the user clicks a card, you read its <code>data-id</code>, and call <code>find()</code> to retrieve the matching object from the array:</p>
+
+<pre><code>container.addEventListener('click', function(event) {
+  const card = event.target.closest('.card');
+  if (!card) return;
+
+  const id      = Number(card.dataset.id);
+  const product = products.find(p => p.id === id);
+  if (product) showDetail(product);
+});</code></pre>
+
+[CODEPEN 1]
+
+
+<h2>Category Filter Buttons</h2>
+
+<p>Connecting filter buttons to <code>filter()</code> + <code>renderProducts()</code> creates an instant, smooth gallery filter:</p>
+
+<pre><code>let activeCategory = 'all';
+
+filterBtns.forEach(btn => {
+  btn.addEventListener('click', function() {
+    // Update active button style
+    filterBtns.forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+
+    // Update the active category and re-render
+    activeCategory = btn.dataset.category;
+    filterAndRender();
+  });
+});
+
+function filterAndRender() {
+  const results = activeCategory === 'all'
+    ? products
+    : products.filter(p => p.category === activeCategory);
+
+  renderProducts(results);
+}</code></pre>
+
+<p>The active category is stored in a variable outside the event listener. When a button is clicked, the variable updates and <code>filterAndRender()</code> is called. The entire rendering logic lives in one place.</p>
+
+[CODEPEN 2]
+
+
+<h2>Live Search</h2>
+
+<p>A live search input filters as the user types, using <code>addEventListener('input')</code> and <code>filter()</code> together:</p>
+
+<pre><code>let searchQuery = '';
+
+searchInput.addEventListener('input', function() {
+  searchQuery = searchInput.value.toLowerCase();
+  filterAndRender();
+});</code></pre>
+
+<p>Inside <code>filterAndRender()</code>, the search is applied as a second <code>filter()</code> condition:</p>
+
+<pre><code>function filterAndRender() {
+  const results = products.filter(p => {
+    const matchesCategory = activeCategory === 'all' || p.category === activeCategory;
+    const matchesSearch   = p.name.toLowerCase().includes(searchQuery);
+    return matchesCategory &amp;&amp; matchesSearch;
+  });
+
+  renderProducts(results);
+}</code></pre>
+
+<p>Two conditions, one <code>filter()</code>. Both must be true for a product to appear. Convert both sides to lowercase with <code>.toLowerCase()</code> so the search is case-insensitive. <code>.includes()</code> checks whether the product name contains the search query anywhere, not just at the start.</p>
+
+[CODEPEN 3]
+
+
+<h2>Chaining filter() and map()</h2>
+
+<p>Because <code>filter()</code> returns a new array, you can call <code>.map()</code> on its result. This is called chaining, and it produces compact, readable pipelines:</p>
+
+<pre><code>container.innerHTML = products
+  .filter(p => p.category === activeCategory)
+  .map(p => `&lt;div class="card"&gt;${p.name}&lt;/div&gt;`)
+  .join('');</code></pre>
+
+<p>Read this as: &ldquo;Take the products array, keep only those in the active category, transform each into an HTML string, join them, and set as innerHTML.&rdquo; The rendering pattern from Lesson 21 now has a filtering step in front of it. Nothing else changes.</p>
+
+<blockquote>
+  <p><strong>NOTE</strong><br>
+  Keep your chains to two methods maximum while learning. Chaining three or more methods produces code that is hard to debug when something goes wrong. If a chain is getting long, break it up: run <code>filter()</code>, store the result in a variable, then call <code>map()</code> on that variable. Clarity beats brevity.</p>
+</blockquote>
+
+
+<h2>Event Delegation for Dynamic Content</h2>
+
+<p>When cards are generated by JavaScript (not written in the HTML), you cannot attach event listeners to them at page load time &mdash; they do not exist yet. The solution is <strong>event delegation</strong>: attach one listener to the stable parent container, and let click events bubble up from any card to that parent.</p>
+
+<pre><code>// This works even after renderProducts() replaces all the cards
+container.addEventListener('click', function(event) {
+  const card = event.target.closest('.card');
+  if (!card) return;  // Click was not on a card or its children
+
+  const id      = Number(card.dataset.id);
+  const product = products.find(p => p.id === id);
+  if (product) openModal(product);
+});</code></pre>
+
+<p><code>event.target.closest('.card')</code> walks up the DOM tree from the element that was actually clicked (which might be a child element inside the card, like a title or badge) until it finds the nearest ancestor matching <code>.card</code>. If the click was outside any card entirely, <code>closest()</code> returns <code>null</code> and the early <code>return</code> exits the handler.</p>
+
+<blockquote>
+  <p><strong>NOTE</strong><br>
+  Think of event delegation like a mailroom. Instead of putting a mailbox at every desk in the building, you put one mailroom at the entrance that sorts all incoming mail. One listener on the parent sorts all clicks from all cards, regardless of how many cards there are or when they were added to the page.</p>
+</blockquote>
+
+[CODEPEN 4]
+
+[CODEPEN 5]
+
+
+<h2>Best Practices</h2>
+
+<ul style="list-style:none; padding-left:0;">
+  <li><span style="color:#c75c19; margin-right:8px;">&#9658;</span><strong>Keep filter logic and render logic separate.</strong> A <code>filterAndRender()</code> function that updates the filter state and calls <code>renderProducts()</code> is much easier to debug than mixing both in a single event handler.</li>
+  <li><span style="color:#c75c19; margin-right:8px;">&#9658;</span><strong>Store filter state in variables outside event handlers.</strong> <code>let activeCategory = 'all'</code> and <code>let searchQuery = ''</code> at the top of your script, updated inside handlers. Both are available to <code>filterAndRender()</code> without being passed as arguments every time.</li>
+  <li><span style="color:#c75c19; margin-right:8px;">&#9658;</span><strong>Always use <code>.toLowerCase()</code> for search comparisons.</strong> A user typing &ldquo;shoes&rdquo; should match &ldquo;Running Shoes&rdquo;. Normalize both the query and the data to lowercase before comparing.</li>
+  <li><span style="color:#c75c19; margin-right:8px;">&#9658;</span><strong>Use event delegation for dynamic content.</strong> Any time cards are generated by JavaScript, attach the click listener to the container, not the cards.</li>
+  <li><span style="color:#c75c19; margin-right:8px;">&#9658;</span><strong>Always handle the empty state.</strong> When <code>filter()</code> returns an empty array, show a helpful message, not a blank space.</li>
+</ul>
+
+
+<h2>Summary</h2>
+
+<p><code>forEach()</code> runs a function for each item without returning anything &mdash; useful for side effects like clearing button states. <code>map()</code> transforms every item and returns a new array of the same length &mdash; your primary tool for generating HTML. <code>filter()</code> keeps only items that pass a test and returns a shorter array &mdash; the engine behind every gallery filter and search. <code>find()</code> returns the first matching item &mdash; essential for the click-to-detail pattern. Combining category filters and live search into one <code>filterAndRender()</code> function produces the polished, interactive gallery pattern that users expect from professional websites. Event delegation keeps all of this working correctly even as cards are dynamically added or removed.</p>
+
+<p>In the next lesson, you will make your applications persist across page refreshes. Forms that validate, save data to <code>localStorage</code>, and display all saved entries when the page reloads &mdash; the moment JavaScript stops feeling like a trick and starts feeling like a real application.</p>

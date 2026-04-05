@@ -1,0 +1,329 @@
+<h2>Lesson 19: Click, Type, Submit</h2>
+<h3>Events, Decisions, and Live Feedback</h3>
+
+<hr>
+
+<p><strong>What You&rsquo;ll Learn in This Lesson:</strong></p>
+<ul style="list-style:none; padding-left:0;">
+  <li><span style="color:#c75c19; margin-right:8px;">&#9658;</span>How to attach JavaScript to user actions with <code>addEventListener</code></li>
+  <li><span style="color:#c75c19; margin-right:8px;">&#9658;</span>The four events you&rsquo;ll use constantly: click, input, change, and submit</li>
+  <li><span style="color:#c75c19; margin-right:8px;">&#9658;</span>How to read the event object and use <code>event.target</code></li>
+  <li><span style="color:#c75c19; margin-right:8px;">&#9658;</span>How to stop a form from refreshing the page with <code>event.preventDefault()</code></li>
+  <li><span style="color:#c75c19; margin-right:8px;">&#9658;</span>How to read values from inputs, dropdowns, checkboxes, and sliders</li>
+  <li><span style="color:#c75c19; margin-right:8px;">&#9658;</span>How to make decisions with <code>if</code>, <code>else if</code>, and <code>else</code></li>
+  <li><span style="color:#c75c19; margin-right:8px;">&#9658;</span>Comparison and logical operators</li>
+  <li><span style="color:#c75c19; margin-right:8px;">&#9658;</span>Truthy and falsy values</li>
+  <li><span style="color:#c75c19; margin-right:8px;">&#9658;</span>The ternary operator for concise conditional expressions</li>
+  <li><span style="color:#c75c19; margin-right:8px;">&#9658;</span>How to drive CSS custom properties from user input for live visual feedback</li>
+</ul>
+
+<hr>
+
+<p>In Lesson 18, every JavaScript change happened once &mdash; when the page loaded. The variables ran, the elements updated, and then JavaScript went silent. Your page was still fundamentally static: it changed once, then waited. This lesson changes that entirely.</p>
+
+<p>Events are how JavaScript listens to the user. Every click, every keystroke, every slider drag, every form submission &mdash; the browser tracks all of it. Your job is to tell JavaScript which events to listen for and what to do when they occur. Once you understand events, your pages stop being documents and start being applications.</p>
+
+<p>The visual payoff arrives immediately. Range sliders that shift your entire page color scheme as you drag them. Password fields that show a live strength bar. Forms that validate as you type rather than scolding you after submission. All of it runs on the same two ideas: listen for an event, then decide what to do.</p>
+
+
+<h2>addEventListener &mdash; The Right Way</h2>
+
+<p>In the Intro to JavaScript slide, you saw inline event handlers: <code>onclick="doSomething()"</code> written directly in the HTML. That approach works, but it has a significant limitation &mdash; it mixes your JavaScript logic into your HTML markup, making both harder to read and maintain.</p>
+
+<p>The modern approach separates concerns cleanly. You select an element with <code>querySelector</code>, then attach a listener to it from your JavaScript file:</p>
+
+<pre><code>const btn = document.querySelector('#submit-btn');
+
+btn.addEventListener('click', function() {
+  console.log('Button was clicked!');
+});</code></pre>
+
+<p>Read this as: <em>&ldquo;Find the element with id <code>submit-btn</code>. When a click event occurs on it, run this function.&rdquo;</em></p>
+
+<p>The function you pass as the second argument is called a <strong>handler</strong>. It runs every time the event fires &mdash; not just once on page load. The same button can be clicked fifty times and the handler runs fifty times.</p>
+
+<blockquote>
+  <p><strong>NOTE</strong><br>
+  You can attach multiple <code>addEventListener</code> calls to the same element &mdash; each one stacks. Inline <code>onclick</code> can only hold one handler; the second one overwrites the first. This is one of several reasons <code>addEventListener</code> is preferred in professional code.</p>
+</blockquote>
+
+<p>[IMG - Event flow diagram: user clicks a button, browser fires the click event, handler function runs, DOM updates]</p>
+
+[CODEPEN 1]
+
+
+<h2>The Four Events You&rsquo;ll Use Most</h2>
+
+<h3>click</h3>
+
+<p>Fires when the user clicks an element &mdash; buttons, cards, links, labels, anything. This is the most common event you&rsquo;ll attach:</p>
+
+<pre><code>const btn = document.querySelector('.toggle-btn');
+btn.addEventListener('click', function() {
+  document.body.classList.toggle('dark-mode');
+});</code></pre>
+
+<h3>input</h3>
+
+<p>Fires on every single keystroke or value change in a form field &mdash; text inputs, range sliders, color pickers. It fires <em>continuously</em> as the user interacts, which makes it perfect for live updates:</p>
+
+<pre><code>const slider = document.querySelector('#hue-slider');
+slider.addEventListener('input', function() {
+  document.documentElement.style.setProperty('--hue', slider.value);
+});</code></pre>
+
+<p>This is the event that powers live color theme editors, search-as-you-type, and character counters.</p>
+
+<h3>change</h3>
+
+<p>Similar to <code>input</code>, but fires only after the user has finished interacting &mdash; when they leave the field or make a selection. Better for dropdowns and checkboxes where you want to respond once, not on every intermediate state:</p>
+
+<pre><code>const select = document.querySelector('#font-select');
+select.addEventListener('change', function() {
+  document.body.style.fontFamily = select.value;
+});</code></pre>
+
+<h3>submit</h3>
+
+<p>Fires when a form is submitted &mdash; either by clicking a submit button or pressing Enter inside a text field. You will use this with <code>event.preventDefault()</code> every single time:</p>
+
+<pre><code>const form = document.querySelector('#signup-form');
+form.addEventListener('submit', function(event) {
+  event.preventDefault();  // Stop the page from refreshing
+  // Now read the form values and do something with them
+});</code></pre>
+
+<blockquote>
+  <p><strong>NOTE</strong><br>
+  Without <code>event.preventDefault()</code>, a form submission reloads the page. This has been the default browser behavior since 1995 and was a source of constant frustration in Lesson 14. Now you can stop it with one line.</p>
+</blockquote>
+
+
+<h2>The Event Object</h2>
+
+<p>When an event fires, the browser automatically passes an <strong>event object</strong> to your handler. This object contains information about exactly what happened: which element was interacted with, what the current value is, whether any modifier keys were held, and more.</p>
+
+<p>To access it, add a parameter to your handler function &mdash; conventionally named <code>event</code> or just <code>e</code>:</p>
+
+<pre><code>btn.addEventListener('click', function(event) {
+  console.log(event);         // The full event object
+  console.log(event.type);    // 'click'
+  console.log(event.target);  // The element that was clicked
+});</code></pre>
+
+<h3>event.target</h3>
+
+<p><code>event.target</code> refers to the specific element the user interacted with. This is useful when you want to respond to the thing that was actually clicked or typed in, without querying for it again:</p>
+
+<pre><code>const btn = document.querySelector('#theme-btn');
+btn.addEventListener('click', function(event) {
+  event.target.classList.toggle('active');  // Toggle on the clicked button itself
+});</code></pre>
+
+<h3>event.target.value</h3>
+
+<p>For any form input, <code>event.target.value</code> gives you the current value at the moment the event fired:</p>
+
+<pre><code>const input = document.querySelector('#search');
+input.addEventListener('input', function(event) {
+  const query = event.target.value;
+  console.log('Currently typed:', query);
+});</code></pre>
+
+<p>[IMG - Diagram: the event object with arrows pointing to .type, .target, .target.value, and .preventDefault()]</p>
+
+
+<h2>Reading Form Values</h2>
+
+<p>Form elements expose their current value through properties. The one you need depends on the element type.</p>
+
+<h3>Text, Email, Password, Search</h3>
+
+<pre><code>const nameInput = document.querySelector('#name');
+const value = nameInput.value;  // Returns a string</code></pre>
+
+<h3>Number and Range</h3>
+
+<pre><code>const slider = document.querySelector('#volume');
+const num = Number(slider.value);  // .value is always a string — convert it</code></pre>
+
+<blockquote>
+  <p><strong>CAUTION</strong><br>
+  <code>.value</code> on any form input always returns a <strong>string</strong>, even if the input is <code>type="number"</code> or <code>type="range"</code>. If you need to do math with the value, wrap it in <code>Number()</code>: <code>const score = Number(input.value);</code> Without this, <code>"5" + 3</code> gives you <code>"53"</code> instead of <code>8</code>.</p>
+</blockquote>
+
+<h3>Select (Dropdown)</h3>
+
+<pre><code>const select = document.querySelector('#color-scheme');
+const selected = select.value;  // The value attribute of the chosen &lt;option&gt;</code></pre>
+
+<h3>Checkbox</h3>
+
+<pre><code>const checkbox = document.querySelector('#agree');
+const isChecked = checkbox.checked;  // Returns true or false</code></pre>
+
+<h3>Color Picker</h3>
+
+<pre><code>const colorPicker = document.querySelector('#accent-color');
+const hex = colorPicker.value;  // Returns a hex string: '#6c5ce7'</code></pre>
+
+[CODEPEN 2]
+
+
+<h2>Making Decisions: if, else if, else</h2>
+
+<p>Events tell JavaScript <em>when</em> something happened. Conditional statements tell JavaScript <em>what to do about it</em>. Together they power every interaction pattern you&rsquo;ll build.</p>
+
+<p>An <code>if</code> statement runs a block of code only when a condition is true:</p>
+
+<pre><code>const score = Number(input.value);
+
+if (score >= 90) {
+  label.textContent = 'Excellent';
+  label.className = 'badge badge--green';
+}</code></pre>
+
+<p>Add <code>else if</code> for additional conditions, and <code>else</code> as a catch-all for anything that didn&rsquo;t match:</p>
+
+<pre><code>if (score >= 90) {
+  label.textContent = 'Excellent';
+} else if (score >= 70) {
+  label.textContent = 'Good';
+} else if (score >= 50) {
+  label.textContent = 'Pass';
+} else {
+  label.textContent = 'Not yet';
+}</code></pre>
+
+<p>JavaScript evaluates conditions top to bottom and stops at the first one that is true. Order matters: put the most specific conditions first.</p>
+
+<h3>Comparison Operators</h3>
+
+<p>These operators compare two values and return <code>true</code> or <code>false</code>:</p>
+
+<pre><code>score === 100   // Strictly equal (value AND type must match)
+score !== 0     // Not equal
+score > 50      // Greater than
+score < 100     // Less than
+score >= 60     // Greater than or equal to
+score <= 99     // Less than or equal to</code></pre>
+
+<blockquote>
+  <p><strong>NOTE</strong><br>
+  Always use <code>===</code> (triple equals), never <code>==</code> (double equals). Double equals performs type coercion, which can produce surprising results: <code>"5" == 5</code> is <code>true</code>. Triple equals compares both value and type: <code>"5" === 5</code> is <code>false</code>, which is the correct behavior. Treat <code>==</code> as a legacy feature to avoid.</p>
+</blockquote>
+
+<h3>Logical Operators</h3>
+
+<p>Combine multiple conditions into a single expression:</p>
+
+<pre><code>// AND — both must be true
+if (password.length >= 8 &amp;&amp; password.includes('@')) { ... }
+
+// OR — at least one must be true
+if (role === 'admin' || role === 'editor') { ... }
+
+// NOT — flips true to false and false to true
+if (!isLoggedIn) { redirectToLogin(); }</code></pre>
+
+[CODEPEN 3]
+
+
+<h2>Truthy and Falsy</h2>
+
+<p>In JavaScript, every value is either <em>truthy</em> or <em>falsy</em> when used in a condition. You don&rsquo;t always need an explicit comparison &mdash; JavaScript converts the value automatically.</p>
+
+<p>These six values are <strong>falsy</strong> &mdash; they behave like <code>false</code> in an <code>if</code> statement:</p>
+
+<ul style="list-style:none; padding-left:0;">
+  <li><span style="color:#c75c19; margin-right:8px;">&#9658;</span><code>false</code></li>
+  <li><span style="color:#c75c19; margin-right:8px;">&#9658;</span><code>0</code></li>
+  <li><span style="color:#c75c19; margin-right:8px;">&#9658;</span><code>""</code> (empty string)</li>
+  <li><span style="color:#c75c19; margin-right:8px;">&#9658;</span><code>null</code></li>
+  <li><span style="color:#c75c19; margin-right:8px;">&#9658;</span><code>undefined</code></li>
+  <li><span style="color:#c75c19; margin-right:8px;">&#9658;</span><code>NaN</code></li>
+</ul>
+
+<p>Everything else is <strong>truthy</strong> &mdash; any non-empty string, any non-zero number, any object or array.</p>
+
+<p>This matters most when validating form fields. An empty text input has a value of <code>""</code> &mdash; which is falsy &mdash; so you can check for it concisely:</p>
+
+<pre><code>if (!nameInput.value) {
+  showError('Name is required');
+}
+
+// This is the same as:
+if (nameInput.value === '') {
+  showError('Name is required');
+}</code></pre>
+
+<p>The first version is shorter and reads naturally. Both are correct.</p>
+
+
+<h2>The Ternary Operator</h2>
+
+<p>The ternary operator is a compact one-line version of <code>if/else</code>. It&rsquo;s useful when you&rsquo;re choosing between two values &mdash; not running two blocks of code:</p>
+
+<pre><code>condition ? valueIfTrue : valueIfFalse</code></pre>
+
+<p>Examples:</p>
+
+<pre><code>// Set text based on a condition
+btn.textContent = isDark ? 'Switch to Light' : 'Switch to Dark';
+
+// Choose a CSS class
+badge.className = score >= 60 ? 'badge badge--pass' : 'badge badge--fail';
+
+// Set an attribute
+icon.setAttribute('aria-label', isOpen ? 'Close menu' : 'Open menu');</code></pre>
+
+<p>Use the ternary for simple value choices. If you need to run multiple lines of code in each branch, use a regular <code>if/else</code> &mdash; ternary becomes hard to read when nested or complex.</p>
+
+
+<h2>Live CSS Updates with Events</h2>
+
+<p>This is where Lesson 19 pays off your CSS knowledge most directly. Range sliders connected to CSS custom properties via <code>addEventListener('input')</code> give the user a live control panel for your design. Every element using <code>var(--hue)</code> updates instantly as the slider moves &mdash; no button click required.</p>
+
+<pre><code>const hueSlider = document.querySelector('#hue');
+const satSlider = document.querySelector('#saturation');
+
+hueSlider.addEventListener('input', function() {
+  document.documentElement.style.setProperty('--hue', hueSlider.value);
+});
+
+satSlider.addEventListener('input', function() {
+  document.documentElement.style.setProperty('--saturation', satSlider.value + '%');
+});</code></pre>
+
+<p>Combine this with a <code>&lt;input type="color"&gt;</code> picker and you can let users choose their own accent color:</p>
+
+<pre><code>const colorPicker = document.querySelector('#accent');
+colorPicker.addEventListener('input', function() {
+  document.documentElement.style.setProperty('--accent', colorPicker.value);
+});</code></pre>
+
+<p>[IMG - Live theme editor: range sliders for hue and saturation on the left, page colors updating in real time on the right]</p>
+
+<p>The same technique powers dark mode toggles, animation speed controls, font size sliders, and spacing adjusters &mdash; any design parameter that students have expressed in a CSS custom property can now be given to the user as a live control.</p>
+
+[CODEPEN 4]
+
+[CODEPEN 5]
+
+
+<h2>Best Practices</h2>
+
+<ul style="list-style:none; padding-left:0;">
+  <li><span style="color:#c75c19; margin-right:8px;">&#9658;</span><strong>Store element references before adding listeners.</strong> Call <code>querySelector()</code> once and keep the result in a variable. Do not call it inside the event handler on every fire.</li>
+  <li><span style="color:#c75c19; margin-right:8px;">&#9658;</span><strong>Always use <code>event.preventDefault()</code> on form submissions.</strong> Without it, the page reloads and all your JavaScript state is lost.</li>
+  <li><span style="color:#c75c19; margin-right:8px;">&#9658;</span><strong>Convert numeric form values immediately.</strong> Wrap <code>.value</code> in <code>Number()</code> the moment you read it from a number or range input, so the rest of your code works with actual numbers.</li>
+  <li><span style="color:#c75c19; margin-right:8px;">&#9658;</span><strong>Use <code>input</code> for live updates, <code>change</code> for final selections.</strong> <code>input</code> fires continuously as the user types or drags; <code>change</code> fires once when they finish. Pick whichever fits the interaction.</li>
+  <li><span style="color:#c75c19; margin-right:8px;">&#9658;</span><strong>Keep handlers short.</strong> If the handler function grows long, extract the logic into a named function and call it from the handler. This makes the code easier to read and test.</li>
+</ul>
+
+
+<h2>Summary</h2>
+
+<p>Events are the bridge between a user&rsquo;s action and JavaScript&rsquo;s response. You learned to attach handlers with <code>addEventListener</code>, work with the event object to read <code>event.target</code> and call <code>event.preventDefault()</code>, and read values from every form element type. Conditional statements with <code>if/else if/else</code> let JavaScript make decisions based on those values, and the ternary operator gives you a concise way to choose between two outcomes. The most immediately visual technique &mdash; connecting range sliders and color pickers to CSS custom properties &mdash; shows how events and the CSS knowledge you already have combine into something that feels like a real product feature.</p>
+
+<p>In the next lesson, you will bring together everything from Lessons 18 and 19 to build the UI patterns that appear on nearly every modern website: dark mode toggles, accordions, hamburger navigation menus, and modals. All of them are built on the same single idea: CSS defines two states, JavaScript toggles between them.</p>

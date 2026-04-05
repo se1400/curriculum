@@ -1,1023 +1,215 @@
-# Day 21 — Control Flow: CodePen Code Blocks
-
-Each numbered section corresponds to the `[CODEPEN #]` placeholder in the article.
+# Day 21 — CodePen Examples
+## Write It Once: Functions, Loops, and Generating HTML
 
 ---
 
-## CODEPEN 1 — Interactive if/else Decision Tree
+## CodePen 1 — Function Basics
 
-### HTML
+**Placement:** After the "Function Declarations" section.
+**Demonstrates:** Writing and calling functions with parameters and return values. `formatName()`, `formatPrice()`, `getDayGreeting()` — results displayed in a styled reference card.
+
 ```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>if/else Decision Tree</title>
+  <title>Function Basics</title>
   <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
-      font-family: system-ui, sans-serif;
-      background: #0f172a;
-      color: #e2e8f0;
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: #1a1a2e;
+      color: #eee;
       min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 2rem 1rem;
+      padding: 2rem;
+      max-width: 660px;
+      margin: 0 auto;
     }
 
-    h1 {
-      font-size: 1.5rem;
-      font-weight: 700;
-      margin-bottom: 0.25rem;
-      color: #f8fafc;
-    }
+    h1 { font-size: 1.2rem; color: #a29bfe; margin-bottom: 1.5rem; }
 
-    .subtitle {
-      font-size: 0.9rem;
-      color: #94a3b8;
-      margin-bottom: 2rem;
-      text-align: center;
-    }
-
-    .card {
-      background: #1e293b;
-      border: 1px solid #334155;
-      border-radius: 12px;
-      padding: 1.5rem;
-      width: 100%;
-      max-width: 560px;
-      margin-bottom: 1.25rem;
-    }
-
-    .card h2 {
-      font-size: 1rem;
-      font-weight: 600;
-      color: #94a3b8;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      margin-bottom: 1rem;
-    }
-
-    .field {
-      display: flex;
-      flex-direction: column;
-      gap: 0.4rem;
-      margin-bottom: 1rem;
-    }
-
-    label {
-      font-size: 0.85rem;
-      font-weight: 500;
-      color: #cbd5e1;
-    }
-
-    input[type="text"],
-    input[type="number"],
-    select {
-      width: 100%;
-      padding: 0.6rem 0.8rem;
-      background: #0f172a;
-      border: 1px solid #475569;
-      border-radius: 8px;
-      color: #f1f5f9;
-      font-size: 0.95rem;
-      outline: none;
-      transition: border-color 0.2s;
-    }
-
-    input:focus, select:focus {
-      border-color: #6366f1;
-    }
-
-    button {
-      width: 100%;
-      padding: 0.75rem;
-      background: #6366f1;
-      color: #fff;
-      border: none;
-      border-radius: 8px;
-      font-size: 1rem;
-      font-weight: 600;
-      cursor: pointer;
-      transition: background 0.2s;
-    }
-
-    button:hover { background: #4f46e5; }
-
-    /* Result panel */
-    .result-panel {
-      width: 100%;
-      max-width: 560px;
+    .fn-card {
+      background: #16213e;
+      border: 1px solid #2d3561;
       border-radius: 12px;
       padding: 1.25rem 1.5rem;
-      border: 1px solid #334155;
-      background: #1e293b;
-      display: none;
-    }
-
-    .result-panel.show { display: block; }
-
-    .result-panel h2 {
-      font-size: 1rem;
-      font-weight: 600;
-      color: #94a3b8;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      margin-bottom: 0.75rem;
-    }
-
-    .verdict {
-      font-size: 1.05rem;
-      font-weight: 700;
-      margin-bottom: 1rem;
-      padding: 0.75rem 1rem;
-      border-radius: 8px;
-    }
-
-    .verdict.success { background: #052e16; color: #4ade80; border: 1px solid #166534; }
-    .verdict.warning { background: #1c1917; color: #fbbf24; border: 1px solid #92400e; }
-    .verdict.error   { background: #1f0a0a; color: #f87171; border: 1px solid #7f1d1d; }
-    .verdict.info    { background: #0c1a2e; color: #60a5fa; border: 1px solid #1e40af; }
-
-    .trace-title {
-      font-size: 0.8rem;
-      font-weight: 600;
-      color: #64748b;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      margin-bottom: 0.5rem;
-    }
-
-    .trace {
-      display: flex;
-      flex-direction: column;
-      gap: 0.35rem;
-    }
-
-    .trace-step {
-      font-size: 0.82rem;
-      font-family: 'Courier New', monospace;
-      padding: 0.3rem 0.6rem;
-      border-radius: 4px;
-      border-left: 3px solid transparent;
-    }
-
-    .trace-step.checked { background: #1a2535; border-left-color: #475569; color: #94a3b8; }
-    .trace-step.matched { background: #0a1f12; border-left-color: #22c55e; color: #86efac; font-weight: 600; }
-    .trace-step.skipped { background: #0f172a; border-left-color: #1e293b; color: #475569; text-decoration: line-through; }
-  </style>
-</head>
-<body>
-
-  <h1>if/else Decision Tree</h1>
-  <p class="subtitle">Fill in the form and see exactly which code path fires.</p>
-
-  <div class="card">
-    <h2>Inputs</h2>
-
-    <div class="field">
-      <label for="username">Username</label>
-      <input type="text" id="username" placeholder="Enter a username (leave blank to test falsy)">
-    </div>
-
-    <div class="field">
-      <label for="age">Age</label>
-      <input type="number" id="age" placeholder="Enter your age" min="0" max="120">
-    </div>
-
-    <div class="field">
-      <label for="plan">Subscription Plan</label>
-      <select id="plan">
-        <option value="">-- none selected --</option>
-        <option value="free">Free</option>
-        <option value="basic">Basic</option>
-        <option value="premium">Premium</option>
-        <option value="enterprise">Enterprise</option>
-      </select>
-    </div>
-
-    <button id="evaluateBtn">Evaluate Conditions</button>
-  </div>
-
-  <div class="result-panel" id="resultPanel">
-    <h2>Result</h2>
-    <div class="verdict" id="verdict"></div>
-    <div class="trace-title">Code Path Trace</div>
-    <div class="trace" id="trace"></div>
-  </div>
-
-  <script>
-    document.getElementById('evaluateBtn').addEventListener('click', () => {
-      const username = document.getElementById('username').value.trim();
-      const age      = parseInt(document.getElementById('age').value, 10);
-      const plan     = document.getElementById('plan').value;
-
-      const panel  = document.getElementById('resultPanel');
-      const verdict = document.getElementById('verdict');
-      const trace   = document.getElementById('trace');
-
-      panel.classList.add('show');
-      trace.innerHTML = '';
-
-      const steps = [];
-      let resultText = '';
-      let resultClass = '';
-
-      // Step 1: Check username
-      if (!username) {
-        steps.push({ text: 'if (!username)  →  true', state: 'matched' });
-        resultText  = 'No username entered. Please provide a username to continue.';
-        resultClass = 'error';
-
-        // Skip remaining
-        steps.push({ text: 'else if (age < 13)  →  skipped', state: 'skipped' });
-        steps.push({ text: 'else if (plan === "enterprise")  →  skipped', state: 'skipped' });
-        steps.push({ text: 'else if (plan === "premium")  →  skipped', state: 'skipped' });
-        steps.push({ text: 'else if (plan === "basic")  →  skipped', state: 'skipped' });
-        steps.push({ text: 'else  →  skipped', state: 'skipped' });
-      } else {
-        steps.push({ text: `if (!username)  →  false  ("${username}" is truthy)`, state: 'checked' });
-
-        // Step 2: Age check
-        if (!isNaN(age) && age < 13) {
-          steps.push({ text: `else if (age < 13)  →  true  (age is ${age})`, state: 'matched' });
-          resultText  = `Sorry, ${username}! You must be at least 13 to use this service.`;
-          resultClass = 'warning';
-          steps.push({ text: 'else if (plan === "enterprise")  →  skipped', state: 'skipped' });
-          steps.push({ text: 'else if (plan === "premium")  →  skipped', state: 'skipped' });
-          steps.push({ text: 'else if (plan === "basic")  →  skipped', state: 'skipped' });
-          steps.push({ text: 'else  →  skipped', state: 'skipped' });
-        } else {
-          steps.push({ text: `else if (age < 13)  →  false  (age is ${isNaN(age) ? 'not set' : age})`, state: 'checked' });
-
-          // Step 3: Plan checks
-          if (plan === 'enterprise') {
-            steps.push({ text: 'else if (plan === "enterprise")  →  true', state: 'matched' });
-            resultText  = `Welcome, ${username}! You have full enterprise access with dedicated support.`;
-            resultClass = 'success';
-            steps.push({ text: 'else if (plan === "premium")  →  skipped', state: 'skipped' });
-            steps.push({ text: 'else if (plan === "basic")  →  skipped', state: 'skipped' });
-            steps.push({ text: 'else  →  skipped', state: 'skipped' });
-          } else if (plan === 'premium') {
-            steps.push({ text: 'else if (plan === "enterprise")  →  false', state: 'checked' });
-            steps.push({ text: 'else if (plan === "premium")  →  true', state: 'matched' });
-            resultText  = `Welcome, ${username}! You have premium access — enjoy all features.`;
-            resultClass = 'success';
-            steps.push({ text: 'else if (plan === "basic")  →  skipped', state: 'skipped' });
-            steps.push({ text: 'else  →  skipped', state: 'skipped' });
-          } else if (plan === 'basic') {
-            steps.push({ text: 'else if (plan === "enterprise")  →  false', state: 'checked' });
-            steps.push({ text: 'else if (plan === "premium")  →  false', state: 'checked' });
-            steps.push({ text: 'else if (plan === "basic")  →  true', state: 'matched' });
-            resultText  = `Welcome, ${username}! Basic plan is active. Upgrade for more features.`;
-            resultClass = 'info';
-            steps.push({ text: 'else  →  skipped', state: 'skipped' });
-          } else {
-            steps.push({ text: 'else if (plan === "enterprise")  →  false', state: 'checked' });
-            steps.push({ text: 'else if (plan === "premium")  →  false', state: 'checked' });
-            steps.push({ text: 'else if (plan === "basic")  →  false', state: 'checked' });
-            steps.push({ text: 'else  →  true  (no plan selected or free)', state: 'matched' });
-            resultText  = `Hello, ${username}. You are on the free tier. Select a plan to unlock features.`;
-            resultClass = 'warning';
-          }
-        }
-      }
-
-      verdict.textContent = resultText;
-      verdict.className   = `verdict ${resultClass}`;
-
-      steps.forEach(step => {
-        const div = document.createElement('div');
-        div.className = `trace-step ${step.state}`;
-        div.textContent = step.text;
-        trace.appendChild(div);
-      });
-    });
-  </script>
-
-</body>
-</html>
-```
-
----
-
-## CODEPEN 2 — Ternary Operator Builder
-
-### HTML
-```html
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Ternary Operator Builder</title>
-  <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-    body {
-      font-family: system-ui, sans-serif;
-      background: #0f172a;
-      color: #e2e8f0;
-      min-height: 100vh;
-      padding: 2rem 1rem;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
-
-    h1 {
-      font-size: 1.5rem;
-      font-weight: 700;
-      margin-bottom: 0.25rem;
-      color: #f8fafc;
-      text-align: center;
-    }
-
-    .subtitle {
-      font-size: 0.9rem;
-      color: #94a3b8;
-      margin-bottom: 2rem;
-      text-align: center;
-    }
-
-    .grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 1rem;
-      width: 100%;
-      max-width: 800px;
-      margin-bottom: 1.25rem;
-    }
-
-    @media (max-width: 600px) {
-      .grid { grid-template-columns: 1fr; }
-    }
-
-    .card {
-      background: #1e293b;
-      border: 1px solid #334155;
-      border-radius: 12px;
-      padding: 1.25rem;
-    }
-
-    .card.full-width {
-      grid-column: 1 / -1;
-    }
-
-    .card h2 {
-      font-size: 0.8rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
       margin-bottom: 1rem;
     }
 
-    .card h2.if-label    { color: #f87171; }
-    .card h2.tern-label  { color: #34d399; }
-    .card h2.live-label  { color: #a78bfa; }
-    .card h2.nest-label  { color: #fbbf24; }
+    .fn-card.active { border-color: #6c5ce7; }
 
-    pre {
-      background: #0f172a;
-      border-radius: 8px;
-      padding: 1rem;
-      font-size: 0.8rem;
-      font-family: 'Courier New', monospace;
-      line-height: 1.7;
-      overflow-x: auto;
-      color: #cbd5e1;
-      white-space: pre-wrap;
-    }
-
-    .highlight-branch {
-      display: inline;
-      border-radius: 3px;
-      padding: 0 2px;
-    }
-
-    .branch-true  { background: #14532d; color: #4ade80; }
-    .branch-false { background: #7f1d1d; color: #fca5a5; }
-
-    .live-section {
-      display: flex;
-      flex-direction: column;
-      gap: 1rem;
-    }
-
-    .input-row {
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-      flex-wrap: wrap;
-    }
-
-    label {
-      font-size: 0.85rem;
-      font-weight: 500;
-      color: #cbd5e1;
-      white-space: nowrap;
-    }
-
-    input[type="number"] {
-      width: 80px;
-      padding: 0.45rem 0.6rem;
-      background: #0f172a;
-      border: 1px solid #475569;
-      border-radius: 6px;
-      color: #f1f5f9;
-      font-size: 0.9rem;
-      outline: none;
-      transition: border-color 0.2s;
-    }
-
-    input:focus { border-color: #6366f1; }
-
-    .result-row {
-      background: #0f172a;
-      border-radius: 8px;
-      padding: 0.75rem 1rem;
-      font-family: 'Courier New', monospace;
-      font-size: 0.85rem;
-    }
-
-    .result-row span.label {
-      color: #64748b;
-      display: block;
+    .fn-name {
       font-size: 0.72rem;
       text-transform: uppercase;
-      letter-spacing: 0.05em;
-      margin-bottom: 0.2rem;
-    }
-
-    .result-value { font-size: 1rem; font-weight: 700; }
-    .result-value.true-branch  { color: #4ade80; }
-    .result-value.false-branch { color: #f87171; }
-
-    .bad-example {
-      background: #1a1000;
-      border: 1px solid #92400e;
-      border-radius: 8px;
-      padding: 1rem;
-      font-family: 'Courier New', monospace;
-      font-size: 0.78rem;
-      line-height: 1.7;
-      color: #cbd5e1;
-      white-space: pre-wrap;
-      position: relative;
-    }
-
-    .bad-badge {
-      position: absolute;
-      top: 0.5rem;
-      right: 0.75rem;
-      background: #92400e;
-      color: #fbbf24;
-      font-size: 0.65rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      padding: 0.15rem 0.4rem;
-      border-radius: 4px;
-    }
-
-    .good-example {
-      background: #0a1a0a;
-      border: 1px solid #166534;
-      border-radius: 8px;
-      padding: 1rem;
-      font-family: 'Courier New', monospace;
-      font-size: 0.78rem;
-      line-height: 1.7;
-      color: #cbd5e1;
-      white-space: pre-wrap;
-      position: relative;
-    }
-
-    .good-badge {
-      position: absolute;
-      top: 0.5rem;
-      right: 0.75rem;
-      background: #166534;
-      color: #4ade80;
-      font-size: 0.65rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      padding: 0.15rem 0.4rem;
-      border-radius: 4px;
-    }
-
-    .explain {
-      font-size: 0.82rem;
-      color: #94a3b8;
-      line-height: 1.5;
-      margin-top: 0.75rem;
-    }
-  </style>
-</head>
-<body>
-
-  <h1>Ternary Operator Builder</h1>
-  <p class="subtitle">See if/else and ternary side-by-side. Live input, live results.</p>
-
-  <div class="grid">
-
-    <!-- if/else version -->
-    <div class="card">
-      <h2 class="if-label">if / else Version</h2>
-      <pre id="ifCode">let greeting;
-if (hour &lt; 12) {
-  greeting = "Good morning";
-} else {
-  greeting = "Good afternoon";
-}</pre>
-    </div>
-
-    <!-- ternary version -->
-    <div class="card">
-      <h2 class="tern-label">Ternary Version</h2>
-      <pre id="ternCode">const greeting =
-  hour &lt; 12
-    ? "Good morning"
-    : "Good afternoon";</pre>
-    </div>
-
-    <!-- live demo -->
-    <div class="card full-width">
-      <h2 class="live-label">Live Demo — Change the Hour</h2>
-      <div class="live-section">
-        <div class="input-row">
-          <label for="hourInput">Current hour (0–23):</label>
-          <input type="number" id="hourInput" min="0" max="23" value="9">
-        </div>
-        <div class="result-row">
-          <span class="label">Condition: hour &lt; 12</span>
-          <div class="result-value" id="condResult"></div>
-        </div>
-        <div class="result-row">
-          <span class="label">Result value</span>
-          <div class="result-value" id="greetingResult"></div>
-        </div>
-        <div class="result-row">
-          <span class="label">Active branch</span>
-          <div class="result-value" id="branchResult"></div>
-        </div>
-      </div>
-    </div>
-
-    <!-- nested ternary warning -->
-    <div class="card full-width">
-      <h2 class="nest-label">Nested Ternary — Why You Should Avoid It</h2>
-      <div class="bad-example">
-        <div class="bad-badge">AVOID</div>
-        <span style="color:#fbbf24">// Hard to read — what does this do?</span>
-const access = role === "admin"
-  ? "full"
-  : role === "editor"
-    ? "write"
-    : role === "viewer"
-      ? "read"
-      : "none";
-      </div>
-      <div class="good-example" style="margin-top:0.75rem;">
-        <div class="good-badge">PREFER</div>
-        <span style="color:#4ade80">// Clear intent — easy to scan</span>
-let access;
-if (role === "admin")       { access = "full";  }
-else if (role === "editor") { access = "write"; }
-else if (role === "viewer") { access = "read";  }
-else                        { access = "none";  }
-      </div>
-      <p class="explain">
-        Each nesting level in a ternary adds significant cognitive overhead. The if/else chain reads like plain English and is trivial to extend or debug. Linters like ESLint provide a <code>no-nested-ternary</code> rule specifically because nested ternaries cause real bugs.
-      </p>
-    </div>
-
-  </div>
-
-  <script>
-    const hourInput      = document.getElementById('hourInput');
-    const condResult     = document.getElementById('condResult');
-    const greetingResult = document.getElementById('greetingResult');
-    const branchResult   = document.getElementById('branchResult');
-
-    function update() {
-      const hour = parseInt(hourInput.value, 10);
-      const isMorning = hour < 12;
-      const greeting  = isMorning ? "Good morning" : "Good afternoon";
-
-      condResult.textContent   = `hour < 12  →  ${isMorning}`;
-      condResult.className     = `result-value ${isMorning ? 'true-branch' : 'false-branch'}`;
-
-      greetingResult.textContent = `"${greeting}"`;
-      greetingResult.className   = `result-value ${isMorning ? 'true-branch' : 'false-branch'}`;
-
-      branchResult.textContent = isMorning ? '? branch (truthy)' : ': branch (falsy)';
-      branchResult.className   = `result-value ${isMorning ? 'true-branch' : 'false-branch'}`;
-    }
-
-    hourInput.addEventListener('input', update);
-    update();
-  </script>
-
-</body>
-</html>
-```
-
----
-
-## CODEPEN 3 — ?? vs || Explorer
-
-### HTML
-```html
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>?? vs || Explorer</title>
-  <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-    body {
-      font-family: system-ui, sans-serif;
-      background: #0f172a;
-      color: #e2e8f0;
-      min-height: 100vh;
-      padding: 2rem 1rem;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
-
-    h1 {
-      font-size: 1.5rem;
-      font-weight: 700;
-      margin-bottom: 0.25rem;
-      color: #f8fafc;
-      text-align: center;
-    }
-
-    .subtitle {
-      font-size: 0.9rem;
-      color: #94a3b8;
-      margin-bottom: 2rem;
-      text-align: center;
-      max-width: 500px;
-    }
-
-    .container {
-      width: 100%;
-      max-width: 720px;
-      display: flex;
-      flex-direction: column;
-      gap: 1.25rem;
-    }
-
-    /* Truth table */
-    .table-card {
-      background: #1e293b;
-      border: 1px solid #334155;
-      border-radius: 12px;
-      padding: 1.25rem;
-    }
-
-    .table-card h2 {
-      font-size: 0.85rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      color: #94a3b8;
-      margin-bottom: 1rem;
-    }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 0.82rem;
-    }
-
-    th {
-      text-align: left;
-      padding: 0.5rem 0.75rem;
-      background: #0f172a;
-      color: #64748b;
-      font-weight: 600;
-      font-size: 0.75rem;
-      text-transform: uppercase;
-      letter-spacing: 0.04em;
-    }
-
-    th:nth-child(1) { border-radius: 8px 0 0 8px; }
-    th:last-child   { border-radius: 0 8px 8px 0; }
-
-    td {
-      padding: 0.55rem 0.75rem;
-      border-bottom: 1px solid #1e293b;
-      font-family: 'Courier New', monospace;
-      vertical-align: middle;
-    }
-
-    tr:last-child td { border-bottom: none; }
-
-    tr:nth-child(odd)  td { background: #131f2e; }
-    tr:nth-child(even) td { background: #0f172a; }
-
-    .value-cell {
-      color: #e2e8f0;
-    }
-
-    .type-badge {
-      display: inline-block;
-      font-size: 0.68rem;
-      padding: 0.1rem 0.35rem;
-      border-radius: 3px;
-      font-weight: 600;
-      margin-left: 0.3rem;
-      font-family: system-ui, sans-serif;
-    }
-
-    .type-null      { background: #3b0764; color: #c084fc; }
-    .type-undefined { background: #1c1917; color: #a8a29e; }
-    .type-falsy     { background: #1c0a0a; color: #f87171; }
-    .type-truthy    { background: #052e16; color: #4ade80; }
-
-    .result-or   { color: #f59e0b; font-weight: 700; }
-    .result-null { color: #a78bfa; font-weight: 700; }
-
-    .same  { color: #4ade80; }
-    .diff  { color: #f87171; font-weight: 700; }
-
-    /* Operator legend */
-    .legend {
-      display: flex;
-      gap: 1.5rem;
-      flex-wrap: wrap;
-    }
-
-    .legend-item {
-      display: flex;
-      align-items: center;
-      gap: 0.4rem;
-      font-size: 0.82rem;
-    }
-
-    .legend-dot {
-      width: 10px;
-      height: 10px;
-      border-radius: 50%;
-    }
-
-    .dot-or   { background: #f59e0b; }
-    .dot-null { background: #a78bfa; }
-
-    /* Custom tester */
-    .tester-card {
-      background: #1e293b;
-      border: 1px solid #334155;
-      border-radius: 12px;
-      padding: 1.25rem;
-    }
-
-    .tester-card h2 {
-      font-size: 0.85rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      color: #94a3b8;
-      margin-bottom: 1rem;
-    }
-
-    .tester-row {
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-      flex-wrap: wrap;
-      margin-bottom: 1rem;
-    }
-
-    input[type="text"] {
-      flex: 1;
-      min-width: 140px;
-      padding: 0.5rem 0.75rem;
-      background: #0f172a;
-      border: 1px solid #475569;
-      border-radius: 6px;
-      color: #f1f5f9;
-      font-size: 0.9rem;
-      font-family: 'Courier New', monospace;
-      outline: none;
-      transition: border-color 0.2s;
-    }
-
-    input:focus { border-color: #6366f1; }
-
-    .tester-label {
-      font-size: 0.85rem;
-      color: #94a3b8;
-      font-family: 'Courier New', monospace;
-      white-space: nowrap;
-    }
-
-    .tester-results {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 0.75rem;
-    }
-
-    .tester-result {
-      background: #0f172a;
-      border-radius: 8px;
-      padding: 0.75rem;
-    }
-
-    .tester-result .op {
-      font-size: 0.75rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
+      letter-spacing: 0.08em;
+      color: #74b9ff;
       margin-bottom: 0.35rem;
     }
 
-    .op-or   { color: #f59e0b; }
-    .op-null { color: #a78bfa; }
-
-    .tester-result .expression {
+    .fn-code {
       font-family: 'Courier New', monospace;
-      font-size: 0.8rem;
-      color: #64748b;
-      margin-bottom: 0.25rem;
+      font-size: 0.82rem;
+      color: #636e72;
+      margin-bottom: 0.75rem;
+      padding: 0.5rem 0.75rem;
+      background: #0d1117;
+      border-radius: 6px;
     }
 
-    .tester-result .output {
-      font-family: 'Courier New', monospace;
+    .fn-code .kw  { color: #a29bfe; }
+    .fn-code .fn  { color: #74b9ff; }
+    .fn-code .str { color: #55efc4; }
+    .fn-code .num { color: #fdcb6e; }
+
+    .fn-result {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .result-label {
+      font-size: 0.78rem;
+      opacity: 0.5;
+      white-space: nowrap;
+    }
+
+    .result-value {
       font-size: 1rem;
       font-weight: 700;
+      color: #a29bfe;
     }
 
-    .explain-box {
-      background: #0c1a2e;
-      border: 1px solid #1e40af;
-      border-radius: 8px;
-      padding: 0.75rem 1rem;
-      font-size: 0.82rem;
-      line-height: 1.55;
-      color: #93c5fd;
-      margin-top: 0.75rem;
+    .call-btn {
+      margin-left: auto;
+      padding: 0.35rem 0.85rem;
+      background: #6c5ce7;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      cursor: pointer;
     }
   </style>
 </head>
 <body>
 
-  <h1><code>??</code> vs <code>||</code> Explorer</h1>
-  <p class="subtitle">See exactly when nullish coalescing and logical OR produce different results — and why it matters.</p>
+  <h1>Function Basics — Define Once, Call Anywhere</h1>
 
-  <div class="container">
-
-    <div class="table-card">
-      <h2>Truth Table — Right-hand default value is <code>"DEFAULT"</code></h2>
-      <div class="legend" style="margin-bottom:0.75rem;">
-        <div class="legend-item"><div class="legend-dot dot-or"></div> <code>||</code> result</div>
-        <div class="legend-item"><div class="legend-dot dot-null"></div> <code>??</code> result</div>
-      </div>
-      <table>
-        <thead>
-          <tr>
-            <th>Left-side value</th>
-            <th>Type</th>
-            <th><code>value || "DEFAULT"</code></th>
-            <th><code>value ?? "DEFAULT"</code></th>
-            <th>Same?</th>
-          </tr>
-        </thead>
-        <tbody id="tableBody"></tbody>
-      </table>
+  <!-- formatName -->
+  <div class="fn-card">
+    <p class="fn-name">formatName( first, last )</p>
+    <div class="fn-code">
+      <span class="kw">function</span> <span class="fn">formatName</span>(first, last) {<br>
+      &nbsp;&nbsp;<span class="kw">return</span> last + <span class="str">', '</span> + first;<br>
+      }
     </div>
-
-    <div class="tester-card">
-      <h2>Custom Value Tester</h2>
-      <div class="tester-row">
-        <label style="font-size:0.85rem; color:#cbd5e1; white-space:nowrap;">Left side:</label>
-        <input type="text" id="customInput" placeholder='try: 0, "", false, null, undefined, "hello"' value="0">
-        <span class="tester-label"><code>?? / ||</code></span>
-        <input type="text" id="defaultInput" placeholder="Default value" value='"fallback"' style="max-width:130px;">
-      </div>
-      <div class="tester-results">
-        <div class="tester-result">
-          <div class="op op-or">|| (OR)</div>
-          <div class="expression" id="orExpr"></div>
-          <div class="output" id="orOutput" style="color:#f59e0b;"></div>
-        </div>
-        <div class="tester-result">
-          <div class="op op-null">?? (Nullish)</div>
-          <div class="expression" id="nullExpr"></div>
-          <div class="output" id="nullOutput" style="color:#a78bfa;"></div>
-        </div>
-      </div>
-      <div class="explain-box" id="explainBox"></div>
+    <div class="fn-result">
+      <span class="result-label">formatName('Ada','Lovelace') →</span>
+      <span class="result-value" id="name-result"></span>
+      <button class="call-btn" onclick="callFormatName()">Call</button>
     </div>
+  </div>
 
+  <!-- formatPrice -->
+  <div class="fn-card">
+    <p class="fn-name">formatPrice( price )</p>
+    <div class="fn-code">
+      <span class="kw">function</span> <span class="fn">formatPrice</span>(price) {<br>
+      &nbsp;&nbsp;<span class="kw">return</span> <span class="str">'$'</span> + price.toFixed(<span class="num">2</span>);<br>
+      }
+    </div>
+    <div class="fn-result">
+      <span class="result-label">formatPrice(9.9) →</span>
+      <span class="result-value" id="price-result"></span>
+      <button class="call-btn" onclick="callFormatPrice()">Call</button>
+    </div>
+  </div>
+
+  <!-- greet with default -->
+  <div class="fn-card">
+    <p class="fn-name">greet( name = 'friend' ) &mdash; default parameter</p>
+    <div class="fn-code">
+      <span class="kw">function</span> <span class="fn">greet</span>(name = <span class="str">'friend'</span>) {<br>
+      &nbsp;&nbsp;<span class="kw">return</span> <span class="str">`Hello, ${name}!`</span>;<br>
+      }
+    </div>
+    <div class="fn-result">
+      <span class="result-label">greet() →</span>
+      <span class="result-value" id="greet-result"></span>
+      <button class="call-btn" onclick="callGreet()">Call (no arg)</button>
+    </div>
+  </div>
+
+  <!-- getDayGreeting -->
+  <div class="fn-card">
+    <p class="fn-name">getDayGreeting() &mdash; no parameters</p>
+    <div class="fn-code">
+      <span class="kw">function</span> <span class="fn">getDayGreeting</span>() {<br>
+      &nbsp;&nbsp;<span class="kw">const</span> hour = <span class="kw">new</span> Date().getHours();<br>
+      &nbsp;&nbsp;<span class="kw">if</span> (hour &lt; 12) <span class="kw">return</span> <span class="str">'Good morning!'</span>;<br>
+      &nbsp;&nbsp;<span class="kw">if</span> (hour &lt; 18) <span class="kw">return</span> <span class="str">'Good afternoon!'</span>;<br>
+      &nbsp;&nbsp;<span class="kw">return</span> <span class="str">'Good evening!'</span>;<br>
+      }
+    </div>
+    <div class="fn-result">
+      <span class="result-label">getDayGreeting() →</span>
+      <span class="result-value" id="greeting-result"></span>
+      <button class="call-btn" onclick="callGreeting()">Call</button>
+    </div>
   </div>
 
   <script>
-    const tableData = [
-      { value: null,      label: 'null',      type: 'null' },
-      { value: undefined, label: 'undefined', type: 'undefined' },
-      { value: 0,         label: '0',         type: 'falsy' },
-      { value: '',        label: '""',        type: 'falsy' },
-      { value: false,     label: 'false',     type: 'falsy' },
-      { value: NaN,       label: 'NaN',       type: 'falsy' },
-      { value: 'hello',   label: '"hello"',   type: 'truthy' },
-      { value: 42,        label: '42',        type: 'truthy' },
-      { value: true,      label: 'true',      type: 'truthy' },
-      { value: [],        label: '[]',        type: 'truthy' },
-    ];
+    // ── Function definitions ──────────────────────────────────
 
-    const DEFAULT_VAL = 'DEFAULT';
-
-    const tbody = document.getElementById('tableBody');
-    tableData.forEach(row => {
-      const orResult   = row.value || DEFAULT_VAL;
-      const nullResult = row.value ?? DEFAULT_VAL;
-      const same       = String(orResult) === String(nullResult);
-
-      const typeBadgeClass = {
-        null: 'type-null', undefined: 'type-undefined',
-        falsy: 'type-falsy', truthy: 'type-truthy'
-      }[row.type];
-
-      const tr = document.createElement('tr');
-      tr.innerHTML = `
-        <td class="value-cell"><code>${row.label}</code></td>
-        <td><span class="type-badge ${typeBadgeClass}">${row.type}</span></td>
-        <td class="result-or"><code>${formatValue(orResult)}</code></td>
-        <td class="result-null"><code>${formatValue(nullResult)}</code></td>
-        <td class="${same ? 'same' : 'diff'}">${same ? 'yes' : 'DIFFERENT!'}</td>
-      `;
-      tbody.appendChild(tr);
-    });
-
-    function formatValue(v) {
-      if (typeof v === 'string') return `"${v}"`;
-      return String(v);
+    function formatName(first, last) {
+      return last + ', ' + first;
     }
 
-    // Custom tester
-    const customInput  = document.getElementById('customInput');
-    const defaultInput = document.getElementById('defaultInput');
-
-    function runTester() {
-      const rawLeft    = customInput.value;
-      const rawDefault = defaultInput.value;
-
-      let leftVal, defaultVal, leftLabel, defaultLabel;
-
-      try {
-        leftVal   = Function('"use strict"; return (' + rawLeft + ')')();
-        leftLabel = rawLeft;
-      } catch {
-        leftVal   = rawLeft;
-        leftLabel = `"${rawLeft}"`;
-      }
-
-      try {
-        defaultVal   = Function('"use strict"; return (' + rawDefault + ')')();
-        defaultLabel = rawDefault;
-      } catch {
-        defaultVal   = rawDefault;
-        defaultLabel = `"${rawDefault}"`;
-      }
-
-      const orResult   = leftVal || defaultVal;
-      const nullResult = leftVal ?? defaultVal;
-
-      document.getElementById('orExpr').textContent   = `${leftLabel} || ${defaultLabel}`;
-      document.getElementById('nullExpr').textContent = `${leftLabel} ?? ${defaultLabel}`;
-      document.getElementById('orOutput').textContent   = formatValue(orResult);
-      document.getElementById('nullOutput').textContent = formatValue(nullResult);
-
-      const isNullOrUndef = leftVal === null || leftVal === undefined;
-      const isFalsy       = !leftVal && !isNullOrUndef;
-      const same          = String(orResult) === String(nullResult);
-
-      let explanation = '';
-      if (isNullOrUndef) {
-        explanation = `${leftLabel} is ${leftVal === null ? 'null' : 'undefined'} — both ?? and || trigger their right-hand side, so the results are the same.`;
-      } else if (isFalsy) {
-        explanation = `${leftLabel} is falsy but NOT null/undefined. So || replaces it with the default, but ?? keeps ${leftLabel} as-is. The results differ — this is the key distinction between the two operators!`;
-      } else {
-        explanation = `${leftLabel} is truthy. Both ?? and || return the left-hand value unchanged.`;
-      }
-
-      document.getElementById('explainBox').textContent = explanation;
+    function formatPrice(price) {
+      return '$' + price.toFixed(2);
     }
 
-    customInput.addEventListener('input', runTester);
-    defaultInput.addEventListener('input', runTester);
-    runTester();
+    function greet(name = 'friend') {
+      return `Hello, ${name}!`;
+    }
+
+    function getDayGreeting() {
+      const hour = new Date().getHours();
+      if (hour < 12) return 'Good morning!';
+      if (hour < 18) return 'Good afternoon!';
+      return 'Good evening!';
+    }
+
+    // ── Call handlers ─────────────────────────────────────────
+
+    function callFormatName() {
+      document.querySelector('#name-result').textContent = formatName('Ada', 'Lovelace');
+      document.querySelector('#name-result').closest('.fn-card').classList.add('active');
+    }
+
+    function callFormatPrice() {
+      document.querySelector('#price-result').textContent = formatPrice(9.9);
+      document.querySelector('#price-result').closest('.fn-card').classList.add('active');
+    }
+
+    function callGreet() {
+      document.querySelector('#greet-result').textContent = greet();
+      document.querySelector('#greet-result').closest('.fn-card').classList.add('active');
+    }
+
+    function callGreeting() {
+      document.querySelector('#greeting-result').textContent = getDayGreeting();
+      document.querySelector('#greeting-result').closest('.fn-card').classList.add('active');
+    }
+
+    // Run all on page load so the results are visible immediately
+    callFormatName();
+    callFormatPrice();
+    callGreet();
+    callGreeting();
   </script>
 
 </body>
@@ -1026,397 +218,181 @@ else                        { access = "none";  }
 
 ---
 
-## CODEPEN 4 — Optional Chaining Safety Demo
+## CodePen 2 — Card Grid from Array
 
-### HTML
+**Placement:** After the "Generating HTML with Loops" section.
+**Demonstrates:** `for...of` loop building HTML string, `innerHTML` injection, CSS card grid styles applied automatically. An array of strings → a full styled flexbox card grid.
+
 ```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Optional Chaining Safety Demo</title>
+  <title>Card Grid from Array</title>
   <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
-      font-family: system-ui, sans-serif;
-      background: #0f172a;
-      color: #e2e8f0;
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: #1a1a2e;
+      color: #eee;
       min-height: 100vh;
-      padding: 2rem 1rem;
+      padding: 2rem;
+      max-width: 820px;
+      margin: 0 auto;
+    }
+
+    .header {
       display: flex;
-      flex-direction: column;
-      align-items: center;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: 1.5rem;
     }
 
-    h1 {
-      font-size: 1.5rem;
-      font-weight: 700;
-      margin-bottom: 0.25rem;
-      color: #f8fafc;
-      text-align: center;
+    h1 { font-size: 1.2rem; color: #a29bfe; }
+
+    .count {
+      font-size: 0.8rem;
+      color: #636e72;
     }
 
-    .subtitle {
-      font-size: 0.9rem;
-      color: #94a3b8;
-      margin-bottom: 2rem;
-      text-align: center;
-      max-width: 540px;
-    }
-
-    .container {
-      width: 100%;
-      max-width: 760px;
-      display: flex;
-      flex-direction: column;
-      gap: 1.25rem;
+    /* ── The CSS grid layout — unchanged by JS ─────────────── */
+    .card-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 1rem;
+      margin-bottom: 1.5rem;
     }
 
     .card {
-      background: #1e293b;
-      border: 1px solid #334155;
+      background: #16213e;
+      border: 1px solid #2d3561;
       border-radius: 12px;
       padding: 1.25rem;
+      transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
     }
 
-    .card h2 {
-      font-size: 0.85rem;
+    .card:hover {
+      transform: translateY(-4px);
+      border-color: #6c5ce7;
+      box-shadow: 0 8px 24px rgba(108,92,231,0.25);
+    }
+
+    .card-number {
+      font-size: 0.68rem;
+      color: #6c5ce7;
       font-weight: 700;
       text-transform: uppercase;
-      letter-spacing: 0.05em;
-      color: #94a3b8;
-      margin-bottom: 1rem;
+      letter-spacing: 0.08em;
+      margin-bottom: 0.4rem;
     }
 
-    /* API simulation controls */
-    .user-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-      gap: 0.75rem;
-    }
-
-    .user-card {
-      background: #0f172a;
-      border: 2px solid #334155;
-      border-radius: 8px;
-      padding: 0.75rem;
-      cursor: pointer;
-      transition: border-color 0.2s, background 0.2s;
-    }
-
-    .user-card:hover { border-color: #6366f1; }
-    .user-card.active { border-color: #6366f1; background: #1a1a3e; }
-
-    .user-card .user-name {
+    .card-title {
+      font-size: 1rem;
       font-weight: 700;
-      font-size: 0.9rem;
-      margin-bottom: 0.3rem;
+      margin-bottom: 0.25rem;
     }
 
-    .user-card .user-note {
-      font-size: 0.72rem;
-      color: #64748b;
-      line-height: 1.4;
+    .card-sub {
+      font-size: 0.78rem;
+      color: #636e72;
     }
 
-    .missing { color: #ef4444; }
-    .present { color: #4ade80; }
+    /* ── Controls ─────────────────────────────────────────── */
+    .btn-row { display: flex; gap: 0.6rem; flex-wrap: wrap; }
 
-    /* Toggle */
-    .toggle-row {
-      display: flex;
-      gap: 0.75rem;
-      flex-wrap: wrap;
-      margin-top: 0.75rem;
-    }
-
-    .toggle-btn {
+    .btn {
       padding: 0.45rem 1rem;
+      border: none;
       border-radius: 6px;
       font-size: 0.82rem;
       font-weight: 600;
       cursor: pointer;
-      border: 2px solid transparent;
-      transition: all 0.2s;
     }
 
-    .btn-danger  { background: #7f1d1d; color: #fca5a5; border-color: #b91c1c; }
-    .btn-safe    { background: #052e16; color: #86efac; border-color: #166534; }
-    .btn-danger:hover { background: #991b1b; }
-    .btn-safe:hover   { background: #14532d; }
-
-    /* Results */
-    .results-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 0.75rem;
-    }
-
-    @media (max-width: 540px) {
-      .results-grid { grid-template-columns: 1fr; }
-    }
-
-    .result-box {
-      border-radius: 8px;
-      padding: 0.85rem;
-      font-family: 'Courier New', monospace;
-      font-size: 0.78rem;
-      line-height: 1.6;
-    }
-
-    .result-box .box-title {
-      font-family: system-ui, sans-serif;
-      font-size: 0.72rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      margin-bottom: 0.5rem;
-    }
-
-    .box-unsafe { background: #1f0a0a; border: 1px solid #7f1d1d; }
-    .box-unsafe .box-title { color: #f87171; }
-
-    .box-safe   { background: #0a1f12; border: 1px solid #166534; }
-    .box-safe   .box-title { color: #4ade80; }
-
-    .prop-row {
-      display: flex;
-      gap: 0.5rem;
-      margin-bottom: 0.2rem;
-    }
-
-    .prop-key   { color: #60a5fa; }
-    .prop-arrow { color: #64748b; }
-    .prop-val-ok    { color: #4ade80; }
-    .prop-val-undef { color: #94a3b8; }
-    .prop-val-error { color: #f87171; font-weight: 700; }
-
-    .error-banner {
-      background: #1f0a0a;
-      border: 1px solid #b91c1c;
-      border-radius: 6px;
-      padding: 0.5rem 0.75rem;
-      font-size: 0.8rem;
-      font-weight: 700;
-      color: #f87171;
-      margin-top: 0.5rem;
-      display: none;
-    }
-
-    /* Code block */
-    pre.code-compare {
-      background: #0f172a;
-      border-radius: 8px;
-      padding: 1rem;
-      font-size: 0.8rem;
-      font-family: 'Courier New', monospace;
-      line-height: 1.7;
-      overflow-x: auto;
-      color: #cbd5e1;
-      white-space: pre;
-    }
-
-    .c-comment { color: #475569; }
-    .c-op      { color: #f59e0b; }
-    .c-str     { color: #4ade80; }
-    .c-key     { color: #60a5fa; }
+    .btn-primary { background: #6c5ce7; color: #fff; }
+    .btn-outline { background: transparent; border: 2px solid #2d3561; color: #aaa; }
   </style>
 </head>
 <body>
 
-  <h1>Optional Chaining Safety Demo</h1>
-  <p class="subtitle">Click a user from the simulated API. Then toggle between unsafe and safe property access to see the difference.</p>
+  <div class="header">
+    <h1>Destinations</h1>
+    <span class="count" id="card-count"></span>
+  </div>
 
-  <div class="container">
+  <!-- JS fills this grid — no cards are written in HTML -->
+  <div class="card-grid" id="card-grid"></div>
 
-    <!-- User picker -->
-    <div class="card">
-      <h2>Simulated API Users</h2>
-      <div class="user-grid" id="userGrid"></div>
-    </div>
-
-    <!-- Access mode -->
-    <div class="card">
-      <h2>Access Mode</h2>
-      <div class="toggle-row">
-        <button class="toggle-btn btn-danger" id="btnUnsafe">Without ?. (unsafe)</button>
-        <button class="toggle-btn btn-safe"   id="btnSafe">With ?. (safe)</button>
-      </div>
-    </div>
-
-    <!-- Results -->
-    <div class="card">
-      <h2>Property Access Results</h2>
-      <div class="results-grid">
-        <div class="result-box box-unsafe" id="unsafeBox">
-          <div class="box-title">Without ?.</div>
-          <div id="unsafeResults"></div>
-          <div class="error-banner" id="errorBanner"></div>
-        </div>
-        <div class="result-box box-safe" id="safeBox">
-          <div class="box-title">With ?.</div>
-          <div id="safeResults"></div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Code comparison -->
-    <div class="card">
-      <h2>Code Comparison</h2>
-      <pre class="code-compare"><span class="c-comment">// Without optional chaining — crashes if any link is null</span>
-<span class="c-key">const</span> city   = user.address.city;               <span class="c-comment">// TypeError if address is null</span>
-<span class="c-key">const</span> zip    = user.address.zip;                <span class="c-comment">// TypeError if address is null</span>
-<span class="c-key">const</span> perms  = user.role.getPermissions();      <span class="c-comment">// TypeError if role is null</span>
-<span class="c-key">const</span> first  = user.orders[0].id;              <span class="c-comment">// TypeError if orders is null</span>
-
-<span class="c-comment">// With optional chaining — safe navigation</span>
-<span class="c-key">const</span> city   = user<span class="c-op">?.</span>address<span class="c-op">?.</span>city;            <span class="c-comment">// undefined if address is null</span>
-<span class="c-key">const</span> zip    = user<span class="c-op">?.</span>address<span class="c-op">?.</span>zip;             <span class="c-comment">// undefined if address is null</span>
-<span class="c-key">const</span> perms  = user<span class="c-op">?.</span>role<span class="c-op">?.</span>getPermissions<span class="c-op">?.</span>(); <span class="c-comment">// undefined if role or method missing</span>
-<span class="c-key">const</span> first  = user<span class="c-op">?.</span>orders<span class="c-op">?.</span>[0]<span class="c-op">?.</span>id;         <span class="c-comment">// undefined if orders is null</span>
-
-<span class="c-comment">// Combine with ?? for clean defaults</span>
-<span class="c-key">const</span> city   = user<span class="c-op">?.</span>address<span class="c-op">?.</span>city <span class="c-op">??</span> <span class="c-str">"City unknown"</span>;
-<span class="c-key">const</span> first  = user<span class="c-op">?.</span>orders<span class="c-op">?.</span>[0]<span class="c-op">?.</span>id <span class="c-op">??</span> <span class="c-str">"No orders"</span>;</pre>
-    </div>
-
+  <div class="btn-row">
+    <button class="btn btn-primary" id="shuffle-btn">Shuffle</button>
+    <button class="btn btn-outline" id="reverse-btn">Reverse</button>
+    <button class="btn btn-outline" id="reset-btn">Reset</button>
   </div>
 
   <script>
-    const users = [
-      {
-        id: 1,
-        name: "Alice",
-        note: "Complete profile",
-        hasAddress: true, hasRole: true, hasOrders: true,
-        address: { city: "Austin", zip: "78701" },
-        role: { name: "admin", getPermissions() { return ["read","write","delete"]; } },
-        orders: [{ id: "ORD-001", total: 89.99 }, { id: "ORD-002", total: 54.00 }]
-      },
-      {
-        id: 2,
-        name: "Bob",
-        note: "address is null",
-        hasAddress: false, hasRole: true, hasOrders: true,
-        address: null,
-        role: { name: "viewer", getPermissions() { return ["read"]; } },
-        orders: [{ id: "ORD-003", total: 22.50 }]
-      },
-      {
-        id: 3,
-        name: "Carol",
-        note: "role is null, no orders",
-        hasAddress: true, hasRole: false, hasOrders: false,
-        address: { city: "Denver", zip: "80201" },
-        role: null,
-        orders: null
-      },
-      {
-        id: 4,
-        name: "Dan",
-        note: "Everything missing",
-        hasAddress: false, hasRole: false, hasOrders: false,
-        address: null,
-        role: null,
-        orders: null
-      }
+    // ── The data — an array of strings ────────────────────────
+    const destinations = [
+      'Tokyo', 'Lisbon', 'Chicago', 'Nairobi',
+      'Sydney', 'Reykjavik', 'Medellín', 'Kyoto'
     ];
 
-    let selectedUser = users[0];
-    let mode = 'safe';
+    // Keep a working copy so we can reset
+    let current = [...destinations];
 
-    function renderUserGrid() {
-      const grid = document.getElementById('userGrid');
-      grid.innerHTML = '';
-      users.forEach(u => {
-        const div = document.createElement('div');
-        div.className = `user-card ${u.id === selectedUser.id ? 'active' : ''}`;
-        div.innerHTML = `
-          <div class="user-name">${u.name}</div>
-          <div class="user-note">${u.note}</div>
-          <div style="margin-top:0.35rem; font-size:0.7rem;">
-            <span class="${u.hasAddress ? 'present' : 'missing'}">address${u.hasAddress ? ' ✓' : ' ✗'}</span> &nbsp;
-            <span class="${u.hasRole ? 'present' : 'missing'}">role${u.hasRole ? ' ✓' : ' ✗'}</span> &nbsp;
-            <span class="${u.hasOrders ? 'present' : 'missing'}">orders${u.hasOrders ? ' ✓' : ' ✗'}</span>
+    const grid = document.querySelector('#card-grid');
+
+    // ── renderCards() — the core pattern ──────────────────────
+    function renderCards(items) {
+      let html = '';
+
+      // for...of loop: do something for each item in the array
+      for (const item of items) {
+        const index = items.indexOf(item) + 1;
+        html += `
+          <div class="card">
+            <p class="card-number">Destination ${index}</p>
+            <h3 class="card-title">${item}</h3>
+            <p class="card-sub">Explore the city</p>
           </div>
         `;
-        div.addEventListener('click', () => {
-          selectedUser = u;
-          renderUserGrid();
-          renderResults();
-        });
-        grid.appendChild(div);
-      });
-    }
-
-    function renderResults() {
-      const user = selectedUser;
-      const unsafeDiv  = document.getElementById('unsafeResults');
-      const safeDiv    = document.getElementById('safeResults');
-      const errorBanner = document.getElementById('errorBanner');
-
-      // Safe results always work
-      const safeCity  = user?.address?.city   ?? 'City unknown';
-      const safeZip   = user?.address?.zip    ?? 'ZIP unknown';
-      const safePerms = user?.role?.getPermissions?.() ?? ['no permissions'];
-      const safeFirst = user?.orders?.[0]?.id ?? 'No orders';
-
-      safeDiv.innerHTML = `
-        ${row('user?.address?.city', safeCity, 'ok')}
-        ${row('user?.address?.zip', safeZip, 'ok')}
-        ${row('user?.role?.getPermissions?.()', JSON.stringify(safePerms), 'ok')}
-        ${row('user?.orders?.[0]?.id', safeFirst, 'ok')}
-      `;
-
-      // Unsafe results
-      let crashedAt = null;
-      let unsafeHtml = '';
-
-      function tryAccess(label, fn) {
-        if (crashedAt) {
-          return row(label, '(skipped)', 'undef');
-        }
-        try {
-          const val = fn();
-          const display = val === undefined ? 'undefined' : (Array.isArray(val) ? JSON.stringify(val) : String(val));
-          return row(label, display, 'ok');
-        } catch (e) {
-          crashedAt = label;
-          return row(label, 'TypeError!', 'error');
-        }
       }
 
-      unsafeHtml += tryAccess('user.address.city',             () => user.address.city);
-      unsafeHtml += tryAccess('user.address.zip',              () => user.address.zip);
-      unsafeHtml += tryAccess('user.role.getPermissions()',    () => JSON.stringify(user.role.getPermissions()));
-      unsafeHtml += tryAccess('user.orders[0].id',            () => user.orders[0].id);
+      grid.innerHTML = html;
+      document.querySelector('#card-count').textContent = items.length + ' cities';
+    }
 
-      unsafeDiv.innerHTML = unsafeHtml;
-
-      if (crashedAt) {
-        errorBanner.style.display = 'block';
-        errorBanner.textContent = `TypeError thrown at: ${crashedAt}`;
-      } else {
-        errorBanner.style.display = 'none';
+    // ── Shuffle helper (Fisher-Yates) ─────────────────────────
+    function shuffle(arr) {
+      const copy = [...arr];
+      for (let i = copy.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        const temp = copy[i];
+        copy[i] = copy[j];
+        copy[j] = temp;
       }
+      return copy;
     }
 
-    function row(label, value, state) {
-      const valClass = state === 'error' ? 'prop-val-error' : state === 'undef' ? 'prop-val-undef' : 'prop-val-ok';
-      return `<div class="prop-row">
-        <span class="prop-key">${label}</span>
-        <span class="prop-arrow">→</span>
-        <span class="${valClass}">${value}</span>
-      </div>`;
-    }
+    // ── Button events ─────────────────────────────────────────
+    document.querySelector('#shuffle-btn').addEventListener('click', function() {
+      current = shuffle(current);
+      renderCards(current);
+    });
 
-    document.getElementById('btnUnsafe').addEventListener('click', () => { mode = 'unsafe'; renderResults(); });
-    document.getElementById('btnSafe').addEventListener('click',   () => { mode = 'safe';   renderResults(); });
+    document.querySelector('#reverse-btn').addEventListener('click', function() {
+      current = [...current].reverse();
+      renderCards(current);
+    });
 
-    renderUserGrid();
-    renderResults();
+    document.querySelector('#reset-btn').addEventListener('click', function() {
+      current = [...destinations];
+      renderCards(current);
+    });
+
+    // Initial render on page load
+    renderCards(current);
   </script>
 
 </body>
@@ -1425,610 +401,615 @@ else                        { access = "none";  }
 
 ---
 
-## CODEPEN 5 — Complete Control Flow: User Dashboard Logic
+## CodePen 3 — Greeting Card Generator
 
-### HTML
+**Placement:** After the "Arrow Functions" section.
+**Demonstrates:** Arrow functions, function with multiple parameters, combining select dropdowns + a render function to generate a styled card. Shows functions as composable units producing visual output.
+
 ```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>User Dashboard — Control Flow Demo</title>
+  <title>Greeting Card Generator</title>
   <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
-      font-family: system-ui, sans-serif;
-      background: #0a0f1e;
-      color: #e2e8f0;
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: #1a1a2e;
+      color: #eee;
       min-height: 100vh;
       display: grid;
-      grid-template-columns: 280px 1fr;
+      grid-template-columns: 260px 1fr;
+      gap: 2rem;
+      padding: 2rem;
+      align-items: start;
     }
 
-    @media (max-width: 640px) {
-      body { grid-template-columns: 1fr; }
-      .sidebar { border-right: none; border-bottom: 1px solid #1e293b; }
+    /* ── Controls ─────────────────────────────────────────── */
+    .controls { display: flex; flex-direction: column; gap: 1rem; }
+
+    .controls h2 { font-size: 1rem; color: #a29bfe; margin-bottom: 0.25rem; }
+
+    .field { display: flex; flex-direction: column; gap: 0.35rem; }
+
+    label {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      opacity: 0.55;
     }
 
-    /* Sidebar */
-    .sidebar {
-      background: #0f172a;
-      border-right: 1px solid #1e293b;
-      padding: 1.5rem 1rem;
-      display: flex;
-      flex-direction: column;
-      gap: 1.25rem;
+    select, input[type="text"] {
+      padding: 0.55rem 0.75rem;
+      background: #16213e;
+      border: 1px solid #2d3561;
+      border-radius: 8px;
+      color: #eee;
+      font-size: 0.9rem;
+      font-family: inherit;
+      outline: none;
     }
 
-    .sidebar h1 {
-      font-size: 1rem;
-      font-weight: 700;
-      color: #6366f1;
+    select:focus, input:focus { border-color: #6c5ce7; }
+
+    /* ── Card preview ─────────────────────────────────────── */
+    .preview { display: flex; flex-direction: column; gap: 0.5rem; }
+
+    .preview h2 {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      opacity: 0.35;
       margin-bottom: 0.25rem;
     }
 
-    .sidebar p.desc {
-      font-size: 0.75rem;
-      color: #64748b;
-      line-height: 1.5;
-    }
-
-    .control-group {
-      display: flex;
-      flex-direction: column;
-      gap: 0.5rem;
-    }
-
-    .control-group label.group-label {
-      font-size: 0.7rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
-      color: #475569;
-    }
-
-    .toggle-row {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      background: #1e293b;
-      border-radius: 8px;
-      padding: 0.55rem 0.75rem;
-    }
-
-    .toggle-row label {
-      font-size: 0.82rem;
-      color: #cbd5e1;
-    }
-
-    /* Toggle switch */
-    .switch {
-      position: relative;
-      width: 36px;
-      height: 20px;
-      flex-shrink: 0;
-    }
-
-    .switch input { display: none; }
-
-    .slider {
-      position: absolute;
-      inset: 0;
-      background: #334155;
+    .greeting-card {
       border-radius: 20px;
-      cursor: pointer;
-      transition: background 0.2s;
-    }
-
-    .slider::before {
-      content: '';
-      position: absolute;
-      width: 14px;
-      height: 14px;
-      left: 3px;
-      top: 3px;
-      background: #fff;
-      border-radius: 50%;
-      transition: transform 0.2s;
-    }
-
-    input:checked + .slider { background: #6366f1; }
-    input:checked + .slider::before { transform: translateX(16px); }
-
-    select {
-      width: 100%;
-      padding: 0.5rem 0.6rem;
-      background: #1e293b;
-      border: 1px solid #334155;
-      border-radius: 8px;
-      color: #f1f5f9;
-      font-size: 0.85rem;
-      outline: none;
-      cursor: pointer;
-    }
-
-    select:focus { border-color: #6366f1; }
-
-    /* Feature flag badges */
-    .flags {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.4rem;
-    }
-
-    .flag-btn {
-      padding: 0.3rem 0.65rem;
-      border-radius: 999px;
-      font-size: 0.72rem;
-      font-weight: 600;
-      cursor: pointer;
-      border: 1px solid transparent;
-      transition: all 0.15s;
-      background: #1e293b;
-      color: #64748b;
-      border-color: #334155;
-    }
-
-    .flag-btn.active {
-      background: #312e81;
-      color: #a5b4fc;
-      border-color: #6366f1;
-    }
-
-    /* Main content */
-    .main {
-      padding: 1.5rem;
-      overflow-y: auto;
-    }
-
-    /* Status bar */
-    .status-bar {
-      background: #1e293b;
-      border: 1px solid #334155;
-      border-radius: 10px;
-      padding: 0.75rem 1rem;
-      display: flex;
-      align-items: center;
-      gap: 0.6rem;
-      margin-bottom: 1.25rem;
-      font-size: 0.82rem;
-    }
-
-    .status-dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      flex-shrink: 0;
-    }
-
-    .dot-online  { background: #4ade80; }
-    .dot-offline { background: #64748b; }
-
-    /* Dashboard sections */
-    .dash-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 0.85rem;
-      margin-bottom: 1.25rem;
-    }
-
-    .stat-card {
-      background: #1e293b;
-      border: 1px solid #334155;
-      border-radius: 10px;
-      padding: 1rem;
-    }
-
-    .stat-card .stat-label {
-      font-size: 0.7rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      color: #64748b;
-      margin-bottom: 0.3rem;
-    }
-
-    .stat-card .stat-value {
-      font-size: 1.4rem;
-      font-weight: 700;
-      color: #f8fafc;
-    }
-
-    .stat-card .stat-sub {
-      font-size: 0.72rem;
-      color: #94a3b8;
-      margin-top: 0.2rem;
-    }
-
-    /* Panels */
-    .panel {
-      background: #1e293b;
-      border: 1px solid #334155;
-      border-radius: 10px;
-      padding: 1rem 1.25rem;
-      margin-bottom: 1rem;
-    }
-
-    .panel h2 {
-      font-size: 0.85rem;
-      font-weight: 700;
-      color: #94a3b8;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      margin-bottom: 0.75rem;
-    }
-
-    .access-badge {
-      display: inline-block;
-      padding: 0.25rem 0.7rem;
-      border-radius: 999px;
-      font-size: 0.75rem;
-      font-weight: 700;
-      margin-bottom: 0.75rem;
-    }
-
-    .badge-admin    { background: #1a0a2e; color: #c084fc; border: 1px solid #7c3aed; }
-    .badge-editor   { background: #0c1a2e; color: #60a5fa; border: 1px solid #2563eb; }
-    .badge-viewer   { background: #0a1f12; color: #4ade80; border: 1px solid #16a34a; }
-    .badge-guest    { background: #1c1917; color: #a8a29e; border: 1px solid #44403c; }
-    .badge-offline  { background: #1f0a0a; color: #f87171; border: 1px solid #b91c1c; }
-
-    .action-list {
-      display: flex;
-      flex-direction: column;
-      gap: 0.4rem;
-    }
-
-    .action-item {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      font-size: 0.82rem;
-      color: #cbd5e1;
-    }
-
-    .action-item::before {
-      content: '▶';
-      font-size: 0.6rem;
-      color: #6366f1;
-    }
-
-    /* Feature flags panel */
-    .feature-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-      gap: 0.5rem;
-    }
-
-    .feature-item {
-      background: #0f172a;
-      border-radius: 8px;
-      padding: 0.55rem 0.75rem;
-      font-size: 0.78rem;
-      display: flex;
-      align-items: center;
-      gap: 0.4rem;
-    }
-
-    .fi-on  { color: #4ade80; }
-    .fi-off { color: #475569; text-decoration: line-through; }
-
-    /* Code trace */
-    .trace-panel {
-      background: #050c18;
-      border: 1px solid #1e293b;
-      border-radius: 10px;
-      padding: 1rem;
-    }
-
-    .trace-panel h2 {
-      font-size: 0.85rem;
-      font-weight: 700;
-      color: #475569;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      margin-bottom: 0.75rem;
-    }
-
-    .trace-lines {
-      font-family: 'Courier New', monospace;
-      font-size: 0.75rem;
-      line-height: 2;
-      color: #64748b;
-      display: flex;
-      flex-direction: column;
-      gap: 0;
-    }
-
-    .tl { padding: 0 0.5rem; border-radius: 3px; }
-    .tl-fired  { background: #0a1f12; color: #86efac; }
-    .tl-skip   { color: #1e293b; }
-    .tl-result { background: #1a1a3e; color: #a5b4fc; }
-
-    /* Auth wall */
-    .auth-wall {
+      padding: 3rem 2.5rem;
+      text-align: center;
+      min-height: 240px;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      min-height: 300px;
       gap: 0.75rem;
+      transition: all 0.4s ease;
     }
 
-    .auth-wall .lock-icon {
-      font-size: 3rem;
+    .greeting-card .emoji  { font-size: 3rem; line-height: 1; }
+    .greeting-card .to     { font-size: 0.85rem; opacity: 0.75; }
+    .greeting-card .title  { font-size: 1.6rem; font-weight: 800; line-height: 1.2; }
+    .greeting-card .msg    { font-size: 0.9rem; opacity: 0.8; line-height: 1.6; max-width: 300px; }
+    .greeting-card .sig    { font-size: 0.8rem; opacity: 0.6; margin-top: 0.5rem; font-style: italic; }
+
+    /* Theme: birthday */
+    .theme-birthday {
+      background: linear-gradient(135deg, #fdcb6e, #e17055);
+      color: #2d1b00;
     }
 
-    .auth-wall h2 {
-      font-size: 1.1rem;
-      font-weight: 700;
-      color: #f87171;
+    /* Theme: congrats */
+    .theme-congrats {
+      background: linear-gradient(135deg, #55efc4, #0984e3);
+      color: #001a2e;
     }
 
-    .auth-wall p {
-      font-size: 0.85rem;
-      color: #64748b;
+    /* Theme: thanks */
+    .theme-thanks {
+      background: linear-gradient(135deg, #a29bfe, #6c5ce7);
+      color: #fff;
+    }
+
+    /* Theme: holiday */
+    .theme-holiday {
+      background: linear-gradient(135deg, #d63031, #00b894);
+      color: #fff;
     }
   </style>
 </head>
 <body>
 
-  <!-- SIDEBAR -->
-  <aside class="sidebar">
-    <div>
-      <h1>Dashboard Controls</h1>
-      <p class="desc">Every control below feeds into the JavaScript decision engine on the right.</p>
-    </div>
+  <div class="controls">
+    <h2>Card Builder</h2>
 
-    <div class="control-group">
-      <label class="group-label">Authentication</label>
-      <div class="toggle-row">
-        <label for="toggleLogin">Logged in</label>
-        <label class="switch">
-          <input type="checkbox" id="toggleLogin" checked>
-          <span class="slider"></span>
-        </label>
-      </div>
-      <div class="toggle-row">
-        <label for="toggleVerified">Email verified</label>
-        <label class="switch">
-          <input type="checkbox" id="toggleVerified" checked>
-          <span class="slider"></span>
-        </label>
-      </div>
-    </div>
-
-    <div class="control-group">
-      <label class="group-label">User Role</label>
-      <select id="roleSelect">
-        <option value="admin">Admin</option>
-        <option value="editor" selected>Editor</option>
-        <option value="viewer">Viewer</option>
-        <option value="guest">Guest</option>
+    <div class="field">
+      <label>Occasion</label>
+      <select id="occasion">
+        <option value="birthday">Birthday</option>
+        <option value="congrats">Congratulations</option>
+        <option value="thanks">Thank You</option>
+        <option value="holiday">Holiday</option>
       </select>
     </div>
 
-    <div class="control-group">
-      <label class="group-label">Active Feature Flags</label>
-      <div class="flags" id="flagsContainer"></div>
+    <div class="field">
+      <label>Recipient Name</label>
+      <input type="text" id="recipient" value="Ada" placeholder="Enter a name…">
     </div>
 
-    <div class="control-group">
-      <label class="group-label">Config Overrides</label>
-      <div class="toggle-row">
-        <label for="toggleTimeout">Timeout: null</label>
-        <label class="switch">
-          <input type="checkbox" id="toggleTimeout">
-          <span class="slider"></span>
-        </label>
-      </div>
-      <div class="toggle-row">
-        <label for="toggleTheme">Theme: undefined</label>
-        <label class="switch">
-          <input type="checkbox" id="toggleTheme">
-          <span class="slider"></span>
-        </label>
-      </div>
+    <div class="field">
+      <label>Tone</label>
+      <select id="tone">
+        <option value="warm">Warm</option>
+        <option value="funny">Funny</option>
+        <option value="formal">Formal</option>
+      </select>
     </div>
-  </aside>
 
-  <!-- MAIN CONTENT -->
-  <main class="main" id="mainContent"></main>
+    <div class="field">
+      <label>From</label>
+      <input type="text" id="sender" value="The Team" placeholder="Your name…">
+    </div>
+  </div>
+
+  <div class="preview">
+    <h2>Preview</h2>
+    <div id="card-preview"></div>
+  </div>
 
   <script>
-    // ---- State ----
-    const flags = ['analytics', 'beta-ui', 'dark-mode', 'export-pdf'];
-    const activeFlags = new Set(['analytics', 'dark-mode']);
-
-    // Build flag buttons
-    const flagsContainer = document.getElementById('flagsContainer');
-    flags.forEach(flag => {
-      const btn = document.createElement('button');
-      btn.className = `flag-btn ${activeFlags.has(flag) ? 'active' : ''}`;
-      btn.textContent = flag;
-      btn.addEventListener('click', () => {
-        activeFlags.has(flag) ? activeFlags.delete(flag) : activeFlags.add(flag);
-        btn.classList.toggle('active');
-        render();
-      });
-      flagsContainer.appendChild(btn);
-    });
-
-    // ---- Core render function ----
-    function render() {
-      const isLoggedIn    = document.getElementById('toggleLogin').checked;
-      const isVerified    = document.getElementById('toggleVerified').checked;
-      const role          = document.getElementById('roleSelect').value;
-      const timeoutIsNull = document.getElementById('toggleTimeout').checked;
-      const themeIsUndef  = document.getElementById('toggleTheme').checked;
-
-      // Simulate a config object — some values may be null/undefined
-      const rawConfig = {
-        timeout: timeoutIsNull ? null : 0,           // 0 is valid! Use ??=, not ||=
-        theme:   themeIsUndef  ? undefined : "slate",
-        maxItems: 50
-      };
-
-      // Apply defaults using ??= — preserves 0 and other valid falsy values
-      rawConfig.timeout  ??= 5000;
-      rawConfig.theme    ??= "light";
-      rawConfig.maxItems ??= 25;
-
-      // Simulate user data — might have incomplete profile
-      const userData = isLoggedIn ? {
-        name: "Jordan Lee",
-        role,
-        email: isVerified ? "jordan@example.com" : null,
-        stats: { posts: 42, views: 1_840, comments: 118 },
-        preferences: { notifications: true }
-      } : null;
-
-      // Safe access with optional chaining
-      const userName    = userData?.name        ?? "Guest";
-      const userEmail   = userData?.email       ?? "Email not verified";
-      const postCount   = userData?.stats?.posts ?? 0;
-      const viewCount   = userData?.stats?.views ?? 0;
-
-      // Logical AND assignment: only update role if user exists
-      let sessionRole = role;
-      // If not logged in, force guest regardless of selector
-      if (!isLoggedIn) sessionRole = "guest";
-
-      // Determine access level via switch
-      let accessLevel, accessBadgeClass, accessActions;
-      switch (sessionRole) {
-        case "admin":
-          accessLevel      = "Full Admin Access";
-          accessBadgeClass = "badge-admin";
-          accessActions    = ["Manage all users", "Edit site settings", "View audit logs", "Deploy changes", "Access developer tools"];
-          break;
-        case "editor":
-          accessLevel      = "Editor Access";
-          accessBadgeClass = "badge-editor";
-          accessActions    = ["Create & edit content", "Upload media", "Publish drafts", "View analytics"];
-          break;
-        case "viewer":
-          accessLevel      = "Read-Only Access";
-          accessBadgeClass = "badge-viewer";
-          accessActions    = ["View published content", "Leave comments", "Download allowed files"];
-          break;
-        default:
-          accessLevel      = "Guest Access";
-          accessBadgeClass = "badge-guest";
-          accessActions    = ["View public pages", "Sign up for an account"];
+    // ── Data: each occasion has content for each tone ─────────
+    const content = {
+      birthday: {
+        emoji: '🎂',
+        title: 'Happy Birthday!',
+        warm:   'Wishing you a day full of joy, laughter, and everything you love.',
+        funny:  'Another year older, but still younger than you'll be tomorrow!',
+        formal: 'Please accept our warmest congratulations on this auspicious occasion.'
+      },
+      congrats: {
+        emoji: '🏆',
+        title: 'Congratulations!',
+        warm:   'You worked so hard for this — every bit of it was deserved.',
+        funny:  'You did it! Time to update that resume with "achieved greatness."',
+        formal: 'We extend our sincere congratulations on this significant achievement.'
+      },
+      thanks: {
+        emoji: '💜',
+        title: 'Thank You',
+        warm:   'Your kindness made a real difference. We are so grateful for you.',
+        funny:  'We would thank you in person, but you've already done too much!',
+        formal: 'We wish to express our sincere gratitude for your generous contribution.'
+      },
+      holiday: {
+        emoji: '🌟',
+        title: 'Happy Holidays!',
+        warm:   'Warmest wishes for a joyful season and a wonderful new year.',
+        funny:  'May your holidays be merry, bright, and involve a lot of snacks.',
+        formal: 'We wish you a prosperous holiday season and a happy new year.'
       }
+    };
 
-      // Build trace for educational display
-      const traceFired = [];
-      traceFired.push({ text: `if (!isLoggedIn)  →  ${!isLoggedIn}`, fired: !isLoggedIn });
-      traceFired.push({ text: `userData?.name ?? "Guest"  →  "${userName}"`, fired: true });
-      traceFired.push({ text: `userData?.email ?? "Email not verified"  →  "${userEmail}"`, fired: true });
-      traceFired.push({ text: `rawConfig.timeout ??= 5000  →  ${rawConfig.timeout}`, fired: timeoutIsNull });
-      traceFired.push({ text: `rawConfig.theme ??= "light"  →  "${rawConfig.theme}"`, fired: themeIsUndef });
-      traceFired.push({ text: `switch(sessionRole) case "${sessionRole}"  →  matched`, fired: true });
-      const flagList = [...activeFlags].join(', ') || 'none';
-      traceFired.push({ text: `active flags: [${flagList}]`, fired: activeFlags.size > 0 });
+    // ── buildCard — arrow function with multiple parameters ────
+    const buildCard = (occasion, recipient, tone, sender) => {
+      const c = content[occasion];
+      return `
+        <div class="greeting-card theme-${occasion}">
+          <span class="emoji">${c.emoji}</span>
+          <p class="to">To: <strong>${recipient}</strong></p>
+          <h2 class="title">${c.title}</h2>
+          <p class="msg">${c[tone]}</p>
+          <p class="sig">— ${sender}</p>
+        </div>
+      `;
+    };
 
-      // ---- Build HTML ----
-      const main = document.getElementById('mainContent');
+    // ── renderCard — reads all inputs and calls buildCard ──────
+    function renderCard() {
+      const occasion  = document.querySelector('#occasion').value;
+      const recipient = document.querySelector('#recipient').value || 'Friend';
+      const tone      = document.querySelector('#tone').value;
+      const sender    = document.querySelector('#sender').value || 'Someone who cares';
 
-      if (!isLoggedIn) {
-        main.innerHTML = `
-          <div class="auth-wall">
-            <div class="lock-icon">🔒</div>
-            <h2>Authentication Required</h2>
-            <p>The if (!isLoggedIn) branch fired — dashboard is hidden.</p>
-            <p style="font-family:monospace; font-size:0.8rem; color:#64748b; margin-top:0.5rem;">
-              if (!isLoggedIn) { showAuthWall(); return; }
-            </p>
-          </div>
-          ${buildTrace(traceFired, rawConfig)}
-        `;
+      document.querySelector('#card-preview').innerHTML = buildCard(occasion, recipient, tone, sender);
+    }
+
+    // Re-render whenever anything changes
+    document.querySelector('#occasion').addEventListener('change', renderCard);
+    document.querySelector('#recipient').addEventListener('input',  renderCard);
+    document.querySelector('#tone').addEventListener('change',      renderCard);
+    document.querySelector('#sender').addEventListener('input',     renderCard);
+
+    // Initial render
+    renderCard();
+  </script>
+
+</body>
+</html>
+```
+
+---
+
+## CodePen 4 — Dynamic List Builder
+
+**Placement:** After the "Putting It Together" section.
+**Demonstrates:** Adding items to an array, calling a render function to update the display, the pattern of "change the data → re-render." Text input + Add button builds a list of styled cards.
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dynamic List Builder</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: #1a1a2e;
+      color: #eee;
+      min-height: 100vh;
+      padding: 2rem;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    h1 { font-size: 1.2rem; color: #a29bfe; margin-bottom: 0.25rem; }
+    .subtitle { font-size: 0.82rem; opacity: 0.5; margin-bottom: 1.5rem; }
+
+    .input-row {
+      display: flex;
+      gap: 0.6rem;
+      margin-bottom: 1.5rem;
+    }
+
+    input[type="text"] {
+      flex: 1;
+      padding: 0.6rem 1rem;
+      background: #16213e;
+      border: 1px solid #2d3561;
+      border-radius: 8px;
+      color: #eee;
+      font-size: 0.9rem;
+      font-family: inherit;
+      outline: none;
+    }
+
+    input:focus { border-color: #6c5ce7; }
+    input::placeholder { opacity: 0.4; }
+
+    .add-btn {
+      padding: 0.6rem 1.25rem;
+      background: #6c5ce7;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: 0.88rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    /* ── Skill cards ───────────────────────────────────────── */
+    .skill-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.6rem;
+      margin-bottom: 1rem;
+    }
+
+    .skill-card {
+      background: #16213e;
+      border: 1px solid #2d3561;
+      border-radius: 100px;
+      padding: 0.45rem 1rem;
+      font-size: 0.85rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      animation: pop 0.2s ease;
+    }
+
+    @keyframes pop {
+      from { opacity: 0; transform: scale(0.8); }
+      to   { opacity: 1; transform: scale(1); }
+    }
+
+    .skill-card .remove {
+      background: none;
+      border: none;
+      color: #636e72;
+      cursor: pointer;
+      font-size: 0.85rem;
+      padding: 0;
+      line-height: 1;
+      transition: color 0.15s;
+    }
+
+    .skill-card .remove:hover { color: #d63031; }
+
+    .empty-state {
+      text-align: center;
+      opacity: 0.3;
+      font-size: 0.88rem;
+      padding: 2rem;
+    }
+
+    .meta {
+      font-size: 0.78rem;
+      color: #636e72;
+    }
+
+    /* ── Code panel ────────────────────────────────────────── */
+    .code-panel {
+      background: #0d1117;
+      border-radius: 10px;
+      padding: 0.85rem 1.1rem;
+      font-family: 'Courier New', monospace;
+      font-size: 0.78rem;
+      color: #636e72;
+      margin-top: 1.5rem;
+      line-height: 1.8;
+    }
+
+    .code-panel .hl  { color: #55efc4; }
+    .code-panel .arr { color: #fdcb6e; }
+  </style>
+</head>
+<body>
+
+  <h1>Skill Tracker</h1>
+  <p class="subtitle">Add skills to the array — the render function rebuilds the list each time.</p>
+
+  <div class="input-row">
+    <input type="text" id="skill-input" placeholder="Add a skill (e.g. CSS Grid, Figma…)" maxlength="40">
+    <button class="add-btn" id="add-btn">+ Add</button>
+  </div>
+
+  <div class="skill-grid" id="skill-grid">
+    <p class="empty-state" id="empty">No skills yet — add one above.</p>
+  </div>
+
+  <p class="meta" id="meta"></p>
+
+  <div class="code-panel">
+    skills = [<span class="hl" id="array-display"></span>]<br>
+    <span class="arr">renderSkills</span>(skills)  &larr;  called every time the array changes
+  </div>
+
+  <script>
+    // ── The data array — renderSkills() reads this ────────────
+    let skills = ['HTML', 'CSS', 'JavaScript'];
+
+    const grid = document.querySelector('#skill-grid');
+
+    // ── renderSkills — called every time skills changes ───────
+    function renderSkills(items) {
+      if (items.length === 0) {
+        grid.innerHTML = '<p class="empty-state" id="empty">No skills yet — add one above.</p>';
+        document.querySelector('#meta').textContent = '';
+        document.querySelector('#array-display').textContent = '';
         return;
       }
 
-      main.innerHTML = `
-        <div class="status-bar">
-          <div class="status-dot dot-online"></div>
-          <strong>${userName}</strong>
-          <span style="color:#64748b">·</span>
-          <span style="color:#94a3b8">${userEmail}</span>
-          <span style="color:#64748b; margin-left:auto; font-size:0.75rem;">config.timeout: ${rawConfig.timeout}ms · theme: ${rawConfig.theme}</span>
-        </div>
+      grid.innerHTML = items.map(function(skill, index) {
+        return `
+          <div class="skill-card">
+            <span>${skill}</span>
+            <button class="remove" onclick="removeSkill(${index})" title="Remove">&times;</button>
+          </div>
+        `;
+      }).join('');
 
-        <div class="dash-grid">
-          <div class="stat-card">
-            <div class="stat-label">Posts</div>
-            <div class="stat-value">${postCount}</div>
-            <div class="stat-sub">published articles</div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-label">Views</div>
-            <div class="stat-value">${viewCount.toLocaleString()}</div>
-            <div class="stat-sub">all time</div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-label">Max Items</div>
-            <div class="stat-value">${rawConfig.maxItems}</div>
-            <div class="stat-sub">per page (config)</div>
-          </div>
-        </div>
-
-        <div class="panel">
-          <h2>Role &amp; Permissions</h2>
-          <span class="access-badge ${accessBadgeClass}">${accessLevel}</span>
-          <div class="action-list">
-            ${accessActions.map(a => `<div class="action-item">${a}</div>`).join('')}
-          </div>
-        </div>
-
-        <div class="panel">
-          <h2>Feature Flags</h2>
-          <div class="feature-grid">
-            ${flags.map(f => `
-              <div class="feature-item ${activeFlags.has(f) ? 'fi-on' : 'fi-off'}">
-                ${activeFlags.has(f) ? '✓' : '✗'} ${f}
-              </div>
-            `).join('')}
-          </div>
-          ${activeFlags.has('beta-ui')
-            ? '<p style="margin-top:0.75rem; font-size:0.8rem; color:#a78bfa;">✦ Beta UI is active — new layout components are enabled.</p>'
-            : ''
-          }
-          ${activeFlags.has('export-pdf')
-            ? '<p style="margin-top:0.5rem; font-size:0.8rem; color:#a78bfa;">✦ PDF export is available in the toolbar.</p>'
-            : ''
-          }
-        </div>
-
-        ${buildTrace(traceFired, rawConfig)}
-      `;
+      document.querySelector('#meta').textContent = items.length + ' skills tracked';
+      document.querySelector('#array-display').textContent =
+        items.map(s => '"' + s + '"').join(', ');
     }
 
-    function buildTrace(traceFired, config) {
-      const lines = traceFired.map(t =>
-        `<div class="tl ${t.fired ? 'tl-fired' : 'tl-skip'}">${t.text}</div>`
-      ).join('');
+    // ── addSkill — pushes to array, re-renders ────────────────
+    function addSkill() {
+      const input = document.querySelector('#skill-input');
+      const text  = input.value.trim();
 
-      return `
-        <div class="trace-panel">
-          <h2>JS Decision Trace</h2>
-          <div class="trace-lines">
-            ${lines}
-            <div class="tl tl-result">config resolved → { timeout: ${config.timeout}, theme: "${config.theme}", maxItems: ${config.maxItems} }</div>
-          </div>
-        </div>
-      `;
+      if (!text) return;
+      if (skills.includes(text)) {
+        input.value = '';
+        return;
+      }
+
+      skills.push(text);
+      renderSkills(skills);
+      input.value = '';
+      input.focus();
     }
 
-    // Attach listeners
-    ['toggleLogin', 'toggleVerified', 'roleSelect', 'toggleTimeout', 'toggleTheme'].forEach(id => {
-      document.getElementById(id).addEventListener('change', render);
+    // ── removeSkill — splices from array, re-renders ──────────
+    function removeSkill(index) {
+      skills.splice(index, 1);
+      renderSkills(skills);
+    }
+
+    document.querySelector('#add-btn').addEventListener('click', addSkill);
+    document.querySelector('#skill-input').addEventListener('keydown', function(event) {
+      if (event.key === 'Enter') addSkill();
     });
 
-    render();
+    // Initial render
+    renderSkills(skills);
+  </script>
+
+</body>
+</html>
+```
+
+---
+
+## CodePen 5 — Reusable Render Function
+
+**Placement:** After the "renderCards() Pattern" section.
+**Demonstrates:** The same `renderCards()` function called in multiple contexts — on load, on filter, on sort. Shows why functions beat copy-pasted code. Uses `map().join('')` pattern.
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Reusable Render Function</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: #1a1a2e;
+      color: #eee;
+      min-height: 100vh;
+      padding: 2rem;
+      max-width: 760px;
+      margin: 0 auto;
+    }
+
+    h1 { font-size: 1.2rem; color: #a29bfe; margin-bottom: 0.25rem; }
+    .subtitle { font-size: 0.82rem; opacity: 0.5; margin-bottom: 1.5rem; }
+
+    /* ── Filter bar ───────────────────────────────────────── */
+    .filter-bar {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+      margin-bottom: 1.5rem;
+    }
+
+    .filter-btn {
+      padding: 0.4rem 1rem;
+      background: transparent;
+      border: 2px solid #2d3561;
+      border-radius: 100px;
+      color: #aaa;
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: border-color 0.2s, color 0.2s, background 0.2s;
+    }
+
+    .filter-btn.active {
+      background: #6c5ce7;
+      border-color: #6c5ce7;
+      color: #fff;
+    }
+
+    /* ── Card grid ────────────────────────────────────────── */
+    .card-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+
+    .card {
+      background: #16213e;
+      border: 1px solid #2d3561;
+      border-radius: 12px;
+      padding: 1.25rem;
+      transition: transform 0.2s, border-color 0.2s;
+    }
+
+    .card:hover {
+      transform: translateY(-3px);
+      border-color: #6c5ce7;
+    }
+
+    .card-emoji { font-size: 1.5rem; margin-bottom: 0.5rem; }
+
+    .card-title {
+      font-size: 0.95rem;
+      font-weight: 700;
+      margin-bottom: 0.25rem;
+    }
+
+    .card-category {
+      display: inline-block;
+      background: rgba(108,92,231,0.15);
+      color: #a29bfe;
+      font-size: 0.7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      padding: 0.15rem 0.55rem;
+      border-radius: 100px;
+    }
+
+    .count-bar {
+      font-size: 0.78rem;
+      color: #636e72;
+      margin-bottom: 1rem;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Project Gallery</h1>
+  <p class="subtitle">The same <code>renderCards()</code> function is called by load, filter, and sort.</p>
+
+  <div class="filter-bar">
+    <button class="filter-btn active" data-filter="all">All</button>
+    <button class="filter-btn" data-filter="design">Design</button>
+    <button class="filter-btn" data-filter="code">Code</button>
+    <button class="filter-btn" data-filter="ux">UX</button>
+  </div>
+
+  <p class="count-bar" id="count-bar"></p>
+  <div class="card-grid" id="card-grid"></div>
+
+  <script>
+    // ── Data ──────────────────────────────────────────────────
+    const projects = [
+      { emoji: '🎨', title: 'Brand Identity',  category: 'design' },
+      { emoji: '💻', title: 'Portfolio Site',   category: 'code'   },
+      { emoji: '🗂️', title: 'UX Case Study',    category: 'ux'     },
+      { emoji: '🖌️', title: 'Icon System',      category: 'design' },
+      { emoji: '⚡', title: 'React Dashboard',  category: 'code'   },
+      { emoji: '📊', title: 'Data Viz Report',  category: 'ux'     },
+      { emoji: '🌐', title: 'Landing Page',     category: 'code'   },
+      { emoji: '✏️', title: 'Typography Guide', category: 'design' }
+    ];
+
+    // ── renderCards — one function, called everywhere ─────────
+    function renderCards(items) {
+      const grid = document.querySelector('#card-grid');
+
+      grid.innerHTML = items.map(function(project) {
+        return `
+          <div class="card">
+            <p class="card-emoji">${project.emoji}</p>
+            <h3 class="card-title">${project.title}</h3>
+            <span class="card-category">${project.category}</span>
+          </div>
+        `;
+      }).join('');
+
+      document.querySelector('#count-bar').textContent =
+        'Showing ' + items.length + ' of ' + projects.length + ' projects';
+    }
+
+    // ── Filter buttons ────────────────────────────────────────
+    const filterBtns = document.querySelectorAll('.filter-btn');
+
+    filterBtns.forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        // Update active button
+        filterBtns.forEach(function(b) { b.classList.remove('active'); });
+        btn.classList.add('active');
+
+        // Filter and re-render — same renderCards() function
+        const filter = btn.dataset.filter;
+        if (filter === 'all') {
+          renderCards(projects);
+        } else {
+          const filtered = projects.filter(function(p) {
+            return p.category === filter;
+          });
+          renderCards(filtered);
+        }
+      });
+    });
+
+    // Initial render on page load — same renderCards() function
+    renderCards(projects);
   </script>
 
 </body>
