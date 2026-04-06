@@ -780,8 +780,13 @@ activeTab = <span class="str">'about'</span>;   <span class="cmt">// ✅ works</
           <!-- Interactive demo -->
           <div class="demo-box">
             <h4>Try it: const vs let</h4>
-            <button class="demo-btn" onclick="demoConst()">const reassign (error)</button>
-            <button class="demo-btn" onclick="demoLet()">let update (works)</button>
+            <div style="display:flex; gap:.4rem; margin-bottom:.5rem;">
+              <button class="demo-btn" onclick="demoConst()">const reassign</button>
+              <button class="demo-btn" onclick="demoLet()">let update</button>
+            </div>
+            <div style="font-size:.72rem; color:var(--muted); margin-bottom:.2rem; letter-spacing:.06em; text-transform:uppercase;">Code being applied:</div>
+            <pre id="constLetCode" style="font-size:.78rem; margin-bottom:.5rem; min-height:42px;"><code style="color:var(--muted);">← click a button above</code></pre>
+            <div style="font-size:.72rem; color:var(--muted); margin-bottom:.2rem; letter-spacing:.06em; text-transform:uppercase;">Result:</div>
             <div class="demo-output" id="constLetOutput">Click a button above</div>
           </div>
           <div class="link-row">
@@ -849,6 +854,10 @@ price * (<span class="num">1</span> + rate); <span class="cmt">// 53.99</span></
       <h2>Template Literals</h2>
       <div class="two-col">
         <div>
+          <div class="highlight-box" style="margin-bottom:.85rem;">
+            <strong style="color:var(--accent3);">Why use template literals?</strong><br>
+            When you display data on a page, you constantly need to combine fixed text with variable values — "Hello, <em>name</em>!" or "You have <em>3</em> items in your cart." Without template literals, this means gluing strings together with <code>+</code> signs, which is hard to read and easy to break. Template literals let you write those strings the same way you'd read them out loud.
+          </div>
           <div class="note" style="margin-bottom:.85rem;">
             <strong>What does "literal" mean?</strong><br>
             A <em>literal</em> is a value written directly in your code. <code>42</code> is a number literal — you typed the actual number. <code>'hello'</code> is a string literal — you typed the actual text. A <strong>template literal</strong> is just a special kind of string that has fill-in-the-blank slots built in.
@@ -1147,16 +1156,23 @@ grid.innerHTML = <span class="str">`
   border-radius: 12px;
   padding: 1.5rem;
 }</code></pre>
-          <p style="font-size:.85rem; color:var(--muted); margin:.5rem 0 .3rem;"><strong>Your JavaScript (changing things):</strong></p>
-          <pre><code><span class="cmt">// Option 1: inline style (quick but messy)</span>
-<span class="kw">const</span> card = document.<span class="fn">querySelector</span>(<span class="str">'.card'</span>);
+          <p style="font-size:.85rem; color:var(--muted); margin:.5rem 0 .3rem;"><strong>Option 1 — inline style (one element at a time):</strong></p>
+          <pre><code><span class="kw">const</span> card = document.<span class="fn">querySelector</span>(<span class="str">'.card'</span>);
 card.style.backgroundColor = <span class="str">'#6c5ce7'</span>;
-<span class="cmt">// CSS hyphen → JS camelCase!</span>
-
-<span class="cmt">// Option 2: CSS variable (changes EVERYTHING)</span>
+card.style.borderRadius    = <span class="str">'12px'</span>;
+card.style.fontSize        = <span class="str">'1.2rem'</span>;</code></pre>
+          <div class="note" style="margin-bottom:.5rem;">
+            <strong>CSS hyphen → JS camelCase</strong><br>
+            CSS uses hyphens: <code>background-color</code>, <code>font-size</code><br>
+            JS uses camelCase: <code>backgroundColor</code>, <code>fontSize</code><br>
+            Just drop the hyphen and capitalize the next word.
+          </div>
+          <p style="font-size:.85rem; color:var(--muted); margin:.5rem 0 .3rem;"><strong>Option 2 — CSS custom property (updates everything at once):</strong></p>
+          <pre><code><span class="cmt">// document.documentElement = the &lt;html&gt; element</span>
+<span class="cmt">// (that's where :root variables live)</span>
 document.documentElement.style
   .<span class="fn">setProperty</span>(<span class="str">'--accent'</span>, <span class="str">'#6c5ce7'</span>);
-
+<span class="cmt">//              ↑ the variable name   ↑ new value</span>
 <span class="cmt">// Every element using var(--accent) updates instantly</span></code></pre>
           <div class="note">
             <strong>Prefer option 2 in most cases.</strong> Updating a CSS custom property is like changing the source color swatch in a design file — every element that references it updates automatically. One line of JavaScript can restyle your entire page.<br><br>
@@ -1202,7 +1218,26 @@ document.documentElement.style
     <div class="slide-inner">
       <div class="slide-tag">DOM Manipulation</div>
       <h2>classList — The Bridge Between JS and CSS</h2>
-      <p style="margin-bottom:.75rem;">Think of <code>classList</code> like a light switch. Your CSS defines what the page looks like with the light <em>on</em> and what it looks like with the light <em>off</em>. JavaScript is just the switch on the wall — one flip, and the CSS does the rest. The transition, the animation, the color change — all already written in your stylesheet, waiting to be switched.</p>
+      <div class="two-col" style="margin-bottom:.75rem;">
+        <div class="highlight-box" style="margin-bottom:0;">
+          <strong style="color:var(--accent3);">What is classList?</strong><br>
+          Every HTML element has a <code>class</code> attribute — a list of CSS class names applied to it. <code>classList</code> is JavaScript's live view of that list. You already know that CSS classes control how things look. <code>classList</code> lets you add, remove, or flip those class names from JavaScript — and your CSS reacts instantly.
+          <br><br>
+          <code>&lt;div class="card <strong>active</strong>"&gt;</code> ← <code>classList</code> shows <em>["card", "active"]</em>
+        </div>
+        <div class="highlight-box" style="margin-bottom:0;">
+          <strong style="color:var(--accent3);">Why use it?</strong><br>
+          Almost every interactive UI pattern you'll ever build works this way:
+          <ul class="bullets" style="margin-top:.5rem;">
+            <li>Dark mode toggle → add <code>.dark</code> to body</li>
+            <li>Open a menu → add <code>.open</code> to nav</li>
+            <li>Show a modal → add <code>.visible</code> to overlay</li>
+            <li>Highlight selected tab → add <code>.active</code> to button</li>
+          </ul>
+          The CSS already has the styles for each state. classList just flips the switch.
+        </div>
+      </div>
+      <p style="font-size:.85rem; color:var(--muted); margin-bottom:.75rem;">Think of it like a light switch. Your CSS defines what the page looks like with the light <em>on</em> and what it looks like with the light <em>off</em>. JavaScript is just the switch — one flip, the CSS does the rest.</p>
       <div class="two-col">
         <div>
           <p style="font-size:.85rem; color:var(--muted); margin-bottom:.3rem;"><strong>Your CSS — two states defined:</strong></p>
@@ -1275,7 +1310,22 @@ card.classList.<span class="fn">contains</span>(<span class="str">'active'</span
     <div class="slide-inner">
       <div class="slide-tag">DOM Manipulation</div>
       <h2>Creating and Removing Elements</h2>
-      <p style="margin-bottom:.75rem;">Think of this like building a LEGO piece in your hands before snapping it onto the board. You create the element, decorate it, then attach it to the page — and CSS styles it instantly the moment it lands.</p>
+      <div class="two-col" style="margin-bottom:.85rem;">
+        <div class="highlight-box" style="margin-bottom:0;">
+          <strong style="color:var(--accent3);">Why create elements with JavaScript?</strong><br>
+          If you wrote every card by hand in HTML you'd have to edit the HTML file every time you wanted to add, remove, or reorder items. When you create elements with JavaScript, the page builds itself from data. Change the data → re-run the code → the page updates. No HTML editing needed.
+        </div>
+        <div class="highlight-box" style="margin-bottom:0;">
+          <strong style="color:var(--accent3);">The 4-step pattern — every time:</strong>
+          <ol style="margin-top:.5rem; padding-left:1.2rem; font-size:.88rem; line-height:1.8;">
+            <li><strong>Create</strong> — make a blank element in memory</li>
+            <li><strong>Configure</strong> — give it classes, text, or attributes</li>
+            <li><strong>Optional</strong> — add extra data with <code>setAttribute</code></li>
+            <li><strong>Append</strong> — snap it onto the page with <code>appendChild</code></li>
+          </ol>
+        </div>
+      </div>
+      <p style="font-size:.85rem; color:var(--muted); margin-bottom:.5rem;">Think of LEGO bricks: you build the piece in your hands first, then snap it onto the board. The piece doesn't exist on the page until step 4.</p>
       <div class="two-col">
         <div>
           <p style="font-size:.85rem; color:var(--muted); margin-bottom:.3rem;"><strong>Your HTML — the container already exists:</strong></p>
@@ -1301,6 +1351,11 @@ grid.<span class="fn">appendChild</span>(newCard);
           <pre><code><span class="cmt">// Removing is even simpler:</span>
 <span class="kw">const</span> card = document.<span class="fn">querySelector</span>(<span class="str">'.card'</span>);
 card.<span class="fn">remove</span>(); <span class="cmt">// Gone immediately</span></code></pre>
+          <div class="note">
+            <strong>What the HTML looks like after step 4:</strong><br>
+            <code style="font-size:.82rem; display:block; margin-top:.3rem; line-height:1.7;">&lt;div id="grid"&gt;<br>&nbsp;&nbsp;&lt;div class="card" data-id="42"&gt;Sneakers&lt;/div&gt;<br>&lt;/div&gt;</code>
+            It's a real HTML element — your CSS styles it, DevTools shows it, and you can query it again later.
+          </div>
         </div>
         <div>
           <div class="demo-box">
@@ -1343,7 +1398,25 @@ card.<span class="fn">remove</span>(); <span class="cmt">// Gone immediately</sp
     <div class="slide-inner">
       <div class="slide-tag">DOM Manipulation</div>
       <h2>data-* Attributes and dataset</h2>
-      <p style="margin-bottom:.75rem;">Think of <code>data-*</code> attributes like sticky notes on an element — you write any extra information you want right on the HTML tag, and JavaScript can read it any time. Perfect for storing IDs, colors, labels, or states without cluttering your class names.</p>
+      <div class="two-col" style="margin-bottom:.85rem;">
+        <div class="highlight-box" style="margin-bottom:0;">
+          <strong style="color:var(--accent3);">What are data-* attributes?</strong><br>
+          HTML already has built-in attributes like <code>id</code>, <code>class</code>, <code>src</code>, <code>href</code>. <code>data-*</code> lets you invent your own. The <code>*</code> is a wildcard — you name it anything that describes the data:
+          <code style="display:block; margin-top:.4rem; font-size:.82rem; line-height:1.8;">data-id="42"<br>data-color="#6c5ce7"<br>data-price="19.99"<br>data-tab="about"</code>
+          These are ignored by CSS and browsers — they exist purely for JavaScript to read.
+        </div>
+        <div class="highlight-box" style="margin-bottom:0;">
+          <strong style="color:var(--accent3);">Why not just use a class or id?</strong><br>
+          Classes are for styling. IDs are for targeting one unique element. <code>data-*</code> is for information that lives on many elements and changes per element:
+          <ul class="bullets" style="margin-top:.5rem; font-size:.85rem;">
+            <li>50 product cards each need a unique <code>data-id</code></li>
+            <li>5 tabs each need a <code>data-tab</code> pointing to their panel</li>
+            <li>A color swatch needs <code>data-color</code> and <code>data-name</code></li>
+          </ul>
+          Without <code>data-*</code>, you'd have to look up a separate JS object to match the element to its data.
+        </div>
+      </div>
+      <p style="font-size:.85rem; color:var(--muted); margin-bottom:.5rem;">Think of <code>data-*</code> like sticky notes on an element — extra information written right on the HTML tag that JavaScript can read any time.</p>
       <div class="two-col">
         <div>
           <p style="font-size:.85rem; color:var(--muted); margin-bottom:.3rem;"><strong>Your HTML — sticky notes on each element:</strong></p>
@@ -1366,7 +1439,11 @@ swatch.dataset.name   <span class="cmt">// → "Purple"</span>
 swatch.dataset.selected = <span class="str">'true'</span>;
 <span class="cmt">// Adds data-selected="true" to the element</span></code></pre>
           <div class="note">
-            <strong>Naming:</strong> <code>data-background-color</code> → <code>dataset.backgroundColor</code> (hyphens become camelCase in JS)
+            <strong>Naming conversion — HTML hyphens → JS camelCase:</strong><br>
+            <code>data-color</code> → <code>dataset.color</code><br>
+            <code>data-first-name</code> → <code>dataset.firstName</code><br>
+            <code>data-background-color</code> → <code>dataset.backgroundColor</code><br>
+            Drop the <code>data-</code> prefix, then convert hyphens to camelCase.
           </div>
         </div>
         <div>
@@ -1529,15 +1606,19 @@ swatch.dataset.selected = <span class="str">'true'</span>;
   /* ===== DEMO: const vs let ===== */
   let letCounter = 0;
   function demoConst() {
-    const out = document.getElementById('constLetOutput');
+    const out  = document.getElementById('constLetOutput');
+    const code = document.getElementById('constLetCode');
+    code.innerHTML = '<span class="kw">const</span> siteName = <span class="str">\'Portfolio\'</span>;\n\n<span class="cmt">// Try to reassign it:</span>\nsiteName = <span class="str">\'New Name\'</span>; <span class="cmt">// ❌ TypeError!</span>';
     out.style.color = '#f87171';
-    out.textContent = '❌ TypeError: Assignment to constant variable.\n(const cannot be reassigned)';
+    out.textContent = '❌ TypeError: Assignment to constant variable.\n(const cannot be reassigned — that\'s the point!)';
   }
   function demoLet() {
     letCounter += 10;
-    const out = document.getElementById('constLetOutput');
+    const out  = document.getElementById('constLetOutput');
+    const code = document.getElementById('constLetCode');
+    code.innerHTML = '<span class="kw">let</span> score = <span class="num">0</span>;  <span class="cmt">// starts at 0</span>\n\n<span class="cmt">// Each click adds 10:</span>\nscore = score + <span class="num">10</span>; <span class="cmt">// ✅ now ' + letCounter + '</span>';
     out.style.color = '#6ee7b7';
-    out.textContent = '✅ let score = ' + letCounter + '  (updated successfully)';
+    out.textContent = '✅ score is now ' + letCounter + '  (let allows updates)';
   }
 
   /* ===== DEMO: Data type identifier ===== */
