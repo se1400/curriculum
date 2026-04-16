@@ -426,12 +426,18 @@
       <p class="lead">CSS does all the visual work. JavaScript just flips a switch.</p>
 
       <div class="highlight-box">
-        <strong>The golden rule:</strong> JavaScript does not create visual effects. CSS does. JavaScript's only job is to add or remove a class name. The CSS transitions you already know handle the rest.
+        <strong>Think of it like a light switch on a wall.</strong> The wiring (CSS) decides what happens when the switch is flipped — lights turn on, fan spins, whatever. JavaScript is just the finger that flips the switch. It doesn't know or care about wiring. It just toggles the switch between ON and OFF.
       </div>
+
+      <h3>1. HTML — The structure</h3>
+<pre><code>&lt;<span class="kw">button</span> <span class="prop">id</span>=<span class="str">"toggle-btn"</span>&gt;Toggle Panel&lt;/<span class="kw">button</span>&gt;
+&lt;<span class="kw">div</span> <span class="prop">class</span>=<span class="str">"panel"</span>&gt;
+  &lt;<span class="kw">p</span>&gt;This content can be shown or hidden.&lt;/<span class="kw">p</span>&gt;
+&lt;/<span class="kw">div</span>&gt;</code></pre>
 
       <div class="two-col">
         <div>
-          <h3>CSS defines two states</h3>
+          <h3>2. CSS — Two visual states</h3>
 <pre><code><span class="cmt">/* State 1: Default — hidden */</span>
 .<span class="fn">panel</span> {
   <span class="prop">max-height</span>: <span class="num">0</span>;
@@ -443,13 +449,19 @@
 .<span class="fn">panel</span>.<span class="fn">open</span> {
   <span class="prop">max-height</span>: <span class="num">500px</span>;
 }</code></pre>
+          <p>CSS defines what "closed" looks like and what "open" looks like, including the smooth transition between them.</p>
         </div>
         <div>
-          <h3>JS toggles between them</h3>
-<pre><code>panel.<span class="fn">classList</span>.<span class="fn">toggle</span>(<span class="str">'open'</span>);</code></pre>
-          <p>That's it. One line. The CSS transition fires automatically the moment the class changes.</p>
+          <h3>3. JS — Flip the switch</h3>
+<pre><code><span class="kw">const</span> btn = document.<span class="fn">querySelector</span>(<span class="str">'#toggle-btn'</span>);
+<span class="kw">const</span> panel = document.<span class="fn">querySelector</span>(<span class="str">'.panel'</span>);
+
+btn.<span class="fn">addEventListener</span>(<span class="str">'click'</span>, <span class="kw">function</span>() {
+  panel.<span class="fn">classList</span>.<span class="fn">toggle</span>(<span class="str">'open'</span>);
+});</code></pre>
+          <p>That's it. JavaScript selects the element, listens for a click, and toggles the class. The CSS transition fires automatically.</p>
           <div class="note">
-            <strong>Why?</strong> This is called <em>separation of concerns</em>. CSS handles appearance. JS handles state. Your code stays clean, easy to debug, and easy to hand off to another developer.
+            <strong>Why separate them?</strong> This is called <em>separation of concerns</em>. CSS handles appearance. JS handles state. Your code stays clean, easy to debug, and easy to hand off.
           </div>
         </div>
       </div>
@@ -564,11 +576,17 @@
     <div class="slide-inner">
       <div class="slide-tag">Dark Mode Toggle</div>
       <h2>Dark Mode — The CSS Side</h2>
-      <p>Dark mode uses CSS custom properties with two selectors — the default and a <code>.dark-mode</code> class on <code>&lt;body&gt;</code>:</p>
+
+      <div class="highlight-box">
+        <strong>Analogy:</strong> Think of CSS custom properties like a paint palette. Right now the palette says "white walls, dark text." When you flip to dark mode, you swap the entire palette at once — every room (element) that references the palette automatically repaints itself. You don't repaint each room individually.
+      </div>
+
+      <h3>HTML — A button to toggle</h3>
+<pre><code>&lt;<span class="kw">button</span> <span class="prop">id</span>=<span class="str">"theme-toggle"</span>&gt;&#9790; Dark Mode&lt;/<span class="kw">button</span>&gt;</code></pre>
 
       <div class="two-col">
         <div>
-          <h3>Define two color schemes</h3>
+          <h3>CSS — Two color palettes</h3>
 <pre><code><span class="cmt">/* Light mode (default) */</span>
 :<span class="fn">root</span> {
   <span class="prop">--bg</span>:   <span class="str">#ffffff</span>;
@@ -582,17 +600,22 @@
   <span class="prop">--text</span>: <span class="str">#eeeeee</span>;
   <span class="prop">--card</span>: <span class="str">#16213e</span>;
 }</code></pre>
+          <p><code>:root</code> sets the default palette. <code>body.dark-mode</code> overrides it. Because <code>body</code> is more specific when the class is present, the dark values win.</p>
         </div>
         <div>
-          <h3>Use the variables everywhere</h3>
+          <h3>CSS — Elements use the palette</h3>
 <pre><code><span class="kw">body</span> {
   <span class="prop">background</span>: <span class="fn">var</span>(<span class="prop">--bg</span>);
   <span class="prop">color</span>: <span class="fn">var</span>(<span class="prop">--text</span>);
   <span class="prop">transition</span>: background <span class="num">0.3s</span>,
               color <span class="num">0.3s</span>;
+}
+
+.<span class="fn">card</span> {
+  <span class="prop">background</span>: <span class="fn">var</span>(<span class="prop">--card</span>);
 }</code></pre>
           <div class="note">
-            <strong>Why custom properties?</strong> Because <code>--bg</code>, <code>--text</code>, and <code>--card</code> cascade to every element using them, that single class toggle updates the <em>entire page</em> at once.
+            <strong>Key insight:</strong> Every element uses <code>var(--bg)</code>, <code>var(--text)</code>, etc. When JS adds <code>.dark-mode</code> to <code>&lt;body&gt;</code>, those variables change — and every element using them updates automatically.
           </div>
         </div>
       </div>
@@ -607,16 +630,27 @@
       <div class="slide-tag">Dark Mode Toggle</div>
       <h2>Dark Mode — The JavaScript</h2>
 
-      <div class="highlight-box">
-        <strong>One line of JavaScript toggles the entire page's color scheme:</strong>
+      <p>Here's the complete JavaScript. It selects the button, listens for a click, toggles the class on <code>&lt;body&gt;</code>, and updates the button label:</p>
+
+<pre><code><span class="cmt">// 1. Select the button from the HTML</span>
+<span class="kw">const</span> btn = document.<span class="fn">querySelector</span>(<span class="str">'#theme-toggle'</span>);
+
+<span class="cmt">// 2. Listen for clicks</span>
+btn.<span class="fn">addEventListener</span>(<span class="str">'click'</span>, <span class="kw">function</span>() {
+
+  <span class="cmt">// 3. Toggle the class on &lt;body&gt; — this swaps the CSS palette</span>
+  document.body.<span class="fn">classList</span>.<span class="fn">toggle</span>(<span class="str">'dark-mode'</span>);
+
+  <span class="cmt">// 4. Check which state we're in now</span>
+  <span class="kw">const</span> isDark = document.body.<span class="fn">classList</span>.<span class="fn">contains</span>(<span class="str">'dark-mode'</span>);
+
+  <span class="cmt">// 5. Update the button label to match</span>
+  btn.<span class="prop">textContent</span> = isDark ? <span class="str">'☀ Light Mode'</span> : <span class="str">'☾ Dark Mode'</span>;
+});</code></pre>
+
+      <div class="note">
+        <strong>How it all connects:</strong> The HTML provides the <code>&lt;button&gt;</code>. The CSS defines two palettes (<code>:root</code> and <code>body.dark-mode</code>). JavaScript listens for the click, toggles the class, and the CSS variables cascade the color change to every element on the page. Three languages, one feature.
       </div>
-
-<pre><code>document.body.<span class="fn">classList</span>.<span class="fn">toggle</span>(<span class="str">'dark-mode'</span>);</code></pre>
-
-      <p>Update the button label with the ternary operator:</p>
-
-<pre><code><span class="kw">const</span> isDark = document.body.<span class="fn">classList</span>.<span class="fn">contains</span>(<span class="str">'dark-mode'</span>);
-btn.<span class="prop">textContent</span> = isDark ? <span class="str">'☀ Light Mode'</span> : <span class="str">'☾ Dark Mode'</span>;</code></pre>
 
       <div class="demo-box">
         <h4>Try It — Dark Mode Toggle</h4>
@@ -648,6 +682,10 @@ btn.<span class="prop">textContent</span> = isDark ? <span class="str">'☀ Ligh
       <h2>Accordion — Expand &amp; Collapse</h2>
       <p class="lead">An accordion is a list of sections where clicking a heading reveals or hides its content.</p>
 
+      <div class="highlight-box">
+        <strong>Analogy:</strong> Think of a filing cabinet with spring-loaded drawers. You pull one drawer open, and the others automatically push closed. Each drawer (section) has a label (header) you click to open it. The content inside slides out smoothly — it doesn't just teleport into existence.
+      </div>
+
       <div class="two-col">
         <div>
           <h3>Why use an accordion?</h3>
@@ -677,33 +715,48 @@ btn.<span class="prop">textContent</span> = isDark ? <span class="str">'☀ Ligh
       <div class="slide-tag">Accordion</div>
       <h2>Accordion — The Code</h2>
 
+      <h3>HTML — The structure</h3>
+<pre><code>&lt;<span class="kw">div</span> <span class="prop">class</span>=<span class="str">"accordion-item"</span>&gt;
+  &lt;<span class="kw">button</span> <span class="prop">class</span>=<span class="str">"accordion-header"</span>&gt;What is classList?&lt;/<span class="kw">button</span>&gt;
+  &lt;<span class="kw">div</span> <span class="prop">class</span>=<span class="str">"accordion-body"</span>&gt;
+    &lt;<span class="kw">p</span>&gt;It's a property that lets you add, remove, and toggle CSS classes.&lt;/<span class="kw">p</span>&gt;
+  &lt;/<span class="kw">div</span>&gt;
+&lt;/<span class="kw">div</span>&gt;
+<span class="cmt">&lt;!-- Repeat for each section --&gt;</span></code></pre>
+
       <div class="two-col">
         <div>
           <h3>CSS — Two states</h3>
-<pre><code>.<span class="fn">accordion-body</span> {
+<pre><code><span class="cmt">/* Default: body is hidden */</span>
+.<span class="fn">accordion-body</span> {
   <span class="prop">max-height</span>: <span class="num">0</span>;
   <span class="prop">overflow</span>: hidden;
   <span class="prop">transition</span>: max-height <span class="num">0.35s</span> ease;
 }
 
+<span class="cmt">/* When parent has .open, reveal */</span>
 .<span class="fn">accordion-item</span>.<span class="fn">open</span> .<span class="fn">accordion-body</span> {
   <span class="prop">max-height</span>: <span class="num">400px</span>;
 }</code></pre>
+          <p>The <code>.open</code> class goes on the parent <code>.accordion-item</code>. The CSS descendant selector then targets the <code>.accordion-body</code> inside it.</p>
         </div>
         <div>
           <h3>JavaScript — Toggle + close others</h3>
-<pre><code>headers.<span class="fn">forEach</span>(<span class="kw">function</span>(header) {
+<pre><code><span class="kw">const</span> headers = document
+  .<span class="fn">querySelectorAll</span>(<span class="str">'.accordion-header'</span>);
+
+headers.<span class="fn">forEach</span>(<span class="kw">function</span>(header) {
   header.<span class="fn">addEventListener</span>(<span class="str">'click'</span>, <span class="kw">function</span>() {
     <span class="kw">const</span> item = header.<span class="prop">parentElement</span>;
 
-    <span class="cmt">// Close all others</span>
+    <span class="cmt">// Close all others first</span>
     document.<span class="fn">querySelectorAll</span>(<span class="str">'.accordion-item'</span>)
       .<span class="fn">forEach</span>(<span class="kw">function</span>(el) {
         <span class="kw">if</span> (el !== item)
           el.<span class="fn">classList</span>.<span class="fn">remove</span>(<span class="str">'open'</span>);
       });
 
-    <span class="cmt">// Toggle this one</span>
+    <span class="cmt">// Toggle the clicked one</span>
     item.<span class="fn">classList</span>.<span class="fn">toggle</span>(<span class="str">'open'</span>);
   });
 });</code></pre>
@@ -711,7 +764,7 @@ btn.<span class="prop">textContent</span> = isDark ? <span class="str">'☀ Ligh
       </div>
 
       <div class="note">
-        <strong>Accessibility:</strong> Always toggle <code>aria-expanded</code> on the heading button — screen readers announce "expanded" or "collapsed" as users navigate.
+        <strong>How it connects:</strong> HTML provides the header/body structure. CSS hides the body by default (<code>max-height: 0</code>) and reveals it when the parent has <code>.open</code>. JavaScript listens for clicks on each header, closes the other items, and toggles the clicked one. The CSS transition handles the smooth animation.
       </div>
     </div>
   </div>
@@ -767,6 +820,10 @@ btn.<span class="prop">textContent</span> = isDark ? <span class="str">'☀ Ligh
       <h2>Real Hamburger Menu</h2>
       <p class="lead">Replace the CSS-only checkbox hack with clean, readable JavaScript.</p>
 
+      <div class="highlight-box">
+        <strong>Analogy:</strong> The CSS checkbox hack is like using a Rube Goldberg machine to open a door — clever, impressive, but unnecessarily complicated. JavaScript is just turning the handle. Same door, same result, but anyone can understand how it works.
+      </div>
+
       <div class="two-col">
         <div>
           <h3>The old way (CSS-only hack)</h3>
@@ -802,10 +859,20 @@ btn.<span class="prop">textContent</span> = isDark ? <span class="str">'☀ Ligh
       <div class="slide-tag">Hamburger Menu</div>
       <h2>Hamburger Menu — The Code</h2>
 
+      <h3>HTML — The button and nav</h3>
+<pre><code>&lt;<span class="kw">button</span> <span class="prop">id</span>=<span class="str">"menu-btn"</span> <span class="prop">aria-expanded</span>=<span class="str">"false"</span>&gt;&#9776;&lt;/<span class="kw">button</span>&gt;
+
+&lt;<span class="kw">nav</span> <span class="prop">class</span>=<span class="str">"nav-links"</span>&gt;
+  &lt;<span class="kw">a</span> <span class="prop">href</span>=<span class="str">"#home"</span>&gt;Home&lt;/<span class="kw">a</span>&gt;
+  &lt;<span class="kw">a</span> <span class="prop">href</span>=<span class="str">"#about"</span>&gt;About&lt;/<span class="kw">a</span>&gt;
+  &lt;<span class="kw">a</span> <span class="prop">href</span>=<span class="str">"#contact"</span>&gt;Contact&lt;/<span class="kw">a</span>&gt;
+&lt;/<span class="kw">nav</span>&gt;</code></pre>
+
       <div class="two-col">
         <div>
           <h3>CSS — slide from the right</h3>
-<pre><code>.<span class="fn">nav-links</span> {
+<pre><code><span class="cmt">/* Default: nav is off-screen */</span>
+.<span class="fn">nav-links</span> {
   <span class="prop">position</span>: fixed;
   <span class="prop">top</span>: <span class="num">0</span>;
   <span class="prop">right</span>: <span class="num">-100%</span>;
@@ -816,23 +883,33 @@ btn.<span class="prop">textContent</span> = isDark ? <span class="str">'☀ Ligh
   <span class="prop">padding-top</span>: <span class="num">5rem</span>;
 }
 
+<span class="cmt">/* When .nav-open is added, slide in */</span>
 .<span class="fn">nav-links</span>.<span class="fn">nav-open</span> {
   <span class="prop">right</span>: <span class="num">0</span>;
 }</code></pre>
+          <p>The nav starts at <code>right: -100%</code> (completely off-screen to the right). Adding <code>.nav-open</code> moves it to <code>right: 0</code>. The <code>transition</code> animates the slide.</p>
         </div>
         <div>
-          <h3>JavaScript — three lines</h3>
-<pre><code>menuBtn.<span class="fn">addEventListener</span>(<span class="str">'click'</span>,
+          <h3>JavaScript — toggle + accessibility</h3>
+<pre><code><span class="kw">const</span> menuBtn = document
+  .<span class="fn">querySelector</span>(<span class="str">'#menu-btn'</span>);
+<span class="kw">const</span> navLinks = document
+  .<span class="fn">querySelector</span>(<span class="str">'.nav-links'</span>);
+
+menuBtn.<span class="fn">addEventListener</span>(<span class="str">'click'</span>,
   <span class="kw">function</span>() {
+    <span class="cmt">// Toggle the nav visibility</span>
     navLinks.<span class="fn">classList</span>.<span class="fn">toggle</span>(<span class="str">'nav-open'</span>);
 
+    <span class="cmt">// Check the new state</span>
     <span class="kw">const</span> isOpen = navLinks
       .<span class="fn">classList</span>.<span class="fn">contains</span>(<span class="str">'nav-open'</span>);
 
+    <span class="cmt">// Update accessibility</span>
     menuBtn.<span class="fn">setAttribute</span>(
-      <span class="str">'aria-expanded'</span>, isOpen
-    );
+      <span class="str">'aria-expanded'</span>, isOpen);
 
+    <span class="cmt">// Swap icon: ✕ when open, ☰ when closed</span>
     menuBtn.<span class="prop">textContent</span> =
       isOpen ? <span class="str">'✕'</span> : <span class="str">'☰'</span>;
 });</code></pre>
@@ -860,23 +937,63 @@ btn.<span class="prop">textContent</span> = isDark ? <span class="str">'☀ Ligh
       <h2>Tab System</h2>
       <p class="lead">Shows one content panel at a time. Clicking a tab activates it and hides the rest.</p>
 
-      <h3>The pattern: Remove <code>.active</code> from all, add to the one that was clicked</h3>
+      <div class="highlight-box">
+        <strong>Analogy:</strong> Think of tabs like a stack of papers in a folder with labeled dividers. Only one section is "on top" (visible) at a time. When you click a divider tab, that section comes to the front, and all others go behind it.
+      </div>
 
-<pre><code>tabs.<span class="fn">forEach</span>(<span class="kw">function</span>(tab) {
+      <h3>HTML — Tabs + panels connected by <code>data-tab</code></h3>
+<pre><code><span class="cmt">&lt;!-- Tab buttons — data-tab stores the ID of the panel each controls --&gt;</span>
+&lt;<span class="kw">button</span> <span class="prop">class</span>=<span class="str">"tab active"</span> <span class="prop">data-tab</span>=<span class="str">"overview"</span>&gt;Overview&lt;/<span class="kw">button</span>&gt;
+&lt;<span class="kw">button</span> <span class="prop">class</span>=<span class="str">"tab"</span> <span class="prop">data-tab</span>=<span class="str">"features"</span>&gt;Features&lt;/<span class="kw">button</span>&gt;
+&lt;<span class="kw">button</span> <span class="prop">class</span>=<span class="str">"tab"</span> <span class="prop">data-tab</span>=<span class="str">"pricing"</span>&gt;Pricing&lt;/<span class="kw">button</span>&gt;
+
+<span class="cmt">&lt;!-- Content panels — IDs match the data-tab values above --&gt;</span>
+&lt;<span class="kw">div</span> <span class="prop">id</span>=<span class="str">"overview"</span> <span class="prop">class</span>=<span class="str">"panel active"</span>&gt;Overview content...&lt;/<span class="kw">div</span>&gt;
+&lt;<span class="kw">div</span> <span class="prop">id</span>=<span class="str">"features"</span> <span class="prop">class</span>=<span class="str">"panel"</span>&gt;Features content...&lt;/<span class="kw">div</span>&gt;
+&lt;<span class="kw">div</span> <span class="prop">id</span>=<span class="str">"pricing"</span> <span class="prop">class</span>=<span class="str">"panel"</span>&gt;Pricing content...&lt;/<span class="kw">div</span>&gt;</code></pre>
+
+      <div class="two-col">
+        <div>
+          <h3>CSS — Only <code>.active</code> panels show</h3>
+<pre><code><span class="cmt">/* Panels hidden by default */</span>
+.<span class="fn">panel</span> { <span class="prop">display</span>: none; }
+.<span class="fn">panel</span>.<span class="fn">active</span> { <span class="prop">display</span>: block; }
+
+<span class="cmt">/* Active tab gets highlight */</span>
+.<span class="fn">tab</span>.<span class="fn">active</span> {
+  <span class="prop">background</span>: <span class="str">var(--accent)</span>;
+  <span class="prop">color</span>: <span class="str">#fff</span>;
+}</code></pre>
+        </div>
+        <div>
+          <h3>JavaScript — Remove all, add to clicked</h3>
+<pre><code><span class="kw">const</span> tabs = document.<span class="fn">querySelectorAll</span>(<span class="str">'.tab'</span>);
+<span class="kw">const</span> panels = document.<span class="fn">querySelectorAll</span>(<span class="str">'.panel'</span>);
+
+tabs.<span class="fn">forEach</span>(<span class="kw">function</span>(tab) {
   tab.<span class="fn">addEventListener</span>(<span class="str">'click'</span>, <span class="kw">function</span>() {
-    <span class="cmt">// Deactivate all tabs and panels</span>
-    tabs.<span class="fn">forEach</span>(<span class="kw">function</span>(t)   { t.<span class="fn">classList</span>.<span class="fn">remove</span>(<span class="str">'active'</span>); });
-    panels.<span class="fn">forEach</span>(<span class="kw">function</span>(p) { p.<span class="fn">classList</span>.<span class="fn">remove</span>(<span class="str">'active'</span>); });
+    <span class="cmt">// Deactivate all</span>
+    tabs.<span class="fn">forEach</span>(<span class="kw">function</span>(t) {
+      t.<span class="fn">classList</span>.<span class="fn">remove</span>(<span class="str">'active'</span>);
+    });
+    panels.<span class="fn">forEach</span>(<span class="kw">function</span>(p) {
+      p.<span class="fn">classList</span>.<span class="fn">remove</span>(<span class="str">'active'</span>);
+    });
 
-    <span class="cmt">// Activate clicked tab + matching panel</span>
+    <span class="cmt">// Activate clicked tab</span>
     tab.<span class="fn">classList</span>.<span class="fn">add</span>(<span class="str">'active'</span>);
+
+    <span class="cmt">// Find matching panel via data-tab</span>
     <span class="kw">const</span> targetId = tab.<span class="prop">dataset</span>.<span class="prop">tab</span>;
-    document.<span class="fn">querySelector</span>(<span class="str">'#'</span> + targetId).<span class="fn">classList</span>.<span class="fn">add</span>(<span class="str">'active'</span>);
+    document.<span class="fn">querySelector</span>(<span class="str">'#'</span> + targetId)
+      .<span class="fn">classList</span>.<span class="fn">add</span>(<span class="str">'active'</span>);
   });
 });</code></pre>
+        </div>
+      </div>
 
       <div class="note">
-        <strong>Connection to data-* attributes:</strong> The <code>data-tab</code> attribute on each button stores the ID of the panel it controls. This is the same <code>dataset</code> pattern from the previous lessons.
+        <strong>How it connects:</strong> Each tab button has a <code>data-tab</code> attribute whose value matches a panel's <code>id</code>. When clicked, JavaScript reads <code>dataset.tab</code>, builds a selector (<code>'#' + targetId</code>), and adds <code>.active</code> to the matching panel. The CSS shows only the <code>.active</code> panel.
       </div>
     </div>
   </div>
@@ -922,6 +1039,10 @@ btn.<span class="prop">textContent</span> = isDark ? <span class="str">'☀ Ligh
       <h2>Modal Dialog</h2>
       <p class="lead">An overlay that appears on top of everything, requiring the user's attention before continuing.</p>
 
+      <div class="highlight-box">
+        <strong>Analogy:</strong> A modal is like someone holding a clipboard in front of your face. You can still see the room behind them (the page is dimmed but visible), but you can't interact with anything else until you deal with the clipboard — either fill it out or wave it away.
+      </div>
+
       <div class="two-col">
         <div>
           <h3>When to use a modal</h3>
@@ -960,10 +1081,22 @@ btn.<span class="prop">textContent</span> = isDark ? <span class="str">'☀ Ligh
       <div class="slide-tag">Modal Dialog</div>
       <h2>Modal — The Code</h2>
 
+      <h3>HTML — The overlay wraps the dialog box</h3>
+<pre><code>&lt;<span class="kw">button</span> <span class="prop">id</span>=<span class="str">"open-btn"</span>&gt;Open Modal&lt;/<span class="kw">button</span>&gt;
+
+&lt;<span class="kw">div</span> <span class="prop">class</span>=<span class="str">"modal-overlay"</span>&gt;           <span class="cmt">&lt;!-- dark backdrop --&gt;</span>
+  &lt;<span class="kw">div</span> <span class="prop">class</span>=<span class="str">"modal-box"</span>&gt;              <span class="cmt">&lt;!-- white dialog --&gt;</span>
+    &lt;<span class="kw">h2</span>&gt;Are you sure?&lt;/<span class="kw">h2</span>&gt;
+    &lt;<span class="kw">p</span>&gt;This action cannot be undone.&lt;/<span class="kw">p</span>&gt;
+    &lt;<span class="kw">button</span> <span class="prop">id</span>=<span class="str">"close-btn"</span>&gt;Close&lt;/<span class="kw">button</span>&gt;
+  &lt;/<span class="kw">div</span>&gt;
+&lt;/<span class="kw">div</span>&gt;</code></pre>
+
       <div class="two-col">
         <div>
           <h3>CSS — hidden by default</h3>
-<pre><code>.<span class="fn">modal-overlay</span> {
+<pre><code><span class="cmt">/* Overlay covers the whole screen */</span>
+.<span class="fn">modal-overlay</span> {
   <span class="prop">position</span>: fixed;
   <span class="prop">inset</span>: <span class="num">0</span>;
   <span class="prop">background</span>: <span class="fn">rgba</span>(<span class="num">0,0,0,0.6</span>);
@@ -975,19 +1108,32 @@ btn.<span class="prop">textContent</span> = isDark ? <span class="str">'☀ Ligh
   <span class="prop">transition</span>: opacity <span class="num">0.2s</span>;
 }
 
+<span class="cmt">/* When .open is added, fade in */</span>
 .<span class="fn">modal-overlay</span>.<span class="fn">open</span> {
   <span class="prop">opacity</span>: <span class="num">1</span>;
   <span class="prop">pointer-events</span>: auto;
 }</code></pre>
+          <p><code>opacity: 0</code> makes it invisible. <code>pointer-events: none</code> makes it non-clickable. Both are restored when <code>.open</code> is added.</p>
         </div>
         <div>
-          <h3>JavaScript</h3>
-<pre><code><span class="kw">function</span> <span class="fn">openModal</span>() {
+          <h3>JavaScript — open, close, backdrop</h3>
+<pre><code><span class="kw">const</span> overlay = document
+  .<span class="fn">querySelector</span>(<span class="str">'.modal-overlay'</span>);
+
+<span class="kw">function</span> <span class="fn">openModal</span>() {
   overlay.<span class="fn">classList</span>.<span class="fn">add</span>(<span class="str">'open'</span>);
 }
 <span class="kw">function</span> <span class="fn">closeModal</span>() {
   overlay.<span class="fn">classList</span>.<span class="fn">remove</span>(<span class="str">'open'</span>);
 }
+
+<span class="cmt">// Open button</span>
+document.<span class="fn">querySelector</span>(<span class="str">'#open-btn'</span>)
+  .<span class="fn">addEventListener</span>(<span class="str">'click'</span>, openModal);
+
+<span class="cmt">// Close button</span>
+document.<span class="fn">querySelector</span>(<span class="str">'#close-btn'</span>)
+  .<span class="fn">addEventListener</span>(<span class="str">'click'</span>, closeModal);
 
 <span class="cmt">// Close on backdrop click</span>
 overlay.<span class="fn">addEventListener</span>(<span class="str">'click'</span>,
@@ -995,10 +1141,10 @@ overlay.<span class="fn">addEventListener</span>(<span class="str">'click'</span
     <span class="kw">if</span> (event.<span class="prop">target</span> === overlay)
       <span class="fn">closeModal</span>();
   });</code></pre>
-          <div class="note">
-            <strong>Why <code>event.target === overlay</code>?</strong> Clicking inside the dialog box also fires the overlay's click handler (event bubbling). This check ensures we only close when the <em>backdrop itself</em> is clicked, not the dialog content.
-          </div>
         </div>
+      </div>
+      <div class="note">
+        <strong>Why <code>event.target === overlay</code>?</strong> Clicking inside the dialog box also fires the overlay's click handler (this is called <em>event bubbling</em>). This check ensures we only close when the dark backdrop itself is clicked, not the white dialog content inside it.
       </div>
     </div>
   </div>
@@ -1050,25 +1196,45 @@ overlay.<span class="fn">addEventListener</span>(<span class="str">'click'</span
       <h2><code>setTimeout</code> — Delayed Actions</h2>
       <p class="lead">Schedule a function to run once after a delay (in milliseconds).</p>
 
+      <div class="highlight-box">
+        <strong>Analogy:</strong> <code>setTimeout</code> is like setting a kitchen timer. You set it for 3 minutes, walk away, and when it rings, it does the thing — once. It doesn't keep ringing every 3 minutes. One delay, one action.
+      </div>
+
       <div class="two-col">
         <div>
-          <h3>The syntax</h3>
-<pre><code><span class="fn">setTimeout</span>(<span class="kw">function</span>() {
-  <span class="cmt">// This runs after 3 seconds</span>
-  toast.<span class="fn">classList</span>.<span class="fn">remove</span>(<span class="str">'visible'</span>);
-}, <span class="num">3000</span>);  <span class="cmt">// 3000ms = 3 seconds</span></code></pre>
+          <h3>HTML — A toast element</h3>
+<pre><code>&lt;<span class="kw">button</span> <span class="prop">id</span>=<span class="str">"save-btn"</span>&gt;Save&lt;/<span class="kw">button</span>&gt;
 
-          <h3>Common use: Toast notification</h3>
-<pre><code><span class="kw">function</span> <span class="fn">showToast</span>(message) {
-  toast.<span class="prop">textContent</span> = message;
-  toast.<span class="fn">classList</span>.<span class="fn">add</span>(<span class="str">'visible'</span>);
+&lt;<span class="kw">div</span> <span class="prop">id</span>=<span class="str">"toast"</span> <span class="prop">class</span>=<span class="str">"toast"</span>&gt;
+  Saved successfully!
+&lt;/<span class="kw">div</span>&gt;</code></pre>
 
-  <span class="fn">setTimeout</span>(<span class="kw">function</span>() {
-    toast.<span class="fn">classList</span>.<span class="fn">remove</span>(<span class="str">'visible'</span>);
-  }, <span class="num">3000</span>);
+          <h3>CSS — Two states for the toast</h3>
+<pre><code>.<span class="fn">toast</span> {
+  <span class="prop">opacity</span>: <span class="num">0</span>;
+  <span class="prop">transform</span>: <span class="fn">translateY</span>(<span class="num">10px</span>);
+  <span class="prop">transition</span>: all <span class="num">0.3s</span>;
+}
+.<span class="fn">toast</span>.<span class="fn">visible</span> {
+  <span class="prop">opacity</span>: <span class="num">1</span>;
+  <span class="prop">transform</span>: <span class="fn">translateY</span>(<span class="num">0</span>);
 }</code></pre>
         </div>
         <div>
+          <h3>JavaScript — Show, then auto-dismiss</h3>
+<pre><code><span class="kw">const</span> toast = document.<span class="fn">querySelector</span>(<span class="str">'#toast'</span>);
+<span class="kw">const</span> saveBtn = document.<span class="fn">querySelector</span>(<span class="str">'#save-btn'</span>);
+
+saveBtn.<span class="fn">addEventListener</span>(<span class="str">'click'</span>, <span class="kw">function</span>() {
+  <span class="cmt">// Show the toast immediately</span>
+  toast.<span class="fn">classList</span>.<span class="fn">add</span>(<span class="str">'visible'</span>);
+
+  <span class="cmt">// Hide it after 3 seconds</span>
+  <span class="fn">setTimeout</span>(<span class="kw">function</span>() {
+    toast.<span class="fn">classList</span>.<span class="fn">remove</span>(<span class="str">'visible'</span>);
+  }, <span class="num">3000</span>);
+});</code></pre>
+
           <h3>Cancel with <code>clearTimeout</code></h3>
 <pre><code><span class="kw">const</span> id = <span class="fn">setTimeout</span>(myFunc, <span class="num">5000</span>);
 <span class="cmt">// User dismisses manually — cancel timer</span>
@@ -1095,12 +1261,16 @@ overlay.<span class="fn">addEventListener</span>(<span class="str">'click'</span
       <h2><code>setInterval</code> — Repeated Actions</h2>
       <p class="lead">Schedule a function to run repeatedly at a fixed interval.</p>
 
+      <div class="highlight-box">
+        <strong>Analogy:</strong> If <code>setTimeout</code> is a kitchen timer (rings once), <code>setInterval</code> is an alarm clock that goes off every morning until you smash it. It keeps running on repeat. And just like a real alarm — if you forget to turn it off, it will keep going forever.
+      </div>
+
       <div class="two-col">
         <div>
-          <h3>The syntax</h3>
-<pre><code><span class="kw">const</span> clockId = <span class="fn">setInterval</span>(<span class="kw">function</span>() {
-  <span class="fn">updateClock</span>();
-}, <span class="num">1000</span>);  <span class="cmt">// Every 1 second</span></code></pre>
+          <h3>HTML — A clock display</h3>
+<pre><code>&lt;<span class="kw">div</span> <span class="prop">id</span>=<span class="str">"clock"</span>&gt;--:--:--&lt;/<span class="kw">div</span>&gt;
+&lt;<span class="kw">button</span> <span class="prop">id</span>=<span class="str">"start"</span>&gt;Start&lt;/<span class="kw">button</span>&gt;
+&lt;<span class="kw">button</span> <span class="prop">id</span>=<span class="str">"stop"</span>&gt;Stop&lt;/<span class="kw">button</span>&gt;</code></pre>
 
           <h3>Always cancel when done</h3>
 <pre><code><span class="fn">clearInterval</span>(clockId);</code></pre>
@@ -1110,8 +1280,11 @@ overlay.<span class="fn">addEventListener</span>(<span class="str">'click'</span
           </div>
         </div>
         <div>
-          <h3>Classic use: Live clock</h3>
-<pre><code><span class="kw">function</span> <span class="fn">updateClock</span>() {
+          <h3>JavaScript — Live clock</h3>
+<pre><code><span class="kw">const</span> clock = document.<span class="fn">querySelector</span>(<span class="str">'#clock'</span>);
+<span class="kw">let</span> clockId = <span class="kw">null</span>;
+
+<span class="kw">function</span> <span class="fn">updateClock</span>() {
   <span class="kw">const</span> now = <span class="kw">new</span> <span class="fn">Date</span>();
   <span class="kw">const</span> h = <span class="fn">String</span>(now.<span class="fn">getHours</span>())
     .<span class="fn">padStart</span>(<span class="num">2</span>, <span class="str">'0'</span>);
@@ -1119,9 +1292,21 @@ overlay.<span class="fn">addEventListener</span>(<span class="str">'click'</span
     .<span class="fn">padStart</span>(<span class="num">2</span>, <span class="str">'0'</span>);
   <span class="kw">const</span> s = <span class="fn">String</span>(now.<span class="fn">getSeconds</span>())
     .<span class="fn">padStart</span>(<span class="num">2</span>, <span class="str">'0'</span>);
-  clock.<span class="prop">textContent</span> =
-    h + <span class="str">':'</span> + m + <span class="str">':'</span> + s;
-}</code></pre>
+  clock.<span class="prop">textContent</span> = h + <span class="str">':'</span> + m + <span class="str">':'</span> + s;
+}
+
+<span class="cmt">// Start: run updateClock every 1 second</span>
+document.<span class="fn">querySelector</span>(<span class="str">'#start'</span>)
+  .<span class="fn">addEventListener</span>(<span class="str">'click'</span>, <span class="kw">function</span>() {
+    <span class="fn">updateClock</span>();
+    clockId = <span class="fn">setInterval</span>(updateClock, <span class="num">1000</span>);
+  });
+
+<span class="cmt">// Stop: cancel the interval</span>
+document.<span class="fn">querySelector</span>(<span class="str">'#stop'</span>)
+  .<span class="fn">addEventListener</span>(<span class="str">'click'</span>, <span class="kw">function</span>() {
+    <span class="fn">clearInterval</span>(clockId);
+  });</code></pre>
 
           <div class="demo-box">
             <h4>Live Clock</h4>
@@ -1206,14 +1391,23 @@ overlay.<span class="fn">addEventListener</span>(<span class="str">'click'</span
       <h2><code>aria-expanded</code> — Accessible Toggles</h2>
       <p class="lead">One line of JavaScript makes your interactive components usable by everyone.</p>
 
+      <div class="highlight-box">
+        <strong>Analogy:</strong> Imagine you're in a dark room and a friend is describing a website to you. They say "there's a button that says FAQ." You click it — but did anything happen? Without <code>aria-expanded</code>, your friend doesn't know. With it, they can say "FAQ section — expanded" or "FAQ section — collapsed." That's what screen readers do for visually impaired users.
+      </div>
+
       <div class="two-col">
         <div>
-          <h3>What it does</h3>
-          <p>When a button controls a collapsible section, <code>aria-expanded</code> tells screen readers whether the content is currently visible or hidden.</p>
-          <ul class="bullets">
-            <li><code>aria-expanded="true"</code> → screen reader says "expanded"</li>
-            <li><code>aria-expanded="false"</code> → screen reader says "collapsed"</li>
-          </ul>
+          <h3>HTML — The starting point</h3>
+<pre><code>&lt;<span class="kw">button</span>
+  <span class="prop">aria-expanded</span>=<span class="str">"false"</span>
+  <span class="prop">aria-controls</span>=<span class="str">"faq-panel"</span>&gt;
+  FAQ
+&lt;/<span class="kw">button</span>&gt;
+
+&lt;<span class="kw">div</span> <span class="prop">id</span>=<span class="str">"faq-panel"</span> <span class="prop">class</span>=<span class="str">"panel"</span>&gt;
+  &lt;<span class="kw">p</span>&gt;Frequently asked questions...&lt;/<span class="kw">p</span>&gt;
+&lt;/<span class="kw">div</span>&gt;</code></pre>
+          <p><code>aria-expanded="false"</code> tells screen readers the panel is currently collapsed. <code>aria-controls</code> tells them which element this button controls.</p>
 
           <h3>Where to use it</h3>
           <ul class="bullets">
@@ -1224,19 +1418,22 @@ overlay.<span class="fn">addEventListener</span>(<span class="str">'click'</span
           </ul>
         </div>
         <div>
-          <h3>The code (one line)</h3>
-<pre><code><span class="cmt">// After toggling the class:</span>
-<span class="kw">const</span> isOpen = el.<span class="fn">classList</span>.<span class="fn">contains</span>(<span class="str">'open'</span>);
-btn.<span class="fn">setAttribute</span>(
-  <span class="str">'aria-expanded'</span>, isOpen
-);</code></pre>
+          <h3>JavaScript — Update after toggling</h3>
+<pre><code><span class="kw">const</span> btn = document.<span class="fn">querySelector</span>(<span class="str">'button'</span>);
+<span class="kw">const</span> panel = document.<span class="fn">querySelector</span>(<span class="str">'.panel'</span>);
 
-          <h3>In the HTML</h3>
-<pre><code>&lt;<span class="kw">button</span>
-  <span class="prop">aria-expanded</span>=<span class="str">"false"</span>
-  <span class="prop">aria-controls</span>=<span class="str">"panel-1"</span>&gt;
-  Section Title
-&lt;/<span class="kw">button</span>&gt;</code></pre>
+btn.<span class="fn">addEventListener</span>(<span class="str">'click'</span>, <span class="kw">function</span>() {
+  <span class="cmt">// Toggle the visual state</span>
+  panel.<span class="fn">classList</span>.<span class="fn">toggle</span>(<span class="str">'open'</span>);
+
+  <span class="cmt">// Update accessibility to match</span>
+  <span class="kw">const</span> isOpen = panel
+    .<span class="fn">classList</span>.<span class="fn">contains</span>(<span class="str">'open'</span>);
+  btn.<span class="fn">setAttribute</span>(
+    <span class="str">'aria-expanded'</span>, isOpen
+  );
+});</code></pre>
+          <p>After toggling the class, check the new state with <code>classList.contains()</code> and update <code>aria-expanded</code> to match. The screen reader now announces the correct state.</p>
           <div class="note">
             <strong>Tiny effort, huge impact.</strong> Not everyone uses a mouse. Users with visual impairments rely on screen readers to navigate. One attribute makes your components work for them.
           </div>
