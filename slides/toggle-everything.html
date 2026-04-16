@@ -1,0 +1,1537 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Toggle Everything — classList.toggle() &amp; UI Patterns</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #0f0f1a;
+      --surface:   #1a1a2e;
+      --border:    #2e2e4a;
+      --accent:    #a78bfa;
+      --accent2:   #6ee7b7;
+      --accent3:   #fbbf24;
+      --accent4:   #f87171;
+      --text:      #e8e8f0;
+      --muted:     #7070a0;
+      --code-bg:   #0a0a18;
+      --code-text: #c9d1d9;
+      --warn:      #fbbf24;
+      --danger:    #f87171;
+      --success:   #6ee7b7;
+      --nav-h:     52px;
+    }
+
+    html, body {
+      height: 100%;
+      font-family: system-ui, -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      overflow: hidden;
+    }
+
+    /* ===== PROGRESS BAR ===== */
+    #progress-bar {
+      position: fixed;
+      top: 0; left: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--accent), var(--accent2));
+      width: 0%;
+      transition: width .3s ease;
+      z-index: 100;
+    }
+
+    /* ===== NAV ===== */
+    nav {
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
+      height: var(--nav-h);
+      background: rgba(10,10,24,.95);
+      border-top: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 1rem;
+      z-index: 50;
+      gap: .5rem;
+    }
+    nav .nav-btn {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: .45rem 1rem;
+      border-radius: 8px;
+      font-size: .85rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background .2s, border-color .2s;
+      white-space: nowrap;
+      min-width: 80px;
+    }
+    nav .nav-btn:hover { background: var(--border); border-color: var(--accent); }
+    nav .nav-btn:disabled { opacity: .3; cursor: default; }
+    #slide-counter {
+      font-size: .8rem;
+      color: var(--muted);
+      white-space: nowrap;
+      min-width: 70px;
+      text-align: center;
+    }
+
+    /* ===== DECK ===== */
+    .deck {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      bottom: var(--nav-h);
+      overflow: hidden;
+    }
+
+    .slide {
+      display: none;
+      position: absolute;
+      inset: 0;
+      overflow-y: auto;
+      padding: 1.75rem 1.25rem 1rem;
+      animation: slideIn .22s ease;
+    }
+    .slide.active          { display: block; }
+    .slide.active.full-embed { display: flex; }
+
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateX(16px); }
+      to   { opacity: 1; transform: translateX(0); }
+    }
+
+    .slide-inner {
+      max-width: 960px;
+      margin: 0 auto;
+      padding-bottom: 1.5rem;
+    }
+
+    /* ===== GRADIENT BACKGROUNDS ===== */
+    .slide:nth-child(1)  { background: linear-gradient(135deg, #0f0f1a 0%, #1a1040 100%); }
+    .slide:nth-child(2)  { background: linear-gradient(135deg, #0d1117 0%, #1a2a1a 100%); }
+    .slide:nth-child(3)  { background: linear-gradient(135deg, #0a1628 0%, #0f0f1a 100%); }
+    .slide:nth-child(4)  { background: linear-gradient(135deg, #100d1a 0%, #201030 100%); }
+    .slide:nth-child(5)  { background: linear-gradient(135deg, #0f0f1a 0%, #1a1040 100%); }
+    .slide:nth-child(6)  { background: linear-gradient(135deg, #0d1020 0%, #1a2030 100%); }
+    .slide:nth-child(7)  { background: linear-gradient(135deg, #0d1a10 0%, #102010 100%); }
+    .slide:nth-child(8)  { background: linear-gradient(135deg, #0f0f1a 0%, #201020 100%); }
+    .slide:nth-child(9)  { background: linear-gradient(135deg, #0d1117 0%, #1a2a1a 100%); }
+    .slide:nth-child(10) { background: linear-gradient(135deg, #0a1628 0%, #102030 100%); }
+    .slide:nth-child(11) { background: linear-gradient(135deg, #0f0f1a 0%, #1a1040 100%); }
+    .slide:nth-child(12) { background: linear-gradient(135deg, #0d1020 0%, #201020 100%); }
+    .slide:nth-child(13) { background: linear-gradient(135deg, #0d1a10 0%, #1a2a18 100%); }
+    .slide:nth-child(14) { background: linear-gradient(135deg, #100d1a 0%, #1a1040 100%); }
+    .slide:nth-child(15) { background: linear-gradient(135deg, #0f0f1a 0%, #1a1040 100%); }
+    .slide:nth-child(16) { background: linear-gradient(135deg, #0d1117 0%, #1a2030 100%); }
+    .slide:nth-child(17) { background: linear-gradient(135deg, #0a1628 0%, #0f0f2a 100%); }
+    .slide:nth-child(18) { background: linear-gradient(135deg, #100d1a 0%, #201030 100%); }
+    .slide:nth-child(19) { background: linear-gradient(135deg, #0d1020 0%, #1a2030 100%); }
+    .slide:nth-child(20) { background: linear-gradient(135deg, #0f0f1a 0%, #1a1040 100%); }
+    .slide:nth-child(21) { background: linear-gradient(135deg, #0d1117 0%, #1a2a1a 100%); }
+    .slide:nth-child(22) { background: linear-gradient(135deg, #0a1628 0%, #102030 100%); }
+    .slide:nth-child(23) { background: linear-gradient(135deg, #100d1a 0%, #201030 100%); }
+    .slide:nth-child(24) { background: linear-gradient(135deg, #0f0f1a 0%, #1a1040 100%); }
+    .slide:nth-child(25) { background: linear-gradient(135deg, #0d1020 0%, #1a2030 100%); }
+    .slide:nth-child(26) { background: linear-gradient(135deg, #0d1a10 0%, #1a2a18 100%); }
+    .slide:nth-child(27) { background: linear-gradient(135deg, #0f0f1a 0%, #201020 100%); }
+    .slide:nth-child(28) { background: linear-gradient(135deg, #0d1117 0%, #1a2a1a 100%); }
+
+    /* ===== TYPOGRAPHY ===== */
+    .slide-tag {
+      font-size: .7rem;
+      font-weight: 700;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: .55rem;
+    }
+    h1 {
+      font-size: clamp(1.8rem, 5vw, 3rem);
+      line-height: 1.15;
+      margin-bottom: .75rem;
+      color: #fff;
+    }
+    h2 {
+      font-size: clamp(1.25rem, 3.5vw, 1.9rem);
+      color: var(--accent);
+      margin-bottom: .65rem;
+      line-height: 1.2;
+    }
+    h3 {
+      font-size: clamp(.95rem, 2.5vw, 1.25rem);
+      color: var(--accent2);
+      margin-bottom: .45rem;
+      margin-top: 1rem;
+    }
+    p {
+      font-size: clamp(.82rem, 2vw, .97rem);
+      line-height: 1.65;
+      color: var(--text);
+      margin-bottom: .7rem;
+    }
+    .lead {
+      font-size: clamp(.95rem, 2.5vw, 1.15rem);
+      color: #c0c0e0;
+      line-height: 1.6;
+      margin-bottom: .9rem;
+    }
+
+    /* ===== LISTS ===== */
+    ul.bullets { list-style: none; padding: 0; display: flex; flex-direction: column; gap: .45rem; }
+    ul.bullets li {
+      display: flex; align-items: flex-start; gap: .55rem;
+      font-size: clamp(.82rem, 2vw, .97rem); line-height: 1.5;
+    }
+    ul.bullets li::before {
+      content: "►"; color: var(--accent); flex-shrink: 0; margin-top: .1rem; font-size: .75rem;
+    }
+
+    /* ===== CODE ===== */
+    pre {
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: .9rem 1.15rem;
+      overflow-x: auto;
+      font-size: clamp(.72rem, 1.7vw, .85rem);
+      line-height: 1.65;
+      color: var(--code-text);
+      margin-bottom: .8rem;
+    }
+    code { font-family: 'Cascadia Code', 'Fira Code', 'Courier New', monospace; }
+    p code, li code, td code, dt code, dd code {
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      padding: .1em .35em;
+      border-radius: 4px;
+      font-size: .87em;
+      color: var(--accent2);
+    }
+    .kw   { color: #c792ea; }
+    .fn   { color: #82aaff; }
+    .str  { color: #c3e88d; }
+    .num  { color: #f78c6c; }
+    .cmt  { color: #546e7a; font-style: italic; }
+    .prop { color: #ffcb6b; }
+
+    /* ===== BOXES ===== */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: .9rem 1.15rem;
+      margin-bottom: .85rem;
+    }
+    .card h3 { margin-top: 0; }
+
+    .card-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: .85rem;
+      margin-bottom: .9rem;
+    }
+
+    .note {
+      background: rgba(167,139,250,.1);
+      border-left: 3px solid var(--accent);
+      border-radius: 0 8px 8px 0;
+      padding: .7rem 1rem;
+      font-size: clamp(.78rem, 1.75vw, .9rem);
+      margin-bottom: .8rem;
+      color: #c0c0e8;
+    }
+    .note strong { color: var(--accent); }
+
+    .caution {
+      background: rgba(251,191,36,.08);
+      border-left: 3px solid var(--warn);
+      border-radius: 0 8px 8px 0;
+      padding: .7rem 1rem;
+      font-size: clamp(.78rem, 1.75vw, .9rem);
+      margin-bottom: .8rem;
+      color: #e8d8a0;
+    }
+    .caution strong { color: var(--warn); }
+
+    .highlight-box {
+      background: rgba(110,231,183,.08);
+      border: 1px solid rgba(110,231,183,.25);
+      border-radius: 10px;
+      padding: .8rem 1.1rem;
+      font-size: clamp(.78rem, 1.75vw, .9rem);
+      margin-bottom: .8rem;
+      color: #b0e8d4;
+    }
+    .highlight-box strong { color: var(--accent2); }
+
+    /* ===== TWO-COLUMN ===== */
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.1rem;
+      align-items: start;
+    }
+    @media (max-width: 640px) {
+      .two-col  { grid-template-columns: 1fr; }
+      .card-row { grid-template-columns: 1fr; }
+    }
+
+    /* ===== IMAGES ===== */
+    .slide-img {
+      width: 100%;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      display: block;
+      margin-bottom: .8rem;
+    }
+
+    /* ===== DEMO BOXES ===== */
+    .demo-box {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.1rem;
+      margin-bottom: .9rem;
+    }
+    .demo-box h4 {
+      font-size: .75rem;
+      text-transform: uppercase;
+      letter-spacing: .1em;
+      color: var(--accent);
+      margin-bottom: .7rem;
+      font-weight: 700;
+    }
+    .demo-btn {
+      background: var(--accent);
+      color: #0f0f1a;
+      border: none;
+      padding: .45rem 1rem;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: .85rem;
+      cursor: pointer;
+      transition: background .18s, transform .1s;
+      margin: .25rem .25rem .25rem 0;
+    }
+    .demo-btn:hover  { background: #c4b5fd; }
+    .demo-btn:active { transform: scale(.97); }
+    .demo-btn.secondary {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--text);
+    }
+    .demo-btn.secondary:hover { border-color: var(--accent); }
+    .demo-btn.danger { background: var(--danger); color: #fff; }
+    .demo-btn.danger:hover { background: #fca5a5; }
+
+    .demo-output {
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: .55rem .85rem;
+      font-family: monospace;
+      font-size: .82rem;
+      color: var(--accent2);
+      min-height: 36px;
+      margin-top: .5rem;
+      word-break: break-all;
+    }
+
+    /* ===== FULL-SCREEN EMBEDS ===== */
+    .full-embed {
+      padding: 0;
+      flex-direction: column;
+    }
+    .full-embed iframe {
+      flex: 1;
+      width: 100%;
+      border: none;
+      display: block;
+    }
+
+    /* ===== Q&A CARDS ===== */
+    dl.qa { margin: 0; }
+    dl.qa .card { margin-bottom: .65rem; }
+
+    /* ===== REFERENCE TABLE ===== */
+    .ref-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: clamp(.75rem, 1.7vw, .87rem);
+      margin-bottom: .8rem;
+    }
+    .ref-table th {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      padding: .5rem .8rem;
+      text-align: left;
+      color: var(--accent);
+      font-weight: 700;
+    }
+    .ref-table td {
+      border: 1px solid var(--border);
+      padding: .5rem .8rem;
+      vertical-align: top;
+    }
+
+    /* ===== LIVE DEMO AREA ===== */
+    .live-demo-area {
+      border: 2px dashed var(--border);
+      border-radius: 12px;
+      padding: 1rem;
+      margin: .5rem 0 .8rem;
+      min-height: 60px;
+      transition: all .3s ease;
+    }
+  </style>
+</head>
+<body>
+
+<div id="progress-bar"></div>
+
+<div class="deck">
+
+  <!-- ============================================================ -->
+  <!-- SLIDE 1 — Title -->
+  <!-- ============================================================ -->
+  <div class="slide active">
+    <div class="slide-inner">
+      <div class="slide-tag">JavaScript + CSS</div>
+      <h1>Toggle Everything</h1>
+      <p class="lead"><code>classList.toggle()</code> and the UI patterns every website uses</p>
+      <ul class="bullets" style="margin-top:1.5rem;">
+        <li>The central principle: CSS defines states, JS switches between them</li>
+        <li>Dark mode toggle with one line of JavaScript</li>
+        <li>Accordions with <code>max-height</code> transitions</li>
+        <li>Hamburger menu with clean JavaScript</li>
+        <li>Tab systems and modal dialogs</li>
+        <li><code>setTimeout</code> and <code>setInterval</code> for timed actions</li>
+        <li>Accessibility with <code>aria-expanded</code></li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- SLIDE 2 — The Central Principle -->
+  <!-- ============================================================ -->
+  <div class="slide">
+    <div class="slide-inner">
+      <div class="slide-tag">Core Concept</div>
+      <h2>The Central Principle</h2>
+      <p class="lead">CSS does all the visual work. JavaScript just flips a switch.</p>
+
+      <div class="highlight-box">
+        <strong>The golden rule:</strong> JavaScript does not create visual effects. CSS does. JavaScript's only job is to add or remove a class name. The CSS transitions you already know handle the rest.
+      </div>
+
+      <div class="two-col">
+        <div>
+          <h3>CSS defines two states</h3>
+<pre><code><span class="cmt">/* State 1: Default — hidden */</span>
+.<span class="fn">panel</span> {
+  <span class="prop">max-height</span>: <span class="num">0</span>;
+  <span class="prop">overflow</span>: hidden;
+  <span class="prop">transition</span>: max-height <span class="num">0.4s</span> ease;
+}
+
+<span class="cmt">/* State 2: Open — visible */</span>
+.<span class="fn">panel</span>.<span class="fn">open</span> {
+  <span class="prop">max-height</span>: <span class="num">500px</span>;
+}</code></pre>
+        </div>
+        <div>
+          <h3>JS toggles between them</h3>
+<pre><code>panel.<span class="fn">classList</span>.<span class="fn">toggle</span>(<span class="str">'open'</span>);</code></pre>
+          <p>That's it. One line. The CSS transition fires automatically the moment the class changes.</p>
+          <div class="note">
+            <strong>Why?</strong> This is called <em>separation of concerns</em>. CSS handles appearance. JS handles state. Your code stays clean, easy to debug, and easy to hand off to another developer.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- SLIDE 3 — What this pattern powers -->
+  <!-- ============================================================ -->
+  <div class="slide">
+    <div class="slide-inner">
+      <div class="slide-tag">Core Concept</div>
+      <h2>One Pattern Powers Everything</h2>
+      <p>This exact same pattern — CSS defines two states, JS toggles the class — powers almost every interactive element you've ever seen:</p>
+
+      <div class="card-row">
+        <div class="card">
+          <h3>🌙 Dark Mode</h3>
+          <p>Toggle <code>.dark-mode</code> on body — CSS custom properties change every color at once</p>
+        </div>
+        <div class="card">
+          <h3>📂 Accordion</h3>
+          <p>Toggle <code>.open</code> on a panel — <code>max-height</code> transitions reveal content smoothly</p>
+        </div>
+        <div class="card">
+          <h3>☰ Hamburger Menu</h3>
+          <p>Toggle <code>.nav-open</code> on nav — slides in from the side on mobile</p>
+        </div>
+        <div class="card">
+          <h3>🗂 Tabs</h3>
+          <p>Toggle <code>.active</code> on tab + panel — one visible at a time</p>
+        </div>
+        <div class="card">
+          <h3>💬 Modal Dialog</h3>
+          <p>Toggle <code>.open</code> on overlay — fades in over the page</p>
+        </div>
+        <div class="card">
+          <h3>🔔 Toast Notification</h3>
+          <p>Toggle <code>.visible</code> on toast — slides up, auto-dismisses with <code>setTimeout</code></p>
+        </div>
+      </div>
+
+      <div class="highlight-box">
+        <strong>Learn this pattern once → build everything.</strong>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- SLIDE 4 — classList Reference -->
+  <!-- ============================================================ -->
+  <div class="slide">
+    <div class="slide-inner">
+      <div class="slide-tag">Reference</div>
+      <h2>classList Methods</h2>
+      <p>These are the four methods you'll use to manage CSS classes from JavaScript:</p>
+
+      <table class="ref-table">
+        <thead>
+          <tr><th>Method</th><th>What it does</th><th>Example</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>.toggle('name')</code></td>
+            <td>Adds the class if missing, removes it if present</td>
+            <td><code>el.classList.toggle('open')</code></td>
+          </tr>
+          <tr>
+            <td><code>.add('name')</code></td>
+            <td>Adds the class (no effect if already there)</td>
+            <td><code>el.classList.add('active')</code></td>
+          </tr>
+          <tr>
+            <td><code>.remove('name')</code></td>
+            <td>Removes the class (no effect if not there)</td>
+            <td><code>el.classList.remove('open')</code></td>
+          </tr>
+          <tr>
+            <td><code>.contains('name')</code></td>
+            <td>Returns <code>true</code> or <code>false</code></td>
+            <td><code>el.classList.contains('dark-mode')</code></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="demo-box">
+        <h4>Try It — Toggle a Class</h4>
+        <div id="toggleDemoBox" class="live-demo-area" style="text-align:center; font-size:1.1rem; font-weight:700; padding:1.25rem;">
+          I'm a box. Click the button to toggle my style.
+        </div>
+        <button class="demo-btn" onclick="toggleDemoClass()">Toggle .highlighted</button>
+        <div id="toggleDemoCode" class="demo-output" style="margin-top:.5rem;"><code style="color:var(--muted);">← click the button</code></div>
+      </div>
+
+      <div class="two-col">
+        <div>
+          <p style="font-size:.82rem;">
+            <a href="https://developer.mozilla.org/en-US/docs/Web/API/Element/classList" target="_blank" rel="noopener" style="color:var(--accent);">MDN: Element.classList →</a>
+          </p>
+        </div>
+        <div>
+          <img src="assets/fig-20.1-mdn-classlist.png" alt="MDN classList documentation" class="slide-img" onerror="this.style.display='none'">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- SLIDE 5 — Dark Mode: The CSS -->
+  <!-- ============================================================ -->
+  <div class="slide">
+    <div class="slide-inner">
+      <div class="slide-tag">Dark Mode Toggle</div>
+      <h2>Dark Mode — The CSS Side</h2>
+      <p>Dark mode uses CSS custom properties with two selectors — the default and a <code>.dark-mode</code> class on <code>&lt;body&gt;</code>:</p>
+
+      <div class="two-col">
+        <div>
+          <h3>Define two color schemes</h3>
+<pre><code><span class="cmt">/* Light mode (default) */</span>
+:<span class="fn">root</span> {
+  <span class="prop">--bg</span>:   <span class="str">#ffffff</span>;
+  <span class="prop">--text</span>: <span class="str">#111111</span>;
+  <span class="prop">--card</span>: <span class="str">#f5f5f5</span>;
+}
+
+<span class="cmt">/* Dark mode (toggled by JS) */</span>
+<span class="kw">body</span>.<span class="fn">dark-mode</span> {
+  <span class="prop">--bg</span>:   <span class="str">#1a1a2e</span>;
+  <span class="prop">--text</span>: <span class="str">#eeeeee</span>;
+  <span class="prop">--card</span>: <span class="str">#16213e</span>;
+}</code></pre>
+        </div>
+        <div>
+          <h3>Use the variables everywhere</h3>
+<pre><code><span class="kw">body</span> {
+  <span class="prop">background</span>: <span class="fn">var</span>(<span class="prop">--bg</span>);
+  <span class="prop">color</span>: <span class="fn">var</span>(<span class="prop">--text</span>);
+  <span class="prop">transition</span>: background <span class="num">0.3s</span>,
+              color <span class="num">0.3s</span>;
+}</code></pre>
+          <div class="note">
+            <strong>Why custom properties?</strong> Because <code>--bg</code>, <code>--text</code>, and <code>--card</code> cascade to every element using them, that single class toggle updates the <em>entire page</em> at once.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- SLIDE 6 — Dark Mode: The JS -->
+  <!-- ============================================================ -->
+  <div class="slide">
+    <div class="slide-inner">
+      <div class="slide-tag">Dark Mode Toggle</div>
+      <h2>Dark Mode — The JavaScript</h2>
+
+      <div class="highlight-box">
+        <strong>One line of JavaScript toggles the entire page's color scheme:</strong>
+      </div>
+
+<pre><code>document.body.<span class="fn">classList</span>.<span class="fn">toggle</span>(<span class="str">'dark-mode'</span>);</code></pre>
+
+      <p>Update the button label with the ternary operator:</p>
+
+<pre><code><span class="kw">const</span> isDark = document.body.<span class="fn">classList</span>.<span class="fn">contains</span>(<span class="str">'dark-mode'</span>);
+btn.<span class="prop">textContent</span> = isDark ? <span class="str">'☀ Light Mode'</span> : <span class="str">'☾ Dark Mode'</span>;</code></pre>
+
+      <div class="demo-box">
+        <h4>Try It — Dark Mode Toggle</h4>
+        <div id="darkModePreview" style="background:#f8f9fa; color:#1a1a2e; border-radius:10px; padding:1rem; transition: all .3s; margin-bottom:.5rem;">
+          <div style="font-weight:700; margin-bottom:.4rem;" id="darkModeHeading">Welcome to My Site</div>
+          <div style="font-size:.85rem; opacity:.7;">This is a card preview. Click the button to see it flip.</div>
+        </div>
+        <button class="demo-btn" id="darkModeBtn" onclick="demoDarkMode()">☾ Dark Mode</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- SLIDE 7 — Dark Mode CodePen -->
+  <!-- ============================================================ -->
+  <div class="slide full-embed" style="padding:0; flex-direction:column;">
+    <div style="padding:.6rem 1rem; background:var(--surface); border-bottom:1px solid var(--border); font-size:.85rem; color:var(--muted);">
+      CodePen — Dark Mode Toggle (editable)
+    </div>
+    <iframe style="width:100%;" title="Codepen - 20.1" src="https://codepen.io/mattkearl/embed/myrzVxe?default-tab=css%2Cresult&amp;editable=true" height="500" loading="lazy" style="flex:1; width:100%; border:none; display:block;"></iframe>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- SLIDE 8 — Accordion: Concept -->
+  <!-- ============================================================ -->
+  <div class="slide">
+    <div class="slide-inner">
+      <div class="slide-tag">Accordion</div>
+      <h2>Accordion — Expand &amp; Collapse</h2>
+      <p class="lead">An accordion is a list of sections where clicking a heading reveals or hides its content.</p>
+
+      <div class="two-col">
+        <div>
+          <h3>Why use an accordion?</h3>
+          <ul class="bullets">
+            <li>Reduce visual clutter — show content only when needed</li>
+            <li>FAQ pages, settings panels, product features</li>
+            <li>Used on nearly every website</li>
+            <li>The <code>max-height</code> trick makes it animate smoothly</li>
+          </ul>
+        </div>
+        <div>
+          <h3>The <code>max-height</code> trick</h3>
+          <p>You can't transition <code>height: auto</code>. But you <em>can</em> transition <code>max-height</code> from <code>0</code> to a value larger than the content. The browser animates the change smoothly.</p>
+          <div class="caution">
+            <strong>Why not <code>display: none</code>?</strong> Because <code>display</code> can't be transitioned. The element just pops in/out with no animation. <code>max-height: 0</code> + <code>overflow: hidden</code> gives you a smooth reveal.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- SLIDE 9 — Accordion: Code -->
+  <!-- ============================================================ -->
+  <div class="slide">
+    <div class="slide-inner">
+      <div class="slide-tag">Accordion</div>
+      <h2>Accordion — The Code</h2>
+
+      <div class="two-col">
+        <div>
+          <h3>CSS — Two states</h3>
+<pre><code>.<span class="fn">accordion-body</span> {
+  <span class="prop">max-height</span>: <span class="num">0</span>;
+  <span class="prop">overflow</span>: hidden;
+  <span class="prop">transition</span>: max-height <span class="num">0.35s</span> ease;
+}
+
+.<span class="fn">accordion-item</span>.<span class="fn">open</span> .<span class="fn">accordion-body</span> {
+  <span class="prop">max-height</span>: <span class="num">400px</span>;
+}</code></pre>
+        </div>
+        <div>
+          <h3>JavaScript — Toggle + close others</h3>
+<pre><code>headers.<span class="fn">forEach</span>(<span class="kw">function</span>(header) {
+  header.<span class="fn">addEventListener</span>(<span class="str">'click'</span>, <span class="kw">function</span>() {
+    <span class="kw">const</span> item = header.<span class="prop">parentElement</span>;
+
+    <span class="cmt">// Close all others</span>
+    document.<span class="fn">querySelectorAll</span>(<span class="str">'.accordion-item'</span>)
+      .<span class="fn">forEach</span>(<span class="kw">function</span>(el) {
+        <span class="kw">if</span> (el !== item)
+          el.<span class="fn">classList</span>.<span class="fn">remove</span>(<span class="str">'open'</span>);
+      });
+
+    <span class="cmt">// Toggle this one</span>
+    item.<span class="fn">classList</span>.<span class="fn">toggle</span>(<span class="str">'open'</span>);
+  });
+});</code></pre>
+        </div>
+      </div>
+
+      <div class="note">
+        <strong>Accessibility:</strong> Always toggle <code>aria-expanded</code> on the heading button — screen readers announce "expanded" or "collapsed" as users navigate.
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- SLIDE 10 — Accordion: Interactive Demo -->
+  <!-- ============================================================ -->
+  <div class="slide">
+    <div class="slide-inner">
+      <div class="slide-tag">Accordion</div>
+      <h2>Accordion — Try It</h2>
+
+      <div class="demo-box">
+        <h4>Interactive Accordion</h4>
+        <div id="demoAccordion">
+          <div class="acc-item">
+            <button class="acc-header" onclick="toggleAccordion(this)">What is classList.toggle()?</button>
+            <div class="acc-body"><p style="padding:.8rem; font-size:.88rem;">It's a method that adds a CSS class if it's missing, and removes it if it's present. One method, both directions. This is the foundation of every interactive UI pattern.</p></div>
+          </div>
+          <div class="acc-item">
+            <button class="acc-header" onclick="toggleAccordion(this)">Why use max-height instead of height?</button>
+            <div class="acc-body"><p style="padding:.8rem; font-size:.88rem;">You can't transition <code>height: auto</code> — the browser doesn't know what number to animate to. But <code>max-height</code> can be transitioned from <code>0</code> to any fixed value that's larger than the content.</p></div>
+          </div>
+          <div class="acc-item">
+            <button class="acc-header" onclick="toggleAccordion(this)">Do I need to close other panels?</button>
+            <div class="acc-body"><p style="padding:.8rem; font-size:.88rem;">It depends on the design. "Single-open" mode closes all others when one opens (like this demo). "Multi-open" mode lets multiple panels stay open at once — just skip the "close all others" loop.</p></div>
+          </div>
+        </div>
+      </div>
+
+      <p style="font-size:.82rem;">
+        <a href="https://www.w3schools.com/howto/howto_js_accordion.asp" target="_blank" rel="noopener" style="color:var(--accent);">W3Schools: How to create an Accordion →</a>
+      </p>
+    </div>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- SLIDE 11 — Accordion CodePen -->
+  <!-- ============================================================ -->
+  <div class="slide full-embed" style="padding:0; flex-direction:column;">
+    <div style="padding:.6rem 1rem; background:var(--surface); border-bottom:1px solid var(--border); font-size:.85rem; color:var(--muted);">
+      CodePen — Accordion (editable)
+    </div>
+    <iframe style="width:100%;" title="Codepen - 20.2" src="https://codepen.io/mattkearl/embed/pvExgLp?default-tab=css%2Cresult&amp;editable=true" height="500" loading="lazy" style="flex:1; width:100%; border:none; display:block;"></iframe>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- SLIDE 12 — Hamburger Menu: Concept -->
+  <!-- ============================================================ -->
+  <div class="slide">
+    <div class="slide-inner">
+      <div class="slide-tag">Hamburger Menu</div>
+      <h2>Real Hamburger Menu</h2>
+      <p class="lead">Replace the CSS-only checkbox hack with clean, readable JavaScript.</p>
+
+      <div class="two-col">
+        <div>
+          <h3>The old way (CSS-only hack)</h3>
+          <ul class="bullets">
+            <li>Hidden checkbox + <code>:checked</code> pseudo-class</li>
+            <li>Uses the sibling selector (<code>~</code>) to show/hide nav</li>
+            <li>Clever but hard to read and maintain</li>
+            <li>No way to update <code>aria-expanded</code></li>
+          </ul>
+        </div>
+        <div>
+          <h3>The right way (JavaScript)</h3>
+          <ul class="bullets">
+            <li>Toggle a class on the nav element</li>
+            <li>CSS handles the slide-in animation</li>
+            <li>JavaScript updates button label and <code>aria-expanded</code></li>
+            <li>Cleaner, more readable, accessible</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="highlight-box">
+        <strong>Same visual result. Better code. Better accessibility.</strong> The checkbox hack was a creative workaround. Now that you know JavaScript, you can do it properly.
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- SLIDE 13 — Hamburger Menu: Code -->
+  <!-- ============================================================ -->
+  <div class="slide">
+    <div class="slide-inner">
+      <div class="slide-tag">Hamburger Menu</div>
+      <h2>Hamburger Menu — The Code</h2>
+
+      <div class="two-col">
+        <div>
+          <h3>CSS — slide from the right</h3>
+<pre><code>.<span class="fn">nav-links</span> {
+  <span class="prop">position</span>: fixed;
+  <span class="prop">top</span>: <span class="num">0</span>;
+  <span class="prop">right</span>: <span class="num">-100%</span>;
+  <span class="prop">width</span>: <span class="num">75%</span>;
+  <span class="prop">height</span>: <span class="num">100vh</span>;
+  <span class="prop">background</span>: <span class="fn">var</span>(<span class="prop">--card</span>);
+  <span class="prop">transition</span>: right <span class="num">0.3s</span> ease;
+  <span class="prop">padding-top</span>: <span class="num">5rem</span>;
+}
+
+.<span class="fn">nav-links</span>.<span class="fn">nav-open</span> {
+  <span class="prop">right</span>: <span class="num">0</span>;
+}</code></pre>
+        </div>
+        <div>
+          <h3>JavaScript — three lines</h3>
+<pre><code>menuBtn.<span class="fn">addEventListener</span>(<span class="str">'click'</span>,
+  <span class="kw">function</span>() {
+    navLinks.<span class="fn">classList</span>.<span class="fn">toggle</span>(<span class="str">'nav-open'</span>);
+
+    <span class="kw">const</span> isOpen = navLinks
+      .<span class="fn">classList</span>.<span class="fn">contains</span>(<span class="str">'nav-open'</span>);
+
+    menuBtn.<span class="fn">setAttribute</span>(
+      <span class="str">'aria-expanded'</span>, isOpen
+    );
+
+    menuBtn.<span class="prop">textContent</span> =
+      isOpen ? <span class="str">'✕'</span> : <span class="str">'☰'</span>;
+});</code></pre>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- SLIDE 14 — Hamburger CodePen -->
+  <!-- ============================================================ -->
+  <div class="slide full-embed" style="padding:0; flex-direction:column;">
+    <div style="padding:.6rem 1rem; background:var(--surface); border-bottom:1px solid var(--border); font-size:.85rem; color:var(--muted);">
+      CodePen — Hamburger Menu (editable)
+    </div>
+    <iframe style="width:100%;" title="Codepen - 20.3" src="https://codepen.io/mattkearl/embed/JoRmGLz?default-tab=css%2Cresult&amp;editable=true" height="500" loading="lazy" style="flex:1; width:100%; border:none; display:block;"></iframe>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- SLIDE 15 — Tabs: Concept + Code -->
+  <!-- ============================================================ -->
+  <div class="slide">
+    <div class="slide-inner">
+      <div class="slide-tag">Tabs</div>
+      <h2>Tab System</h2>
+      <p class="lead">Shows one content panel at a time. Clicking a tab activates it and hides the rest.</p>
+
+      <h3>The pattern: Remove <code>.active</code> from all, add to the one that was clicked</h3>
+
+<pre><code>tabs.<span class="fn">forEach</span>(<span class="kw">function</span>(tab) {
+  tab.<span class="fn">addEventListener</span>(<span class="str">'click'</span>, <span class="kw">function</span>() {
+    <span class="cmt">// Deactivate all tabs and panels</span>
+    tabs.<span class="fn">forEach</span>(<span class="kw">function</span>(t)   { t.<span class="fn">classList</span>.<span class="fn">remove</span>(<span class="str">'active'</span>); });
+    panels.<span class="fn">forEach</span>(<span class="kw">function</span>(p) { p.<span class="fn">classList</span>.<span class="fn">remove</span>(<span class="str">'active'</span>); });
+
+    <span class="cmt">// Activate clicked tab + matching panel</span>
+    tab.<span class="fn">classList</span>.<span class="fn">add</span>(<span class="str">'active'</span>);
+    <span class="kw">const</span> targetId = tab.<span class="prop">dataset</span>.<span class="prop">tab</span>;
+    document.<span class="fn">querySelector</span>(<span class="str">'#'</span> + targetId).<span class="fn">classList</span>.<span class="fn">add</span>(<span class="str">'active'</span>);
+  });
+});</code></pre>
+
+      <div class="note">
+        <strong>Connection to data-* attributes:</strong> The <code>data-tab</code> attribute on each button stores the ID of the panel it controls. This is the same <code>dataset</code> pattern from the previous lessons.
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- SLIDE 16 — Tabs: Interactive Demo -->
+  <!-- ============================================================ -->
+  <div class="slide">
+    <div class="slide-inner">
+      <div class="slide-tag">Tabs</div>
+      <h2>Tabs — Try It</h2>
+
+      <div class="demo-box">
+        <h4>Interactive Tab Demo</h4>
+        <div style="display:flex; gap:0; margin-bottom:0;">
+          <button class="demo-btn tab-demo-btn active-tab" data-panel="panelHTML" onclick="switchTab(this)">HTML</button>
+          <button class="demo-btn secondary tab-demo-btn" data-panel="panelCSS" onclick="switchTab(this)">CSS</button>
+          <button class="demo-btn secondary tab-demo-btn" data-panel="panelJS" onclick="switchTab(this)">JavaScript</button>
+        </div>
+        <div id="panelHTML" class="tab-panel-demo active-panel">
+          <p style="margin:0; font-size:.9rem;">HTML provides the <strong>structure</strong> — headings, paragraphs, lists, forms. Think of it as the skeleton of your page.</p>
+        </div>
+        <div id="panelCSS" class="tab-panel-demo">
+          <p style="margin:0; font-size:.9rem;">CSS provides the <strong>style</strong> — colors, fonts, layout, spacing, animations. It's the skin and clothing on the skeleton.</p>
+        </div>
+        <div id="panelJS" class="tab-panel-demo">
+          <p style="margin:0; font-size:.9rem;">JavaScript provides the <strong>behavior</strong> — responding to clicks, validating forms, toggling classes. It's the brain and nervous system.</p>
+        </div>
+      </div>
+
+      <p style="font-size:.82rem;">
+        <a href="https://www.w3schools.com/howto/howto_js_tabs.asp" target="_blank" rel="noopener" style="color:var(--accent);">W3Schools: How to create Tabs →</a>
+      </p>
+    </div>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- SLIDE 17 — Modal: Concept -->
+  <!-- ============================================================ -->
+  <div class="slide">
+    <div class="slide-inner">
+      <div class="slide-tag">Modal Dialog</div>
+      <h2>Modal Dialog</h2>
+      <p class="lead">An overlay that appears on top of everything, requiring the user's attention before continuing.</p>
+
+      <div class="two-col">
+        <div>
+          <h3>When to use a modal</h3>
+          <ul class="bullets">
+            <li>Confirmation dialogs ("Are you sure?")</li>
+            <li>Login/signup forms</li>
+            <li>Image lightboxes</li>
+            <li>Cookie consent banners</li>
+          </ul>
+
+          <h3>Three ways to close it</h3>
+          <ul class="bullets">
+            <li>Click the ✕ button</li>
+            <li>Click the dark backdrop</li>
+            <li>Press the Escape key</li>
+          </ul>
+        </div>
+        <div>
+          <h3>Why <code>opacity</code> instead of <code>display: none</code>?</h3>
+          <div class="caution">
+            <strong><code>display: none</code></strong> removes the element from layout instantly — there is nothing to transition. The element just pops in/out.
+          </div>
+          <div class="highlight-box">
+            <strong><code>opacity: 0 + pointer-events: none</code></strong> keeps the element present but invisible and non-interactive. Now you can transition <code>opacity</code> for a smooth fade in/out.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- SLIDE 18 — Modal: Code -->
+  <!-- ============================================================ -->
+  <div class="slide">
+    <div class="slide-inner">
+      <div class="slide-tag">Modal Dialog</div>
+      <h2>Modal — The Code</h2>
+
+      <div class="two-col">
+        <div>
+          <h3>CSS — hidden by default</h3>
+<pre><code>.<span class="fn">modal-overlay</span> {
+  <span class="prop">position</span>: fixed;
+  <span class="prop">inset</span>: <span class="num">0</span>;
+  <span class="prop">background</span>: <span class="fn">rgba</span>(<span class="num">0,0,0,0.6</span>);
+  <span class="prop">display</span>: flex;
+  <span class="prop">align-items</span>: center;
+  <span class="prop">justify-content</span>: center;
+  <span class="prop">opacity</span>: <span class="num">0</span>;
+  <span class="prop">pointer-events</span>: none;
+  <span class="prop">transition</span>: opacity <span class="num">0.2s</span>;
+}
+
+.<span class="fn">modal-overlay</span>.<span class="fn">open</span> {
+  <span class="prop">opacity</span>: <span class="num">1</span>;
+  <span class="prop">pointer-events</span>: auto;
+}</code></pre>
+        </div>
+        <div>
+          <h3>JavaScript</h3>
+<pre><code><span class="kw">function</span> <span class="fn">openModal</span>() {
+  overlay.<span class="fn">classList</span>.<span class="fn">add</span>(<span class="str">'open'</span>);
+}
+<span class="kw">function</span> <span class="fn">closeModal</span>() {
+  overlay.<span class="fn">classList</span>.<span class="fn">remove</span>(<span class="str">'open'</span>);
+}
+
+<span class="cmt">// Close on backdrop click</span>
+overlay.<span class="fn">addEventListener</span>(<span class="str">'click'</span>,
+  <span class="kw">function</span>(event) {
+    <span class="kw">if</span> (event.<span class="prop">target</span> === overlay)
+      <span class="fn">closeModal</span>();
+  });</code></pre>
+          <div class="note">
+            <strong>Why <code>event.target === overlay</code>?</strong> Clicking inside the dialog box also fires the overlay's click handler (event bubbling). This check ensures we only close when the <em>backdrop itself</em> is clicked, not the dialog content.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- SLIDE 19 — Modal: Interactive Demo -->
+  <!-- ============================================================ -->
+  <div class="slide">
+    <div class="slide-inner">
+      <div class="slide-tag">Modal Dialog</div>
+      <h2>Modal — Try It</h2>
+
+      <div class="demo-box">
+        <h4>Interactive Modal Demo</h4>
+        <button class="demo-btn" onclick="openDemoModal()">Open Modal</button>
+      </div>
+
+      <!-- The modal overlay -->
+      <div id="demoModalOverlay" onclick="if(event.target===this)closeDemoModal()" style="position:fixed; inset:0; background:rgba(0,0,0,.65); display:flex; align-items:center; justify-content:center; opacity:0; pointer-events:none; transition:opacity .25s; z-index:999;">
+        <div style="background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:1.5rem 2rem; max-width:400px; width:90%; text-align:center;">
+          <h3 style="color:var(--accent); margin:0 0 .5rem;">Hello from the Modal!</h3>
+          <p style="font-size:.9rem; margin-bottom:1rem;">This dialog appeared by adding <code>.open</code> to the overlay. Click ✕, the backdrop, or the button to close it.</p>
+          <button class="demo-btn danger" onclick="closeDemoModal()">✕ Close</button>
+        </div>
+      </div>
+
+      <p style="font-size:.82rem; margin-top:.5rem;">
+        <a href="https://www.w3schools.com/howto/howto_css_modals.asp" target="_blank" rel="noopener" style="color:var(--accent);">W3Schools: How to create a Modal →</a>
+      </p>
+    </div>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- SLIDE 20 — Modal CodePen -->
+  <!-- ============================================================ -->
+  <div class="slide full-embed" style="padding:0; flex-direction:column;">
+    <div style="padding:.6rem 1rem; background:var(--surface); border-bottom:1px solid var(--border); font-size:.85rem; color:var(--muted);">
+      CodePen — Tabs + Modal Dialog (editable)
+    </div>
+    <iframe style="width:100%;" title="Codepen - 20.4" src="https://codepen.io/mattkearl/embed/wBzYMjg?default-tab=css%2Cresult&amp;editable=true" height="600" loading="lazy" style="flex:1; width:100%; border:none; display:block;"></iframe>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- SLIDE 21 — setTimeout -->
+  <!-- ============================================================ -->
+  <div class="slide">
+    <div class="slide-inner">
+      <div class="slide-tag">Timing</div>
+      <h2><code>setTimeout</code> — Delayed Actions</h2>
+      <p class="lead">Schedule a function to run once after a delay (in milliseconds).</p>
+
+      <div class="two-col">
+        <div>
+          <h3>The syntax</h3>
+<pre><code><span class="fn">setTimeout</span>(<span class="kw">function</span>() {
+  <span class="cmt">// This runs after 3 seconds</span>
+  toast.<span class="fn">classList</span>.<span class="fn">remove</span>(<span class="str">'visible'</span>);
+}, <span class="num">3000</span>);  <span class="cmt">// 3000ms = 3 seconds</span></code></pre>
+
+          <h3>Common use: Toast notification</h3>
+<pre><code><span class="kw">function</span> <span class="fn">showToast</span>(message) {
+  toast.<span class="prop">textContent</span> = message;
+  toast.<span class="fn">classList</span>.<span class="fn">add</span>(<span class="str">'visible'</span>);
+
+  <span class="fn">setTimeout</span>(<span class="kw">function</span>() {
+    toast.<span class="fn">classList</span>.<span class="fn">remove</span>(<span class="str">'visible'</span>);
+  }, <span class="num">3000</span>);
+}</code></pre>
+        </div>
+        <div>
+          <h3>Cancel with <code>clearTimeout</code></h3>
+<pre><code><span class="kw">const</span> id = <span class="fn">setTimeout</span>(myFunc, <span class="num">5000</span>);
+<span class="cmt">// User dismisses manually — cancel timer</span>
+<span class="fn">clearTimeout</span>(id);</code></pre>
+
+          <div class="demo-box">
+            <h4>Try It — Toast Notification</h4>
+            <button class="demo-btn" onclick="showDemoToast()">Show Toast</button>
+            <div id="demoToast" style="opacity:0; transform:translateY(10px); transition:all .3s; background:var(--accent); color:#0f0f1a; padding:.6rem 1rem; border-radius:8px; font-weight:700; font-size:.88rem; margin-top:.6rem; text-align:center;">
+              Saved successfully!
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- SLIDE 22 — setInterval -->
+  <!-- ============================================================ -->
+  <div class="slide">
+    <div class="slide-inner">
+      <div class="slide-tag">Timing</div>
+      <h2><code>setInterval</code> — Repeated Actions</h2>
+      <p class="lead">Schedule a function to run repeatedly at a fixed interval.</p>
+
+      <div class="two-col">
+        <div>
+          <h3>The syntax</h3>
+<pre><code><span class="kw">const</span> clockId = <span class="fn">setInterval</span>(<span class="kw">function</span>() {
+  <span class="fn">updateClock</span>();
+}, <span class="num">1000</span>);  <span class="cmt">// Every 1 second</span></code></pre>
+
+          <h3>Always cancel when done</h3>
+<pre><code><span class="fn">clearInterval</span>(clockId);</code></pre>
+
+          <div class="caution">
+            <strong>Memory leak warning:</strong> A running interval that is never cancelled keeps executing even after the user navigates away. Every <code>setInterval</code> must have a matching <code>clearInterval</code>.
+          </div>
+        </div>
+        <div>
+          <h3>Classic use: Live clock</h3>
+<pre><code><span class="kw">function</span> <span class="fn">updateClock</span>() {
+  <span class="kw">const</span> now = <span class="kw">new</span> <span class="fn">Date</span>();
+  <span class="kw">const</span> h = <span class="fn">String</span>(now.<span class="fn">getHours</span>())
+    .<span class="fn">padStart</span>(<span class="num">2</span>, <span class="str">'0'</span>);
+  <span class="kw">const</span> m = <span class="fn">String</span>(now.<span class="fn">getMinutes</span>())
+    .<span class="fn">padStart</span>(<span class="num">2</span>, <span class="str">'0'</span>);
+  <span class="kw">const</span> s = <span class="fn">String</span>(now.<span class="fn">getSeconds</span>())
+    .<span class="fn">padStart</span>(<span class="num">2</span>, <span class="str">'0'</span>);
+  clock.<span class="prop">textContent</span> =
+    h + <span class="str">':'</span> + m + <span class="str">':'</span> + s;
+}</code></pre>
+
+          <div class="demo-box">
+            <h4>Live Clock</h4>
+            <div id="demoClock" style="font-size:2rem; font-family:monospace; font-weight:700; color:var(--accent2); text-align:center; padding:.5rem;">--:--:--</div>
+            <div style="display:flex; gap:.5rem;">
+              <button class="demo-btn" onclick="startDemoClock()">▶ Start</button>
+              <button class="demo-btn danger" onclick="stopDemoClock()">■ Stop</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- SLIDE 23 — setTimeout vs setInterval Comparison -->
+  <!-- ============================================================ -->
+  <div class="slide">
+    <div class="slide-inner">
+      <div class="slide-tag">Timing</div>
+      <h2>setTimeout vs setInterval</h2>
+
+      <table class="ref-table">
+        <thead>
+          <tr><th></th><th><code>setTimeout</code></th><th><code>setInterval</code></th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Runs</strong></td>
+            <td>Once, after a delay</td>
+            <td>Repeatedly, at a fixed interval</td>
+          </tr>
+          <tr>
+            <td><strong>Cancel with</strong></td>
+            <td><code>clearTimeout(id)</code></td>
+            <td><code>clearInterval(id)</code></td>
+          </tr>
+          <tr>
+            <td><strong>Common uses</strong></td>
+            <td>Toast auto-dismiss, delayed animation, debounce</td>
+            <td>Live clock, countdown timer, polling for updates</td>
+          </tr>
+          <tr>
+            <td><strong>Danger</strong></td>
+            <td>Low — runs once and stops</td>
+            <td>High — runs forever if you forget to clear it</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="demo-box">
+        <h4>Try It — Countdown Timer</h4>
+        <div id="countdownDisplay" style="font-size:2rem; font-family:monospace; font-weight:700; color:var(--accent3); text-align:center; padding:.5rem;">10</div>
+        <div style="display:flex; gap:.5rem;">
+          <button class="demo-btn" onclick="startCountdown()">Start Countdown</button>
+          <button class="demo-btn danger" onclick="resetCountdown()">Reset</button>
+        </div>
+      </div>
+
+      <p style="font-size:.82rem;">
+        <a href="https://www.w3schools.com/js/js_timing.asp" target="_blank" rel="noopener" style="color:var(--accent);">W3Schools: JavaScript Timing Events →</a>
+      </p>
+    </div>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- SLIDE 24 — Timer CodePen -->
+  <!-- ============================================================ -->
+  <div class="slide full-embed" style="padding:0; flex-direction:column;">
+    <div style="padding:.6rem 1rem; background:var(--surface); border-bottom:1px solid var(--border); font-size:.85rem; color:var(--muted);">
+      CodePen — setTimeout + setInterval (editable)
+    </div>
+    <iframe style="width:100%;" title="Codepen - 20.5" src="https://codepen.io/mattkearl/embed/XJjxXqP?default-tab=css%2Cresult&amp;editable=true" height="500" loading="lazy" style="flex:1; width:100%; border:none; display:block;"></iframe>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- SLIDE 25 — aria-expanded Accessibility -->
+  <!-- ============================================================ -->
+  <div class="slide">
+    <div class="slide-inner">
+      <div class="slide-tag">Accessibility</div>
+      <h2><code>aria-expanded</code> — Accessible Toggles</h2>
+      <p class="lead">One line of JavaScript makes your interactive components usable by everyone.</p>
+
+      <div class="two-col">
+        <div>
+          <h3>What it does</h3>
+          <p>When a button controls a collapsible section, <code>aria-expanded</code> tells screen readers whether the content is currently visible or hidden.</p>
+          <ul class="bullets">
+            <li><code>aria-expanded="true"</code> → screen reader says "expanded"</li>
+            <li><code>aria-expanded="false"</code> → screen reader says "collapsed"</li>
+          </ul>
+
+          <h3>Where to use it</h3>
+          <ul class="bullets">
+            <li>Accordion headers</li>
+            <li>Hamburger menu buttons</li>
+            <li>Dropdown toggles</li>
+            <li>Any button that shows/hides content</li>
+          </ul>
+        </div>
+        <div>
+          <h3>The code (one line)</h3>
+<pre><code><span class="cmt">// After toggling the class:</span>
+<span class="kw">const</span> isOpen = el.<span class="fn">classList</span>.<span class="fn">contains</span>(<span class="str">'open'</span>);
+btn.<span class="fn">setAttribute</span>(
+  <span class="str">'aria-expanded'</span>, isOpen
+);</code></pre>
+
+          <h3>In the HTML</h3>
+<pre><code>&lt;<span class="kw">button</span>
+  <span class="prop">aria-expanded</span>=<span class="str">"false"</span>
+  <span class="prop">aria-controls</span>=<span class="str">"panel-1"</span>&gt;
+  Section Title
+&lt;/<span class="kw">button</span>&gt;</code></pre>
+          <div class="note">
+            <strong>Tiny effort, huge impact.</strong> Not everyone uses a mouse. Users with visual impairments rely on screen readers to navigate. One attribute makes your components work for them.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- SLIDE 26 — Best Practices -->
+  <!-- ============================================================ -->
+  <div class="slide">
+    <div class="slide-inner">
+      <div class="slide-tag">Best Practices</div>
+      <h2>Best Practices</h2>
+
+      <dl class="qa">
+        <div class="card">
+          <dt style="color:#ffeaa7; font-weight:700;">Let CSS do the animating</dt>
+          <dd style="font-size:.88rem; opacity:.9;">Define both states in CSS with a <code>transition</code>. JavaScript only adds or removes the class. Never write animation timings in JavaScript.</dd>
+        </div>
+        <div class="card">
+          <dt style="color:#ffeaa7; font-weight:700;">Toggle <code>aria-expanded</code> on interactive components</dt>
+          <dd style="font-size:.88rem; opacity:.9;">Buttons that show/hide content need <code>aria-expanded="true"</code> when open and <code>"false"</code> when closed. One line makes your components accessible.</dd>
+        </div>
+        <div class="card">
+          <dt style="color:#ffeaa7; font-weight:700;">Always clear intervals you no longer need</dt>
+          <dd style="font-size:.88rem; opacity:.9;">Every <code>setInterval</code> should have a corresponding <code>clearInterval</code>. Forgetting this is a common source of subtle bugs and memory leaks.</dd>
+        </div>
+        <div class="card">
+          <dt style="color:#ffeaa7; font-weight:700;">Use <code>opacity + pointer-events</code> for animated show/hide</dt>
+          <dd style="font-size:.88rem; opacity:.9;"><code>display: none</code> makes transitions impossible. Use <code>opacity: 0; pointer-events: none;</code> as the hidden state.</dd>
+        </div>
+        <div class="card">
+          <dt style="color:#ffeaa7; font-weight:700;">Keep modal close logic in one function</dt>
+          <dd style="font-size:.88rem; opacity:.9;">Multiple triggers close the same modal (✕ button, backdrop click, Escape key). One <code>closeModal()</code> function called by all three is cleaner than duplicating logic.</dd>
+        </div>
+      </dl>
+    </div>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- SLIDE 27 — Summary -->
+  <!-- ============================================================ -->
+  <div class="slide">
+    <div class="slide-inner">
+      <div class="slide-tag">Summary</div>
+      <h2>Summary — What You Learned</h2>
+
+      <table class="ref-table">
+        <thead>
+          <tr><th>Pattern</th><th>CSS Class</th><th>Lines of JS</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Dark Mode Toggle</td><td><code>.dark-mode</code> on body</td><td>1</td></tr>
+          <tr><td>Accordion</td><td><code>.open</code> on item</td><td>~5</td></tr>
+          <tr><td>Hamburger Menu</td><td><code>.nav-open</code> on nav</td><td>4</td></tr>
+          <tr><td>Tabs</td><td><code>.active</code> on tab + panel</td><td>~6</td></tr>
+          <tr><td>Modal Dialog</td><td><code>.open</code> on overlay</td><td>5</td></tr>
+          <tr><td>Toast Notification</td><td><code>.visible</code> on toast</td><td>3 + setTimeout</td></tr>
+        </tbody>
+      </table>
+
+      <div class="highlight-box">
+        <strong>The universal formula:</strong> CSS defines two states → JavaScript toggles a class → CSS transitions handle the animation. Learn this once, build everything.
+      </div>
+
+      <h3>What's Next</h3>
+      <p>Organizing JavaScript into reusable functions and combining them with loops to generate entire sections of HTML dynamically — turning an array of data into a styled card grid with just a few lines of code.</p>
+
+      <h3>Resources</h3>
+      <ul class="bullets">
+        <li><a href="https://developer.mozilla.org/en-US/docs/Web/API/Element/classList" target="_blank" rel="noopener" style="color:var(--accent);">MDN: classList →</a></li>
+        <li><a href="https://www.w3schools.com/howto/howto_js_accordion.asp" target="_blank" rel="noopener" style="color:var(--accent);">W3Schools: Accordion →</a></li>
+        <li><a href="https://www.w3schools.com/howto/howto_css_modals.asp" target="_blank" rel="noopener" style="color:var(--accent);">W3Schools: Modal →</a></li>
+        <li><a href="https://www.w3schools.com/howto/howto_js_tabs.asp" target="_blank" rel="noopener" style="color:var(--accent);">W3Schools: Tabs →</a></li>
+        <li><a href="https://www.w3schools.com/js/js_timing.asp" target="_blank" rel="noopener" style="color:var(--accent);">W3Schools: Timing Events →</a></li>
+      </ul>
+    </div>
+  </div>
+
+</div><!-- /deck -->
+
+<!-- ===== NAVIGATION ===== -->
+<nav>
+  <button class="nav-btn" id="prevBtn" onclick="changeSlide(-1)" disabled>← Prev</button>
+  <span id="slide-counter">1 / 27</span>
+  <button class="nav-btn" id="nextBtn" onclick="changeSlide(1)">Next →</button>
+</nav>
+
+<style>
+  /* ===== ACCORDION DEMO ===== */
+  .acc-item { margin-bottom:.4rem; }
+  .acc-header {
+    width:100%;
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: .65rem 1rem;
+    text-align: left;
+    font-size: .9rem;
+    font-weight: 600;
+    cursor: pointer;
+    border-radius: 8px;
+    transition: background .2s;
+  }
+  .acc-header:hover { background: var(--surface); }
+  .acc-body {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height .35s ease;
+    background: var(--surface);
+    border-radius: 0 0 8px 8px;
+  }
+  .acc-item.open .acc-body { max-height: 200px; }
+  .acc-item.open .acc-header {
+    border-radius: 8px 8px 0 0;
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
+  /* ===== TAB DEMO ===== */
+  .tab-panel-demo {
+    display: none;
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    border-radius: 0 0 8px 8px;
+    padding: 1rem;
+  }
+  .tab-panel-demo.active-panel { display: block; }
+  .tab-demo-btn.active-tab {
+    background: var(--accent) !important;
+    color: #0f0f1a !important;
+    border-color: var(--accent) !important;
+  }
+
+  /* ===== TOGGLE DEMO ===== */
+  .live-demo-area.highlighted-demo {
+    border-color: var(--accent);
+    background: rgba(167,139,250,.15);
+    color: var(--accent);
+  }
+</style>
+
+<script>
+  // ===== SLIDE ENGINE =====
+  const slides  = document.querySelectorAll('.slide');
+  const total   = slides.length;
+  const counter = document.getElementById('slide-counter');
+  const prevBtn = document.getElementById('prevBtn');
+  const nextBtn = document.getElementById('nextBtn');
+  const bar     = document.getElementById('progress-bar');
+  let current   = 0;
+
+  function showSlide(n) {
+    slides[current].classList.remove('active');
+    current = Math.max(0, Math.min(n, total - 1));
+    slides[current].classList.add('active');
+    counter.textContent = (current + 1) + ' / ' + total;
+    prevBtn.disabled = current === 0;
+    nextBtn.disabled = current === total - 1;
+    bar.style.width = ((current + 1) / total * 100) + '%';
+  }
+
+  function changeSlide(d) { showSlide(current + d); }
+
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown') changeSlide(1);
+    if (e.key === 'ArrowLeft'  || e.key === 'ArrowUp')   changeSlide(-1);
+  });
+
+  showSlide(0);
+
+  // ===== TOGGLE DEMO (Slide 4) =====
+  function toggleDemoClass() {
+    const box  = document.getElementById('toggleDemoBox');
+    const code = document.getElementById('toggleDemoCode');
+    box.classList.toggle('highlighted-demo');
+    const has = box.classList.contains('highlighted-demo');
+    code.innerHTML = has
+      ? '<span style="color:var(--accent2);">classList.toggle(\'highlighted-demo\') → class ADDED</span>'
+      : '<span style="color:var(--accent4);">classList.toggle(\'highlighted-demo\') → class REMOVED</span>';
+  }
+
+  // ===== DARK MODE DEMO (Slide 6) =====
+  let demoIsDark = false;
+  function demoDarkMode() {
+    demoIsDark = !demoIsDark;
+    const preview = document.getElementById('darkModePreview');
+    const btn     = document.getElementById('darkModeBtn');
+    if (demoIsDark) {
+      preview.style.background = '#1a1a2e';
+      preview.style.color      = '#eeeeee';
+      btn.textContent = '☀ Light Mode';
+    } else {
+      preview.style.background = '#f8f9fa';
+      preview.style.color      = '#1a1a2e';
+      btn.textContent = '☾ Dark Mode';
+    }
+  }
+
+  // ===== ACCORDION DEMO (Slide 10) =====
+  function toggleAccordion(header) {
+    const item = header.parentElement;
+    document.querySelectorAll('.acc-item').forEach(function(el) {
+      if (el !== item) el.classList.remove('open');
+    });
+    item.classList.toggle('open');
+  }
+
+  // ===== TABS DEMO (Slide 16) =====
+  function switchTab(btn) {
+    document.querySelectorAll('.tab-demo-btn').forEach(function(t) {
+      t.classList.remove('active-tab');
+      t.classList.add('secondary');
+    });
+    document.querySelectorAll('.tab-panel-demo').forEach(function(p) {
+      p.classList.remove('active-panel');
+    });
+    btn.classList.add('active-tab');
+    btn.classList.remove('secondary');
+    const panelId = btn.getAttribute('data-panel');
+    document.getElementById(panelId).classList.add('active-panel');
+  }
+
+  // ===== MODAL DEMO (Slide 19) =====
+  function openDemoModal() {
+    const overlay = document.getElementById('demoModalOverlay');
+    overlay.style.opacity = '1';
+    overlay.style.pointerEvents = 'auto';
+  }
+  function closeDemoModal() {
+    const overlay = document.getElementById('demoModalOverlay');
+    overlay.style.opacity = '0';
+    overlay.style.pointerEvents = 'none';
+  }
+
+  // ===== TOAST DEMO (Slide 21) =====
+  function showDemoToast() {
+    const toast = document.getElementById('demoToast');
+    toast.style.opacity = '1';
+    toast.style.transform = 'translateY(0)';
+    setTimeout(function() {
+      toast.style.opacity = '0';
+      toast.style.transform = 'translateY(10px)';
+    }, 2500);
+  }
+
+  // ===== CLOCK DEMO (Slide 22) =====
+  let demoClockId = null;
+  function updateDemoClock() {
+    const now = new Date();
+    const h = String(now.getHours()).padStart(2, '0');
+    const m = String(now.getMinutes()).padStart(2, '0');
+    const s = String(now.getSeconds()).padStart(2, '0');
+    document.getElementById('demoClock').textContent = h + ':' + m + ':' + s;
+  }
+  function startDemoClock() {
+    if (demoClockId) return;
+    updateDemoClock();
+    demoClockId = setInterval(updateDemoClock, 1000);
+  }
+  function stopDemoClock() {
+    clearInterval(demoClockId);
+    demoClockId = null;
+    document.getElementById('demoClock').textContent = '--:--:--';
+  }
+
+  // ===== COUNTDOWN DEMO (Slide 23) =====
+  let countdownId = null;
+  let countdownVal = 10;
+  function startCountdown() {
+    if (countdownId) return;
+    countdownVal = 10;
+    document.getElementById('countdownDisplay').textContent = countdownVal;
+    document.getElementById('countdownDisplay').style.color = 'var(--accent3)';
+    countdownId = setInterval(function() {
+      countdownVal--;
+      document.getElementById('countdownDisplay').textContent = countdownVal;
+      if (countdownVal <= 0) {
+        clearInterval(countdownId);
+        countdownId = null;
+        document.getElementById('countdownDisplay').textContent = 'Done!';
+        document.getElementById('countdownDisplay').style.color = 'var(--accent2)';
+      }
+    }, 1000);
+  }
+  function resetCountdown() {
+    clearInterval(countdownId);
+    countdownId = null;
+    countdownVal = 10;
+    document.getElementById('countdownDisplay').textContent = '10';
+    document.getElementById('countdownDisplay').style.color = 'var(--accent3)';
+  }
+</script>
+
+</body>
+</html>
