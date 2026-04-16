@@ -1,0 +1,1270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Objects and Galleries — Arrays of Objects &amp; Data-Driven Interfaces</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #0f0f1a;
+      --surface:   #1a1a2e;
+      --border:    #2e2e4a;
+      --accent:    #a78bfa;
+      --accent2:   #6ee7b7;
+      --accent3:   #fbbf24;
+      --accent4:   #f87171;
+      --text:      #e8e8f0;
+      --muted:     #7070a0;
+      --code-bg:   #0a0a18;
+      --code-text: #c9d1d9;
+      --nav-h:     52px;
+    }
+
+    html, body {
+      height: 100%;
+      font-family: system-ui, -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      overflow: hidden;
+    }
+
+    /* ===== PROGRESS BAR ===== */
+    #progress-bar {
+      position: fixed;
+      top: 0; left: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--accent), var(--accent2));
+      width: 0%;
+      transition: width .3s ease;
+      z-index: 100;
+    }
+
+    /* ===== NAV ===== */
+    nav {
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
+      height: var(--nav-h);
+      background: rgba(10,10,24,.95);
+      border-top: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 1rem;
+      z-index: 50;
+      gap: .5rem;
+    }
+    nav .nav-btn {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: .45rem 1rem;
+      border-radius: 8px;
+      font-size: .85rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background .2s, border-color .2s;
+      white-space: nowrap;
+      min-width: 80px;
+    }
+    nav .nav-btn:hover { background: var(--border); border-color: var(--accent); }
+    nav .nav-btn:disabled { opacity: .3; cursor: default; }
+    #slide-counter {
+      font-size: .8rem;
+      color: var(--muted);
+      white-space: nowrap;
+      min-width: 70px;
+      text-align: center;
+    }
+
+    /* ===== DECK ===== */
+    .deck {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      bottom: var(--nav-h);
+      overflow: hidden;
+    }
+
+    .slide {
+      display: none;
+      position: absolute;
+      inset: 0;
+      overflow-y: auto;
+      padding: 1.75rem 1.25rem 1rem;
+      animation: slideIn .22s ease;
+    }
+    .slide.active { display: block; }
+
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateY(12px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ===== GRADIENT BACKGROUNDS ===== */
+    .slide:nth-child(4n+1) { background: linear-gradient(160deg, #0f0f1a 60%, #1a1040); }
+    .slide:nth-child(4n+2) { background: linear-gradient(160deg, #0f0f1a 60%, #0d1f2d); }
+    .slide:nth-child(4n+3) { background: linear-gradient(160deg, #0f0f1a 60%, #1a0f28); }
+    .slide:nth-child(4n)   { background: linear-gradient(160deg, #0f0f1a 60%, #0f1a1a); }
+
+    /* ===== SLIDE INNER ===== */
+    .slide-inner {
+      max-width: 860px;
+      margin: 0 auto;
+    }
+
+    .slide-tag {
+      font-size: .7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .12em;
+      color: var(--accent);
+      margin-bottom: .6rem;
+    }
+
+    h1 {
+      font-size: clamp(1.5rem, 4vw, 2.4rem);
+      font-weight: 800;
+      line-height: 1.15;
+      margin-bottom: .6rem;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    h2 {
+      font-size: clamp(1.15rem, 3vw, 1.6rem);
+      font-weight: 700;
+      margin-bottom: .5rem;
+    }
+
+    h3 {
+      font-size: clamp(.85rem, 2vw, 1rem);
+      font-weight: 700;
+      color: var(--accent2);
+      margin: .7rem 0 .35rem;
+    }
+
+    p, li { font-size: clamp(.82rem, 1.8vw, .92rem); line-height: 1.55; }
+    .lead { font-size: clamp(.88rem, 2vw, 1.05rem); color: var(--muted); margin-bottom: .7rem; }
+
+    ul.bullets { list-style: none; padding: 0; margin-bottom: .7rem; }
+    ul.bullets li { padding: .25rem 0 .25rem 1.2rem; position: relative; }
+    ul.bullets li::before {
+      content: '▸';
+      position: absolute;
+      left: 0;
+      color: var(--accent);
+      font-weight: 700;
+    }
+
+    a { color: var(--accent); }
+
+    /* ===== CODE ===== */
+    pre {
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: .85rem 1rem;
+      overflow-x: auto;
+      margin-bottom: .7rem;
+      font-size: clamp(.72rem, 1.5vw, .82rem);
+      line-height: 1.65;
+    }
+    code { font-family: 'SF Mono', 'Cascadia Code', 'Fira Code', monospace; }
+    .kw   { color: #c792ea; }
+    .fn   { color: #82aaff; }
+    .str  { color: #c3e88d; }
+    .num  { color: #f78c6c; }
+    .prop { color: #89ddff; }
+    .cmt  { color: #546e7a; font-style: italic; }
+
+    /* ===== CARDS ===== */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: .85rem 1rem;
+      margin-bottom: .55rem;
+    }
+    .card h3 { margin-top: 0; }
+    .card-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: .65rem;
+      margin-bottom: .7rem;
+    }
+
+    /* ===== TWO-COL ===== */
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      margin-bottom: .7rem;
+    }
+    @media (max-width: 600px) {
+      .two-col { grid-template-columns: 1fr; }
+      .card-row { grid-template-columns: 1fr; }
+    }
+
+    /* ===== BOXES ===== */
+    .highlight-box {
+      background: rgba(167,139,250,.08);
+      border-left: 3px solid var(--accent);
+      border-radius: 0 8px 8px 0;
+      padding: .75rem 1rem;
+      margin-bottom: .7rem;
+      font-size: clamp(.8rem, 1.6vw, .88rem);
+    }
+    .note {
+      background: rgba(110,231,183,.06);
+      border-left: 3px solid var(--accent2);
+      border-radius: 0 8px 8px 0;
+      padding: .7rem 1rem;
+      margin-bottom: .7rem;
+      font-size: clamp(.78rem, 1.5vw, .86rem);
+    }
+    .caution {
+      background: rgba(251,191,36,.06);
+      border-left: 3px solid var(--accent3);
+      border-radius: 0 8px 8px 0;
+      padding: .7rem 1rem;
+      margin-bottom: .7rem;
+      font-size: clamp(.78rem, 1.5vw, .86rem);
+    }
+
+    /* ===== DEMO BOXES ===== */
+    .demo-box {
+      background: rgba(110,231,183,.04);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1.1rem;
+      margin-bottom: .9rem;
+    }
+    .demo-box h4 {
+      font-size: .75rem;
+      text-transform: uppercase;
+      letter-spacing: .1em;
+      color: var(--accent);
+      margin-bottom: .7rem;
+      font-weight: 700;
+    }
+    .demo-btn {
+      background: var(--accent);
+      color: #0f0f1a;
+      border: none;
+      padding: .45rem 1rem;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: .85rem;
+      cursor: pointer;
+      transition: background .18s, transform .1s;
+      margin: .25rem .25rem .25rem 0;
+    }
+    .demo-btn:hover  { background: #c4b5fd; }
+    .demo-btn:active { transform: scale(.97); }
+    .demo-btn.secondary {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--text);
+    }
+    .demo-btn.secondary:hover { border-color: var(--accent); }
+    .demo-btn.danger { background: var(--accent4); color: #fff; }
+    .demo-btn.danger:hover { background: #fca5a5; }
+
+    .demo-output {
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: .55rem .85rem;
+      font-family: monospace;
+      font-size: .82rem;
+      color: var(--accent2);
+      min-height: 36px;
+      margin-top: .5rem;
+      word-break: break-all;
+    }
+
+    .demo-input {
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: .4rem .7rem;
+      border-radius: 6px;
+      font-size: .85rem;
+      font-family: monospace;
+      outline: none;
+      width: 100%;
+      max-width: 250px;
+    }
+    .demo-input:focus { border-color: var(--accent); }
+
+    /* ===== FULL-SCREEN EMBEDS ===== */
+    .full-embed {
+      padding: 0;
+      flex-direction: column;
+    }
+    .full-embed iframe {
+      flex: 1;
+      width: 100%;
+      border: none;
+      display: block;
+    }
+
+    /* ===== Q&A CARDS ===== */
+    dl.qa { margin: 0; }
+    dl.qa .card { margin-bottom: .65rem; }
+
+    /* ===== REFERENCE TABLE ===== */
+    .ref-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: clamp(.75rem, 1.7vw, .87rem);
+      margin-bottom: .8rem;
+    }
+    .ref-table th {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      padding: .5rem .8rem;
+      text-align: left;
+      color: var(--accent);
+      font-weight: 700;
+    }
+    .ref-table td {
+      border: 1px solid var(--border);
+      padding: .5rem .8rem;
+      vertical-align: top;
+    }
+
+    /* ===== DEMO-SPECIFIC ===== */
+    .mini-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: .7rem .9rem;
+      text-align: center;
+      transition: all .25s;
+      cursor: pointer;
+    }
+    .mini-card:hover { border-color: var(--accent); transform: translateY(-2px); }
+    .mini-card.selected { border-color: var(--accent); box-shadow: 0 0 0 2px rgba(167,139,250,.25); }
+    .mini-card-emoji { font-size: 1.5rem; margin-bottom: .3rem; }
+    .mini-card-name { font-size: .82rem; font-weight: 700; }
+    .mini-card-price { font-size: .85rem; font-weight: 800; color: var(--accent2); margin-top: .15rem; }
+    .mini-badge {
+      display: inline-block;
+      background: rgba(167,139,250,.12);
+      color: var(--accent);
+      font-size: .62rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      padding: .1rem .4rem;
+      border-radius: 100px;
+      margin-top: .25rem;
+    }
+
+    .demo-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+      gap: .5rem;
+      margin-top: .5rem;
+    }
+
+    .detail-panel {
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: .85rem;
+      margin-top: .5rem;
+      font-size: .82rem;
+    }
+    .detail-row {
+      display: flex;
+      justify-content: space-between;
+      padding: .3rem 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .detail-row:last-child { border-bottom: none; }
+    .detail-key { color: var(--accent); font-family: monospace; font-size: .78rem; }
+    .detail-value { color: var(--text); }
+  </style>
+</head>
+<body>
+
+<div id="progress-bar"></div>
+
+<div class="deck">
+
+  <!-- ============================================================ -->
+  <!-- SLIDE 1 — Title -->
+  <!-- ============================================================ -->
+  <div class="slide active">
+    <div class="slide-inner">
+      <div class="slide-tag">Arrays of Objects &amp; Data-Driven Interfaces</div>
+      <h1>Objects and Galleries</h1>
+      <p class="lead">The data structure that powers every product listing, portfolio grid, and content gallery on the web</p>
+      <ul class="bullets" style="margin-top:1.5rem;">
+        <li>What JavaScript objects are and how to create them</li>
+        <li>Dot notation — reading and writing object properties</li>
+        <li>Arrays of objects — the core data structure of web development</li>
+        <li>Rendering arrays of objects as styled card grids</li>
+        <li>Sorting arrays and re-rendering the result</li>
+        <li>Using <code>data-id</code> to connect rendered cards back to source data</li>
+        <li>Handling empty states gracefully</li>
+        <li>Building objects from form input</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- SLIDE 2 — Why Objects? The Problem -->
+  <!-- ============================================================ -->
+  <div class="slide">
+    <div class="slide-inner">
+      <div class="slide-tag">Why Objects?</div>
+      <h2>The Problem — Strings Aren't Enough</h2>
+
+      <div class="highlight-box">
+        <strong>Analogy:</strong> Imagine a filing cabinet. So far, you've been storing sticky notes with single words — "Tokyo", "Lisbon". But a real product catalog needs a full folder per item: name, price, category, image. Objects are those folders — they group related data together under one name.
+      </div>
+
+      <p>You've built card grids from arrays of strings:</p>
+<pre><code><span class="kw">const</span> cities = [<span class="str">'Tokyo'</span>, <span class="str">'Lisbon'</span>, <span class="str">'Chicago'</span>];</code></pre>
+
+      <p>But real web apps need richer data. A product needs a name, price, category, and stock status. You can't fit all of that into a single string.</p>
+
+      <div class="caution">
+        <strong>The old way (don't do this):</strong> Separate arrays for each property — <code>names[]</code>, <code>prices[]</code>, <code>categories[]</code> — that must stay in sync by index. One mistake and everything is misaligned.
+      </div>
+
+      <p>The solution: <strong>JavaScript objects</strong> — group all related data into one item.</p>
+    </div>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- SLIDE 3 — JavaScript Objects -->
+  <!-- ============================================================ -->
+  <div class="slide">
+    <div class="slide-inner">
+      <div class="slide-tag">JavaScript Objects</div>
+      <h2>Creating an Object</h2>
+      <p class="lead">An object is a collection of <strong>key-value pairs</strong> wrapped in curly braces.</p>
+
+      <h3>JavaScript</h3>
+<pre><code><span class="kw">const</span> product = {
+  <span class="prop">name</span>:     <span class="str">'Wireless Headphones'</span>,
+  <span class="prop">price</span>:    <span class="num">79.99</span>,
+  <span class="prop">category</span>: <span class="str">'Electronics'</span>,
+  <span class="prop">inStock</span>:  <span class="kw">true</span>
+};</code></pre>
+
+      <table class="ref-table">
+        <thead>
+          <tr><th>Part</th><th>What it is</th><th>Example</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Key (property name)</td><td>The label — like a column heading</td><td><code>name</code>, <code>price</code></td></tr>
+          <tr><td>Value</td><td>The data — any type: string, number, boolean</td><td><code>'Wireless Headphones'</code>, <code>79.99</code></td></tr>
+          <tr><td>Colon <code>:</code></td><td>Separates key from value</td><td><code>name: 'Headphones'</code></td></tr>
+          <tr><td>Comma <code>,</code></td><td>Separates each key-value pair</td><td>After each property</td></tr>
+        </tbody>
+      </table>
+
+      <div class="note">
+        <strong>Think of it like a contact card:</strong> A contact has a name, phone number, email, and address — all grouped under one person. An object groups related data under one variable.
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- SLIDE 4 — Dot Notation -->
+  <!-- ============================================================ -->
+  <div class="slide">
+    <div class="slide-inner">
+      <div class="slide-tag">JavaScript Objects</div>
+      <h2>Dot Notation — Reading &amp; Writing</h2>
+
+      <div class="highlight-box">
+        <strong>Analogy:</strong> Dot notation is like opening a folder and pulling out a specific document. <code>product.name</code> means "open the product folder, get the name document."
+      </div>
+
+      <h3>Reading properties</h3>
+<pre><code>console.<span class="fn">log</span>(product.<span class="prop">name</span>);      <span class="cmt">// 'Wireless Headphones'</span>
+console.<span class="fn">log</span>(product.<span class="prop">price</span>);     <span class="cmt">// 79.99</span>
+console.<span class="fn">log</span>(product.<span class="prop">inStock</span>);   <span class="cmt">// true</span></code></pre>
+
+      <h3>Writing / updating properties</h3>
+<pre><code>product.<span class="prop">price</span>  = <span class="num">69.99</span>;   <span class="cmt">// Update an existing property</span>
+product.<span class="prop">rating</span> = <span class="num">4.5</span>;     <span class="cmt">// Add a new property</span></code></pre>
+
+      <div class="demo-box">
+        <h4>Try It — Object Property Explorer</h4>
+        <div style="display:flex; gap:.5rem; flex-wrap:wrap;">
+          <button class="demo-btn" onclick="demoDot('name')">product.name</button>
+          <button class="demo-btn secondary" onclick="demoDot('price')">product.price</button>
+          <button class="demo-btn secondary" onclick="demoDot('category')">product.category</button>
+          <button class="demo-btn secondary" onclick="demoDot('inStock')">product.inStock</button>
+        </div>
+        <div id="dotOutput" class="demo-output">← click a property to read its value</div>
+      </div>
+
+      <p style="font-size:.82rem;">
+        <a href="https://www.w3schools.com/js/js_objects.asp" target="_blank" rel="noopener" style="color:var(--accent);">W3Schools: JavaScript Objects →</a>
+      </p>
+    </div>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- SLIDE 5 — Bracket Notation -->
+  <!-- ============================================================ -->
+  <div class="slide">
+    <div class="slide-inner">
+      <div class="slide-tag">JavaScript Objects</div>
+      <h2>Bracket Notation — Dynamic Access</h2>
+      <p class="lead">An alternative syntax that uses a string (or variable) inside square brackets:</p>
+
+<pre><code><span class="kw">const</span> key = <span class="str">'name'</span>;
+console.<span class="fn">log</span>(product[key]);   <span class="cmt">// 'Wireless Headphones' — same as product.name</span></code></pre>
+
+      <div class="two-col">
+        <div class="card">
+          <h3>Dot Notation</h3>
+          <p><code>product.name</code></p>
+          <p style="font-size:.82rem;">Use this 99% of the time. Shorter, more readable.</p>
+        </div>
+        <div class="card">
+          <h3>Bracket Notation</h3>
+          <p><code>product['name']</code> or <code>product[key]</code></p>
+          <p style="font-size:.82rem;">Use when the property name is stored in a variable or computed at runtime.</p>
+        </div>
+      </div>
+
+      <div class="demo-box">
+        <h4>Try It — Dynamic Property Access</h4>
+        <div style="display:flex; gap:.5rem; align-items:center; flex-wrap:wrap;">
+          <span style="font-size:.85rem;">product[</span>
+          <input type="text" class="demo-input" id="bracketInput" value="name" style="max-width:140px;">
+          <span style="font-size:.85rem;">]</span>
+          <button class="demo-btn" onclick="demoBracket()">Read</button>
+        </div>
+        <div id="bracketOutput" class="demo-output">← type a property name and click Read</div>
+      </div>
+
+      <p style="font-size:.82rem;">
+        <a href="https://www.w3schools.com/js/js_object_properties.asp" target="_blank" rel="noopener" style="color:var(--accent);">W3Schools: Object Properties →</a>
+      </p>
+    </div>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- SLIDE 6 — Objects CodePen -->
+  <!-- ============================================================ -->
+  <div class="slide full-embed" style="padding:0; flex-direction:column;">
+    <div style="padding:.6rem 1rem; background:var(--surface); border-bottom:1px solid var(--border); font-size:.85rem; color:var(--muted);">
+      CodePen — Object Explorer (editable)
+    </div>
+    <iframe style="width: 100%;" title="Codepen - 21.1" src="https://codepen.io/mattkearl/embed/bNwzQoL?default-tab=js%2Cresult&editable=true" height="600" loading="lazy"></iframe>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- SLIDE 7 — Arrays of Objects -->
+  <!-- ============================================================ -->
+  <div class="slide">
+    <div class="slide-inner">
+      <div class="slide-tag">Arrays of Objects</div>
+      <h2>Arrays of Objects — The Core Data Structure</h2>
+
+      <div class="highlight-box">
+        <strong>Analogy:</strong> If an object is a contact card, then an array of objects is your entire contacts list. Each entry is one full card with all the details. This is the data shape behind every product listing, team page, and content gallery on the web.
+      </div>
+
+      <h3>JavaScript</h3>
+<pre><code><span class="kw">const</span> products = [
+  { <span class="prop">id</span>: <span class="num">1</span>, <span class="prop">name</span>: <span class="str">'Headphones'</span>,  <span class="prop">price</span>: <span class="num">79.99</span>, <span class="prop">category</span>: <span class="str">'Electronics'</span> },
+  { <span class="prop">id</span>: <span class="num">2</span>, <span class="prop">name</span>: <span class="str">'Sneakers'</span>,    <span class="prop">price</span>: <span class="num">49.99</span>, <span class="prop">category</span>: <span class="str">'Footwear'</span>    },
+  { <span class="prop">id</span>: <span class="num">3</span>, <span class="prop">name</span>: <span class="str">'Coffee Mug'</span>,  <span class="prop">price</span>: <span class="num">12.99</span>, <span class="prop">category</span>: <span class="str">'Kitchen'</span>     },
+  { <span class="prop">id</span>: <span class="num">4</span>, <span class="prop">name</span>: <span class="str">'Yoga Mat'</span>,    <span class="prop">price</span>: <span class="num">34.99</span>, <span class="prop">category</span>: <span class="str">'Fitness'</span>     }
+];</code></pre>
+
+      <ul class="bullets">
+        <li>Each object is one <strong>record</strong> — one product, one recipe, one team member</li>
+        <li>The array holds all the records</li>
+        <li>Every object has a unique <code>id</code> — you'll need it when users click cards</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- SLIDE 8 — Accessing Nested Data -->
+  <!-- ============================================================ -->
+  <div class="slide">
+    <div class="slide-inner">
+      <div class="slide-tag">Arrays of Objects</div>
+      <h2>Accessing Nested Data</h2>
+      <p class="lead">Combine array index access with dot notation:</p>
+
+<pre><code><span class="kw">const</span> first = products[<span class="num">0</span>];        <span class="cmt">// The first product object</span>
+console.<span class="fn">log</span>(first.<span class="prop">name</span>);          <span class="cmt">// 'Headphones'</span>
+
+console.<span class="fn">log</span>(products[<span class="num">1</span>].<span class="prop">price</span>);   <span class="cmt">// 49.99 — second product's price</span></code></pre>
+
+      <div class="highlight-box">
+        <strong>Reading it aloud:</strong> <code>products[1].price</code> means "go to the array <code>products</code>, get item at index <code>1</code> (the second object), then read its <code>price</code> property." Two steps chained together.
+      </div>
+
+      <div class="demo-box">
+        <h4>Try It — Array + Dot Notation</h4>
+        <div style="display:flex; gap:.5rem; flex-wrap:wrap; align-items:center;">
+          <span style="font-size:.85rem;">products[</span>
+          <input type="number" class="demo-input" id="indexInput" value="0" min="0" max="3" style="max-width:60px;">
+          <span style="font-size:.85rem;">].</span>
+          <select class="demo-input" id="propSelect" style="max-width:120px;">
+            <option value="name">name</option>
+            <option value="price">price</option>
+            <option value="category">category</option>
+            <option value="id">id</option>
+          </select>
+          <button class="demo-btn" onclick="demoNested()">Read</button>
+        </div>
+        <div id="nestedOutput" class="demo-output">← pick an index and property</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- SLIDE 9 — Rendering Arrays of Objects -->
+  <!-- ============================================================ -->
+  <div class="slide">
+    <div class="slide-inner">
+      <div class="slide-tag">Rendering Cards</div>
+      <h2>Rendering Arrays of Objects as Cards</h2>
+      <p class="lead">The <code>renderCards()</code> pattern from last lesson — now with object properties.</p>
+
+      <h3>HTML</h3>
+<pre><code>&lt;<span class="kw">div</span> <span class="prop">class</span>=<span class="str">"grid"</span>&gt;&lt;/<span class="kw">div</span>&gt;</code></pre>
+
+      <h3>CSS</h3>
+<pre><code><span class="kw">.grid</span> { <span class="prop">display</span>: grid; <span class="prop">grid-template-columns</span>: <span class="fn">repeat</span>(<span class="fn">auto-fill</span>, <span class="fn">minmax</span>(<span class="num">200px</span>, <span class="num">1fr</span>)); <span class="prop">gap</span>: <span class="num">1rem</span>; }
+<span class="kw">.card</span> { <span class="prop">background</span>: <span class="str">#16213e</span>; <span class="prop">padding</span>: <span class="num">1rem</span>; <span class="prop">border-radius</span>: <span class="num">12px</span>; }
+<span class="kw">.badge</span> { <span class="prop">font-size</span>: <span class="num">.65rem</span>; <span class="prop">background</span>: <span class="fn">rgba</span>(<span class="num">108,92,231,.15</span>); <span class="prop">padding</span>: <span class="num">.15rem .5rem</span>; <span class="prop">border-radius</span>: <span class="num">100px</span>; }</code></pre>
+
+      <h3>JavaScript</h3>
+<pre><code><span class="kw">function</span> <span class="fn">renderProducts</span>(<span class="prop">items</span>) {
+  container.<span class="prop">innerHTML</span> = <span class="prop">items</span>.<span class="fn">map</span>(<span class="prop">product</span> => <span class="str">`
+    &lt;div class="card" data-id="${product.id}"&gt;
+      &lt;span class="badge"&gt;${product.category}&lt;/span&gt;
+      &lt;h3&gt;${product.name}&lt;/h3&gt;
+      &lt;p class="price"&gt;$${product.price.toFixed(2)}&lt;/p&gt;
+    &lt;/div&gt;
+  `</span>).<span class="fn">join</span>(<span class="str">''</span>);
+}</code></pre>
+
+      <ul class="bullets">
+        <li><code>product.price.toFixed(2)</code> — formats to exactly 2 decimal places</li>
+        <li><code>data-id="${product.id}"</code> — stores the record's ID in the HTML for later lookup</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- SLIDE 10 — Live Render Demo -->
+  <!-- ============================================================ -->
+  <div class="slide">
+    <div class="slide-inner">
+      <div class="slide-tag">Rendering Cards</div>
+      <h2>Rendering — Try It Live</h2>
+
+      <div class="demo-box">
+        <h4>Live Product Card Grid</h4>
+        <p style="font-size:.82rem; margin-bottom:.5rem;">Each object in the array becomes a card. The function reads <code>product.name</code>, <code>product.price</code>, etc.</p>
+        <div id="renderDemoGrid" class="demo-grid"></div>
+      </div>
+
+      <div class="note">
+        <strong>Key difference from string arrays:</strong> Instead of just <code>${item}</code> in the template, you access individual properties: <code>${product.name}</code>, <code>${product.price.toFixed(2)}</code>, <code>${product.category}</code>. The object gives you much richer content per card.
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- SLIDE 11 — Rendering CodePen -->
+  <!-- ============================================================ -->
+  <div class="slide full-embed" style="padding:0; flex-direction:column;">
+    <div style="padding:.6rem 1rem; background:var(--surface); border-bottom:1px solid var(--border); font-size:.85rem; color:var(--muted);">
+      CodePen — Product Gallery (editable)
+    </div>
+    <iframe style="width: 100%;" title="Codepen - 21.2" src="https://codepen.io/mattkearl/embed/emdxQGo?default-tab=js%2Cresult&editable=true" height="600" loading="lazy"></iframe>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- SLIDE 12 — Sorting Arrays: Concept -->
+  <!-- ============================================================ -->
+  <div class="slide">
+    <div class="slide-inner">
+      <div class="slide-tag">Sorting Arrays</div>
+      <h2>Sorting Arrays of Objects</h2>
+
+      <div class="highlight-box">
+        <strong>Analogy:</strong> Sorting is like rearranging a deck of playing cards. The <code>.sort()</code> method needs you to tell it the rule: "put the lower price first" or "alphabetical by name." You provide this rule as a <strong>comparator function</strong>.
+      </div>
+
+      <h3>JavaScript</h3>
+<pre><code><span class="cmt">// Sort by price, low to high</span>
+<span class="kw">const</span> byPriceAsc = [...products].<span class="fn">sort</span>((<span class="prop">a</span>, <span class="prop">b</span>) => a.<span class="prop">price</span> - b.<span class="prop">price</span>);
+
+<span class="cmt">// Sort by price, high to low</span>
+<span class="kw">const</span> byPriceDesc = [...products].<span class="fn">sort</span>((<span class="prop">a</span>, <span class="prop">b</span>) => b.<span class="prop">price</span> - a.<span class="prop">price</span>);
+
+<span class="cmt">// Sort by name, alphabetically</span>
+<span class="kw">const</span> byName = [...products].<span class="fn">sort</span>((<span class="prop">a</span>, <span class="prop">b</span>) => a.<span class="prop">name</span>.<span class="fn">localeCompare</span>(b.<span class="prop">name</span>));</code></pre>
+
+      <div class="note">
+        <strong>How the comparator works:</strong> The function compares two items at a time. Return a <strong>negative</strong> number → <code>a</code> comes first. Return <strong>positive</strong> → <code>b</code> comes first. Return <strong>zero</strong> → keep current order. For numbers, <code>a.price - b.price</code> produces the right sign automatically.
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- SLIDE 13 — Sorting: Spread Operator Warning -->
+  <!-- ============================================================ -->
+  <div class="slide">
+    <div class="slide-inner">
+      <div class="slide-tag">Sorting Arrays</div>
+      <h2>Always Sort a Copy</h2>
+
+      <div class="caution">
+        <strong>Warning:</strong> <code>.sort()</code> modifies the original array! Always sort a <strong>copy</strong> using the spread operator: <code>[...products].sort()</code>. If you sort the original, there's no way to restore the default order without reloading the page.
+      </div>
+
+      <div class="two-col">
+        <div>
+          <h3 style="color:var(--accent4);">Bad — mutates original</h3>
+<pre><code>products.<span class="fn">sort</span>((<span class="prop">a</span>, <span class="prop">b</span>) =>
+  a.<span class="prop">price</span> - b.<span class="prop">price</span>);
+<span class="cmt">// products is now permanently
+// reordered — can't undo!</span></code></pre>
+        </div>
+        <div>
+          <h3 style="color:var(--accent2);">Good — sorts a copy</h3>
+<pre><code><span class="kw">const</span> sorted = [...products].<span class="fn">sort</span>(
+  (<span class="prop">a</span>, <span class="prop">b</span>) => a.<span class="prop">price</span> - b.<span class="prop">price</span>
+);
+<span class="cmt">// products unchanged
+// sorted is the new order</span></code></pre>
+        </div>
+      </div>
+
+      <div class="demo-box">
+        <h4>Try It — Sort Products</h4>
+        <div style="display:flex; gap:.5rem; flex-wrap:wrap; margin-bottom:.5rem;">
+          <button class="demo-btn" onclick="demoSort('default')">Default</button>
+          <button class="demo-btn secondary" onclick="demoSort('priceAsc')">Price ↑</button>
+          <button class="demo-btn secondary" onclick="demoSort('priceDesc')">Price ↓</button>
+          <button class="demo-btn secondary" onclick="demoSort('name')">Name A–Z</button>
+        </div>
+        <div id="sortDemoGrid" class="demo-grid"></div>
+      </div>
+
+      <p style="font-size:.82rem;">
+        <a href="https://www.w3schools.com/js/js_array_sort.asp" target="_blank" rel="noopener" style="color:var(--accent);">W3Schools: Array Sort →</a> &nbsp;|&nbsp;
+        <a href="https://www.w3schools.com/jsref/jsref_localecompare.asp" target="_blank" rel="noopener" style="color:var(--accent);">W3Schools: localeCompare() →</a>
+      </p>
+    </div>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- SLIDE 14 — Sorting CodePen -->
+  <!-- ============================================================ -->
+  <div class="slide full-embed" style="padding:0; flex-direction:column;">
+    <div style="padding:.6rem 1rem; background:var(--surface); border-bottom:1px solid var(--border); font-size:.85rem; color:var(--muted);">
+      CodePen — Sort Buttons (editable)
+    </div>
+    <iframe style="width: 100%;" title="Codepen - 21.3" src="https://codepen.io/mattkearl/embed/VYKgVrK?default-tab=css%2Cresult&editable=true" height="600" loading="lazy"></iframe>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- SLIDE 15 — Connecting Cards to Data: data-id -->
+  <!-- ============================================================ -->
+  <div class="slide">
+    <div class="slide-inner">
+      <div class="slide-tag">The data-id Pattern</div>
+      <h2>Connecting Cards to Data</h2>
+      <p class="lead">When a user clicks a card, how does your JS know <em>which</em> item they clicked?</p>
+
+      <div class="highlight-box">
+        <strong>Analogy:</strong> Imagine name tags at a conference. Each person wears a badge with a unique number. When you meet someone, you read their badge number and look them up in the attendee list. <code>data-id</code> is that badge — it's stamped in the HTML, and your JS reads it back to find the matching object.
+      </div>
+
+      <h3>HTML that gets generated</h3>
+<pre><code>&lt;<span class="kw">div</span> <span class="prop">class</span>=<span class="str">"card"</span> <span class="prop">data-id</span>=<span class="str">"3"</span>&gt;
+  &lt;<span class="kw">h3</span>&gt;Coffee Mug&lt;/<span class="kw">h3</span>&gt;
+  &lt;<span class="kw">p</span>&gt;$12.99&lt;/<span class="kw">p</span>&gt;
+&lt;/<span class="kw">div</span>&gt;</code></pre>
+
+      <h3>JavaScript — reading it back</h3>
+<pre><code><span class="kw">const</span> id = <span class="fn">Number</span>(card.<span class="prop">dataset</span>.<span class="prop">id</span>);       <span class="cmt">// Convert string → number</span>
+<span class="kw">const</span> product = products.<span class="fn">find</span>(<span class="prop">p</span> => p.<span class="prop">id</span> === id); <span class="cmt">// Look up the object</span></code></pre>
+
+      <ul class="bullets">
+        <li><code>dataset.id</code> always returns a <strong>string</strong> — wrap in <code>Number()</code> before comparing with <code>===</code></li>
+        <li><code>.find()</code> returns the first matching object, or <code>undefined</code> if none match</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- SLIDE 16 — Event Delegation -->
+  <!-- ============================================================ -->
+  <div class="slide">
+    <div class="slide-inner">
+      <div class="slide-tag">The data-id Pattern</div>
+      <h2>Event Delegation</h2>
+      <p class="lead">One listener on the parent — catches clicks on all cards, even ones added later.</p>
+
+      <h3>HTML</h3>
+<pre><code>&lt;<span class="kw">div</span> <span class="prop">class</span>=<span class="str">"grid"</span> <span class="prop">id</span>=<span class="str">"grid"</span>&gt;
+  <span class="cmt">&lt;!-- cards are generated by JS — not in the HTML at load time --&gt;</span>
+&lt;/<span class="kw">div</span>&gt;</code></pre>
+
+      <h3>JavaScript</h3>
+<pre><code>container.<span class="fn">addEventListener</span>(<span class="str">'click'</span>, <span class="kw">function</span>(<span class="prop">event</span>) {
+  <span class="kw">const</span> card = event.<span class="prop">target</span>.<span class="fn">closest</span>(<span class="str">'.card'</span>);
+  <span class="kw">if</span> (!card) <span class="kw">return</span>;  <span class="cmt">// Click was not on a card</span>
+
+  <span class="kw">const</span> id      = <span class="fn">Number</span>(card.<span class="prop">dataset</span>.<span class="prop">id</span>);
+  <span class="kw">const</span> product = products.<span class="fn">find</span>(<span class="prop">p</span> => p.<span class="prop">id</span> === id);
+
+  <span class="kw">if</span> (product) {
+    <span class="fn">showDetail</span>(product);
+  }
+});</code></pre>
+
+      <div class="note">
+        <strong>Why event delegation?</strong> Cards generated by JS aren't in the HTML when the page loads — you can't attach listeners to elements that don't exist yet. A listener on the static parent container catches <em>all</em> clicks because events <strong>bubble up</strong> through the DOM.
+      </div>
+
+      <div class="demo-box">
+        <h4>Try It — Click a Card to See Its Data</h4>
+        <div id="clickDemoGrid" class="demo-grid" style="cursor:pointer;"></div>
+        <div id="clickDemoDetail" class="detail-panel" style="margin-top:.5rem;">
+          <p style="opacity:.4; text-align:center;">Click any card above</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- SLIDE 17 — data-id CodePen -->
+  <!-- ============================================================ -->
+  <div class="slide full-embed" style="padding:0; flex-direction:column;">
+    <div style="padding:.6rem 1rem; background:var(--surface); border-bottom:1px solid var(--border); font-size:.85rem; color:var(--muted);">
+      CodePen — Card Click to Detail Panel (editable)
+    </div>
+    <iframe style="width: 100%;" title="Codepen - 21.4" src="https://codepen.io/mattkearl/embed/xbEMQpb?default-tab=css%2Cresult&editable=true" height="600" loading="lazy"></iframe>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- SLIDE 18 — Empty States -->
+  <!-- ============================================================ -->
+  <div class="slide">
+    <div class="slide-inner">
+      <div class="slide-tag">Empty States</div>
+      <h2>Handling Empty States</h2>
+
+      <div class="highlight-box">
+        <strong>Why this matters:</strong> When a filter or search produces zero results, showing a blank space makes users think the page is broken. A good empty state tells them "nothing matched" — it's part of strong UX design.
+      </div>
+
+      <h3>HTML</h3>
+<pre><code>&lt;<span class="kw">div</span> <span class="prop">class</span>=<span class="str">"grid"</span>&gt;&lt;/<span class="kw">div</span>&gt;</code></pre>
+
+      <h3>JavaScript</h3>
+<pre><code><span class="kw">function</span> <span class="fn">renderProducts</span>(<span class="prop">items</span>) {
+  <span class="kw">if</span> (<span class="prop">items</span>.<span class="prop">length</span> === <span class="num">0</span>) {
+    container.<span class="prop">innerHTML</span> = <span class="str">'&lt;p class="empty-state"&gt;No items match your search.&lt;/p&gt;'</span>;
+    <span class="kw">return</span>;
+  }
+
+  container.<span class="prop">innerHTML</span> = <span class="prop">items</span>.<span class="fn">map</span>(<span class="prop">product</span> => <span class="str">`
+    &lt;div class="card"&gt;...&lt;/div&gt;
+  `</span>).<span class="fn">join</span>(<span class="str">''</span>);
+}</code></pre>
+
+      <div class="demo-box">
+        <h4>Try It — Toggle Empty State</h4>
+        <div style="display:flex; gap:.5rem; flex-wrap:wrap; margin-bottom:.5rem;">
+          <button class="demo-btn" onclick="demoEmpty('full')">Show Products</button>
+          <button class="demo-btn secondary" onclick="demoEmpty('empty')">Show Empty State</button>
+        </div>
+        <div id="emptyDemoGrid" class="demo-grid"></div>
+      </div>
+
+      <div class="note">
+        <strong>Rule:</strong> A render function that returns nothing when its input is empty is <em>not finished</em>. Always add a check and a user-friendly message.
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- SLIDE 19 — Building Objects from Forms -->
+  <!-- ============================================================ -->
+  <div class="slide">
+    <div class="slide-inner">
+      <div class="slide-tag">Building Objects</div>
+      <h2>Building Objects from Form Input</h2>
+      <p class="lead">Data doesn't have to be hardcoded — you can build objects from what the user types.</p>
+
+      <div class="highlight-box">
+        <strong>Analogy:</strong> Think of a registration form. Each field the user fills in becomes a property on the new object. Clicking "submit" creates the object, pushes it into the array, and re-renders the grid — the new card appears alongside all the others.
+      </div>
+
+      <h3>HTML</h3>
+<pre><code>&lt;<span class="kw">form</span> <span class="prop">id</span>=<span class="str">"add-form"</span>&gt;
+  &lt;<span class="kw">input</span> <span class="prop">type</span>=<span class="str">"text"</span> <span class="prop">id</span>=<span class="str">"name"</span> <span class="prop">placeholder</span>=<span class="str">"Product name"</span>&gt;
+  &lt;<span class="kw">input</span> <span class="prop">type</span>=<span class="str">"number"</span> <span class="prop">id</span>=<span class="str">"price"</span> <span class="prop">placeholder</span>=<span class="str">"29.99"</span>&gt;
+  &lt;<span class="kw">button</span> <span class="prop">type</span>=<span class="str">"submit"</span>&gt;Add&lt;/<span class="kw">button</span>&gt;
+&lt;/<span class="kw">form</span>&gt;</code></pre>
+
+      <h3>JavaScript</h3>
+<pre><code>form.<span class="fn">addEventListener</span>(<span class="str">'submit'</span>, <span class="kw">function</span>(<span class="prop">event</span>) {
+  event.<span class="fn">preventDefault</span>();
+
+  <span class="kw">const</span> newProduct = {
+    <span class="prop">id</span>:       products.<span class="prop">length</span> + <span class="num">1</span>,
+    <span class="prop">name</span>:     document.<span class="fn">querySelector</span>(<span class="str">'#name'</span>).<span class="prop">value</span>,
+    <span class="prop">price</span>:    <span class="fn">Number</span>(document.<span class="fn">querySelector</span>(<span class="str">'#price'</span>).<span class="prop">value</span>),
+    <span class="prop">category</span>: document.<span class="fn">querySelector</span>(<span class="str">'#category'</span>).<span class="prop">value</span>
+  };
+
+  products.<span class="fn">push</span>(newProduct);
+  <span class="fn">renderProducts</span>(products);
+});</code></pre>
+    </div>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- SLIDE 20 — Building Objects: Interactive Demo -->
+  <!-- ============================================================ -->
+  <div class="slide">
+    <div class="slide-inner">
+      <div class="slide-tag">Building Objects</div>
+      <h2>Try It — Add Products Live</h2>
+
+      <div class="demo-box">
+        <h4>Build Your Collection</h4>
+        <div style="display:grid; grid-template-columns:auto 1fr; gap:.4rem .6rem; align-items:center; font-size:.82rem; margin-bottom:.6rem;">
+          <label style="color:var(--muted);">Emoji:</label>
+          <input type="text" class="demo-input" id="addEmoji" value="🎁" maxlength="2" style="max-width:60px;">
+          <label style="color:var(--muted);">Name:</label>
+          <input type="text" class="demo-input" id="addName" placeholder="Product name" style="max-width:100%;">
+          <label style="color:var(--muted);">Price:</label>
+          <input type="number" class="demo-input" id="addPrice" placeholder="29.99" step="0.01" style="max-width:120px;">
+        </div>
+        <button class="demo-btn" onclick="demoAddProduct()">+ Add to Gallery</button>
+        <button class="demo-btn danger" onclick="demoResetProducts()">Reset</button>
+        <div id="addDemoGrid" class="demo-grid" style="margin-top:.6rem;"></div>
+        <div id="addDemoCount" style="font-size:.75rem; color:var(--muted); margin-top:.3rem;"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- SLIDE 21 — Building Objects CodePen -->
+  <!-- ============================================================ -->
+  <div class="slide full-embed" style="padding:0; flex-direction:column;">
+    <div style="padding:.6rem 1rem; background:var(--surface); border-bottom:1px solid var(--border); font-size:.85rem; color:var(--muted);">
+      CodePen — Build Your Collection (editable)
+    </div>
+    <iframe style="width: 100%;" title="Codepen - 21.5" src="https://codepen.io/mattkearl/embed/WbGPYdy?default-tab=css%2Cresult&editable=true" height="600" loading="lazy"></iframe>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- SLIDE 22 — Best Practices -->
+  <!-- ============================================================ -->
+  <div class="slide">
+    <div class="slide-inner">
+      <div class="slide-tag">Best Practices</div>
+      <h2>Best Practices</h2>
+
+      <dl class="qa">
+        <div class="card">
+          <dt style="color:#ffeaa7; font-weight:700;">Give every object a unique <code>id</code></dt>
+          <dd style="font-size:.88rem; opacity:.9;">Even if you don't need it immediately, you will need it the moment users interact with individual cards. Adding it from the start is cheap; retrofitting later is not.</dd>
+        </div>
+        <div class="card">
+          <dt style="color:#ffeaa7; font-weight:700;">Sort copies, not originals</dt>
+          <dd style="font-size:.88rem; opacity:.9;"><code>[...products].sort()</code> every time. The original array is your single source of truth — protect it. There's no undo for <code>.sort()</code> on the original.</dd>
+        </div>
+        <div class="card">
+          <dt style="color:#ffeaa7; font-weight:700;">Convert numeric IDs immediately</dt>
+          <dd style="font-size:.88rem; opacity:.9;"><code>dataset.id</code> returns a string. Wrap it in <code>Number()</code> before comparing with <code>===</code> to numeric IDs, otherwise <code>"3" === 3</code> is <code>false</code>.</dd>
+        </div>
+        <div class="card">
+          <dt style="color:#ffeaa7; font-weight:700;">Always handle the empty state</dt>
+          <dd style="font-size:.88rem; opacity:.9;">A render function that returns nothing when input is empty is not finished. Add a check and a user-friendly message.</dd>
+        </div>
+        <div class="card">
+          <dt style="color:#ffeaa7; font-weight:700;">Use data that feels real</dt>
+          <dd style="font-size:.88rem; opacity:.9;">Placeholder names like "Item 1, Item 2" make it hard to spot layout bugs. Use realistic names, prices, and categories from the start.</dd>
+        </div>
+      </dl>
+    </div>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- SLIDE 23 — Summary -->
+  <!-- ============================================================ -->
+  <div class="slide">
+    <div class="slide-inner">
+      <div class="slide-tag">Summary</div>
+      <h2>Summary — What You Learned</h2>
+
+      <table class="ref-table">
+        <thead>
+          <tr><th>Concept</th><th>What it does</th><th>Key syntax</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Objects</td><td>Group related data in key-value pairs</td><td><code>{ name: 'Mug', price: 12.99 }</code></td></tr>
+          <tr><td>Dot notation</td><td>Read/write properties</td><td><code>product.name</code></td></tr>
+          <tr><td>Bracket notation</td><td>Dynamic property access</td><td><code>product[key]</code></td></tr>
+          <tr><td>Arrays of objects</td><td>One array, one object per record</td><td><code>[{ id: 1, ... }, { id: 2, ... }]</code></td></tr>
+          <tr><td>Render pattern</td><td>Objects → <code>map()</code> → HTML cards</td><td><code>items.map(p => `...`).join('')</code></td></tr>
+          <tr><td><code>.sort()</code></td><td>Reorder with a comparator</td><td><code>[...arr].sort((a,b) => a.price - b.price)</code></td></tr>
+          <tr><td><code>data-id</code></td><td>Connect card → source object</td><td><code>card.dataset.id</code> + <code>.find()</code></td></tr>
+          <tr><td>Empty states</td><td>Show message when 0 results</td><td><code>if (items.length === 0) ...</code></td></tr>
+          <tr><td>Building objects</td><td>Form fields → object properties</td><td><code>{ name: input.value, ... }</code></td></tr>
+        </tbody>
+      </table>
+
+      <div class="highlight-box">
+        <strong>The universal pattern:</strong> Data lives in an array of objects → A render function turns them into HTML cards → Sort, filter, or add items by manipulating the array and calling render again → CSS handles the styling.
+      </div>
+
+      <h3>What's Next</h3>
+      <p>Adding <strong>filtering and live search</strong> to this gallery. Three array methods — <code>filter()</code>, <code>map()</code>, and <code>find()</code> — let you show only the items that match a category or search query, updating the grid in real time as the user types.</p>
+
+      <h3>Resources</h3>
+      <ul class="bullets">
+        <li><a href="https://www.w3schools.com/js/js_objects.asp" target="_blank" rel="noopener" style="color:var(--accent);">W3Schools: JavaScript Objects →</a></li>
+        <li><a href="https://www.w3schools.com/js/js_object_properties.asp" target="_blank" rel="noopener" style="color:var(--accent);">W3Schools: Object Properties →</a></li>
+        <li><a href="https://www.w3schools.com/js/js_array_sort.asp" target="_blank" rel="noopener" style="color:var(--accent);">W3Schools: Array Sort →</a></li>
+        <li><a href="https://www.w3schools.com/jsref/jsref_find.asp" target="_blank" rel="noopener" style="color:var(--accent);">W3Schools: Array.find() →</a></li>
+        <li><a href="https://www.w3schools.com/tags/att_data-.asp" target="_blank" rel="noopener" style="color:var(--accent);">W3Schools: data-* Attributes →</a></li>
+        <li><a href="https://developer.mozilla.org/en-US/docs/Learn/JavaScript/Objects/Basics" target="_blank" rel="noopener" style="color:var(--accent);">MDN: JavaScript Object Basics →</a></li>
+      </ul>
+    </div>
+  </div>
+
+</div><!-- /deck -->
+
+<!-- ===== NAVIGATION ===== -->
+<nav>
+  <button class="nav-btn" id="prevBtn" onclick="changeSlide(-1)" disabled>← Prev</button>
+  <span id="slide-counter">1 / 23</span>
+  <button class="nav-btn" id="nextBtn" onclick="changeSlide(1)">Next →</button>
+</nav>
+
+<script>
+  // ===== SLIDE ENGINE =====
+  const slides  = document.querySelectorAll('.slide');
+  const total   = slides.length;
+  const counter = document.getElementById('slide-counter');
+  const prevBtn = document.getElementById('prevBtn');
+  const nextBtn = document.getElementById('nextBtn');
+  const bar     = document.getElementById('progress-bar');
+  let current   = 0;
+
+  function showSlide(n) {
+    slides[current].classList.remove('active');
+    current = Math.max(0, Math.min(n, total - 1));
+    slides[current].classList.add('active');
+    counter.textContent = (current + 1) + ' / ' + total;
+    prevBtn.disabled = current === 0;
+    nextBtn.disabled = current === total - 1;
+    bar.style.width = ((current + 1) / total * 100) + '%';
+  }
+
+  function changeSlide(d) { showSlide(current + d); }
+
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown') changeSlide(1);
+    if (e.key === 'ArrowLeft'  || e.key === 'ArrowUp')   changeSlide(-1);
+  });
+
+  showSlide(0);
+
+  // ===== SHARED DATA =====
+  const demoProducts = [
+    { id: 1, emoji: '🎧', name: 'Wireless Headphones', price: 79.99,  category: 'Electronics', inStock: true,  rating: 4.8 },
+    { id: 2, emoji: '👟', name: 'Running Shoes',       price: 119.00, category: 'Footwear',    inStock: true,  rating: 4.6 },
+    { id: 3, emoji: '☕', name: 'Ceramic Mug Set',     price: 24.99,  category: 'Kitchen',     inStock: false, rating: 4.9 },
+    { id: 4, emoji: '🧘', name: 'Yoga Mat',            price: 38.50,  category: 'Fitness',     inStock: true,  rating: 4.7 },
+    { id: 5, emoji: '📚', name: 'Design Handbook',     price: 45.00,  category: 'Books',       inStock: true,  rating: 4.5 },
+    { id: 6, emoji: '🕯️', name: 'Soy Candle Set',      price: 32.00,  category: 'Home',        inStock: false, rating: 4.3 }
+  ];
+
+  function renderMiniCards(items, containerId) {
+    const grid = document.getElementById(containerId);
+    if (!grid) return;
+    if (items.length === 0) {
+      grid.innerHTML = '<div style="grid-column:1/-1; text-align:center; opacity:.4; padding:1.5rem; font-size:.85rem;">No items match your search.</div>';
+      return;
+    }
+    grid.innerHTML = items.map(function(p) {
+      return '<div class="mini-card" data-id="' + p.id + '">' +
+        '<div class="mini-card-emoji">' + p.emoji + '</div>' +
+        '<div class="mini-card-name">' + p.name + '</div>' +
+        '<div class="mini-card-price">$' + p.price.toFixed(2) + '</div>' +
+        '<div class="mini-badge">' + p.category + '</div>' +
+      '</div>';
+    }).join('');
+  }
+
+  // ===== DOT NOTATION DEMO (Slide 4) =====
+  const dotProduct = { name: 'Wireless Headphones', price: 79.99, category: 'Electronics', inStock: true };
+  function demoDot(prop) {
+    var val = dotProduct[prop];
+    var type = typeof val;
+    var color = type === 'string' ? 'var(--accent2)' : type === 'number' ? 'var(--accent3)' : 'var(--accent4)';
+    document.getElementById('dotOutput').innerHTML =
+      '<span style="color:var(--muted);">product.' + prop + ' →</span> ' +
+      '<span style="color:' + color + ';">' + (type === 'string' ? "'" + val + "'" : val) + '</span>' +
+      ' <span style="color:var(--muted); font-size:.75rem;">(' + type + ')</span>';
+  }
+
+  // ===== BRACKET NOTATION DEMO (Slide 5) =====
+  function demoBracket() {
+    var key = document.getElementById('bracketInput').value.trim();
+    var val = dotProduct[key];
+    var output = document.getElementById('bracketOutput');
+    if (val === undefined) {
+      output.innerHTML = '<span style="color:var(--accent4);">product["' + key + '"] → undefined</span> <span style="color:var(--muted); font-size:.75rem;">(property does not exist)</span>';
+    } else {
+      var type = typeof val;
+      output.innerHTML = '<span style="color:var(--muted);">product["' + key + '"] →</span> <span style="color:var(--accent2);">' + (type === 'string' ? "'" + val + "'" : val) + '</span>';
+    }
+  }
+
+  // ===== NESTED ACCESS DEMO (Slide 8) =====
+  var nestedProducts = [
+    { id: 1, name: 'Headphones', price: 79.99, category: 'Electronics' },
+    { id: 2, name: 'Sneakers',   price: 49.99, category: 'Footwear'    },
+    { id: 3, name: 'Coffee Mug', price: 12.99, category: 'Kitchen'     },
+    { id: 4, name: 'Yoga Mat',   price: 34.99, category: 'Fitness'     }
+  ];
+  function demoNested() {
+    var idx = parseInt(document.getElementById('indexInput').value) || 0;
+    var prop = document.getElementById('propSelect').value;
+    var output = document.getElementById('nestedOutput');
+    if (idx < 0 || idx >= nestedProducts.length) {
+      output.innerHTML = '<span style="color:var(--accent4);">Index ' + idx + ' is out of range (0–' + (nestedProducts.length-1) + ')</span>';
+      return;
+    }
+    var val = nestedProducts[idx][prop];
+    output.innerHTML = '<span style="color:var(--muted);">products[' + idx + '].' + prop + ' →</span> <span style="color:var(--accent2);">' + (typeof val === 'string' ? "'" + val + "'" : val) + '</span>';
+  }
+
+  // ===== RENDER DEMO (Slide 10) =====
+  renderMiniCards(demoProducts.slice(0, 6), 'renderDemoGrid');
+
+  // ===== SORT DEMO (Slide 13) =====
+  function demoSort(mode) {
+    var items;
+    if (mode === 'default')   items = demoProducts.slice();
+    else if (mode === 'priceAsc')  items = demoProducts.slice().sort(function(a,b) { return a.price - b.price; });
+    else if (mode === 'priceDesc') items = demoProducts.slice().sort(function(a,b) { return b.price - a.price; });
+    else if (mode === 'name')      items = demoProducts.slice().sort(function(a,b) { return a.name.localeCompare(b.name); });
+    renderMiniCards(items, 'sortDemoGrid');
+  }
+  demoSort('default');
+
+  // ===== CLICK DEMO (Slide 16) =====
+  renderMiniCards(demoProducts.slice(0, 6), 'clickDemoGrid');
+  document.getElementById('clickDemoGrid').addEventListener('click', function(event) {
+    var card = event.target.closest('.mini-card');
+    if (!card) return;
+
+    document.querySelectorAll('#clickDemoGrid .mini-card').forEach(function(c) { c.classList.remove('selected'); });
+    card.classList.add('selected');
+
+    var id = Number(card.dataset.id);
+    var product = demoProducts.find(function(p) { return p.id === id; });
+    if (!product) return;
+
+    var stockText  = product.inStock ? '✓ In Stock' : '✗ Out of Stock';
+    var stockColor = product.inStock ? 'color:var(--accent2);' : 'color:var(--accent4);';
+    var stars = '';
+    for (var s = 0; s < 5; s++) { stars += s < Math.floor(product.rating) ? '★' : '☆'; }
+
+    document.getElementById('clickDemoDetail').innerHTML =
+      '<div style="text-align:center; font-size:2rem; margin-bottom:.4rem;">' + product.emoji + '</div>' +
+      '<div style="text-align:center; font-weight:700; margin-bottom:.2rem;">' + product.name + '</div>' +
+      '<div style="text-align:center; font-weight:800; color:var(--accent2); font-size:1.1rem; margin-bottom:.6rem;">$' + product.price.toFixed(2) + '</div>' +
+      '<div class="detail-row"><span class="detail-key">id</span><span class="detail-value">' + product.id + '</span></div>' +
+      '<div class="detail-row"><span class="detail-key">category</span><span class="detail-value">' + product.category + '</span></div>' +
+      '<div class="detail-row"><span class="detail-key">inStock</span><span class="detail-value" style="' + stockColor + '">' + stockText + '</span></div>' +
+      '<div class="detail-row"><span class="detail-key">rating</span><span class="detail-value" style="color:var(--accent3);">' + stars + ' ' + product.rating + '</span></div>' +
+      '<div style="margin-top:.6rem; font-size:.72rem; color:var(--muted); text-align:center;">Found via: products.find(p => p.id === ' + id + ')</div>';
+  });
+
+  // ===== EMPTY STATE DEMO (Slide 18) =====
+  function demoEmpty(mode) {
+    if (mode === 'full') {
+      renderMiniCards(demoProducts.slice(0, 4), 'emptyDemoGrid');
+    } else {
+      renderMiniCards([], 'emptyDemoGrid');
+    }
+  }
+  demoEmpty('full');
+
+  // ===== ADD PRODUCT DEMO (Slide 20) =====
+  var addDemoProducts = [
+    { id: 1, emoji: '🎧', name: 'Wireless Headphones', price: 79.99, category: 'Electronics' },
+    { id: 2, emoji: '☕', name: 'Ceramic Mug Set',     price: 24.99, category: 'Kitchen' }
+  ];
+  var addNextId = 3;
+
+  function renderAddDemo() {
+    renderMiniCards(addDemoProducts, 'addDemoGrid');
+    var countEl = document.getElementById('addDemoCount');
+    if (countEl) countEl.textContent = addDemoProducts.length + ' items in collection';
+  }
+
+  function demoAddProduct() {
+    var name  = document.getElementById('addName').value.trim();
+    var price = parseFloat(document.getElementById('addPrice').value);
+    var emoji = document.getElementById('addEmoji').value || '📦';
+    if (!name || isNaN(price)) return;
+
+    addDemoProducts.push({
+      id:       addNextId,
+      emoji:    emoji,
+      name:     name,
+      price:    price,
+      category: 'Custom'
+    });
+    addNextId++;
+    renderAddDemo();
+
+    document.getElementById('addName').value  = '';
+    document.getElementById('addPrice').value = '';
+    document.getElementById('addEmoji').value = '🎁';
+    document.getElementById('addName').focus();
+  }
+
+  function demoResetProducts() {
+    addDemoProducts = [
+      { id: 1, emoji: '🎧', name: 'Wireless Headphones', price: 79.99, category: 'Electronics' },
+      { id: 2, emoji: '☕', name: 'Ceramic Mug Set',     price: 24.99, category: 'Kitchen' }
+    ];
+    addNextId = 3;
+    renderAddDemo();
+  }
+
+  renderAddDemo();
+</script>
+
+</body>
+</html>
