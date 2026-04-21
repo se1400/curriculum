@@ -1,0 +1,1310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Filter, Search, Find — Array Iteration Methods</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #0f0f1a;
+      --surface:   #1a1a2e;
+      --border:    #2e2e4a;
+      --accent:    #a78bfa;
+      --accent2:   #6ee7b7;
+      --accent3:   #fbbf24;
+      --accent4:   #f87171;
+      --text:      #e8e8f0;
+      --muted:     #7070a0;
+      --code-bg:   #0a0a18;
+      --code-text: #c9d1d9;
+      --nav-h:     52px;
+    }
+
+    html, body {
+      height: 100%;
+      font-family: system-ui, -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      overflow: hidden;
+    }
+
+    #progress-bar {
+      position: fixed;
+      top: 0; left: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--accent), var(--accent2));
+      width: 0%;
+      transition: width .3s ease;
+      z-index: 100;
+    }
+
+    nav {
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
+      height: var(--nav-h);
+      background: rgba(10,10,24,.95);
+      border-top: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 1rem;
+      z-index: 50;
+      gap: .5rem;
+    }
+    nav .nav-btn {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: .45rem 1rem;
+      border-radius: 8px;
+      font-size: .85rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background .2s, border-color .2s;
+      white-space: nowrap;
+      min-width: 80px;
+    }
+    nav .nav-btn:hover { background: var(--border); border-color: var(--accent); }
+    nav .nav-btn:disabled { opacity: .3; cursor: default; }
+    #slide-counter {
+      font-size: .8rem;
+      color: var(--muted);
+      white-space: nowrap;
+      min-width: 70px;
+      text-align: center;
+    }
+
+    .deck {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      bottom: var(--nav-h);
+      overflow: hidden;
+    }
+
+    .slide {
+      display: none;
+      position: absolute;
+      inset: 0;
+      overflow-y: auto;
+      padding: 1.75rem 1.25rem 1rem;
+      animation: slideIn .22s ease;
+    }
+    .slide.active { display: block; }
+
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateY(12px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .slide:nth-child(4n+1) { background: linear-gradient(160deg, #0f0f1a 60%, #1a1040); }
+    .slide:nth-child(4n+2) { background: linear-gradient(160deg, #0f0f1a 60%, #0d1f2d); }
+    .slide:nth-child(4n+3) { background: linear-gradient(160deg, #0f0f1a 60%, #1a0f28); }
+    .slide:nth-child(4n)   { background: linear-gradient(160deg, #0f0f1a 60%, #0f1a1a); }
+
+    .slide-inner { max-width: 860px; margin: 0 auto; }
+
+    .slide-tag {
+      font-size: .7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .12em;
+      color: var(--accent);
+      margin-bottom: .6rem;
+    }
+
+    h1 {
+      font-size: clamp(1.5rem, 4vw, 2.4rem);
+      font-weight: 800;
+      line-height: 1.15;
+      margin-bottom: .6rem;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    h2 {
+      font-size: clamp(1.15rem, 3vw, 1.6rem);
+      font-weight: 700;
+      margin-bottom: .5rem;
+    }
+
+    h3 {
+      font-size: clamp(.85rem, 2vw, 1rem);
+      font-weight: 700;
+      color: var(--accent2);
+      margin: .7rem 0 .35rem;
+    }
+
+    p, li { font-size: clamp(.82rem, 1.8vw, .92rem); line-height: 1.55; }
+    .lead { font-size: clamp(.88rem, 2vw, 1.05rem); color: var(--muted); margin-bottom: .7rem; }
+
+    ul.bullets { list-style: none; padding: 0; margin-bottom: .7rem; }
+    ul.bullets li { padding: .25rem 0 .25rem 1.2rem; position: relative; }
+    ul.bullets li::before {
+      content: '▸';
+      position: absolute;
+      left: 0;
+      color: var(--accent);
+      font-weight: 700;
+    }
+
+    a { color: var(--accent); }
+
+    pre {
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: .85rem 1rem;
+      overflow-x: auto;
+      margin-bottom: .7rem;
+      font-size: clamp(.72rem, 1.5vw, .82rem);
+      line-height: 1.65;
+    }
+    code { font-family: 'SF Mono', 'Cascadia Code', 'Fira Code', monospace; }
+    .kw   { color: #c792ea; }
+    .fn   { color: #82aaff; }
+    .str  { color: #c3e88d; }
+    .num  { color: #f78c6c; }
+    .prop { color: #89ddff; }
+    .cmt  { color: #546e7a; font-style: italic; }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: .85rem 1rem;
+      margin-bottom: .55rem;
+    }
+    .card h3 { margin-top: 0; }
+    .card-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: .65rem;
+      margin-bottom: .7rem;
+    }
+
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      margin-bottom: .7rem;
+    }
+    @media (max-width: 600px) {
+      .two-col { grid-template-columns: 1fr; }
+      .card-row { grid-template-columns: 1fr; }
+    }
+
+    .highlight-box {
+      background: rgba(167,139,250,.08);
+      border-left: 3px solid var(--accent);
+      border-radius: 0 8px 8px 0;
+      padding: .75rem 1rem;
+      margin-bottom: .7rem;
+      font-size: clamp(.8rem, 1.6vw, .88rem);
+    }
+    .note {
+      background: rgba(110,231,183,.06);
+      border-left: 3px solid var(--accent2);
+      border-radius: 0 8px 8px 0;
+      padding: .7rem 1rem;
+      margin-bottom: .7rem;
+      font-size: clamp(.78rem, 1.5vw, .86rem);
+    }
+    .caution {
+      background: rgba(251,191,36,.06);
+      border-left: 3px solid var(--accent3);
+      border-radius: 0 8px 8px 0;
+      padding: .7rem 1rem;
+      margin-bottom: .7rem;
+      font-size: clamp(.78rem, 1.5vw, .86rem);
+    }
+
+    .demo-box {
+      background: rgba(110,231,183,.04);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1.1rem;
+      margin-bottom: .9rem;
+    }
+    .demo-box h4 {
+      font-size: .75rem;
+      text-transform: uppercase;
+      letter-spacing: .1em;
+      color: var(--accent);
+      margin-bottom: .7rem;
+      font-weight: 700;
+    }
+    .demo-btn {
+      background: var(--accent);
+      color: #0f0f1a;
+      border: none;
+      padding: .45rem 1rem;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: .85rem;
+      cursor: pointer;
+      transition: background .18s, transform .1s;
+      margin: .2rem .2rem .2rem 0;
+    }
+    .demo-btn:hover  { background: #c4b5fd; }
+    .demo-btn:active { transform: scale(.97); }
+    .demo-btn.secondary {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--text);
+    }
+    .demo-btn.secondary:hover { border-color: var(--accent); }
+    .demo-btn.secondary.active {
+      background: var(--accent);
+      color: #0f0f1a;
+      border-color: var(--accent);
+    }
+    .demo-btn.danger { background: var(--accent4); color: #fff; }
+    .demo-btn.danger:hover { background: #fca5a5; }
+
+    .demo-output {
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: .55rem .85rem;
+      font-family: monospace;
+      font-size: .82rem;
+      color: var(--accent2);
+      min-height: 36px;
+      margin-top: .5rem;
+      word-break: break-word;
+    }
+
+    .demo-input {
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: .4rem .7rem;
+      border-radius: 6px;
+      font-size: .85rem;
+      font-family: monospace;
+      outline: none;
+      width: 100%;
+    }
+    .demo-input:focus { border-color: var(--accent); }
+
+    dl.qa { margin: 0; }
+    dl.qa .card { margin-bottom: .65rem; }
+
+    .ref-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: clamp(.75rem, 1.7vw, .87rem);
+      margin-bottom: .8rem;
+    }
+    .ref-table th {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      padding: .5rem .8rem;
+      text-align: left;
+      color: var(--accent);
+      font-weight: 700;
+    }
+    .ref-table td {
+      border: 1px solid var(--border);
+      padding: .5rem .8rem;
+      vertical-align: top;
+    }
+
+    .mini-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: .7rem .9rem;
+      text-align: center;
+      transition: all .25s;
+      cursor: pointer;
+    }
+    .mini-card:hover { border-color: var(--accent); transform: translateY(-2px); }
+    .mini-card.selected { border-color: var(--accent); box-shadow: 0 0 0 2px rgba(167,139,250,.25); }
+    .mini-card-emoji { font-size: 1.5rem; margin-bottom: .3rem; }
+    .mini-card-name { font-size: .82rem; font-weight: 700; }
+    .mini-card-price { font-size: .85rem; font-weight: 800; color: var(--accent2); margin-top: .15rem; }
+    .mini-badge {
+      display: inline-block;
+      background: rgba(167,139,250,.12);
+      color: var(--accent);
+      font-size: .62rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      padding: .1rem .4rem;
+      border-radius: 100px;
+      margin-top: .25rem;
+    }
+
+    .demo-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+      gap: .5rem;
+      margin-top: .5rem;
+    }
+
+    .filter-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: .35rem;
+      margin-bottom: .55rem;
+    }
+
+    .detail-panel {
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: .85rem;
+      margin-top: .5rem;
+      font-size: .82rem;
+    }
+    .detail-row {
+      display: flex;
+      justify-content: space-between;
+      padding: .3rem 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .detail-row:last-child { border-bottom: none; }
+    .detail-key { color: var(--accent); font-family: monospace; font-size: .78rem; }
+    .detail-value { color: var(--text); }
+
+    .pipeline {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr auto 1fr;
+      align-items: center;
+      gap: .5rem;
+      margin: .7rem 0;
+      font-size: clamp(.7rem, 1.5vw, .82rem);
+    }
+    .pipeline-step {
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: .55rem .7rem;
+      text-align: center;
+      font-family: monospace;
+    }
+    .pipeline-arrow {
+      font-size: 1.2rem;
+      color: var(--accent);
+      font-weight: 700;
+      text-align: center;
+    }
+    @media (max-width: 600px) {
+      .pipeline {
+        grid-template-columns: 1fr;
+      }
+      .pipeline-arrow {
+        transform: rotate(90deg);
+      }
+    }
+  </style>
+</head>
+<body>
+
+<div id="progress-bar"></div>
+
+<div class="deck">
+
+  <!-- SLIDE 1 — Title -->
+  <div class="slide active">
+    <div class="slide-inner">
+      <div class="slide-tag">forEach · map · filter · find</div>
+      <h1>Filter, Search, Find</h1>
+      <p class="lead">Array iteration methods that turn a static gallery into an interactive, searchable, filterable interface.</p>
+      <ul class="bullets" style="margin-top:1.5rem;">
+        <li><code>forEach()</code> — run a function for each item</li>
+        <li><code>map()</code> — transform each item into something new</li>
+        <li><code>filter()</code> — keep only items that pass a test</li>
+        <li><code>find()</code> — get the first item that matches a condition</li>
+        <li>Build category filter buttons that update in real time</li>
+        <li>Build a live search input that filters as you type</li>
+        <li>Chain <code>filter()</code> and <code>map()</code> together</li>
+        <li>Event delegation for dynamically generated content</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- SLIDE 2 — The Why -->
+  <div class="slide">
+    <div class="slide-inner">
+      <div class="slide-tag">Why This Matters</div>
+      <h2>From Static Grid → Real Interface</h2>
+      <p class="lead">You already have a gallery that renders, sorts, and responds to clicks. These four methods add filtering and search — the two features that separate a real app from a demo.</p>
+
+      <div class="highlight-box">
+        <strong>The pattern behind the magic:</strong> <em>Every</em> e-commerce site, search page, and content library you use relies on the same four tools — <code>forEach</code>, <code>map</code>, <code>filter</code>, <code>find</code>. Once you understand them, you can read and build almost any data-driven interface on the web.
+      </div>
+
+      <h3>What the methods have in common</h3>
+      <ul class="bullets">
+        <li>They are called <strong>iteration methods</strong> — they go through every item for you</li>
+        <li>Each one takes a <strong>function</strong> as its argument</li>
+        <li>That function runs once per item in the array</li>
+        <li>The result is code that reads almost like plain English</li>
+      </ul>
+
+      <div class="note">
+        <strong>Old way (manual loops):</strong> <code>for (let i = 0; i &lt; arr.length; i++) { ... }</code> — you manage the index, the length check, and the increment.
+        <br><br>
+        <strong>New way (iteration methods):</strong> <code>arr.filter(p =&gt; p.price &lt; 50)</code> — you say <em>what</em> you want, not <em>how</em> to get it.
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 3 — forEach Overview -->
+  <div class="slide">
+    <div class="slide-inner">
+      <div class="slide-tag">forEach()</div>
+      <h2><code>forEach()</code> — Do Something With Each Item</h2>
+      <p class="lead">Runs a function once for each item. Returns nothing. Use it when you need a <em>side effect</em>, not a new array.</p>
+
+      <div class="highlight-box">
+        <strong>Analogy:</strong> Imagine a teacher handing out the same worksheet to each student in a row. The teacher doesn't collect anything back — they just <em>do the thing</em> for each student. That's <code>forEach()</code>.
+      </div>
+
+      <h3>JavaScript</h3>
+<pre><code><span class="kw">const</span> products = [<span class="str">'Headphones'</span>, <span class="str">'Shoes'</span>, <span class="str">'Mug'</span>];
+
+products.<span class="fn">forEach</span>(<span class="prop">product</span> => console.<span class="fn">log</span>(<span class="prop">product</span>));
+<span class="cmt">// Logs: 'Headphones'</span>
+<span class="cmt">// Logs: 'Shoes'</span>
+<span class="cmt">// Logs: 'Mug'</span></code></pre>
+
+      <p><strong>Reads as:</strong> <em>"For each product in products, log the product."</em></p>
+
+      <h3>A common real-world use — resetting button states</h3>
+<pre><code><span class="cmt">// Remove .active from every filter button before marking the new one active</span>
+filterBtns.<span class="fn">forEach</span>(<span class="prop">btn</span> => <span class="prop">btn</span>.<span class="prop">classList</span>.<span class="fn">remove</span>(<span class="str">'active'</span>));</code></pre>
+
+      <div class="note">
+        <strong>When to reach for <code>forEach()</code>:</strong> You want to <em>do</em> something for each item (update the DOM, toggle a class, log a value). When you want to <em>produce</em> a new array, use <code>map()</code> instead.
+      </div>
+
+      <p style="font-size:.82rem;">
+        <a href="https://www.w3schools.com/jsref/jsref_foreach.asp" target="_blank" rel="noopener" style="color:var(--accent);">W3Schools: Array.forEach() →</a>
+      </p>
+    </div>
+  </div>
+
+  <!-- SLIDE 4 — forEach Interactive Demo -->
+  <div class="slide">
+    <div class="slide-inner">
+      <div class="slide-tag">forEach()</div>
+      <h2>Try It — <code>forEach()</code> in Action</h2>
+
+      <div class="demo-box">
+        <h4>Click a button, watch forEach() touch every item</h4>
+        <div id="forEachBoxes" style="display:flex; gap:.35rem; flex-wrap:wrap; margin-bottom:.55rem;"></div>
+        <button class="demo-btn" onclick="runForEach('highlight')">forEach(b =&gt; b.style = highlight)</button>
+        <button class="demo-btn secondary" onclick="runForEach('dim')">forEach(b =&gt; b.style = dim)</button>
+        <button class="demo-btn secondary" onclick="runForEach('reset')">forEach(b =&gt; b.reset())</button>
+        <div id="forEachOutput" class="demo-output">Click a button — watch forEach() apply a change to every box.</div>
+      </div>
+
+      <div class="highlight-box">
+        <strong>Notice:</strong> <code>forEach()</code> doesn't give you a new array back. It just runs your function on each item. We can see the effect in the DOM (the boxes change color) but there's no return value to assign anywhere.
+      </div>
+
+      <h3>HTML + CSS (what the demo renders)</h3>
+<pre><code>&lt;<span class="kw">div</span> <span class="prop">class</span>=<span class="str">"boxes"</span>&gt;
+  &lt;<span class="kw">div</span> <span class="prop">class</span>=<span class="str">"box"</span>&gt;1&lt;/<span class="kw">div</span>&gt;
+  &lt;<span class="kw">div</span> <span class="prop">class</span>=<span class="str">"box"</span>&gt;2&lt;/<span class="kw">div</span>&gt;
+  <span class="cmt">&lt;!-- ... --&gt;</span>
+&lt;/<span class="kw">div</span>&gt;
+
+<span class="kw">.box</span> { <span class="prop">padding</span>: <span class="num">.6rem</span>; <span class="prop">border-radius</span>: <span class="num">6px</span>; <span class="prop">transition</span>: <span class="num">.25s</span>; }</code></pre>
+    </div>
+  </div>
+
+  <!-- SLIDE 5 — map Review -->
+  <div class="slide">
+    <div class="slide-inner">
+      <div class="slide-tag">map()</div>
+      <h2><code>map()</code> — Transform Each Item</h2>
+      <p class="lead">Runs every item through a function and collects the results into a <strong>new array</strong> of the same length. The original array is unchanged.</p>
+
+      <div class="highlight-box">
+        <strong>Analogy:</strong> <code>map()</code> is an assembly line. Items enter one end, a machine (your function) transforms each one, and transformed items come out the other end. Same number of items, new shape.
+      </div>
+
+      <div class="pipeline">
+        <div class="pipeline-step">[79.99, 49.99, 12.99]</div>
+        <div class="pipeline-arrow">→</div>
+        <div class="pipeline-step">p =&gt; '$' + p.toFixed(2)</div>
+        <div class="pipeline-arrow">→</div>
+        <div class="pipeline-step">['$79.99', '$49.99', '$12.99']</div>
+      </div>
+
+      <h3>JavaScript</h3>
+<pre><code><span class="kw">const</span> prices = [<span class="num">79.99</span>, <span class="num">49.99</span>, <span class="num">12.99</span>];
+
+<span class="kw">const</span> formatted = prices.<span class="fn">map</span>(<span class="prop">price</span> => <span class="str">'$'</span> + <span class="prop">price</span>.<span class="fn">toFixed</span>(<span class="num">2</span>));
+<span class="cmt">// ['$79.99', '$49.99', '$12.99']</span>
+
+console.<span class="fn">log</span>(prices);     <span class="cmt">// [79.99, 49.99, 12.99]  ← original unchanged</span></code></pre>
+
+      <h3>You already use <code>map()</code> to build HTML</h3>
+<pre><code>container.<span class="prop">innerHTML</span> = products.<span class="fn">map</span>(<span class="prop">p</span> => <span class="str">`
+  &lt;div class="card"&gt;${p.name}&lt;/div&gt;
+`</span>).<span class="fn">join</span>(<span class="str">''</span>);</code></pre>
+
+      <p style="font-size:.82rem;">
+        <a href="https://www.w3schools.com/jsref/jsref_map.asp" target="_blank" rel="noopener" style="color:var(--accent);">W3Schools: Array.map() →</a>
+      </p>
+    </div>
+  </div>
+
+  <!-- SLIDE 6 — filter Overview -->
+  <div class="slide">
+    <div class="slide-inner">
+      <div class="slide-tag">filter()</div>
+      <h2><code>filter()</code> — Keep Only What Passes</h2>
+      <p class="lead">Runs a test function on each item. Items that return <code>true</code> are kept. Items that return <code>false</code> are removed. Result: a <strong>new, shorter</strong> array.</p>
+
+      <div class="highlight-box">
+        <strong>Analogy:</strong> Think of a bouncer at a club. Each person walks up, the bouncer checks the ID, and either lets them in or sends them away. <code>filter()</code> is your bouncer — it lets only the matching items into the new array.
+      </div>
+
+      <div class="pipeline">
+        <div class="pipeline-step">6 products</div>
+        <div class="pipeline-arrow">→</div>
+        <div class="pipeline-step">p =&gt; p.price &lt; 50</div>
+        <div class="pipeline-arrow">→</div>
+        <div class="pipeline-step">2 products (the cheap ones)</div>
+      </div>
+
+      <h3>JavaScript</h3>
+<pre><code><span class="kw">const</span> products = [
+  { <span class="prop">name</span>: <span class="str">'Headphones'</span>, <span class="prop">price</span>: <span class="num">79.99</span>, <span class="prop">category</span>: <span class="str">'Electronics'</span> },
+  { <span class="prop">name</span>: <span class="str">'Shoes'</span>,      <span class="prop">price</span>: <span class="num">49.99</span>, <span class="prop">category</span>: <span class="str">'Footwear'</span>    },
+  { <span class="prop">name</span>: <span class="str">'Mug'</span>,        <span class="prop">price</span>: <span class="num">12.99</span>, <span class="prop">category</span>: <span class="str">'Kitchen'</span>     }
+];
+
+<span class="cmt">// Keep only Electronics</span>
+<span class="kw">const</span> electronics = products.<span class="fn">filter</span>(<span class="prop">p</span> => <span class="prop">p</span>.<span class="prop">category</span> === <span class="str">'Electronics'</span>);
+
+<span class="cmt">// Keep only items under $50</span>
+<span class="kw">const</span> affordable = products.<span class="fn">filter</span>(<span class="prop">p</span> => <span class="prop">p</span>.<span class="prop">price</span> &lt; <span class="num">50</span>);</code></pre>
+
+      <p><strong>Reads as:</strong> <em>"For each product <code>p</code>, keep it if <code>p.category</code> equals <code>'Electronics'</code>."</em></p>
+
+      <p style="font-size:.82rem;">
+        <a href="https://www.w3schools.com/jsref/jsref_filter.asp" target="_blank" rel="noopener" style="color:var(--accent);">W3Schools: Array.filter() →</a>
+      </p>
+    </div>
+  </div>
+
+  <!-- SLIDE 7 — filter Interactive Demo -->
+  <div class="slide">
+    <div class="slide-inner">
+      <div class="slide-tag">filter()</div>
+      <h2>Try It — <code>filter()</code> Tests Every Item</h2>
+
+      <div class="demo-box">
+        <h4>Pick a test — see which products survive</h4>
+        <div class="filter-bar">
+          <button class="demo-btn" onclick="runFilter('all')">all (no filter)</button>
+          <button class="demo-btn secondary" onclick="runFilter('under50')">p.price &lt; 50</button>
+          <button class="demo-btn secondary" onclick="runFilter('electronics')">p.category === 'Electronics'</button>
+          <button class="demo-btn secondary" onclick="runFilter('kitchen')">p.category === 'Kitchen'</button>
+          <button class="demo-btn secondary" onclick="runFilter('inStock')">p.inStock === true</button>
+        </div>
+        <div id="filterOutput" class="demo-output" style="margin-bottom:.5rem;">Click a test to see what matches.</div>
+        <div id="filterGrid" class="demo-grid"></div>
+      </div>
+
+      <div class="note">
+        <strong>Notice:</strong> <code>filter()</code> never changes the original array. Click "all" to bring back every product. The source data is untouched — you're just asking, "show me a subset based on this test."
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 8 — find Overview -->
+  <div class="slide">
+    <div class="slide-inner">
+      <div class="slide-tag">find()</div>
+      <h2><code>find()</code> — Get the First Match</h2>
+      <p class="lead">Works like <code>filter()</code>, but stops at the <strong>first</strong> match and returns the item itself — not an array.</p>
+
+      <div class="highlight-box">
+        <strong>Analogy:</strong> You're looking for your friend Sarah in a crowded room. <code>filter()</code> would point out <em>every</em> Sarah. <code>find()</code> just taps the shoulder of the first Sarah it sees and hands her to you. If there is no Sarah, it returns <code>undefined</code>.
+      </div>
+
+      <table class="ref-table">
+        <thead><tr><th></th><th><code>filter()</code></th><th><code>find()</code></th></tr></thead>
+        <tbody>
+          <tr><td><strong>Returns</strong></td><td>An array (maybe empty)</td><td>The item itself, or <code>undefined</code></td></tr>
+          <tr><td><strong>Stops at</strong></td><td>End of the array (checks every item)</td><td>The first match</td></tr>
+          <tr><td><strong>Use when</strong></td><td>You want all matches</td><td>You want one specific item (usually by id)</td></tr>
+        </tbody>
+      </table>
+
+      <h3>JavaScript — the classic "click a card, get its data" pattern</h3>
+<pre><code>container.<span class="fn">addEventListener</span>(<span class="str">'click'</span>, <span class="kw">function</span>(<span class="prop">event</span>) {
+  <span class="kw">const</span> card = event.<span class="prop">target</span>.<span class="fn">closest</span>(<span class="str">'.card'</span>);
+  <span class="kw">if</span> (!card) <span class="kw">return</span>;
+
+  <span class="kw">const</span> id      = <span class="fn">Number</span>(card.<span class="prop">dataset</span>.<span class="prop">id</span>);
+  <span class="kw">const</span> product = products.<span class="fn">find</span>(<span class="prop">p</span> => <span class="prop">p</span>.<span class="prop">id</span> === id);
+
+  <span class="kw">if</span> (product) <span class="fn">showDetail</span>(product);
+});</code></pre>
+
+      <p style="font-size:.82rem;">
+        <a href="https://www.w3schools.com/jsref/jsref_find.asp" target="_blank" rel="noopener" style="color:var(--accent);">W3Schools: Array.find() →</a>
+      </p>
+    </div>
+  </div>
+
+  <!-- SLIDE 9 — find Interactive Demo -->
+  <div class="slide">
+    <div class="slide-inner">
+      <div class="slide-tag">find()</div>
+      <h2>Try It — <code>find()</code> Returns One Item</h2>
+
+      <div class="demo-box">
+        <h4>Look up a product by id</h4>
+        <div style="display:flex; gap:.5rem; flex-wrap:wrap; align-items:center; margin-bottom:.45rem;">
+          <span style="font-size:.85rem;">products.find(p =&gt; p.id ===</span>
+          <input type="number" class="demo-input" id="findIdInput" value="3" min="1" max="9" style="max-width:70px;">
+          <span style="font-size:.85rem;">)</span>
+          <button class="demo-btn" onclick="runFind()">Find</button>
+        </div>
+        <div id="findResult" class="detail-panel">
+          <p style="opacity:.5; text-align:center;">Pick an id and click Find.</p>
+        </div>
+      </div>
+
+      <div class="caution">
+        <strong>Tip:</strong> Try an id that doesn't exist (like 99). <code>find()</code> returns <code>undefined</code> when nothing matches — which is why real code uses <code>if (product) { ... }</code> to guard against it.
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 10 — Quick Reference -->
+  <div class="slide">
+    <div class="slide-inner">
+      <div class="slide-tag">Quick Reference</div>
+      <h2>forEach · map · filter · find</h2>
+
+      <table class="ref-table">
+        <thead>
+          <tr>
+            <th>Method</th>
+            <th>What it does</th>
+            <th>Returns</th>
+            <th>Use it when…</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>forEach()</code></td>
+            <td>Runs a function on each item</td>
+            <td>Nothing (<code>undefined</code>)</td>
+            <td>You want a side effect (DOM change, log)</td>
+          </tr>
+          <tr>
+            <td><code>map()</code></td>
+            <td>Transforms each item</td>
+            <td>New array, <strong>same length</strong></td>
+            <td>You want to convert data (usually to HTML)</td>
+          </tr>
+          <tr>
+            <td><code>filter()</code></td>
+            <td>Keeps items that pass a test</td>
+            <td>New array, <strong>shorter or empty</strong></td>
+            <td>You want a subset of the data</td>
+          </tr>
+          <tr>
+            <td><code>find()</code></td>
+            <td>Stops at the first match</td>
+            <td>One item, or <code>undefined</code></td>
+            <td>You want a specific item (usually by id)</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="highlight-box">
+        <strong>Reading trick:</strong> All four take a function. The function runs once per item. <code>p</code> (or whatever name you pick) is the current item being inspected. The difference between them is <em>what they do with the result</em>.
+      </div>
+
+      <p style="font-size:.82rem;">
+        <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array#iterative_methods" target="_blank" rel="noopener" style="color:var(--accent);">MDN: Array iteration methods →</a>
+      </p>
+    </div>
+  </div>
+
+  <!-- SLIDE 11 — Category Filter Pattern -->
+  <div class="slide">
+    <div class="slide-inner">
+      <div class="slide-tag">Category Filter Buttons</div>
+      <h2>Wiring Buttons to <code>filter()</code></h2>
+      <p class="lead">Buttons change a variable. The variable drives the filter. The filter rebuilds the grid.</p>
+
+      <h3>HTML</h3>
+<pre><code>&lt;<span class="kw">div</span> <span class="prop">class</span>=<span class="str">"filters"</span>&gt;
+  &lt;<span class="kw">button</span> <span class="prop">class</span>=<span class="str">"filter-btn active"</span> <span class="prop">data-category</span>=<span class="str">"all"</span>&gt;All&lt;/<span class="kw">button</span>&gt;
+  &lt;<span class="kw">button</span> <span class="prop">class</span>=<span class="str">"filter-btn"</span> <span class="prop">data-category</span>=<span class="str">"Electronics"</span>&gt;Electronics&lt;/<span class="kw">button</span>&gt;
+  &lt;<span class="kw">button</span> <span class="prop">class</span>=<span class="str">"filter-btn"</span> <span class="prop">data-category</span>=<span class="str">"Kitchen"</span>&gt;Kitchen&lt;/<span class="kw">button</span>&gt;
+&lt;/<span class="kw">div</span>&gt;
+&lt;<span class="kw">div</span> <span class="prop">class</span>=<span class="str">"grid"</span>&gt;&lt;/<span class="kw">div</span>&gt;</code></pre>
+
+      <h3>CSS</h3>
+<pre><code><span class="kw">.filter-btn</span>        { <span class="prop">padding</span>: <span class="num">.5rem 1rem</span>; <span class="prop">border</span>: <span class="num">1px</span> solid <span class="str">#ccc</span>; <span class="prop">border-radius</span>: <span class="num">999px</span>; }
+<span class="kw">.filter-btn.active</span> { <span class="prop">background</span>: <span class="str">#6c5ce7</span>; <span class="prop">color</span>: <span class="str">white</span>; <span class="prop">border-color</span>: <span class="str">#6c5ce7</span>; }</code></pre>
+
+      <h3>JavaScript</h3>
+<pre><code><span class="kw">let</span> activeCategory = <span class="str">'all'</span>;
+
+filterBtns.<span class="fn">forEach</span>(<span class="prop">btn</span> => {
+  <span class="prop">btn</span>.<span class="fn">addEventListener</span>(<span class="str">'click'</span>, <span class="kw">function</span>() {
+    filterBtns.<span class="fn">forEach</span>(<span class="prop">b</span> => <span class="prop">b</span>.<span class="prop">classList</span>.<span class="fn">remove</span>(<span class="str">'active'</span>));
+    <span class="prop">btn</span>.<span class="prop">classList</span>.<span class="fn">add</span>(<span class="str">'active'</span>);
+
+    activeCategory = <span class="prop">btn</span>.<span class="prop">dataset</span>.<span class="prop">category</span>;
+    <span class="fn">filterAndRender</span>();
+  });
+});
+
+<span class="kw">function</span> <span class="fn">filterAndRender</span>() {
+  <span class="kw">const</span> results = activeCategory === <span class="str">'all'</span>
+    ? products
+    : products.<span class="fn">filter</span>(<span class="prop">p</span> => <span class="prop">p</span>.<span class="prop">category</span> === activeCategory);
+  <span class="fn">renderProducts</span>(results);
+}</code></pre>
+
+      <div class="note">
+        <strong>The key idea:</strong> <code>activeCategory</code> lives <em>outside</em> the event handler. The handler updates it; <code>filterAndRender()</code> reads it. One source of truth, called from anywhere.
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 12 — Category Filter Demo -->
+  <div class="slide">
+    <div class="slide-inner">
+      <div class="slide-tag">Category Filter Buttons</div>
+      <h2>Try It — Live Category Filter</h2>
+
+      <div class="demo-box">
+        <h4>Click a category — the grid re-renders instantly</h4>
+        <div class="filter-bar" id="categoryFilterBar"></div>
+        <div id="categoryFilterGrid" class="demo-grid"></div>
+        <div id="categoryFilterCount" style="font-size:.78rem; color:var(--muted); margin-top:.4rem;"></div>
+      </div>
+
+      <div class="highlight-box">
+        <strong>What's happening under the hood:</strong> Each button click (1) strips <code>.active</code> off every button with <code>forEach()</code>, (2) adds <code>.active</code> to the clicked button, (3) updates <code>activeCategory</code>, (4) calls <code>filterAndRender()</code> which uses <code>filter()</code> + <code>map()</code> to rebuild the HTML.
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 13 — Live Search Pattern -->
+  <div class="slide">
+    <div class="slide-inner">
+      <div class="slide-tag">Live Search</div>
+      <h2>Filter as You Type</h2>
+      <p class="lead">The <code>input</code> event fires on <em>every</em> keystroke. That's exactly what live search needs.</p>
+
+      <h3>HTML</h3>
+<pre><code>&lt;<span class="kw">input</span> <span class="prop">type</span>=<span class="str">"search"</span> <span class="prop">id</span>=<span class="str">"search"</span> <span class="prop">placeholder</span>=<span class="str">"Search products…"</span>&gt;
+&lt;<span class="kw">div</span> <span class="prop">class</span>=<span class="str">"grid"</span>&gt;&lt;/<span class="kw">div</span>&gt;</code></pre>
+
+      <h3>JavaScript</h3>
+<pre><code><span class="kw">let</span> searchQuery = <span class="str">''</span>;
+
+searchInput.<span class="fn">addEventListener</span>(<span class="str">'input'</span>, <span class="kw">function</span>() {
+  searchQuery = searchInput.<span class="prop">value</span>.<span class="fn">toLowerCase</span>();
+  <span class="fn">filterAndRender</span>();
+});
+
+<span class="kw">function</span> <span class="fn">filterAndRender</span>() {
+  <span class="kw">const</span> results = products.<span class="fn">filter</span>(<span class="prop">p</span> => {
+    <span class="kw">const</span> matchesCategory = activeCategory === <span class="str">'all'</span> || <span class="prop">p</span>.<span class="prop">category</span> === activeCategory;
+    <span class="kw">const</span> matchesSearch   = <span class="prop">p</span>.<span class="prop">name</span>.<span class="fn">toLowerCase</span>().<span class="fn">includes</span>(searchQuery);
+    <span class="kw">return</span> matchesCategory &amp;&amp; matchesSearch;
+  });
+  <span class="fn">renderProducts</span>(results);
+}</code></pre>
+
+      <h3>The three moves that make search feel right</h3>
+      <ul class="bullets">
+        <li><code>.toLowerCase()</code> on both sides — so "shoes" matches "Running Shoes"</li>
+        <li><code>.includes()</code> — matches anywhere in the string, not just at the start</li>
+        <li>Combined with category filter using <code>&amp;&amp;</code> — both must pass</li>
+      </ul>
+
+      <p style="font-size:.82rem;">
+        <a href="https://www.w3schools.com/jsref/jsref_includes_array.asp" target="_blank" rel="noopener" style="color:var(--accent);">W3Schools: String.includes() →</a>
+      </p>
+    </div>
+  </div>
+
+  <!-- SLIDE 14 — Live Search Demo -->
+  <div class="slide">
+    <div class="slide-inner">
+      <div class="slide-tag">Live Search</div>
+      <h2>Try It — Live Search + Category Filter</h2>
+
+      <div class="demo-box">
+        <h4>Filter by category AND type to search</h4>
+        <input type="search" class="demo-input" id="liveSearchInput" placeholder="Type to search…" style="margin-bottom:.5rem;">
+        <div class="filter-bar" id="liveSearchBar"></div>
+        <div id="liveSearchGrid" class="demo-grid"></div>
+        <div id="liveSearchCount" style="font-size:.78rem; color:var(--muted); margin-top:.4rem;"></div>
+      </div>
+
+      <div class="note">
+        <strong>Two filter conditions, one <code>filter()</code> call.</strong> For a product to survive, its category must match (or be "all") <em>and</em> its name must contain the search query. The <code>&amp;&amp;</code> is the AND gate.
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 15 — Chaining filter + map -->
+  <div class="slide">
+    <div class="slide-inner">
+      <div class="slide-tag">Chaining</div>
+      <h2>Chaining <code>filter()</code> and <code>map()</code></h2>
+      <p class="lead">Because <code>filter()</code> returns an array, you can call <code>.map()</code> directly on its result. Each step feeds into the next.</p>
+
+      <div class="pipeline">
+        <div class="pipeline-step">products (6)</div>
+        <div class="pipeline-arrow">→</div>
+        <div class="pipeline-step">.filter (2 match)</div>
+        <div class="pipeline-arrow">→</div>
+        <div class="pipeline-step">.map to HTML</div>
+      </div>
+
+      <h3>JavaScript — the full pipeline</h3>
+<pre><code>container.<span class="prop">innerHTML</span> = products
+  .<span class="fn">filter</span>(<span class="prop">p</span> => <span class="prop">p</span>.<span class="prop">category</span> === activeCategory)
+  .<span class="fn">map</span>(<span class="prop">p</span> => <span class="str">`&lt;div class="card"&gt;${p.name}&lt;/div&gt;`</span>)
+  .<span class="fn">join</span>(<span class="str">''</span>);</code></pre>
+
+      <p><strong>Reads as:</strong> <em>"Take the products, keep the ones in the active category, turn each into an HTML string, glue them together, set as innerHTML."</em></p>
+
+      <div class="caution">
+        <strong>Keep chains short:</strong> Two methods is a sweet spot. Three or more methods makes bugs hard to trace — when something is wrong, you can't tell which step broke. If your chain is getting long, store intermediate results in a variable.
+      </div>
+
+      <h3>When to break a chain apart</h3>
+      <div class="two-col">
+        <div>
+          <h3 style="color:var(--accent4);">Hard to debug</h3>
+<pre><code>data
+  .<span class="fn">filter</span>(...)
+  .<span class="fn">map</span>(...)
+  .<span class="fn">sort</span>(...)
+  .<span class="fn">slice</span>(<span class="num">0</span>, <span class="num">5</span>)
+  .<span class="fn">join</span>(...);</code></pre>
+        </div>
+        <div>
+          <h3 style="color:var(--accent2);">Easier to read</h3>
+<pre><code><span class="kw">const</span> matching = data.<span class="fn">filter</span>(...);
+<span class="kw">const</span> sorted   = matching.<span class="fn">sort</span>(...);
+<span class="kw">const</span> top5     = sorted.<span class="fn">slice</span>(<span class="num">0</span>, <span class="num">5</span>);
+top5.<span class="fn">map</span>(...).<span class="fn">join</span>(...);</code></pre>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 16 — Event Delegation Why -->
+  <div class="slide">
+    <div class="slide-inner">
+      <div class="slide-tag">Event Delegation</div>
+      <h2>Why Event Delegation?</h2>
+      <p class="lead">When cards are generated by JavaScript, they don't exist at page load. You can't attach listeners to elements that aren't there yet.</p>
+
+      <div class="highlight-box">
+        <strong>Analogy:</strong> Think of a mailroom. Instead of putting a mailbox at every desk in the building, you put <em>one</em> mailroom at the entrance. All mail flows through that single point. Event delegation is the same idea — one listener on a stable parent, handling events for any number of children.
+      </div>
+
+      <h3>The problem this solves</h3>
+      <ul class="bullets">
+        <li>Cards are created and destroyed as filters change</li>
+        <li>Old cards' listeners are garbage-collected every re-render</li>
+        <li>Adding listeners to new cards every render is wasteful — and easy to forget</li>
+        <li>One listener on the parent <strong>survives every re-render</strong></li>
+      </ul>
+
+      <h3>How it works — two DOM facts</h3>
+      <ol style="padding-left:1.2rem;">
+        <li><strong>Events bubble up.</strong> A click on <code>&lt;h3&gt;</code> inside a card also fires on the card, and on the grid, and on the body.</li>
+        <li><strong><code>closest()</code> walks up.</strong> From the clicked element, it climbs the DOM tree looking for the selector you give it. Returns the nearest match, or <code>null</code>.</li>
+      </ol>
+
+      <p style="font-size:.82rem;">
+        <a href="https://developer.mozilla.org/en-US/docs/Learn/JavaScript/Building_blocks/Events#event_delegation" target="_blank" rel="noopener" style="color:var(--accent);">MDN: Event delegation →</a> &nbsp;|&nbsp;
+        <a href="https://www.w3schools.com/jsref/met_element_closest.asp" target="_blank" rel="noopener" style="color:var(--accent);">W3Schools: Element.closest() →</a>
+      </p>
+    </div>
+  </div>
+
+  <!-- SLIDE 17 — Event Delegation Code -->
+  <div class="slide">
+    <div class="slide-inner">
+      <div class="slide-tag">Event Delegation</div>
+      <h2>The Code Pattern</h2>
+
+      <h3>HTML — the container is stable; cards come and go</h3>
+<pre><code>&lt;<span class="kw">div</span> <span class="prop">class</span>=<span class="str">"grid"</span> <span class="prop">id</span>=<span class="str">"grid"</span>&gt;
+  <span class="cmt">&lt;!-- cards are rendered by JS — none at load time --&gt;</span>
+&lt;/<span class="kw">div</span>&gt;</code></pre>
+
+      <h3>JavaScript</h3>
+<pre><code><span class="cmt">// ONE listener, on the stable parent — not on each card</span>
+container.<span class="fn">addEventListener</span>(<span class="str">'click'</span>, <span class="kw">function</span>(<span class="prop">event</span>) {
+  <span class="kw">const</span> card = event.<span class="prop">target</span>.<span class="fn">closest</span>(<span class="str">'.card'</span>);
+  <span class="kw">if</span> (!card) <span class="kw">return</span>;  <span class="cmt">// clicked something that isn't inside a card</span>
+
+  <span class="kw">const</span> id      = <span class="fn">Number</span>(card.<span class="prop">dataset</span>.<span class="prop">id</span>);
+  <span class="kw">const</span> product = products.<span class="fn">find</span>(<span class="prop">p</span> => <span class="prop">p</span>.<span class="prop">id</span> === id);
+  <span class="kw">if</span> (product) <span class="fn">openModal</span>(product);
+});</code></pre>
+
+      <div class="note">
+        <strong>Why <code>event.target.closest('.card')</code>?</strong> The user might click on the card's <code>&lt;h3&gt;</code>, badge, price, or anything nested inside. <code>event.target</code> is the specific element clicked; <code>closest('.card')</code> climbs up to find the card that wraps it — no matter what child was clicked.
+      </div>
+
+      <div class="highlight-box">
+        <strong>The magic:</strong> This listener keeps working after every <code>renderProducts()</code> call. Filter, search, sort, reset — doesn't matter. The grid container never gets replaced. Its listener never has to be reattached.
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 18 — Event Delegation Demo -->
+  <div class="slide">
+    <div class="slide-inner">
+      <div class="slide-tag">Event Delegation</div>
+      <h2>Try It — One Listener, Many Cards</h2>
+
+      <div class="demo-box">
+        <h4>Filter, then click — the click handler still works</h4>
+        <div class="filter-bar" id="delegationBar"></div>
+        <div id="delegationGrid" class="demo-grid" style="cursor:pointer;"></div>
+        <div id="delegationDetail" class="detail-panel" style="margin-top:.5rem;">
+          <p style="opacity:.4; text-align:center;">Filter, then click any card. The listener was only attached once — it keeps working after every re-render.</p>
+        </div>
+      </div>
+
+      <div class="note">
+        <strong>Proof it's one listener:</strong> The listener was attached when the page loaded. The cards you click now were rendered after a filter click — yet the click still fires. That's event delegation in action.
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 19 — Best Practices -->
+  <div class="slide">
+    <div class="slide-inner">
+      <div class="slide-tag">Best Practices</div>
+      <h2>Best Practices</h2>
+
+      <dl class="qa">
+        <div class="card">
+          <dt style="color:#ffeaa7; font-weight:700;">Keep filter logic and render logic separate</dt>
+          <dd style="font-size:.88rem; opacity:.9;">A <code>filterAndRender()</code> function that (1) computes the filtered array and (2) calls <code>renderProducts()</code> is easier to debug than mixing both inside one event handler.</dd>
+        </div>
+        <div class="card">
+          <dt style="color:#ffeaa7; font-weight:700;">Store filter state in variables outside handlers</dt>
+          <dd style="font-size:.88rem; opacity:.9;"><code>let activeCategory = 'all'</code> and <code>let searchQuery = ''</code> live at the top of your script. Every handler can read and update them. No passing arguments around.</dd>
+        </div>
+        <div class="card">
+          <dt style="color:#ffeaa7; font-weight:700;">Always <code>.toLowerCase()</code> search comparisons</dt>
+          <dd style="font-size:.88rem; opacity:.9;">A user typing "shoes" expects to match "Running Shoes". Lowercase both sides before comparing, or your search will feel broken.</dd>
+        </div>
+        <div class="card">
+          <dt style="color:#ffeaa7; font-weight:700;">Use event delegation for dynamic content</dt>
+          <dd style="font-size:.88rem; opacity:.9;">Any time cards are generated by JavaScript, attach the click listener to the stable parent, not the cards. One listener, works forever.</dd>
+        </div>
+        <div class="card">
+          <dt style="color:#ffeaa7; font-weight:700;">Always handle the empty state</dt>
+          <dd style="font-size:.88rem; opacity:.9;">When <code>filter()</code> returns an empty array, show "No results match your search" — not a blank space. Users assume blank means broken.</dd>
+        </div>
+        <div class="card">
+          <dt style="color:#ffeaa7; font-weight:700;">Cap chains at two methods</dt>
+          <dd style="font-size:.88rem; opacity:.9;"><code>.filter().map()</code> is great. <code>.filter().sort().slice().map()</code> is hard to debug. Break long chains into named intermediate variables.</dd>
+        </div>
+      </dl>
+    </div>
+  </div>
+
+  <!-- SLIDE 20 — Summary -->
+  <div class="slide">
+    <div class="slide-inner">
+      <div class="slide-tag">Summary</div>
+      <h2>Summary — What You Learned</h2>
+
+      <table class="ref-table">
+        <thead>
+          <tr><th>Concept</th><th>What it does</th><th>Key syntax</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>forEach()</code></td><td>Run a function on each item (no return)</td><td><code>arr.forEach(item =&gt; ...)</code></td></tr>
+          <tr><td><code>map()</code></td><td>Transform each item into a new array</td><td><code>arr.map(item =&gt; ...)</code></td></tr>
+          <tr><td><code>filter()</code></td><td>Keep items that pass a test</td><td><code>arr.filter(item =&gt; test)</code></td></tr>
+          <tr><td><code>find()</code></td><td>Return the first matching item</td><td><code>arr.find(item =&gt; match)</code></td></tr>
+          <tr><td>Category filter</td><td>Button click updates state, re-renders</td><td><code>activeCategory = btn.dataset.category</code></td></tr>
+          <tr><td>Live search</td><td><code>input</code> event + <code>.toLowerCase().includes()</code></td><td><code>p.name.toLowerCase().includes(q)</code></td></tr>
+          <tr><td>Chaining</td><td><code>filter()</code> then <code>map()</code> then <code>join('')</code></td><td><code>arr.filter(..).map(..).join('')</code></td></tr>
+          <tr><td>Event delegation</td><td>One listener on a stable parent</td><td><code>event.target.closest('.card')</code></td></tr>
+        </tbody>
+      </table>
+
+      <div class="highlight-box">
+        <strong>The complete interactive gallery pattern:</strong>
+        <br>Data → <code>filter()</code> (by category &amp; search) → <code>map()</code> (to HTML) → <code>join('')</code> → <code>innerHTML</code>. One listener on the grid uses <code>find()</code> to open any card's detail.
+      </div>
+
+      <h3>What's Next</h3>
+      <p>Making applications <strong>persist across page refreshes</strong>. Forms that validate, save data to <code>localStorage</code>, and display saved entries when the page reloads — the moment JavaScript starts feeling like a real application.</p>
+
+      <h3>Resources</h3>
+      <ul class="bullets">
+        <li><a href="https://www.w3schools.com/jsref/jsref_foreach.asp" target="_blank" rel="noopener" style="color:var(--accent);">W3Schools: Array.forEach() →</a></li>
+        <li><a href="https://www.w3schools.com/jsref/jsref_map.asp" target="_blank" rel="noopener" style="color:var(--accent);">W3Schools: Array.map() →</a></li>
+        <li><a href="https://www.w3schools.com/jsref/jsref_filter.asp" target="_blank" rel="noopener" style="color:var(--accent);">W3Schools: Array.filter() →</a></li>
+        <li><a href="https://www.w3schools.com/jsref/jsref_find.asp" target="_blank" rel="noopener" style="color:var(--accent);">W3Schools: Array.find() →</a></li>
+        <li><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array#iterative_methods" target="_blank" rel="noopener" style="color:var(--accent);">MDN: Array iteration methods →</a></li>
+        <li><a href="https://developer.mozilla.org/en-US/docs/Learn/JavaScript/Building_blocks/Events#event_delegation" target="_blank" rel="noopener" style="color:var(--accent);">MDN: Event delegation →</a></li>
+      </ul>
+    </div>
+  </div>
+
+</div><!-- /deck -->
+
+<nav>
+  <button class="nav-btn" id="prevBtn" onclick="changeSlide(-1)" disabled>← Prev</button>
+  <span id="slide-counter">1 / 20</span>
+  <button class="nav-btn" id="nextBtn" onclick="changeSlide(1)">Next →</button>
+</nav>
+
+<script>
+  // ===== SLIDE ENGINE =====
+  const slides  = document.querySelectorAll('.slide');
+  const total   = slides.length;
+  const counter = document.getElementById('slide-counter');
+  const prevBtn = document.getElementById('prevBtn');
+  const nextBtn = document.getElementById('nextBtn');
+  const bar     = document.getElementById('progress-bar');
+  let current   = 0;
+
+  function showSlide(n) {
+    slides[current].classList.remove('active');
+    current = Math.max(0, Math.min(n, total - 1));
+    slides[current].classList.add('active');
+    counter.textContent = (current + 1) + ' / ' + total;
+    prevBtn.disabled = current === 0;
+    nextBtn.disabled = current === total - 1;
+    bar.style.width = ((current + 1) / total * 100) + '%';
+  }
+  function changeSlide(d) { showSlide(current + d); }
+
+  document.addEventListener('keydown', function(e) {
+    if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown') changeSlide(1);
+    if (e.key === 'ArrowLeft'  || e.key === 'ArrowUp')   changeSlide(-1);
+  });
+
+  showSlide(0);
+
+  // ===== SHARED DATA =====
+  const demoProducts = [
+    { id: 1, emoji: '🎧', name: 'Wireless Headphones', price: 79.99,  category: 'Electronics', inStock: true  },
+    { id: 2, emoji: '👟', name: 'Running Shoes',       price: 119.00, category: 'Footwear',    inStock: true  },
+    { id: 3, emoji: '☕', name: 'Ceramic Mug Set',     price: 24.99,  category: 'Kitchen',     inStock: false },
+    { id: 4, emoji: '🧘', name: 'Yoga Mat',            price: 38.50,  category: 'Fitness',     inStock: true  },
+    { id: 5, emoji: '📚', name: 'Design Handbook',     price: 45.00,  category: 'Books',       inStock: true  },
+    { id: 6, emoji: '🕯️', name: 'Soy Candle Set',      price: 32.00,  category: 'Home',        inStock: false },
+    { id: 7, emoji: '⌚', name: 'Smart Watch',         price: 199.00, category: 'Electronics', inStock: true  },
+    { id: 8, emoji: '🍴', name: 'Chef Knife',          price: 89.99,  category: 'Kitchen',     inStock: true  }
+  ];
+
+  function renderMiniCards(items, containerId, emptyMsg) {
+    const grid = document.getElementById(containerId);
+    if (!grid) return;
+    if (items.length === 0) {
+      grid.innerHTML = '<div style="grid-column:1/-1; text-align:center; opacity:.4; padding:1.5rem; font-size:.85rem;">' +
+        (emptyMsg || 'No items match.') + '</div>';
+      return;
+    }
+    grid.innerHTML = items.map(p =>
+      '<div class="mini-card" data-id="' + p.id + '">' +
+        '<div class="mini-card-emoji">' + p.emoji + '</div>' +
+        '<div class="mini-card-name">' + p.name + '</div>' +
+        '<div class="mini-card-price">$' + p.price.toFixed(2) + '</div>' +
+        '<div class="mini-badge">' + p.category + '</div>' +
+      '</div>'
+    ).join('');
+  }
+
+  // ===== SLIDE 4 — forEach DEMO =====
+  const forEachHost = document.getElementById('forEachBoxes');
+  const forEachBoxes = [];
+  for (let i = 0; i < 6; i++) {
+    const box = document.createElement('div');
+    box.textContent = i + 1;
+    box.style.cssText = 'padding:.55rem .8rem; border-radius:8px; background:var(--surface); border:1px solid var(--border); font-weight:700; font-size:.85rem; transition:all .25s;';
+    forEachHost.appendChild(box);
+    forEachBoxes.push(box);
+  }
+  function runForEach(mode) {
+    const out = document.getElementById('forEachOutput');
+    if (mode === 'highlight') {
+      forEachBoxes.forEach(b => {
+        b.style.background = 'var(--accent)';
+        b.style.color = '#0f0f1a';
+        b.style.borderColor = 'var(--accent)';
+      });
+      out.innerHTML = '<span style="color:var(--muted);">boxes.forEach(b =&gt; { b.style.background = \'purple\'; }); </span><span style="color:var(--accent2);">→ 6 DOM updates, nothing returned</span>';
+    } else if (mode === 'dim') {
+      forEachBoxes.forEach(b => {
+        b.style.opacity = '.3';
+      });
+      out.innerHTML = '<span style="color:var(--muted);">boxes.forEach(b =&gt; { b.style.opacity = .3; }); </span><span style="color:var(--accent2);">→ every box faded</span>';
+    } else {
+      forEachBoxes.forEach(b => {
+        b.style.background = 'var(--surface)';
+        b.style.color = 'var(--text)';
+        b.style.borderColor = 'var(--border)';
+        b.style.opacity = '1';
+      });
+      out.innerHTML = '<span style="color:var(--muted);">boxes.forEach(b =&gt; b.reset()); </span><span style="color:var(--accent2);">→ all boxes back to default</span>';
+    }
+  }
+
+  // ===== SLIDE 7 — filter DEMO =====
+  function runFilter(mode) {
+    let results = demoProducts.slice();
+    let expression = 'products (no filter)';
+    if (mode === 'under50')     { results = demoProducts.filter(p => p.price < 50);              expression = 'products.filter(p =&gt; p.price &lt; 50)'; }
+    if (mode === 'electronics') { results = demoProducts.filter(p => p.category === 'Electronics'); expression = "products.filter(p =&gt; p.category === 'Electronics')"; }
+    if (mode === 'kitchen')     { results = demoProducts.filter(p => p.category === 'Kitchen');     expression = "products.filter(p =&gt; p.category === 'Kitchen')"; }
+    if (mode === 'inStock')     { results = demoProducts.filter(p => p.inStock);                    expression = 'products.filter(p =&gt; p.inStock)'; }
+    document.getElementById('filterOutput').innerHTML =
+      '<span style="color:var(--muted);">' + expression + '</span><br>' +
+      '<span style="color:var(--accent2);">→ ' + results.length + ' of ' + demoProducts.length + ' products matched</span>';
+    renderMiniCards(results, 'filterGrid', 'No products match this test.');
+  }
+  runFilter('all');
+
+  // ===== SLIDE 9 — find DEMO =====
+  function runFind() {
+    const id = Number(document.getElementById('findIdInput').value);
+    const product = demoProducts.find(p => p.id === id);
+    const panel = document.getElementById('findResult');
+    if (!product) {
+      panel.innerHTML =
+        '<div style="text-align:center; color:var(--accent4); font-weight:700;">undefined</div>' +
+        '<div style="text-align:center; font-size:.78rem; color:var(--muted); margin-top:.4rem;">No product has id ' + id + ' — find() returns undefined when nothing matches</div>';
+      return;
+    }
+    panel.innerHTML =
+      '<div style="text-align:center; font-size:2rem; margin-bottom:.3rem;">' + product.emoji + '</div>' +
+      '<div style="text-align:center; font-weight:700; margin-bottom:.5rem;">' + product.name + '</div>' +
+      '<div class="detail-row"><span class="detail-key">id</span><span class="detail-value">' + product.id + '</span></div>' +
+      '<div class="detail-row"><span class="detail-key">price</span><span class="detail-value">$' + product.price.toFixed(2) + '</span></div>' +
+      '<div class="detail-row"><span class="detail-key">category</span><span class="detail-value">' + product.category + '</span></div>' +
+      '<div class="detail-row"><span class="detail-key">inStock</span><span class="detail-value" style="color:' + (product.inStock ? 'var(--accent2)' : 'var(--accent4)') + ';">' + (product.inStock ? 'true' : 'false') + '</span></div>';
+  }
+  runFind();
+
+  // ===== SLIDE 12 — CATEGORY FILTER DEMO =====
+  const categories = ['all', ...new Set(demoProducts.map(p => p.category))];
+  let catActiveCategory = 'all';
+
+  function buildFilterBar(containerId, onClick, getActive) {
+    const bar = document.getElementById(containerId);
+    bar.innerHTML = '';
+    categories.forEach(cat => {
+      const btn = document.createElement('button');
+      btn.className = 'demo-btn secondary' + (getActive() === cat ? ' active' : '');
+      btn.textContent = cat === 'all' ? 'All' : cat;
+      btn.dataset.category = cat;
+      btn.addEventListener('click', () => onClick(cat));
+      bar.appendChild(btn);
+    });
+  }
+
+  function renderCategoryFilter() {
+    const results = catActiveCategory === 'all'
+      ? demoProducts
+      : demoProducts.filter(p => p.category === catActiveCategory);
+    renderMiniCards(results, 'categoryFilterGrid', 'No products in this category.');
+    document.getElementById('categoryFilterCount').textContent =
+      catActiveCategory === 'all'
+        ? 'Showing all ' + results.length + ' products'
+        : 'Showing ' + results.length + ' of ' + demoProducts.length + ' products in ' + catActiveCategory;
+    buildFilterBar('categoryFilterBar', c => { catActiveCategory = c; renderCategoryFilter(); }, () => catActiveCategory);
+  }
+  renderCategoryFilter();
+
+  // ===== SLIDE 14 — LIVE SEARCH DEMO =====
+  let liveSearchQuery = '';
+  let liveSearchCategory = 'all';
+
+  function renderLiveSearch() {
+    const results = demoProducts.filter(p => {
+      const matchesCategory = liveSearchCategory === 'all' || p.category === liveSearchCategory;
+      const matchesSearch   = p.name.toLowerCase().includes(liveSearchQuery);
+      return matchesCategory && matchesSearch;
+    });
+    renderMiniCards(results, 'liveSearchGrid', 'No products match your search.');
+    const parts = [];
+    if (liveSearchCategory !== 'all') parts.push('category: ' + liveSearchCategory);
+    if (liveSearchQuery) parts.push('search: "' + liveSearchQuery + '"');
+    document.getElementById('liveSearchCount').textContent =
+      results.length + ' result' + (results.length === 1 ? '' : 's') +
+      (parts.length ? ' (' + parts.join(' · ') + ')' : '');
+    buildFilterBar('liveSearchBar', c => { liveSearchCategory = c; renderLiveSearch(); }, () => liveSearchCategory);
+  }
+  document.getElementById('liveSearchInput').addEventListener('input', function() {
+    liveSearchQuery = this.value.toLowerCase();
+    renderLiveSearch();
+  });
+  renderLiveSearch();
+
+  // ===== SLIDE 18 — EVENT DELEGATION DEMO =====
+  let delegationCategory = 'all';
+
+  function renderDelegation() {
+    const results = delegationCategory === 'all'
+      ? demoProducts
+      : demoProducts.filter(p => p.category === delegationCategory);
+    renderMiniCards(results, 'delegationGrid', 'No products.');
+    buildFilterBar('delegationBar', c => {
+      delegationCategory = c;
+      renderDelegation();
+      document.getElementById('delegationDetail').innerHTML =
+        '<p style="opacity:.4; text-align:center;">Grid re-rendered. Click any card — the listener still works.</p>';
+    }, () => delegationCategory);
+  }
+  renderDelegation();
+
+  document.getElementById('delegationGrid').addEventListener('click', function(event) {
+    const card = event.target.closest('.mini-card');
+    if (!card) return;
+    document.querySelectorAll('#delegationGrid .mini-card').forEach(c => c.classList.remove('selected'));
+    card.classList.add('selected');
+
+    const id = Number(card.dataset.id);
+    const product = demoProducts.find(p => p.id === id);
+    if (!product) return;
+
+    document.getElementById('delegationDetail').innerHTML =
+      '<div style="text-align:center; font-size:1.8rem; margin-bottom:.3rem;">' + product.emoji + '</div>' +
+      '<div style="text-align:center; font-weight:700; margin-bottom:.5rem;">' + product.name + '</div>' +
+      '<div class="detail-row"><span class="detail-key">id</span><span class="detail-value">' + product.id + '</span></div>' +
+      '<div class="detail-row"><span class="detail-key">price</span><span class="detail-value">$' + product.price.toFixed(2) + '</span></div>' +
+      '<div class="detail-row"><span class="detail-key">category</span><span class="detail-value">' + product.category + '</span></div>' +
+      '<div style="margin-top:.6rem; font-size:.72rem; color:var(--muted); text-align:center;">Found via: products.find(p =&gt; p.id === ' + id + ')</div>';
+  });
+</script>
+
+</body>
+</html>
