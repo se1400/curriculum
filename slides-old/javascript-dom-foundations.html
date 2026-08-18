@@ -1,0 +1,1834 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>The DOM Is Your Paintbrush — JavaScript Foundations</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #0f0f1a;
+      --surface:   #1a1a2e;
+      --border:    #2e2e4a;
+      --accent:    #a78bfa;
+      --accent2:   #6ee7b7;
+      --accent3:   #fbbf24;
+      --text:      #e8e8f0;
+      --muted:     #7070a0;
+      --code-bg:   #0a0a18;
+      --code-text: #c9d1d9;
+      --warn:      #fbbf24;
+      --danger:    #f87171;
+      --success:   #6ee7b7;
+      --nav-h:     52px;
+    }
+
+    html, body {
+      height: 100%;
+      font-family: system-ui, -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      overflow: hidden;
+    }
+
+    /* ===== PROGRESS BAR ===== */
+    #progress-bar {
+      position: fixed;
+      top: 0; left: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--accent), var(--accent2));
+      width: 0%;
+      transition: width .3s ease;
+      z-index: 100;
+    }
+
+    /* ===== NAV ===== */
+    nav {
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
+      height: var(--nav-h);
+      background: rgba(10,10,24,.95);
+      border-top: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 1rem;
+      z-index: 50;
+      gap: .5rem;
+    }
+
+    nav .nav-btn {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: .45rem 1rem;
+      border-radius: 8px;
+      font-size: .85rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background .2s, border-color .2s;
+      white-space: nowrap;
+    }
+    nav .nav-btn:hover { background: var(--border); border-color: var(--accent); }
+    nav .nav-btn:disabled { opacity: .3; cursor: default; }
+
+    #slide-counter {
+      font-size: .8rem;
+      color: var(--muted);
+      white-space: nowrap;
+      min-width: 70px;
+      text-align: center;
+    }
+
+    /* ===== SLIDE CONTAINER ===== */
+    .deck {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      bottom: var(--nav-h);
+      overflow: hidden;
+    }
+
+    .slide {
+      display: none;
+      position: absolute;
+      inset: 0;
+      overflow-y: auto;
+      padding: 2rem 1.5rem 1rem;
+      animation: slideIn .25s ease;
+    }
+    .slide.active { display: block; }
+    .slide.active.full-embed { display: flex; }
+
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateX(18px); }
+      to   { opacity: 1; transform: translateX(0); }
+    }
+
+    .slide-inner {
+      max-width: 960px;
+      margin: 0 auto;
+      padding-bottom: 1.5rem;
+    }
+
+    /* ===== GRADIENT BACKGROUNDS per nth-child ===== */
+    .slide:nth-child(1)  { background: linear-gradient(135deg, #0f0f1a 0%, #1a1040 100%); }
+    .slide:nth-child(2)  { background: linear-gradient(135deg, #0d1117 0%, #1a2a1a 100%); }
+    .slide:nth-child(3)  { background: linear-gradient(135deg, #0f0f1a 0%, #1a1040 100%); }
+    .slide:nth-child(4)  { background: linear-gradient(135deg, #0d1020 0%, #1a2030 100%); }
+    .slide:nth-child(5)  { background: linear-gradient(135deg, #100d1a 0%, #201030 100%); }
+    .slide:nth-child(6)  { background: linear-gradient(135deg, #0d1a10 0%, #102010 100%); }
+    .slide:nth-child(7)  { background: linear-gradient(135deg, #0f0f1a 0%, #1a1040 100%); }
+    .slide:nth-child(8)  { background: linear-gradient(135deg, #0d1117 0%, #1a2a1a 100%); }
+    .slide:nth-child(9)  { background: linear-gradient(135deg, #0f0f1a 0%, #201020 100%); }
+    .slide:nth-child(10) { background: linear-gradient(135deg, #0d1020 0%, #102030 100%); }
+    .slide:nth-child(11) { background: linear-gradient(135deg, #100d1a 0%, #1a1040 100%); }
+    .slide:nth-child(12) { background: linear-gradient(135deg, #0d1117 0%, #1a2a1a 100%); }
+    .slide:nth-child(13) { background: linear-gradient(135deg, #0f0f1a 0%, #1a1040 100%); }
+    .slide:nth-child(14) { background: linear-gradient(135deg, #0d1020 0%, #1a2030 100%); }
+    .slide:nth-child(15) { background: linear-gradient(135deg, #0d1a10 0%, #102010 100%); }
+    .slide:nth-child(16) { background: linear-gradient(135deg, #100d1a 0%, #201030 100%); }
+    .slide:nth-child(17) { background: linear-gradient(135deg, #0d1020 0%, #1a2030 100%); }
+    .slide:nth-child(18) { background: linear-gradient(135deg, #0f0f1a 0%, #1a1040 100%); }
+    .slide:nth-child(19) { background: linear-gradient(135deg, #0d1117 0%, #1a2a1a 100%); }
+    .slide:nth-child(20) { background: linear-gradient(135deg, #100d1a 0%, #201030 100%); }
+    .slide:nth-child(21) { background: linear-gradient(135deg, #0f0f1a 0%, #1a1040 100%); }
+    .slide:nth-child(22) { background: linear-gradient(135deg, #0d1020 0%, #102030 100%); }
+    .slide:nth-child(23) { background: linear-gradient(135deg, #0d1a10 0%, #102010 100%); }
+
+    /* ===== TYPOGRAPHY ===== */
+    .slide-tag {
+      font-size: .7rem;
+      font-weight: 700;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: .6rem;
+    }
+
+    h1 {
+      font-size: clamp(1.8rem, 5vw, 3rem);
+      line-height: 1.15;
+      margin-bottom: .75rem;
+      color: #fff;
+    }
+
+    h2 {
+      font-size: clamp(1.3rem, 3.5vw, 2rem);
+      color: var(--accent);
+      margin-bottom: .75rem;
+      line-height: 1.2;
+    }
+
+    h3 {
+      font-size: clamp(1rem, 2.5vw, 1.3rem);
+      color: var(--accent2);
+      margin-bottom: .5rem;
+      margin-top: 1.25rem;
+    }
+
+    p {
+      font-size: clamp(.85rem, 2vw, 1rem);
+      line-height: 1.65;
+      color: var(--text);
+      margin-bottom: .75rem;
+    }
+
+    .lead {
+      font-size: clamp(1rem, 2.5vw, 1.2rem);
+      color: #c0c0e0;
+      line-height: 1.6;
+      margin-bottom: 1rem;
+    }
+
+    /* ===== LISTS ===== */
+    ul.bullets {
+      list-style: none;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      gap: .5rem;
+    }
+    ul.bullets li {
+      display: flex;
+      align-items: flex-start;
+      gap: .6rem;
+      font-size: clamp(.85rem, 2vw, 1rem);
+      line-height: 1.5;
+    }
+    ul.bullets li::before {
+      content: "►";
+      color: var(--accent);
+      flex-shrink: 0;
+      margin-top: .1rem;
+      font-size: .8rem;
+    }
+
+    /* ===== CODE ===== */
+    pre {
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1rem 1.25rem;
+      overflow-x: auto;
+      font-size: clamp(.75rem, 1.8vw, .88rem);
+      line-height: 1.6;
+      color: var(--code-text);
+      margin-bottom: .85rem;
+    }
+    code {
+      font-family: 'Cascadia Code', 'Fira Code', 'Courier New', monospace;
+    }
+    p code, li code {
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      padding: .1em .35em;
+      border-radius: 4px;
+      font-size: .88em;
+      color: var(--accent2);
+    }
+    .kw   { color: #c792ea; }
+    .fn   { color: #82aaff; }
+    .str  { color: #c3e88d; }
+    .num  { color: #f78c6c; }
+    .cmt  { color: #546e7a; font-style: italic; }
+    .prop { color: #ffcb6b; }
+
+    /* ===== CARDS & BOXES ===== */
+    .card-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1rem 1.25rem;
+    }
+
+    .card h3 { margin-top: 0; }
+
+    .note {
+      background: rgba(167,139,250,.1);
+      border-left: 3px solid var(--accent);
+      border-radius: 0 8px 8px 0;
+      padding: .75rem 1rem;
+      font-size: clamp(.8rem, 1.8vw, .92rem);
+      margin-bottom: .85rem;
+      color: #c0c0e8;
+    }
+    .note strong { color: var(--accent); }
+
+    .caution {
+      background: rgba(251,191,36,.08);
+      border-left: 3px solid var(--warn);
+      border-radius: 0 8px 8px 0;
+      padding: .75rem 1rem;
+      font-size: clamp(.8rem, 1.8vw, .92rem);
+      margin-bottom: .85rem;
+      color: #e8d8a0;
+    }
+    .caution strong { color: var(--warn); }
+
+    .danger-box {
+      background: rgba(248,113,113,.08);
+      border-left: 3px solid var(--danger);
+      border-radius: 0 8px 8px 0;
+      padding: .75rem 1rem;
+      font-size: clamp(.8rem, 1.8vw, .92rem);
+      margin-bottom: .85rem;
+      color: #f0b0b0;
+    }
+    .danger-box strong { color: var(--danger); }
+
+    /* ===== TWO-COLUMN ===== */
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.25rem;
+      align-items: start;
+    }
+
+    @media (max-width: 640px) {
+      .two-col { grid-template-columns: 1fr; }
+      .card-row { grid-template-columns: 1fr; }
+    }
+
+    /* ===== CODEPEN FRAMES ===== */
+    .codepen-wrap {
+      border-radius: 12px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+      margin-bottom: .85rem;
+    }
+    .codepen-wrap iframe {
+      display: block;
+      width: 100%;
+      border: none;
+    }
+
+    /* ===== TITLE SLIDE ===== */
+    .title-slide {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      min-height: 100%;
+    }
+
+    .title-badge {
+      display: inline-block;
+      background: rgba(167,139,250,.15);
+      border: 1px solid var(--accent);
+      color: var(--accent);
+      padding: .35rem 1rem;
+      border-radius: 20px;
+      font-size: .8rem;
+      font-weight: 700;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      margin-bottom: 1.25rem;
+    }
+
+    .title-slide h1 {
+      font-size: clamp(2rem, 6vw, 3.5rem);
+      margin-bottom: .75rem;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .pillars {
+      display: flex;
+      gap: 1.5rem;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-top: 1.5rem;
+    }
+    .pillar {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 1.25rem 1.75rem;
+      text-align: center;
+      flex: 1;
+      min-width: 150px;
+      max-width: 220px;
+    }
+    .pillar .icon { font-size: 2rem; display: block; margin-bottom: .5rem; }
+    .pillar h3 { margin: 0 0 .3rem; font-size: 1.1rem; }
+    .pillar p { font-size: .85rem; color: var(--muted); margin: 0; }
+    .pillar.js h3 { color: var(--accent3); }
+    .pillar.css h3 { color: var(--accent); }
+    .pillar.html h3 { color: var(--accent2); }
+
+    /* ===== INTERACTIVE DEMOS ===== */
+    .demo-box {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.25rem;
+      margin-bottom: 1rem;
+    }
+
+    .demo-box h4 {
+      font-size: .8rem;
+      text-transform: uppercase;
+      letter-spacing: .1em;
+      color: var(--accent);
+      margin-bottom: .75rem;
+      font-weight: 700;
+    }
+
+    .demo-btn {
+      background: var(--accent);
+      color: #0f0f1a;
+      border: none;
+      padding: .5rem 1.1rem;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: .88rem;
+      cursor: pointer;
+      transition: background .2s, transform .1s;
+      margin: .3rem .3rem .3rem 0;
+    }
+    .demo-btn:hover { background: #c4b5fd; }
+    .demo-btn:active { transform: scale(.97); }
+    .demo-btn.secondary {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--text);
+    }
+    .demo-btn.secondary:hover { border-color: var(--accent); }
+
+    .demo-output {
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: .65rem .9rem;
+      font-family: monospace;
+      font-size: .85rem;
+      color: var(--accent2);
+      min-height: 38px;
+      margin-top: .6rem;
+      word-break: break-all;
+    }
+
+    input[type="text"], input[type="number"], input[type="range"],
+    input[type="color"], select, textarea {
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: .45rem .75rem;
+      border-radius: 8px;
+      font-size: .9rem;
+      outline: none;
+      transition: border-color .2s;
+    }
+    input:focus, select:focus { border-color: var(--accent); }
+    input[type="range"] { accent-color: var(--accent); padding: 0; height: 20px; }
+    input[type="color"] { padding: 2px; height: 36px; width: 60px; cursor: pointer; }
+
+    /* ===== KEYWORD CHIPS ===== */
+    .chip-row { display: flex; flex-wrap: wrap; gap: .5rem; margin-bottom: .75rem; }
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: .35rem;
+      background: rgba(167,139,250,.12);
+      border: 1px solid rgba(167,139,250,.3);
+      color: var(--accent);
+      padding: .3rem .75rem;
+      border-radius: 20px;
+      font-size: .8rem;
+      font-family: monospace;
+      font-weight: 600;
+    }
+
+    /* ===== COMPARISON TABLE ===== */
+    .compare-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: clamp(.78rem, 1.8vw, .9rem);
+      margin-bottom: .85rem;
+    }
+    .compare-table th {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      padding: .6rem .85rem;
+      text-align: left;
+      color: var(--accent);
+      font-weight: 700;
+    }
+    .compare-table td {
+      border: 1px solid var(--border);
+      padding: .55rem .85rem;
+      vertical-align: top;
+      line-height: 1.5;
+    }
+    .compare-table tr:nth-child(even) td { background: rgba(255,255,255,.02); }
+    .compare-table code { background: var(--code-bg); padding: .1em .3em; border-radius: 3px; }
+
+    /* ===== HIGHLIGHT BOX ===== */
+    .highlight-box {
+      background: linear-gradient(135deg, rgba(167,139,250,.12), rgba(110,231,183,.08));
+      border: 1px solid rgba(167,139,250,.3);
+      border-radius: 12px;
+      padding: 1rem 1.25rem;
+      margin-bottom: 1rem;
+      font-size: clamp(.85rem, 2vw, 1rem);
+    }
+
+    /* ===== EXTERNAL LINKS ===== */
+    a.ext-link {
+      display: inline-flex;
+      align-items: center;
+      gap: .4rem;
+      color: var(--accent2);
+      text-decoration: none;
+      font-size: .88rem;
+      font-weight: 600;
+      border: 1px solid rgba(110,231,183,.3);
+      padding: .3rem .75rem;
+      border-radius: 8px;
+      transition: border-color .2s, background .2s;
+      margin: .25rem .25rem .25rem 0;
+      background: rgba(110,231,183,.06);
+    }
+    a.ext-link:hover { border-color: var(--accent2); background: rgba(110,231,183,.12); }
+
+    .link-row { display: flex; flex-wrap: wrap; gap: .4rem; margin-bottom: .75rem; }
+
+    /* ===== BADGE ===== */
+    .badge {
+      display: inline-block;
+      background: rgba(167,139,250,.15);
+      border: 1px solid rgba(167,139,250,.3);
+      color: var(--accent);
+      padding: .2rem .6rem;
+      border-radius: 6px;
+      font-size: .78rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .07em;
+    }
+    .badge.green {
+      background: rgba(110,231,183,.1);
+      border-color: rgba(110,231,183,.3);
+      color: var(--accent2);
+    }
+    .badge.yellow {
+      background: rgba(251,191,36,.1);
+      border-color: rgba(251,191,36,.3);
+      color: var(--accent3);
+    }
+
+    img.slide-img {
+      max-width: 100%;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      display: block;
+      margin: .5rem auto;
+    }
+
+    /* ===== KBD KEY STYLING ===== */
+    kbd {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-bottom: 2px solid var(--border);
+      border-radius: 5px;
+      padding: .1em .4em;
+      font-family: monospace;
+      font-size: .85em;
+      color: var(--accent2);
+    }
+  </style>
+</head>
+<body>
+
+<div id="progress-bar"></div>
+
+<div class="deck">
+
+  <!-- ===================== SLIDE 1: TITLE ===================== -->
+  <div class="slide active">
+    <div class="slide-inner">
+      <div class="title-slide">
+        <span class="title-badge">JavaScript Foundations</span>
+        <h1>The DOM Is Your Paintbrush</h1>
+        <p class="lead" style="max-width:600px;">
+          You have built beautiful HTML and CSS. Now you will learn to control it with JavaScript — without rewriting a single line of what you've already made.
+        </p>
+        <img src="assets/3pillars.jpeg" alt="HTML = Structure, CSS = Presentation, JavaScript = Behavior" style="max-width:480px; width:100%; border-radius:12px; margin:1rem 0;" onerror="this.style.display='none'">
+        <p style="margin-top:.75rem; color:var(--muted); font-size:.9rem;">
+          When a smart home's lights turn on, nobody tears down walls. The switches just control what's already there. JavaScript works the same way.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== SLIDE 2: WHAT YOU'LL LEARN ===================== -->
+  <div class="slide">
+    <div class="slide-inner">
+      <div class="slide-tag">Overview</div>
+      <h2>What You'll Learn</h2>
+      <div class="card-row">
+        <div class="card">
+          <h3>📄 Setup</h3>
+          <ul class="bullets">
+            <li>Linking JS to your page with <code>&lt;script defer&gt;</code></li>
+            <li>The browser console as a live playground</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>📦 Variables</h3>
+          <ul class="bullets">
+            <li><code>const</code> and <code>let</code></li>
+            <li>Strings, numbers, booleans</li>
+            <li>Template literals</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>🔍 DOM</h3>
+          <ul class="bullets">
+            <li>What the DOM is</li>
+            <li><code>querySelector</code> to find elements</li>
+            <li><code>textContent</code> and <code>innerHTML</code></li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>🎨 Control</h3>
+          <ul class="bullets">
+            <li>CSS custom properties from JS</li>
+            <li><code>classList.toggle()</code></li>
+            <li>Create and remove elements</li>
+            <li><code>data-*</code> attributes</li>
+          </ul>
+        </div>
+      </div>
+      <div class="highlight-box">
+        <strong style="color:var(--accent);">The key insight:</strong> JavaScript doesn't replace your HTML and CSS. It <em>controls</em> them. Every transition, every animation, every custom property you've already written is waiting for JavaScript to operate it.
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== SLIDE 3: LINKING JS ===================== -->
+  <div class="slide">
+    <div class="slide-inner">
+      <div class="slide-tag">Setup</div>
+      <h2>How JavaScript Fits Into Your Page</h2>
+      <div class="two-col">
+        <div>
+          <p>JavaScript lives in <code>.js</code> files and connects via the <code>&lt;script&gt;</code> tag. Place it in <code>&lt;head&gt;</code> with the <code>defer</code> attribute:</p>
+          <pre><code><span class="kw">&lt;head&gt;</span>
+  &lt;meta charset=<span class="str">"UTF-8"</span>&gt;
+  &lt;link rel=<span class="str">"stylesheet"</span> href=<span class="str">"styles.css"</span>&gt;
+  <span class="cmt">&lt;!-- defer = wait for full HTML --&gt;</span>
+  &lt;script <span class="kw">defer</span> src=<span class="str">"script.js"</span>&gt;&lt;/script&gt;
+&lt;/head&gt;</code></pre>
+          <div class="note">
+            <strong>defer</strong> — downloads the script in the background, then runs it <em>after</em> the entire HTML has loaded. Your JavaScript will always have access to every element on the page.
+          </div>
+        </div>
+        <div>
+          <h3>Inline scripts (for CodePen)</h3>
+          <pre><code>&lt;script&gt;
+  <span class="cmt">// Code runs directly in the page</span>
+  console.<span class="fn">log</span>(<span class="str">'Hello!'</span>);
+&lt;/script&gt;</code></pre>
+          <div class="caution">
+            <strong>Avoid legacy patterns:</strong> You may see <code>document.write()</code> or <code>alert()</code> in old tutorials — don't use them, they're outdated and cause problems. Always update elements in the DOM instead.
+          </div>
+          <div class="link-row">
+            <a class="ext-link" href="https://developer.mozilla.org/en-US/docs/Web/HTML/Element/script#attr-defer" target="_blank">↗ MDN: defer attribute</a>
+            <a class="ext-link" href="https://www.w3schools.com/js/js_whereto.asp" target="_blank">↗ W3Schools: Where to JS</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== SLIDE 4: CONSOLE ===================== -->
+  <div class="slide">
+    <div class="slide-inner">
+      <div class="slide-tag">Tooling</div>
+      <h2>The Browser Console — Your Testing Playground</h2>
+      <div class="two-col">
+        <div>
+          <p>Open DevTools right now:</p>
+          <ul class="bullets" style="margin-bottom:.85rem;">
+            <li><strong>Mac:</strong> <kbd>Option + Cmd + J</kbd></li>
+            <li><strong>Windows:</strong> <kbd>F12</kbd>, then Console tab</li>
+          </ul>
+          <p>Type this and press Enter on <em>any</em> webpage:</p>
+          <pre><code>document.<span class="fn">querySelector</span>(<span class="str">'h1'</span>).textContent = <span class="str">'It works!'</span></code></pre>
+          <p>That's JavaScript modifying the DOM — live, instantly, no files needed.</p>
+          <div class="note">
+            <strong>Refresh to undo.</strong> The console is completely safe to experiment in. Nothing you type there is permanent.
+          </div>
+        </div>
+        <div>
+          <img src="assets/browserconsole.jpeg" alt="Browser DevTools Console showing log, warn, error output" class="slide-img" style="margin-bottom:.75rem;" onerror="this.style.display='none'">
+          <pre><code><span class="cmt">// Basic message</span>
+console.<span class="fn">log</span>(<span class="str">'Page loaded!'</span>);
+<span class="cmt">// Yellow warning</span>
+console.<span class="fn">warn</span>(<span class="str">'Double-check this'</span>);
+<span class="cmt">// Red error</span>
+console.<span class="fn">error</span>(<span class="str">'Something went wrong'</span>);</code></pre>
+          <div class="link-row">
+            <a class="ext-link" href="https://developer.chrome.com/docs/devtools/console/" target="_blank">↗ Chrome DevTools Console guide</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== SLIDE 5: CONSOLE DEMO ===================== -->
+  <div class="slide">
+    <div class="slide-inner">
+      <div class="slide-tag">Live Example</div>
+      <h2>The Console in Action</h2>
+      <p>Think of the console like texting with your browser — you type something, the browser responds. Click the JS tab in the CodePen below, change some values, and watch the output. Then open DevTools on <em>this very page</em> (<kbd>F12</kbd> or <kbd>Option+Cmd+J</kbd>) and try typing <code>console.log('hello!')</code> right in the console tab.</p>
+      <div class="codepen-wrap">
+        <iframe title="Codepen 18.1 — Console Explorer" src="https://codepen.io/mattkearl/embed/emdjYBE?default-tab=js%2Cconsole&editable=true" height="540" loading="lazy"></iframe>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== SLIDE 6: SYNTAX BASICS ===================== -->
+  <div class="slide">
+    <div class="slide-inner">
+      <div class="slide-tag">Syntax</div>
+      <h2>JavaScript Syntax Basics</h2>
+      <div class="two-col">
+        <div>
+          <h3>Statements &amp; Semicolons</h3>
+          <pre><code><span class="kw">const</span> name = <span class="str">'Ada Lovelace'</span>;
+document.<span class="fn">querySelector</span>(<span class="str">'h1'</span>).textContent = name;
+console.<span class="fn">log</span>(name);</code></pre>
+          <p>One instruction per line. Semicolons prevent subtle bugs — make them a habit.</p>
+
+          <h3>Comments</h3>
+          <pre><code><span class="cmt">// Single-line comment</span>
+
+<span class="cmt">/* Multi-line comment.
+   Explain complex logic here. */</span>
+
+<span class="kw">const</span> price = <span class="num">9.99</span>; <span class="cmt">// inline comment</span></code></pre>
+        </div>
+        <div>
+          <h3>Case Sensitivity &amp; Naming</h3>
+          <pre><code><span class="cmt">// These are THREE different variables:</span>
+<span class="kw">const</span> myVariable = <span class="num">1</span>;
+<span class="kw">const</span> MyVariable = <span class="num">2</span>;
+<span class="kw">const</span> MYVARIABLE = <span class="num">3</span>;</code></pre>
+          <div class="note">
+            <strong>Convention: camelCase</strong><br>
+            First word lowercase, each new word capitalized.<br>
+            ✅ <code>accentColor</code>, <code>userName</code>, <code>isLoggedIn</code><br>
+            ❌ <code>accent_color</code>, <code>c</code>, <code>x1</code>
+          </div>
+          <ul class="bullets">
+            <li>Names can contain letters, numbers, <code>_</code>, <code>$</code></li>
+            <li>Must start with a letter, <code>_</code>, or <code>$</code> — not a number</li>
+            <li>Cannot use reserved words: <code>const</code>, <code>let</code>, <code>if</code>…</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== SLIDE 7: CONST vs LET ===================== -->
+  <div class="slide">
+    <div class="slide-inner">
+      <div class="slide-tag">Variables</div>
+      <h2>Variables: <code>const</code> and <code>let</code></h2>
+      <div class="two-col">
+        <div>
+          <div class="card" style="margin-bottom:.85rem;">
+            <h3 style="color:var(--accent2);">const — values that won't change</h3>
+            <pre><code><span class="kw">const</span> siteName = <span class="str">'Portfolio'</span>;
+<span class="kw">const</span> primaryColor = <span class="str">'#2d3436'</span>;
+<span class="kw">const</span> maxScore = <span class="num">100</span>;
+
+<span class="cmt">// ❌ This throws an error:</span>
+siteName = <span class="str">'New Name'</span>;</code></pre>
+            <p style="font-size:.85rem; color:var(--muted);">Your <strong>default</strong> choice. The error protection is a feature.</p>
+          </div>
+          <div class="card">
+            <h3 style="color:var(--accent3);">let — values that will change</h3>
+            <pre><code><span class="kw">let</span> score = <span class="num">0</span>;
+score = score + <span class="num">10</span>; <span class="cmt">// ✅ works</span>
+
+<span class="kw">let</span> activeTab = <span class="str">'home'</span>;
+activeTab = <span class="str">'about'</span>;   <span class="cmt">// ✅ works</span></code></pre>
+            <p style="font-size:.85rem; color:var(--muted);">Use when you need to update a value over time.</p>
+          </div>
+        </div>
+        <div>
+          <div class="note" style="margin-bottom:1rem;">
+            <strong>Practical rule:</strong> start everything with <code>const</code>. If you get an assignment error, change it to <code>let</code>. This catches accidental overwrites.
+          </div>
+          <div class="caution" style="margin-bottom:1rem;">
+            <strong>Avoid <code>var</code></strong> — it's the old way (pre-2015) with confusing scope rules. You'll see it in legacy tutorials. Treat it like <code>let</code> but don't use it yourself.
+          </div>
+          <!-- Interactive demo -->
+          <div class="demo-box">
+            <h4>Try it: const vs let</h4>
+            <div style="display:flex; gap:.4rem; margin-bottom:.5rem;">
+              <button class="demo-btn" onclick="demoConst()">const reassign</button>
+              <button class="demo-btn" onclick="demoLet()">let update</button>
+            </div>
+            <div style="font-size:.72rem; color:var(--muted); margin-bottom:.2rem; letter-spacing:.06em; text-transform:uppercase;">Code being applied:</div>
+            <pre id="constLetCode" style="font-size:.78rem; margin-bottom:.5rem; min-height:42px;"><code style="color:var(--muted);">← click a button above</code></pre>
+            <div style="font-size:.72rem; color:var(--muted); margin-bottom:.2rem; letter-spacing:.06em; text-transform:uppercase;">Result:</div>
+            <div class="demo-output" id="constLetOutput">Click a button above</div>
+          </div>
+          <div class="link-row">
+            <a class="ext-link" href="https://www.w3schools.com/js/js_variables.asp" target="_blank">↗ W3Schools: JS Variables</a>
+            <a class="ext-link" href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/const" target="_blank">↗ MDN: const</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== SLIDE 8: DATA TYPES ===================== -->
+  <div class="slide">
+    <div class="slide-inner">
+      <div class="slide-tag">Data Types</div>
+      <h2>The Three Data Types You'll Use Most</h2>
+      <div class="card-row">
+        <div class="card">
+          <h3>📝 Strings</h3>
+          <pre><code><span class="kw">const</span> title = <span class="str">'JavaScript'</span>;
+<span class="kw">const</span> name  = <span class="str">"Grace Hopper"</span>;
+<span class="kw">const</span> msg   = <span class="str">`Hello, world!`</span>;</code></pre>
+          <p style="font-size:.85rem;">Any text. Use single quotes for most strings, backticks for template literals.</p>
+        </div>
+        <div class="card">
+          <h3>🔢 Numbers</h3>
+          <pre><code><span class="kw">const</span> age  = <span class="num">28</span>;
+<span class="kw">const</span> price = <span class="num">49.99</span>;
+<span class="kw">const</span> temp = <span class="num">-5</span>;
+<span class="kw">const</span> rate = <span class="num">0.08</span>;
+<span class="cmt">// Math works directly:</span>
+price * (<span class="num">1</span> + rate); <span class="cmt">// 53.99</span></code></pre>
+          <p style="font-size:.85rem;">No quotes needed. Integers and decimals are the same type.</p>
+        </div>
+        <div class="card">
+          <h3>💡 Booleans</h3>
+          <pre><code><span class="kw">const</span> isLoggedIn = <span class="kw">true</span>;
+<span class="kw">const</span> hasSubmitted = <span class="kw">false</span>;
+<span class="kw">const</span> isDarkMode = <span class="kw">true</span>;
+<span class="cmt">// Used in decisions:</span>
+<span class="kw">if</span> (isLoggedIn) { <span class="cmt">/*...*/</span> }</code></pre>
+          <p style="font-size:.85rem;">A light switch — only <code>true</code> or <code>false</code>.</p>
+        </div>
+      </div>
+      <!-- Interactive type demo -->
+      <div class="demo-box">
+        <h4>Interactive: Identify the Type</h4>
+        <div style="display:flex; align-items:center; gap:.75rem; flex-wrap:wrap;">
+          <input type="text" id="typeInput" placeholder="Type any value..." style="flex:1; min-width:160px;">
+          <button class="demo-btn" onclick="identifyType()">Check Type</button>
+        </div>
+        <div class="demo-output" id="typeOutput">Enter a value — try: 42 &nbsp;|&nbsp; hello &nbsp;|&nbsp; true &nbsp;|&nbsp; 3.14</div>
+      </div>
+      <div class="link-row">
+        <a class="ext-link" href="https://www.w3schools.com/js/js_datatypes.asp" target="_blank">↗ W3Schools: Data Types</a>
+        <a class="ext-link" href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures" target="_blank">↗ MDN: Data Structures</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== SLIDE 9: TEMPLATE LITERALS ===================== -->
+  <div class="slide">
+    <div class="slide-inner">
+      <div class="slide-tag">Variables</div>
+      <h2>Template Literals</h2>
+      <div class="two-col">
+        <div>
+          <div class="highlight-box" style="margin-bottom:.85rem;">
+            <strong style="color:var(--accent3);">Why use template literals?</strong><br>
+            When you display data on a page, you constantly need to combine fixed text with variable values — "Hello, <em>name</em>!" or "You have <em>3</em> items in your cart." Without template literals, this means gluing strings together with <code>+</code> signs, which is hard to read and easy to break. Template literals let you write those strings the same way you'd read them out loud.
+          </div>
+          <div class="note" style="margin-bottom:.85rem;">
+            <strong>What does "literal" mean?</strong><br>
+            A <em>literal</em> is a value written directly in your code. <code>42</code> is a number literal — you typed the actual number. <code>'hello'</code> is a string literal — you typed the actual text. A <strong>template literal</strong> is just a special kind of string that has fill-in-the-blank slots built in.
+          </div>
+          <p style="margin-bottom:.5rem;"><strong>The Mad Libs analogy:</strong> imagine a sentence with blanks — <em>"Hello, ___! You are a ___."</em> You write the fixed text once, and JavaScript fills in the blanks automatically.</p>
+          <pre><code><span class="kw">const</span> name = <span class="str">'Sofia'</span>;
+<span class="kw">const</span> role = <span class="str">'UX Designer'</span>;
+
+<span class="cmt">// ❌ Old way — glued together with +</span>
+<span class="kw">const</span> msg = <span class="str">'Hello, '</span> + name +
+  <span class="str">'! Your role is '</span> + role + <span class="str">'.'</span>;
+
+<span class="cmt">// ✅ Template literal — read like English</span>
+<span class="kw">const</span> msg = <span class="str">`Hello, <span class="prop">${name}</span>! Your role is <span class="prop">${role}</span>.`</span>;
+<span class="cmt">// → "Hello, Sofia! Your role is UX Designer."</span></code></pre>
+          <p style="font-size:.85rem; color:var(--muted);">Three rules: use <strong>backticks</strong> <code>`</code> (not quotes), put variables inside <strong><code>${}</code></strong>, and line breaks inside the string are preserved automatically.</p>
+          <div class="note" style="margin-bottom:.5rem;">
+            <strong>Where is the backtick key?</strong> Top-left corner of most keyboards, above the <kbd>Tab</kbd> key — it shares the key with the <code>~</code> tilde character.
+          </div>
+        </div>
+        <div>
+          <div class="note" style="margin-bottom:.85rem;">
+            <strong>Feels familiar?</strong> The <code>${}</code> syntax is the same idea as CSS <code>var(--color)</code> — a slot that says "insert a value here." You've already been thinking this way.
+          </div>
+          <div class="note" style="margin-bottom:.85rem;">
+            <strong>The <code>${}</code> slot runs JavaScript.</strong><br>
+            You can put any expression inside — not just variable names:<br>
+            <code>`${2 + 3}`</code> → <em>"5"</em><br>
+            <code>`${firstName + ' ' + lastName}`</code> → <em>"Ada Lovelace"</em>
+          </div>
+          <!-- Interactive template literal builder -->
+          <div class="demo-box">
+            <h4>🃏 Try the Mad Libs Template</h4>
+            <input type="text" id="tlName" placeholder="Your name" style="width:100%; margin-bottom:.4rem;">
+            <input type="text" id="tlRole" placeholder="Your role (e.g. Web Designer)" style="width:100%; margin-bottom:.6rem;">
+            <button class="demo-btn" onclick="buildTemplateDemo()">Fill In the Blanks</button>
+            <div class="demo-output" id="templateOutput">Fill in the fields above ↑</div>
+          </div>
+          <div class="link-row">
+            <a class="ext-link" href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Template_literals" target="_blank">↗ MDN: Template Literals</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== SLIDE 10: MATH.RANDOM ===================== -->
+  <div class="slide">
+    <div class="slide-inner">
+      <div class="slide-tag">Math</div>
+      <h2>Math: Random Numbers</h2>
+      <div class="two-col">
+        <div>
+          <pre><code><span class="cmt">// Random decimal: 0 to &lt;1</span>
+Math.<span class="fn">random</span>()   <span class="cmt">// 0.4823...</span>
+
+<span class="cmt">// Round DOWN to whole number</span>
+Math.<span class="fn">floor</span>(<span class="num">4.9</span>) <span class="cmt">// → 4</span>
+Math.<span class="fn">floor</span>(<span class="num">0.9</span>) <span class="cmt">// → 0</span>
+
+<span class="cmt">// Random integer 0–359 (HSL hue)</span>
+<span class="kw">const</span> hue = Math.<span class="fn">floor</span>(Math.<span class="fn">random</span>() * <span class="num">360</span>);
+
+<span class="cmt">// Dice roll: 1–6</span>
+<span class="kw">const</span> roll = Math.<span class="fn">floor</span>(Math.<span class="fn">random</span>() * <span class="num">6</span>) + <span class="num">1</span>;</code></pre>
+          <div class="note">
+            <strong>Pattern:</strong> <code>Math.floor(Math.random() * N)</code> gives a random integer from <code>0</code> to <code>N-1</code>. Add 1 if you want <code>1</code> to <code>N</code>.<br><br>
+            Think of <code>Math.floor()</code> like the floor of a building — it always goes to the lower number, never up. <code>Math.floor(4.9)</code> → <code>4</code>, not <code>5</code>.
+          </div>
+          <div class="note">
+            <strong>Next class:</strong> You'll wire the dice roll to a button click with <code>addEventListener</code>. For now just understand the math — the formula stays the same wherever you use it.
+          </div>
+        </div>
+        <div>
+          <div class="demo-box" style="margin-bottom:.75rem;">
+            <h4>🎲 Dice Roll Demo</h4>
+            <button class="demo-btn" onclick="rollDice()">Roll the Dice</button>
+            <div class="demo-output" id="diceOutput" style="font-size:2rem; text-align:center; padding:.5rem;">—</div>
+            <p style="font-size:.78rem; color:var(--muted); margin-top:.4rem;">Each click runs <code>Math.floor(Math.random() * 6) + 1</code> and puts the result into the output element.</p>
+          </div>
+          <div class="demo-box">
+            <h4>🎨 Random Color Theme</h4>
+            <p style="font-size:.78rem; color:var(--muted); margin-bottom:.5rem;">This uses <code>Math.random()</code> to pick a random HSL hue, then sets a CSS custom property on the preview box.</p>
+            <button class="demo-btn" onclick="randomColorTheme()">Generate New Color</button>
+            <div id="colorPreview" style="
+              border-radius:10px; padding:.75rem 1rem;
+              margin-top:.6rem; font-size:.85rem;
+              transition: all .3s ease;
+              border: 1px solid var(--border);
+            ">Click the button — color changes!</div>
+            <div class="demo-output" id="colorOutput" style="margin-top:.5rem; font-size:.78rem;"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== SLIDE 11: BRIDGE — Variables → DOM ===================== -->
+  <div class="slide">
+    <div class="slide-inner">
+      <div class="title-slide">
+        <span class="title-badge">Part 2</span>
+        <h1 style="font-size:clamp(1.8rem,5vw,2.8rem);">Now let's use all of that on a real page.</h1>
+        <p class="lead" style="max-width:620px; margin-top:.75rem;">
+          You have <code>const</code>, <code>let</code>, strings, numbers, booleans, template literals, and <code>Math.random()</code>. Those are your tools. The <strong>DOM</strong> is the page those tools operate on.
+        </p>
+        <div class="card-row" style="max-width:640px; margin-top:1.5rem;">
+          <div class="card" style="text-align:center;">
+            <p style="font-size:2rem; margin-bottom:.3rem;">📦</p>
+            <h3 style="color:var(--accent); margin-top:0;">What you know</h3>
+            <p style="font-size:.88rem; color:var(--muted);">Variables, data types, template literals, math</p>
+          </div>
+          <div class="card" style="text-align:center;">
+            <p style="font-size:2rem; margin-bottom:.3rem;">→</p>
+            <h3 style="color:var(--accent3); margin-top:0;">What's next</h3>
+            <p style="font-size:.88rem; color:var(--muted);">Finding elements on the page and changing them</p>
+          </div>
+          <div class="card" style="text-align:center;">
+            <p style="font-size:2rem; margin-bottom:.3rem;">🎨</p>
+            <h3 style="color:var(--accent2); margin-top:0;">The result</h3>
+            <p style="font-size:.88rem; color:var(--muted);">A live page that reacts when users interact with it</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== SLIDE 12: THE DOM ===================== -->
+  <div class="slide">
+    <div class="slide-inner">
+      <div class="slide-tag">The DOM</div>
+      <h2>The DOM: Your Page as a Data Structure</h2>
+      <div class="two-col">
+        <div>
+          <p>When the browser loads HTML, it builds the <strong>Document Object Model (DOM)</strong> — a tree of connected objects in memory. Every element is a node JavaScript can find and change.</p>
+          <pre><code><span class="cmt">&lt;!-- Your HTML --&gt;</span>
+&lt;div class=<span class="str">"card"</span>&gt;
+  &lt;h3 id=<span class="str">"title"</span>&gt;My First Card&lt;/h3&gt;
+  &lt;p&gt;A description.&lt;/p&gt;
+&lt;/div&gt;</code></pre>
+          <div class="highlight-box" style="margin-top:.75rem;">
+            <strong>The fundamental pattern:</strong><br>
+            1. <strong>Find</strong> an element in the DOM<br>
+            2. <strong>Change</strong> it (content, style, classes, attributes)<br>
+            3. The page <strong>updates instantly</strong>
+          </div>
+        </div>
+        <div>
+          <img src="assets/domtree.jpg" class="slide-img" alt="DOM Tree diagram showing HTML as a tree of connected nodes" onerror="this.style.display='none'">
+          <div class="link-row" style="margin-top:.75rem;">
+            <a class="ext-link" href="https://developer.mozilla.org/en-US/docs/Web/API/Document_Object_Model/Introduction" target="_blank">↗ MDN: Introduction to the DOM</a>
+            <a class="ext-link" href="https://www.w3schools.com/js/js_htmldom.asp" target="_blank">↗ W3Schools: HTML DOM</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== SLIDE 12: QUERYSELECTOR ===================== -->
+  <div class="slide">
+    <div class="slide-inner">
+      <div class="slide-tag">The DOM</div>
+      <h2>Selecting Elements with querySelector</h2>
+      <p style="margin-bottom:.75rem;"><code>querySelector()</code> is like a search bar for your page — you hand it the <em>exact same CSS selector syntax</em> you already write in stylesheets, and it returns that element so JavaScript can work with it.</p>
+      <div class="two-col">
+        <div>
+          <p style="font-size:.85rem; color:var(--muted); margin-bottom:.3rem;"><strong>Step 1 — Your HTML:</strong></p>
+          <pre><code>&lt;h2 <span class="kw">id</span>=<span class="str">"page-title"</span>&gt;Products&lt;/h2&gt;
+
+&lt;div <span class="kw">class</span>=<span class="str">"card"</span>&gt;Sneakers&lt;/div&gt;
+&lt;div <span class="kw">class</span>=<span class="str">"card"</span>&gt;T-Shirt&lt;/div&gt;
+&lt;div <span class="kw">class</span>=<span class="str">"card"</span> <span class="kw">data-flavor</span>=<span class="str">"mint"</span>&gt;Hat&lt;/div&gt;
+&lt;span&gt;Sale ends tonight&lt;/span&gt;</code></pre>
+          <p style="font-size:.85rem; color:var(--muted); margin-bottom:.3rem;"><strong>Step 2 — Your JavaScript:</strong></p>
+          <pre><code><span class="cmt">// Same selectors you use in CSS!</span>
+document.<span class="fn">querySelector</span>(<span class="str">'#page-title'</span>)  <span class="cmt">// by ID</span>
+document.<span class="fn">querySelector</span>(<span class="str">'.card'</span>)       <span class="cmt">// first match</span>
+document.<span class="fn">querySelector</span>(<span class="str">'[data-flavor]'</span>) <span class="cmt">// by attribute</span>
+document.<span class="fn">querySelector</span>(<span class="str">'span'</span>)         <span class="cmt">// by tag</span>
+
+<span class="cmt">// ALL matches — returns a list:</span>
+document.<span class="fn">querySelectorAll</span>(<span class="str">'.card'</span>)
+
+<span class="cmt">// Always save to a variable:</span>
+<span class="kw">const</span> title = document.<span class="fn">querySelector</span>(<span class="str">'#page-title'</span>);</code></pre>
+          <div class="note">
+            <strong>Tip:</strong> Store the result in a variable. Think of it like bookmarking a page — you only have to look it up once, then you can use the bookmark any time.
+          </div>
+        </div>
+        <div>
+          <img src="assets/example-of-query-selector.jpeg" class="slide-img" alt="querySelector syntax diagram annotating const, variable name, document, querySelector, and selector string" style="max-width:100%; margin-bottom:.75rem;" onerror="this.style.display='none'">
+          <div class="demo-box">
+            <h4>🔍 Click a selector — see what gets found</h4>
+            <p style="font-size:.78rem; color:var(--muted); margin-bottom:.5rem;">These are real HTML elements below. The selector finds and highlights the matching one — just like CSS targeting an element to style it.</p>
+            <!-- Rendered HTML elements students can see -->
+            <div id="qsDemo" style="background:var(--code-bg); border-radius:8px; padding:.75rem; margin-bottom:.6rem; border:1px solid var(--border);">
+              <div style="font-size:.7rem; color:var(--muted); margin-bottom:.5rem; letter-spacing:.08em; text-transform:uppercase;">↓ Your HTML rendered here</div>
+              <h4 id="qs-title" style="color:#e8e8f0; font-size:.9rem; margin-bottom:.35rem;">Products</h4>
+              <p class="qs-item" style="font-size:.82rem; color:#a0a0c0; margin:.2rem 0; padding:.2rem .4rem; border-radius:4px;">Sneakers <span style="opacity:.5; font-size:.75rem;">(class="card")</span></p>
+              <p class="qs-item" style="font-size:.82rem; color:#a0a0c0; margin:.2rem 0; padding:.2rem .4rem; border-radius:4px;">T-Shirt <span style="opacity:.5; font-size:.75rem;">(class="card")</span></p>
+              <p class="qs-item" data-flavor="mint" style="font-size:.82rem; color:#a0a0c0; margin:.2rem 0; padding:.2rem .4rem; border-radius:4px;">Hat <span style="opacity:.5; font-size:.75rem;">(class="card" data-flavor="mint")</span></p>
+              <span style="font-size:.82rem; color:#a0a0c0; display:block; margin-top:.3rem; padding:.2rem .4rem; border-radius:4px;">Sale ends tonight <span style="opacity:.5; font-size:.75rem;">(&lt;span&gt;)</span></span>
+            </div>
+            <div style="display:flex; gap:.4rem; flex-wrap:wrap; margin-bottom:.5rem;">
+              <button class="demo-btn" onclick="qsDemo('#qs-title')">#page-title</button>
+              <button class="demo-btn" onclick="qsDemo('.qs-item')">.card (first)</button>
+              <button class="demo-btn" onclick="qsDemo('[data-flavor]')">[data-flavor]</button>
+              <button class="demo-btn" onclick="qsDemo('span')">span</button>
+              <button class="demo-btn secondary" onclick="qsReset()">Reset</button>
+            </div>
+            <div class="demo-output" id="qsOutput">Click a selector button to see what gets found</div>
+          </div>
+          <div class="link-row">
+            <a class="ext-link" href="https://www.w3schools.com/jsref/met_document_queryselector.asp" target="_blank">↗ W3Schools: querySelector</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== SLIDE 13: TEXTCONTENT VS INNERHTML ===================== -->
+  <div class="slide">
+    <div class="slide-inner">
+      <div class="slide-tag">DOM Manipulation</div>
+      <h2>Changing Content: textContent vs innerHTML</h2>
+      <p style="margin-bottom:.75rem;">Once you've selected an element, you can change what's inside it. Think of it like two different ways to put text into a box: <strong>textContent</strong> is like Notepad — you get exactly what you type, plain text, nothing rendered. <strong>innerHTML</strong> is like pasting from a web page — the browser reads the tags and renders real elements. Bold text actually bolds, links actually link.</p>
+      <div class="two-col">
+        <div>
+          <p style="font-size:.85rem; color:var(--muted); margin-bottom:.3rem;"><strong>Your HTML:</strong></p>
+          <pre><code>&lt;h1 <span class="kw">id</span>=<span class="str">"page-heading"</span>&gt;Welcome!&lt;/h1&gt;
+
+&lt;div <span class="kw">class</span>=<span class="str">"card-grid"</span>&gt;
+  <span class="cmt">&lt;!-- cards will go here --&gt;</span>
+&lt;/div&gt;</code></pre>
+          <p style="font-size:.85rem; color:var(--muted); margin:.6rem 0 .3rem;"><strong>textContent — plain text only:</strong></p>
+          <pre><code><span class="kw">const</span> heading = document.<span class="fn">querySelector</span>(<span class="str">'#page-heading'</span>);
+
+heading.textContent = <span class="str">'Welcome to JavaScript!'</span>;
+<span class="cmt">// h1 now shows: Welcome to JavaScript!</span>
+
+<span class="cmt">// HTML tags treated as plain characters:</span>
+heading.textContent = <span class="str">'&lt;em&gt;italic?&lt;/em&gt;'</span>;
+<span class="cmt">// Shows literally: &lt;em&gt;italic?&lt;/em&gt;  ← safe!</span></code></pre>
+          <p style="font-size:.85rem; color:var(--muted); margin:.6rem 0 .3rem;"><strong>innerHTML — builds real HTML:</strong></p>
+          <pre><code><span class="kw">const</span> grid = document.<span class="fn">querySelector</span>(<span class="str">'.card-grid'</span>);
+
+grid.innerHTML = <span class="str">`
+  &lt;div class="card"&gt;&lt;h3&gt;Sneakers&lt;/h3&gt;&lt;/div&gt;
+  &lt;div class="card"&gt;&lt;h3&gt;T-Shirt&lt;/h3&gt;&lt;/div&gt;
+`</span>;
+<span class="cmt">// Real styled cards appear in the grid!</span></code></pre>
+        </div>
+        <div>
+          <div class="danger-box">
+            <strong>⚠️ Security Rule: XSS</strong><br>
+            Never use <code>innerHTML</code> with text a user typed. If someone types <code>&lt;script&gt;stealData()&lt;/script&gt;</code> in a form and you inject it — that code runs.<br><br>
+            <strong>Simple rule:</strong><br>
+            User's words → <code>textContent</code> (safe)<br>
+            Your own HTML → <code>innerHTML</code> (ok)
+          </div>
+          <div class="demo-box">
+            <h4>See the Difference Live</h4>
+            <p style="font-size:.78rem; color:var(--muted); margin-bottom:.4rem;">Type something with HTML tags like <code>&lt;strong&gt;Bold&lt;/strong&gt;</code> or <code>&lt;em&gt;Italic&lt;/em&gt;</code></p>
+            <input type="text" id="contentInput" placeholder='e.g. <strong>Bold text</strong>' style="width:100%; margin-bottom:.5rem;">
+            <div style="display:flex; gap:.4rem;">
+              <button class="demo-btn" onclick="demoTextContent()">textContent</button>
+              <button class="demo-btn" onclick="demoInnerHTML()">innerHTML</button>
+            </div>
+            <p style="font-size:.75rem; color:var(--muted); margin:.4rem 0 .2rem;">Result (this is a real &lt;div&gt; in the page):</p>
+            <div style="margin-top:.2rem; background:var(--code-bg); border:1px solid var(--border); border-radius:8px; padding:.65rem .9rem; font-size:.9rem; min-height:40px;" id="contentOutput">Output appears here</div>
+          </div>
+          <div class="link-row" style="margin-top:.5rem;">
+            <a class="ext-link" href="https://developer.mozilla.org/en-US/docs/Web/API/Element/innerHTML" target="_blank">↗ MDN: innerHTML</a>
+            <a class="ext-link" href="https://www.w3schools.com/jsref/prop_node_textcontent.asp" target="_blank">↗ W3Schools: textContent</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== SLIDE 14: STYLE PROPERTY + CSS VARS ===================== -->
+  <div class="slide">
+    <div class="slide-inner">
+      <div class="slide-tag">DOM Manipulation</div>
+      <h2>Changing Styles &amp; CSS Custom Properties</h2>
+      <div class="two-col">
+        <div>
+          <p style="font-size:.85rem; color:var(--muted); margin-bottom:.3rem;"><strong>Your CSS (what's already set up):</strong></p>
+          <pre><code><span class="cmt">/* CSS custom properties on :root */</span>
+:root {
+  --accent: #6c5ce7;
+  --bg: #f5f5f5;
+}
+.card {
+  background: var(--accent);  <span class="cmt">/* uses the variable */</span>
+  border-radius: 12px;
+  padding: 1.5rem;
+}</code></pre>
+          <p style="font-size:.85rem; color:var(--muted); margin:.5rem 0 .3rem;"><strong>Option 1 — inline style (one element at a time):</strong></p>
+          <pre><code><span class="kw">const</span> card = document.<span class="fn">querySelector</span>(<span class="str">'.card'</span>);
+card.style.backgroundColor = <span class="str">'#6c5ce7'</span>;
+card.style.borderRadius    = <span class="str">'12px'</span>;
+card.style.fontSize        = <span class="str">'1.2rem'</span>;</code></pre>
+          <div class="note" style="margin-bottom:.5rem;">
+            <strong>CSS hyphen → JS camelCase</strong><br>
+            CSS uses hyphens: <code>background-color</code>, <code>font-size</code><br>
+            JS uses camelCase: <code>backgroundColor</code>, <code>fontSize</code><br>
+            Just drop the hyphen and capitalize the next word.
+          </div>
+          <p style="font-size:.85rem; color:var(--muted); margin:.5rem 0 .3rem;"><strong>Option 2 — CSS custom property (updates everything at once):</strong></p>
+          <pre><code><span class="cmt">// document.documentElement = the &lt;html&gt; element</span>
+<span class="cmt">// (that's where :root variables live)</span>
+document.documentElement.style
+  .<span class="fn">setProperty</span>(<span class="str">'--accent'</span>, <span class="str">'#6c5ce7'</span>);
+<span class="cmt">//              ↑ the variable name   ↑ new value</span>
+<span class="cmt">// Every element using var(--accent) updates instantly</span></code></pre>
+          <div class="note">
+            <strong>Prefer option 2 in most cases.</strong> Updating a CSS custom property is like changing the source color swatch in a design file — every element that references it updates automatically. One line of JavaScript can restyle your entire page.<br><br>
+            <strong>The power move:</strong> a single custom property might feed 10 elements — the button, the border, the heading highlight. Changing it once from JavaScript updates all 10 at the same time.
+          </div>
+        </div>
+        <div>
+          <div class="demo-box" style="margin-bottom:.75rem;">
+            <h4>🎨 Live CSS Variable Control</h4>
+            <p style="font-size:.78rem; color:var(--muted); margin-bottom:.5rem;">Drag the sliders — watch the preview box respond. The same JS <code>setProperty()</code> call you just read is running every time you move a slider.</p>
+            <label style="font-size:.82rem; color:var(--muted);">--hue (0–360)</label>
+            <div style="display:flex; align-items:center; gap:.75rem; margin-bottom:.6rem;">
+              <input type="range" id="hueSlider" min="0" max="360" value="260" style="flex:1;">
+              <span id="hueVal" style="font-size:.82rem; min-width:30px; color:var(--accent2);">260</span>
+            </div>
+            <label style="font-size:.82rem; color:var(--muted);">--saturation (%)</label>
+            <div style="display:flex; align-items:center; gap:.75rem; margin-bottom:.6rem;">
+              <input type="range" id="satSlider" min="20" max="100" value="70" style="flex:1;">
+              <span id="satVal" style="font-size:.82rem; min-width:30px; color:var(--accent2);">70</span>
+            </div>
+            <div id="cssVarPreview" style="
+              height:60px; border-radius:10px;
+              display:flex; align-items:center; justify-content:center;
+              font-weight:700; font-size:.9rem;
+              transition: background .2s, color .2s;
+            ">Preview Box (like a .card using var(--accent))</div>
+          </div>
+          <div class="link-row">
+            <a class="ext-link" href="https://www.w3schools.com/js/js_htmldom_css.asp" target="_blank">↗ W3Schools: JS Change CSS</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== SLIDE 15: CSS VAR CODEPEN ===================== -->
+  <div class="slide full-embed" style="padding:0; flex-direction:column;">
+    <iframe title="Codepen 18.4 — CSS Variables" src="https://codepen.io/mattkearl/embed/XJjBWMV?default-tab=css%2Cresult&editable=true" style="flex:1; width:100%; border:none; display:block;" loading="lazy"></iframe>
+  </div>
+
+  <!-- ===================== SLIDE 16: CLASSLIST ===================== -->
+  <div class="slide">
+    <div class="slide-inner">
+      <div class="slide-tag">DOM Manipulation</div>
+      <h2>classList — The Bridge Between JS and CSS</h2>
+      <div class="two-col" style="margin-bottom:.75rem;">
+        <div class="highlight-box" style="margin-bottom:0;">
+          <strong style="color:var(--accent3);">What is classList?</strong><br>
+          Every HTML element has a <code>class</code> attribute — a list of CSS class names applied to it. <code>classList</code> is JavaScript's live view of that list. You already know that CSS classes control how things look. <code>classList</code> lets you add, remove, or flip those class names from JavaScript — and your CSS reacts instantly.
+          <br><br>
+          <code>&lt;div class="card <strong>active</strong>"&gt;</code> ← <code>classList</code> shows <em>["card", "active"]</em>
+        </div>
+        <div class="highlight-box" style="margin-bottom:0;">
+          <strong style="color:var(--accent3);">Why use it?</strong><br>
+          Almost every interactive UI pattern you'll ever build works this way:
+          <ul class="bullets" style="margin-top:.5rem;">
+            <li>Dark mode toggle → add <code>.dark</code> to body</li>
+            <li>Open a menu → add <code>.open</code> to nav</li>
+            <li>Show a modal → add <code>.visible</code> to overlay</li>
+            <li>Highlight selected tab → add <code>.active</code> to button</li>
+          </ul>
+          The CSS already has the styles for each state. classList just flips the switch.
+        </div>
+      </div>
+      <p style="font-size:.85rem; color:var(--muted); margin-bottom:.75rem;">Think of it like a light switch. Your CSS defines what the page looks like with the light <em>on</em> and what it looks like with the light <em>off</em>. JavaScript is just the switch — one flip, the CSS does the rest.</p>
+      <div class="two-col">
+        <div>
+          <p style="font-size:.85rem; color:var(--muted); margin-bottom:.3rem;"><strong>Your CSS — two states defined:</strong></p>
+          <pre><code><span class="cmt">/* Default state */</span>
+.card {
+  background: #1a1a2e;
+  border: 2px solid #2e2e4a;
+  transform: scale(1);
+  transition: all .3s ease;  <span class="cmt">/* animation built-in */</span>
+}
+
+<span class="cmt">/* Active state — JS adds this class */</span>
+.card.active {
+  background: linear-gradient(135deg, #a78bfa, #6ee7b7);
+  color: #0f0f1a;
+  transform: scale(1.04);
+  box-shadow: 0 0 20px rgba(167,139,250,.4);
+}</code></pre>
+          <p style="font-size:.85rem; color:var(--muted); margin:.6rem 0 .3rem;"><strong>Your JavaScript — one line switches the state:</strong></p>
+          <pre><code><span class="kw">const</span> card = document.<span class="fn">querySelector</span>(<span class="str">'.card'</span>);
+
+card.classList.<span class="fn">add</span>(<span class="str">'active'</span>);      <span class="cmt">// default → active</span>
+card.classList.<span class="fn">remove</span>(<span class="str">'active'</span>);   <span class="cmt">// active → default</span>
+card.classList.<span class="fn">toggle</span>(<span class="str">'active'</span>);   <span class="cmt">// flip back and forth</span>
+card.classList.<span class="fn">contains</span>(<span class="str">'active'</span>); <span class="cmt">// → true or false</span></code></pre>
+          <div class="highlight-box">
+            <strong>The Key Insight:</strong> CSS defines both states. JavaScript flips the switch. One line of JS + CSS you already wrote = fully interactive UI.
+          </div>
+        </div>
+        <div>
+          <!-- Interactive classList demo -->
+          <div class="demo-box" style="margin-bottom:.75rem;">
+            <h4>👕 classList in action</h4>
+            <p style="font-size:.78rem; color:var(--muted); margin-bottom:.5rem;">The card below has two CSS states. Buttons call classList methods on it — watch the CSS transition fire automatically.</p>
+            <div id="clsTarget" style="
+              background: var(--surface);
+              border: 2px solid var(--border);
+              border-radius: 10px;
+              padding: 1rem;
+              text-align: center;
+              font-weight: 600;
+              transition: all .3s ease;
+              margin-bottom: .6rem;
+            ">I am a .card element</div>
+            <div style="font-size:.75rem; color:var(--muted); margin-bottom:.4rem;">Current classList: <code id="clsCurrentClass" style="color:var(--accent2);">"card"</code></div>
+            <div style="display:flex; flex-wrap:wrap; gap:.4rem;">
+              <button class="demo-btn" onclick="clsAdd()">add('active')</button>
+              <button class="demo-btn" onclick="clsRemove()">remove('active')</button>
+              <button class="demo-btn" onclick="clsToggle()">toggle('active')</button>
+              <button class="demo-btn" onclick="clsCheck()">contains()?</button>
+            </div>
+            <div class="demo-output" id="clsOutput">Click a method above</div>
+          </div>
+          <p style="font-size:.82rem; color:var(--muted);">Notice: you never write animation code in JS. The <code>transition</code> in your CSS fires the moment the class changes.</p>
+          <div class="link-row">
+            <a class="ext-link" href="https://www.w3schools.com/jsref/prop_element_classlist.asp" target="_blank">↗ W3Schools: classList</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== SLIDE 17: CLASSLIST CODEPEN ===================== -->
+  <div class="slide full-embed" style="padding:0; flex-direction:column;">
+    <iframe title="Codepen 18.5 — classList Toggle" src="https://codepen.io/mattkearl/embed/wBzxvdK?default-tab=css%2Cresult&editable=true" style="flex:1; width:100%; border:none; display:block;" loading="lazy"></iframe>
+  </div>
+
+  <!-- ===================== SLIDE 18: CREATING ELEMENTS ===================== -->
+  <div class="slide">
+    <div class="slide-inner">
+      <div class="slide-tag">DOM Manipulation</div>
+      <h2>Creating and Removing Elements</h2>
+      <div class="two-col" style="margin-bottom:.85rem;">
+        <div class="highlight-box" style="margin-bottom:0;">
+          <strong style="color:var(--accent3);">Why create elements with JavaScript?</strong><br>
+          If you wrote every card by hand in HTML you'd have to edit the HTML file every time you wanted to add, remove, or reorder items. When you create elements with JavaScript, the page builds itself from data. Change the data → re-run the code → the page updates. No HTML editing needed.
+        </div>
+        <div class="highlight-box" style="margin-bottom:0;">
+          <strong style="color:var(--accent3);">The 4-step pattern — every time:</strong>
+          <ol style="margin-top:.5rem; padding-left:1.2rem; font-size:.88rem; line-height:1.8;">
+            <li><strong>Create</strong> — make a blank element in memory</li>
+            <li><strong>Configure</strong> — give it classes, text, or attributes</li>
+            <li><strong>Optional</strong> — add extra data with <code>setAttribute</code></li>
+            <li><strong>Append</strong> — snap it onto the page with <code>appendChild</code></li>
+          </ol>
+        </div>
+      </div>
+      <p style="font-size:.85rem; color:var(--muted); margin-bottom:.5rem;">Think of LEGO bricks: you build the piece in your hands first, then snap it onto the board. The piece doesn't exist on the page until step 4.</p>
+      <div class="two-col">
+        <div>
+          <p style="font-size:.85rem; color:var(--muted); margin-bottom:.3rem;"><strong>Your HTML — the container already exists:</strong></p>
+          <pre><code><span class="cmt">&lt;!-- This container is in your HTML file --&gt;</span>
+&lt;div <span class="kw">class</span>=<span class="str">"card-grid"</span> <span class="kw">id</span>=<span class="str">"grid"</span>&gt;
+  <span class="cmt">&lt;!-- JavaScript will add cards here --&gt;</span>
+&lt;/div&gt;</code></pre>
+          <p style="font-size:.85rem; color:var(--muted); margin:.5rem 0 .3rem;"><strong>Your JavaScript — 4 steps to add a card:</strong></p>
+          <pre><code><span class="cmt">// Step 1: Create a blank element</span>
+<span class="kw">const</span> newCard = document.<span class="fn">createElement</span>(<span class="str">'div'</span>);
+
+<span class="cmt">// Step 2: Give it content and classes</span>
+newCard.classList.<span class="fn">add</span>(<span class="str">'card'</span>);
+newCard.textContent = <span class="str">'Sneakers'</span>;
+
+<span class="cmt">// Step 3: Add extra data (optional)</span>
+newCard.<span class="fn">setAttribute</span>(<span class="str">'data-id'</span>, <span class="str">'42'</span>);
+
+<span class="cmt">// Step 4: Snap it onto the page</span>
+<span class="kw">const</span> grid = document.<span class="fn">querySelector</span>(<span class="str">'#grid'</span>);
+grid.<span class="fn">appendChild</span>(newCard);
+<span class="cmt">// ↑ Now a real .card appears, styled by CSS</span></code></pre>
+          <pre><code><span class="cmt">// Removing is even simpler:</span>
+<span class="kw">const</span> card = document.<span class="fn">querySelector</span>(<span class="str">'.card'</span>);
+card.<span class="fn">remove</span>(); <span class="cmt">// Gone immediately</span></code></pre>
+          <div class="note">
+            <strong>What the HTML looks like after step 4:</strong><br>
+            <code style="font-size:.82rem; display:block; margin-top:.3rem; line-height:1.7;">&lt;div id="grid"&gt;<br>&nbsp;&nbsp;&lt;div class="card" data-id="42"&gt;Sneakers&lt;/div&gt;<br>&lt;/div&gt;</code>
+            It's a real HTML element — your CSS styles it, DevTools shows it, and you can query it again later.
+          </div>
+        </div>
+        <div>
+          <div class="demo-box">
+            <h4>🧱 Build Your Card Grid</h4>
+            <p style="font-size:.78rem; color:var(--muted); margin-bottom:.5rem;">This is a real <code>&lt;div id="grid"&gt;</code> in the page. JavaScript creates each card element, adds the class, then appends it — exactly like the code on the left.</p>
+            <div style="display:flex; gap:.4rem; flex-wrap:wrap; margin-bottom:.6rem;">
+              <input type="text" id="newCardText" placeholder="Card label..." style="flex:1;">
+              <button class="demo-btn" onclick="addCard()">Add Card</button>
+            </div>
+            <div style="display:flex; gap:.4rem; flex-wrap:wrap; margin-bottom:.6rem;">
+              <button class="demo-btn secondary" onclick="removeLastCard()">Remove Last</button>
+              <button class="demo-btn secondary" onclick="clearCards()">Clear All</button>
+            </div>
+            <div style="font-size:.72rem; color:var(--muted); margin-bottom:.3rem;">↓ <code>&lt;div id="grid"&gt;</code></div>
+            <div id="cardContainer" style="
+              display:flex; flex-wrap:wrap; gap:.5rem;
+              min-height:50px;
+              padding:.5rem;
+              background:var(--code-bg);
+              border:1px dashed var(--border);
+              border-radius:8px;
+            "></div>
+            <div class="demo-output" id="cardOutput" style="margin-top:.5rem; font-size:.8rem;">Add a card — watch it appear in the grid above</div>
+          </div>
+          <div class="link-row" style="margin-top:.6rem;">
+            <a class="ext-link" href="https://www.w3schools.com/jsref/met_document_createelement.asp" target="_blank">↗ W3Schools: createElement</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== SLIDE 19: CREATE ELEMENTS CODEPEN ===================== -->
+  <div class="slide full-embed" style="padding:0; flex-direction:column;">
+    <iframe title="Codepen 18.6 — createElement" src="https://codepen.io/mattkearl/embed/LERBYyg?default-tab=css%2Cresult&editable=true" style="flex:1; width:100%; border:none; display:block;" loading="lazy"></iframe>
+  </div>
+
+  <!-- ===================== SLIDE 20: DATA ATTRIBUTES ===================== -->
+  <div class="slide">
+    <div class="slide-inner">
+      <div class="slide-tag">DOM Manipulation</div>
+      <h2>data-* Attributes and dataset</h2>
+      <div class="two-col" style="margin-bottom:.85rem;">
+        <div class="highlight-box" style="margin-bottom:0;">
+          <strong style="color:var(--accent3);">What are data-* attributes?</strong><br>
+          HTML already has built-in attributes like <code>id</code>, <code>class</code>, <code>src</code>, <code>href</code>. <code>data-*</code> lets you invent your own. The <code>*</code> is a wildcard — you name it anything that describes the data:
+          <code style="display:block; margin-top:.4rem; font-size:.82rem; line-height:1.8;">data-id="42"<br>data-color="#6c5ce7"<br>data-price="19.99"<br>data-tab="about"</code>
+          These are ignored by CSS and browsers — they exist purely for JavaScript to read.
+        </div>
+        <div class="highlight-box" style="margin-bottom:0;">
+          <strong style="color:var(--accent3);">Why not just use a class or id?</strong><br>
+          Classes are for styling. IDs are for targeting one unique element. <code>data-*</code> is for information that lives on many elements and changes per element:
+          <ul class="bullets" style="margin-top:.5rem; font-size:.85rem;">
+            <li>50 product cards each need a unique <code>data-id</code></li>
+            <li>5 tabs each need a <code>data-tab</code> pointing to their panel</li>
+            <li>A color swatch needs <code>data-color</code> and <code>data-name</code></li>
+          </ul>
+          Without <code>data-*</code>, you'd have to look up a separate JS object to match the element to its data.
+        </div>
+      </div>
+      <p style="font-size:.85rem; color:var(--muted); margin-bottom:.5rem;">Think of <code>data-*</code> like sticky notes on an element — extra information written right on the HTML tag that JavaScript can read any time.</p>
+      <div class="two-col">
+        <div>
+          <p style="font-size:.85rem; color:var(--muted); margin-bottom:.3rem;"><strong>Your HTML — sticky notes on each element:</strong></p>
+          <pre><code><span class="cmt">&lt;!-- data-color and data-name are YOUR custom attributes --&gt;</span>
+&lt;div <span class="kw">class</span>=<span class="str">"swatch"</span>
+     <span class="kw">data-color</span>=<span class="str">"#6c5ce7"</span>
+     <span class="kw">data-name</span>=<span class="str">"Purple"</span>&gt;&lt;/div&gt;
+
+&lt;div <span class="kw">class</span>=<span class="str">"swatch"</span>
+     <span class="kw">data-color</span>=<span class="str">"#00b894"</span>
+     <span class="kw">data-name</span>=<span class="str">"Teal"</span>&gt;&lt;/div&gt;</code></pre>
+          <p style="font-size:.85rem; color:var(--muted); margin:.5rem 0 .3rem;"><strong>Your JavaScript — read the sticky notes:</strong></p>
+          <pre><code><span class="kw">const</span> swatch = document.<span class="fn">querySelector</span>(<span class="str">'.swatch'</span>);
+
+<span class="cmt">// .dataset reads any data-* attribute</span>
+swatch.dataset.color  <span class="cmt">// → "#6c5ce7"</span>
+swatch.dataset.name   <span class="cmt">// → "Purple"</span>
+
+<span class="cmt">// You can write sticky notes from JS too:</span>
+swatch.dataset.selected = <span class="str">'true'</span>;
+<span class="cmt">// Adds data-selected="true" to the element</span></code></pre>
+          <div class="note">
+            <strong>Naming conversion — HTML hyphens → JS camelCase:</strong><br>
+            <code>data-color</code> → <code>dataset.color</code><br>
+            <code>data-first-name</code> → <code>dataset.firstName</code><br>
+            <code>data-background-color</code> → <code>dataset.backgroundColor</code><br>
+            Drop the <code>data-</code> prefix, then convert hyphens to camelCase.
+          </div>
+        </div>
+        <div>
+          <div class="highlight-box" style="margin-bottom:.85rem;">
+            <strong>Class names vs data attributes:</strong><br>
+            Use <em>class names</em> for styling — they control CSS.<br>
+            Use <em>data attributes</em> for data — IDs, values, metadata. JavaScript reads both, but they serve different purposes.
+          </div>
+          <div class="demo-box">
+            <h4>🎨 Click a Swatch — JavaScript Reads Its data-*</h4>
+            <p style="font-size:.78rem; color:var(--muted); margin-bottom:.5rem;">Each colored div has <code>data-color</code> and <code>data-name</code> in its HTML. Click one — JS reads <code>el.dataset.color</code> and <code>el.dataset.name</code>.</p>
+            <div style="display:flex; gap:.5rem; flex-wrap:wrap; margin-bottom:.6rem;">
+              <div class="swatch-demo" data-color="#a78bfa" data-name="Violet" style="width:44px;height:44px;border-radius:8px;background:#a78bfa;cursor:pointer;border:2px solid transparent;transition:all .2s;" onclick="pickSwatch(this)" title="data-color='#a78bfa' data-name='Violet'"></div>
+              <div class="swatch-demo" data-color="#6ee7b7" data-name="Mint" style="width:44px;height:44px;border-radius:8px;background:#6ee7b7;cursor:pointer;border:2px solid transparent;transition:all .2s;" onclick="pickSwatch(this)" title="data-color='#6ee7b7' data-name='Mint'"></div>
+              <div class="swatch-demo" data-color="#fbbf24" data-name="Amber" style="width:44px;height:44px;border-radius:8px;background:#fbbf24;cursor:pointer;border:2px solid transparent;transition:all .2s;" onclick="pickSwatch(this)" title="data-color='#fbbf24' data-name='Amber'"></div>
+              <div class="swatch-demo" data-color="#f87171" data-name="Rose" style="width:44px;height:44px;border-radius:8px;background:#f87171;cursor:pointer;border:2px solid transparent;transition:all .2s;" onclick="pickSwatch(this)" title="data-color='#f87171' data-name='Rose'"></div>
+              <div class="swatch-demo" data-color="#38bdf8" data-name="Sky" style="width:44px;height:44px;border-radius:8px;background:#38bdf8;cursor:pointer;border:2px solid transparent;transition:all .2s;" onclick="pickSwatch(this)" title="data-color='#38bdf8' data-name='Sky'"></div>
+            </div>
+            <div style="font-size:.72rem; color:var(--muted); margin-bottom:.3rem;">JavaScript read:</div>
+            <div id="swatchPreview" style="
+              border-radius:10px; padding:.75rem 1rem;
+              background:var(--surface); border:1px solid var(--border);
+              font-family:monospace; font-size:.85rem; transition: background .3s, color .3s;
+            ">Click a swatch ↑</div>
+          </div>
+          <div class="link-row" style="margin-top:.6rem;">
+            <a class="ext-link" href="https://developer.mozilla.org/en-US/docs/Learn/HTML/Howto/Use_data_attributes" target="_blank">↗ MDN: Using data attributes</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== SLIDE 21: DATA ATTRS CODEPEN ===================== -->
+  <div class="slide full-embed" style="padding:0; flex-direction:column;">
+    <iframe title="Codepen 18.7 — data attributes" src="https://codepen.io/mattkearl/embed/KwgBKqa?default-tab=css%2Cresult&editable=true" style="flex:1; width:100%; border:none; display:block;" loading="lazy"></iframe>
+  </div>
+
+  <!-- ===================== SLIDE 22: SUMMARY ===================== -->
+  <div class="slide">
+    <div class="slide-inner">
+      <div class="slide-tag">Summary</div>
+      <h2>What You Now Know</h2>
+      <div class="card-row" style="margin-bottom:1rem;">
+        <div class="card">
+          <h3>🔗 Setup</h3>
+          <ul class="bullets">
+            <li><code>&lt;script defer src="..."&gt;</code> is the modern way</li>
+            <li>The console is your scratchpad</li>
+            <li><code>console.log()</code> is your best tool</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>📦 Variables</h3>
+          <ul class="bullets">
+            <li><code>const</code> by default, <code>let</code> when needed</li>
+            <li>Strings, numbers, booleans</li>
+            <li>Template literals with <code>${}</code></li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>🔍 DOM</h3>
+          <ul class="bullets">
+            <li><code>querySelector()</code> uses CSS selectors</li>
+            <li><code>textContent</code> = safe; <code>innerHTML</code> = HTML</li>
+            <li><code>style.setProperty()</code> updates CSS vars</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>⚡ Classes &amp; Elements</h3>
+          <ul class="bullets">
+            <li><code>classList.toggle()</code> → CSS animates</li>
+            <li><code>createElement</code> + <code>appendChild</code></li>
+            <li><code>dataset.property</code> reads <code>data-*</code></li>
+          </ul>
+        </div>
+      </div>
+      <div class="highlight-box" style="margin-bottom:.85rem; border-color:rgba(251,191,36,.4); background:linear-gradient(135deg,rgba(251,191,36,.1),rgba(167,139,250,.08));">
+        <strong style="color:var(--accent3); font-size:1.05rem;">The rule:</strong> Find an element → change something about it → the page updates. That's 95% of everything JavaScript does on a web page.
+      </div>
+      <div class="highlight-box">
+        <strong>The big picture:</strong> JavaScript doesn't replace your CSS. It controls it. Every transition, animation, and custom property you've written is waiting for JavaScript to operate it. You just need to tell it when.
+      </div>
+      <div class="link-row">
+        <a class="ext-link" href="https://www.w3schools.com/js/DEFAULT.asp" target="_blank">↗ W3Schools: JavaScript Tutorial</a>
+        <a class="ext-link" href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide" target="_blank">↗ MDN: JavaScript Guide</a>
+        <a class="ext-link" href="https://javascript.info/document" target="_blank">↗ javascript.info: Document</a>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /deck -->
+
+<!-- ===== NAV ===== -->
+<nav>
+  <button class="nav-btn" id="prevBtn" onclick="changeSlide(-1)" disabled>← Prev</button>
+  <span id="slide-counter">1 / 23</span>
+  <button class="nav-btn" id="nextBtn" onclick="changeSlide(1)">Next →</button>
+</nav>
+
+<script>
+  /* ===== SLIDE ENGINE ===== */
+  const slides   = document.querySelectorAll('.slide');
+  const total    = slides.length;
+  let   current  = 0;
+
+  function showSlide(n) {
+    slides[current].classList.remove('active');
+    current = (n + total) % total;
+    slides[current].classList.add('active');
+    slides[current].scrollTop = 0;
+
+    document.getElementById('slide-counter').textContent = (current + 1) + ' / ' + total;
+    document.getElementById('prevBtn').disabled = current === 0;
+    document.getElementById('nextBtn').disabled = current === total - 1;
+    document.getElementById('progress-bar').style.width = ((current + 1) / total * 100) + '%';
+  }
+
+  function changeSlide(dir) { showSlide(current + dir); }
+
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown')  changeSlide(1);
+    if (e.key === 'ArrowLeft'  || e.key === 'ArrowUp')    changeSlide(-1);
+  });
+
+  // Touch swipe support
+  let touchX = 0;
+  document.addEventListener('touchstart', e => { touchX = e.changedTouches[0].screenX; });
+  document.addEventListener('touchend',   e => {
+    const diff = touchX - e.changedTouches[0].screenX;
+    if (Math.abs(diff) > 50) changeSlide(diff > 0 ? 1 : -1);
+  });
+
+  showSlide(0);
+
+  /* ===== DEMO: Mini Console ===== */
+  function appendLog(msg, color) {
+    const out  = document.getElementById('consoleOutput');
+    const line = document.createElement('div');
+    line.style.cssText = `color:${color}; padding:.1rem 0; border-bottom:1px solid #1a1a2e;`;
+    line.textContent = msg;
+    out.appendChild(line);
+    out.scrollTop = out.scrollHeight;
+  }
+  function tryConsoleLog() {
+    const v = document.getElementById('consoleInput').value || '"Hello!"';
+    appendLog('> ' + v, '#6ee7b7');
+    appendLog('  ' + v.replace(/console\.log\(|\)/g, '').replace(/^["']|["']$/g, ''), '#c9d1d9');
+  }
+  function tryWarn() {
+    appendLog('⚠ ' + (document.getElementById('consoleInput').value || 'Watch out!'), '#fbbf24');
+  }
+  function tryError() {
+    appendLog('✖ ' + (document.getElementById('consoleInput').value || 'Something went wrong'), '#f87171');
+  }
+  function clearLog() {
+    document.getElementById('consoleOutput').innerHTML = '';
+  }
+
+  /* ===== DEMO: const vs let ===== */
+  let letCounter = 0;
+  function demoConst() {
+    const out  = document.getElementById('constLetOutput');
+    const code = document.getElementById('constLetCode');
+    code.innerHTML = '<span class="kw">const</span> siteName = <span class="str">\'Portfolio\'</span>;\n\n<span class="cmt">// Try to reassign it:</span>\nsiteName = <span class="str">\'New Name\'</span>; <span class="cmt">// ❌ TypeError!</span>';
+    out.style.color = '#f87171';
+    out.textContent = '❌ TypeError: Assignment to constant variable.\n(const cannot be reassigned — that\'s the point!)';
+  }
+  function demoLet() {
+    letCounter += 10;
+    const out  = document.getElementById('constLetOutput');
+    const code = document.getElementById('constLetCode');
+    code.innerHTML = '<span class="kw">let</span> score = <span class="num">0</span>;  <span class="cmt">// starts at 0</span>\n\n<span class="cmt">// Each click adds 10:</span>\nscore = score + <span class="num">10</span>; <span class="cmt">// ✅ now ' + letCounter + '</span>';
+    out.style.color = '#6ee7b7';
+    out.textContent = '✅ score is now ' + letCounter + '  (let allows updates)';
+  }
+
+  /* ===== DEMO: Data type identifier ===== */
+  function identifyType() {
+    const raw = document.getElementById('typeInput').value;
+    const out = document.getElementById('typeOutput');
+    let type, display;
+    if (raw === 'true' || raw === 'false') {
+      type = 'boolean'; display = raw;
+    } else if (!isNaN(raw) && raw.trim() !== '') {
+      type = 'number'; display = Number(raw);
+    } else {
+      type = 'string'; display = '"' + raw + '"';
+    }
+    const colors = { string: '#c3e88d', number: '#f78c6c', boolean: '#c792ea' };
+    out.style.color = colors[type];
+    out.textContent = display + '  →  typeof = "' + type + '"';
+  }
+
+  /* ===== DEMO: Template literal ===== */
+  function buildTemplateDemo() {
+    const name = document.getElementById('tlName').value || 'Sofia';
+    const role = document.getElementById('tlRole').value || 'UX Designer';
+    const out  = document.getElementById('templateOutput');
+    out.style.color = '#6ee7b7';
+    out.textContent = '`Hello, ${name}! Your role is ${role}.` → "Hello, ' + name + '! Your role is ' + role + '."';
+  }
+
+  /* ===== DEMO: Dice + Color ===== */
+  const diceEmoji = ['', '⚀', '⚁', '⚂', '⚃', '⚄', '⚅'];
+  function rollDice() {
+    const roll = Math.floor(Math.random() * 6) + 1;
+    const out  = document.getElementById('diceOutput');
+    out.textContent = diceEmoji[roll] + '  ' + roll;
+    out.style.color = '#fbbf24';
+  }
+
+  function randomColorTheme() {
+    const hue = Math.floor(Math.random() * 360);
+    const sat = 60 + Math.floor(Math.random() * 30);
+    const prev = document.getElementById('colorPreview');
+    prev.style.background = `hsl(${hue}, ${sat}%, 50%)`;
+    prev.style.color = '#fff';
+    prev.textContent = `hsl(${hue}, ${sat}%, 50%)`;
+    document.getElementById('colorOutput').textContent =
+      `Math.floor(Math.random() * 360) → ${hue}   |   sat: ${sat}%`;
+  }
+
+  /* ===== DEMO: CSS Var sliders ===== */
+  const hueSlider = document.getElementById('hueSlider');
+  const satSlider = document.getElementById('satSlider');
+  function updateCSSVarPreview() {
+    const h = hueSlider.value;
+    const s = satSlider.value;
+    document.getElementById('hueVal').textContent = h;
+    document.getElementById('satVal').textContent = s;
+    const prev = document.getElementById('cssVarPreview');
+    prev.style.background = `hsl(${h},${s}%,50%)`;
+    prev.style.color = '#fff';
+    prev.textContent = `--hue: ${h}  --saturation: ${s}%`;
+  }
+  if (hueSlider) {
+    hueSlider.addEventListener('input', updateCSSVarPreview);
+    satSlider.addEventListener('input', updateCSSVarPreview);
+    updateCSSVarPreview();
+  }
+
+  /* ===== DEMO: querySelector ===== */
+  function qsDemo(selector) {
+    const box = document.getElementById('qsDemo');
+    const out = document.getElementById('qsOutput');
+    // Reset styles
+    qsReset();
+    try {
+      const el = box.querySelector(selector);
+      if (el) {
+        el.style.outline = '2px solid #a78bfa';
+        el.style.background = 'rgba(167,139,250,.15)';
+        out.style.color = '#6ee7b7';
+        out.textContent = 'querySelector("' + selector + '") → <' + el.tagName.toLowerCase() +
+          (el.id ? '#' + el.id : '') + '> "' + el.textContent.trim().substring(0,40) + '"';
+      } else {
+        out.style.color = '#f87171';
+        out.textContent = 'querySelector("' + selector + '") → null (not found)';
+      }
+    } catch(e) {
+      out.style.color = '#f87171';
+      out.textContent = 'Error: ' + e.message;
+    }
+  }
+  function qsReset() {
+    document.querySelectorAll('#qsDemo *').forEach(el => {
+      el.style.outline = '';
+      el.style.background = '';
+    });
+    document.getElementById('qsOutput').textContent = 'Click a selector button';
+    document.getElementById('qsOutput').style.color = '';
+  }
+
+  /* ===== DEMO: textContent vs innerHTML ===== */
+  function demoTextContent() {
+    const val = document.getElementById('contentInput').value || '<strong>Bold text</strong>';
+    const out = document.getElementById('contentOutput');
+    out.textContent = val;
+  }
+  function demoInnerHTML() {
+    const val = document.getElementById('contentInput').value || '<strong>Bold text</strong>';
+    const out = document.getElementById('contentOutput');
+    out.innerHTML = val;
+  }
+
+  /* ===== DEMO: classList ===== */
+  const clsStyle = `
+    background: linear-gradient(135deg, #a78bfa, #6ee7b7);
+    color: #0f0f1a;
+    border-color: #a78bfa;
+    transform: scale(1.03);
+    box-shadow: 0 0 20px rgba(167,139,250,.4);
+  `;
+  function clsUpdateLabel() {
+    const t = document.getElementById('clsTarget');
+    const lbl = document.getElementById('clsCurrentClass');
+    if (lbl) lbl.textContent = '"' + (t.className || '(none)') + '"';
+  }
+  function clsAdd() {
+    const t = document.getElementById('clsTarget');
+    t.classList.add('active');
+    t.style.cssText = clsStyle;
+    clsUpdateLabel();
+    document.getElementById('clsOutput').style.color = '#6ee7b7';
+    document.getElementById('clsOutput').textContent = 'classList.add("active") → class added ✅';
+  }
+  function clsRemove() {
+    const t = document.getElementById('clsTarget');
+    t.classList.remove('active');
+    t.style.cssText = '';
+    clsUpdateLabel();
+    document.getElementById('clsOutput').style.color = '#fbbf24';
+    document.getElementById('clsOutput').textContent = 'classList.remove("active") → class removed';
+  }
+  function clsToggle() {
+    const t = document.getElementById('clsTarget');
+    t.classList.toggle('active');
+    if (t.classList.contains('active')) {
+      t.style.cssText = clsStyle;
+    } else {
+      t.style.cssText = '';
+    }
+    clsUpdateLabel();
+    const has = t.classList.contains('active');
+    document.getElementById('clsOutput').style.color = has ? '#6ee7b7' : '#fbbf24';
+    document.getElementById('clsOutput').textContent = 'classList.toggle("active") → class ' + (has ? 'added ✅' : 'removed');
+  }
+  function clsCheck() {
+    const t   = document.getElementById('clsTarget');
+    const has = t.classList.contains('active');
+    document.getElementById('clsOutput').style.color = has ? '#6ee7b7' : '#f87171';
+    document.getElementById('clsOutput').textContent = 'classList.contains("active") → ' + has;
+  }
+
+  /* ===== DEMO: createElement ===== */
+  const cardColors = ['#a78bfa','#6ee7b7','#fbbf24','#f87171','#38bdf8','#fb923c'];
+  let   cardIdx    = 0;
+  function addCard() {
+    const text = document.getElementById('newCardText').value.trim() || 'Card ' + (cardIdx + 1);
+    const container = document.getElementById('cardContainer');
+    const card = document.createElement('div');
+    card.style.cssText = `
+      background: ${cardColors[cardIdx % cardColors.length]};
+      color: #0f0f1a;
+      padding: .4rem .75rem;
+      border-radius: 8px;
+      font-size: .82rem;
+      font-weight: 700;
+      cursor: pointer;
+    `;
+    card.textContent = text;
+    card.onclick = function() { this.remove(); updateCardOutput('Card removed.'); };
+    container.appendChild(card);
+    cardIdx++;
+    document.getElementById('newCardText').value = '';
+    updateCardOutput('Card added! Total: ' + container.children.length + '. Click a card to remove it.');
+  }
+  function removeLastCard() {
+    const c = document.getElementById('cardContainer');
+    if (c.lastElementChild) {
+      c.lastElementChild.remove();
+      updateCardOutput('Last card removed. Total: ' + c.children.length);
+    }
+  }
+  function clearCards() {
+    document.getElementById('cardContainer').innerHTML = '';
+    cardIdx = 0;
+    updateCardOutput('All cards cleared.');
+  }
+  function updateCardOutput(msg) {
+    document.getElementById('cardOutput').textContent = msg;
+  }
+
+  /* ===== DEMO: swatch picker ===== */
+  function pickSwatch(el) {
+    document.querySelectorAll('.swatch-demo').forEach(s => s.style.borderColor = 'transparent');
+    el.style.borderColor = '#fff';
+    const prev = document.getElementById('swatchPreview');
+    const color = el.dataset.color;
+    const name  = el.dataset.name;
+    prev.style.background = color;
+    prev.style.color = '#fff';
+    prev.textContent = 'dataset.color = "' + color + '"  |  dataset.name = "' + name + '"';
+  }
+</script>
+</body>
+</html>

@@ -4,146 +4,133 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>CSS Transitions &amp; Transforms</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,900;1,9..144,500&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
   <style>
     *{margin:0;padding:0;box-sizing:border-box;}
     :root{
-      --primary-color:#2c3e50;
-      --secondary-color:#3498db;
-      --code-bg:#1e1e1e;
-      --code-text:#d4d4d4;
+      --primary-color: #17140f;
+      --secondary-color: #9c9382;
+      --accent-color: #cc7a4f;
+      --text-color: #f2ece1;
+      --code-bg: #141109;
+      --code-text: #e4ddd0;
+      --border-soft: #29241c;
+      --border: #3a3226;
+      --nav-h: 56px;
     }
-    html,body{height:100%;font-family:'Segoe UI',system-ui,sans-serif;background:var(--primary-color);overflow:hidden;display:flex;flex-direction:column;}
+    html,body{height:100%;font-family:'Inter',sans-serif;background:var(--primary-color);overflow:hidden;display:flex;flex-direction:column;}
+    code{font-variant-ligatures:none;font-feature-settings:"calt" 0,"liga" 0;}
+    @media (prefers-reduced-motion: reduce){.slide{animation:none !important;}}
 
     /* Progress bar */
-    .progress-bar{width:100%;height:4px;background:rgba(255,255,255,.15);flex-shrink:0;}
-    .progress{height:100%;background:var(--secondary-color);transition:width .3s ease;}
+    .progress-bar{width:100%;height:2px;background:var(--border-soft);flex-shrink:0;}
+    .progress{height:100%;background:var(--accent-color);transition:width .3s ease;}
 
     /* Slideshow */
     .slideshow-container{flex:1;display:flex;flex-direction:column;overflow:hidden;min-height:0;}
-    .slide{display:none;flex:1;padding:1.2rem 1.75rem;color:#fff;overflow-y:auto;animation:fadeIn .35s ease;min-height:0;flex-direction:column;}
-    .slide.active{display:flex;}
-    @keyframes fadeIn{from{opacity:0;transform:translateX(18px);}to{opacity:1;transform:translateX(0);}}
+    .slide{display:none;flex:1;grid-template-columns:200px 1fr;background:var(--primary-color);color:var(--text-color);animation:fadeIn .4s ease;overflow:hidden;min-height:0;}
+    .slide.active{display:grid;}
+    @keyframes fadeIn{from{opacity:0;transform:translateY(12px);}to{opacity:1;transform:translateY(0);}}
 
-    /* Slide backgrounds — cycling */
-    .slide:nth-child(odd) {background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);}
-    .slide:nth-child(even){background:linear-gradient(135deg,#11998e 0%,#38ef7d 100%);}
-    .slide:nth-child(3n)  {background:linear-gradient(135deg,#ee0979 0%,#ff6a00 100%);}
-    .slide:nth-child(4n)  {background:linear-gradient(135deg,#2193b0 0%,#6dd5ed 100%);}
-    .slide:nth-child(5n)  {background:linear-gradient(135deg,#c31432 0%,#240b36 100%);}
+    /* Rail */
+    .rail{border-right:1px solid var(--border-soft);padding:2.2rem 1.5rem;}
+    .kicker{font-size:.65rem;letter-spacing:.14em;text-transform:uppercase;color:var(--secondary-color);font-weight:600;line-height:1.5;}
+    .rail-num{font-family:'Fraunces',serif;font-weight:400;font-style:italic;font-size:3rem;color:var(--secondary-color);opacity:.5;margin-top:1rem;font-variant-numeric:oldstyle-nums;}
+    .rail-tag{font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;color:var(--accent-color);font-weight:600;writing-mode:vertical-rl;transform:rotate(180deg);justify-self:start;}
 
-    /* Slide label */
-    .slide-label{font-size:.7rem;text-transform:uppercase;letter-spacing:.12em;color:rgba(255,255,255,.45);margin-bottom:.3rem;}
+    /* Slide label (carried into rail-tag by the wrap script when present) */
+    .slide-label{font-size:.7rem;text-transform:uppercase;letter-spacing:.12em;color:var(--secondary-color);margin-bottom:.3rem;}
 
-    /* Content wrapper */
-    .slide-content{max-width:1400px;width:100%;margin:0 auto;flex:1;display:flex;flex-direction:column;min-height:0;}
+    /* Main / content wrapper — fit-to-screen target */
+    .main{padding:2.2rem 3.6rem 1.8rem 3rem;overflow:hidden;display:flex;}
+    .slide-content{max-width:1400px;width:100%;flex:1;display:flex;flex-direction:column;min-height:0;transform-origin:top left;}
     .slide-content.centered{justify-content:center;align-items:center;text-align:center;}
+    .slide-content > p, .slide-content > ul, .slide-content > ol{max-width:68ch;}
 
     /* Typography */
-    h1{font-size:clamp(1.8rem,5vw,3rem);margin-bottom:1rem;line-height:1.2;text-shadow:0 2px 6px rgba(0,0,0,.3);}
-    h2{font-size:clamp(1.3rem,3.5vw,2rem);margin-bottom:.4rem;color:#ffeaa7;}
-    h3{font-size:clamp(.95rem,2.2vw,1.3rem);margin:.4rem 0 .2rem;color:#81ecec;}
-    p{font-size:clamp(.88rem,2vw,1.05rem);line-height:1.5;margin-bottom:.3rem;}
-    ul,ol{font-size:clamp(.83rem,1.9vw,1rem);line-height:1.55;margin-left:1.3rem;margin-bottom:.3rem;}
-    li{margin-bottom:.15rem;}
-    a{color:#ffeaa7;text-decoration:underline;}
-    a:hover{color:#fdcb6e;}
-    code{background:rgba(0,0,0,.35);padding:.15em .45em;border-radius:4px;font-family:'Consolas','Monaco',monospace;font-size:.88em;}
-    pre{background:var(--code-bg);color:var(--code-text);padding:.5rem .85rem;border-radius:8px;overflow-x:auto;margin:.3rem 0;font-size:clamp(.72rem,1.6vw,.88rem);line-height:1.42;flex-shrink:0;}
-    pre code{background:none;padding:0;font-size:inherit;}
+    h1{font-family:'Fraunces',serif;font-weight:600;font-size:clamp(1.7rem,4vw,2.6rem);margin-bottom:.9rem;line-height:1.15;}
+    h2{font-family:'Fraunces',serif;font-weight:600;font-size:clamp(1.2rem,2.8vw,1.7rem);margin-bottom:.5rem;color:var(--text-color);}
+    h3{font-family:'Inter',sans-serif;font-weight:700;font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;color:var(--secondary-color);margin:.6rem 0 .3rem;}
+    p{font-size:clamp(.88rem,1.8vw,1.02rem);line-height:1.5;margin-bottom:.6rem;color:var(--text-color);}
+    ul,ol{font-size:clamp(.85rem,1.7vw,.98rem);line-height:1.55;margin-left:1.3rem;margin-bottom:.6rem;color:var(--text-color);}
+    li{margin-bottom:.3rem;}
+    a{color:var(--accent-color);text-decoration:underline;}
+    a:hover{color:var(--text-color);}
+    code{background:#1e1a14;padding:.15em .45em;border-radius:3px;font-family:'JetBrains Mono',monospace;font-size:.85em;color:var(--accent-color);}
+    pre{background:var(--code-bg);color:var(--code-text);border-top:1px solid var(--border);border-bottom:1px solid var(--border);padding:.8rem 1.1rem;overflow-x:auto;margin:.5rem 0;font-size:clamp(.72rem,1.5vw,.86rem);line-height:1.5;flex-shrink:0;white-space:pre-wrap;overflow-wrap:anywhere;}
+    pre code{background:none;padding:0;font-size:inherit;color:inherit;}
 
-    /* Callouts */
-    .note{background:rgba(34,197,94,.15);border-left:4px solid #22c55e;padding:.45rem .8rem;border-radius:6px;margin:.3rem 0;font-size:clamp(.82rem,1.8vw,.97rem);}
-    .caution{background:rgba(239,68,68,.15);border-left:4px solid #ef4444;padding:.45rem .8rem;border-radius:6px;margin:.3rem 0;font-size:clamp(.82rem,1.8vw,.97rem);}
-    .tip{background:rgba(79,109,245,.2);border-left:4px solid #4f6df5;padding:.45rem .8rem;border-radius:6px;margin:.3rem 0;font-size:clamp(.82rem,1.8vw,.97rem);}
-    .highlight{background:rgba(255,255,255,.15);border-left:4px solid #ffeaa7;padding:.45rem .8rem;border-radius:6px;margin:.3rem 0;font-size:clamp(.82rem,1.8vw,.97rem);}
+    /* Callouts — reserve accent fill for caution; note/tip quieter */
+    .note,.tip{background:none;border-left:none;border-top:1px solid var(--border-soft);border-radius:0;padding:.5rem 0 0;margin:.6rem 0;font-size:clamp(.82rem,1.6vw,.94rem);}
+    .caution,.highlight{background:rgba(204,122,79,.1);border-left:2px solid var(--accent-color);border-radius:0;padding:.6rem .9rem;margin:.6rem 0;font-size:clamp(.82rem,1.6vw,.94rem);}
 
-    /* Interactive in-slide demos */
-    .demo-btn{padding:.3rem .65rem;font-size:.8rem;border:1px solid rgba(255,255,255,.35);border-radius:4px;cursor:pointer;background:rgba(0,0,0,.3);color:white;transition:all .2s;}
-    .demo-btn:hover{background:rgba(255,255,255,.15);}
-    .demo-btn.active{background:rgba(52,152,219,.7);border-color:#3498db;}
-    .live-demo{background:rgba(0,0,0,.25);border-radius:8px;padding:.55rem .9rem;margin:.3rem 0;border:1px solid rgba(255,255,255,.15);}
+    /* Interactive in-slide demos — generic chrome only */
+    .demo-btn{padding:.4rem .8rem;font-size:.8rem;border:1px solid var(--border);border-radius:0;cursor:pointer;background:none;color:var(--text-color);transition:all .2s;font-family:'JetBrains Mono',monospace;}
+    .demo-btn:hover{border-color:var(--accent-color);}
+    .demo-btn.active{background:var(--accent-color);border-color:var(--accent-color);color:var(--primary-color);}
+    .live-demo{background:var(--code-bg);border-radius:0;padding:.7rem 1rem;margin:.5rem 0;border:1px solid var(--border-soft);}
 
     /* Layout */
-    .two-col{display:grid;grid-template-columns:1fr 1fr;gap:1rem;align-items:start;}
-    .three-col{display:grid;grid-template-columns:repeat(3,1fr);gap:.85rem;align-items:start;}
+    .two-col{display:grid;grid-template-columns:1fr 1fr;gap:1.4rem;align-items:start;}
+    .three-col{display:grid;grid-template-columns:repeat(3,1fr);gap:1.1rem;align-items:start;}
     @media(max-width:900px){.three-col{grid-template-columns:1fr 1fr;}}
-    @media(max-width:700px){.two-col,.three-col{grid-template-columns:1fr;}.slide{padding:1rem 1rem;}}
+    @media(max-width:700px){.two-col,.three-col{grid-template-columns:1fr;}}
 
     /* Cards */
-    .card{background:rgba(0,0,0,.25);padding:.65rem .85rem;border-radius:8px;border:1px solid rgba(255,255,255,.15);}
-    .card-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:.6rem;margin:.4rem 0;}
+    .card{background:#1e1a14;padding:.8rem 1rem;border-top:1px solid var(--border-soft);}
+    .card-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:.8rem;margin:.6rem 0;}
 
-    /* Slides img */
-    .slide-img{max-width:100%;border-radius:8px;border:1px solid rgba(255,255,255,.2);margin:.4rem 0;box-shadow:0 4px 16px rgba(0,0,0,.4);}
-    .img-caption{font-size:.75rem;opacity:.6;text-align:center;margin-top:.2rem;}
+    /* Slide images */
+    .slide-img{max-width:100%;border:1px solid var(--border);margin:.5rem 0;}
+    .img-caption{font-size:.78rem;color:var(--secondary-color);text-align:center;margin-top:.3rem;}
 
     /* Learn grid (cover/summary) */
-    .learn-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:.45rem;margin:.5rem 0;}
-    .learn-item{background:rgba(0,0,0,.25);border-left:3px solid #81ecec;border-radius:6px;padding:.45rem .75rem;font-size:clamp(.8rem,1.8vw,.96rem);line-height:1.45;}
+    .learn-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:.6rem;margin:.6rem 0;}
+    .learn-item{background:#1e1a14;border-left:2px solid var(--accent-color);padding:.55rem .85rem;font-size:clamp(.8rem,1.7vw,.94rem);line-height:1.45;}
 
     /* Summary cards */
-    .summary-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:.55rem;margin:.5rem 0;}
-    .summary-card{background:rgba(0,0,0,.25);border-radius:8px;padding:.65rem .9rem;border:1px solid rgba(255,255,255,.15);font-size:clamp(.78rem,1.7vw,.93rem);line-height:1.45;}
-    .summary-card strong{color:#ffeaa7;display:block;margin-bottom:.2rem;font-size:.9em;}
+    .summary-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:.7rem;margin:.6rem 0;}
+    .summary-card{background:#1e1a14;padding:.8rem 1rem;border-top:1px solid var(--border-soft);font-size:clamp(.78rem,1.6vw,.92rem);line-height:1.45;}
+    .summary-card strong{color:var(--accent-color);display:block;margin-bottom:.3rem;font-size:.9em;}
 
-    /* Compare table */
-    table.cmp{width:100%;border-collapse:collapse;font-size:clamp(.8rem,1.8vw,1rem);margin:.4rem 0;}
-    table.cmp th,table.cmp td{border:1px solid rgba(255,255,255,.25);padding:.3rem .55rem;text-align:left;}
-    table.cmp th{background:rgba(0,0,0,.3);color:#ffeaa7;}
-    table.cmp td:first-child{color:#93c5fd;font-weight:600;}
+    /* Compare table — rules, not boxed cells */
+    table.cmp{width:100%;border-collapse:collapse;font-size:clamp(.8rem,1.7vw,.95rem);margin:.6rem 0;max-width:90ch;}
+    table.cmp th,table.cmp td{border-bottom:1px solid var(--border-soft);padding:.5rem .7rem;text-align:left;}
+    table.cmp th{border-bottom:2px solid var(--border);color:var(--accent-color);}
+    table.cmp td:first-child{color:var(--accent-color);font-weight:600;}
 
-    /* CodePen / demo iframe container */
+    /* CodePen / demo iframe container — left exactly as authored */
     .demo-wrap{flex:1;min-height:0;display:flex;flex-direction:column;border-radius:10px;overflow:hidden;margin:.4rem 0;border:1px solid rgba(255,255,255,.2);}
     .demo-wrap iframe{flex:1;border:none;width:100%!important;height:100%!important;min-height:420px;background:#fff;}
-    .demo-label{font-size:.75rem;text-transform:uppercase;letter-spacing:.1em;color:rgba(255,255,255,.5);margin-bottom:.3rem;text-align:center;}
+    .demo-label{font-size:.75rem;text-transform:uppercase;letter-spacing:.1em;color:var(--secondary-color);margin-bottom:.3rem;text-align:center;}
 
     /* Badge chip */
-    .badge{display:inline-block;background:rgba(79,109,245,.4);border:1px solid rgba(79,109,245,.6);border-radius:20px;padding:.2em .7em;font-size:.78em;margin:.15rem;}
-    .badge.green{background:rgba(34,197,94,.25);border-color:rgba(34,197,94,.5);color:#86efac;}
-    .badge.yellow{background:rgba(234,179,8,.2);border-color:rgba(234,179,8,.45);color:#fde68a;}
-    .badge.red{background:rgba(239,68,68,.2);border-color:rgba(239,68,68,.45);color:#fca5a5;}
-
-    /* Inline transition comparison demos */
-    .tx-demo-box{
-      width:110px;height:58px;border-radius:8px;
-      background:#4f6df5;display:flex;align-items:center;justify-content:center;
-      color:white;font-size:.78rem;font-weight:700;cursor:pointer;
-      border:2px solid rgba(255,255,255,.3);
-    }
-    .tx-demo-box.snap:hover{background:#e74c3c;transform:translateY(-6px);}
-    .tx-demo-box.smooth{transition:background .4s ease,transform .3s ease-out;}
-    .tx-demo-box.smooth:hover{background:#e74c3c;transform:translateY(-6px);}
-
-    /* Rule demo buttons */
-    .rule-btn{padding:.55rem 1.1rem;border:none;border-radius:6px;font-size:.85rem;font-weight:700;cursor:pointer;background:#4f6df5;color:white;display:block;margin:.4rem 0;}
-    .rule-btn.ok{transition:background-color .4s ease,transform .35s ease;}
-    .rule-btn.ok:hover{background:#2ecc71;transform:scale(1.12);}
-    .rule-btn.bad:hover{transition:background-color .4s ease,transform .35s ease;background:#e74c3c;transform:scale(1.12);}
-
-    /* Performance comparison */
-    .perf-demo{display:flex;gap:1rem;align-items:center;margin:.3rem 0;flex-wrap:wrap;}
-    .perf-box{
-      width:90px;height:44px;border-radius:6px;background:#4f6df5;
-      display:flex;align-items:center;justify-content:center;
-      color:white;font-size:.72rem;font-weight:700;cursor:pointer;
-    }
-    .perf-box.bad {transition:left .4s ease;position:relative;left:0;}
-    .perf-box.bad:hover{left:60px;}
-    .perf-box.good{transition:transform .4s ease;}
-    .perf-box.good:hover{transform:translateX(60px);}
+    .badge{display:inline-block;background:rgba(204,122,79,.18);border:1px solid rgba(204,122,79,.4);border-radius:20px;padding:.2em .7em;font-size:.78em;margin:.15rem;color:var(--accent-color);}
+    .badge.green{background:rgba(34,197,94,.15);border-color:rgba(34,197,94,.4);color:#86efac;}
+    .badge.yellow{background:rgba(234,179,8,.15);border-color:rgba(234,179,8,.4);color:#fde68a;}
+    .badge.red{background:rgba(239,68,68,.15);border-color:rgba(239,68,68,.4);color:#fca5a5;}
 
     /* Navigation */
-    .navigation{display:flex;justify-content:center;align-items:center;gap:1rem;padding:.65rem 1rem;background:var(--primary-color);flex-shrink:0;flex-wrap:wrap;}
-    .nav-btn{padding:.5rem 1.2rem;font-size:.95rem;border:none;border-radius:5px;cursor:pointer;background:var(--secondary-color);color:#fff;transition:all .25s;font-weight:600;}
-    .nav-btn:hover{background:#2980b9;transform:translateY(-1px);}
-    .nav-btn:disabled{background:#4b5563;cursor:not-allowed;transform:none;}
-    .slide-counter{color:#fff;font-size:.95rem;min-width:90px;text-align:center;opacity:.85;}
+    .navigation{display:flex;justify-content:space-between;align-items:center;gap:1rem;padding:0 1.6rem;height:var(--nav-h);border-top:1px solid var(--border-soft);background:var(--primary-color);flex-shrink:0;}
+    .nav-btn{padding:.4rem 0;font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;font-weight:600;border:none;cursor:pointer;background:none;color:var(--secondary-color);transition:color .15s;}
+    .nav-btn:hover:not(:disabled){color:var(--text-color);transform:none;}
+    .nav-btn:disabled{opacity:.3;cursor:not-allowed;transform:none;}
+    .slide-counter{color:var(--accent-color);font-size:.72rem;letter-spacing:.08em;min-width:auto;text-align:center;opacity:1;font-variant-numeric:tabular-nums;}
 
-    @media(max-width:480px){
-      h1{font-size:1.5rem;}
-      .navigation{gap:.5rem;padding:.5rem;}
-      .nav-btn{padding:.45rem .9rem;font-size:.85rem;}
+    @media(max-width:700px){
+      .slide{grid-template-columns:56px 1fr;}
+      .rail{padding:1rem .5rem;}
+      .kicker{display:none;}
+      .rail-num{font-size:1.4rem;margin-top:0;}
+      .main{padding:1.25rem 1rem;}
+      .navigation{padding:0 1rem;}
     }
+
+    /* ════════════════════════════════════
+       INTERACTIVE DEMO STYLES
+    ════════════════════════════════════ */
 
     /* ════════════════════════════════════
        INTERACTIVE DEMO STYLES
@@ -273,7 +260,13 @@
        SLIDE 1 — COVER
   ══════════════════════════════════ -->
   <div class="slide active">
-    <div class="slide-content centered">
+    <div class="rail">
+      <div class="rail-top">
+        <div class="kicker">CSS Transitions &amp; Transforms</div>
+        <div class="rail-num">01</div>
+      </div>
+    </div>
+    <div class="main"><div class="slide-content centered">
       <h1>CSS Transitions &amp;<br>Transforms</h1>
       <p style="font-size:clamp(1rem,2.5vw,1.25rem);opacity:.8;margin-bottom:1.25rem;">
         Motion that guides attention, communicates state, and makes interfaces feel alive.
@@ -287,14 +280,20 @@
         <div class="learn-item">♿ Respecting prefers-reduced-motion</div>
         <div class="learn-item">✨ Practical hover effects for real projects</div>
       </div>
-    </div>
+    </div></div>
   </div>
 
   <!-- ══════════════════════════════════
        SLIDE 2 — EVOLUTION
   ══════════════════════════════════ -->
   <div class="slide">
-    <div class="slide-content">
+    <div class="rail">
+      <div class="rail-top">
+        <div class="kicker">CSS Transitions &amp; Transforms</div>
+        <div class="rail-num">02</div>
+      </div>
+    </div>
+    <div class="main"><div class="slide-content">
       <div class="slide-label">Background</div>
       <h2>The Evolution of Web Animation</h2>
       <div class="two-col">
@@ -340,14 +339,20 @@
           </table>
         </div>
       </div>
-    </div>
+    </div></div>
   </div>
 
   <!-- ══════════════════════════════════
        SLIDE 3 — WHAT IS A TRANSITION?
   ══════════════════════════════════ -->
   <div class="slide">
-    <div class="slide-content">
+    <div class="rail">
+      <div class="rail-top">
+        <div class="kicker">CSS Transitions &amp; Transforms</div>
+        <div class="rail-num">03</div>
+      </div>
+    </div>
+    <div class="main"><div class="slide-content">
       <div class="slide-label">CSS Transitions</div>
       <h2>What is a CSS Transition?</h2>
       <p>A transition watches a CSS property for changes. When the property changes — hover, class toggle, focus — the browser <strong>animates smoothly</strong> from the old value to the new one instead of snapping instantly.</p>
@@ -387,14 +392,20 @@ button:hover {
           </div>
         </div>
       </div>
-    </div>
+    </div></div>
   </div>
 
   <!-- ══════════════════════════════════
        SLIDE 4 — THE FOUR SUB-PROPERTIES
   ══════════════════════════════════ -->
   <div class="slide">
-    <div class="slide-content">
+    <div class="rail">
+      <div class="rail-top">
+        <div class="kicker">CSS Transitions &amp; Transforms</div>
+        <div class="rail-num">04</div>
+      </div>
+    </div>
+    <div class="main"><div class="slide-content">
       <div class="slide-label">CSS Transitions</div>
       <h2>The Four Transition Sub-Properties</h2>
       <div class="two-col">
@@ -467,14 +478,20 @@ transition-timing:    ease
 transition-delay:     0s</pre>
         </div>
       </div>
-    </div>
+    </div></div>
   </div>
 
   <!-- ══════════════════════════════════
        SLIDE — STAGGER EFFECT
   ══════════════════════════════════ -->
   <div class="slide">
-    <div class="slide-content">
+    <div class="rail">
+      <div class="rail-top">
+        <div class="kicker">CSS Transitions &amp; Transforms</div>
+        <div class="rail-num">05</div>
+      </div>
+    </div>
+    <div class="main"><div class="slide-content">
       <div class="slide-label">CSS Transitions</div>
       <h2>The Stagger Effect — <code>transition-delay</code> in Action</h2>
       <p style="font-size:.88rem;opacity:.9;">One of the most polished patterns in UI design: multiple elements sharing the same transition, but with incrementally increasing <code>transition-delay</code> values so they animate in sequence rather than all at once.</p>
@@ -522,14 +539,20 @@ transition-delay:     0s</pre>
           </div>
         </div>
       </div>
-    </div>
+    </div></div>
   </div>
 
   <!-- ══════════════════════════════════
        SLIDE 5 — SHORTHAND + KEY RULE
   ══════════════════════════════════ -->
   <div class="slide">
-    <div class="slide-content">
+    <div class="rail">
+      <div class="rail-top">
+        <div class="kicker">CSS Transitions &amp; Transforms</div>
+        <div class="rail-num">06</div>
+      </div>
+    </div>
+    <div class="main"><div class="slide-content">
       <div class="slide-label">CSS Transitions</div>
       <h2>The Shorthand &amp; The One Rule You Must Know</h2>
       <div class="two-col">
@@ -588,26 +611,38 @@ button:hover {
           </div>
         </div>
       </div>
-    </div>
+    </div></div>
   </div>
 
   <!-- ══════════════════════════════════
        SLIDE 6 — CODEPEN 1
   ══════════════════════════════════ -->
   <div class="slide">
-    <div class="slide-content">
+    <div class="rail">
+      <div class="rail-top">
+        <div class="kicker">CSS Transitions &amp; Transforms</div>
+        <div class="rail-num">07</div>
+      </div>
+    </div>
+    <div class="main"><div class="slide-content">
       <div class="demo-label">Interactive Demo — Basic Transitions</div>
       <div class="demo-wrap">
         <iframe style="width:100%;" title="Codepen - 14.1" src="https://codepen.io/mattkearl/embed/qEaEaXa?default-tab=css%2Cresult&editable=true" height="500" loading="lazy"></iframe>
       </div>
-    </div>
+    </div></div>
   </div>
 
   <!-- ══════════════════════════════════
        SLIDE 7 — TIMING FUNCTIONS: KEYWORDS
   ══════════════════════════════════ -->
   <div class="slide">
-    <div class="slide-content">
+    <div class="rail">
+      <div class="rail-top">
+        <div class="kicker">CSS Transitions &amp; Transforms</div>
+        <div class="rail-num">08</div>
+      </div>
+    </div>
+    <div class="main"><div class="slide-content">
       <div class="slide-label">Timing Functions</div>
       <h2>Timing Functions: Built-in Keywords</h2>
       <div class="two-col">
@@ -640,14 +675,20 @@ button:hover {
           <p class="img-caption" style="margin-top:.4rem;">ease-out (green) rockets off first. ease-in (red) starts slow then surges. linear (purple) never changes speed.</p>
         </div>
       </div>
-    </div>
+    </div></div>
   </div>
 
   <!-- ══════════════════════════════════
        SLIDE 8 — cubic-bezier / steps / linear()
   ══════════════════════════════════ -->
   <div class="slide">
-    <div class="slide-content">
+    <div class="rail">
+      <div class="rail-top">
+        <div class="kicker">CSS Transitions &amp; Transforms</div>
+        <div class="rail-num">09</div>
+      </div>
+    </div>
+    <div class="main"><div class="slide-content">
       <div class="slide-label">Timing Functions</div>
       <h2>Custom Curves: cubic-bezier(), steps(), linear()</h2>
       <div class="two-col">
@@ -704,26 +745,38 @@ transition: background-position 0.8s steps(8);
           </div>
         </div>
       </div>
-    </div>
+    </div></div>
   </div>
 
   <!-- ══════════════════════════════════
        SLIDE 9 — CODEPEN 2
   ══════════════════════════════════ -->
   <div class="slide">
-    <div class="slide-content">
+    <div class="rail">
+      <div class="rail-top">
+        <div class="kicker">CSS Transitions &amp; Transforms</div>
+        <div class="rail-num">10</div>
+      </div>
+    </div>
+    <div class="main"><div class="slide-content">
       <div class="demo-label">Interactive Demo — Timing Functions Visualizer</div>
       <div class="demo-wrap">
         <iframe style="width:100%;" title="Codepen - 14.2" src="https://codepen.io/mattkearl/embed/OPRPRjZ?default-tab=css%2Cresult&editable=true" height="500" loading="lazy"></iframe>
       </div>
-    </div>
+    </div></div>
   </div>
 
   <!-- ══════════════════════════════════
        SLIDE 10 — WHAT CAN BE TRANSITIONED
   ══════════════════════════════════ -->
   <div class="slide">
-    <div class="slide-content">
+    <div class="rail">
+      <div class="rail-top">
+        <div class="kicker">CSS Transitions &amp; Transforms</div>
+        <div class="rail-num">11</div>
+      </div>
+    </div>
+    <div class="main"><div class="slide-content">
       <div class="slide-label">Transitions</div>
       <h2>What Can (and Cannot) Be Transitioned</h2>
       <div class="two-col">
@@ -780,14 +833,20 @@ transition: background-position 0.8s steps(8);
           </div>
         </div>
       </div>
-    </div>
+    </div></div>
   </div>
 
   <!-- ══════════════════════════════════
        SLIDE 11 — display:none + @starting-style
   ══════════════════════════════════ -->
   <div class="slide">
-    <div class="slide-content">
+    <div class="rail">
+      <div class="rail-top">
+        <div class="kicker">CSS Transitions &amp; Transforms</div>
+        <div class="rail-num">12</div>
+      </div>
+    </div>
+    <div class="main"><div class="slide-content">
       <div class="slide-label">Modern CSS</div>
       <h2>Animating <code>display: none</code> — Finally Solved</h2>
       <p style="font-size:.88rem;opacity:.9;margin-bottom:.4rem;">You toggle a dropdown or modal with <code>display: none</code>. You add a transition. Nothing animates — because <code>display</code> has no "halfway" value between <code>none</code> and <code>block</code>. Two features added in 2023 fix this.</p>
@@ -845,14 +904,20 @@ transition: background-position 0.8s steps(8);
           </div>
         </div>
       </div>
-    </div>
+    </div></div>
   </div>
 
   <!-- ══════════════════════════════════
        SLIDE 12 — GPU PERFORMANCE
   ══════════════════════════════════ -->
   <div class="slide">
-    <div class="slide-content">
+    <div class="rail">
+      <div class="rail-top">
+        <div class="kicker">CSS Transitions &amp; Transforms</div>
+        <div class="rail-num">13</div>
+      </div>
+    </div>
+    <div class="main"><div class="slide-content">
       <div class="slide-label">Performance</div>
       <h2>Why <code>transform</code> &amp; <code>opacity</code> Are Faster</h2>
       <p style="font-size:.88rem;opacity:.9;margin-bottom:.4rem;">Not all CSS properties are equal when animated. Two properties get a special fast path through the browser — everything else takes the slow road.</p>
@@ -891,14 +956,20 @@ transition: background-position 0.8s steps(8);
           </div>
         </div>
       </div>
-    </div>
+    </div></div>
   </div>
 
   <!-- ══════════════════════════════════
        SLIDE — RENDERING PIPELINE
   ══════════════════════════════════ -->
   <div class="slide">
-    <div class="slide-content">
+    <div class="rail">
+      <div class="rail-top">
+        <div class="kicker">CSS Transitions &amp; Transforms</div>
+        <div class="rail-num">14</div>
+      </div>
+    </div>
+    <div class="main"><div class="slide-content">
       <div class="slide-label">Performance</div>
       <h2>How the Browser Draws a Page</h2>
       <p style="font-size:.87rem;opacity:.9;margin-bottom:.4rem;">When a CSS property changes during a transition, the browser may need to redo some or all of its drawing work. There are three stages — and the earlier in the chain a property change starts, the more expensive it is.</p>
@@ -932,14 +1003,20 @@ transition: background-position 0.8s steps(8);
       <div class="highlight" style="margin-top:.35rem;font-size:.84rem;">
         <strong>The takeaway:</strong> For smooth transitions at 60fps, keep your animated properties in the Composite column — <code>transform</code> and <code>opacity</code>. Avoid animating layout properties like <code>width</code>, <code>height</code>, <code>left</code>, or <code>top</code>.
       </div>
-    </div>
+    </div></div>
   </div>
 
   <!-- ══════════════════════════════════
        SLIDE 13 — will-change + prefers-reduced-motion
   ══════════════════════════════════ -->
   <div class="slide">
-    <div class="slide-content">
+    <div class="rail">
+      <div class="rail-top">
+        <div class="kicker">CSS Transitions &amp; Transforms</div>
+        <div class="rail-num">15</div>
+      </div>
+    </div>
+    <div class="main"><div class="slide-content">
       <div class="slide-label">Performance &amp; Accessibility</div>
       <h2>Two CSS Properties Every Animated Page Needs</h2>
       <div class="two-col">
@@ -989,14 +1066,20 @@ transition: background-position 0.8s steps(8);
           </div>
         </div>
       </div>
-    </div>
+    </div></div>
   </div>
 
   <!-- ══════════════════════════════════
        SLIDE 14 — 2D TRANSFORMS: translate + rotate
   ══════════════════════════════════ -->
   <div class="slide">
-    <div class="slide-content">
+    <div class="rail">
+      <div class="rail-top">
+        <div class="kicker">CSS Transitions &amp; Transforms</div>
+        <div class="rail-num">16</div>
+      </div>
+    </div>
+    <div class="main"><div class="slide-content">
       <div class="slide-label">2D Transforms</div>
       <h2>2D Transforms: <code>translate()</code> &amp; <code>rotate()</code></h2>
       <p style="font-size:.88rem;opacity:.8;"><code>transform</code> visually repositions/reshapes an element <strong>without affecting document flow</strong> — other elements don't shift to accommodate it.</p>
@@ -1042,14 +1125,20 @@ transform: rotate(1turn);     /* full spin */</code></pre>
           </div>
         </div>
       </div>
-    </div>
+    </div></div>
   </div>
 
   <!-- ══════════════════════════════════
        SLIDE 15 — scale, skew, combining
   ══════════════════════════════════ -->
   <div class="slide">
-    <div class="slide-content">
+    <div class="rail">
+      <div class="rail-top">
+        <div class="kicker">CSS Transitions &amp; Transforms</div>
+        <div class="rail-num">17</div>
+      </div>
+    </div>
+    <div class="main"><div class="slide-content">
       <div class="slide-label">2D Transforms</div>
       <h2><code>scale()</code>, <code>skew()</code> &amp; Combining Transforms</h2>
       <div class="two-col">
@@ -1099,14 +1188,20 @@ transform: rotate(45deg) translateX(100px);
           </div>
         </div>
       </div>
-    </div>
+    </div></div>
   </div>
 
   <!-- ══════════════════════════════════
        SLIDE 16 — transform-origin + centering + modern
   ══════════════════════════════════ -->
   <div class="slide">
-    <div class="slide-content">
+    <div class="rail">
+      <div class="rail-top">
+        <div class="kicker">CSS Transitions &amp; Transforms</div>
+        <div class="rail-num">18</div>
+      </div>
+    </div>
+    <div class="main"><div class="slide-content">
       <div class="slide-label">2D Transforms</div>
       <h2>transform-origin, Centering Trick &amp; Modern Syntax</h2>
       <div class="two-col">
@@ -1159,26 +1254,38 @@ transform-origin: 0 50%;      /* left edge, centered */</code></pre>
           <div class="tip" style="font-size:.82rem;">Individual properties are applied in fixed order: translate → rotate → scale, regardless of CSS order. More predictable than combined <code>transform</code>.</div>
         </div>
       </div>
-    </div>
+    </div></div>
   </div>
 
   <!-- ══════════════════════════════════
        SLIDE 17 — CODEPEN 3
   ══════════════════════════════════ -->
   <div class="slide">
-    <div class="slide-content">
+    <div class="rail">
+      <div class="rail-top">
+        <div class="kicker">CSS Transitions &amp; Transforms</div>
+        <div class="rail-num">19</div>
+      </div>
+    </div>
+    <div class="main"><div class="slide-content">
       <div class="demo-label">Interactive Demo — 2D Transforms Explorer</div>
       <div class="demo-wrap">
         <iframe style="width:100%;" title="Codepen - 14.3" src="https://codepen.io/mattkearl/embed/MYjYjvM?default-tab=css%2Cresult&editable=true" height="600" loading="lazy"></iframe>
       </div>
-    </div>
+    </div></div>
   </div>
 
   <!-- ══════════════════════════════════
        SLIDE 18 — 3D TRANSFORMS: perspective + rotation
   ══════════════════════════════════ -->
   <div class="slide">
-    <div class="slide-content">
+    <div class="rail">
+      <div class="rail-top">
+        <div class="kicker">CSS Transitions &amp; Transforms</div>
+        <div class="rail-num">20</div>
+      </div>
+    </div>
+    <div class="main"><div class="slide-content">
       <div class="slide-label">3D Transforms</div>
       <h2>3D Transforms: Perspective &amp; Rotation</h2>
       <div class="two-col">
@@ -1248,14 +1355,20 @@ transform-origin: 0 50%;      /* left edge, centered */</code></pre>
           </div>
         </div>
       </div>
-    </div>
+    </div></div>
   </div>
 
   <!-- ══════════════════════════════════
        SLIDE 19 — preserve-3d + backface-visibility
   ══════════════════════════════════ -->
   <div class="slide">
-    <div class="slide-content">
+    <div class="rail">
+      <div class="rail-top">
+        <div class="kicker">CSS Transitions &amp; Transforms</div>
+        <div class="rail-num">21</div>
+      </div>
+    </div>
+    <div class="main"><div class="slide-content">
       <div class="slide-label">3D Transforms</div>
       <h2><code>transform-style: preserve-3d</code> &amp; <code>backface-visibility</code></h2>
       <div class="two-col">
@@ -1318,26 +1431,38 @@ transform-origin: 0 50%;      /* left edge, centered */</code></pre>
           </div>
         </div>
       </div>
-    </div>
+    </div></div>
   </div>
 
   <!-- ══════════════════════════════════
        SLIDE 20 — CODEPEN 4
   ══════════════════════════════════ -->
   <div class="slide">
-    <div class="slide-content">
+    <div class="rail">
+      <div class="rail-top">
+        <div class="kicker">CSS Transitions &amp; Transforms</div>
+        <div class="rail-num">22</div>
+      </div>
+    </div>
+    <div class="main"><div class="slide-content">
       <div class="demo-label">Interactive Demo — 3D Card Flip</div>
       <div class="demo-wrap">
         <iframe style="width:100%;" title="Codepen - 14.4" src="https://codepen.io/mattkearl/embed/emdmdVY?default-tab=css%2Cresult&editable=true" height="600" loading="lazy"></iframe>
       </div>
-    </div>
+    </div></div>
   </div>
 
   <!-- ══════════════════════════════════
        SLIDE 21 — PRACTICAL PATTERNS
   ══════════════════════════════════ -->
   <div class="slide">
-    <div class="slide-content">
+    <div class="rail">
+      <div class="rail-top">
+        <div class="kicker">CSS Transitions &amp; Transforms</div>
+        <div class="rail-num">23</div>
+      </div>
+    </div>
+    <div class="main"><div class="slide-content">
       <div class="slide-label">Practical Patterns</div>
       <h2>Transitions + Transforms in Practice</h2>
       <div class="three-col">
@@ -1394,38 +1519,56 @@ transform-origin: 0 50%;      /* left edge, centered */</code></pre>
       <div class="highlight" style="margin-top:.4rem;">
         <strong>The pattern:</strong> Define transition on the default state. Define the changed values in <code>:hover</code> or a toggled class. CSS handles the smooth interpolation automatically.
       </div>
-    </div>
+    </div></div>
   </div>
 
   <!-- ══════════════════════════════════
        SLIDE 22 — CODEPEN 5
   ══════════════════════════════════ -->
   <div class="slide">
-    <div class="slide-content">
+    <div class="rail">
+      <div class="rail-top">
+        <div class="kicker">CSS Transitions &amp; Transforms</div>
+        <div class="rail-num">24</div>
+      </div>
+    </div>
+    <div class="main"><div class="slide-content">
       <div class="demo-label">Interactive Demo — Practical Hover Effects</div>
       <div class="demo-wrap">
         <iframe style="width:100%;" title="Codepen - 14.5" src="https://codepen.io/mattkearl/embed/xbEbEpO?default-tab=css%2Cresult&editable=true" height="600" loading="lazy"></iframe>
       </div>
-    </div>
+    </div></div>
   </div>
 
   <!-- ══════════════════════════════════
        SLIDE 23 — CODEPEN 6
   ══════════════════════════════════ -->
   <div class="slide">
-    <div class="slide-content">
+    <div class="rail">
+      <div class="rail-top">
+        <div class="kicker">CSS Transitions &amp; Transforms</div>
+        <div class="rail-num">25</div>
+      </div>
+    </div>
+    <div class="main"><div class="slide-content">
       <div class="demo-label">Interactive Demo — prefers-reduced-motion</div>
       <div class="demo-wrap">
         <iframe style="width:100%;" title="Codepen - 14.6" src="https://codepen.io/mattkearl/embed/RNGNGxj?default-tab=css%2Cresult&editable=true" height="600" loading="lazy"></iframe>
       </div>
-    </div>
+    </div></div>
   </div>
 
   <!-- ══════════════════════════════════
        SLIDE — @KEYFRAMES TEASER
   ══════════════════════════════════ -->
   <div class="slide">
-    <div class="slide-content">
+    <div class="rail">
+      <div class="rail-top">
+        <div class="kicker">CSS Transitions &amp; Transforms</div>
+        <div class="rail-num">26</div>
+      </div>
+    </div>
+    <div class="main"><div class="slide-content">
       <div class="slide-label">What's Next</div>
       <h2>Transitions Need a Trigger — Animations Don't</h2>
       <p style="font-size:.88rem;opacity:.9;margin-bottom:.4rem;">CSS transitions are reactive: they only run when a property changes (hover, class toggle, focus). For motion that plays automatically — on load, in a loop, or with multiple steps — you need <strong>CSS Animations with <code>@keyframes</code></strong>.</p>
@@ -1488,14 +1631,20 @@ transform-origin: 0 50%;      /* left edge, centered */</code></pre>
       <div class="highlight" style="margin-top:.4rem;font-size:.84rem;">
         <strong>Rule of thumb:</strong> Use <em>transitions</em> for state changes driven by user interaction (hover, click, focus). Use <em>@keyframes animations</em> for anything autonomous — loading states, attention pulses, page-load reveals, looping decorative motion.
       </div>
-    </div>
+    </div></div>
   </div>
 
   <!-- ══════════════════════════════════
        SLIDE 24 — SUMMARY
   ══════════════════════════════════ -->
   <div class="slide">
-    <div class="slide-content">
+    <div class="rail">
+      <div class="rail-top">
+        <div class="kicker">CSS Transitions &amp; Transforms</div>
+        <div class="rail-num">27</div>
+      </div>
+    </div>
+    <div class="main"><div class="slide-content">
       <div class="slide-label">Summary</div>
       <h2>Summary</h2>
       <div class="summary-grid">
@@ -1532,14 +1681,20 @@ transform-origin: 0 50%;      /* left edge, centered */</code></pre>
           Button lift (translateY + box-shadow), image zoom (scale inside overflow:hidden), fade+slide in (opacity + translateY).
         </div>
       </div>
-    </div>
+    </div></div>
   </div>
 
   <!-- ══════════════════════════════════
        SLIDE 25 — Q&A
   ══════════════════════════════════ -->
   <div class="slide">
-    <div class="slide-content">
+    <div class="rail">
+      <div class="rail-top">
+        <div class="kicker">CSS Transitions &amp; Transforms</div>
+        <div class="rail-num">28</div>
+      </div>
+    </div>
+    <div class="main"><div class="slide-content">
       <div class="slide-label">Q &amp; A</div>
       <h2>Common Questions</h2>
       <dl style="display:grid;gap:.55rem;">
@@ -1564,7 +1719,7 @@ transform-origin: 0 50%;      /* left edge, centered */</code></pre>
           <dd style="font-size:.88rem;opacity:.9;line-height:1.5;">Transitions need a property change (before/after). Classic approach: JS sets initial state in CSS, then <code>setTimeout</code> adds a class to trigger the transition. Modern approach: use <code>@starting-style</code> — define starting values, and the browser auto-transitions from them when the element first renders. Supported in all current browsers since 2024.</dd>
         </div>
       </dl>
-    </div>
+    </div></div>
   </div>
 
 </div><!-- end slideshow-container -->
@@ -1715,6 +1870,30 @@ const slides = document.querySelectorAll('.slide');
 const totalSlides = slides.length;
 let current = 0;
 
+var MIN_SCALE = 0.72;
+function fitSlide(slideEl) {
+  if (!slideEl) return;
+  var main = slideEl.querySelector('.main');
+  var inner = slideEl.querySelector('.slide-content');
+  if (!main || !inner) return;
+
+  inner.style.transform = 'none';
+  inner.style.width = '100%';
+
+  var cs = getComputedStyle(main);
+  var available = main.clientHeight - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom);
+  var natural = inner.scrollHeight;
+
+  var scale = Math.min(1, available / natural);
+  scale = Math.max(scale, MIN_SCALE);
+
+  if (scale < 1) {
+    inner.style.transform = 'scale(' + scale + ')';
+    inner.style.width = (100 / scale) + '%';
+  }
+}
+function fitCurrentSlide() { fitSlide(slides[current]); }
+
 function goTo(index) {
   slides[current].classList.remove('active');
   current = Math.max(0, Math.min(index, totalSlides - 1));
@@ -1732,6 +1911,7 @@ function updateUI() {
   document.getElementById('next-btn').disabled = current === totalSlides - 1;
   const pct = ((current + 1) / totalSlides) * 100;
   document.getElementById('progress').style.width = pct + '%';
+  fitCurrentSlide();
 }
 
 // Keyboard navigation
@@ -1752,6 +1932,15 @@ document.addEventListener('keydown', (e) => {
 });
 
 updateUI();
+
+if (document.fonts && document.fonts.ready) {
+  document.fonts.ready.then(fitCurrentSlide);
+}
+var resizeTimer;
+window.addEventListener('resize', function () {
+  clearTimeout(resizeTimer);
+  resizeTimer = setTimeout(fitCurrentSlide, 100);
+});
 </script>
 
 </body>

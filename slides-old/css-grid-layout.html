@@ -1,0 +1,2722 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CSS Grid Layout</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --code-bg: #1e1e1e;
+            --code-text: #d4d4d4;
+            /* diagram accent colors */
+            --accent-teal: #00b4d8;
+            --accent-red:  #e74c3c;
+            --accent-gold: #ffd166;
+            --accent-green: #06d6a0;
+        }
+
+        html, body {
+            height: 100%;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--primary-color);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .slideshow-container {
+            width: 100%;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .slide {
+            display: none;
+            flex: 1;
+            padding: 1.5rem 2rem;
+            color: white;
+            overflow-y: auto;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        .slide.active {
+            display: flex;
+            flex-direction: column;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateX(20px); }
+            to   { opacity: 1; transform: translateX(0); }
+        }
+
+        /* Cycling slide backgrounds — matches other lessons */
+        .slide:nth-child(odd)  { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+        .slide:nth-child(even) { background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); }
+        .slide:nth-child(3n)   { background: linear-gradient(135deg, #ee0979 0%, #ff6a00 100%); }
+        .slide:nth-child(4n)   { background: linear-gradient(135deg, #2193b0 0%, #6dd5ed 100%); }
+        .slide:nth-child(5n)   { background: linear-gradient(135deg, #c31432 0%, #240b36 100%); }
+
+        .slide-content {
+            max-width: 1400px;
+            width: 100%;
+            margin: 0 auto;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .slide-content.centered {
+            justify-content: center;
+        }
+
+        /* Typography */
+        h1 {
+            font-size: clamp(1.8rem, 5vw, 3rem);
+            margin-bottom: 1.5rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+            line-height: 1.2;
+        }
+
+        h2 {
+            font-size: clamp(1.4rem, 4vw, 2.2rem);
+            margin-bottom: 0.75rem;
+            color: #ffeaa7;
+        }
+
+        h3 {
+            font-size: clamp(1.1rem, 3vw, 1.5rem);
+            margin: 0.75rem 0 0.4rem;
+            color: #81ecec;
+        }
+
+        h4 {
+            font-size: clamp(1rem, 2.5vw, 1.2rem);
+            margin: 0.5rem 0 0.3rem;
+            color: #dfe6e9;
+        }
+
+        p {
+            font-size: clamp(1rem, 2.5vw, 1.2rem);
+            line-height: 1.5;
+            margin-bottom: 0.5rem;
+        }
+
+        ul, ol {
+            font-size: clamp(0.95rem, 2.2vw, 1.15rem);
+            line-height: 1.6;
+            margin-left: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        li { margin-bottom: 0.3rem; }
+
+        a {
+            color: #ffeaa7;
+            text-decoration: underline;
+        }
+        a:hover { color: #fdcb6e; }
+
+        code {
+            background: rgba(0,0,0,0.3);
+            padding: 0.2em 0.5em;
+            border-radius: 4px;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 0.9em;
+        }
+
+        pre {
+            background: var(--code-bg);
+            color: var(--code-text);
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 0.5rem 0;
+            font-size: clamp(0.75rem, 1.6vw, 0.95rem);
+            line-height: 1.4;
+        }
+
+        pre code {
+            background: none;
+            padding: 0;
+        }
+
+        /* Callout boxes */
+        .highlight {
+            background: rgba(255,255,255,0.15);
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            border-left: 4px solid #ffeaa7;
+            margin: 0.5rem 0;
+        }
+
+        .note {
+            background: rgba(46, 204, 113, 0.2);
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            border-left: 4px solid #2ecc71;
+            margin: 0.5rem 0;
+        }
+
+        .caution {
+            background: rgba(231, 76, 60, 0.2);
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            border-left: 4px solid #e74c3c;
+            margin: 0.5rem 0;
+        }
+
+        .tip {
+            background: rgba(52, 152, 219, 0.2);
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            border-left: 4px solid #3498db;
+            margin: 0.5rem 0;
+        }
+
+        /* Layout helpers */
+        .two-column {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            align-items: start;
+        }
+
+        .three-column {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.5rem;
+            align-items: start;
+        }
+
+        @media (max-width: 900px) {
+            .three-column { grid-template-columns: 1fr 1fr; }
+        }
+
+        @media (max-width: 768px) {
+            .two-column, .three-column { grid-template-columns: 1fr; }
+        }
+
+        @media (max-width: 600px) {
+            .slide { padding: 1rem; }
+            .navigation { padding: 0.5rem; }
+            .nav-btn { padding: 0.5rem 1rem; font-size: 0.9rem; }
+        }
+
+        /* Cards */
+        .card, .info-card {
+            background: rgba(0,0,0,0.2);
+            padding: 1rem;
+            border-radius: 8px;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .card h3, .info-card h4 { margin-top: 0; }
+
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 0.75rem;
+            margin: 0.5rem 0;
+        }
+
+        /* Vocabulary cards */
+        .vocab-card {
+            background: rgba(0,0,0,0.2);
+            border-radius: 8px;
+            padding: 0.6rem 0.9rem;
+            border: 1px solid rgba(255,255,255,0.2);
+            border-top: 3px solid #81ecec;
+        }
+
+        .vocab-card strong {
+            color: #81ecec;
+            display: block;
+            font-size: 0.95em;
+            margin-bottom: 0.2rem;
+        }
+
+        .vocab-card span {
+            font-size: 0.85em;
+            opacity: 0.9;
+            line-height: 1.4;
+        }
+
+        /* Slide section label */
+        .slide-label {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: rgba(255,255,255,0.5);
+            margin-bottom: 0.25rem;
+        }
+
+        /* CodePen container */
+        .codepen-container {
+            margin: 0.5rem 0;
+            border-radius: 8px;
+            overflow: hidden;
+            flex: 1;
+            min-height: 0;
+        }
+
+        .codepen-container iframe {
+            border: none;
+            width: 100%;
+            height: 100%;
+            min-height: 300px;
+            border-radius: 8px;
+        }
+
+        /* Navigation */
+        .navigation {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 1rem;
+            padding: 0.75rem 1rem;
+            background: var(--primary-color);
+            flex-wrap: wrap;
+        }
+
+        .nav-btn {
+            padding: 0.6rem 1.2rem;
+            font-size: 1rem;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: var(--secondary-color);
+            color: white;
+        }
+
+        .nav-btn:hover {
+            background: #2980b9;
+            transform: translateY(-2px);
+        }
+
+        .nav-btn:disabled {
+            background: #7f8c8d;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .slide-counter {
+            color: white;
+            font-size: 1rem;
+            min-width: 100px;
+            text-align: center;
+        }
+
+        /* Progress bar */
+        .progress-bar {
+            width: 100%;
+            height: 4px;
+            background: rgba(255,255,255,0.2);
+        }
+
+        .progress {
+            height: 100%;
+            background: var(--secondary-color);
+            transition: width 0.3s ease;
+        }
+
+        /* Compare table */
+        table.compare-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 0.5rem 0;
+            font-size: clamp(0.8rem, 1.8vw, 1rem);
+        }
+
+        table.compare-table th,
+        table.compare-table td {
+            border: 1px solid rgba(255,255,255,0.3);
+            padding: 0.4rem 0.6rem;
+            text-align: left;
+        }
+
+        table.compare-table th {
+            background: rgba(0,0,0,0.2);
+            color: #ffeaa7;
+        }
+
+        /* Learn grid */
+        .learn-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+
+        .learn-item {
+            background: rgba(0,0,0,0.2);
+            border-radius: 8px;
+            padding: 0.5rem 0.75rem;
+            font-size: clamp(0.82rem, 1.8vw, 0.98rem);
+            border-left: 3px solid #81ecec;
+            line-height: 1.4;
+            border: 1px solid rgba(255,255,255,0.2);
+            border-left: 3px solid #81ecec;
+        }
+
+        /* ── CSS Grid diagram visuals ── */
+        .grid-demo {
+            background: rgba(0,0,0,0.25);
+            border-radius: 8px;
+            padding: 0.75rem;
+            font-size: 0.8rem;
+        }
+
+        .autofill-demo {
+            display: grid;
+            gap: 4px;
+            padding: 6px;
+            background: rgba(0,0,0,0.2);
+            border-radius: 6px;
+            min-height: 50px;
+        }
+
+        .autofill-demo .af-item {
+            background: rgba(52,152,219,0.4);
+            border: 1px solid #3498db;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            height: 40px;
+        }
+
+        .layout-visual {
+            display: grid;
+            grid-template-columns: 80px 1fr 70px;
+            grid-template-rows: 40px 90px 35px;
+            gap: 4px;
+            font-size: 0.75rem;
+            border-radius: 6px;
+            overflow: hidden;
+        }
+
+        .lv-header { background: #2c3e50; color: #fff; grid-column: 1/-1; display:flex; align-items:center; justify-content:center; border-radius:3px; }
+        .lv-nav    { background: #34495e; color: #fff; display:flex; align-items:center; justify-content:center; border-radius:3px; }
+        .lv-main   { background: rgba(255,255,255,0.15); display:flex; align-items:center; justify-content:center; border-radius:3px; }
+        .lv-aside  { background: rgba(52,152,219,0.4); display:flex; align-items:center; justify-content:center; border-radius:3px; }
+        .lv-footer { background: #2c3e50; color: #fff; grid-column: 1/-1; display:flex; align-items:center; justify-content:center; border-radius:3px; }
+
+        .fr-visual {
+            display: flex;
+            height: 45px;
+            gap: 3px;
+            border-radius: 6px;
+            overflow: hidden;
+            margin: 0.3rem 0;
+        }
+
+        .fr-visual .fr-col {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            font-weight: bold;
+            color: #fff;
+            border-radius: 4px;
+        }
+
+        .gap-visual {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            background: rgba(255,255,255,0.08);
+            border-radius: 6px;
+            padding: 4px;
+        }
+
+        .gap-visual .gap-item {
+            background: rgba(52,152,219,0.35);
+            padding: 8px;
+            border-radius: 4px;
+            text-align: center;
+            font-size: 0.75rem;
+        }
+
+        .span-visual {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            grid-template-rows: repeat(2, 45px);
+            gap: 3px;
+            background: rgba(0,0,0,0.2);
+            padding: 4px;
+            border-radius: 6px;
+        }
+
+        .sv-item {
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.2);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 0.7rem; border-radius: 3px;
+        }
+
+        .sv-span {
+            grid-column: 1 / 3;
+            background: rgba(231,76,60,0.4);
+            border: 2px solid #e74c3c;
+            font-weight: bold;
+        }
+
+        .sv-full {
+            grid-column: 1 / -1;
+            background: rgba(52,152,219,0.3);
+            border: 2px solid #3498db;
+        }
+
+        .align-diagram {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            grid-template-rows: repeat(2, 55px);
+            gap: 4px;
+            background: rgba(0,0,0,0.2);
+            padding: 4px;
+            border-radius: 6px;
+        }
+
+        .align-cell {
+            background: rgba(255,255,255,0.06);
+            border: 1px dashed rgba(255,255,255,0.2);
+            border-radius: 3px;
+            display: flex;
+        }
+
+        .align-item {
+            background: rgba(231,76,60,0.5);
+            border: 2px solid #e74c3c;
+            border-radius: 3px;
+            width: 40px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.65rem;
+            font-weight: bold;
+        }
+
+        /* ── Interactive Demo Styles ── */
+        .interactive-demo {
+            background: rgba(0,0,0,0.3);
+            border: 1px solid rgba(255,255,255,0.18);
+            border-radius: 10px;
+            padding: 0.75rem;
+            margin-top: 0.75rem;
+        }
+        .demo-header {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+        }
+        .demo-badge {
+            background: var(--secondary-color);
+            color: white;
+            font-size: 0.65rem;
+            padding: 0.15rem 0.5rem;
+            border-radius: 20px;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            font-weight: bold;
+            flex-shrink: 0;
+        }
+        .demo-btn {
+            padding: 0.3rem 0.75rem;
+            font-size: 0.82rem;
+            border: 1px solid rgba(255,255,255,0.35);
+            border-radius: 5px;
+            background: rgba(255,255,255,0.1);
+            color: white;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .demo-btn:hover { background: rgba(255,255,255,0.22); }
+        .demo-btn.active { background: var(--secondary-color); border-color: var(--secondary-color); }
+        .demo-select {
+            width: 100%;
+            padding: 0.3rem 0.5rem;
+            background: rgba(0,0,0,0.4);
+            color: white;
+            border: 1px solid rgba(255,255,255,0.3);
+            border-radius: 4px;
+            font-size: 0.82rem;
+            margin-top: 0.25rem;
+        }
+        .demo-cell {
+            background: rgba(52,152,219,0.35);
+            border: 1px solid rgba(52,152,219,0.6);
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            font-weight: bold;
+            min-height: 40px;
+            padding: 0.3rem;
+        }
+        .demo-code {
+            margin-top: 0.4rem;
+            font-size: 0.78rem;
+            color: rgba(255,255,255,0.6);
+            font-family: 'Consolas','Monaco',monospace;
+        }
+        /* Subgrid demo cards */
+        .sg-card {
+            background: rgba(0,0,0,0.25);
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 6px;
+            display: grid;
+            grid-template-rows: auto 1fr auto;
+            padding: 0.5rem;
+            gap: 4px;
+        }
+        .sg-card.subgrid-on { grid-row: span 3; grid-template-rows: subgrid; }
+        .sg-title { background: rgba(233,69,96,0.3); padding: 4px 6px; border-radius: 3px; font-size: 0.75rem; font-weight: bold; line-height: 1.3; }
+        .sg-body  { background: rgba(255,255,255,0.07); padding: 4px 6px; border-radius: 3px; font-size: 0.7rem; line-height: 1.4; }
+        .sg-btn-item { background: rgba(0,180,216,0.4); border: 1px solid #00b4d8; padding: 4px 8px; border-radius: 3px; font-size: 0.75rem; text-align: center; }
+        /* Implicit grid demo items */
+        .ig-item {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 5px;
+            font-size: 1rem;
+            font-weight: bold;
+            border: 2px solid;
+        }
+        .ig-explicit { background: rgba(0,180,216,0.35); border-color: rgba(0,180,216,0.7); }
+        .ig-implicit { background: rgba(255,209,102,0.35); border-color: rgba(255,209,102,0.7); }
+    </style>
+</head>
+<body>
+
+    <div class="progress-bar">
+        <div class="progress" id="progress"></div>
+    </div>
+
+<div class="slideshow-container" id="slideshow">
+
+    <!-- ─────────────────────────────────────────── SLIDE 1: TITLE ── -->
+    <div class="slide active">
+        <div class="slide-content centered">
+            
+            <h1>CSS Grid Layout</h1>
+            <p style="font-size:clamp(1rem,2.5vw,1.4rem); opacity:0.85; margin-bottom:1.5rem;">
+                A two-dimensional layout system for the web
+            </p>
+            <div style="display:flex; gap:1rem; flex-wrap:wrap; justify-content:center; margin-bottom:2rem;">
+                <span style="background:rgba(0,180,216,0.2); border:1px solid #00b4d8; padding:0.35rem 0.9rem; border-radius:20px; font-size:0.9rem;">display: grid</span>
+                <span style="background:rgba(233,69,96,0.2); border:1px solid #e74c3c; padding:0.35rem 0.9rem; border-radius:20px; font-size:0.9rem;">fr units</span>
+                <span style="background:rgba(255,209,102,0.2); border:1px solid #ffd166; padding:0.35rem 0.9rem; border-radius:20px; font-size:0.9rem;">grid-template-areas</span>
+                <span style="background:rgba(6,214,160,0.2); border:1px solid #06d6a0; padding:0.35rem 0.9rem; border-radius:20px; font-size:0.9rem;">auto-fit / auto-fill</span>
+            </div>
+            <!-- mini layout preview -->
+            <div class="layout-visual" style="width:260px; margin:0 auto 1rem;">
+                <div class="lv-header">header</div>
+                <div class="lv-nav">nav</div>
+                <div class="lv-main">main</div>
+                <div class="lv-aside">aside</div>
+                <div class="lv-footer">footer</div>
+            </div>
+            <p style="opacity:0.5; font-size:0.8rem;">Use arrow keys, swipe, or buttons to navigate</p>
+        </div>
+    </div>
+
+    <!-- ─────────────────────────────────────────── SLIDE 2: WHAT YOU'LL LEARN ── -->
+    <div class="slide">
+        <div class="slide-content">
+            <div class="slide-label">Overview</div>
+            <h2>What You'll Learn</h2>
+            <div class="learn-grid">
+                <div class="learn-item">How <strong>fixed</strong> and <strong>liquid</strong> layouts differ — and why CSS Grid supersedes both</div>
+                <div class="learn-item">What CSS Grid is: a <strong>two-dimensional</strong> layout system</div>
+                <div class="learn-item">How to define a <strong>grid container</strong>, columns, and rows</div>
+                <div class="learn-item">The <code>fr</code> unit, <code>repeat()</code>, and <code>minmax()</code></div>
+                <div class="learn-item"><code>auto-fill</code> and <code>auto-fit</code> for naturally responsive grids</div>
+                <div class="learn-item">Controlling spacing with <code>gap</code></div>
+                <div class="learn-item">Auto-placement, line-based placement, and named grid areas</div>
+                <div class="learn-item">Aligning items within cells and across the grid</div>
+                <div class="learn-item">Overlapping items with <code>z-index</code></div>
+                <div class="learn-item">Building a <strong>complete page layout</strong> with Grid</div>
+                <div class="learn-item"><strong>Subgrid</strong> — letting nested grids align with their parent</div>
+                <div class="learn-item">When to use <strong>Grid vs. Flexbox</strong></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ─────────────────────────────────────────── SLIDE 3: HISTORY ── -->
+    <div class="slide">
+        <div class="slide-content">
+            <div class="slide-label">Background</div>
+            <h2>Fixed vs. Liquid Layouts — A Brief History</h2>
+            <div class="two-column" style="gap:1rem; flex:unset; margin-top:0.5rem;">
+                <div class="card">
+                    <h3>Fixed Layouts</h3>
+                    <ul>
+                        <li>Set to a specific <strong>pixel width</strong></li>
+                        <li>Predictable design control</li>
+                        <li>Horizontal scroll on small screens</li>
+                        <li>Dead space on very wide screens</li>
+                    </ul>
+                    <pre style="margin-top:0.5rem;"><code>.wrapper { width: 960px; }</code></pre>
+                </div>
+                <div class="card">
+                    <h3>Liquid (Fluid) Layouts</h3>
+                    <ul>
+                        <li>Uses <strong>percentage</strong> widths</li>
+                        <li>Stretches to fill any window</li>
+                        <li>Long lines hard to read on wide screens</li>
+                        <li>Collapses awkwardly on narrow screens</li>
+                    </ul>
+                    <pre style="margin-top:0.5rem;"><code>.wrapper { width: 100%; }</code></pre>
+                </div>
+            </div>
+            <div class="note" style="margin-top:0.75rem;">
+                <strong>The old solution:</strong> Float-based hybrids — negative margins, padding hacks, and <code>float</code> pushed far beyond its purpose. Brittle and hard to maintain.
+            </div>
+            <div class="highlight" style="margin-top:0.5rem;">
+                <strong>CSS Grid solves this cleanly.</strong> Rather than fighting the browser to achieve layout, Grid gives you a direct, expressive way to describe exactly what you want.
+            </div>
+        </div>
+    </div>
+
+    <!-- ─────────────────────────────────────────── SLIDE 4: INTRO TO GRID ── -->
+    <div class="slide">
+        <div class="slide-content">
+            <div class="slide-label">Introduction to CSS Grid</div>
+            <h2>CSS Grid — The Two-Dimensional Layout System</h2>
+            <div class="highlight" style="margin-bottom:0.75rem;">
+                <strong>Two-dimensional</strong> = Grid controls <em>both rows and columns simultaneously</em>.<br>
+                Every previous layout method (floats, inline-block, Flexbox) works in only one direction at a time.
+            </div>
+            <div class="two-column">
+                <div>
+                    <h3>Key Vocabulary</h3>
+                    <div class="card-grid" style="grid-template-columns:1fr; gap:0.4rem;">
+                        <div class="vocab-card">
+                            <strong>Grid Container</strong>
+                            <span>Element with <code>display: grid</code>. All layout control starts here.</span>
+                        </div>
+                        <div class="vocab-card">
+                            <strong>Grid Items</strong>
+                            <span>Direct children only. Grandchildren do not participate.</span>
+                        </div>
+                        <div class="vocab-card">
+                            <strong>Grid Tracks</strong>
+                            <span>The columns and rows. Columns run vertically; rows run horizontally.</span>
+                        </div>
+                        <div class="vocab-card">
+                            <strong>Grid Lines</strong>
+                            <span>Dividers between tracks. Numbered automatically starting at 1.</span>
+                        </div>
+                        <div class="vocab-card">
+                            <strong>Grid Cell</strong>
+                            <span>Intersection of one row track and one column track — like a table cell.</span>
+                        </div>
+                        <div class="vocab-card">
+                            <strong>Grid Area</strong>
+                            <span>A rectangle spanning multiple cells. Items can span rows and columns.</span>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <h3>Visual Vocabulary</h3>
+                    <!-- Grid vocabulary diagram built in CSS -->
+                    <div class="grid-demo">
+                        <div style="display:grid; grid-template-columns:repeat(3,1fr); grid-template-rows:repeat(2,55px); gap:2px; background:rgba(0,180,216,0.1); padding:2px; border-radius:6px; position:relative;">
+                            <!-- cells -->
+                            <div style="background:rgba(255,255,255,0.07); border:1px dashed rgba(0,180,216,0.4); border-radius:3px; display:flex; align-items:center; justify-content:center; font-size:0.65rem; color:rgba(255,255,255,0.5);">cell</div>
+                            <div style="background:rgba(233,69,96,0.35); border:2px solid #e74c3c; border-radius:3px; display:flex; align-items:center; justify-content:center; font-size:0.7rem; font-weight:bold;">Item</div>
+                            <div style="background:rgba(255,255,255,0.07); border:1px dashed rgba(0,180,216,0.4); border-radius:3px;"></div>
+                            <div style="background:rgba(255,255,255,0.07); border:1px dashed rgba(0,180,216,0.4); border-radius:3px;"></div>
+                            <div style="background:rgba(255,255,255,0.07); border:1px dashed rgba(0,180,216,0.4); border-radius:3px;"></div>
+                            <div style="background:rgba(255,255,255,0.07); border:1px dashed rgba(0,180,216,0.4); border-radius:3px;"></div>
+                        </div>
+                        <div style="display:flex; justify-content:space-between; margin-top:4px; font-size:0.65rem; color:#00b4d8;">
+                            <span>← Column tracks →</span>
+                            <span style="color:#ffd166;">↕ Row tracks</span>
+                        </div>
+                        <div style="margin-top:6px; display:flex; gap:6px; flex-wrap:wrap;">
+                            <span style="background:rgba(0,180,216,0.2); border:1px solid #00b4d8; border-radius:4px; padding:2px 6px; font-size:0.65rem;">Grid lines: numbered 1, 2, 3…</span>
+                            <span style="background:rgba(233,69,96,0.2); border:1px solid #e74c3c; border-radius:4px; padding:2px 6px; font-size:0.65rem;">Red = grid item</span>
+                        </div>
+                    </div>
+                    <div class="note" style="margin-top:0.5rem;">
+                        <strong>Direct children only.</strong> Grandchildren don't become grid items — they sit inside their parent item like normal block elements.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ─────────────────────────────────────────── SLIDE 5: ACTIVATING + IMPLICIT/EXPLICIT ── -->
+    <div class="slide">
+        <div class="slide-content">
+            <div class="slide-label">Introduction to CSS Grid</div>
+            <h2>Activating a Grid &amp; Implicit vs. Explicit</h2>
+            <div class="two-column">
+                <div>
+                    <h3>Activating a Grid</h3>
+                    <p>One declaration turns any element into a grid container:</p>
+                    <pre><code>.container {
+  display: grid;
+}</code></pre>
+                    <p>All direct children become <strong>grid items</strong>. Nothing dramatic visually yet — items stack in one column by default (the implicit grid).</p>
+                    <p>Define structure to take control:</p>
+                    <pre><code>.container {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}</code></pre>
+                </div>
+                <div>
+                    <h3>Explicit vs. Implicit Grid</h3>
+                    <p style="font-size:0.88em; margin-bottom:0.4rem;">Think of it like a <strong>parking lot</strong>:</p>
+                    <div class="card" style="margin-bottom:0.5rem; border-left:3px solid #00b4d8;">
+                        <strong style="color:#00b4d8;">Explicit Grid — the spaces you painted</strong>
+                        <p style="font-size:0.85em; margin-top:0.3rem;">Defined with <code>grid-template-columns</code> and <code>grid-template-rows</code>. You own every track — size, count, everything.</p>
+                    </div>
+                    <div class="card" style="border-left:3px solid #ffd166;">
+                        <strong style="color:#ffd166;">Implicit Grid — what the browser improvises</strong>
+                        <p style="font-size:0.85em; margin-top:0.3rem;">When items overflow your defined rows, the browser auto-creates new ones — like cars parking on the grass when the lot is full. Control their size with <code>grid-auto-rows</code>.</p>
+                    </div>
+                    <div style="margin-top:0.6rem;">
+                        <p style="font-size:0.77rem; opacity:0.8; margin-bottom:0.3rem;">3 columns, 2 explicit rows — items 7+ overflow into implicit rows:</p>
+                        <div style="display:grid; grid-template-columns:repeat(3,1fr); grid-template-rows:32px 32px; grid-auto-rows:32px; gap:3px;">
+                            <div style="background:rgba(0,180,216,0.35);border:1px solid rgba(0,180,216,0.6);border-radius:3px;display:flex;align-items:center;justify-content:center;font-size:0.72rem;font-weight:bold;">1</div>
+                            <div style="background:rgba(0,180,216,0.35);border:1px solid rgba(0,180,216,0.6);border-radius:3px;display:flex;align-items:center;justify-content:center;font-size:0.72rem;font-weight:bold;">2</div>
+                            <div style="background:rgba(0,180,216,0.35);border:1px solid rgba(0,180,216,0.6);border-radius:3px;display:flex;align-items:center;justify-content:center;font-size:0.72rem;font-weight:bold;">3</div>
+                            <div style="background:rgba(0,180,216,0.35);border:1px solid rgba(0,180,216,0.6);border-radius:3px;display:flex;align-items:center;justify-content:center;font-size:0.72rem;font-weight:bold;">4</div>
+                            <div style="background:rgba(0,180,216,0.35);border:1px solid rgba(0,180,216,0.6);border-radius:3px;display:flex;align-items:center;justify-content:center;font-size:0.72rem;font-weight:bold;">5</div>
+                            <div style="background:rgba(0,180,216,0.35);border:1px solid rgba(0,180,216,0.6);border-radius:3px;display:flex;align-items:center;justify-content:center;font-size:0.72rem;font-weight:bold;">6</div>
+                            <div style="background:rgba(255,209,102,0.35);border:1px dashed rgba(255,209,102,0.7);border-radius:3px;display:flex;align-items:center;justify-content:center;font-size:0.72rem;font-weight:bold;">7↓</div>
+                            <div style="background:rgba(255,209,102,0.35);border:1px dashed rgba(255,209,102,0.7);border-radius:3px;display:flex;align-items:center;justify-content:center;font-size:0.72rem;font-weight:bold;">8↓</div>
+                            <div style="background:rgba(255,209,102,0.35);border:1px dashed rgba(255,209,102,0.7);border-radius:3px;display:flex;align-items:center;justify-content:center;font-size:0.72rem;font-weight:bold;">9↓</div>
+                        </div>
+                        <div style="display:flex;gap:1rem;margin-top:0.3rem;font-size:0.72rem;">
+                            <span><span style="display:inline-block;width:10px;height:10px;background:rgba(0,180,216,0.4);border:1px solid #00b4d8;border-radius:1px;vertical-align:middle;margin-right:3px;"></span>Explicit rows</span>
+                            <span><span style="display:inline-block;width:10px;height:10px;background:rgba(255,209,102,0.4);border:1px dashed #ffd166;border-radius:1px;vertical-align:middle;margin-right:3px;"></span>Implicit rows (auto-created)</span>
+                        </div>
+                    </div>
+                    <div style="display:flex; gap:0.5rem; margin-top:0.5rem; flex-wrap:wrap;">
+                        <a href="https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_grid_layout/Basic_concepts_of_grid_layout" target="_blank" style="font-size:0.85rem;">MDN: Grid Basics</a>
+                        <a href="https://www.w3schools.com/css/css_grid.asp" target="_blank" style="font-size:0.85rem;">W3Schools: Grid</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ⬛ INTERACTIVE: Implicit Grid Explorer ── -->
+    <div class="slide">
+        <div class="slide-content">
+            <div class="slide-label">Interactive Demo — Explicit vs. Implicit</div>
+            <h2>Implicit Grid Explorer</h2>
+            <p style="margin-bottom:0.5rem;">Click <strong>+ Add Item</strong> to push items beyond the 2 defined rows. Watch the browser auto-create implicit rows. Adjust their height with <code>grid-auto-rows</code>.</p>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin-bottom:0.5rem; align-items:center;">
+                <div style="display:flex; gap:0.5rem; align-items:center; flex-wrap:wrap;">
+                    <button class="demo-btn" onclick="addGridItem()" style="background:rgba(6,214,160,0.25); border-color:rgba(6,214,160,0.6);">+ Add Item</button>
+                    <button class="demo-btn" onclick="removeGridItem()">− Remove</button>
+                    <span style="font-size:0.9rem; opacity:0.8;">Items: <strong id="itemCount">3</strong></span>
+                </div>
+                <div>
+                    <label style="font-size:0.9rem;">grid-auto-rows: <strong id="autoRowsLabel">80px</strong></label>
+                    <input type="range" id="autoRowsSlider" min="40" max="140" value="80" style="width:100%; margin-top:0.25rem;" oninput="updateAutoRows()">
+                </div>
+            </div>
+            <div style="display:flex; gap:1.5rem; font-size:0.85rem; margin-bottom:0.5rem;">
+                <span><span style="display:inline-block;width:12px;height:12px;background:rgba(0,180,216,0.5);border:1px solid #00b4d8;border-radius:2px;vertical-align:middle;margin-right:4px;"></span>Explicit rows (grid-template-rows)</span>
+                <span><span style="display:inline-block;width:12px;height:12px;background:rgba(255,209,102,0.5);border:1px solid #ffd166;border-radius:2px;vertical-align:middle;margin-right:4px;"></span>Implicit rows (grid-auto-rows)</span>
+            </div>
+            <div id="implicitGrid" style="display:grid; grid-template-columns:1fr 1fr 1fr; grid-template-rows:80px 80px; grid-auto-rows:80px; gap:6px; background:rgba(0,0,0,0.2); padding:8px; border-radius:8px; flex:1; min-height:200px; align-content:start;">
+                <div class="ig-item ig-explicit">1</div>
+                <div class="ig-item ig-explicit">2</div>
+                <div class="ig-item ig-explicit">3</div>
+            </div>
+            <div style="margin-top:0.75rem; background:rgba(0,0,0,0.35); padding:0.5rem 0.75rem; border-radius:6px; font-family:monospace; font-size:0.8rem; line-height:1.8; white-space:pre;">.container {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  <span style="color:#00b4d8;">grid-template-rows: 80px 80px;</span>      <span style="color:rgba(255,255,255,0.4);">/* explicit — you define these */</span>
+  <span style="color:#ffd166;">grid-auto-rows: <span id="autoRowsCode">80px</span>;</span>          <span style="color:rgba(255,209,102,0.5);">/* implicit — browser auto-creates */</span>
+}</div>
+            <div class="note" style="margin-top:0.5rem;">Items 1–6 land in <strong>explicit</strong> rows (blue). Items 7+ overflow into <strong>implicit</strong> rows (yellow) sized by <code>grid-auto-rows</code>. Try adding 10+ items!</div>
+        </div>
+    </div>
+
+    <!-- ─────────────────────────────────────────── SLIDE 6: CODEPEN 12.1 ── -->
+    <div class="slide">
+        <div class="slide-content">
+            <div class="slide-label">CodePen 12.1 — Try it</div>
+            <h2>Your First Grid</h2>
+            <p style="margin-bottom:0.5rem; font-size:0.9rem;">Items stack in one column before columns are defined. Try adding <code>grid-template-columns: 1fr 1fr</code> to the container.</p>
+            <div class="codepen-container">
+                <iframe height="700" style="width: 100%;" scrolling="no" title="Codepen - 12.1" src="https://codepen.io/mattkearl/embed/zxBVwBy?default-tab=css%2Cresult&editable=true" frameborder="no" loading="lazy" allowtransparency="true">
+                    See the Pen <a href="https://codepen.io/mattkearl/pen/zxBVwBy">Codepen - 12.1</a> by SE1400 on <a href="https://codepen.io">CodePen</a>.
+                </iframe>
+            </div>
+        </div>
+    </div>
+
+    <!-- ─────────────────────────────────────────── SLIDE 7: COLUMNS & ROWS ── -->
+    <div class="slide">
+        <div class="slide-content">
+            <div class="slide-label">Defining the Grid</div>
+            <h2>Defining Columns and Rows</h2>
+            <div class="two-column">
+                <div>
+                    <h3>grid-template-columns / rows</h3>
+                    <p>Space-separated values — each defines one track:</p>
+                    <pre><code>.container {
+  display: grid;
+  grid-template-columns: 200px 400px 200px;
+  grid-template-rows: 100px 300px;
+}</code></pre>
+                    <p>Accepted units: <code>px</code>, <code>%</code>, <code>auto</code>, <strong><code>fr</code></strong></p>
+
+                    <h3 style="margin-top:0.75rem;">Controlling Implicit Rows</h3>
+                    <p>When items overflow your defined rows, use <code>grid-auto-rows</code>:</p>
+                    <pre><code>.container {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  grid-auto-rows: 150px;
+}</code></pre>
+                    <div class="tip">Great for card grids — every auto-created row gets a consistent height.</div>
+                </div>
+                <div>
+                    <h3>The <code>fr</code> Unit</h3>
+                    <p><strong>fr = fractional unit</strong>. Assigns a fraction of <em>available free space</em> after fixed items are placed.</p>
+                    <div class="grid-demo">
+                        <p style="font-size:0.8rem; margin-bottom:0.4rem; color:rgba(255,255,255,0.7);">1fr 1fr 1fr → three equal columns</p>
+                        <div class="fr-visual">
+                            <div class="fr-col" style="flex:1; background:rgba(0,180,216,0.5);">1fr</div>
+                            <div class="fr-col" style="flex:1; background:rgba(0,180,216,0.4);">1fr</div>
+                            <div class="fr-col" style="flex:1; background:rgba(0,180,216,0.3);">1fr</div>
+                        </div>
+                        <p style="font-size:0.8rem; margin:0.5rem 0 0.3rem; color:rgba(255,255,255,0.7);">1fr 2fr 1fr → middle gets twice the space</p>
+                        <div class="fr-visual">
+                            <div class="fr-col" style="flex:1; background:rgba(233,69,96,0.4);">1fr</div>
+                            <div class="fr-col" style="flex:2; background:rgba(233,69,96,0.6);">2fr</div>
+                            <div class="fr-col" style="flex:1; background:rgba(233,69,96,0.4);">1fr</div>
+                        </div>
+                        <p style="font-size:0.8rem; margin:0.5rem 0 0.3rem; color:rgba(255,255,255,0.7);">250px 1fr → fixed sidebar + fluid content</p>
+                        <div class="fr-visual">
+                            <div class="fr-col" style="width:80px; flex-shrink:0; background:rgba(255,209,102,0.5);">250px</div>
+                            <div class="fr-col" style="flex:1; background:rgba(6,214,160,0.4);">1fr</div>
+                        </div>
+                    </div>
+                    <div class="note" style="margin-top:0.5rem;">
+                        Unlike <code>%</code>, <code>fr</code> distributes space <em>after</em> gaps are subtracted — no math required.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- ⬛ INTERACTIVE: Column/fr Builder ── -->
+    <div class="slide">
+        <div class="slide-content">
+            <div class="slide-label">Interactive Demo — Defining Columns</div>
+            <h2>Column Builder</h2>
+            <!-- ⬛ DEMO: Column/fr Builder -->
+            <div class="interactive-demo">
+                <div class="demo-header">
+                    <span class="demo-badge">Try it</span>
+                    <strong>Column Builder — type any valid <code>grid-template-columns</code> value</strong>
+                </div>
+                <div style="display:flex; gap:0.5rem; align-items:center; flex-wrap:wrap; margin-bottom:0.5rem;">
+                    <code style="font-size:0.82rem; flex-shrink:0;">grid-template-columns:</code>
+                    <input type="text" id="colInput" value="1fr 1fr 1fr"
+                        style="font-family:monospace; font-size:0.85rem; padding:0.3rem 0.6rem; border-radius:4px; border:1px solid rgba(255,255,255,0.3); background:rgba(0,0,0,0.35); color:white; flex:1; min-width:140px;"
+                        oninput="updateColumnDemo()">
+                </div>
+                <div style="display:flex; gap:0.4rem; flex-wrap:wrap; margin-bottom:0.5rem;">
+                    <button class="demo-btn" onclick="setColPreset('1fr 1fr')">2 equal</button>
+                    <button class="demo-btn" onclick="setColPreset('1fr 2fr 1fr')">center wide</button>
+                    <button class="demo-btn" onclick="setColPreset('200px 1fr')">fixed + fluid</button>
+                    <button class="demo-btn" onclick="setColPreset('repeat(4, 1fr)')">4 equal</button>
+                    <button class="demo-btn" onclick="setColPreset('repeat(3, minmax(80px,1fr))')">minmax</button>
+                </div>
+                <div id="colGrid" style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:6px; background:rgba(0,0,0,0.2); padding:6px; border-radius:6px; min-height:90px;">
+                    <div class="demo-cell">1</div>
+                    <div class="demo-cell" style="background:rgba(233,69,96,0.4); border-color:rgba(233,69,96,0.7);">2</div>
+                    <div class="demo-cell" style="background:rgba(255,209,102,0.35); border-color:rgba(255,209,102,0.6);">3</div>
+                    <div class="demo-cell" style="background:rgba(6,214,160,0.35); border-color:rgba(6,214,160,0.6);">4</div>
+                    <div class="demo-cell">5</div>
+                    <div class="demo-cell" style="background:rgba(233,69,96,0.4); border-color:rgba(233,69,96,0.7);">6</div>
+                </div>
+                <div id="colError" style="color:#e74c3c; font-size:0.78rem; margin-top:0.3rem; display:none;">⚠ Invalid — try: <code>1fr 2fr 1fr</code></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ─────────────────────────────────────────── SLIDE 8: CODEPEN 12.2 ── -->
+    <div class="slide">
+        <div class="slide-content">
+            <div class="slide-label">CodePen 12.2 — Try it</div>
+            <h2>Experimenting with Column Values</h2>
+            <p style="margin-bottom:0.5rem; font-size:0.9rem;">Try <code>px</code>, <code>%</code>, <code>auto</code>, and <code>fr</code> values. Change one column to <code>2fr</code> and watch it grow relative to the others.</p>
+            <div class="codepen-container">
+                <iframe height="800" style="width: 100%;" scrolling="no" title="Codepen - 12.2" src="https://codepen.io/mattkearl/embed/xbOooEZ?default-tab=css%2Cresult&editable=true" frameborder="no" loading="lazy" allowtransparency="true">
+                    See the Pen <a href="https://codepen.io/mattkearl/pen/xbOooEZ">Codepen - 12.2</a> by SE1400 on <a href="https://codepen.io">CodePen</a>.
+                </iframe>
+            </div>
+        </div>
+    </div>
+
+    <!-- ─────────────────────────────────────────── SLIDE 9: REPEAT + MINMAX ── -->
+    <div class="slide">
+        <div class="slide-content">
+            <div class="slide-label">Powerful Grid Functions</div>
+            <h2><code>repeat()</code> and <code>minmax()</code></h2>
+            <div class="two-column">
+                <div>
+                    <h3>repeat()</h3>
+                    <p>Avoid repetitive column definitions:</p>
+                    <pre><code>/* Tedious */
+grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
+
+/* Clean */
+grid-template-columns: repeat(5, 1fr);
+
+/* Repeating a pattern */
+grid-template-columns: repeat(3, 200px 1fr);
+/* → 6 columns: 200px 1fr 200px 1fr 200px 1fr */</code></pre>
+
+                    <h3 style="margin-top:0.75rem;">minmax()</h3>
+                    <p>Sets a <strong>minimum</strong> and <strong>maximum</strong> size for a track:</p>
+                    <pre><code>grid-template-columns:
+  repeat(3, minmax(200px, 1fr));</code></pre>
+                    <ul>
+                        <li>Each column: <strong>at least 200px</strong></li>
+                        <li>Can grow to an equal share of space</li>
+                        <li>Flexible but never too small</li>
+                    </ul>
+                </div>
+                <div>
+                    <h3>Combining Both</h3>
+                    <pre><code>.container {
+  display: grid;
+  grid-template-columns:
+    repeat(3, minmax(200px, 1fr));
+  gap: 1rem;
+}</code></pre>
+                    <div class="grid-demo" style="margin-top:0.5rem;">
+                        <p style="font-size:0.75rem; color:rgba(255,255,255,0.6); margin-bottom:0.4rem;">Wide container → 3 equal columns</p>
+                        <div class="fr-visual">
+                            <div class="fr-col" style="flex:1; background:rgba(0,180,216,0.4);">≥200px</div>
+                            <div class="fr-col" style="flex:1; background:rgba(0,180,216,0.35);">≥200px</div>
+                            <div class="fr-col" style="flex:1; background:rgba(0,180,216,0.3);">≥200px</div>
+                        </div>
+                        <p style="font-size:0.75rem; color:rgba(255,255,255,0.6); margin:0.5rem 0 0.3rem;">Narrow container → fewer columns</p>
+                        <div class="fr-visual">
+                            <div class="fr-col" style="flex:1; background:rgba(0,180,216,0.45);">≥200px</div>
+                            <div class="fr-col" style="flex:1; background:rgba(0,180,216,0.35);">≥200px</div>
+                        </div>
+                    </div>
+                    <div class="caution" style="margin-top:0.5rem;">
+                        <strong>Note:</strong> <code>fr</code> cannot be used as the <em>minimum</em> in <code>minmax()</code> — only as the maximum. Minimum must be <code>px</code>, <code>%</code>, or <code>auto</code>.
+                    </div>
+                    <a href="https://developer.mozilla.org/en-US/docs/Web/CSS/minmax" target="_blank" style="font-size:0.85rem;">MDN: minmax()</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ⬛ INTERACTIVE: repeat() + minmax() Playground ── -->
+    <div class="slide">
+        <div class="slide-content">
+            <div class="slide-label">Interactive Demo — repeat() &amp; minmax()</div>
+            <h2>repeat() + minmax() Playground</h2>
+            <p style="margin-bottom:0.75rem;">Adjust the column count and the minimum/maximum sizes to see how <code>repeat()</code> and <code>minmax()</code> work together.</p>
+            <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:0.75rem; margin-bottom:0.75rem;">
+                <div>
+                    <label style="font-size:0.9rem;">Columns: <strong id="repeatCount">3</strong></label>
+                    <input type="range" id="repeatSlider" min="1" max="6" value="3" style="width:100%; margin-top:0.25rem;" oninput="updateMinmax()">
+                </div>
+                <div>
+                    <label style="font-size:0.9rem;">min: <strong id="minVal">100px</strong></label>
+                    <input type="range" id="minSlider" min="50" max="250" value="100" step="10" style="width:100%; margin-top:0.25rem;" oninput="updateMinmax()">
+                </div>
+                <div>
+                    <label style="font-size:0.9rem;">max:</label>
+                    <select id="maxSelect" class="demo-select" onchange="updateMinmax()">
+                        <option value="1fr" selected>1fr</option>
+                        <option value="2fr">2fr</option>
+                        <option value="200px">200px (fixed)</option>
+                        <option value="300px">300px (fixed)</option>
+                        <option value="auto">auto</option>
+                    </select>
+                </div>
+            </div>
+            <div id="minmaxGrid" style="display:grid; grid-template-columns:repeat(3,minmax(100px,1fr)); gap:8px; background:rgba(0,0,0,0.2); padding:10px; border-radius:8px; flex:1; min-height:200px; align-content:start;">
+                <div class="demo-cell" style="font-size:1rem;">1</div>
+                <div class="demo-cell" style="background:rgba(233,69,96,0.4); border-color:rgba(233,69,96,0.7); font-size:1rem;">2</div>
+                <div class="demo-cell" style="background:rgba(255,209,102,0.35); border-color:rgba(255,209,102,0.6); font-size:1rem;">3</div>
+                <div class="demo-cell" style="background:rgba(6,214,160,0.35); border-color:rgba(6,214,160,0.6); font-size:1rem;">4</div>
+                <div class="demo-cell" style="font-size:1rem;">5</div>
+                <div class="demo-cell" style="background:rgba(233,69,96,0.4); border-color:rgba(233,69,96,0.7); font-size:1rem;">6</div>
+            </div>
+            <div style="margin-top:0.75rem;">
+                <code style="font-size:0.95rem; background:rgba(0,0,0,0.3); padding:0.35rem 0.7rem; border-radius:4px;">grid-template-columns: repeat(<span id="mmColCode">3</span>, minmax(<span id="mmMinCode">100px</span>, <span id="mmMaxCode">1fr</span>));</code>
+            </div>
+            <div class="tip" style="margin-top:0.75rem;">Try <strong>6 columns with min 150px</strong> — when the grid is too narrow to fit 6 × 150px, items wrap automatically. This is the power of <code>minmax()</code>!</div>
+        </div>
+    </div>
+
+    <!-- ─────────────────────────────────────────── SLIDE 10: CODEPEN 12.3 ── -->
+    <div class="slide">
+        <div class="slide-content">
+            <div class="slide-label">CodePen 12.3 — Try it</div>
+            <h2>repeat() and minmax() in Action</h2>
+            <p style="margin-bottom:0.5rem; font-size:0.9rem;">Experiment with different <code>repeat()</code> counts and <code>minmax()</code> values. Resize the result panel to see the grid adapt.</p>
+            <div class="codepen-container">
+                <iframe height="800" style="width: 100%;" scrolling="no" title="Codepen - 12.3" src="https://codepen.io/mattkearl/embed/gbMNNwo?default-tab=css%2Cresult&editable=true" frameborder="no" loading="lazy" allowtransparency="true">
+                    See the Pen <a href="https://codepen.io/mattkearl/pen/gbMNNwo">Codepen - 12.3</a> by SE1400 on <a href="https://codepen.io">CodePen</a>.
+                </iframe>
+            </div>
+        </div>
+    </div>
+
+    <!-- ─────────────────────────────────────────── SLIDE 11: AUTO-FILL VS AUTO-FIT ── -->
+    <div class="slide">
+        <div class="slide-content">
+            <div class="slide-label">Responsive Grids Without Media Queries</div>
+            <h2><code>auto-fill</code> vs. <code>auto-fit</code></h2>
+            <div class="highlight" style="margin-bottom:0.75rem;">
+                Pass a <strong>keyword</strong> instead of a number to <code>repeat()</code> — the browser decides how many columns fit automatically.
+            </div>
+            <pre style="margin-bottom:0.75rem;"><code>.container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  /* "Make as many columns as will fit at ≥200px wide" — no media queries needed */
+}</code></pre>
+            <div class="two-column" style="flex:unset;">
+                <div class="card">
+                    <h3><code>auto-fill</code></h3>
+                    <p>Creates as many column tracks as will fit — even if some are <strong>empty</strong>. Empty columns still take up space.</p>
+                    <div class="autofill-demo" style="grid-template-columns: repeat(4, 1fr);">
+                        <div class="af-item">1</div>
+                        <div class="af-item">2</div>
+                        <div class="af-item" style="background:rgba(255,255,255,0.05); border-style:dashed; color:rgba(255,255,255,0.3);">empty</div>
+                        <div class="af-item" style="background:rgba(255,255,255,0.05); border-style:dashed; color:rgba(255,255,255,0.3);">empty</div>
+                    </div>
+                    <p style="font-size:0.8rem; margin-top:0.4rem; opacity:0.7;">Items stay their natural size; empty tracks preserved</p>
+                </div>
+                <div class="card">
+                    <h3><code>auto-fit</code></h3>
+                    <p>Also creates as many tracks as fit, but <strong>collapses empty</strong> columns to zero width. Filled columns expand to use the space.</p>
+                    <div class="autofill-demo" style="grid-template-columns: repeat(2, 1fr);">
+                        <div class="af-item" style="flex:1;">1</div>
+                        <div class="af-item" style="flex:1;">2</div>
+                    </div>
+                    <p style="font-size:0.8rem; margin-top:0.4rem; opacity:0.7;">Items expand to fill available space</p>
+                </div>
+            </div>
+            <div class="note" style="margin-top:0.75rem;">
+                In most real-world cases (enough items to fill a row), both behave identically. Use <code>auto-fit</code> when you want items to <em>expand</em> rather than leave gaps.
+            </div>
+        </div>
+    </div>
+
+
+    <!-- ⬛ INTERACTIVE: auto-fill vs auto-fit slider ── -->
+    <div class="slide">
+        <div class="slide-content">
+            <div class="slide-label">Interactive Demo — auto-fill &amp; auto-fit</div>
+            <h2>auto-fill vs. auto-fit</h2>
+            <!-- ⬛ DEMO: auto-fill vs auto-fit slider -->
+            <div class="interactive-demo">
+                <div class="demo-header">
+                    <span class="demo-badge">Try it</span>
+                    <strong>Change item count — the difference only shows when items are <em>fewer</em> than the grid can fit</strong>
+                </div>
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.5rem; margin-bottom:0.6rem; align-items:center;">
+                    <div>
+                        <label style="font-size:0.85rem;">Items: <strong id="afItemLabel">2</strong></label>
+                        <input type="range" id="afItemSlider" min="1" max="8" value="2" style="width:100%; margin-top:0.2rem;" oninput="updateAutoFillDemo()">
+                    </div>
+                    <div>
+                        <label style="font-size:0.85rem;">Min column width: <strong id="afMinLabel">70px</strong></label>
+                        <input type="range" id="afMinSlider" min="40" max="130" value="70" style="width:100%; margin-top:0.2rem;" oninput="updateAutoFillDemo()">
+                    </div>
+                </div>
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.75rem;">
+                    <div>
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+                            <p style="font-size:0.75rem; color:#81ecec; font-weight:bold; margin:0;"><code>auto-fill</code></p>
+                            <span style="font-size:0.7rem; background:rgba(129,236,236,0.15); padding:2px 7px; border-radius:10px; color:#81ecec;">tracks: <strong id="afFillCount">—</strong></span>
+                        </div>
+                        <div style="border:1px dashed rgba(129,236,236,0.4); border-radius:4px; padding:4px; background:rgba(129,236,236,0.04); min-height:52px;">
+                            <div id="afFillGrid" style="display:grid; grid-template-columns:repeat(auto-fill,minmax(70px,1fr)); gap:4px;"></div>
+                        </div>
+                        <p style="font-size:0.72rem; margin-top:4px; opacity:0.75;">Empty tracks <em>preserved</em> — dashed boxes are "ghost" columns</p>
+                    </div>
+                    <div>
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+                            <p style="font-size:0.75rem; color:#ffd166; font-weight:bold; margin:0;"><code>auto-fit</code></p>
+                            <span style="font-size:0.7rem; background:rgba(255,209,102,0.15); padding:2px 7px; border-radius:10px; color:#ffd166;">tracks: <strong id="afFitCount">—</strong></span>
+                        </div>
+                        <div style="border:1px dashed rgba(255,209,102,0.4); border-radius:4px; padding:4px; background:rgba(255,209,102,0.04); min-height:52px;">
+                            <div id="afFitGrid" style="display:grid; grid-template-columns:repeat(auto-fit,minmax(70px,1fr)); gap:4px;"></div>
+                        </div>
+                        <p style="font-size:0.72rem; margin-top:4px; opacity:0.75;">Empty tracks <em>collapsed</em> — items stretch to fill all space</p>
+                    </div>
+                </div>
+                <div class="demo-code" style="margin-top:0.5rem;">repeat(auto-fill | auto-fit, minmax(<span id="afMinCode">70px</span>, 1fr))</div>
+                <div class="note" style="margin-top:0.4rem; font-size:0.82rem;">💡 Try <strong>1–2 items</strong> to see the biggest difference. With many items, both look identical.</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ─────────────────────────────────────────── SLIDE 12: CODEPEN 12.4 ── -->
+    <div class="slide">
+        <div class="slide-content">
+            <div class="slide-label">CodePen 12.4 — Try it</div>
+            <h2>auto-fill vs. auto-fit Side by Side</h2>
+            <p style="margin-bottom:0.5rem; font-size:0.9rem;">Remove items and observe how each keyword responds to the empty space differently.</p>
+            <div class="codepen-container">
+                <iframe height="800" style="width: 100%;" scrolling="no" title="Codepen - 12.4" src="https://codepen.io/mattkearl/embed/XJKLLNW?default-tab=css%2Cresult&editable=true" frameborder="no" loading="lazy" allowtransparency="true">
+                    See the Pen <a href="https://codepen.io/mattkearl/pen/XJKLLNW">Codepen - 12.4</a> by SE1400 on <a href="https://codepen.io">CodePen</a>.
+                </iframe>
+            </div>
+        </div>
+    </div>
+
+    <!-- ─────────────────────────────────────────── SLIDE 13: GAP ── -->
+    <div class="slide">
+        <div class="slide-content">
+            <div class="slide-label">Spacing</div>
+            <h2>Controlling Spacing with <code>gap</code></h2>
+            <div class="two-column">
+                <div>
+                    <h3>What gap does</h3>
+                    <p>Adds space <strong>between</strong> grid tracks — not around the outer edges of the grid.</p>
+                    <pre><code>/* Equal gap on all sides between items */
+.container {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+
+/* Different row and column gaps */
+.container {
+  row-gap: 30px;
+  column-gap: 15px;
+}
+
+/* Shorthand: row column */
+.container {
+  gap: 30px 15px;
+}</code></pre>
+
+                    <div class="note" style="margin-top:0.5rem;">
+                        <strong>Deprecated names:</strong> <code>grid-row-gap</code> / <code>grid-column-gap</code> still work but are outdated. Use <code>row-gap</code> / <code>column-gap</code> (also works in Flexbox).
+                    </div>
+                </div>
+                <div>
+                    <h3>Visual: gap vs. margin</h3>
+                    <div class="grid-demo">
+                        <p style="font-size:0.75rem; color:rgba(255,255,255,0.6); margin-bottom:0.4rem;">gap — space between items only</p>
+                        <div class="gap-visual" style="gap:8px;">
+                            <div class="gap-item">A</div>
+                            <div class="gap-item">B</div>
+                            <div class="gap-item">C</div>
+                            <div class="gap-item">D</div>
+                            <div class="gap-item">E</div>
+                            <div class="gap-item">F</div>
+                        </div>
+                        <div style="margin-top:0.5rem; font-size:0.75rem; color:#00b4d8;">← Outer edges flush with container ↔ gaps only between →</div>
+                    </div>
+                    <div class="highlight" style="margin-top:0.75rem;">
+                        <strong>No more margin hacks!</strong><br>
+                        Old approach: add margins to items + negative margin on container. Gap replaces all that cleanly.
+                    </div>
+                    <a href="https://developer.mozilla.org/en-US/docs/Web/CSS/gap" target="_blank" style="display:block; margin-top:0.5rem; font-size:0.85rem;">MDN: gap property</a>
+                    <a href="https://css-tricks.com/snippets/css/complete-guide-grid/#aa-gap-formerly-grid-gap" target="_blank" style="display:block; font-size:0.85rem;">CSS-Tricks: Complete Grid Guide</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- ⬛ INTERACTIVE: Gap Sliders ── -->
+    <div class="slide">
+        <div class="slide-content">
+            <div class="slide-label">Interactive Demo — gap</div>
+            <h2>Gap Controller</h2>
+            <!-- ⬛ DEMO: Gap Sliders -->
+            <div class="interactive-demo">
+                <div class="demo-header">
+                    <span class="demo-badge">Try it</span>
+                    <strong>Gap Controller — drag to adjust spacing between grid tracks</strong>
+                </div>
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.75rem; margin-bottom:0.5rem;">
+                    <div>
+                        <label style="font-size:0.85rem;">row-gap: <strong id="rowGapLabel">16px</strong></label>
+                        <input type="range" id="rowGapSlider" min="0" max="40" value="16" style="width:100%; margin-top:0.2rem;" oninput="updateGapDemo()">
+                    </div>
+                    <div>
+                        <label style="font-size:0.85rem;">column-gap: <strong id="colGapLabel">16px</strong></label>
+                        <input type="range" id="colGapSlider" min="0" max="40" value="16" style="width:100%; margin-top:0.2rem;" oninput="updateGapDemo()">
+                    </div>
+                </div>
+                <div id="gapGrid" style="display:grid; grid-template-columns:repeat(3,1fr); row-gap:16px; column-gap:16px; background:rgba(255,255,255,0.06); padding:8px; border-radius:6px; border:1px solid rgba(255,255,255,0.1);">
+                    <div class="demo-cell">A</div>
+                    <div class="demo-cell" style="background:rgba(233,69,96,0.4); border-color:rgba(233,69,96,0.7);">B</div>
+                    <div class="demo-cell" style="background:rgba(255,209,102,0.35); border-color:rgba(255,209,102,0.6);">C</div>
+                    <div class="demo-cell" style="background:rgba(6,214,160,0.35); border-color:rgba(6,214,160,0.6);">D</div>
+                    <div class="demo-cell">E</div>
+                    <div class="demo-cell" style="background:rgba(233,69,96,0.4); border-color:rgba(233,69,96,0.7);">F</div>
+                </div>
+                <div class="demo-code">gap: <span id="gapCodeDisplay">16px 16px</span>;&nbsp; <span style="opacity:0.5;">← outer edges stay flush with container</span></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ─────────────────────────────────────────── SLIDE 14: CODEPEN 12.5 ── -->
+    <div class="slide">
+        <div class="slide-content">
+            <div class="slide-label">CodePen 12.5 — Try it</div>
+            <h2>gap in Action</h2>
+            <p style="margin-bottom:0.5rem; font-size:0.9rem;">Try changing <code>gap</code>, <code>row-gap</code>, and <code>column-gap</code> values independently. Notice the outer edges stay flush.</p>
+            <div class="codepen-container">
+                <iframe height="800" style="width: 100%;" scrolling="no" title="Codepen - 12.5" src="https://codepen.io/mattkearl/embed/yyJddVr?default-tab=css%2Cresult&editable=true" frameborder="no" loading="lazy" allowtransparency="true">
+                    See the Pen <a href="https://codepen.io/mattkearl/pen/yyJddVr">Codepen - 12.5</a> by SE1400 on <a href="https://codepen.io">CodePen</a>.
+                </iframe>
+            </div>
+        </div>
+    </div>
+
+    <!-- ─────────────────────────────────────────── SLIDE 15: PLACING ITEMS — AUTO-PLACEMENT ── -->
+    <div class="slide">
+        <div class="slide-content">
+            <div class="slide-label">Placing Items in the Grid</div>
+            <h2>Auto-Placement &amp; <code>grid-auto-flow</code></h2>
+            <div class="two-column">
+                <div>
+                    <h3>Auto-Placement (default)</h3>
+                    <p>Items fill left → right, top → bottom in source order.</p>
+                    <p>Control direction with <code>grid-auto-flow</code>:</p>
+                    <pre><code>/* Default: items flow across rows */
+grid-auto-flow: row;
+
+/* Items flow down columns instead */
+grid-auto-flow: column;</code></pre>
+
+                    <h3 style="margin-top:0.75rem;">Dense Packing</h3>
+                    <p>When items span multiple cells, gaps can appear. <code>dense</code> backfills them:</p>
+                    <pre><code>.container {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  grid-auto-flow: row dense;
+}</code></pre>
+                    <div class="caution">
+                        <strong>Accessibility note:</strong> <code>dense</code> can reorder items visually — items may appear before their source-order position, which affects keyboard navigation and screen readers.
+                    </div>
+                </div>
+                <div>
+                    <h3>Dense vs. Default Visual</h3>
+                    <div class="grid-demo">
+                        <p style="font-size:0.75rem; color:rgba(255,255,255,0.6); margin-bottom:4px;">Without dense — gap left behind</p>
+                        <div style="display:grid; grid-template-columns:repeat(4,1fr); gap:3px; margin-bottom:0.5rem;">
+                            <div style="background:rgba(0,180,216,0.4); height:30px; border-radius:3px; display:flex; align-items:center; justify-content:center; font-size:0.7rem;">1</div>
+                            <div style="grid-column:span 2; background:rgba(233,69,96,0.5); height:30px; border-radius:3px; display:flex; align-items:center; justify-content:center; font-size:0.7rem;">2 (wide)</div>
+                            <div style="background:rgba(255,255,255,0.08); height:30px; border-radius:3px; border:1px dashed rgba(255,255,255,0.2);"></div>
+                            <div style="grid-column:1/-1; background:rgba(0,180,216,0.3); height:30px; border-radius:3px; display:flex; align-items:center; justify-content:center; font-size:0.7rem;">3 (next row)</div>
+                        </div>
+                        <p style="font-size:0.75rem; color:rgba(255,255,255,0.6); margin-bottom:4px;">With dense — small item fills gap</p>
+                        <div style="display:grid; grid-template-columns:repeat(4,1fr); gap:3px;">
+                            <div style="background:rgba(0,180,216,0.4); height:30px; border-radius:3px; display:flex; align-items:center; justify-content:center; font-size:0.7rem;">1</div>
+                            <div style="grid-column:span 2; background:rgba(233,69,96,0.5); height:30px; border-radius:3px; display:flex; align-items:center; justify-content:center; font-size:0.7rem;">2 (wide)</div>
+                            <div style="background:rgba(6,214,160,0.5); height:30px; border-radius:3px; display:flex; align-items:center; justify-content:center; font-size:0.7rem;">3 ↩</div>
+                        </div>
+                    </div>
+                    <a href="https://developer.mozilla.org/en-US/docs/Web/CSS/grid-auto-flow" target="_blank" style="display:block; margin-top:0.5rem; font-size:0.85rem;">MDN: grid-auto-flow</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- ⬛ INTERACTIVE: auto-flow Toggle ── -->
+    <div class="slide">
+        <div class="slide-content">
+            <div class="slide-label">Interactive Demo — Auto-Placement</div>
+            <h2>grid-auto-flow Explorer</h2>
+            <!-- ⬛ DEMO: auto-flow Step-Through -->
+            <div class="interactive-demo">
+                <div class="demo-header">
+                    <span class="demo-badge">Step Through</span>
+                    <strong>Watch items placed one at a time — see exactly where gaps form and how dense fixes them</strong>
+                </div>
+                <div style="display:flex; gap:0.4rem; align-items:center; flex-wrap:wrap; margin-bottom:0.5rem;">
+                    <button class="demo-btn active" id="flow-row" onclick="setFlowMode('row')">row (default)</button>
+                    <button class="demo-btn" id="flow-dense" onclick="setFlowMode('row dense')">row dense</button>
+                    <span style="margin-left:auto; font-size:0.8rem; opacity:0.7;">Step <strong id="flowStepNum">0</strong> / 6</span>
+                </div>
+                <!-- 4-column × 3-row grid with pre-positioned items -->
+                <div style="display:grid; grid-template-columns:repeat(4,1fr); grid-template-rows:repeat(3,50px); gap:3px; background:rgba(0,0,0,0.2); padding:5px; border-radius:6px; position:relative;">
+                    <!-- Background cells -->
+                    <div style="grid-column:1;grid-row:1;background:rgba(255,255,255,0.04);border:1px dashed rgba(255,255,255,0.12);border-radius:3px;"></div>
+                    <div style="grid-column:2;grid-row:1;background:rgba(255,255,255,0.04);border:1px dashed rgba(255,255,255,0.12);border-radius:3px;"></div>
+                    <div style="grid-column:3;grid-row:1;background:rgba(255,255,255,0.04);border:1px dashed rgba(255,255,255,0.12);border-radius:3px;"></div>
+                    <div style="grid-column:4;grid-row:1;background:rgba(255,255,255,0.04);border:1px dashed rgba(255,255,255,0.12);border-radius:3px;"></div>
+                    <div style="grid-column:1;grid-row:2;background:rgba(255,255,255,0.04);border:1px dashed rgba(255,255,255,0.12);border-radius:3px;"></div>
+                    <div style="grid-column:2;grid-row:2;background:rgba(255,255,255,0.04);border:1px dashed rgba(255,255,255,0.12);border-radius:3px;"></div>
+                    <div style="grid-column:3;grid-row:2;background:rgba(255,255,255,0.04);border:1px dashed rgba(255,255,255,0.12);border-radius:3px;"></div>
+                    <div style="grid-column:4;grid-row:2;background:rgba(255,255,255,0.04);border:1px dashed rgba(255,255,255,0.12);border-radius:3px;"></div>
+                    <div style="grid-column:1;grid-row:3;background:rgba(255,255,255,0.04);border:1px dashed rgba(255,255,255,0.12);border-radius:3px;"></div>
+                    <div style="grid-column:2;grid-row:3;background:rgba(255,255,255,0.04);border:1px dashed rgba(255,255,255,0.12);border-radius:3px;"></div>
+                    <div style="grid-column:3;grid-row:3;background:rgba(255,255,255,0.04);border:1px dashed rgba(255,255,255,0.12);border-radius:3px;"></div>
+                    <div style="grid-column:4;grid-row:3;background:rgba(255,255,255,0.04);border:1px dashed rgba(255,255,255,0.12);border-radius:3px;"></div>
+                    <!-- Gap indicator (shown after C placed, hidden in dense when D fills it) -->
+                    <div id="flowGap" style="grid-column:4/5;grid-row:1/2;border:2px dashed rgba(255,80,80,0.7);border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:0.7rem;font-weight:bold;color:rgba(255,100,100,0.9);opacity:0;transition:opacity 0.3s;z-index:2;pointer-events:none;">gap!</div>
+                    <!-- Items A–F (positioned for row mode by default; JS updates on mode switch) -->
+                    <div id="fi-A" style="grid-column:1/2;grid-row:1/2;background:rgba(52,152,219,0.75);border:2px solid #3498db;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:0.82rem;font-weight:bold;opacity:0;transition:opacity 0.25s;z-index:3;">A</div>
+                    <div id="fi-B" style="grid-column:2/4;grid-row:1/2;background:rgba(46,204,113,0.75);border:2px solid #2ecc71;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:0.82rem;font-weight:bold;opacity:0;transition:opacity 0.25s;z-index:3;">B (×2)</div>
+                    <div id="fi-C" style="grid-column:1/4;grid-row:2/3;background:rgba(231,76,60,0.75);border:2px solid #e74c3c;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:0.82rem;font-weight:bold;opacity:0;transition:opacity 0.25s;z-index:3;">C (×3)</div>
+                    <div id="fi-D" style="grid-column:4/5;grid-row:2/3;background:rgba(243,156,18,0.75);border:2px solid #f39c12;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:0.82rem;font-weight:bold;opacity:0;transition:opacity 0.25s;z-index:3;">D</div>
+                    <div id="fi-E" style="grid-column:1/2;grid-row:3/4;background:rgba(155,89,182,0.75);border:2px solid #9b59b6;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:0.82rem;font-weight:bold;opacity:0;transition:opacity 0.25s;z-index:3;">E</div>
+                    <div id="fi-F" style="grid-column:2/4;grid-row:3/4;background:rgba(26,188,156,0.75);border:2px solid #1abc9c;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:0.82rem;font-weight:bold;opacity:0;transition:opacity 0.25s;z-index:3;">F (×2)</div>
+                </div>
+                <!-- Message box -->
+                <div id="flowMsg" style="margin-top:0.5rem; font-size:0.82rem; background:rgba(0,0,0,0.25); padding:0.4rem 0.6rem; border-radius:5px; min-height:2.6em; color:#e0e0e0;">Click <strong>Place Next Item →</strong> to start placing items.</div>
+                <!-- Controls -->
+                <div style="display:flex; gap:0.4rem; margin-top:0.4rem; flex-wrap:wrap; align-items:center;">
+                    <button class="demo-btn" onclick="flowBack()">← Back</button>
+                    <button class="demo-btn" id="flowNextBtn" onclick="flowNext()" style="background:rgba(6,214,160,0.2); border-color:rgba(6,214,160,0.5);">Place Next Item →</button>
+                    <button class="demo-btn" onclick="resetFlow()" style="margin-left:auto;">↺ Reset</button>
+                </div>
+                <div class="demo-code" style="margin-top:0.4rem;">grid-auto-flow: <span id="flowModeCode">row</span>;</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ─────────────────────────────────────────── SLIDE 16: CODEPEN 12.6 ── -->
+    <div class="slide">
+        <div class="slide-content">
+            <div class="slide-label">CodePen 12.6 — Try it</div>
+            <h2>Auto-Placement &amp; Dense Packing</h2>
+            <p style="margin-bottom:0.5rem; font-size:0.9rem;">Toggle <code>grid-auto-flow: row dense</code> on and off. Notice how dense reorders smaller items to fill gaps left by wider ones.</p>
+            <div class="codepen-container">
+                <iframe height="800" style="width: 100%;" scrolling="no" title="Codepen - 12.6" src="https://codepen.io/mattkearl/embed/azZggpv?default-tab=css%2Cresult&editable=true" frameborder="no" loading="lazy" allowtransparency="true">
+                    See the Pen <a href="https://codepen.io/mattkearl/pen/azZggpv">Codepen - 12.6</a> by SE1400 on <a href="https://codepen.io">CodePen</a>.
+                </iframe>
+            </div>
+        </div>
+    </div>
+
+    <!-- ─────────────────────────────────────────── SLIDE 17: LINE-BASED PLACEMENT ── -->
+    <div class="slide">
+        <div class="slide-content">
+            <div class="slide-label">Placing Items</div>
+            <h2>Line-Based Placement</h2>
+            <div style="display:flex; align-items:center; gap:0.6rem; margin-bottom:0.5rem; background:rgba(255,209,102,0.12); border:1px solid rgba(255,209,102,0.4); border-radius:6px; padding:0.4rem 0.75rem;">
+                <span style="background:#ffd166; color:#1a1a2e; font-size:0.65rem; font-weight:900; padding:0.15rem 0.55rem; border-radius:20px; text-transform:uppercase; flex-shrink:0; letter-spacing:0.05em;">★ Core Skill</span>
+                <span style="font-size:0.85rem;">This is the most precise and powerful way to place items in CSS Grid. Master this and you can build <em>any</em> layout.</span>
+            </div>
+            <div class="two-column">
+                <div>
+                    <h3>How Grid Lines Work</h3>
+                    <p>A 3-column grid has <strong>4 vertical lines</strong>; a 2-row grid has <strong>3 horizontal lines</strong> — numbered from 1.</p>
+                    <!-- line numbers diagram -->
+                    <div class="grid-demo">
+                        <div style="display:grid; grid-template-columns:repeat(3,1fr); grid-template-rows:repeat(2,40px); gap:3px; position:relative; margin-top:1rem;">
+                            <!-- column line labels -->
+                            <div style="position:absolute; top:-1rem; left:0; font-size:0.65rem; color:#ffd166;">1</div>
+                            <div style="position:absolute; top:-1rem; left:calc(33.33% + 1px); font-size:0.65rem; color:#ffd166;">2</div>
+                            <div style="position:absolute; top:-1rem; left:calc(66.66% + 2px); font-size:0.65rem; color:#ffd166;">3</div>
+                            <div style="position:absolute; top:-1rem; right:0; font-size:0.65rem; color:#ffd166;">4 (-1)</div>
+                            <div style="background:rgba(255,255,255,0.07); border:1px solid rgba(255,255,255,0.2); border-radius:3px; display:flex; align-items:center; justify-content:center; font-size:0.7rem;"></div>
+                            <div style="background:rgba(255,255,255,0.07); border:1px solid rgba(255,255,255,0.2); border-radius:3px;"></div>
+                            <div style="background:rgba(255,255,255,0.07); border:1px solid rgba(255,255,255,0.2); border-radius:3px;"></div>
+                            <div style="background:rgba(255,255,255,0.07); border:1px solid rgba(255,255,255,0.2); border-radius:3px;"></div>
+                            <div style="background:rgba(255,255,255,0.07); border:1px solid rgba(255,255,255,0.2); border-radius:3px;"></div>
+                            <div style="background:rgba(255,255,255,0.07); border:1px solid rgba(255,255,255,0.2); border-radius:3px;"></div>
+                        </div>
+                        <div style="margin-top:0.3rem; font-size:0.65rem; color:rgba(255,255,255,0.5);">Row lines: 1 (top), 2 (middle), 3 / -1 (bottom)</div>
+                    </div>
+
+                    <h3 style="margin-top:0.75rem;">Placing with Lines</h3>
+                    <pre><code>.item {
+  /* start-line / end-line */
+  grid-column: 1 / 3;  /* spans cols 1 + 2 */
+  grid-row: 1 / 2;     /* first row */
+}</code></pre>
+                </div>
+                <div>
+                    <h3>Positive, Negative &amp; span</h3>
+                    <table class="compare-table">
+                        <tr><th>Syntax</th><th>Meaning</th></tr>
+                        <tr><td><code>grid-column: 1 / 3</code></td><td>Lines 1 to 3 — spans 2 columns</td></tr>
+                        <tr><td><code>grid-column: 1 / -1</code></td><td>First line to last line — full width regardless of column count</td></tr>
+                        <tr><td><code>grid-column: -3 / -1</code></td><td>Last two columns (count from end)</td></tr>
+                        <tr><td><code>grid-column: 2 / span 3</code></td><td>Start at line 2, span 3 tracks</td></tr>
+                        <tr><td><code>grid-column: span 2</code></td><td>Auto-placed, but span 2 columns</td></tr>
+                    </table>
+                    <div class="span-visual" style="margin-top:0.5rem;">
+                        <div class="sv-item sv-span">span 2 →</div>
+                        <div class="sv-item">C</div>
+                        <div class="sv-item">D</div>
+                        <div class="sv-item sv-full">1 / -1 (full width)</div>
+                    </div>
+                    <div class="note" style="margin-top:0.5rem;">
+                        <strong>Tip:</strong> <code>grid-column: 1 / -1</code> spans the full grid width without knowing the column count — very useful for headers and footers.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- ⬛ INTERACTIVE: Line Placement Playground ── -->
+    <div class="slide">
+        <div class="slide-content">
+            <div class="slide-label">Interactive Demo — Line-Based Placement</div>
+            <h2>Line Placement Playground</h2>
+            <!-- ⬛ DEMO: Line Placement Playground -->
+            <div class="interactive-demo">
+                <div class="demo-header">
+                    <span class="demo-badge">Try it</span>
+                    <strong>Line Placement Playground — drag sliders to position the red item</strong>
+                </div>
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.5rem; margin-bottom:0.5rem;">
+                    <div>
+                        <label style="font-size:0.8rem;">grid-column-start: <strong id="csLabel">1</strong></label>
+                        <input type="range" id="lpColStart" min="1" max="4" value="1" style="width:100%;" oninput="updateLinePlacement()">
+                    </div>
+                    <div>
+                        <label style="font-size:0.8rem;">grid-column-end: <strong id="ceLabel">3</strong></label>
+                        <input type="range" id="lpColEnd" min="2" max="5" value="3" style="width:100%;" oninput="updateLinePlacement()">
+                    </div>
+                    <div>
+                        <label style="font-size:0.8rem;">grid-row-start: <strong id="rsLabel">1</strong></label>
+                        <input type="range" id="lpRowStart" min="1" max="3" value="1" style="width:100%;" oninput="updateLinePlacement()">
+                    </div>
+                    <div>
+                        <label style="font-size:0.8rem;">grid-row-end: <strong id="reLabel">2</strong></label>
+                        <input type="range" id="lpRowEnd" min="2" max="4" value="2" style="width:100%;" oninput="updateLinePlacement()">
+                    </div>
+                </div>
+                <!-- 4-column × 3-row grid. Background cells are explicitly placed so Item can overlap freely -->
+                <div style="display:grid; grid-template-columns:repeat(4,1fr); grid-template-rows:repeat(3,50px); gap:3px; background:rgba(0,0,0,0.25); padding:4px; border-radius:6px; position:relative;">
+                    <!-- Row 1 cells -->
+                    <div style="grid-column:1;grid-row:1;background:rgba(255,255,255,0.05);border:1px dashed rgba(255,255,255,0.18);border-radius:3px;display:flex;align-items:center;justify-content:center;font-size:0.6rem;color:rgba(255,255,255,0.3);">col1</div>
+                    <div style="grid-column:2;grid-row:1;background:rgba(255,255,255,0.05);border:1px dashed rgba(255,255,255,0.18);border-radius:3px;display:flex;align-items:center;justify-content:center;font-size:0.6rem;color:rgba(255,255,255,0.3);">col2</div>
+                    <div style="grid-column:3;grid-row:1;background:rgba(255,255,255,0.05);border:1px dashed rgba(255,255,255,0.18);border-radius:3px;display:flex;align-items:center;justify-content:center;font-size:0.6rem;color:rgba(255,255,255,0.3);">col3</div>
+                    <div style="grid-column:4;grid-row:1;background:rgba(255,255,255,0.05);border:1px dashed rgba(255,255,255,0.18);border-radius:3px;display:flex;align-items:center;justify-content:center;font-size:0.6rem;color:rgba(255,255,255,0.3);">col4</div>
+                    <!-- Row 2 cells -->
+                    <div style="grid-column:1;grid-row:2;background:rgba(255,255,255,0.05);border:1px dashed rgba(255,255,255,0.18);border-radius:3px;"></div>
+                    <div style="grid-column:2;grid-row:2;background:rgba(255,255,255,0.05);border:1px dashed rgba(255,255,255,0.18);border-radius:3px;"></div>
+                    <div style="grid-column:3;grid-row:2;background:rgba(255,255,255,0.05);border:1px dashed rgba(255,255,255,0.18);border-radius:3px;"></div>
+                    <div style="grid-column:4;grid-row:2;background:rgba(255,255,255,0.05);border:1px dashed rgba(255,255,255,0.18);border-radius:3px;"></div>
+                    <!-- Row 3 cells -->
+                    <div style="grid-column:1;grid-row:3;background:rgba(255,255,255,0.05);border:1px dashed rgba(255,255,255,0.18);border-radius:3px;"></div>
+                    <div style="grid-column:2;grid-row:3;background:rgba(255,255,255,0.05);border:1px dashed rgba(255,255,255,0.18);border-radius:3px;"></div>
+                    <div style="grid-column:3;grid-row:3;background:rgba(255,255,255,0.05);border:1px dashed rgba(255,255,255,0.18);border-radius:3px;"></div>
+                    <div style="grid-column:4;grid-row:3;background:rgba(255,255,255,0.05);border:1px dashed rgba(255,255,255,0.18);border-radius:3px;"></div>
+                    <!-- The highlighted item (floats on top) -->
+                    <div id="lpItem" style="grid-column:1/3;grid-row:1/2;background:rgba(233,69,96,0.75);border:2px solid #e74c3c;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:0.8rem;font-weight:bold;z-index:2;transition:grid-column 0.15s, grid-row 0.15s;">Item</div>
+                </div>
+                <div class="demo-code">grid-column: <span id="lpColCode">1 / 3</span>; &nbsp; grid-row: <span id="lpRowCode">1 / 2</span>;</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ─────────────────────────────────────────── SLIDE 18: CODEPEN 12.7 ── -->
+    <div class="slide">
+        <div class="slide-content">
+            <div class="slide-label">CodePen 12.7 — Try it</div>
+            <h2>Line-Based Placement</h2>
+            <p style="margin-bottom:0.5rem; font-size:0.9rem;">Experiment with positive numbers, negative numbers, and <code>span</code>. Try placing an item with <code>grid-column: 1 / -1</code> to span the full width.</p>
+            <div class="codepen-container">
+                <iframe height="800" style="width: 100%;" scrolling="no" title="Codepen - 12.7" src="https://codepen.io/mattkearl/embed/OPXeeWv?default-tab=css%2Cresult&editable=true" frameborder="no" loading="lazy" allowtransparency="true">
+                    See the Pen <a href="https://codepen.io/mattkearl/pen/OPXeeWv">Codepen - 12.7</a> by SE1400 on <a href="https://codepen.io">CodePen</a>.
+                </iframe>
+            </div>
+        </div>
+    </div>
+
+    <!-- ─────────────────────────────────────────── SLIDE 19: NAMED GRID AREAS ── -->
+    <div class="slide">
+        <div class="slide-content">
+            <div class="slide-label">Named Grid Areas</div>
+            <h2>Named Grid Areas — Layout as a Map</h2>
+            <div class="two-column">
+                <div>
+                    <h3>Step 1: Name each item</h3>
+                    <pre><code>header  { grid-area: header; }
+nav     { grid-area: navigation; }
+main    { grid-area: content; }
+aside   { grid-area: sidebar; }
+footer  { grid-area: footer; }</code></pre>
+
+                    <h3 style="margin-top:0.75rem;">Step 2: Define the layout map</h3>
+                    <pre><code>.container {
+  display: grid;
+  grid-template-columns: 200px 1fr;
+  grid-template-rows: auto 1fr auto;
+  grid-template-areas:
+    "header     header"
+    "navigation content"
+    "footer     footer";
+}</code></pre>
+                    <p>Use <code>.</code> to leave a cell empty:</p>
+                    <pre><code>  grid-template-areas:
+    "header  header"
+    "sidebar content"
+    ".       footer";</code></pre>
+                </div>
+                <div>
+                    <h3>Visual Layout Map</h3>
+                    <div class="layout-visual" style="margin-bottom:0.75rem;">
+                        <div class="lv-header">header</div>
+                        <div class="lv-nav">nav</div>
+                        <div class="lv-main">content</div>
+                        <div class="lv-aside">sidebar</div>
+                        <div class="lv-footer">footer</div>
+                    </div>
+                    <div class="highlight">
+                        <strong>Superpower:</strong> Rearrange the entire layout by editing one CSS property — without touching the HTML!
+                    </div>
+                    <pre style="margin-top:0.5rem;"><code>/* Move sidebar to the right — just swap names */
+grid-template-areas:
+  "header  header   header"
+  "sidebar content  navigation"
+  "footer  footer   footer";</code></pre>
+                    <div class="caution" style="margin-top:0.4rem;">
+                        Every row must have the same column count, and every named area must be a <strong>rectangle</strong> — no L-shapes or T-shapes.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- ⬛ INTERACTIVE: Named Areas Rearranger ── -->
+    <div class="slide">
+        <div class="slide-content">
+            <div class="slide-label">Interactive Demo — Named Grid Areas</div>
+            <h2>Layout Rearranger</h2>
+            <!-- ⬛ DEMO: Named Areas Rearranger -->
+            <div class="interactive-demo">
+                <div class="demo-header">
+                    <span class="demo-badge">Try it</span>
+                    <strong>Layout Rearranger — switch layouts by changing <code>grid-template-areas</code> only</strong>
+                </div>
+                <div style="display:flex; gap:0.4rem; flex-wrap:wrap; margin-bottom:0.5rem;">
+                    <button class="demo-btn active" id="layout-classic" onclick="setLayout('classic')">Classic (nav left)</button>
+                    <button class="demo-btn" id="layout-right" onclick="setLayout('sidebar-right')">Sidebar Right</button>
+                    <button class="demo-btn" id="layout-stacked" onclick="setLayout('stacked')">Stacked</button>
+                    <button class="demo-btn" id="layout-mag" onclick="setLayout('magazine')">Magazine</button>
+                </div>
+                <div id="areasGrid" style="display:grid; grid-template-columns:150px 1fr; grid-template-rows:50px 100px 40px; grid-template-areas:'header header' 'navigation content' 'footer footer'; gap:4px; transition:all 0.4s ease;">
+                    <div style="grid-area:header; background:rgba(0,180,216,0.4); border:1px solid #00b4d8; border-radius:4px; display:flex;align-items:center;justify-content:center;font-size:0.8rem;font-weight:bold;">header</div>
+                    <div style="grid-area:navigation; background:rgba(255,209,102,0.45); border:1px solid #ffd166; border-radius:4px; display:flex;align-items:center;justify-content:center;font-size:0.8rem;font-weight:bold;">nav</div>
+                    <div style="grid-area:content; background:rgba(255,255,255,0.12); border:1px solid rgba(255,255,255,0.25); border-radius:4px; display:flex;align-items:center;justify-content:center;font-size:0.8rem;font-weight:bold;">main</div>
+                    <div style="grid-area:footer; background:rgba(233,69,96,0.4); border:1px solid #e74c3c; border-radius:4px; display:flex;align-items:center;justify-content:center;font-size:0.8rem;font-weight:bold;">footer</div>
+                </div>
+                <pre class="demo-code" id="areasCode" style="margin-top:0.4rem; white-space:pre; background:rgba(0,0,0,0.3); padding:0.4rem 0.6rem; border-radius:4px;">grid-template-areas:
+  "header     header"
+  "navigation content"
+  "footer     footer";</pre>
+            </div>
+        </div>
+    </div>
+
+    <!-- ─────────────────────────────────────────── SLIDE 20: CODEPEN 12.8 ── -->
+    <div class="slide">
+        <div class="slide-content">
+            <div class="slide-label">CodePen 12.8 — Try it</div>
+            <h2>Named Grid Areas</h2>
+            <p style="margin-bottom:0.5rem; font-size:0.9rem;">Rearrange the area names in <code>grid-template-areas</code> and watch the layout rearrange itself. Try moving the sidebar to the right.</p>
+            <div class="codepen-container">
+                <iframe height="800" style="width: 100%;" scrolling="no" title="Codepen - 12.8" src="https://codepen.io/mattkearl/embed/azZggJd?default-tab=css%2Cresult&editable=true" frameborder="no" loading="lazy" allowtransparency="true">
+                    See the Pen <a href="https://codepen.io/mattkearl/pen/azZggJd">Codepen - 12.8</a> by SE1400 on <a href="https://codepen.io">CodePen</a>.
+                </iframe>
+            </div>
+        </div>
+    </div>
+
+    <!-- ─────────────────────────────────────────── SLIDE 21: ALIGNMENT ── -->
+    <div class="slide">
+        <div class="slide-content">
+            <div class="slide-label">Alignment</div>
+            <h2>Alignment Inside the Grid</h2>
+            <div class="two-column">
+                <div>
+                    <h3>Key Concept: Two Axes</h3>
+                    <p><strong>Inline axis</strong> (horizontal): <code>justify-*</code> properties<br>
+                    <strong>Block axis</strong> (vertical): <code>align-*</code> properties</p>
+
+                    <h3 style="margin-top:0.6rem;">Items Within Cells</h3>
+                    <p>On the <strong>container</strong> — applies to all items:</p>
+                    <pre><code>.container {
+  justify-items: center; /* horizontal in cell */
+  align-items: end;      /* vertical in cell */
+
+  /* Shorthand: align / justify */
+  place-items: center;
+}</code></pre>
+                    <p>Values: <code>stretch</code> (default) · <code>start</code> · <code>end</code> · <code>center</code></p>
+
+                    <h3 style="margin-top:0.6rem;">Override on Individual Items</h3>
+                    <pre><code>.special-item {
+  justify-self: end;
+  align-self: start;
+}</code></pre>
+                </div>
+                <div>
+                    <h3>Aligning the Grid in its Container</h3>
+                    <p>When tracks are smaller than the container:</p>
+                    <pre><code>.container {
+  grid-template-columns: repeat(3, 200px);
+  justify-content: space-between; /* horizontal */
+  align-content: center;          /* vertical */
+
+  /* Shorthand */
+  place-content: center space-between;
+}</code></pre>
+                    <table class="compare-table" style="margin-top:0.4rem;">
+                        <tr><th>Value</th><th>Effect</th></tr>
+                        <tr><td><code>start</code></td><td>Pack at start edge</td></tr>
+                        <tr><td><code>end</code></td><td>Pack at end edge</td></tr>
+                        <tr><td><code>center</code></td><td>Centered with equal space before/after</td></tr>
+                        <tr><td><code>space-between</code></td><td>Even space between; edges flush</td></tr>
+                        <tr><td><code>space-around</code></td><td>Space around each; half-space at edges</td></tr>
+                        <tr><td><code>space-evenly</code></td><td>Perfectly equal space everywhere</td></tr>
+                    </table>
+                    <a href="https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_grid_layout/Box_alignment_in_grid_layout" target="_blank" style="display:block; margin-top:0.5rem; font-size:0.85rem;">MDN: Box Alignment in Grid</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- ⬛ INTERACTIVE: Alignment Explorer ── -->
+    <div class="slide">
+        <div class="slide-content">
+            <div class="slide-label">Interactive Demo — Alignment</div>
+            <h2>Alignment Explorer</h2>
+            <!-- ⬛ DEMO: Alignment Explorer -->
+            <div class="interactive-demo">
+                <div class="demo-header">
+                    <span class="demo-badge">Try it</span>
+                    <strong>Alignment Explorer — change all four alignment properties and see the effect live</strong>
+                </div>
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.5rem; margin-bottom:0.5rem;">
+                    <div>
+                        <label style="font-size:0.8rem;">justify-items <span style="opacity:0.6;">(↔ within cell)</span></label>
+                        <select id="justifyItems" class="demo-select" onchange="updateAlignment()">
+                            <option value="stretch" selected>stretch</option>
+                            <option value="start">start</option>
+                            <option value="center">center</option>
+                            <option value="end">end</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label style="font-size:0.8rem;">align-items <span style="opacity:0.6;">(↕ within cell)</span></label>
+                        <select id="alignItems" class="demo-select" onchange="updateAlignment()">
+                            <option value="stretch" selected>stretch</option>
+                            <option value="start">start</option>
+                            <option value="center">center</option>
+                            <option value="end">end</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label style="font-size:0.8rem;">justify-content <span style="opacity:0.6;">(↔ tracks)</span></label>
+                        <select id="justifyContent" class="demo-select" onchange="updateAlignment()">
+                            <option value="start" selected>start</option>
+                            <option value="center">center</option>
+                            <option value="end">end</option>
+                            <option value="space-between">space-between</option>
+                            <option value="space-around">space-around</option>
+                            <option value="space-evenly">space-evenly</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label style="font-size:0.8rem;">align-content <span style="opacity:0.6;">(↕ tracks)</span></label>
+                        <select id="alignContent" class="demo-select" onchange="updateAlignment()">
+                            <option value="start" selected>start</option>
+                            <option value="center">center</option>
+                            <option value="end">end</option>
+                            <option value="space-between">space-between</option>
+                            <option value="space-around">space-around</option>
+                            <option value="space-evenly">space-evenly</option>
+                        </select>
+                    </div>
+                </div>
+                <!-- Fixed-size columns so justify/align-content have visible effect -->
+                <div id="alignGrid" style="display:grid; grid-template-columns:repeat(3,90px); grid-template-rows:repeat(2,65px); gap:4px; height:180px; background:rgba(0,0,0,0.25); border:1px solid rgba(255,255,255,0.1); border-radius:6px; padding:4px; justify-items:stretch; align-items:stretch; justify-content:start; align-content:start;">
+                    <div class="demo-cell">A</div>
+                    <div class="demo-cell" style="background:rgba(233,69,96,0.4); border-color:rgba(233,69,96,0.7);">B</div>
+                    <div class="demo-cell" style="background:rgba(255,209,102,0.35); border-color:rgba(255,209,102,0.6);">C</div>
+                    <div class="demo-cell" style="background:rgba(6,214,160,0.35); border-color:rgba(6,214,160,0.6);">D</div>
+                    <div class="demo-cell">E</div>
+                    <div class="demo-cell" style="background:rgba(233,69,96,0.4); border-color:rgba(233,69,96,0.7);">F</div>
+                </div>
+                <p class="demo-code">Fixed-size columns (90px) leave room for <code>justify-content</code> &amp; <code>align-content</code> to redistribute track space.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ─────────────────────────────────────────── SLIDE 22: CODEPEN 12.9 ── -->
+    <div class="slide">
+        <div class="slide-content">
+            <div class="slide-label">CodePen 12.9 — Try it</div>
+            <h2>Alignment Explorer</h2>
+            <p style="margin-bottom:0.5rem; font-size:0.9rem;">Change <code>justify-items</code>, <code>align-items</code>, <code>justify-content</code>, and <code>align-content</code>. Observe how items and tracks respond to each value.</p>
+            <div class="codepen-container">
+                <iframe height="800" style="width: 100%;" scrolling="no" title="Codepen - 12.9" src="https://codepen.io/mattkearl/embed/pvbXXeB?default-tab=css%2Cresult&editable=true" frameborder="no" loading="lazy" allowtransparency="true">
+                    See the Pen <a href="https://codepen.io/mattkearl/pen/pvbXXeB">Codepen - 12.9</a> by SE1400 on <a href="https://codepen.io">CodePen</a>.
+                </iframe>
+            </div>
+        </div>
+    </div>
+
+    <!-- ─────────────────────────────────────────── SLIDE 23: OVERLAPPING + Z-INDEX ── -->
+    <div class="slide">
+        <div class="slide-content">
+            <div class="slide-label">Advanced Placement</div>
+            <h2>Overlapping Grid Items &amp; <code>z-index</code></h2>
+            <div class="two-column">
+                <div>
+                    <h3>How Overlapping Works</h3>
+                    <p>Place two items in the same grid cells — they layer on top of each other.</p>
+                    <pre><code>.container {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: 200px 200px;
+}
+
+.background-item {
+  grid-column: 1 / -1; /* full width */
+  grid-row: 1 / 2;
+}
+
+.overlay-item {
+  grid-column: 2 / 3;
+  grid-row: 1 / 2; /* same row! */
+}</code></pre>
+                    <h3 style="margin-top:0.75rem;">Controlling Stack Order</h3>
+                    <pre><code>.background-item { z-index: 1; }
+.overlay-item    { z-index: 2; }</code></pre>
+                    <div class="note">
+                        Grid items automatically get a stacking context — <code>z-index</code> works without setting <code>position: relative</code>. This is different from regular block elements.
+                    </div>
+                </div>
+                <div>
+                    <h3>Visual: Transparent Layering</h3>
+                    <p style="font-size:0.82em; margin-bottom:0.4rem;">Both items occupy the same cells. Because the overlay is <strong>semi-transparent</strong>, you can see the background item through it — layering made visible.</p>
+                    <div class="grid-demo">
+                        <div style="display:grid; grid-template-columns:repeat(3,1fr); grid-template-rows:90px; gap:3px;">
+                            <!-- background item — semi-transparent gradient -->
+                            <div style="grid-column:1/-1; grid-row:1; background:linear-gradient(135deg,rgba(45,64,89,0.95),rgba(234,84,85,0.85)); border-radius:6px; display:flex; align-items:flex-start; justify-content:flex-start; padding:0.4rem 0.6rem; font-size:0.72rem; color:rgba(255,255,255,0.8); z-index:1;">
+                                background-item (z-index: 1)
+                            </div>
+                            <!-- overlay — clearly semi-transparent so background shows through -->
+                            <div style="grid-column:2/3; grid-row:1; background:rgba(255,209,102,0.45); border:2px solid #ffd166; border-radius:6px; display:flex; flex-direction:column; align-items:center; justify-content:center; font-size:0.72rem; font-weight:bold; z-index:2; text-align:center;">
+                                Caption overlay<br>(z-index: 2)<br>
+                                <span style="font-size:0.6rem; font-weight:normal; opacity:0.85; margin-top:2px;">↑ see background through me</span>
+                            </div>
+                        </div>
+                    </div>
+                    <h3 style="margin-top:0.6rem;">Real-World Uses</h3>
+                    <ul>
+                        <li>Text captions over hero images — no hacks needed</li>
+                        <li>Semi-transparent color overlays on photos</li>
+                        <li>Decorative background shapes behind content</li>
+                        <li>Layered card designs &amp; badges</li>
+                    </ul>
+                    <a href="https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_grid_layout/Grid_layout_and_the_stacking_context" target="_blank" style="display:block; margin-top:0.5rem; font-size:0.85rem;">MDN: Grid &amp; Stacking Context</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ⬛ INTERACTIVE: z-index Grid Cell Stacking ── -->
+    <div class="slide">
+        <div class="slide-content">
+            <div class="slide-label">Interactive Demo — Overlapping Items</div>
+            <h2>z-index: Stacking Items in Grid Cells</h2>
+            <div class="interactive-demo">
+                <div class="demo-header">
+                    <span class="demo-badge">Interactive</span>
+                    <strong>Move 🟢 C into the same cell as 🔵 A or 🔴 B — then control which is on top with z-index</strong>
+                </div>
+                <!-- Move C buttons -->
+                <div style="display:flex; gap:0.4rem; flex-wrap:wrap; margin-bottom:0.5rem; align-items:center;">
+                    <span style="font-size:0.78rem; font-weight:bold; color:#06d6a0; white-space:nowrap;">Move 🟢 C to:</span>
+                    <button class="demo-btn" onclick="moveC(1,1)">col 1 / row 1 (→ overlaps A)</button>
+                    <button class="demo-btn" onclick="moveC(2,1)">col 2 / row 1 (→ overlaps B)</button>
+                    <button class="demo-btn" onclick="moveC(3,1)">col 3 / row 1</button>
+                    <button class="demo-btn" onclick="moveC(1,2)">col 1 / row 2</button>
+                    <button class="demo-btn" onclick="moveC(2,2)">col 2 / row 2</button>
+                    <button class="demo-btn" onclick="moveC(3,2)" class="active">col 3 / row 2 ← start</button>
+                </div>
+                <!-- z-index nudge (only shown on overlap) -->
+                <div id="ziControl" style="display:none; gap:0.5rem; align-items:center; margin-bottom:0.5rem; flex-wrap:wrap; background:rgba(6,214,160,0.08); border:1px solid rgba(6,214,160,0.3); padding:0.4rem 0.8rem; border-radius:6px;">
+                    <span style="font-size:0.8rem; font-weight:bold;">🟢 C  z-index:</span>
+                    <button class="demo-btn" onclick="changeCZ(-1)">▼</button>
+                    <strong id="ziCVal" style="min-width:1.4rem; text-align:center; font-size:1rem;">1</strong>
+                    <button class="demo-btn" onclick="changeCZ(1)">▲</button>
+                    <span id="ziResult" style="font-size:0.8rem; margin-left:0.4rem; color:#ffd166;"></span>
+                </div>
+                <!-- 3-column × 2-row grid with visible cell lines -->
+                <div style="display:grid; grid-template-columns:1fr 1fr 1fr; grid-template-rows:90px 90px; gap:3px; background:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.2); border-radius:8px; padding:3px;">
+                    <!-- Column line labels -->
+                    <!-- Item A: fixed col 1 / row 1 -->
+                    <div style="grid-column:1; grid-row:1; background:rgba(52,152,219,0.8); border-radius:5px; display:flex; flex-direction:column; align-items:center; justify-content:center; font-weight:bold; z-index:1; gap:4px;">
+                        🔵 A
+                        <code style="font-size:0.6rem; background:rgba(0,0,0,0.35); padding:2px 5px; border-radius:3px; font-weight:normal;">grid-column:1 / grid-row:1</code>
+                    </div>
+                    <!-- Item B: fixed col 2 / row 1 -->
+                    <div style="grid-column:2; grid-row:1; background:rgba(231,76,60,0.8); border-radius:5px; display:flex; flex-direction:column; align-items:center; justify-content:center; font-weight:bold; z-index:1; gap:4px;">
+                        🔴 B
+                        <code style="font-size:0.6rem; background:rgba(0,0,0,0.35); padding:2px 5px; border-radius:3px; font-weight:normal;">grid-column:2 / grid-row:1</code>
+                    </div>
+                    <!-- Item C: movable, starts at col 3 / row 2 -->
+                    <div id="ziC" style="grid-column:3; grid-row:2; background:rgba(6,214,160,0.8); border-radius:5px; display:flex; flex-direction:column; align-items:center; justify-content:center; font-weight:bold; z-index:1; gap:4px; transition:background 0.15s;">
+                        🟢 C
+                        <code id="ziCLabel" style="font-size:0.6rem; background:rgba(0,0,0,0.35); padding:2px 5px; border-radius:3px; font-weight:normal;">grid-column:3 / grid-row:2</code>
+                    </div>
+                </div>
+                <!-- Live CSS -->
+                <div class="demo-code" id="ziCode" style="margin-top:0.5rem;">#c { grid-column: 3;  grid-row: 2;  z-index: 1; }  /* no overlap */</div>
+            </div>
+            <div class="note" style="margin-top:0.5rem; font-size:0.84rem;">Grid items placed in the <strong>same cell</strong> stack in source order by default. Add <code>z-index</code> to override that paint order — no <code>position: relative</code> needed.</div>
+        </div>
+    </div>
+
+    <!-- ─────────────────────────────────────────── SLIDE 24: CODEPEN 12.10 ── -->
+    <div class="slide">
+        <div class="slide-content">
+            <div class="slide-label">CodePen 12.10 — Try it</div>
+            <h2>Overlapping Grid Items</h2>
+            <p style="margin-bottom:0.5rem; font-size:0.9rem;">Two grid items occupy the same cells. Experiment with <code>z-index</code> values to control which item appears in front.</p>
+            <div class="codepen-container">
+                <iframe height="800" style="width: 100%;" scrolling="no" title="Codepen - 12.10" src="https://codepen.io/mattkearl/embed/qENzzma?default-tab=css%2Cresult&editable=true" frameborder="no" loading="lazy" allowtransparency="true">
+                    See the Pen <a href="https://codepen.io/mattkearl/pen/qENzzma">Codepen - 12.10</a> by SE1400 on <a href="https://codepen.io">CodePen</a>.
+                </iframe>
+            </div>
+        </div>
+    </div>
+
+    <!-- ─────────────────────────────────────────── SLIDE 25: COMPLETE PAGE LAYOUT ── -->
+    <div class="slide">
+        <div class="slide-content">
+            <div class="slide-label">Putting It All Together</div>
+            <h2>Building a Complete Page Layout</h2>
+            <div class="two-column">
+                <div>
+                    <h3>HTML Structure (clean — no layout logic)</h3>
+                    <pre><code>&lt;div class="page-grid"&gt;
+  &lt;header&gt;Site Header&lt;/header&gt;
+  &lt;nav&gt;Navigation&lt;/nav&gt;
+  &lt;main&gt;Main Content&lt;/main&gt;
+  &lt;aside&gt;Sidebar&lt;/aside&gt;
+  &lt;footer&gt;Site Footer&lt;/footer&gt;
+&lt;/div&gt;</code></pre>
+                    <h3 style="margin-top:0.6rem;">Step-by-Step CSS</h3>
+                    <p><strong>Step 1:</strong> Define the grid structure</p>
+                    <pre><code>.page-grid {
+  display: grid;
+  grid-template-columns: 200px 1fr 250px;
+  grid-template-rows: auto 1fr auto;
+  gap: 16px;
+  min-height: 100vh;
+}</code></pre>
+                    <p><strong>Step 2:</strong> Place each element with line numbers</p>
+                    <pre><code>header { grid-column: 1 / 4;  grid-row: 1; }
+nav    { grid-column: 1 / 2;  grid-row: 2; }
+main   { grid-column: 2 / 3;  grid-row: 2; }
+aside  { grid-column: 3 / 4;  grid-row: 2; }
+footer { grid-column: 1 / 4;  grid-row: 3; }
+
+/* Tip: 1 / -1 means first line to last line */
+header { grid-column: 1 / -1; } /* same result */
+footer { grid-column: 1 / -1; } /* same result */</code></pre>
+                </div>
+                <div>
+                    <h3>Result</h3>
+                    <div class="layout-visual">
+                        <div class="lv-header">header</div>
+                        <div class="lv-nav">nav</div>
+                        <div class="lv-main">main content</div>
+                        <div class="lv-aside">sidebar</div>
+                        <div class="lv-footer">footer</div>
+                    </div>
+                    <div class="highlight" style="margin-top:0.5rem;">
+                        <strong>Move sidebar to the left?</strong> Swap the column numbers — zero HTML changes needed.
+                    </div>
+                    <pre><code>/* Before: nav left, aside right */
+nav   { grid-column: 1 / 2; }
+aside { grid-column: 3 / 4; }
+
+/* After: aside left, nav gone / combined */
+aside { grid-column: 1 / 2; }
+nav   { grid-column: 3 / 4; }
+main  { grid-column: 2 / 3; }</code></pre>
+                    <div class="note" style="margin-top:0.5rem; font-size:0.83rem;">
+                        Line-based placement gives you precise, readable control. You can also use <code>grid-area</code> shorthand: <code>grid-area: row-start / col-start / row-end / col-end</code>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ─────────────────────────────────────────── SLIDE 26: CODEPEN 12.11 ── -->
+    <div class="slide">
+        <div class="slide-content">
+            <div class="slide-label">CodePen 12.11 — Try it</div>
+            <h2>Complete Page Layout</h2>
+            <p style="margin-bottom:0.5rem; font-size:0.9rem;">A full CSS Grid page layout using named areas. Try rearranging the <code>grid-template-areas</code> string to see the layout instantly reflect the change.</p>
+            <div class="codepen-container">
+                <iframe height="800" style="width: 100%;" scrolling="no" title="Codepen - 12.11" src="https://codepen.io/mattkearl/embed/Ggqbbmy?default-tab=css%2Cresult&editable=true" frameborder="no" loading="lazy" allowtransparency="true">
+                    See the Pen <a href="https://codepen.io/mattkearl/pen/Ggqbbmy">Codepen - 12.11</a> by SE1400 on <a href="https://codepen.io">CodePen</a>.
+                </iframe>
+            </div>
+        </div>
+    </div>
+
+    <!-- ─────────────────────────────────────────── SLIDE 27: SUBGRID ── -->
+    <div class="slide">
+        <div class="slide-content">
+            <div class="slide-label">Advanced Grid</div>
+            <h2>Subgrid — Nested Grids That Align</h2>
+            <div class="two-column">
+                <div>
+                    <h3>The Problem: Layout Islands</h3>
+                    <p style="font-size:0.88em;">Grid items are isolated islands. Their <em>children</em> don't know the parent grid exists — each card creates its own independent layout.</p>
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:4px; margin-top:0.4rem; margin-bottom:0.4rem;">
+                        <div style="background:rgba(255,255,255,0.07); border:1px solid rgba(255,255,255,0.15); border-radius:4px; padding:0.4rem; font-size:0.7rem;">
+                            <div style="background:rgba(233,69,96,0.35); padding:3px; border-radius:2px; margin-bottom:3px; font-weight:bold;">Title</div>
+                            <div style="background:rgba(255,255,255,0.08); padding:3px; border-radius:2px; margin-bottom:3px; height:26px; font-size:0.65rem;">Short text</div>
+                            <div style="background:rgba(0,180,216,0.35); padding:3px; border-radius:2px; text-align:center;">Button ✗</div>
+                        </div>
+                        <div style="background:rgba(255,255,255,0.07); border:1px solid rgba(255,255,255,0.15); border-radius:4px; padding:0.4rem; font-size:0.7rem;">
+                            <div style="background:rgba(233,69,96,0.35); padding:3px; border-radius:2px; margin-bottom:3px; font-weight:bold;">A Much Longer Title</div>
+                            <div style="background:rgba(255,255,255,0.08); padding:3px; border-radius:2px; margin-bottom:3px; height:44px; font-size:0.65rem;">Longer content pushes the button down...</div>
+                            <div style="background:rgba(0,180,216,0.35); padding:3px; border-radius:2px; text-align:center;">Button ✗</div>
+                        </div>
+                    </div>
+                    <p style="font-size:0.78rem; color:#ffd166; margin-bottom:0.5rem;">↑ Buttons float at different heights — misaligned.</p>
+                    <h3>The Mental Model</h3>
+                    <p style="font-size:0.85em;">Think of the parent grid as a <strong>conductor</strong>. Without subgrid, each card plays its own rhythm. With <code>subgrid</code>, they all follow the conductor's beat — every card shares the same row tracks.</p>
+                    <pre><code>&lt;div class="parent-grid"&gt;
+  &lt;div class="card"&gt;
+    &lt;h2&gt;Title&lt;/h2&gt;
+    &lt;p&gt;Content...&lt;/p&gt;
+    &lt;button&gt;Action&lt;/button&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+                </div>
+                <div>
+                    <h3>The Subgrid Solution</h3>
+                    <p style="font-size:0.85em;">Make each card <strong>span all 3 parent row tracks</strong>, then tell it to use those same tracks internally:</p>
+                    <pre><code>.parent-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  /* 3 shared bands for all cards */
+  grid-template-rows: auto 1fr auto;
+}
+
+.card {
+  grid-row: span 3;   /* claim 3 parent rows */
+  display: grid;
+  /* use parent's rows, not new ones */
+  grid-template-rows: subgrid;
+}</code></pre>
+                    <!-- "With subgrid" aligned visual (simulated with shared parent grid) -->
+                    <div style="display:grid; grid-template-columns:1fr 1fr; grid-template-rows:auto 1fr auto; gap:4px; margin-top:0.5rem;">
+                        <div style="background:rgba(233,69,96,0.35); padding:3px 5px; border-radius:2px 2px 0 0; font-size:0.7rem; font-weight:bold;">Title</div>
+                        <div style="background:rgba(233,69,96,0.35); padding:3px 5px; border-radius:2px 2px 0 0; font-size:0.7rem; font-weight:bold;">A Much Longer Title</div>
+                        <div style="background:rgba(255,255,255,0.08); padding:3px 5px; font-size:0.65rem;">Short text</div>
+                        <div style="background:rgba(255,255,255,0.08); padding:3px 5px; font-size:0.65rem;">Longer content that wraps to more lines...</div>
+                        <div style="background:rgba(0,180,216,0.35); padding:3px 5px; border-radius:0 0 2px 2px; font-size:0.7rem; text-align:center;">Button ✓</div>
+                        <div style="background:rgba(0,180,216,0.35); padding:3px 5px; border-radius:0 0 2px 2px; font-size:0.7rem; text-align:center;">Button ✓</div>
+                    </div>
+                    <p style="font-size:0.78rem; color:#06d6a0; margin-top:3px;">↑ Buttons locked to the same row band.</p>
+                    <div class="note" style="margin-top:0.4rem; font-size:0.82rem;">
+                        <strong>Support:</strong> Chrome 117+, Firefox 71+, Safari 16+ — all modern browsers.
+                    </div>
+                    <a href="https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_grid_layout/Subgrid" target="_blank" style="display:block; margin-top:0.4rem; font-size:0.85rem;">MDN: Subgrid</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- ⬛ INTERACTIVE: Subgrid Side-by-Side ── -->
+    <div class="slide">
+        <div class="slide-content">
+            <div class="slide-label">Interactive Demo — Subgrid</div>
+            <h2>Subgrid: Seeing the Parent Grid</h2>
+            <div class="interactive-demo">
+                <div class="demo-header">
+                    <span class="demo-badge">Compare</span>
+                    <strong>Click "+ More Text" to grow Card 2 — watch what happens to the "Buy Now" buttons</strong>
+                </div>
+                <!-- Controls -->
+                <div style="display:flex; gap:0.5rem; margin-bottom:0.7rem;">
+                    <button class="demo-btn" id="sgAddBtn" onclick="sgAddText()" style="background:rgba(6,214,160,0.15); border-color:rgba(6,214,160,0.4);">+ More Text in Card 2</button>
+                    <button class="demo-btn" onclick="sgResetText()">↺ Reset</button>
+                </div>
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:1.2rem;">
+
+                    <!-- WITHOUT subgrid — left -->
+                    <div>
+                        <p style="font-size:0.8rem; font-weight:bold; color:#ffd166; margin-bottom:3px;">✗ Without Subgrid — each card is its own island</p>
+                        <p style="font-size:0.68rem; color:rgba(255,255,255,0.45); margin-bottom:6px;">No shared rows — buttons float wherever the content pushes them</p>
+                        <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:5px; align-items:start;">
+                            <div style="display:grid; grid-template-rows:auto 1fr auto; background:rgba(255,255,255,0.06); border:1px solid rgba(255,209,102,0.2); border-radius:5px; overflow:hidden;">
+                                <div style="background:rgba(233,69,96,0.4); padding:5px 7px; font-size:0.7rem; font-weight:bold;">Budget Pick</div>
+                                <div style="padding:5px 7px; font-size:0.68rem; line-height:1.4;">Solid everyday laptop.</div>
+                                <div style="background:rgba(0,180,216,0.45); padding:4px; font-size:0.7rem; text-align:center; font-weight:bold;">Buy Now</div>
+                            </div>
+                            <div style="display:grid; grid-template-rows:auto 1fr auto; background:rgba(255,255,255,0.06); border:1px solid rgba(255,209,102,0.2); border-radius:5px; overflow:hidden;">
+                                <div style="background:rgba(233,69,96,0.4); padding:5px 7px; font-size:0.7rem; font-weight:bold;">Ultra-Slim Pro</div>
+                                <div id="nosg-body" style="padding:5px 7px; font-size:0.68rem; line-height:1.4;">Great battery life.</div>
+                                <div style="background:rgba(0,180,216,0.45); padding:4px; font-size:0.7rem; text-align:center; font-weight:bold;">Buy Now</div>
+                            </div>
+                            <div style="display:grid; grid-template-rows:auto 1fr auto; background:rgba(255,255,255,0.06); border:1px solid rgba(255,209,102,0.2); border-radius:5px; overflow:hidden;">
+                                <div style="background:rgba(233,69,96,0.4); padding:5px 7px; font-size:0.7rem; font-weight:bold;">Gaming Rig</div>
+                                <div style="padding:5px 7px; font-size:0.68rem; line-height:1.4;">144Hz display.</div>
+                                <div style="background:rgba(0,180,216,0.45); padding:4px; font-size:0.7rem; text-align:center; font-weight:bold;">Buy Now</div>
+                            </div>
+                        </div>
+                        <p style="font-size:0.68rem; color:#ffd166; margin-top:5px;">↑ "Buy Now" buttons drift apart as Card 2 grows</p>
+                    </div>
+
+                    <!-- WITH subgrid — right, with visible parent grid zone bands -->
+                    <div>
+                        <p style="font-size:0.8rem; font-weight:bold; color:#06d6a0; margin-bottom:3px;">✓ With Subgrid — cards share the parent's row tracks</p>
+                        <p style="font-size:0.68rem; color:rgba(255,255,255,0.45); margin-bottom:6px;">The dashed bands are the parent grid's 3 rows — cards snap to them</p>
+                        <!-- Parent grid with in-grid zone bands (z-index 0) and cards (z-index 1) all in the same grid -->
+                        <div style="display:grid; grid-template-columns:1fr 1fr 1fr; grid-template-rows:auto 1fr auto; gap:5px;">
+                            <!-- Zone band: Title row (spans all 3 cols, behind cards) -->
+                            <div style="grid-column:1/-1; grid-row:1; background:rgba(233,69,96,0.1); border:1px dashed rgba(233,69,96,0.45); border-radius:3px; display:flex; align-items:center; padding:0 6px; font-size:0.58rem; color:rgba(233,69,96,0.75); font-style:italic; z-index:0; pointer-events:none;">parent row 1 — auto (title zone)</div>
+                            <!-- Zone band: Body row -->
+                            <div style="grid-column:1/-1; grid-row:2; background:rgba(255,255,255,0.03); border:1px dashed rgba(255,255,255,0.18); border-radius:3px; display:flex; align-items:flex-start; padding:3px 6px; font-size:0.58rem; color:rgba(255,255,255,0.35); font-style:italic; z-index:0; pointer-events:none;">parent row 2 — 1fr (body zone)</div>
+                            <!-- Zone band: Button row -->
+                            <div style="grid-column:1/-1; grid-row:3; background:rgba(0,180,216,0.1); border:1px dashed rgba(0,180,216,0.45); border-radius:3px; display:flex; align-items:center; padding:0 6px; font-size:0.58rem; color:rgba(0,180,216,0.75); font-style:italic; z-index:0; pointer-events:none;">parent row 3 — auto (button zone)</div>
+                            <!-- Card 1: col 1, spans rows 1-3, uses subgrid -->
+                            <div style="grid-column:1; grid-row:1/4; display:grid; grid-template-rows:subgrid; background:rgba(255,255,255,0.07); border:1px solid rgba(6,214,160,0.3); border-radius:5px; overflow:hidden; z-index:1;">
+                                <div style="background:rgba(233,69,96,0.4); padding:5px 7px; font-size:0.7rem; font-weight:bold;">Budget Pick</div>
+                                <div style="padding:5px 7px; font-size:0.68rem; line-height:1.4;">Solid everyday laptop.</div>
+                                <div style="background:rgba(0,180,216,0.45); padding:4px; font-size:0.7rem; text-align:center; font-weight:bold;">Buy Now</div>
+                            </div>
+                            <!-- Card 2: col 2, body grows with JS -->
+                            <div style="grid-column:2; grid-row:1/4; display:grid; grid-template-rows:subgrid; background:rgba(255,255,255,0.07); border:1px solid rgba(6,214,160,0.3); border-radius:5px; overflow:hidden; z-index:1;">
+                                <div style="background:rgba(233,69,96,0.4); padding:5px 7px; font-size:0.7rem; font-weight:bold;">Ultra-Slim Pro</div>
+                                <div id="sg-body" style="padding:5px 7px; font-size:0.68rem; line-height:1.4;">Great battery life.</div>
+                                <div style="background:rgba(0,180,216,0.45); padding:4px; font-size:0.7rem; text-align:center; font-weight:bold;">Buy Now</div>
+                            </div>
+                            <!-- Card 3: col 3 -->
+                            <div style="grid-column:3; grid-row:1/4; display:grid; grid-template-rows:subgrid; background:rgba(255,255,255,0.07); border:1px solid rgba(6,214,160,0.3); border-radius:5px; overflow:hidden; z-index:1;">
+                                <div style="background:rgba(233,69,96,0.4); padding:5px 7px; font-size:0.7rem; font-weight:bold;">Gaming Rig</div>
+                                <div style="padding:5px 7px; font-size:0.68rem; line-height:1.4;">144Hz display.</div>
+                                <div style="background:rgba(0,180,216,0.45); padding:4px; font-size:0.7rem; text-align:center; font-weight:bold;">Buy Now</div>
+                            </div>
+                        </div>
+                        <p style="font-size:0.68rem; color:#06d6a0; margin-top:5px;">↑ Parent row 3 grows → all cards stretch together → buttons stay locked</p>
+                    </div>
+
+                </div>
+                <div class="demo-code" style="margin-top:0.5rem;">/* Parent grid: defines 3 shared row zones */
+.parent { grid-template-columns: 1fr 1fr 1fr;  grid-template-rows: auto 1fr auto; }
+/* Each card: spans all 3 parent rows, inherits those tracks internally */
+.card   { grid-column: 1; grid-row: 1 / 4;  display: grid;  grid-template-rows: subgrid; }</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ─────────────────────────────────────────── SLIDE 28: CODEPEN 12.12 ── -->
+    <div class="slide">
+        <div class="slide-content">
+            <div class="slide-label">CodePen 12.12 — Try it</div>
+            <h2>Subgrid in Action</h2>
+            <p style="margin-bottom:0.5rem; font-size:0.9rem;">Cards with varying content lengths. With subgrid, headings, body text, and footer buttons all align horizontally across cards — no matter how much content each card has.</p>
+            <div class="codepen-container">
+                <iframe style="width: 100%;" title="Codepen - 12.12" src="https://codepen.io/mattkearl/embed/QwEXXvz?default-tab=css%2Cresult&editable=true" height="800" loading="lazy"></iframe>
+            </div>
+        </div>
+    </div>
+
+    <!-- ─────────────────────────────────────────── SLIDE 29: GRID VS FLEXBOX ── -->
+    <div class="slide">
+        <div class="slide-content">
+            <div class="slide-label">Decision Guide</div>
+            <h2>Grid vs. Flexbox — When to Use Which</h2>
+            <div class="highlight" style="margin-bottom:0.75rem;">
+                They are <strong>not competitors</strong> — they are complementary tools that solve different problems.
+            </div>
+            <div class="two-column" style="flex:unset;">
+                <div class="card" style="border-top:4px solid #00b4d8;">
+                    <h3 style="color:#00b4d8;">CSS Grid — Two-Dimensional</h3>
+                    <p style="font-size:0.9em;">Use when you need to control layout in <strong>both rows and columns simultaneously</strong>:</p>
+                    <ul>
+                        <li>Full page structure (header, sidebar, main, footer)</li>
+                        <li>Card galleries and dashboards</li>
+                        <li>Data tables and any layout where elements must align both horizontally <em>and</em> vertically at the same time</li>
+                        <li>Overlapping elements</li>
+                    </ul>
+                    <div class="tip" style="margin-top:0.5rem;">
+                        <em>"Am I thinking about rows and columns together?" → If yes, Grid.</em>
+                    </div>
+                </div>
+                <div class="card" style="border-top:4px solid #ffd166;">
+                    <h3 style="color:#ffd166;">Flexbox — One-Dimensional</h3>
+                    <p style="font-size:0.9em;">Use when you need to control layout in <strong>a single direction</strong>:</p>
+                    <ul>
+                        <li>A row of navigation links</li>
+                        <li>A group of buttons</li>
+                        <li>A column of stacked form elements</li>
+                        <li>A horizontal media object (image next to text)</li>
+                        <li>Any component where content size should drive the layout</li>
+                    </ul>
+                    <div class="tip" style="margin-top:0.5rem;">
+                        <em>Content-first: items determine their own space.</em>
+                    </div>
+                </div>
+            </div>
+            <div class="note" style="margin-top:0.75rem;">
+                <strong>Use both together!</strong> A common pattern: Grid for the overall page structure, then Flexbox inside each area to arrange its internal components. Grid structures the page; Flexbox arranges the pieces within each section.
+            </div>
+        </div>
+    </div>
+
+    <!-- ─────────────────────────────────────────── SLIDE 30: SUMMARY ── -->
+    <div class="slide">
+        <div class="slide-content">
+            <div class="slide-label">Summary</div>
+            <h2>What We Covered</h2>
+            <div class="card-grid" style="grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:0.6rem; margin-top:0.5rem;">
+                <div class="card">
+                    <h3 style="margin-top:0;">Grid Basics</h3>
+                    <p style="font-size:0.85em;"><code>display: grid</code>, containers, items, tracks, lines, cells, areas. Explicit vs. implicit grid.</p>
+                </div>
+                <div class="card">
+                    <h3 style="margin-top:0;">Defining Structure</h3>
+                    <p style="font-size:0.85em;"><code>grid-template-columns/rows</code>, <code>fr</code> units, <code>grid-auto-rows</code></p>
+                </div>
+                <div class="card">
+                    <h3 style="margin-top:0;">Powerful Functions</h3>
+                    <p style="font-size:0.85em;"><code>repeat()</code>, <code>minmax()</code>, <code>auto-fill</code>, <code>auto-fit</code> — responsive grids without media queries</p>
+                </div>
+                <div class="card">
+                    <h3 style="margin-top:0;">Spacing</h3>
+                    <p style="font-size:0.85em;"><code>gap</code>, <code>row-gap</code>, <code>column-gap</code> — no margin hacks needed</p>
+                </div>
+                <div class="card">
+                    <h3 style="margin-top:0;">Item Placement</h3>
+                    <p style="font-size:0.85em;">Auto-flow, dense, line numbers (positive/negative), <code>span</code>, named grid areas</p>
+                </div>
+                <div class="card">
+                    <h3 style="margin-top:0;">Alignment</h3>
+                    <p style="font-size:0.85em;"><code>justify-items</code>, <code>align-items</code>, <code>justify-content</code>, <code>align-content</code>, <code>place-*</code> shorthands</p>
+                </div>
+                <div class="card">
+                    <h3 style="margin-top:0;">Overlapping</h3>
+                    <p style="font-size:0.85em;">Same grid cells + <code>z-index</code> — text over images, layered designs, no absolute positioning hacks</p>
+                </div>
+                <div class="card">
+                    <h3 style="margin-top:0;">Page Layout</h3>
+                    <p style="font-size:0.85em;">Complete header/nav/main/sidebar/footer layout from clean HTML in ~20 lines of CSS</p>
+                </div>
+                <div class="card">
+                    <h3 style="margin-top:0;">Subgrid &amp; Grid vs. Flex</h3>
+                    <p style="font-size:0.85em;">Nested grids inherit parent tracks. Grid = 2D page structure. Flex = 1D component layout.</p>
+                </div>
+            </div>
+            <h3 style="margin-top:0.75rem;">Further Resources</h3>
+            <div style="display:flex; flex-wrap:wrap; gap:0.5rem; margin-top:0.3rem;">
+                <a href="https://css-tricks.com/snippets/css/complete-guide-grid/" target="_blank" style="background:rgba(255,255,255,0.1); padding:0.3rem 0.8rem; border-radius:6px; font-size:0.85rem; text-decoration:none; color:#ffd166;">CSS-Tricks: Complete Grid Guide</a>
+                <a href="https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_grid_layout" target="_blank" style="background:rgba(255,255,255,0.1); padding:0.3rem 0.8rem; border-radius:6px; font-size:0.85rem; text-decoration:none; color:#ffd166;">MDN: CSS Grid Layout</a>
+                <a href="https://cssgridgarden.com/" target="_blank" style="background:rgba(255,255,255,0.1); padding:0.3rem 0.8rem; border-radius:6px; font-size:0.85rem; text-decoration:none; color:#ffd166;">Grid Garden (game)</a>
+                <a href="https://www.w3schools.com/css/css_grid.asp" target="_blank" style="background:rgba(255,255,255,0.1); padding:0.3rem 0.8rem; border-radius:6px; font-size:0.85rem; text-decoration:none; color:#ffd166;">W3Schools: CSS Grid</a>
+                <a href="https://gridbyexample.com/" target="_blank" style="background:rgba(255,255,255,0.1); padding:0.3rem 0.8rem; border-radius:6px; font-size:0.85rem; text-decoration:none; color:#ffd166;">Grid by Example (Rachel Andrew)</a>
+                <a href="https://learncssgrid.com/" target="_blank" style="background:rgba(255,255,255,0.1); padding:0.3rem 0.8rem; border-radius:6px; font-size:0.85rem; text-decoration:none; color:#ffd166;">Learn CSS Grid</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- ─────────────────────────────────────────── SLIDE 31: Q&A ── -->
+    <div class="slide">
+        <div class="slide-content">
+            <div class="slide-label">Common Questions</div>
+            <h2>Q &amp; A</h2>
+            <div class="card-grid" style="grid-template-columns:repeat(auto-fit, minmax(260px, 1fr)); gap:0.6rem; margin-top:0.5rem;">
+                <div class="card">
+                    <h3 style="margin-top:0; font-size:0.95em; color:#ffd166;">What's the difference between implicit and explicit grid?</h3>
+                    <p style="font-size:0.85em;">The <strong>explicit grid</strong> is what you define with <code>grid-template-columns</code> and <code>grid-template-rows</code>. The <strong>implicit grid</strong> is what the browser creates automatically when items overflow. Control implicit row size with <code>grid-auto-rows</code>.</p>
+                </div>
+                <div class="card">
+                    <h3 style="margin-top:0; font-size:0.95em; color:#ffd166;">When should I use <code>fr</code> instead of percentages?</h3>
+                    <p style="font-size:0.85em;"><code>fr</code> distributes <em>available</em> space — after fixed tracks and gaps are accounted for. Percentages are based on the total container size, so you have to manually subtract gaps. Use <code>fr</code> for almost everything; use <code>%</code> only when you need a track to be an exact percentage of the container.</p>
+                </div>
+                <div class="card">
+                    <h3 style="margin-top:0; font-size:0.95em; color:#ffd166;">Named areas vs. line-based placement — which to use?</h3>
+                    <p style="font-size:0.85em;">Use <strong>named areas</strong> for full page layouts with distinct sections — the template reads like a visual map. Use <strong>line-based placement</strong> for precise individual item positioning, overlapping items, or when the number of tracks is dynamic.</p>
+                </div>
+                <div class="card">
+                    <h3 style="margin-top:0; font-size:0.95em; color:#ffd166;">What does <code>-1</code> mean as a grid line number?</h3>
+                    <p style="font-size:0.85em;">Negative numbers count from the <em>end</em> of the explicit grid. Line <code>-1</code> is always the last line — the right edge for columns, bottom edge for rows. <code>grid-column: 1 / -1</code> always spans the full width, no matter how many columns you have.</p>
+                </div>
+                <div class="card">
+                    <h3 style="margin-top:0; font-size:0.95em; color:#ffd166;">What's the difference between <code>auto-fill</code> and <code>auto-fit</code>?</h3>
+                    <p style="font-size:0.85em;">Both create as many columns as fit. The difference appears with <em>fewer items than columns</em>: <code>auto-fill</code> keeps empty column tracks (they take up space); <code>auto-fit</code> collapses empty tracks so filled items expand. In most cases <code>auto-fit</code> is what you want.</p>
+                </div>
+                <div class="card" style="display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; border-top:3px solid #00b4d8;">
+                    <div class="layout-visual" style="margin-bottom:0.75rem;">
+                        <div class="lv-header">header</div>
+                        <div class="lv-nav">nav</div>
+                        <div class="lv-main">main</div>
+                        <div class="lv-aside">aside</div>
+                        <div class="lv-footer">footer</div>
+                    </div>
+                    <a href="https://cssgridgarden.com/" target="_blank" style="background:rgba(255,255,255,0.15); border:1px solid rgba(255,255,255,0.3); padding:0.4rem 1rem; border-radius:8px; font-size:0.9rem; text-decoration:none; color:#fff; font-weight:bold; margin-bottom:0.4rem;">Play Grid Garden 🎮</a>
+                    <a href="https://css-tricks.com/snippets/css/complete-guide-grid/" target="_blank" style="font-size:0.85rem; color:#ffd166;">Complete Guide to Grid</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div><!-- /slideshow-container -->
+
+    <div class="navigation">
+        <button class="nav-btn" id="prevBtn" onclick="changeSlide(-1)">&larr; Previous</button>
+        <span class="slide-counter"><span id="currentSlide">1</span> / <span id="totalSlides">31</span></span>
+        <button class="nav-btn" id="nextBtn" onclick="changeSlide(1)">Next &rarr;</button>
+    </div>
+
+    <script>
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.slide');
+        const totalSlides = slides.length;
+
+        document.getElementById('totalSlides').textContent = totalSlides;
+
+        function showSlide(n) {
+            slides[currentSlide].classList.remove('active');
+            currentSlide = (n + totalSlides) % totalSlides;
+            slides[currentSlide].classList.add('active');
+
+            document.getElementById('currentSlide').textContent = currentSlide + 1;
+            document.getElementById('prevBtn').disabled = currentSlide === 0;
+            document.getElementById('nextBtn').disabled = currentSlide === totalSlides - 1;
+
+            const progress = ((currentSlide + 1) / totalSlides) * 100;
+            document.getElementById('progress').style.width = progress + '%';
+
+            slides[currentSlide].scrollTop = 0;
+        }
+
+        function changeSlide(direction) {
+            showSlide(currentSlide + direction);
+        }
+
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'ArrowRight' || e.key === ' ') {
+                e.preventDefault();
+                if (currentSlide < totalSlides - 1) changeSlide(1);
+            } else if (e.key === 'ArrowLeft') {
+                e.preventDefault();
+                if (currentSlide > 0) changeSlide(-1);
+            } else if (e.key === 'Home') {
+                e.preventDefault();
+                showSlide(0);
+            } else if (e.key === 'End') {
+                e.preventDefault();
+                showSlide(totalSlides - 1);
+            }
+        });
+
+        let touchStartX = 0;
+        let touchEndX = 0;
+
+        document.addEventListener('touchstart', function(e) {
+            touchStartX = e.changedTouches[0].screenX;
+        }, false);
+
+        document.addEventListener('touchend', function(e) {
+            touchEndX = e.changedTouches[0].screenX;
+            const diff = touchStartX - touchEndX;
+            if (Math.abs(diff) > 50) {
+                if (diff > 0 && currentSlide < totalSlides - 1) changeSlide(1);
+                else if (diff < 0 && currentSlide > 0) changeSlide(-1);
+            }
+        }, false);
+
+        /* ── NEW Demo: Implicit Grid Explorer ── */
+        function addGridItem() {
+            const grid = document.getElementById('implicitGrid');
+            const items = grid.querySelectorAll('.ig-item');
+            const count = items.length + 1;
+            const div = document.createElement('div');
+            div.className = 'ig-item ' + (count <= 6 ? 'ig-explicit' : 'ig-implicit');
+            div.textContent = count;
+            grid.appendChild(div);
+            document.getElementById('itemCount').textContent = count;
+        }
+        function removeGridItem() {
+            const grid = document.getElementById('implicitGrid');
+            const items = grid.querySelectorAll('.ig-item');
+            if (items.length > 1) {
+                items[items.length - 1].remove();
+                document.getElementById('itemCount').textContent = items.length - 1;
+            }
+        }
+        function updateAutoRows() {
+            const val = document.getElementById('autoRowsSlider').value + 'px';
+            document.getElementById('autoRowsLabel').textContent = val;
+            document.getElementById('autoRowsCode').textContent  = val;
+            document.getElementById('implicitGrid').style.gridAutoRows = val;
+        }
+
+        /* ── NEW Demo: repeat() + minmax() Playground ── */
+        function updateMinmax() {
+            const count = document.getElementById('repeatSlider').value;
+            const min   = document.getElementById('minSlider').value + 'px';
+            const max   = document.getElementById('maxSelect').value;
+            document.getElementById('repeatCount').textContent = count;
+            document.getElementById('minVal').textContent      = min;
+            document.getElementById('mmColCode').textContent   = count;
+            document.getElementById('mmMinCode').textContent   = min;
+            document.getElementById('mmMaxCode').textContent   = max;
+            document.getElementById('minmaxGrid').style.gridTemplateColumns =
+                `repeat(${count}, minmax(${min}, ${max}))`;
+        }
+
+        /* ── Demo: z-index Grid Cell Stacking ── */
+        let cCol = 3, cRow = 2, cZ = 1;
+        function moveC(col, row) {
+            cCol = col; cRow = row;
+            const el = document.getElementById('ziC');
+            el.style.gridColumn = col;
+            el.style.gridRow    = row;
+            document.getElementById('ziCLabel').textContent = 'grid-column:' + col + ' / grid-row:' + row;
+            updateZiStack();
+        }
+        function changeCZ(delta) {
+            cZ = Math.max(0, Math.min(5, cZ + delta));
+            document.getElementById('ziC').style.zIndex = cZ;
+            document.getElementById('ziCVal').textContent = cZ;
+            updateZiStack();
+        }
+        function updateZiStack() {
+            const overlapA = (cCol === 1 && cRow === 1);
+            const overlapB = (cCol === 2 && cRow === 1);
+            const ctrl = document.getElementById('ziControl');
+            ctrl.style.display = (overlapA || overlapB) ? 'flex' : 'none';
+            const code = document.getElementById('ziCode');
+            const result = document.getElementById('ziResult');
+            code.textContent = '#c { grid-column: ' + cCol + ';  grid-row: ' + cRow + ';  z-index: ' + cZ + '; }' +
+                ((overlapA || overlapB) ? '' : '  /* no overlap */');
+            if (overlapA || overlapB) {
+                const otherLabel = overlapA ? '🔵 A' : '🔴 B';
+                if (cZ > 1) {
+                    result.textContent = '🟢 C (z-index ' + cZ + ') is on top of ' + otherLabel + ' (z-index 1)';
+                    result.style.color = '#06d6a0';
+                } else if (cZ < 1) {
+                    result.textContent = otherLabel + ' (z-index 1) is on top of 🟢 C (z-index ' + cZ + ')';
+                    result.style.color = '#ffd166';
+                } else {
+                    result.textContent = 'Both z-index 1 — source order wins: ' + otherLabel + ' first → 🟢 C on top';
+                    result.style.color = '#ffd166';
+                }
+            }
+        }
+
+        /* ── Demo: Subgrid ── */
+        let sgTextLevel = 0;
+        const sgTexts = [
+            'Great battery life.',
+            'Stunning 4K OLED display and all-day battery life.',
+            'Stunning 4K OLED, 32GB RAM, all-day battery. Built for creative professionals.',
+            'Stunning 4K OLED, 32GB RAM, all-day battery. Lightweight chassis perfect for designers and developers who need power on the go.'
+        ];
+        function sgAddText() {
+            if (sgTextLevel < sgTexts.length - 1) sgTextLevel++;
+            document.getElementById('nosg-body').textContent = sgTexts[sgTextLevel];
+            document.getElementById('sg-body').textContent   = sgTexts[sgTextLevel];
+            if (sgTextLevel >= sgTexts.length - 1) {
+                document.getElementById('sgAddBtn').disabled = true;
+            }
+        }
+        function sgResetText() {
+            sgTextLevel = 0;
+            document.getElementById('nosg-body').textContent = sgTexts[0];
+            document.getElementById('sg-body').textContent   = sgTexts[0];
+            document.getElementById('sgAddBtn').disabled = false;
+        }
+
+        /* ── Demo 1: Column/fr Builder ── */
+        function updateColumnDemo() {
+            const input = document.getElementById('colInput');
+            const grid  = document.getElementById('colGrid');
+            const err   = document.getElementById('colError');
+            grid.style.gridTemplateColumns = input.value;
+            // Validate: if browser rejects the value it resets to ''
+            const computed = getComputedStyle(grid).gridTemplateColumns;
+            const invalid  = !input.value.trim() || computed === 'none';
+            err.style.display = invalid ? 'block' : 'none';
+        }
+        function setColPreset(val) {
+            document.getElementById('colInput').value = val;
+            updateColumnDemo();
+        }
+
+        /* ── Demo 2: auto-fill vs auto-fit (Option B — ghost tracks) ── */
+        function updateAutoFillDemo() {
+            const itemCount = parseInt(document.getElementById('afItemSlider').value);
+            const minWidth  = parseInt(document.getElementById('afMinSlider').value);
+            document.getElementById('afItemLabel').textContent = itemCount;
+            document.getElementById('afMinLabel').textContent  = minWidth + 'px';
+            document.getElementById('afMinCode').textContent   = minWidth + 'px';
+
+            const fillGrid = document.getElementById('afFillGrid');
+            const fitGrid  = document.getElementById('afFitGrid');
+            fillGrid.style.gridTemplateColumns = `repeat(auto-fill, minmax(${minWidth}px, 1fr))`;
+            fitGrid.style.gridTemplateColumns  = `repeat(auto-fit,  minmax(${minWidth}px, 1fr))`;
+
+            // Rebuild real items in both grids
+            fillGrid.innerHTML = '';
+            fitGrid.innerHTML  = '';
+            for (let i = 1; i <= itemCount; i++) {
+                const fa = document.createElement('div');
+                fa.className = 'demo-cell';
+                fa.style.borderColor = 'rgba(129,236,236,0.65)';
+                fa.style.background  = 'rgba(129,236,236,0.28)';
+                fa.textContent = i;
+                fillGrid.appendChild(fa);
+
+                const fi = document.createElement('div');
+                fi.className = 'demo-cell';
+                fi.style.borderColor = 'rgba(255,209,102,0.65)';
+                fi.style.background  = 'rgba(255,209,102,0.22)';
+                fi.textContent = i;
+                fitGrid.appendChild(fi);
+            }
+
+            // After render: count tracks, add ghost items to show auto-fill empty tracks
+            setTimeout(() => {
+                const fillTracks = getComputedStyle(fillGrid).gridTemplateColumns
+                    .split(/\s+/).filter(Boolean);
+                const fitTracks  = getComputedStyle(fitGrid).gridTemplateColumns
+                    .split(/\s+/).filter(Boolean);
+
+                const fillCols = fillTracks.length;
+                const fitCols  = fitTracks.filter(v => v !== '0px').length;
+
+                document.getElementById('afFillCount').textContent = fillCols;
+                document.getElementById('afFitCount').textContent  = fitCols;
+
+                // Ghost items to visualise empty auto-fill tracks
+                const ghosts = Math.max(0, fillCols - itemCount);
+                for (let i = 0; i < ghosts; i++) {
+                    const g = document.createElement('div');
+                    g.style.border         = '2px dashed rgba(129,236,236,0.3)';
+                    g.style.borderRadius   = '4px';
+                    g.style.minHeight      = '40px';
+                    g.style.background     = 'rgba(129,236,236,0.04)';
+                    g.style.display        = 'flex';
+                    g.style.alignItems     = 'center';
+                    g.style.justifyContent = 'center';
+                    g.style.fontSize       = '0.68rem';
+                    g.style.color          = 'rgba(129,236,236,0.35)';
+                    g.textContent = 'empty';
+                    fillGrid.appendChild(g);
+                }
+            }, 40);
+        }
+
+        /* ── Demo 3: Gap Sliders ── */
+        function updateGapDemo() {
+            const rg = document.getElementById('rowGapSlider').value;
+            const cg = document.getElementById('colGapSlider').value;
+            document.getElementById('rowGapLabel').textContent = rg + 'px';
+            document.getElementById('colGapLabel').textContent = cg + 'px';
+            const grid = document.getElementById('gapGrid');
+            grid.style.rowGap    = rg + 'px';
+            grid.style.columnGap = cg + 'px';
+            document.getElementById('gapCodeDisplay').textContent = rg + 'px ' + cg + 'px';
+        }
+
+        /* ── Demo 4: Auto-Placement Step-Through ── */
+        let flowStep = 0;
+        let flowMode = 'row';
+
+        const flowDefs = {
+            'row': [
+                { label: 'A', col: '1/2',  row: '1/2', msg: 'Item A (1 cell) → placed at column 1, row 1. Cursor advances right.' },
+                { label: 'B', col: '2/4',  row: '1/2', msg: 'Item B (spans 2) → fills columns 2–3. Only 1 column left on row 1...' },
+                { label: 'C', col: '1/4',  row: '2/3', msg: 'Item C needs 3 columns — only col 4 is left on row 1. It wraps to row 2. ⚠️ A gap forms at col 4, row 1!' },
+                { label: 'D', col: '4/5',  row: '2/3', msg: 'Item D: "row" mode never goes backward. The gap stays empty. D lands after C in row 2.' },
+                { label: 'E', col: '1/2',  row: '3/4', msg: 'Item E continues on row 3, column 1.' },
+                { label: 'F', col: '2/4',  row: '3/4', msg: 'All items placed. The gap at col 4, row 1 is permanently empty — "row" mode left it behind.' },
+            ],
+            'row dense': [
+                { label: 'A', col: '1/2',  row: '1/2', msg: 'Item A → column 1, row 1.' },
+                { label: 'B', col: '2/4',  row: '1/2', msg: 'Item B → columns 2–3. Only 1 column left on row 1...' },
+                { label: 'C', col: '1/4',  row: '2/3', msg: 'Item C wraps to row 2. ⚠️ Gap at col 4, row 1 forms.' },
+                { label: 'D', col: '4/5',  row: '1/2', msg: '✅ Dense mode: Item D (1 cell) fits in the gap at col 4, row 1 — it backfills instead of moving forward!' },
+                { label: 'E', col: '4/5',  row: '2/3', msg: 'Item E fills col 4, row 2.' },
+                { label: 'F', col: '1/3',  row: '3/4', msg: 'Done! No wasted space — dense mode packed everything efficiently.' },
+            ]
+        };
+
+        function resetFlow() {
+            flowStep = 0;
+            ['A','B','C','D','E','F'].forEach(l => {
+                const el = document.getElementById('fi-' + l);
+                if (el) el.style.opacity = '0';
+            });
+            const gap = document.getElementById('flowGap');
+            if (gap) gap.style.opacity = '0';
+            document.getElementById('flowMsg').innerHTML =
+                'Click <strong>Place Next Item →</strong> to start placing items.';
+            document.getElementById('flowStepNum').textContent = '0';
+            document.getElementById('flowNextBtn').disabled = false;
+        }
+
+        function setFlowMode(mode) {
+            flowMode = mode;
+            document.getElementById('flow-row').classList.toggle('active', mode === 'row');
+            document.getElementById('flow-dense').classList.toggle('active', mode === 'row dense');
+            document.getElementById('flowModeCode').textContent = mode;
+            // Update item positions for this mode
+            const defs = flowDefs[mode];
+            ['A','B','C','D','E','F'].forEach((label, i) => {
+                const el = document.getElementById('fi-' + label);
+                if (el && defs[i]) {
+                    el.style.gridColumn = defs[i].col;
+                    el.style.gridRow    = defs[i].row;
+                }
+            });
+            resetFlow();
+        }
+
+        function flowNext() {
+            const defs = flowDefs[flowMode];
+            if (flowStep >= defs.length) return;
+            const def = defs[flowStep];
+            const el  = document.getElementById('fi-' + def.label);
+            if (el) el.style.opacity = '1';
+            document.getElementById('flowMsg').textContent = def.msg;
+            document.getElementById('flowStepNum').textContent = flowStep + 1;
+            // Gap indicator: show after C (step 2), hide in dense when D backfills (step 3)
+            const gap = document.getElementById('flowGap');
+            if (gap) {
+                if (flowStep === 2) gap.style.opacity = '1';
+                if (flowMode === 'row dense' && flowStep === 3) gap.style.opacity = '0';
+            }
+            flowStep++;
+            if (flowStep >= defs.length) document.getElementById('flowNextBtn').disabled = true;
+        }
+
+        function flowBack() {
+            if (flowStep <= 0) return;
+            flowStep--;
+            const defs  = flowDefs[flowMode];
+            const label = defs[flowStep].label;
+            const el    = document.getElementById('fi-' + label);
+            if (el) el.style.opacity = '0';
+            document.getElementById('flowMsg').textContent = flowStep > 0
+                ? defs[flowStep - 1].msg
+                : 'Click Place Next Item → to start placing items.';
+            document.getElementById('flowStepNum').textContent = flowStep;
+            const gap = document.getElementById('flowGap');
+            if (gap) {
+                const showGap = flowStep >= 3 && !(flowMode === 'row dense' && flowStep >= 4);
+                gap.style.opacity = showGap ? '1' : '0';
+            }
+            document.getElementById('flowNextBtn').disabled = false;
+        }
+
+        /* ── Demo 5: Line Placement Playground ── */
+        function updateLinePlacement() {
+            let cs = parseInt(document.getElementById('lpColStart').value);
+            let ce = parseInt(document.getElementById('lpColEnd').value);
+            let rs = parseInt(document.getElementById('lpRowStart').value);
+            let re = parseInt(document.getElementById('lpRowEnd').value);
+            // Enforce end > start
+            if (ce <= cs) ce = cs + 1;
+            if (re <= rs) re = rs + 1;
+            document.getElementById('csLabel').textContent = cs;
+            document.getElementById('ceLabel').textContent = ce;
+            document.getElementById('rsLabel').textContent = rs;
+            document.getElementById('reLabel').textContent = re;
+            const item = document.getElementById('lpItem');
+            item.style.gridColumn = cs + ' / ' + ce;
+            item.style.gridRow    = rs + ' / ' + re;
+            document.getElementById('lpColCode').textContent = cs + ' / ' + ce;
+            document.getElementById('lpRowCode').textContent = rs + ' / ' + re;
+        }
+
+        /* ── Demo 6: Named Areas Rearranger ── */
+        const layoutPresets = {
+            'classic': {
+                cols: '150px 1fr', rows: '50px 100px 40px',
+                areas: '"header header" "navigation content" "footer footer"',
+                code:  'grid-template-areas:\n  "header     header"\n  "navigation content"\n  "footer     footer";'
+            },
+            'sidebar-right': {
+                cols: '1fr 150px', rows: '50px 100px 40px',
+                areas: '"header header" "content navigation" "footer footer"',
+                code:  'grid-template-areas:\n  "header  header"\n  "content navigation"\n  "footer  footer";'
+            },
+            'stacked': {
+                cols: '1fr', rows: '50px 40px 100px 40px',
+                areas: '"header" "navigation" "content" "footer"',
+                code:  'grid-template-areas:\n  "header"\n  "navigation"\n  "content"\n  "footer";'
+            },
+            'magazine': {
+                cols: '1fr 1fr 160px', rows: '60px 100px 40px',
+                areas: '"header header navigation" "content content navigation" "footer footer footer"',
+                code:  'grid-template-areas:\n  "header  header  navigation"\n  "content content navigation"\n  "footer  footer  footer";'
+            }
+        };
+        function setLayout(name) {
+            const p = layoutPresets[name];
+            const g = document.getElementById('areasGrid');
+            g.style.gridTemplateColumns = p.cols;
+            g.style.gridTemplateRows    = p.rows;
+            g.style.gridTemplateAreas   = p.areas;
+            document.getElementById('areasCode').textContent = p.code;
+            ['layout-classic','layout-right','layout-stacked','layout-mag'].forEach(id =>
+                document.getElementById(id).classList.remove('active'));
+            const idMap = {'classic':'layout-classic','sidebar-right':'layout-right','stacked':'layout-stacked','magazine':'layout-mag'};
+            document.getElementById(idMap[name]).classList.add('active');
+        }
+
+        /* ── Demo 7: Alignment Explorer ── */
+        function updateAlignment() {
+            const g = document.getElementById('alignGrid');
+            g.style.justifyItems   = document.getElementById('justifyItems').value;
+            g.style.alignItems     = document.getElementById('alignItems').value;
+            g.style.justifyContent = document.getElementById('justifyContent').value;
+            g.style.alignContent   = document.getElementById('alignContent').value;
+        }
+
+
+        // Initialise demos that require JS to populate on load
+        updateAutoFillDemo();
+        showSlide(0);
+    </script>
+</body>
+</html>

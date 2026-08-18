@@ -4,23 +4,39 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Advanced CSS Backgrounds &amp; Borders</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,900;1,9..144,500&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
         :root {
-            --primary-color: #2c3e50;
-            --secondary-color: #3498db;
-            --code-bg: #1e1e1e;
-            --code-text: #d4d4d4;
+            --primary-color: #17140f;
+            --secondary-color: #cc7a4f;
+            --code-bg: #141109;
+            --code-text: #e4ddd0;
+            --text-color: #f2ece1;
+            --muted-color: #9c9382;
+            --border: #3a3226;
+            --border-soft: #29241c;
+            --surface: #1e1a14;
+            --accent2: #cfa77e;
+            --accent3: #b98a52;
+            --accent4: #b6553c;
+            --nav-h: 56px;
         }
 
         html, body {
             height: 100%;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Inter', sans-serif;
             background: var(--primary-color);
             overflow: hidden;
             display: flex;
             flex-direction: column;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .slide { animation: none !important; }
         }
 
         .slideshow-container {
@@ -34,133 +50,186 @@
         .slide {
             display: none;
             flex: 1;
-            padding: 1.5rem 2rem;
-            color: white;
-            overflow-y: auto;
+            grid-template-columns: 200px 1fr;
+            background: var(--primary-color);
+            color: var(--text-color);
             animation: fadeIn 0.4s ease-in-out;
+            overflow: hidden;
         }
-        .slide.active { display: flex; flex-direction: column; }
+        .slide.active { display: grid; }
 
         @keyframes fadeIn {
             from { opacity: 0; transform: translateX(20px); }
             to   { opacity: 1; transform: translateX(0); }
         }
 
-        /* Cycling slide backgrounds */
-        .slide:nth-child(odd)  { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
-        .slide:nth-child(even) { background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); }
-        .slide:nth-child(3n)   { background: linear-gradient(135deg, #ee0979 0%, #ff6a00 100%); }
-        .slide:nth-child(4n)   { background: linear-gradient(135deg, #2193b0 0%, #6dd5ed 100%); }
-        .slide:nth-child(5n)   { background: linear-gradient(135deg, #c31432 0%, #240b36 100%); }
-
-        .slide-content {
-            max-width: 1400px;
-            width: 100%;
-            margin: 0 auto;
-            flex: 1;
+        /* ===== RAIL — persistent left margin: deck kicker, big italic slide
+           number, and (since this deck already tags every slide) the original
+           .slide-label text carried over verbatim as a rotated section tag. ===== */
+        .rail {
+            border-right: 1px solid var(--border-soft);
+            padding: 2.2rem 1.5rem;
             display: flex;
             flex-direction: column;
+            justify-content: space-between;
         }
-        .slide-content.centered { justify-content: center; }
+        .kicker {
+            font-size: .65rem;
+            letter-spacing: .14em;
+            text-transform: uppercase;
+            color: var(--muted-color);
+            font-weight: 600;
+            line-height: 1.5;
+        }
+        .rail-num {
+            font-family: 'Fraunces', serif;
+            font-weight: 400;
+            font-style: italic;
+            font-size: 3rem;
+            color: var(--muted-color);
+            opacity: .5;
+            margin-top: 1rem;
+            font-variant-numeric: oldstyle-nums;
+        }
+        .rail-tag {
+            font-size: .7rem;
+            letter-spacing: .1em;
+            text-transform: uppercase;
+            color: var(--secondary-color);
+            font-weight: 600;
+            writing-mode: vertical-rl;
+            transform: rotate(180deg);
+            justify-self: start;
+        }
+
+        /* ===== MAIN — fixed box; .slide-content scales down only if content
+           would overflow, so a slide never scrolls or clips. ===== */
+        .main { padding: 2.6rem 4rem 2rem 3.2rem; overflow: hidden; }
+
+        .slide-content { max-width: 1400px; transform-origin: top left; }
+
+        .slide-content > p, .slide-content > ul, .slide-content > ol,
+        .two-column > div > p, .two-column > div > ul, .two-column > div > ol {
+            max-width: 68ch;
+        }
 
         /* Typography */
-        h1 { font-size: clamp(1.8rem,5vw,3rem); margin-bottom: 1.5rem; text-shadow: 2px 2px 4px rgba(0,0,0,.2); line-height: 1.2; }
-        h2 { font-size: clamp(1.4rem,4vw,2.2rem); margin-bottom: .75rem; color: #ffeaa7; }
-        h3 { font-size: clamp(1.1rem,3vw,1.5rem); margin: .75rem 0 .4rem; color: #81ecec; }
-        h4 { font-size: clamp(1rem,2.5vw,1.2rem); margin: .5rem 0 .3rem; color: #dfe6e9; }
-        p  { font-size: clamp(1rem,2.5vw,1.2rem); line-height: 1.5; margin-bottom: .5rem; }
-        ul, ol { font-size: clamp(.95rem,2.2vw,1.15rem); line-height: 1.6; margin-left: 1.5rem; margin-bottom: .5rem; }
-        li { margin-bottom: .3rem; }
-        a  { color: #ffeaa7; text-decoration: underline; }
-        a:hover { color: #fdcb6e; }
-        code { background: rgba(0,0,0,.3); padding: .2em .5em; border-radius: 4px; font-family: 'Consolas','Monaco',monospace; font-size: .9em; }
-        pre  { background: var(--code-bg); color: var(--code-text); padding: .75rem 1rem; border-radius: 8px; overflow-x: auto; margin: .5rem 0; font-size: clamp(.75rem,1.6vw,.95rem); line-height: 1.4; }
-        pre code { background: none; padding: 0; }
+        h1 { font-family:'Fraunces',serif; font-weight:600; font-size: clamp(2rem,5vw,3.6rem); margin-bottom: 1.4rem; line-height: 1.15; letter-spacing:-.01em; max-width: 18ch; }
+        h2 { font-family:'Fraunces',serif; font-weight:600; font-size: clamp(1.4rem,3.2vw,2.1rem); margin-bottom: .9rem; color: var(--text-color); line-height: 1.2; }
+        h3 { font-family:'Inter',sans-serif; font-weight:700; font-size:.75rem; letter-spacing:.1em; text-transform:uppercase; color: var(--muted-color); margin: 1rem 0 .5rem; }
+        h4 { font-family:'Inter',sans-serif; font-weight:700; font-size:.7rem; letter-spacing:.08em; text-transform:uppercase; color: var(--muted-color); margin: .6rem 0 .3rem; }
+        p  { font-size: clamp(1rem,2.5vw,1.15rem); line-height: 1.55; margin-bottom: .6rem; }
+        ul, ol { font-size: clamp(.95rem,2.2vw,1.1rem); line-height: 1.6; margin-left: 1.4rem; margin-bottom: .6rem; }
+        li { margin-bottom: .35rem; }
+        a  { color: var(--secondary-color); text-decoration: underline; }
+        a:hover { color: var(--text-color); }
+        code { background: var(--surface); padding: .15em .5em; border-radius: 3px; font-family: 'JetBrains Mono', monospace; font-size: .88em; color: var(--secondary-color); font-variant-ligatures: none; font-feature-settings: "calt" 0, "liga" 0; }
+        pre  { background: var(--code-bg); color: var(--code-text); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); padding: 1rem 1.2rem; margin: .7rem 0 1rem; font-family:'JetBrains Mono',monospace; font-size: clamp(.75rem,1.4vw,.9rem); line-height: 1.65; max-width: 82ch; white-space: pre-wrap; overflow-wrap: anywhere; }
+        pre code { background: none; padding: 0; color: inherit; }
 
         /* Callout boxes */
-        .note    { background: rgba(46,204,113,.2);  padding: .75rem 1rem; border-radius: 8px; border-left: 4px solid #2ecc71; margin: .5rem 0; font-size: clamp(.9rem,2vw,1.05rem); }
-        .caution { background: rgba(231,76,60,.2);   padding: .75rem 1rem; border-radius: 8px; border-left: 4px solid #e74c3c; margin: .5rem 0; font-size: clamp(.9rem,2vw,1.05rem); }
-        .tip     { background: rgba(52,152,219,.2);  padding: .75rem 1rem; border-radius: 8px; border-left: 4px solid #3498db; margin: .5rem 0; font-size: clamp(.9rem,2vw,1.05rem); }
-        .highlight { background: rgba(255,255,255,.15); padding: .75rem 1rem; border-radius: 8px; border-left: 4px solid #ffeaa7; margin: .5rem 0; }
+        .note, .tip { background: none; padding-top: .7rem; border-top: 1px solid var(--border-soft); border-left: none; margin: .8rem 0 1rem; font-size: clamp(.88rem,2vw,1.02rem); }
+        .caution { background: rgba(204,122,79,.1); padding: .85rem 1.05rem; border-left: 2px solid var(--secondary-color); border-top: none; margin: .8rem 0 1rem; font-size: clamp(.88rem,2vw,1.02rem); }
+        .highlight {
+            max-width: 64ch; margin: 1.2rem 0 1.4rem; padding-top: 1.1rem;
+            border-top: 1px solid var(--border); position: relative;
+            font-family: 'Fraunces', serif; font-style: italic; font-weight: 500;
+            font-size: 1.05rem; line-height: 1.55; color: var(--text-color);
+        }
+        .highlight::before {
+            content: '\201C'; font-family: 'Fraunces', serif; font-size: 2.6rem; color: var(--secondary-color);
+            position: absolute; top: .4rem; left: -2rem; line-height: 1; opacity: .85;
+        }
+        .highlight strong { font-style: normal; }
 
         /* Layout helpers */
-        .two-column   { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; align-items: start; }
-        .three-column { display: grid; grid-template-columns: repeat(3,1fr); gap: 1.2rem; align-items: start; }
+        .two-column   { display: grid; grid-template-columns: 1fr 1fr; gap: 1.8rem; align-items: start; }
+        .three-column { display: grid; grid-template-columns: repeat(3,1fr); gap: 1.4rem; align-items: start; }
         @media (max-width:900px) { .three-column { grid-template-columns: 1fr 1fr; } }
         @media (max-width:768px) { .two-column, .three-column { grid-template-columns: 1fr; } }
-        @media (max-width:600px) { .slide { padding: 1rem; } .navigation { padding: .5rem; } .nav-btn { padding: .5rem 1rem; font-size: .9rem; } }
+        @media (max-width:700px) {
+            .slide { grid-template-columns: 56px 1fr; }
+            .rail { padding: 1rem .5rem; }
+            .kicker { display: none; }
+            .rail-num { font-size: 1.4rem; margin-top: 0; }
+            .rail-tag { display: none; }
+            .main { padding: 1.5rem 1.25rem; }
+            .navigation { padding: 0 1rem; }
+            .nav-btn { padding: .5rem 0; font-size: .68rem; }
+        }
 
         /* Cards */
-        .card { background: rgba(0,0,0,.2); padding: 1rem; border-radius: 8px; border: 1px solid rgba(255,255,255,.2); }
+        .card { background: var(--surface); padding: 1.1rem 1.3rem; border: 1px solid var(--border-soft); }
         .card h3, .card h4 { margin-top: 0; }
-        .card-grid { display: grid; grid-template-columns: repeat(auto-fit,minmax(160px,1fr)); gap: .75rem; margin: .5rem 0; }
-        .vocab-card { background: rgba(0,0,0,.2); border-radius: 8px; padding: .6rem .9rem; border: 1px solid rgba(255,255,255,.2); border-top: 3px solid #81ecec; }
-        .vocab-card strong { color: #81ecec; display: block; font-size: .92em; margin-bottom: .2rem; }
-        .vocab-card span { font-size: .83em; opacity: .9; line-height: 1.4; }
+        .card-grid { display: grid; grid-template-columns: repeat(auto-fit,minmax(160px,1fr)); gap: .9rem; margin: .8rem 0; }
+        .vocab-card { background: var(--surface); padding: .7rem 1rem; border: 1px solid var(--border-soft); border-top: 2px solid var(--secondary-color); }
+        .vocab-card strong { color: var(--secondary-color); display: block; font-size: .92em; margin-bottom: .2rem; }
+        .vocab-card span { font-size: .83em; opacity: .9; line-height: 1.4; color: var(--muted-color); }
 
-        /* Slide label */
-        .slide-label { font-size: .75rem; text-transform: uppercase; letter-spacing: .1em; color: rgba(255,255,255,.5); margin-bottom: .25rem; }
+        /* Slide label — kept in place inside the slide content (see .rail-tag,
+           which carries the same text as the rotated section tag). */
+        .slide-label { font-size: .7rem; font-weight: 700; text-transform: uppercase; letter-spacing: .12em; color: var(--secondary-color); margin-bottom: .5rem; }
 
-        /* CodePen container */
+        /* CodePen container — left untouched, exactly as originally authored */
         .codepen-container { margin: .5rem 0; border-radius: 8px; overflow: hidden; flex: 1; min-height: 0; }
         .codepen-container iframe { border: none; width: 100%; height: 100%; min-height: 300px; border-radius: 8px; }
 
         /* Learn grid */
-        .learn-grid { display: grid; grid-template-columns: repeat(auto-fit,minmax(240px,1fr)); gap: .5rem; margin-top: .5rem; }
-        .learn-item { background: rgba(0,0,0,.2); border-radius: 8px; padding: .5rem .75rem; font-size: clamp(.82rem,1.8vw,.98rem); border-left: 3px solid #81ecec; line-height: 1.4; border: 1px solid rgba(255,255,255,.2); border-left: 3px solid #81ecec; }
+        .learn-grid { display: grid; grid-template-columns: repeat(auto-fit,minmax(260px,1fr)); gap: 0; margin-top: .6rem; }
+        .learn-item { padding: .55rem .9rem .55rem 0; font-size: clamp(.85rem,1.8vw,1rem); border-top: 1px solid var(--border-soft); line-height: 1.5; }
 
         /* Navigation */
-        .navigation { display: flex; justify-content: center; align-items: center; gap: 1rem; padding: .75rem 1rem; background: var(--primary-color); flex-wrap: wrap; }
-        .nav-btn { padding: .6rem 1.2rem; font-size: 1rem; border: none; border-radius: 5px; cursor: pointer; transition: all .3s ease; background: var(--secondary-color); color: white; }
-        .nav-btn:hover { background: #2980b9; transform: translateY(-2px); }
-        .nav-btn:disabled { background: #7f8c8d; cursor: not-allowed; transform: none; }
-        .slide-counter { color: white; font-size: 1rem; min-width: 100px; text-align: center; }
-        .progress-bar { width: 100%; height: 4px; background: rgba(255,255,255,.2); }
+        .navigation { display: flex; justify-content: space-between; align-items: center; gap: 1rem; padding: 0 1.6rem; height: var(--nav-h); background: var(--primary-color); border-top: 1px solid var(--border-soft); flex-wrap: nowrap; flex-shrink: 0; }
+        .nav-btn { padding: .4rem 0; font-size: .72rem; letter-spacing: .08em; text-transform: uppercase; font-weight: 600; border: none; cursor: pointer; transition: color .15s ease; background: none; color: var(--muted-color); font-family: 'Inter', sans-serif; }
+        .nav-btn:hover:not(:disabled) { color: var(--text-color); }
+        .nav-btn:disabled { background: none; color: var(--muted-color); opacity: .3; cursor: not-allowed; }
+        .slide-counter { color: var(--secondary-color); font-size: .72rem; letter-spacing: .08em; min-width: 100px; text-align: center; font-variant-numeric: tabular-nums; }
+        .progress-bar { width: 100%; height: 2px; background: var(--border-soft); }
         .progress { height: 100%; background: var(--secondary-color); transition: width .3s ease; }
 
         /* Compare table */
-        table.compare-table { width: 100%; border-collapse: collapse; margin: .5rem 0; font-size: clamp(.8rem,1.8vw,1rem); }
-        table.compare-table th, table.compare-table td { border: 1px solid rgba(255,255,255,.3); padding: .4rem .6rem; text-align: left; }
-        table.compare-table th { background: rgba(0,0,0,.2); color: #ffeaa7; }
+        table.compare-table { width: 100%; border-collapse: collapse; margin: .6rem 0 1.1rem; font-size: clamp(.8rem,1.8vw,1rem); font-variant-numeric: tabular-nums; }
+        table.compare-table th, table.compare-table td { border-bottom: 1px solid var(--border-soft); padding: .5rem .7rem; text-align: left; }
+        table.compare-table th { border-bottom: 2px solid var(--border); color: var(--secondary-color); font-weight: 700; }
 
         /* ── Visual demo styles ── */
         .gradient-row { display: flex; gap: .5rem; flex-wrap: wrap; margin: .5rem 0; }
-        .grad-swatch  { flex: 1; min-width: 80px; height: 72px; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: .7rem; font-weight: bold; text-align: center; text-shadow: 0 1px 3px rgba(0,0,0,.6); padding: 4px; line-height: 1.3; }
+        .grad-swatch  { flex: 1; min-width: 80px; height: 72px; border: 1px solid var(--border-soft); display: flex; align-items: center; justify-content: center; font-size: .7rem; font-weight: bold; text-align: center; text-shadow: 0 1px 3px rgba(0,0,0,.6); padding: 4px; line-height: 1.3; }
         .border-style-grid { display: grid; grid-template-columns: repeat(auto-fill,minmax(110px,1fr)); gap: .5rem; margin: .5rem 0; }
-        .border-demo { background: rgba(0,0,0,.2); padding: .5rem .75rem; border-radius: 4px; text-align: center; font-size: .8rem; }
+        .border-demo { background: var(--surface); padding: .5rem .75rem; border: 1px solid var(--border-soft); text-align: center; font-size: .8rem; }
         .border-demo .preview { height: 30px; margin-bottom: 4px; display: flex; align-items: center; justify-content: center; font-size: .7rem; opacity: .7; }
-        .demo-box { border-radius: 8px; padding: 1rem; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: .9rem; text-align: center; min-height: 60px; }
+        .demo-box { padding: 1rem; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: .9rem; text-align: center; min-height: 60px; background: var(--surface); border: 1px solid var(--border-soft); }
         .stripe-table { width: 100%; border-collapse: collapse; font-size: clamp(.78rem,1.7vw,.95rem); }
-        .stripe-table th { background: rgba(0,0,0,.35); color: #ffeaa7; padding: .35rem .6rem; border: 1px solid rgba(255,255,255,.2); }
-        .stripe-table td { padding: .3rem .6rem; border: 1px solid rgba(255,255,255,.15); }
-        .stripe-table tbody tr:nth-child(odd) { background: rgba(255,255,255,.12); }
+        .stripe-table th { border-bottom: 2px solid var(--border); color: var(--secondary-color); padding: .35rem .6rem; text-align: left; font-weight: 700; }
+        .stripe-table td { padding: .3rem .6rem; border-bottom: 1px solid var(--border-soft); }
+        .stripe-table tbody tr:nth-child(odd) { background: var(--surface); }
         .conic-swatches { display: grid; grid-template-columns: repeat(auto-fill,minmax(100px,1fr)); gap: .5rem; margin: .5rem 0; }
-        .conic-swatch { height: 90px; border-radius: 50%; border: 2px solid rgba(255,255,255,.2); }
+        .conic-swatch { height: 90px; border-radius: 50%; border: 2px solid var(--border-soft); }
         .radius-row { display: flex; gap: .75rem; flex-wrap: wrap; margin: .5rem 0; }
-        .radius-demo { background: rgba(52,152,219,.4); border: 2px solid #3498db; width: 80px; height: 80px; display: flex; align-items: center; justify-content: center; font-size: .7rem; font-weight: bold; text-align: center; line-height: 1.3; }
+        .radius-demo { background: rgba(204,122,79,.15); border: 2px solid var(--secondary-color); width: 80px; height: 80px; display: flex; align-items: center; justify-content: center; font-size: .7rem; font-weight: bold; text-align: center; line-height: 1.3; }
         .outline-compare { display: flex; gap: 1.5rem; flex-wrap: wrap; align-items: flex-start; margin: .5rem 0; }
-        .outline-box { background: rgba(0,0,0,.2); padding: .75rem 1.2rem; border-radius: 4px; font-size: .85rem; text-align: center; }
-        .focus-demo-btn { padding: .6rem 1.4rem; border-radius: 6px; font-size: 1rem; cursor: pointer; background: rgba(52,152,219,.4); color: white; border: none; margin: .3rem; }
+        .outline-box { background: var(--surface); padding: .75rem 1.2rem; text-align: center; font-size: .85rem; }
+        .focus-demo-btn { padding: .6rem 1.4rem; font-size: 1rem; cursor: pointer; background: var(--surface); color: var(--text-color); border: 1px solid var(--border); margin: .3rem; }
         .focus-demo-btn:focus-visible { outline: 3px solid #ffd166; outline-offset: 4px; }
         .focus-demo-btn:focus:not(:focus-visible) { outline: none; }
         .aspect-demo { display: flex; gap: 1rem; flex-wrap: wrap; margin: .5rem 0; align-items: flex-start; }
-        .aspect-box { background: rgba(255,209,102,.3); border: 2px solid #ffd166; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: .8rem; font-weight: bold; text-align: center; padding: .5rem; }
+        .aspect-box { background: rgba(204,122,79,.12); border: 2px solid var(--secondary-color); display: flex; align-items: center; justify-content: center; font-size: .8rem; font-weight: bold; text-align: center; padding: .5rem; }
 
         /* Interactive demo controls */
-        .demo-btn { padding: .3rem .65rem; font-size: .8rem; border: 1px solid rgba(255,255,255,.35); border-radius: 4px; cursor: pointer; background: rgba(0,0,0,.3); color: white; transition: all .2s; }
-        .demo-btn:hover { background: rgba(255,255,255,.15); }
-        .demo-btn.active { background: rgba(52,152,219,.7); border-color: #3498db; }
-        .demo-select { padding: .3rem .5rem; font-size: .82rem; border: 1px solid rgba(255,255,255,.35); border-radius: 4px; background: rgba(0,0,0,.5); color: white; cursor: pointer; }
+        .demo-btn { padding: .35rem .7rem; font-size: .8rem; border: 1px solid var(--border); cursor: pointer; background: none; color: var(--text-color); font-family: 'JetBrains Mono', monospace; transition: border-color .15s, background .15s, color .15s; }
+        .demo-btn:hover { border-color: var(--secondary-color); }
+        .demo-btn.active { background: var(--secondary-color); border-color: var(--secondary-color); color: var(--primary-color); font-weight: 600; }
+        .demo-select { padding: .3rem .5rem; font-size: .82rem; border: 1px solid var(--border); background: var(--surface); color: var(--text-color); cursor: pointer; font-family: 'Inter', sans-serif; }
         .demo-row { display: flex; gap: .35rem; flex-wrap: wrap; align-items: center; margin-bottom: .4rem; }
-        .demo-row-label { font-size: .78rem; opacity: .75; white-space: nowrap; }
-        input[type="color"] { width:34px; height:28px; padding:2px; border:1px solid rgba(255,255,255,.4); border-radius:4px; cursor:pointer; background:transparent; }
-        .big-preview { height:130px; border-radius:12px; margin:.4rem 0; box-shadow:0 4px 20px rgba(0,0,0,.4); transition:all .35s; display:flex; align-items:center; justify-content:center; font-size:.8rem; font-weight:bold; text-shadow:0 1px 3px rgba(0,0,0,.6); text-align:center; }
-        .code-live { background:rgba(0,0,0,.5); color:#d4d4d4; padding:.5rem .75rem; border-radius:6px; font-family:monospace; font-size:.72rem; line-height:1.5; margin-top:.35rem; white-space:pre-wrap; }
+        .demo-row-label { font-size: .78rem; color: var(--muted-color); white-space: nowrap; }
+        input[type="color"] { width:34px; height:28px; padding:2px; border:1px solid var(--border); border-radius:0; cursor:pointer; background:transparent; }
+        .big-preview { height:130px; margin:.4rem 0; box-shadow:0 4px 20px rgba(0,0,0,.4); transition:all .35s; display:flex; align-items:center; justify-content:center; font-size:.8rem; font-weight:bold; text-shadow:0 1px 3px rgba(0,0,0,.6); text-align:center; border: 1px solid var(--border-soft); }
+        .code-live { background: var(--code-bg); color: var(--code-text); padding:.5rem .75rem; font-family:'JetBrains Mono',monospace; font-size:.72rem; line-height:1.5; margin-top:.35rem; white-space:pre-wrap; overflow-wrap: anywhere; border: 1px solid var(--border); }
         .dir-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:.25rem; width:100px; }
         .dir-btn { aspect-ratio:1; display:flex; align-items:center; justify-content:center; font-size:1rem; }
         .seg-row { display:flex; align-items:center; gap:.4rem; font-size:.78rem; margin:.2rem 0; }
-        .seg-swatch { width:16px; height:16px; border-radius:3px; border:1px solid rgba(255,255,255,.4); flex-shrink:0; }
-        .pie-ring { border-radius:50%; border:2px solid rgba(255,255,255,.2); }
+        .seg-swatch { width:16px; height:16px; border:1px solid var(--border); flex-shrink:0; }
+        .pie-ring { border-radius:50%; border:2px solid var(--border-soft); }
         .corner-grid { display:grid; grid-template-columns:1fr auto 1fr; grid-template-rows:auto 80px auto; gap:.3rem; width:100%; }
     </style>
 </head>
@@ -170,19 +239,28 @@
 
     <!-- ═══════════════════════════════════════ SLIDE 1: TITLE ═══ -->
     <div class="slide">
-        <div class="slide-content centered">
+        <div class="rail">
+            <div class="kicker">Advanced CSS<br>Backgrounds &amp; Borders</div>
+            <div class="rail-num">01</div>
+        </div>
+        <div class="main"><div class="slide-content centered">
             
             <h1>Advanced CSS Backgrounds &amp; Borders</h1>
             <p style="font-size:clamp(1.1rem,3vw,1.4rem); opacity:.85; margin-bottom:1.5rem;">Gradients, Layering, Blend Modes, Frosted Glass &amp; More</p>
             <div class="highlight" style="max-width:700px;">
                 <p>In this lesson you will go beyond basic <code>background-color</code> and <code>border</code> to create rich, modern visual effects entirely in CSS — no image editor required.</p>
             </div>
-        </div>
+        </div></div>
     </div>
 
     <!-- ═══════════════════════════════════════ SLIDE 2: OBJECTIVES ═══ -->
     <div class="slide">
-        <div class="slide-content">
+        <div class="rail">
+            <div class="kicker">Advanced CSS<br>Backgrounds &amp; Borders</div>
+            <div class="rail-num">02</div>
+            <div class="rail-tag">Overview</div>
+        </div>
+        <div class="main"><div class="slide-content">
             <div class="slide-label">Overview</div>
             <h2>What You'll Learn</h2>
             <div class="learn-grid">
@@ -198,12 +276,17 @@
                 <div class="learn-item">▶ Understand how outlines differ from borders</div>
                 <div class="learn-item">▶ Write accessible focus styles with <code>:focus-visible</code></div>
             </div>
-        </div>
+        </div></div>
     </div>
 
     <!-- ═══════════════════════════════════════ SLIDE 3: BACKGROUND BASICS ═══ -->
     <div class="slide">
-        <div class="slide-content">
+        <div class="rail">
+            <div class="kicker">Advanced CSS<br>Backgrounds &amp; Borders</div>
+            <div class="rail-num">03</div>
+            <div class="rail-tag">Background &amp; Border Basics</div>
+        </div>
+        <div class="main"><div class="slide-content">
             <div class="slide-label">Background &amp; Border Basics</div>
             <h2>The <code>background</code> Shorthand</h2>
             <p>One property sets all background sub-properties in order:</p>
@@ -256,12 +339,17 @@
   #2c3e50;</div>
                 </div>
             </div>
-        </div>
+        </div></div>
     </div>
 
     <!-- ═══════════════════════════════════════ SLIDE 4: BORDER BASICS ═══ -->
     <div class="slide">
-        <div class="slide-content">
+        <div class="rail">
+            <div class="kicker">Advanced CSS<br>Backgrounds &amp; Borders</div>
+            <div class="rail-num">04</div>
+            <div class="rail-tag">Background &amp; Border Basics</div>
+        </div>
+        <div class="main"><div class="slide-content">
             <div class="slide-label">Background &amp; Border Basics</div>
             <h2>Border Basics &amp; Style Keywords</h2>
             <pre><code>border: 2px solid tomato;   /* width  style  color */</code></pre>
@@ -310,12 +398,17 @@
             <div class="tip" style="margin-top:.4rem;">
                 <strong>Remember:</strong> <code>none</code> removes the border; <code>hidden</code> reserves the space but hides it (used in table layouts).
             </div>
-        </div>
+        </div></div>
     </div>
 
     <!-- ═══════════════════════════════════════ SLIDE 5: MULTIPLE BORDERS ═══ -->
     <div class="slide">
-        <div class="slide-content">
+        <div class="rail">
+            <div class="kicker">Advanced CSS<br>Backgrounds &amp; Borders</div>
+            <div class="rail-num">05</div>
+            <div class="rail-tag">Using Multiple Borders &amp; Backgrounds</div>
+        </div>
+        <div class="main"><div class="slide-content">
             <div class="slide-label">Using Multiple Borders &amp; Backgrounds</div>
             <h2>Multiple Borders: Per-Side &amp; Cascade</h2>
             <div class="two-column">
@@ -345,12 +438,17 @@ border-bottom: 5px dashed red;</code></pre>
                     </div>
                 </div>
             </div>
-        </div>
+        </div></div>
     </div>
 
     <!-- ═══════════════════════════════════════ SLIDE 6: BOX-SHADOW BORDERS ═══ -->
     <div class="slide">
-        <div class="slide-content">
+        <div class="rail">
+            <div class="kicker">Advanced CSS<br>Backgrounds &amp; Borders</div>
+            <div class="rail-num">06</div>
+            <div class="rail-tag">Using Multiple Borders &amp; Backgrounds</div>
+        </div>
+        <div class="main"><div class="slide-content">
             <div class="slide-label">Using Multiple Borders &amp; Backgrounds</div>
             <h2>Faking Multiple Borders with <code>box-shadow</code></h2>
             <p>CSS only supports one <code>border</code>, but <code>box-shadow</code> accepts a comma-separated list and can simulate stacked rings using a spread radius with <strong>zero blur</strong>:</p>
@@ -383,12 +481,17 @@ border-bottom: 5px dashed red;</code></pre>
             <div class="codepen-container" style="min-height:280px; flex:none;">
                 <iframe style="width:100%;" title="Codepen - 13.2" src="https://codepen.io/mattkearl/embed/XJKvZxo?default-tab=css%2Cresult&editable=true" height="320" loading="lazy"></iframe>
             </div>
-        </div>
+        </div></div>
     </div>
 
     <!-- ═══════════════════════════════════════ SLIDE 7: MULTIPLE BACKGROUNDS ═══ -->
     <div class="slide">
-        <div class="slide-content">
+        <div class="rail">
+            <div class="kicker">Advanced CSS<br>Backgrounds &amp; Borders</div>
+            <div class="rail-num">07</div>
+            <div class="rail-tag">Using Multiple Borders &amp; Backgrounds</div>
+        </div>
+        <div class="main"><div class="slide-content">
             <div class="slide-label">Using Multiple Borders &amp; Backgrounds</div>
             <h2>Layering Multiple Backgrounds</h2>
             <div class="two-column">
@@ -455,12 +558,17 @@ border-bottom: 5px dashed red;</code></pre>
                     <p style="font-size:.7rem; opacity:.55; margin-top:.4rem;">Uncheck layers to see what each one contributes</p>
                 </div>
             </div>
-        </div>
+        </div></div>
     </div>
 
     <!-- ═══════════════════════════════════════ SLIDE 8: background-clip & origin ═══ -->
     <div class="slide">
-        <div class="slide-content">
+        <div class="rail">
+            <div class="kicker">Advanced CSS<br>Backgrounds &amp; Borders</div>
+            <div class="rail-num">08</div>
+            <div class="rail-tag">Forgotten Background Properties</div>
+        </div>
+        <div class="main"><div class="slide-content">
             <div class="slide-label">Forgotten Background Properties</div>
             <h2><code>background-clip</code> &amp; <code>background-origin</code></h2>
             <div class="two-column">
@@ -498,12 +606,17 @@ border-bottom: 5px dashed red;</code></pre>
                     </div>
                 </div>
             </div>
-        </div>
+        </div></div>
     </div>
 
     <!-- ═══════════════════════════════════════ SLIDE 9: background-clip text ═══ -->
     <div class="slide">
-        <div class="slide-content">
+        <div class="rail">
+            <div class="kicker">Advanced CSS<br>Backgrounds &amp; Borders</div>
+            <div class="rail-num">09</div>
+            <div class="rail-tag">Forgotten Background Properties</div>
+        </div>
+        <div class="main"><div class="slide-content">
             <div class="slide-label">Forgotten Background Properties</div>
             <h2>Gradient Text with <code>background-clip: text</code></h2>
             <div class="two-column">
@@ -534,24 +647,34 @@ border-bottom: 5px dashed red;</code></pre>
                     </div>
                 </div>
             </div>
-        </div>
+        </div></div>
     </div>
 
     <!-- ═══════════════════════════════════════ SLIDE 10: CODEPEN 13.1 ═══ -->
     <div class="slide">
-        <div class="slide-content">
+        <div class="rail">
+            <div class="kicker">Advanced CSS<br>Backgrounds &amp; Borders</div>
+            <div class="rail-num">10</div>
+            <div class="rail-tag">CodePen 13.1 — Try it</div>
+        </div>
+        <div class="main"><div class="slide-content">
             <div class="slide-label">CodePen 13.1 — Try it</div>
             <h2>Gradient Text — <code>background-clip: text</code></h2>
             <p style="margin-bottom:.4rem; font-size:.95rem;">Experiment with gradient direction, colors, and font-size to see how the clipped text effect responds.</p>
             <div class="codepen-container">
                 <iframe style="width:100%;" title="Codepen - 13.1" src="https://codepen.io/mattkearl/embed/myENXjP?default-tab=css%2Cresult&editable=true" height="700" loading="lazy"></iframe>
             </div>
-        </div>
+        </div></div>
     </div>
 
     <!-- ═══════════════════════════════════════ SLIDE 11: background-size & position ═══ -->
     <div class="slide">
-        <div class="slide-content">
+        <div class="rail">
+            <div class="kicker">Advanced CSS<br>Backgrounds &amp; Borders</div>
+            <div class="rail-num">11</div>
+            <div class="rail-tag">Forgotten Background Properties</div>
+        </div>
+        <div class="main"><div class="slide-content">
             <div class="slide-label">Forgotten Background Properties</div>
             <h2><code>background-size</code> &amp; <code>background-position</code></h2>
             <div class="two-column">
@@ -609,12 +732,17 @@ background-position: 40px 80px;</code></pre>
             <div id="bsizeCode" class="code-live" style="margin-top:.3rem; font-size:.72rem;">background-size: cover;
 background-position: center;</div>
             <p style="font-size:.72rem; opacity:.6; margin-top:.3rem;">The bullseye SVG (120×120px) in a wide container — try mixing <em>size</em> and <em>position</em> to see how they interact</p>
-        </div>
+        </div></div>
     </div>
 
     <!-- ═══════════════════════════════════════ SLIDE 12: background-attachment ═══ -->
     <div class="slide">
-        <div class="slide-content">
+        <div class="rail">
+            <div class="kicker">Advanced CSS<br>Backgrounds &amp; Borders</div>
+            <div class="rail-num">12</div>
+            <div class="rail-tag">Forgotten Background Properties</div>
+        </div>
+        <div class="main"><div class="slide-content">
             <div class="slide-label">Forgotten Background Properties</div>
             <h2><code>background-attachment</code></h2>
             <p>Controls how the background moves relative to the viewport when the page scrolls:</p>
@@ -670,12 +798,17 @@ background-position: center;</div>
             <div class="tip" style="font-size:.82rem; margin-top:.4rem;">
                 See a full parallax example in action: <a href="https://www.w3schools.com/howto/howto_css_parallax.asp" target="_blank">W3Schools — How TO: Parallax Scrolling</a>
             </div>
-        </div>
+        </div></div>
     </div>
 
     <!-- ═══════════════════════════════════════ SLIDE 13: BLEND MODES ═══ -->
     <div class="slide">
-        <div class="slide-content">
+        <div class="rail">
+            <div class="kicker">Advanced CSS<br>Backgrounds &amp; Borders</div>
+            <div class="rail-num">13</div>
+            <div class="rail-tag">Forgotten Background Properties</div>
+        </div>
+        <div class="main"><div class="slide-content">
             <div class="slide-label">Forgotten Background Properties</div>
             <h2>Blending Backgrounds</h2>
             <div class="two-column">
@@ -743,24 +876,34 @@ background-position: center;</div>
                     </table>
                 </div>
             </div>
-        </div>
+        </div></div>
     </div>
 
     <!-- ═══════════════════════════════════════ SLIDE 14: CODEPEN 13.4 ═══ -->
     <div class="slide">
-        <div class="slide-content">
+        <div class="rail">
+            <div class="kicker">Advanced CSS<br>Backgrounds &amp; Borders</div>
+            <div class="rail-num">14</div>
+            <div class="rail-tag">CodePen 13.4 — Try it</div>
+        </div>
+        <div class="main"><div class="slide-content">
             <div class="slide-label">CodePen 13.4 — Try it</div>
             <h2>Blend Modes Explorer</h2>
             <p style="margin-bottom:.4rem; font-size:.95rem;">Experiment with <code>background-blend-mode</code> and <code>mix-blend-mode</code> values to see their visual effects.</p>
             <div class="codepen-container">
                 <iframe style="width:100%;" title="Codepen - 13.4" src="https://codepen.io/mattkearl/embed/ogLKEPv?default-tab=css%2Cresult&editable=true" height="700" loading="lazy"></iframe>
             </div>
-        </div>
+        </div></div>
     </div>
 
     <!-- ═══════════════════════════════════════ SLIDE 15: FROSTED GLASS ═══ -->
     <div class="slide">
-        <div class="slide-content">
+        <div class="rail">
+            <div class="kicker">Advanced CSS<br>Backgrounds &amp; Borders</div>
+            <div class="rail-num">15</div>
+            <div class="rail-tag">The Frosted Glass Effect</div>
+        </div>
+        <div class="main"><div class="slide-content">
             <div class="slide-label">The Frosted Glass Effect</div>
             <h2>Frosted Glass: <code>filter</code> vs <code>backdrop-filter</code></h2>
             <div class="two-column">
@@ -804,24 +947,34 @@ filter: sepia(0.6);</code></pre>
                     </div>
                 </div>
             </div>
-        </div>
+        </div></div>
     </div>
 
     <!-- ═══════════════════════════════════════ SLIDE 16: CODEPEN 13.5 ═══ -->
     <div class="slide">
-        <div class="slide-content">
+        <div class="rail">
+            <div class="kicker">Advanced CSS<br>Backgrounds &amp; Borders</div>
+            <div class="rail-num">16</div>
+            <div class="rail-tag">CodePen 13.5 — Try it</div>
+        </div>
+        <div class="main"><div class="slide-content">
             <div class="slide-label">CodePen 13.5 — Try it</div>
             <h2>Frosted Glass Effect</h2>
             <p style="margin-bottom:.4rem; font-size:.95rem;">Adjust the blur amount and background opacity to see how <code>backdrop-filter</code> responds.</p>
             <div class="codepen-container">
                 <iframe style="width:100%;" title="Codepen - 13.5" src="https://codepen.io/mattkearl/embed/vEKodzN?default-tab=css%2Cresult&editable=true" height="700" loading="lazy"></iframe>
             </div>
-        </div>
+        </div></div>
     </div>
 
     <!-- ═══════════════════════════════════════ SLIDE 17: NTH-CHILD ═══ -->
     <div class="slide">
-        <div class="slide-content">
+        <div class="rail">
+            <div class="kicker">Advanced CSS<br>Backgrounds &amp; Borders</div>
+            <div class="rail-num">17</div>
+            <div class="rail-tag">Alternating Background Colors</div>
+        </div>
+        <div class="main"><div class="slide-content">
             <div class="slide-label">Alternating Background Colors</div>
             <h2>Zebra-Stripe Tables with <code>:nth-child()</code></h2>
             <div class="two-column">
@@ -864,12 +1017,17 @@ filter: sepia(0.6);</code></pre>
 }</code></pre>
                 </div>
             </div>
-        </div>
+        </div></div>
     </div>
 
     <!-- ═══════════════════════════════════════ SLIDE 18: NTH-CHILD ADVANCED ═══ -->
     <div class="slide">
-        <div class="slide-content">
+        <div class="rail">
+            <div class="kicker">Advanced CSS<br>Backgrounds &amp; Borders</div>
+            <div class="rail-num">18</div>
+            <div class="rail-tag">Alternating Background Colors</div>
+        </div>
+        <div class="main"><div class="slide-content">
             <div class="slide-label">Alternating Background Colors</div>
             <h2><code>:nth-child()</code> — Advanced Selectors</h2>
             <div class="two-column">
@@ -909,12 +1067,17 @@ li:nth-child(odd of li) {
                     </div>
                 </div>
             </div>
-        </div>
+        </div></div>
     </div>
 
     <!-- ═══════════════════════════════════════ SLIDE 19: GRADIENTS OVERVIEW ═══ -->
     <div class="slide">
-        <div class="slide-content">
+        <div class="rail">
+            <div class="kicker">Advanced CSS<br>Backgrounds &amp; Borders</div>
+            <div class="rail-num">19</div>
+            <div class="rail-tag">Using Gradients as Backgrounds</div>
+        </div>
+        <div class="main"><div class="slide-content">
             <div class="slide-label">Using Gradients as Backgrounds</div>
             <h2>CSS Gradients — Overview</h2>
             <p>Gradients are added as <strong>background images</strong> — no actual image files required. Three types:</p>
@@ -952,12 +1115,17 @@ li:nth-child(odd of li) {
             <div class="caution" style="margin-top:.5rem; font-size:.85rem;">
                 Always also set a fallback <code>background-color</code> for older browsers that might not support the gradient function.
             </div>
-        </div>
+        </div></div>
     </div>
 
     <!-- ═══════════════════════════════════════ SLIDE 20: LINEAR GRADIENTS ═══ -->
     <div class="slide">
-        <div class="slide-content">
+        <div class="rail">
+            <div class="kicker">Advanced CSS<br>Backgrounds &amp; Borders</div>
+            <div class="rail-num">20</div>
+            <div class="rail-tag">Using Gradients as Backgrounds</div>
+        </div>
+        <div class="main"><div class="slide-content">
             <div class="slide-label">Using Gradients as Backgrounds</div>
             <h2>Linear Gradients</h2>
             <div class="two-column">
@@ -1009,12 +1177,17 @@ background-image:
                     <p style="font-size:.78rem; margin-top:.4rem; opacity:.8;">Change the colors above — the gradient updates live. <a href="https://cssgradient.io" target="_blank">cssgradient.io</a> for more.</p>
                 </div>
             </div>
-        </div>
+        </div></div>
     </div>
 
     <!-- ═══════════════════════════════════════ SLIDE 21: REPEATING LINEAR ═══ -->
     <div class="slide">
-        <div class="slide-content">
+        <div class="rail">
+            <div class="kicker">Advanced CSS<br>Backgrounds &amp; Borders</div>
+            <div class="rail-num">21</div>
+            <div class="rail-tag">Using Gradients as Backgrounds</div>
+        </div>
+        <div class="main"><div class="slide-content">
             <div class="slide-label">Using Gradients as Backgrounds</div>
             <h2>Repeating Gradients — CSS Patterns</h2>
             <div class="two-column">
@@ -1070,12 +1243,17 @@ background-image:
                     <p style="font-size:.75rem; margin-top:.3rem;"><a href="https://css-pattern.com" target="_blank">css-pattern.com</a> — library of CSS patterns</p>
                 </div>
             </div>
-        </div>
+        </div></div>
     </div>
 
     <!-- ═══════════════════════════════════════ SLIDE 22: RADIAL GRADIENTS ═══ -->
     <div class="slide">
-        <div class="slide-content">
+        <div class="rail">
+            <div class="kicker">Advanced CSS<br>Backgrounds &amp; Borders</div>
+            <div class="rail-num">22</div>
+            <div class="rail-tag">Using Gradients as Backgrounds</div>
+        </div>
+        <div class="main"><div class="slide-content">
             <div class="slide-label">Using Gradients as Backgrounds</div>
             <h2>Radial Gradients</h2>
             <div class="two-column">
@@ -1152,12 +1330,17 @@ background-image: radial-gradient(
                     </div>
                 </div>
             </div>
-        </div>
+        </div></div>
     </div>
 
     <!-- ═══════════════════════════════════════ SLIDE 23: CONIC GRADIENTS ═══ -->
     <div class="slide">
-        <div class="slide-content">
+        <div class="rail">
+            <div class="kicker">Advanced CSS<br>Backgrounds &amp; Borders</div>
+            <div class="rail-num">23</div>
+            <div class="rail-tag">Using Gradients as Backgrounds</div>
+        </div>
+        <div class="main"><div class="slide-content">
             <div class="slide-label">Using Gradients as Backgrounds</div>
             <h2>Conic Gradients</h2>
             <div class="two-column">
@@ -1216,12 +1399,17 @@ background-image: conic-gradient(
                     </div>
                 </div>
             </div>
-        </div>
+        </div></div>
     </div>
 
     <!-- ═══════════════════════════════════════ SLIDE 24: BORDER-RADIUS ═══ -->
     <div class="slide">
-        <div class="slide-content">
+        <div class="rail">
+            <div class="kicker">Advanced CSS<br>Backgrounds &amp; Borders</div>
+            <div class="rail-num">24</div>
+            <div class="rail-tag">Rounded Corners</div>
+        </div>
+        <div class="main"><div class="slide-content">
             <div class="slide-label">Rounded Corners</div>
             <h2>Rounded Corners with <code>border-radius</code></h2>
             <div class="two-column">
@@ -1280,12 +1468,17 @@ border-radius: 50%;</code></pre>
                     <div class="tip" style="font-size:.8rem; margin-top:.4rem;"><a href="https://9elements.github.io/fancy-border-radius/" target="_blank">Fancy Border Radius Generator</a></div>
                 </div>
             </div>
-        </div>
+        </div></div>
     </div>
 
     <!-- ═══════════════════════════════════════ SLIDE 25: ASPECT-RATIO ═══ -->
     <div class="slide">
-        <div class="slide-content">
+        <div class="rail">
+            <div class="kicker">Advanced CSS<br>Backgrounds &amp; Borders</div>
+            <div class="rail-num">25</div>
+            <div class="rail-tag">Rounded Corners &amp; Aspect Ratio</div>
+        </div>
+        <div class="main"><div class="slide-content">
             <div class="slide-label">Rounded Corners &amp; Aspect Ratio</div>
             <h2>Guaranteed Squares with <code>aspect-ratio</code></h2>
             <div class="two-column">
@@ -1339,12 +1532,17 @@ border-radius: 50%;</code></pre>
                     <p style="font-size:.78rem; margin-top:.3rem; opacity:.8;">The height adjusts automatically — no fixed height needed.</p>
                 </div>
             </div>
-        </div>
+        </div></div>
     </div>
 
     <!-- ═══════════════════════════════════════ SLIDE 26: BORDER-IMAGE ═══ -->
     <div class="slide">
-        <div class="slide-content">
+        <div class="rail">
+            <div class="kicker">Advanced CSS<br>Backgrounds &amp; Borders</div>
+            <div class="rail-num">26</div>
+            <div class="rail-tag">Images as Borders</div>
+        </div>
+        <div class="main"><div class="slide-content">
             <div class="slide-label">Images as Borders</div>
             <h2>Image Borders with <code>border-image</code></h2>
             <div class="two-column">
@@ -1403,12 +1601,17 @@ border-image: linear-gradient(to right,
                     </div>
                 </div>
             </div>
-        </div>
+        </div></div>
     </div>
 
     <!-- ═══════════════════════════════════════ SLIDE 27: OUTLINES VS BORDERS ═══ -->
     <div class="slide">
-        <div class="slide-content">
+        <div class="rail">
+            <div class="kicker">Advanced CSS<br>Backgrounds &amp; Borders</div>
+            <div class="rail-num">27</div>
+            <div class="rail-tag">Exploring Outlines</div>
+        </div>
+        <div class="main"><div class="slide-content">
             <div class="slide-label">Exploring Outlines</div>
             <h2>Outlines vs. Borders</h2>
             <div class="two-column">
@@ -1462,12 +1665,17 @@ outline-offset: 4px;</div>
                     </div>
                 </div>
             </div>
-        </div>
+        </div></div>
     </div>
 
     <!-- ═══════════════════════════════════════ SLIDE 28: FOCUS-VISIBLE ═══ -->
     <div class="slide">
-        <div class="slide-content">
+        <div class="rail">
+            <div class="kicker">Advanced CSS<br>Backgrounds &amp; Borders</div>
+            <div class="rail-num">28</div>
+            <div class="rail-tag">Exploring Outlines</div>
+        </div>
+        <div class="main"><div class="slide-content">
             <div class="slide-label">Exploring Outlines</div>
             <h2>Accessible Focus with <code>:focus-visible</code></h2>
             <div class="two-column">
@@ -1510,12 +1718,17 @@ button:focus-visible {
                     </div>
                 </div>
             </div>
-        </div>
+        </div></div>
     </div>
 
     <!-- ═══════════════════════════════════════ SLIDE 29: SUMMARY ═══ -->
     <div class="slide">
-        <div class="slide-content">
+        <div class="rail">
+            <div class="kicker">Advanced CSS<br>Backgrounds &amp; Borders</div>
+            <div class="rail-num">29</div>
+            <div class="rail-tag">Summary</div>
+        </div>
+        <div class="main"><div class="slide-content">
             <div class="slide-label">Summary</div>
             <h2>What You've Learned</h2>
             <div class="learn-grid">
@@ -1535,7 +1748,7 @@ button:focus-visible {
             <div class="highlight" style="margin-top:.75rem;">
                 <p><strong>Key takeaway:</strong> Modern CSS can replace many image-based design techniques entirely — gradients, patterns, frosted glass, and gradient borders all require zero image files. The browser does the work.</p>
             </div>
-        </div>
+        </div></div>
     </div>
 
 </div>
@@ -1567,6 +1780,7 @@ button:focus-visible {
         const progress = ((currentSlide + 1) / totalSlides) * 100;
         document.getElementById('progress').style.width = progress + '%';
         slides[currentSlide].scrollTop = 0;
+        fitCurrentSlide();
     }
 
     function changeSlide(dir) { showSlide(currentSlide + dir); }
@@ -1863,6 +2077,43 @@ button:focus-visible {
         box.style.outlineOffset = offset + 'px';
         document.getElementById('outlineCode').textContent = `outline: ${width}px ${style} ${color};\noutline-offset: ${offset}px;`;
     }
+
+    /* ── Fit-to-screen: a slide must never scroll or clip ── */
+    var MIN_SCALE = 0.72;
+    function fitSlide(slideEl) {
+        if (!slideEl) return;
+        var main = slideEl.querySelector('.main');
+        var inner = slideEl.querySelector('.slide-content');
+        if (!main || !inner) return;
+
+        inner.style.transform = 'none';
+        inner.style.width = '100%';
+
+        var cs = getComputedStyle(main);
+        var available = main.clientHeight - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom);
+        var natural = inner.scrollHeight;
+
+        var scale = Math.min(1, available / natural);
+        scale = Math.max(scale, MIN_SCALE);
+
+        if (scale < 1) {
+            inner.style.transform = 'scale(' + scale + ')';
+            inner.style.width = (100 / scale) + '%';
+        }
+    }
+    function fitCurrentSlide() {
+        fitSlide(slides[currentSlide]);
+    }
+
+    if (document.fonts && document.fonts.ready) {
+        document.fonts.ready.then(fitCurrentSlide);
+    }
+
+    var resizeTimer;
+    window.addEventListener('resize', function() {
+        clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(fitCurrentSlide, 100);
+    });
 </script>
 </body>
 </html>

@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Box Model, Positioning, and Flexbox</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,900;1,9..144,500&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
     <style>
         * {
             margin: 0;
@@ -12,22 +15,32 @@
         }
 
         :root {
-            --primary-color: #2c3e50;
-            --secondary-color: #3498db;
-            --accent-color: #e74c3c;
-            --light-bg: #ecf0f1;
-            --text-color: #2c3e50;
-            --code-bg: #1e1e1e;
-            --code-text: #d4d4d4;
+            --primary-color: #17140f;
+            --secondary-color: #9c9382;
+            --accent-color: #cc7a4f;
+            --light-bg: #1e1a14;
+            --text-color: #f2ece1;
+            --code-bg: #141109;
+            --code-text: #e4ddd0;
+            --border-soft: #29241c;
+            --border: #3a3226;
+            --nav-h: 56px;
         }
 
         html, body {
             height: 100%;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Inter', sans-serif;
             background: var(--primary-color);
+            color: var(--text-color);
             overflow: hidden;
             display: flex;
             flex-direction: column;
+        }
+
+        code { font-variant-ligatures: none; font-feature-settings: "calt" 0, "liga" 0; }
+
+        @media (prefers-reduced-motion: reduce) {
+            .slide { animation: none !important; }
         }
 
         .slideshow-container {
@@ -41,29 +54,66 @@
         .slide {
             display: none;
             flex: 1;
-            padding: 1.5rem 2rem;
-            color: white;
-            overflow-y: auto;
-            animation: fadeIn 0.5s ease-in-out;
+            grid-template-columns: 200px 1fr;
+            background: var(--primary-color);
+            color: var(--text-color);
+            animation: fadeIn 0.4s ease;
+            overflow: hidden;
         }
 
         .slide.active {
-            display: flex;
-            flex-direction: column;
+            display: grid;
         }
 
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateX(20px); }
-            to { opacity: 1; transform: translateX(0); }
+            from { opacity: 0; transform: translateY(12px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ===== RAIL — persistent left margin: deck title + slide number.
+           This deck had no pre-existing per-slide section label, so the rail
+           only carries the kicker and number. ===== */
+        .rail {
+            border-right: 1px solid var(--border-soft);
+            padding: 2.2rem 1.5rem;
+        }
+
+        .kicker {
+            font-size: .65rem;
+            letter-spacing: .14em;
+            text-transform: uppercase;
+            color: var(--secondary-color);
+            font-weight: 600;
+            line-height: 1.5;
+        }
+
+        .rail-num {
+            font-family: 'Fraunces', serif;
+            font-weight: 400;
+            font-style: italic;
+            font-size: 3rem;
+            color: var(--secondary-color);
+            opacity: .5;
+            margin-top: 1rem;
+            font-variant-numeric: oldstyle-nums;
+        }
+
+        /* ===== MAIN — fixed box; .slide-content scales down only if content
+           would overflow, so a slide never scrolls or clips. ===== */
+        .main {
+            padding: 2.2rem 3.5rem 1.6rem 3rem;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
         }
 
         .slide-content {
             max-width: 1400px;
             width: 100%;
-            margin: 0 auto;
             flex: 1;
             display: flex;
             flex-direction: column;
+            transform-origin: top left;
         }
 
         .slide-content.centered {
@@ -71,28 +121,38 @@
         }
 
         h1 {
-            font-size: clamp(1.8rem, 5vw, 3rem);
-            margin-bottom: 1.5rem;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
-            line-height: 1.2;
+            font-family: 'Fraunces', serif;
+            font-weight: 600;
+            font-size: clamp(2rem, 5vw, 3.2rem);
+            margin-bottom: 1.4rem;
+            line-height: 1.15;
+            letter-spacing: -.01em;
         }
 
         h2 {
-            font-size: clamp(1.4rem, 4vw, 2.2rem);
-            margin-bottom: 0.75rem;
-            color: #ffeaa7;
+            font-family: 'Fraunces', serif;
+            font-weight: 600;
+            font-size: clamp(1.4rem, 3.4vw, 2.2rem);
+            margin-bottom: 0.85rem;
+            line-height: 1.2;
+            color: var(--text-color);
         }
 
         h3 {
-            font-size: clamp(1.1rem, 3vw, 1.5rem);
-            margin: 0.75rem 0 0.4rem;
-            color: #81ecec;
+            font-family: 'Inter', sans-serif;
+            font-weight: 700;
+            font-size: clamp(1rem, 2.1vw, 1.2rem);
+            margin: 0.9rem 0 0.4rem;
+            line-height: 1.3;
+            color: var(--accent-color);
         }
 
         h4 {
-            font-size: clamp(1rem, 2.5vw, 1.2rem);
+            font-family: 'Inter', sans-serif;
+            font-weight: 700;
+            font-size: clamp(0.85rem, 1.8vw, 0.98rem);
             margin: 0.5rem 0 0.3rem;
-            color: #dfe6e9;
+            color: var(--secondary-color);
         }
 
         p {
@@ -113,60 +173,95 @@
         }
 
         a {
-            color: #ffeaa7;
+            color: var(--accent-color);
             text-decoration: underline;
         }
 
         a:hover {
-            color: #fdcb6e;
+            color: var(--text-color);
         }
 
         code {
-            background: rgba(0,0,0,0.3);
+            background: var(--light-bg);
             padding: 0.2em 0.5em;
-            border-radius: 4px;
-            font-family: 'Consolas', 'Monaco', monospace;
+            border-radius: 3px;
+            font-family: 'JetBrains Mono', monospace;
             font-size: 0.9em;
+            color: var(--accent-color);
         }
 
         pre {
             background: var(--code-bg);
             color: var(--code-text);
-            padding: 0.75rem 1rem;
-            border-radius: 8px;
-            overflow-x: auto;
-            margin: 0.5rem 0;
+            border-top: 1px solid var(--border);
+            border-bottom: 1px solid var(--border);
+            padding: 1.2rem 1.4rem;
+            margin: 0.5rem 0 1.2rem;
+            max-width: 82ch;
+            font-family: 'JetBrains Mono', monospace;
             font-size: clamp(0.75rem, 1.6vw, 0.95rem);
-            line-height: 1.4;
+            line-height: 1.6;
+            white-space: pre-wrap;
+            overflow-wrap: anywhere;
         }
 
         pre code {
             background: none;
             padding: 0;
+            color: inherit;
         }
 
+        /* ===== ANALOGY / DEFINITION — pull-quote treatment (this deck's
+           .highlight boxes are short definitions/tips, not colored callouts). ===== */
         .highlight {
-            background: rgba(255,255,255,0.15);
-            padding: 0.75rem 1rem;
-            border-radius: 8px;
-            border-left: 4px solid #ffeaa7;
-            margin: 0.5rem 0;
+            max-width: 64ch;
+            margin: 1rem 0 1.2rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--border);
+            position: relative;
+            font-family: 'Fraunces', serif;
+            font-style: italic;
+            font-weight: 500;
+            font-size: 1.02rem;
+            line-height: 1.5;
+            color: var(--text-color);
         }
 
+        .highlight::before {
+            content: '\201C';
+            font-family: 'Fraunces', serif;
+            font-size: 2.4rem;
+            color: var(--accent-color);
+            position: absolute;
+            top: .3rem;
+            left: -1.8rem;
+            line-height: 1;
+            opacity: .85;
+        }
+
+        .highlight strong { font-style: normal; }
+        .highlight code { font-style: normal; }
+
+        /* ===== NOTE — quiet aside, a rule only, no fill. ===== */
         .note {
-            background: rgba(46, 204, 113, 0.2);
-            padding: 0.75rem 1rem;
-            border-radius: 8px;
-            border-left: 4px solid #2ecc71;
-            margin: 0.5rem 0;
+            max-width: 64ch;
+            margin-bottom: 1.2rem;
+            padding-top: .75rem;
+            border-top: 1px solid var(--border-soft);
+            font-size: .92rem;
+            line-height: 1.55;
         }
 
+        /* ===== CAUTION — the one place besides live demo output that gets
+           the accent-tinted fill; reserved for real warnings. ===== */
         .caution {
-            background: rgba(231, 76, 60, 0.2);
-            padding: 0.75rem 1rem;
-            border-radius: 8px;
-            border-left: 4px solid #e74c3c;
-            margin: 0.5rem 0;
+            max-width: 64ch;
+            margin-bottom: 1.2rem;
+            background: rgba(204, 122, 79, .1);
+            padding: .9rem 1.1rem;
+            border-left: 2px solid var(--accent-color);
+            font-size: .92rem;
+            line-height: 1.55;
         }
 
         .two-column {
@@ -219,59 +314,68 @@
         .image-container img {
             max-width: 100%;
             max-height: 45vh;
-            border-radius: 8px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            border: 1px solid var(--border);
         }
 
-        .navigation {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 1rem;
-            padding: 0.75rem 1rem;
-            background: var(--primary-color);
-            flex-wrap: wrap;
-        }
-
-        .nav-btn {
-            padding: 0.6rem 1.2rem;
-            font-size: 1rem;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            background: var(--secondary-color);
-            color: white;
-        }
-
-        .nav-btn:hover {
-            background: #2980b9;
-            transform: translateY(-2px);
-        }
-
-        .nav-btn:disabled {
-            background: #7f8c8d;
-            cursor: not-allowed;
-            transform: none;
-        }
-
-        .slide-counter {
-            color: white;
-            font-size: 1rem;
-            min-width: 100px;
-            text-align: center;
-        }
-
+        /* Nav / progress */
         .progress-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
             width: 100%;
-            height: 4px;
-            background: rgba(255,255,255,0.2);
+            height: 2px;
+            background: var(--border-soft);
+            z-index: 100;
         }
 
         .progress {
             height: 100%;
-            background: var(--secondary-color);
+            background: var(--accent-color);
             transition: width 0.3s ease;
+        }
+
+        .navigation {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1rem;
+            padding: 0 1.6rem;
+            height: var(--nav-h);
+            border-top: 1px solid var(--border-soft);
+            background: var(--primary-color);
+            flex-shrink: 0;
+        }
+
+        .nav-btn {
+            background: none;
+            border: none;
+            color: var(--secondary-color);
+            font-family: 'Inter', sans-serif;
+            font-size: .72rem;
+            letter-spacing: .08em;
+            text-transform: uppercase;
+            font-weight: 600;
+            padding: .4rem 0;
+            cursor: pointer;
+            transition: color .15s ease;
+        }
+
+        .nav-btn:hover:not(:disabled) {
+            color: var(--text-color);
+        }
+
+        .nav-btn:disabled {
+            opacity: .3;
+            cursor: not-allowed;
+        }
+
+        .slide-counter {
+            font-size: .72rem;
+            letter-spacing: .08em;
+            color: var(--accent-color);
+            font-variant-numeric: tabular-nums;
+            min-width: unset;
+            text-align: center;
         }
 
         /* Interactive playground */
@@ -290,9 +394,9 @@
         }
 
         .controls {
-            background: rgba(0,0,0,0.2);
-            padding: 1rem;
-            border-radius: 8px;
+            background: var(--light-bg);
+            border: 1px solid var(--border-soft);
+            padding: 1.1rem 1.2rem;
             overflow-y: auto;
         }
 
@@ -304,7 +408,7 @@
             display: block;
             font-size: 0.85rem;
             margin-bottom: 0.2rem;
-            color: #81ecec;
+            color: var(--secondary-color);
         }
 
         .control-group input[type="range"],
@@ -327,10 +431,15 @@
 
         .control-value {
             font-size: 0.8rem;
-            color: #ffeaa7;
+            color: var(--accent-color);
             margin-top: 0.15rem;
         }
 
+        /* ===== Live-render mockups: these panels simulate an actual browser
+           canvas (the box model / position / flex demos render real CSS), so
+           they deliberately keep a light background for legibility of the
+           pedagogical color-coded fills — they don't switch to the dark
+           theme like the surrounding chrome. ===== */
         .preview-area {
             background: rgba(255,255,255,0.95);
             color: #333;
@@ -347,34 +456,14 @@
         .code-output {
             background: var(--code-bg);
             color: var(--code-text);
+            border-top: 1px solid var(--border);
+            border-bottom: 1px solid var(--border);
             padding: 0.75rem 1rem;
-            border-radius: 8px;
-            font-family: 'Consolas', 'Monaco', monospace;
+            font-family: 'JetBrains Mono', monospace;
             font-size: 0.8rem;
             margin-top: 0.5rem;
             white-space: pre-wrap;
-            word-break: break-all;
-        }
-
-        /* Slide themes */
-        .slide:nth-child(odd) {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        }
-
-        .slide:nth-child(even) {
-            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
-        }
-
-        .slide:nth-child(3n) {
-            background: linear-gradient(135deg, #ee0979 0%, #ff6a00 100%);
-        }
-
-        .slide:nth-child(4n) {
-            background: linear-gradient(135deg, #2193b0 0%, #6dd5ed 100%);
-        }
-
-        .slide:nth-child(5n) {
-            background: linear-gradient(135deg, #c31432 0%, #240b36 100%);
+            overflow-wrap: anywhere;
         }
 
         /* Box model demo */
@@ -421,10 +510,9 @@
 
         /* Position cards */
         .position-card {
-            background: rgba(0,0,0,0.2);
-            padding: 1rem;
-            border-radius: 8px;
-            border: 1px solid rgba(255,255,255,0.2);
+            background: var(--light-bg);
+            padding: 1rem 1.2rem;
+            border: 1px solid var(--border-soft);
         }
 
         .position-card h4 {
@@ -441,17 +529,20 @@
             border-collapse: collapse;
             margin: 0.5rem 0;
             font-size: clamp(0.8rem, 1.8vw, 1rem);
+            font-variant-numeric: tabular-nums;
         }
 
         table.compare-table th,
         table.compare-table td {
-            border: 1px solid rgba(255,255,255,0.3);
-            padding: 0.4rem 0.6rem;
+            border-bottom: 1px solid var(--border-soft);
+            padding: 0.5rem 0.8rem;
             text-align: left;
         }
 
         table.compare-table th {
-            background: rgba(0,0,0,0.2);
+            border-bottom: 2px solid var(--border);
+            color: var(--accent-color);
+            font-weight: 700;
         }
 
         /* Interactive demo buttons */
@@ -463,24 +554,25 @@
         }
 
         .demo-btn {
-            padding: 0.4rem 0.8rem;
-            border: 2px solid rgba(255,255,255,0.4);
-            background: rgba(0,0,0,0.2);
-            color: white;
-            border-radius: 6px;
+            padding: 0.5rem 0.9rem;
+            border: 1px solid var(--border);
+            background: none;
+            color: var(--text-color);
             cursor: pointer;
-            font-family: 'Consolas', 'Monaco', monospace;
+            font-family: 'JetBrains Mono', monospace;
             font-size: 0.8rem;
-            transition: all 0.2s;
+            transition: border-color .15s, background .15s, color .15s;
         }
 
         .demo-btn:hover {
-            background: rgba(255,255,255,0.15);
+            border-color: var(--accent-color);
         }
 
         .demo-btn.active {
-            background: rgba(52, 152, 219, 0.6);
-            border-color: #3498db;
+            background: var(--accent-color);
+            border-color: var(--accent-color);
+            color: var(--primary-color);
+            font-weight: 600;
         }
 
         /* Flex demo container */
@@ -536,18 +628,40 @@
             white-space: nowrap;
         }
 
-        @media (max-width: 600px) {
+        @media (max-width: 700px) {
             .slide {
-                padding: 1rem;
+                grid-template-columns: 56px 1fr;
             }
 
+            .rail {
+                padding: 1rem .5rem;
+            }
+
+            .kicker {
+                display: none;
+            }
+
+            .rail-num {
+                font-size: 1.4rem;
+                margin-top: 0;
+            }
+
+            .main {
+                padding: 1.25rem;
+            }
+        }
+
+        @media (max-width: 600px) {
             .navigation {
-                padding: 0.5rem;
+                padding: 0 0.75rem;
             }
 
             .nav-btn {
-                padding: 0.5rem 1rem;
-                font-size: 0.9rem;
+                font-size: 0.68rem;
+            }
+
+            ul, ol {
+                margin-left: 1rem;
             }
         }
     </style>
@@ -561,10 +675,14 @@
 
         <!-- Slide 1: Title -->
         <div class="slide active">
-            <div class="slide-content centered" style="text-align: center;">
+            <div class="rail">
+                <div class="kicker">Box Model, Positioning,<br>and Flexbox</div>
+                <div class="rail-num">01</div>
+            </div>
+            <div class="main"><div class="slide-content centered" style="text-align: center;">
                 <h1>Box Model, Positioning, and Flexbox</h1>
                 <p style="font-size: clamp(1.2rem, 3vw, 1.8rem); opacity: 0.9;">Understanding CSS Layout Fundamentals</p>
-                <div style="margin: 2rem auto; max-width: 350px;">
+                <div style="margin: 2rem auto; max-width: 350px; background:#ecf0f1; padding:1.25rem; border-radius:6px;">
                     <div class="box-model-layers">
                         <div class="bm-margin">
                             <div class="bm-label">margin</div>
@@ -580,11 +698,15 @@
                 </div>
                 <p style="opacity: 0.7;">Use arrow keys, buttons, or swipe to navigate</p>
             </div>
-        </div>
+        </div></div>
 
         <!-- Slide 2: What You'll Learn -->
         <div class="slide">
-            <div class="slide-content centered">
+            <div class="rail">
+                <div class="kicker">Box Model, Positioning,<br>and Flexbox</div>
+                <div class="rail-num">02</div>
+            </div>
+            <div class="main"><div class="slide-content centered">
                 <h2>What You'll Learn in This Lesson</h2>
                 <div class="two-column">
                     <div>
@@ -610,11 +732,15 @@
                     <strong>Why this matters:</strong> Understanding the box model is essential to avoid layout surprises. If elements seem "off" or don't line up, the box model is almost always the reason.
                 </div>
             </div>
-        </div>
+        </div></div>
 
         <!-- Slide 3: The CSS Box Model -->
         <div class="slide">
-            <div class="slide-content centered">
+            <div class="rail">
+                <div class="kicker">Box Model, Positioning,<br>and Flexbox</div>
+                <div class="rail-num">03</div>
+            </div>
+            <div class="main"><div class="slide-content centered">
                 <h2>The CSS Box Model</h2>
                 <p>Every HTML element is a <strong>rectangular box</strong> with four layers, whether visible or not:</p>
                 <div class="two-column">
@@ -638,11 +764,15 @@
                     </div>
                 </div>
             </div>
-        </div>
+        </div></div>
 
         <!-- Slide 4: Box Model Size Calculation -->
         <div class="slide">
-            <div class="slide-content centered">
+            <div class="rail">
+                <div class="kicker">Box Model, Positioning,<br>and Flexbox</div>
+                <div class="rail-num">04</div>
+            </div>
+            <div class="main"><div class="slide-content centered">
                 <h2>Box Model: How Size Is Calculated</h2>
                 <p>In the <strong>default box model</strong>, the rendered size includes all layers:</p>
                 <div class="two-column">
@@ -676,11 +806,15 @@
                     </div>
                 </div>
             </div>
-        </div>
+        </div></div>
 
         <!-- Slide 5: Box Model Math -->
         <div class="slide">
-            <div class="slide-content centered">
+            <div class="rail">
+                <div class="kicker">Box Model, Positioning,<br>and Flexbox</div>
+                <div class="rail-num">05</div>
+            </div>
+            <div class="main"><div class="slide-content centered">
                 <h2>Box Model Math</h2>
                 <p>The <strong>actual space</strong> an element takes up on the page:</p>
                 <div class="two-column">
@@ -710,11 +844,15 @@ Height: 100 + 10 + 10 + 5 + 5 + 10 + 10
                     </div>
                 </div>
             </div>
-        </div>
+        </div></div>
 
         <!-- Slide 6: Interactive Box Model Demo -->
         <div class="slide">
-            <div class="slide-content">
+            <div class="rail">
+                <div class="kicker">Box Model, Positioning,<br>and Flexbox</div>
+                <div class="rail-num">06</div>
+            </div>
+            <div class="main"><div class="slide-content">
                 <h2>Box Model Playground</h2>
                 <p>Adjust the values to see how they affect the total rendered size:</p>
                 <div class="playground">
@@ -768,11 +906,15 @@ Height: 100 + 10 + 10 + 5 + 5 + 10 + 10
                     </div>
                 </div>
             </div>
-        </div>
+        </div></div>
 
         <!-- Slide 7: Changing the Box Model -->
         <div class="slide">
-            <div class="slide-content centered">
+            <div class="rail">
+                <div class="kicker">Box Model, Positioning,<br>and Flexbox</div>
+                <div class="rail-num">07</div>
+            </div>
+            <div class="main"><div class="slide-content centered">
                 <h2>Changing the Box Model: <code>box-sizing</code></h2>
                 <p>The default box model adds padding and border <em>outside</em> your specified width. <code>box-sizing</code> fixes this:</p>
                 <div class="two-column">
@@ -803,22 +945,30 @@ Height: 100 + 10 + 10 + 5 + 5 + 10 + 10
                     <code>* { box-sizing: border-box; }</code>
                 </div>
             </div>
-        </div>
+        </div></div>
 
         <!-- Slide 8: box-sizing CodePen -->
         <div class="slide">
-            <div class="slide-content">
+            <div class="rail">
+                <div class="kicker">Box Model, Positioning,<br>and Flexbox</div>
+                <div class="rail-num">08</div>
+            </div>
+            <div class="main"><div class="slide-content">
                 <h2>Box Sizing in Action</h2>
                 <p>See how <code>border-box</code> makes two 50%-width divs fit side by side. Toggle it on/off!</p>
                 <div class="codepen-container" style="flex:1;">
                     <iframe title="Codepen 10.1" src="https://codepen.io/mattkearl/embed/WbxYpeg?default-tab=css%2Cresult&editable=true" loading="lazy"></iframe>
                 </div>
             </div>
-        </div>
+        </div></div>
 
         <!-- Slide 9: Outline vs Border Demo -->
         <div class="slide">
-            <div class="slide-content">
+            <div class="rail">
+                <div class="kicker">Box Model, Positioning,<br>and Flexbox</div>
+                <div class="rail-num">09</div>
+            </div>
+            <div class="main"><div class="slide-content">
                 <h2>Border vs Outline: See the Difference</h2>
                 <p>They look similar but behave very differently. Adjust the sliders to compare on <strong>the same element</strong>:</p>
                 <div class="playground" style="flex:1;">
@@ -874,11 +1024,15 @@ Height: 100 + 10 + 10 + 5 + 5 + 10 + 10
                     <strong>When do you see outlines?</strong> The ring that appears when you Tab through links and buttons is an outline. It doesn't shift anything on the page — that's the whole point.
                 </div>
             </div>
-        </div>
+        </div></div>
 
         <!-- Slide 10: Positioning Overview -->
         <div class="slide">
-            <div class="slide-content centered">
+            <div class="rail">
+                <div class="kicker">Box Model, Positioning,<br>and Flexbox</div>
+                <div class="rail-num">10</div>
+            </div>
+            <div class="main"><div class="slide-content centered">
                 <h2>The Whole Scoop on Positioning</h2>
                 <p>The <code>position</code> property controls how an element is placed on the page:</p>
                 <div class="three-column">
@@ -907,11 +1061,15 @@ Height: 100 + 10 + 10 + 5 + 5 + 10 + 10
                     Position offsets: <code>top</code>, <code>right</code>, <code>bottom</code>, <code>left</code> — these work on all types except <code>static</code>.
                 </div>
             </div>
-        </div>
+        </div></div>
 
         <!-- Slide 11: Relative Positioning -->
         <div class="slide">
-            <div class="slide-content">
+            <div class="rail">
+                <div class="kicker">Box Model, Positioning,<br>and Flexbox</div>
+                <div class="rail-num">11</div>
+            </div>
+            <div class="main"><div class="slide-content">
                 <h2>Relative Positioning</h2>
                 <p>The element stays in the normal flow but can be <strong>nudged</strong> from its original spot. The space it originally occupied is preserved.</p>
                 <div style="display:flex; gap:1.5rem; margin-bottom:0.5rem; flex-wrap:wrap;">
@@ -934,11 +1092,15 @@ Height: 100 + 10 + 10 + 5 + 5 + 10 + 10
                     <iframe title="Codepen - 10.10" src="https://codepen.io/mattkearl/embed/azZQWdV?default-tab=css%2Cresult&editable=true" loading="lazy"></iframe>
                 </div>
             </div>
-        </div>
+        </div></div>
 
         <!-- Slide 12: Absolute Positioning -->
         <div class="slide">
-            <div class="slide-content">
+            <div class="rail">
+                <div class="kicker">Box Model, Positioning,<br>and Flexbox</div>
+                <div class="rail-num">12</div>
+            </div>
+            <div class="main"><div class="slide-content">
                 <h2>Absolute Positioning</h2>
                 <p>Placed at <strong>exact coordinates</strong> relative to the nearest positioned parent. Removed from normal flow entirely.</p>
                 <div style="display:flex; gap:1.5rem; margin-bottom:0.5rem; flex-wrap:wrap;">
@@ -958,11 +1120,15 @@ Height: 100 + 10 + 10 + 5 + 5 + 10 + 10
                     <iframe title="Codepen - 10.12" src="https://codepen.io/mattkearl/embed/myEQmPv?default-tab=css%2Cresult&editable=true" loading="lazy"></iframe>
                 </div>
             </div>
-        </div>
+        </div></div>
 
         <!-- Slide 13: Fixed & Sticky Positioning -->
         <div class="slide">
-            <div class="slide-content">
+            <div class="rail">
+                <div class="kicker">Box Model, Positioning,<br>and Flexbox</div>
+                <div class="rail-num">13</div>
+            </div>
+            <div class="main"><div class="slide-content">
                 <h2>Fixed &amp; Sticky Positioning</h2>
                 <div style="display:flex; gap:2rem; margin-bottom:0.5rem; flex-wrap:wrap;">
                     <div style="flex:1; min-width:250px;">
@@ -986,11 +1152,15 @@ Height: 100 + 10 + 10 + 5 + 5 + 10 + 10
                     <iframe title="Codepen - 10.2" src="https://codepen.io/mattkearl/embed/wBWQJaX?default-tab=css%2Cresult&editable=true" loading="lazy"></iframe>
                 </div>
             </div>
-        </div>
+        </div></div>
 
         <!-- Slide 14: Z-Index -->
         <div class="slide">
-            <div class="slide-content">
+            <div class="rail">
+                <div class="kicker">Box Model, Positioning,<br>and Flexbox</div>
+                <div class="rail-num">14</div>
+            </div>
+            <div class="main"><div class="slide-content">
                 <h2>Controlling Stacking: <code>z-index</code></h2>
                 <p>When elements overlap, <code>z-index</code> controls which appears on top — like <strong>layers in Photoshop</strong>:</p>
                 <div style="display:flex; gap:1.5rem; margin-bottom:0.5rem; flex-wrap:wrap;">
@@ -1011,22 +1181,30 @@ Height: 100 + 10 + 10 + 5 + 5 + 10 + 10
                     <iframe title="Codepen 10.13" src="https://codepen.io/mattkearl/embed/jErQmVq?default-tab=css%2Cresult&editable=true" loading="lazy"></iframe>
                 </div>
             </div>
-        </div>
+        </div></div>
 
         <!-- Slide 15: Z-Index with Images -->
         <div class="slide">
-            <div class="slide-content">
+            <div class="rail">
+                <div class="kicker">Box Model, Positioning,<br>and Flexbox</div>
+                <div class="rail-num">15</div>
+            </div>
+            <div class="main"><div class="slide-content">
                 <h2>Z-Index with Real Content</h2>
                 <p>Z-index works on any positioned HTML content — images, text, entire sections. Try adjusting the values!</p>
                 <div class="codepen-container" style="flex:1;">
                     <iframe title="Untitled" src="https://codepen.io/mattkearl/embed/yyJQMYr?default-tab=result&editable=true" loading="lazy"></iframe>
                 </div>
             </div>
-        </div>
+        </div></div>
 
         <!-- Slide 16: Interactive Positioning Demo -->
         <div class="slide">
-            <div class="slide-content">
+            <div class="rail">
+                <div class="kicker">Box Model, Positioning,<br>and Flexbox</div>
+                <div class="rail-num">16</div>
+            </div>
+            <div class="main"><div class="slide-content">
                 <h2>Positioning Playground</h2>
                 <p>Click each position type, toggle offsets on/off, and <strong>scroll the grey area</strong> to see fixed &amp; sticky in action:</p>
                 <div class="playground" style="flex:1;">
@@ -1044,7 +1222,7 @@ Height: 100 + 10 + 10 + 5 + 5 + 10 + 10
                         <div class="control-group">
                             <label style="display:flex; align-items:center; gap:0.5rem;">
                                 <input type="checkbox" id="posTopEnabled" checked onchange="updatePosDemo()" style="width:auto; margin:0;">
-                                top <span style="font-size:0.75rem; color:#ffeaa7;">(uncheck to remove)</span>
+                                top <span style="font-size:0.75rem; color:var(--accent-color);">(uncheck to remove)</span>
                             </label>
                             <input type="range" id="posTop" min="-50" max="150" value="20" oninput="updatePosDemo()">
                             <div class="control-value"><span id="posTopVal">20</span>px</div>
@@ -1052,12 +1230,12 @@ Height: 100 + 10 + 10 + 5 + 5 + 10 + 10
                         <div class="control-group">
                             <label style="display:flex; align-items:center; gap:0.5rem;">
                                 <input type="checkbox" id="posLeftEnabled" checked onchange="updatePosDemo()" style="width:auto; margin:0;">
-                                left <span style="font-size:0.75rem; color:#ffeaa7;">(uncheck to remove)</span>
+                                left <span style="font-size:0.75rem; color:var(--accent-color);">(uncheck to remove)</span>
                             </label>
                             <input type="range" id="posLeft" min="-50" max="300" value="20" oninput="updatePosDemo()">
                             <div class="control-value"><span id="posLeftVal">20</span>px</div>
                         </div>
-                        <div id="posExplanation" style="background:rgba(0,0,0,0.2); padding:0.75rem; border-radius:8px; margin-top:0.5rem; font-size:0.85rem; line-height:1.4;">
+                        <div id="posExplanation" style="background:var(--light-bg); border:1px solid var(--border-soft); padding:0.75rem; border-radius:8px; margin-top:0.5rem; font-size:0.85rem; line-height:1.4;">
                             <strong>static:</strong> Default. The element flows normally. top/left have <strong>no effect</strong>.
                         </div>
                         <div class="code-output" id="posCode" style="margin-top:0.5rem;"></div>
@@ -1093,17 +1271,21 @@ Height: 100 + 10 + 10 + 5 + 5 + 10 + 10
                     </div>
                 </div>
             </div>
-        </div>
+        </div></div>
 
         <!-- Slide 17: Why Flexbox? -->
         <div class="slide">
-            <div class="slide-content">
+            <div class="rail">
+                <div class="kicker">Box Model, Positioning,<br>and Flexbox</div>
+                <div class="rail-num">17</div>
+            </div>
+            <div class="main"><div class="slide-content">
                 <h2>Why Flexbox?</h2>
                 <p>Before Flexbox, common layout tasks were frustrating. See the <span style="color:#e74c3c;">problem</span> and the <span style="color:#2ecc71;">solution</span>:</p>
                 <div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:0.75rem; margin-top:0.5rem; flex:1;">
                     <!-- Problem 1: Centering -->
                     <div class="position-card">
-                        <h4 style="color:#ffeaa7; text-align:center; margin-top:0;">Centering Things</h4>
+                        <h4 style="color:var(--accent-color); text-align:center; margin-top:0;">Centering Things</h4>
                         <div style="display:flex; gap:8px; margin:0.5rem 0;">
                             <div style="flex:1; text-align:center;">
                                 <div style="font-size:0.75rem; color:#e74c3c; font-weight:bold; margin-bottom:4px;">Before</div>
@@ -1124,7 +1306,7 @@ justify-content: center;</code></pre>
                     </div>
                     <!-- Problem 2: Equal Height Cards -->
                     <div class="position-card">
-                        <h4 style="color:#ffeaa7; text-align:center; margin-top:0;">Equal Height Cards</h4>
+                        <h4 style="color:var(--accent-color); text-align:center; margin-top:0;">Equal Height Cards</h4>
                         <div style="display:flex; gap:8px; margin:0.5rem 0;">
                             <div style="flex:1; text-align:center;">
                                 <div style="font-size:0.75rem; color:#e74c3c; font-weight:bold; margin-bottom:4px;">Before</div>
@@ -1148,7 +1330,7 @@ justify-content: center;</code></pre>
                     </div>
                     <!-- Problem 3: Navigation Layout -->
                     <div class="position-card">
-                        <h4 style="color:#ffeaa7; text-align:center; margin-top:0;">Navigation Bar</h4>
+                        <h4 style="color:var(--accent-color); text-align:center; margin-top:0;">Navigation Bar</h4>
                         <div style="display:flex; gap:8px; margin:0.5rem 0;">
                             <div style="flex:1; text-align:center;">
                                 <div style="font-size:0.75rem; color:#e74c3c; font-weight:bold; margin-bottom:4px;">Before</div>
@@ -1172,7 +1354,7 @@ align-items: center;</code></pre>
                     </div>
                     <!-- Problem 4: Footer at Bottom -->
                     <div class="position-card">
-                        <h4 style="color:#ffeaa7; text-align:center; margin-top:0;">Footer Stuck to Bottom</h4>
+                        <h4 style="color:var(--accent-color); text-align:center; margin-top:0;">Footer Stuck to Bottom</h4>
                         <div style="display:flex; gap:8px; margin:0.5rem 0;">
                             <div style="flex:1; text-align:center;">
                                 <div style="font-size:0.75rem; color:#e74c3c; font-weight:bold; margin-bottom:4px;">Before</div>
@@ -1197,7 +1379,7 @@ align-items: center;</code></pre>
                     </div>
                     <!-- Problem 5: Sidebar + Main -->
                     <div class="position-card">
-                        <h4 style="color:#ffeaa7; text-align:center; margin-top:0;">Sidebar + Content</h4>
+                        <h4 style="color:var(--accent-color); text-align:center; margin-top:0;">Sidebar + Content</h4>
                         <div style="display:flex; gap:8px; margin:0.5rem 0;">
                             <div style="flex:1; text-align:center;">
                                 <div style="font-size:0.75rem; color:#e74c3c; font-weight:bold; margin-bottom:4px;">Before</div>
@@ -1235,11 +1417,15 @@ align-items: center;</code></pre>
                     </div>
                 </div>
             </div>
-        </div>
+        </div></div>
 
         <!-- Slide 18: Main Axis & Cross Axis (Nav demo) -->
         <div class="slide">
-            <div class="slide-content">
+            <div class="rail">
+                <div class="kicker">Box Model, Positioning,<br>and Flexbox</div>
+                <div class="rail-num">18</div>
+            </div>
+            <div class="main"><div class="slide-content">
                 <h2>Main Axis &amp; Cross Axis</h2>
                 <p>Every flex container has two axes. <code>flex-direction</code> decides which is which. Try switching between a <strong>horizontal nav bar</strong> and a <strong>vertical sidebar menu</strong>:</p>
                 <div style="display:flex; gap:1.5rem; margin-bottom:0.5rem; flex-wrap:wrap; align-items:center;">
@@ -1266,11 +1452,15 @@ align-items: center;</code></pre>
                 </div>
                 <div class="code-output" id="axisCode">.nav { display: flex; flex-direction: row; }</div>
             </div>
-        </div>
+        </div></div>
 
         <!-- Slide 19: flex-wrap & gap (Tags demo) -->
         <div class="slide">
-            <div class="slide-content">
+            <div class="rail">
+                <div class="kicker">Box Model, Positioning,<br>and Flexbox</div>
+                <div class="rail-num">19</div>
+            </div>
+            <div class="main"><div class="slide-content">
                 <h2>Flex Wrapping &amp; Gap</h2>
                 <p>When items don't fit on one line, <code>flex-wrap</code> lets them flow to the next row — like skill tags on a profile:</p>
                 <div style="display:flex; gap:2rem; flex-wrap:wrap; margin-bottom:0.5rem;">
@@ -1307,11 +1497,15 @@ align-items: center;</code></pre>
                 </div>
                 <div class="code-output" id="wrapCode">.tags { display: flex; flex-wrap: nowrap; gap: 8px; }</div>
             </div>
-        </div>
+        </div></div>
 
         <!-- Slide 20: justify-content (Nav bar demo) -->
         <div class="slide">
-            <div class="slide-content">
+            <div class="rail">
+                <div class="kicker">Box Model, Positioning,<br>and Flexbox</div>
+                <div class="rail-num">20</div>
+            </div>
+            <div class="main"><div class="slide-content">
                 <h2><code>justify-content</code> — Distributing Items</h2>
                 <p>Imagine building a navigation bar. <code>justify-content</code> controls where the links end up along the main axis:</p>
                 <div class="demo-btn-group" id="justifyBtnGroup">
@@ -1333,22 +1527,30 @@ align-items: center;</code></pre>
                     <strong>Try it:</strong> <code>space-between</code> is the most common for navbars — it pushes the first item left and last item right with equal space in between.
                 </div>
             </div>
-        </div>
+        </div></div>
 
         <!-- Slide 21: justify-content CodePen -->
         <div class="slide">
-            <div class="slide-content">
+            <div class="rail">
+                <div class="kicker">Box Model, Positioning,<br>and Flexbox</div>
+                <div class="rail-num">21</div>
+            </div>
+            <div class="main"><div class="slide-content">
                 <h2><code>justify-content</code> in Practice</h2>
                 <p>Experiment with all the values in this editable demo:</p>
                 <div class="codepen-container" style="flex:1;">
                     <iframe title="Codepen - 10.5" src="https://codepen.io/mattkearl/embed/azZQJpN?default-tab=result&editable=true" loading="lazy"></iframe>
                 </div>
             </div>
-        </div>
+        </div></div>
 
         <!-- Slide 22: align-items (Header bar demo) -->
         <div class="slide">
-            <div class="slide-content">
+            <div class="rail">
+                <div class="kicker">Box Model, Positioning,<br>and Flexbox</div>
+                <div class="rail-num">22</div>
+            </div>
+            <div class="main"><div class="slide-content">
                 <h2><code>align-items</code> — Cross-Axis Alignment</h2>
                 <p>Think of a website header: you have a tall logo, medium nav links, and a small login button. <code>align-items</code> controls how they line up <strong>vertically</strong>:</p>
                 <div class="demo-btn-group" id="alignBtnGroup">
@@ -1368,19 +1570,23 @@ align-items: center;</code></pre>
                     <strong>align-content</strong> is similar but only matters when items wrap to <strong>multiple lines</strong> — it aligns the lines themselves.
                 </div>
             </div>
-        </div>
+        </div></div>
 
         <!-- Slide 23: Flex Item Properties (Page layout demo) -->
         <div class="slide">
-            <div class="slide-content">
+            <div class="rail">
+                <div class="kicker">Box Model, Positioning,<br>and Flexbox</div>
+                <div class="rail-num">23</div>
+            </div>
+            <div class="main"><div class="slide-content">
                 <h2>Flex Item Properties: grow, shrink, basis</h2>
                 <p>These three properties control how each item claims space inside a flex container. Use the sliders to see them in action:</p>
                 <div class="playground" style="flex:1;">
                     <div class="controls" style="overflow-y:auto;">
-                        <div style="background:rgba(0,0,0,0.2); padding:0.6rem; border-radius:6px; margin-bottom:0.75rem; font-size:0.8rem; line-height:1.5;">
-                            <strong style="color:#ffeaa7;">flex-grow</strong> — How much <em>leftover</em> space this item should absorb. 0 means "don't grow." If two items have grow 1, they split extra space equally.<br>
-                            <strong style="color:#ffeaa7;">flex-shrink</strong> — How much the item should shrink if there isn't enough room. 1 (default) means "shrink equally." 0 means "never shrink."<br>
-                            <strong style="color:#ffeaa7;">flex-basis</strong> — The item's <em>starting size</em> before grow/shrink kicks in. Think of it as the "ideal width." The browser adds or removes space from here.
+                        <div style="background:var(--light-bg); border:1px solid var(--border-soft); padding:0.6rem; border-radius:6px; margin-bottom:0.75rem; font-size:0.8rem; line-height:1.5;">
+                            <strong style="color:var(--accent-color);">flex-grow</strong> — How much <em>leftover</em> space this item should absorb. 0 means "don't grow." If two items have grow 1, they split extra space equally.<br>
+                            <strong style="color:var(--accent-color);">flex-shrink</strong> — How much the item should shrink if there isn't enough room. 1 (default) means "shrink equally." 0 means "never shrink."<br>
+                            <strong style="color:var(--accent-color);">flex-basis</strong> — The item's <em>starting size</em> before grow/shrink kicks in. Think of it as the "ideal width." The browser adds or removes space from here.
                         </div>
                         <h4 style="color:#e74c3c; margin-top:0;">Sidebar (red)</h4>
                         <div class="control-group">
@@ -1417,18 +1623,22 @@ align-items: center;</code></pre>
                             <div id="flexItemC" class="flex-demo-item" style="background:#2ecc71; flex:0 1 100px; display:flex; align-items:center; justify-content:center; font-size:0.8rem;">Ad Panel</div>
                         </div>
                         <div class="code-output" id="flexItemsCode"></div>
-                        <div id="flexItemsExplanation" style="background:rgba(0,0,0,0.2); padding:0.6rem; border-radius:6px; margin-top:0.5rem; font-size:0.8rem; line-height:1.4; color:#ddd;"></div>
+                        <div id="flexItemsExplanation" style="background:var(--light-bg); border:1px solid var(--border-soft); padding:0.6rem; border-radius:6px; margin-top:0.5rem; font-size:0.8rem; line-height:1.4; color:#ddd;"></div>
                         <div class="highlight" style="margin-top:0.5rem; font-size:0.85rem;">
                             <strong>Try:</strong> Set Main Content grow to <strong>1</strong> and the others to <strong>0</strong>. The main area absorbs all leftover space — a classic page layout!
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
+        </div></div>
 
         <!-- Slide 24: Flex shorthand & CodePen -->
         <div class="slide">
-            <div class="slide-content">
+            <div class="rail">
+                <div class="kicker">Box Model, Positioning,<br>and Flexbox</div>
+                <div class="rail-num">24</div>
+            </div>
+            <div class="main"><div class="slide-content">
                 <h2>The <code>flex</code> Shorthand</h2>
                 <div style="display:flex; gap:2rem; flex-wrap:wrap; margin-bottom:0.5rem;">
                     <div style="flex:1; min-width:280px;">
@@ -1449,11 +1659,15 @@ flex: 0 0 200px;/* fixed 200px, no grow/shrink */</code></pre>
                     <iframe title="Codepen - 10.6" src="https://codepen.io/mattkearl/embed/LEZXWWW?default-tab=result&editable=true" loading="lazy"></iframe>
                 </div>
             </div>
-        </div>
+        </div></div>
 
         <!-- Slide 25: order & align-self (Mobile reorder demo) -->
         <div class="slide">
-            <div class="slide-content">
+            <div class="rail">
+                <div class="kicker">Box Model, Positioning,<br>and Flexbox</div>
+                <div class="rail-num">25</div>
+            </div>
+            <div class="main"><div class="slide-content">
                 <h2>Order &amp; Individual Alignment</h2>
                 <p>Imagine a header with Logo, Search, and Nav. On mobile, you might want to reorder them visually without changing your HTML:</p>
                 <div style="display:flex; gap:2rem; flex-wrap:wrap; margin-bottom:0.5rem;">
@@ -1485,11 +1699,15 @@ flex: 0 0 200px;/* fixed 200px, no grow/shrink */</code></pre>
                     <strong>Accessibility warning:</strong> <code>order</code> only changes what you <em>see</em>. Screen readers and the Tab key still follow the HTML source order.
                 </div>
             </div>
-        </div>
+        </div></div>
 
         <!-- Slide 26: Practical Flexbox Patterns -->
         <div class="slide">
-            <div class="slide-content">
+            <div class="rail">
+                <div class="kicker">Box Model, Positioning,<br>and Flexbox</div>
+                <div class="rail-num">26</div>
+            </div>
+            <div class="main"><div class="slide-content">
                 <h2>Practical Flexbox Patterns</h2>
                 <div style="display:flex; gap:1.5rem; flex-wrap:wrap; margin-bottom:0.5rem;">
                     <div style="flex:1; min-width:250px;">
@@ -1524,11 +1742,15 @@ main { flex: 1; }</code></pre>
                     <iframe title="Codepen - 10.7" src="https://codepen.io/mattkearl/embed/emzQvRm?default-tab=result&editable=true" loading="lazy"></iframe>
                 </div>
             </div>
-        </div>
+        </div></div>
 
         <!-- Slide 27: Responsive Patterns -->
         <div class="slide">
-            <div class="slide-content">
+            <div class="rail">
+                <div class="kicker">Box Model, Positioning,<br>and Flexbox</div>
+                <div class="rail-num">27</div>
+            </div>
+            <div class="main"><div class="slide-content">
                 <h2>Responsive Patterns with Flexbox</h2>
                 <p>Create responsive layouts <strong>without media queries</strong> using <code>flex-wrap</code> + <code>flex-basis</code>:</p>
                 <div style="display:flex; gap:1.5rem; margin-bottom:0.5rem; flex-wrap:wrap;">
@@ -1554,23 +1776,27 @@ main { flex: 1; }</code></pre>
                     <iframe title="Codepen 10.8" src="https://codepen.io/mattkearl/embed/qENQrXr?default-tab=result&editable=true" loading="lazy"></iframe>
                 </div>
             </div>
-        </div>
+        </div></div>
 
         <!-- Slide 28: Common Pitfalls -->
         <div class="slide">
-            <div class="slide-content" style="overflow-y:auto;">
+            <div class="rail">
+                <div class="kicker">Box Model, Positioning,<br>and Flexbox</div>
+                <div class="rail-num">28</div>
+            </div>
+            <div class="main"><div class="slide-content" style="overflow-y:auto;">
                 <h2>Common Flexbox Pitfalls (and How to Fix Them)</h2>
                 <p>Flexbox is powerful, but it has a few surprises. Here are the top issues you'll run into:</p>
                 <div style="display:flex; flex-direction:column; gap:0.75rem; flex:1;">
                     <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
-                        <div style="background:rgba(0,0,0,0.2); padding:0.75rem; border-radius:8px;">
+                        <div style="background:var(--light-bg); border:1px solid var(--border-soft); padding:0.75rem; border-radius:8px;">
                             <h3 style="margin-top:0;">1. Don't use <code>width: 50%</code> inside flex</h3>
                             <p style="font-size:0.9rem;"><strong>The problem:</strong> You want two items side by side at 50% each, so you write <code>width: 50%</code>. But flex items don't always respect <code>width</code> the way you'd expect — they can still grow or shrink.</p>
                             <p style="font-size:0.9rem;"><strong>The fix:</strong> Use <code>flex</code> instead. It gives you full control:</p>
                             <pre><code>/* This says: don't grow, don't shrink, start at 50% */
 .item { flex: 0 0 50%; }</code></pre>
                         </div>
-                        <div style="background:rgba(0,0,0,0.2); padding:0.75rem; border-radius:8px;">
+                        <div style="background:var(--light-bg); border:1px solid var(--border-soft); padding:0.75rem; border-radius:8px;">
                             <h3 style="margin-top:0;">2. Content overflows its flex item</h3>
                             <p style="font-size:0.9rem;"><strong>The problem:</strong> A long word or URL refuses to shrink and breaks out of its container. This happens because flex items have <code>min-width: auto</code> by default, which means "never get smaller than my content."</p>
                             <p style="font-size:0.9rem;"><strong>The fix:</strong> Tell the item it's OK to be smaller than its content:</p>
@@ -1579,7 +1805,7 @@ main { flex: 1; }</code></pre>
                         </div>
                     </div>
                     <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:1rem;">
-                        <div style="background:rgba(0,0,0,0.2); padding:0.75rem; border-radius:8px;">
+                        <div style="background:var(--light-bg); border:1px solid var(--border-soft); padding:0.75rem; border-radius:8px;">
                             <h3 style="margin-top:0;">3. Margins don't collapse</h3>
                             <p style="font-size:0.9rem;">In normal CSS, if two elements each have <code>margin: 20px</code>, the gap between them is 20px (they overlap). Inside flex, margins <strong>add up</strong> — you'd get 40px. Use <code>gap</code> instead for consistent spacing:</p>
                             <pre><code>.container {
@@ -1587,7 +1813,7 @@ main { flex: 1; }</code></pre>
   gap: 20px;
 }</code></pre>
                         </div>
-                        <div style="background:rgba(0,0,0,0.2); padding:0.75rem; border-radius:8px;">
+                        <div style="background:var(--light-bg); border:1px solid var(--border-soft); padding:0.75rem; border-radius:8px;">
                             <h3 style="margin-top:0;">4. <code>margin: auto</code> is magic</h3>
                             <p style="font-size:0.9rem;">Want to push one nav item to the far right? <code>margin-left: auto</code> absorbs all available space before that item. It's like a spring that pushes everything apart:</p>
                             <pre><code>/* Login button → far right */
@@ -1595,7 +1821,7 @@ main { flex: 1; }</code></pre>
   margin-left: auto;
 }</code></pre>
                         </div>
-                        <div style="background:rgba(0,0,0,0.2); padding:0.75rem; border-radius:8px;">
+                        <div style="background:var(--light-bg); border:1px solid var(--border-soft); padding:0.75rem; border-radius:8px;">
                             <h3 style="margin-top:0;">5. <code>flex: 1</code> vs <code>flex: auto</code></h3>
                             <p style="font-size:0.9rem;"><code>flex: 1</code> means "ignore my content size, divide space equally." <code>flex: auto</code> means "start from my content size, then grow."</p>
                             <p style="font-size:0.9rem;">Two items with <code>flex: 1</code> → same width. Two items with <code>flex: auto</code> → wider item stays wider.</p>
@@ -1606,11 +1832,15 @@ main { flex: 1; }</code></pre>
                     </div>
                 </div>
             </div>
-        </div>
+        </div></div>
 
         <!-- Slide 29: When to Use What -->
         <div class="slide">
-            <div class="slide-content centered">
+            <div class="rail">
+                <div class="kicker">Box Model, Positioning,<br>and Flexbox</div>
+                <div class="rail-num">29</div>
+            </div>
+            <div class="main"><div class="slide-content centered">
                 <h2>When to Use What</h2>
                 <div class="three-column">
                     <div class="position-card" style="border-left: 4px solid #3498db;">
@@ -1651,11 +1881,15 @@ main { flex: 1; }</code></pre>
                     <strong>Rule of thumb:</strong> Start with Flexbox for most things. Reach for positioning when you need overlays. Use Grid when you need rows <em>and</em> columns.
                 </div>
             </div>
-        </div>
+        </div></div>
 
         <!-- Slide 30: Summary -->
         <div class="slide">
-            <div class="slide-content centered">
+            <div class="rail">
+                <div class="kicker">Box Model, Positioning,<br>and Flexbox</div>
+                <div class="rail-num">30</div>
+            </div>
+            <div class="main"><div class="slide-content centered">
                 <h2>Summary: Key Takeaways</h2>
                 <div class="two-column">
                     <div>
@@ -1692,11 +1926,15 @@ main { flex: 1; }</code></pre>
                     </div>
                 </div>
             </div>
-        </div>
+        </div></div>
 
         <!-- Slide 31: Q&A -->
         <div class="slide">
-            <div class="slide-content centered">
+            <div class="rail">
+                <div class="kicker">Box Model, Positioning,<br>and Flexbox</div>
+                <div class="rail-num">31</div>
+            </div>
+            <div class="main"><div class="slide-content centered">
                 <h2>Common Questions</h2>
                 <div class="two-column">
                     <div>
@@ -1721,7 +1959,7 @@ main { flex: 1; }</code></pre>
                     </div>
                 </div>
             </div>
-        </div>
+        </div></div>
 
     </div>
 
@@ -1749,6 +1987,8 @@ main { flex: 1; }</code></pre>
 
             const progress = ((currentSlide + 1) / totalSlides) * 100;
             document.getElementById('progress').style.width = progress + '%';
+
+            fitCurrentSlide();
         }
 
         function changeSlide(direction) {
@@ -1794,6 +2034,38 @@ main { flex: 1; }</code></pre>
                     changeSlide(-1);
                 }
             }
+        }
+
+        // ===== FIT-TO-SCREEN — a slide must never scroll or clip. If its
+        // content is taller than the available space, scale the whole block
+        // down just enough to fit. MIN_SCALE is a floor: past this point the
+        // slide has too much content and should be split, not shrunk further.
+        var MIN_SCALE = 0.72;
+
+        function fitSlide(slideEl) {
+            if (!slideEl) return;
+            var main = slideEl.querySelector('.main');
+            var inner = slideEl.querySelector('.slide-content');
+            if (!main || !inner) return;
+
+            inner.style.transform = 'none';
+            inner.style.width = '100%';
+
+            var cs = getComputedStyle(main);
+            var available = main.clientHeight - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom);
+            var natural = inner.scrollHeight;
+
+            var scale = Math.min(1, available / natural);
+            scale = Math.max(scale, MIN_SCALE);
+
+            if (scale < 1) {
+                inner.style.transform = 'scale(' + scale + ')';
+                inner.style.width = (100 / scale) + '%';
+            }
+        }
+
+        function fitCurrentSlide() {
+            fitSlide(slides[currentSlide]);
         }
 
         showSlide(0);
@@ -2140,6 +2412,16 @@ main { flex: 1; }</code></pre>
             }
             document.getElementById('orderCode').textContent = code;
         }
+
+        if (document.fonts && document.fonts.ready) {
+            document.fonts.ready.then(fitCurrentSlide);
+        }
+
+        var resizeTimer;
+        window.addEventListener('resize', function() {
+            clearTimeout(resizeTimer);
+            resizeTimer = setTimeout(fitCurrentSlide, 100);
+        });
 
     </script>
 </body>

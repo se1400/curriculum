@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Working with Margins, Padding, Alignment, and Floats</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,900;1,9..144,500&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
     <style>
         * {
             margin: 0;
@@ -12,22 +15,31 @@
         }
 
         :root {
-            --primary-color: #2c3e50;
-            --secondary-color: #3498db;
-            --accent-color: #e74c3c;
-            --light-bg: #ecf0f1;
-            --text-color: #2c3e50;
-            --code-bg: #1e1e1e;
-            --code-text: #d4d4d4;
+            --primary-color: #17140f;
+            --secondary-color: #9c9382;
+            --accent-color: #cc7a4f;
+            --light-bg: #1e1a14;
+            --text-color: #f2ece1;
+            --code-bg: #141109;
+            --code-text: #e4ddd0;
+            --border-soft: #29241c;
+            --border: #3a3226;
+            --nav-h: 56px;
         }
 
         html, body {
             height: 100%;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Inter', sans-serif;
             background: var(--primary-color);
             overflow: hidden;
             display: flex;
             flex-direction: column;
+        }
+
+        code { font-variant-ligatures: none; font-feature-settings: "calt" 0, "liga" 0; }
+
+        @media (prefers-reduced-motion: reduce) {
+            .slide { animation: none !important; }
         }
 
         .slideshow-container {
@@ -41,16 +53,15 @@
         .slide {
             display: none;
             flex: 1;
-            padding: 2rem;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            overflow-y: auto;
+            grid-template-columns: 200px 1fr;
+            background: var(--primary-color);
+            color: var(--text-color);
+            overflow: hidden;
             animation: fadeIn 0.5s ease-in-out;
         }
 
         .slide.active {
-            display: flex;
-            flex-direction: column;
+            display: grid;
         }
 
         @keyframes fadeIn {
@@ -58,45 +69,92 @@
             to { opacity: 1; transform: translateX(0); }
         }
 
+        /* ===== RAIL — persistent left margin: deck title + slide number.
+           This deck has no pre-existing per-slide section label to reuse, so
+           the rail only carries the kicker and number, not an invented tag. ===== */
+        .rail {
+            border-right: 1px solid var(--border-soft);
+            padding: 2.2rem 1.5rem;
+        }
+        .kicker {
+            font-size: .65rem;
+            letter-spacing: .14em;
+            text-transform: uppercase;
+            color: var(--secondary-color);
+            font-weight: 600;
+            line-height: 1.5;
+        }
+        .rail-num {
+            font-family: 'Fraunces', serif;
+            font-weight: 400;
+            font-style: italic;
+            font-size: 3rem;
+            color: var(--secondary-color);
+            opacity: .5;
+            margin-top: 1rem;
+            font-variant-numeric: oldstyle-nums;
+        }
+
+        /* ===== MAIN — fixed box; .slide-content scales down only if content
+           would overflow, so a slide never scrolls or clips. ===== */
+        .main {
+            padding: 2.6rem 4rem 2rem 3.2rem;
+            overflow: hidden;
+        }
+
         .slide-content {
-            max-width: 1200px;
-            width: 100%;
-            margin: 0 auto;
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
+            max-width: 1400px;
+            transform-origin: top left;
+        }
+
+        .slide-content > p,
+        .slide-content > ul,
+        .slide-content > ol,
+        .slide-content > .two-column > div > p,
+        .slide-content > .two-column > div > ul,
+        .slide-content > .two-column > div > ol {
+            max-width: 68ch;
         }
 
         h1 {
-            font-size: clamp(1.8rem, 5vw, 3rem);
-            margin-bottom: 1.5rem;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
-            line-height: 1.2;
+            font-family: 'Fraunces', serif;
+            font-weight: 600;
+            font-size: clamp(2.2rem, 5.5vw, 4rem);
+            margin-bottom: 1.4rem;
+            line-height: 1.1;
+            max-width: 16ch;
         }
 
         h2 {
-            font-size: clamp(1.4rem, 4vw, 2.2rem);
-            margin-bottom: 1rem;
-            color: #ffeaa7;
+            font-family: 'Fraunces', serif;
+            font-weight: 600;
+            font-size: clamp(1.8rem, 4.2vw, 2.8rem);
+            margin-bottom: 1.1rem;
+            line-height: 1.15;
+            color: var(--text-color);
+            max-width: 20ch;
         }
 
         h3 {
-            font-size: clamp(1.1rem, 3vw, 1.5rem);
-            margin: 1rem 0 0.5rem;
-            color: #81ecec;
+            font-family: 'Inter', sans-serif;
+            font-weight: 700;
+            font-size: .75rem;
+            letter-spacing: .1em;
+            text-transform: uppercase;
+            color: var(--secondary-color);
+            margin: 1.1rem 0 .6rem;
         }
 
         p {
-            font-size: clamp(1rem, 2.5vw, 1.3rem);
+            font-size: clamp(1rem, 2.5vw, 1.15rem);
             line-height: 1.6;
             margin-bottom: 1rem;
         }
 
         ul, ol {
-            font-size: clamp(0.95rem, 2.2vw, 1.2rem);
-            line-height: 1.8;
-            margin-left: 1.5rem;
+            font-size: clamp(.95rem, 2.2vw, 1.08rem);
+            line-height: 1.75;
+            margin-left: 1.4rem;
             margin-bottom: 1rem;
         }
 
@@ -105,60 +163,92 @@
         }
 
         a {
-            color: #ffeaa7;
+            color: var(--accent-color);
             text-decoration: underline;
         }
 
         a:hover {
-            color: #fdcb6e;
+            color: var(--text-color);
         }
 
         code {
-            background: rgba(0,0,0,0.3);
-            padding: 0.2em 0.5em;
-            border-radius: 4px;
-            font-family: 'Consolas', 'Monaco', monospace;
-            font-size: 0.9em;
+            background: var(--light-bg);
+            padding: 0.15em 0.5em;
+            border-radius: 3px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.88em;
+            color: var(--accent-color);
         }
 
         pre {
             background: var(--code-bg);
             color: var(--code-text);
-            padding: 1rem;
-            border-radius: 8px;
-            overflow-x: auto;
+            border-top: 1px solid var(--border);
+            border-bottom: 1px solid var(--border);
+            padding: 1.1rem 1.3rem;
             margin: 1rem 0;
-            font-size: clamp(0.75rem, 1.6vw, 0.95rem);
-            line-height: 1.5;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: clamp(0.78rem, 1.4vw, 0.9rem);
+            line-height: 1.65;
+            max-width: 82ch;
+            white-space: pre-wrap;
+            overflow-wrap: anywhere;
         }
 
         pre code {
             background: none;
             padding: 0;
+            color: inherit;
         }
 
+        /* ===== HIGHLIGHT — analogy / pull-quote treatment. ===== */
         .highlight {
-            background: rgba(255,255,255,0.15);
-            padding: 1rem;
-            border-radius: 8px;
-            border-left: 4px solid #ffeaa7;
-            margin: 1rem 0;
+            max-width: 62ch;
+            margin: 1.4rem 0 1.6rem;
+            padding-top: 1.3rem;
+            border-top: 1px solid var(--border);
+            position: relative;
+            font-family: 'Fraunces', serif;
+            font-style: italic;
+            font-weight: 500;
+            font-size: 1.08rem;
+            line-height: 1.55;
+            color: var(--text-color);
         }
+        .highlight::before {
+            content: '\201C';
+            font-family: 'Fraunces', serif;
+            font-size: 2.8rem;
+            color: var(--accent-color);
+            position: absolute;
+            top: .45rem;
+            left: -2.1rem;
+            line-height: 1;
+            opacity: .85;
+        }
+        .highlight strong { font-style: normal; }
 
+        /* ===== NOTE — quieter aside, a rule only, no fill. ===== */
         .note {
-            background: rgba(46, 204, 113, 0.2);
-            padding: 1rem;
-            border-radius: 8px;
-            border-left: 4px solid #2ecc71;
+            max-width: 62ch;
+            background: none;
+            padding-top: .75rem;
+            border-top: 1px solid var(--border-soft);
             margin: 1rem 0;
+            font-size: .95rem;
+            line-height: 1.55;
         }
 
+        /* ===== CAUTION — the one place besides live demo output where
+           color signals "pay attention." ===== */
         .caution {
-            background: rgba(231, 76, 60, 0.2);
-            padding: 1rem;
-            border-radius: 8px;
-            border-left: 4px solid #e74c3c;
+            max-width: 62ch;
+            background: rgba(204, 122, 79, .1);
+            padding: .9rem 1.1rem;
+            border-left: 2px solid var(--accent-color);
             margin: 1rem 0;
+            font-size: .95rem;
+            line-height: 1.55;
         }
 
         .two-column {
@@ -179,49 +269,56 @@
             justify-content: center;
             align-items: center;
             gap: 1rem;
-            padding: 1rem;
+            height: var(--nav-h);
+            padding: 0 1.6rem;
             background: var(--primary-color);
+            border-top: 1px solid var(--border-soft);
+            flex-shrink: 0;
             flex-wrap: wrap;
         }
 
         .nav-btn {
-            padding: 0.75rem 1.5rem;
-            font-size: 1rem;
+            background: none;
             border: none;
-            border-radius: 5px;
+            color: var(--secondary-color);
+            font-family: 'Inter', sans-serif;
+            font-size: .72rem;
+            letter-spacing: .08em;
+            text-transform: uppercase;
+            font-weight: 600;
+            padding: .5rem .9rem;
             cursor: pointer;
-            transition: all 0.3s ease;
-            background: var(--secondary-color);
-            color: white;
+            transition: color .15s ease;
         }
 
-        .nav-btn:hover {
-            background: #2980b9;
-            transform: translateY(-2px);
+        .nav-btn:hover:not(:disabled) {
+            color: var(--text-color);
         }
 
         .nav-btn:disabled {
-            background: #7f8c8d;
+            opacity: .3;
             cursor: not-allowed;
-            transform: none;
         }
 
         .slide-counter {
-            color: white;
-            font-size: 1rem;
+            color: var(--accent-color);
+            font-size: .78rem;
+            letter-spacing: .05em;
             min-width: 100px;
             text-align: center;
+            font-variant-numeric: tabular-nums;
         }
 
         .progress-bar {
             width: 100%;
-            height: 4px;
-            background: rgba(255,255,255,0.2);
+            height: 2px;
+            background: var(--border-soft);
+            flex-shrink: 0;
         }
 
         .progress {
             height: 100%;
-            background: var(--secondary-color);
+            background: var(--accent-color);
             transition: width 0.3s ease;
         }
 
@@ -240,9 +337,9 @@
         }
 
         .controls {
-            background: rgba(0,0,0,0.2);
-            padding: 1.5rem;
-            border-radius: 8px;
+            background: var(--light-bg);
+            border: 1px solid var(--border-soft);
+            padding: 1.4rem 1.5rem;
         }
 
         .control-group {
@@ -251,9 +348,12 @@
 
         .control-group label {
             display: block;
-            font-size: 0.9rem;
-            margin-bottom: 0.3rem;
-            color: #81ecec;
+            font-size: .7rem;
+            text-transform: uppercase;
+            letter-spacing: .08em;
+            font-weight: 600;
+            margin-bottom: 0.4rem;
+            color: var(--accent-color);
         }
 
         .control-group input[type="range"],
@@ -261,10 +361,11 @@
         .control-group select {
             width: 100%;
             padding: 0.5rem;
-            border-radius: 4px;
-            border: 1px solid rgba(255,255,255,0.3);
+            border-radius: 3px;
+            border: 1px solid var(--border);
             background: rgba(255,255,255,0.9);
             color: #333;
+            font-family: 'Inter', sans-serif;
             font-size: 1rem;
         }
 
@@ -276,15 +377,16 @@
 
         .control-value {
             font-size: 0.85rem;
-            color: #ffeaa7;
+            color: var(--accent-color);
             margin-top: 0.2rem;
+            font-variant-numeric: tabular-nums;
         }
 
         .preview-area {
             background: rgba(255,255,255,0.95);
             color: #333;
+            border: 1px solid var(--border);
             padding: 1.5rem;
-            border-radius: 8px;
             min-height: 300px;
             display: flex;
             flex-direction: column;
@@ -296,35 +398,18 @@
         .code-output {
             background: var(--code-bg);
             color: var(--code-text);
+            border-top: 1px solid var(--border);
+            border-bottom: 1px solid var(--border);
             padding: 1rem;
-            border-radius: 8px;
-            font-family: 'Consolas', 'Monaco', monospace;
+            font-family: 'JetBrains Mono', monospace;
             font-size: 0.85rem;
             margin-top: 1rem;
             white-space: pre-wrap;
-            word-break: break-all;
+            overflow-wrap: anywhere;
         }
 
-        /* Slide themes */
-        .slide:nth-child(odd) {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        }
-
-        .slide:nth-child(even) {
-            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
-        }
-
-        .slide:nth-child(3n) {
-            background: linear-gradient(135deg, #ee0979 0%, #ff6a00 100%);
-        }
-
-        .slide:nth-child(4n) {
-            background: linear-gradient(135deg, #2193b0 0%, #6dd5ed 100%);
-        }
-
-        .slide:nth-child(5n) {
-            background: linear-gradient(135deg, #c31432 0%, #240b36 100%);
-        }
+        /* Slide themes: single consistent background (rail replaces the
+           old per-slide rainbow gradient cycling). */
 
         /* Demo containers */
         .demo-container {
@@ -357,11 +442,11 @@
         .trbl-card {
             background: rgba(0,0,0,0.2);
             padding: 1.5rem;
-            border-radius: 8px;
             text-align: center;
         }
 
         .trbl-letter {
+            font-family: 'Fraunces', serif;
             font-size: 3rem;
             font-weight: bold;
             display: block;
@@ -397,18 +482,35 @@
             border-radius: 8px;
         }
 
-        @media (max-width: 600px) {
+        @media (max-width: 700px) {
             .slide {
-                padding: 1rem;
+                grid-template-columns: 56px 1fr;
+            }
+
+            .rail {
+                padding: 1rem .5rem;
+            }
+
+            .kicker {
+                display: none;
+            }
+
+            .rail-num {
+                font-size: 1.4rem;
+                margin-top: 0;
+            }
+
+            .main {
+                padding: 1.5rem 1.25rem;
             }
 
             .navigation {
-                padding: 0.75rem;
+                padding: 0 1rem;
             }
 
             .nav-btn {
-                padding: 0.5rem 1rem;
-                font-size: 0.9rem;
+                padding: 0.4rem 0.6rem;
+                font-size: 0.68rem;
             }
 
             .trbl-visual {
@@ -426,7 +528,11 @@
 
         <!-- Slide 1: Title -->
         <div class="slide active">
-            <div class="slide-content" style="text-align: center;">
+            <div class="rail">
+                <div class="kicker">Margins, Padding,<br>Alignment &amp; Floats</div>
+                <div class="rail-num">01</div>
+            </div>
+            <div class="main"><div class="slide-content" style="text-align: center;">
                 <h1>Working with Margins, Padding, Alignment, and Floats</h1>
                 <p style="font-size: clamp(1.2rem, 3vw, 1.8rem); opacity: 0.9;">Mastering CSS Spacing and Layout Fundamentals</p>
                 <div style="margin: 2rem 0;">
@@ -446,12 +552,16 @@
                     </svg>
                 </div>
                 <p style="opacity: 0.7;">Use arrow keys, buttons, or swipe to navigate</p>
-            </div>
+            </div></div>
         </div>
 
         <!-- Slide 2: What You'll Learn -->
         <div class="slide">
-            <div class="slide-content">
+            <div class="rail">
+                <div class="kicker">Margins, Padding,<br>Alignment &amp; Floats</div>
+                <div class="rail-num">02</div>
+            </div>
+            <div class="main"><div class="slide-content">
                 <h2>What You'll Learn in This Lesson</h2>
                 <div class="two-column">
                     <div>
@@ -477,12 +587,16 @@
                 <div class="note" style="margin-top: 1rem;">
                     These fundamental properties work alongside modern layout methods like <strong>Flexbox and CSS Grid</strong>
                 </div>
-            </div>
+            </div></div>
         </div>
 
         <!-- Slide 3: Using Margins - Introduction -->
         <div class="slide">
-            <div class="slide-content">
+            <div class="rail">
+                <div class="kicker">Margins, Padding,<br>Alignment &amp; Floats</div>
+                <div class="rail-num">03</div>
+            </div>
+            <div class="main"><div class="slide-content">
                 <h2>Using Margins</h2>
                 <p>Margins add <strong>empty space around the outside</strong> of an element's rectangular area.</p>
                 <div class="two-column">
@@ -511,12 +625,16 @@ margin-right: 10px;
 margin: 20px 10px;</code></pre>
                     </div>
                 </div>
-            </div>
+            </div></div>
         </div>
 
         <!-- Slide 4: TRBL Mnemonic -->
         <div class="slide">
-            <div class="slide-content">
+            <div class="rail">
+                <div class="kicker">Margins, Padding,<br>Alignment &amp; Floats</div>
+                <div class="rail-num">04</div>
+            </div>
+            <div class="main"><div class="slide-content">
                 <h2>Understanding Margin Shorthand: TRBL</h2>
                 <p>Remember the order with the <strong>TRBL</strong> mnemonic (pronounced "trouble" or "tribble" for Star Trek fans!):</p>
                 <div class="trbl-visual">
@@ -543,12 +661,16 @@ margin: 20px 10px;</code></pre>
                 <div class="note">
                     This TRBL order also applies to <code>padding</code> and <code>border</code> properties!
                 </div>
-            </div>
+            </div></div>
         </div>
 
         <!-- Slide 5: Margin Shorthand Patterns -->
         <div class="slide">
-            <div class="slide-content">
+            <div class="rail">
+                <div class="kicker">Margins, Padding,<br>Alignment &amp; Floats</div>
+                <div class="rail-num">05</div>
+            </div>
+            <div class="main"><div class="slide-content">
                 <h2>Margin Shorthand Patterns</h2>
                 <p>The <code>margin</code> property accepts 1 to 4 values with different meanings:</p>
                 <div class="two-column">
@@ -572,12 +694,16 @@ margin: 20px 10px;</code></pre>
                 <div class="highlight" style="margin-top: 1rem;">
                     <strong>Pro tip:</strong> Use 1 value or 4 values consistently for clarity in your code
                 </div>
-            </div>
+            </div></div>
         </div>
 
         <!-- Slide 6: Margin Playground -->
         <div class="slide">
-            <div class="slide-content">
+            <div class="rail">
+                <div class="kicker">Margins, Padding,<br>Alignment &amp; Floats</div>
+                <div class="rail-num">06</div>
+            </div>
+            <div class="main"><div class="slide-content">
                 <h2>Margin Playground: Hands-On Practice</h2>
                 <p>Adjust the sliders to see the margin (orange) around the element — just like browser DevTools!</p>
                 <div class="playground">
@@ -630,24 +756,32 @@ margin: 20px 10px;</code></pre>
                     </div>
                 </div>
                 <p style="font-size: 0.9rem; margin-top: 1rem;">The orange areas show the margin — empty space that pushes the element away from the container edges.</p>
-            </div>
+            </div></div>
         </div>
 
         <!-- Slide 7: Margin Examples with CodePen 9.1 -->
         <div class="slide">
-            <div class="slide-content">
+            <div class="rail">
+                <div class="kicker">Margins, Padding,<br>Alignment &amp; Floats</div>
+                <div class="rail-num">07</div>
+            </div>
+            <div class="main"><div class="slide-content">
                 <h2>Margin Examples: Simple Colored Divs</h2>
                 <p>Four rectangles, each 250px wide and 100px high, with a 5px solid black border and 15px margins:</p>
                 <div class="codepen-container">
                     <iframe height="600" style="width: 100%;" scrolling="no" title="Codepen - 9.1" src="https://codepen.io/mattkearl/embed/ZYOmBXy?default-tab=css%2Cresult&editable=true" frameborder="no" loading="lazy" allowtransparency="true" allowfullscreen="true"></iframe>
                 </div>
                 <p style="font-size: 0.9rem; margin-top: 1rem;">Try adjusting the margin values in the CSS tab to see how they affect spacing!</p>
-            </div>
+            </div></div>
         </div>
 
         <!-- Slide 7: Adjusted Margins with CodePen 9.2 -->
         <div class="slide">
-            <div class="slide-content">
+            <div class="rail">
+                <div class="kicker">Margins, Padding,<br>Alignment &amp; Floats</div>
+                <div class="rail-num">08</div>
+            </div>
+            <div class="main"><div class="slide-content">
                 <h2>Adjusting Margins: Different Values</h2>
                 <p>Experimenting with different margin values on each colored div:</p>
                 <div class="codepen-container">
@@ -656,12 +790,16 @@ margin: 20px 10px;</code></pre>
                 <div class="highlight" style="margin-top: 1rem;">
                     <strong>Notice:</strong> There's space between the content and the browser edge - that's the default body margin!
                 </div>
-            </div>
+            </div></div>
         </div>
 
         <!-- Slide 8: Removing Default Body Margins with CodePen 9.3 -->
         <div class="slide">
-            <div class="slide-content">
+            <div class="rail">
+                <div class="kicker">Margins, Padding,<br>Alignment &amp; Floats</div>
+                <div class="rail-num">09</div>
+            </div>
+            <div class="main"><div class="slide-content">
                 <h2>Removing Default Body Margins</h2>
                 <p>Browsers add default margins to the <code>&lt;body&gt;</code> element. To ensure precise layouts, reset it:</p>
                 <pre><code>body {
@@ -671,12 +809,16 @@ margin: 20px 10px;</code></pre>
                     <iframe height="600" style="width: 100%;" scrolling="no" title="Codepen - 9.3" src="https://codepen.io/mattkearl/embed/jErQVKy?default-tab=css%2Cresult&editable=true" frameborder="no" loading="lazy" allowtransparency="true" allowfullscreen="true"></iframe>
                 </div>
                 <p style="font-size: 0.9rem; margin-top: 1rem;">Notice how the divs now start flush with the browser edge!</p>
-            </div>
+            </div></div>
         </div>
 
         <!-- Slide 9: Final Margin Adjustments with CodePen 9.4 -->
         <div class="slide">
-            <div class="slide-content">
+            <div class="rail">
+                <div class="kicker">Margins, Padding,<br>Alignment &amp; Floats</div>
+                <div class="rail-num">10</div>
+            </div>
+            <div class="main"><div class="slide-content">
                 <h2>Precise Margin Control: Accounting for Borders</h2>
                 <p>When aligning elements side-by-side, remember to account for border widths in your margin calculations:</p>
                 <div class="codepen-container">
@@ -685,12 +827,16 @@ margin: 20px 10px;</code></pre>
                 <div class="caution" style="margin-top: 1rem;">
                     <strong>Remember:</strong> Total width = content width + padding + borders + margins!
                 </div>
-            </div>
+            </div></div>
         </div>
 
         <!-- Slide 10: Margin Collapse Demo -->
         <div class="slide">
-            <div class="slide-content">
+            <div class="rail">
+                <div class="kicker">Margins, Padding,<br>Alignment &amp; Floats</div>
+                <div class="rail-num">11</div>
+            </div>
+            <div class="main"><div class="slide-content">
                 <h2>Understanding Margin Collapse</h2>
                 <p><strong>Vertical margins "collapse"</strong> between adjacent elements — instead of adding together, the space between them equals the <em>larger</em> of the two margins!</p>
                 <div class="playground">
@@ -725,12 +871,16 @@ margin: 20px 10px;</code></pre>
                 <div class="highlight" style="margin-top: 1rem;">
                     <strong>The larger margin wins!</strong> Only vertical margins collapse; horizontal margins don't.
                 </div>
-            </div>
+            </div></div>
         </div>
 
         <!-- Slide 11: Modern Spacing Units -->
         <div class="slide">
-            <div class="slide-content">
+            <div class="rail">
+                <div class="kicker">Margins, Padding,<br>Alignment &amp; Floats</div>
+                <div class="rail-num">12</div>
+            </div>
+            <div class="main"><div class="slide-content">
                 <h2>Modern Spacing Units: Why rem and em?</h2>
                 <p><strong>Problem:</strong> Fixed <code>px</code> values don't respect user font size preferences. <strong>Solution:</strong> Use <code>rem</code> (root em) or <code>em</code> units that scale proportionally!</p>
                 <div class="playground">
@@ -768,12 +918,16 @@ margin: 20px 10px;</code></pre>
                 <div class="note" style="margin-top: 1rem;">
                     <strong>Accessibility Win:</strong> Using <code>rem</code> respects user preferences, making your site more accessible for people with visual impairments!
                 </div>
-            </div>
+            </div></div>
         </div>
 
         <!-- Slide 12: Padding Elements -->
         <div class="slide">
-            <div class="slide-content">
+            <div class="rail">
+                <div class="kicker">Margins, Padding,<br>Alignment &amp; Floats</div>
+                <div class="rail-num">13</div>
+            </div>
+            <div class="main"><div class="slide-content">
                 <h2>Padding Elements</h2>
                 <p>Padding adds space <strong>inside</strong> the rectangular area of an element.</p>
                 <div class="two-column">
@@ -803,12 +957,16 @@ padding: 12px 8px;
                 <div class="note" style="margin-top: 1rem;">
                     <strong>Remember:</strong> Padding follows the same TRBL shorthand rules as margins!
                 </div>
-            </div>
+            </div></div>
         </div>
 
         <!-- Slide 13: Padding Examples with CodePen 9.5 -->
         <div class="slide">
-            <div class="slide-content">
+            <div class="rail">
+                <div class="kicker">Margins, Padding,<br>Alignment &amp; Floats</div>
+                <div class="rail-num">14</div>
+            </div>
+            <div class="main"><div class="slide-content">
                 <h2>Padding Examples: Visual Impact</h2>
                 <p>Notice how padding affects the total rendered size of elements:</p>
                 <div class="codepen-container">
@@ -817,12 +975,16 @@ padding: 12px 8px;
                 <div class="caution" style="margin-top: 1rem;">
                     <strong>Important:</strong> By default, padding is added to the specified width/height. You'll learn how to control this later!
                 </div>
-            </div>
+            </div></div>
         </div>
 
         <!-- Slide 14: Margin vs Padding Visual -->
         <div class="slide">
-            <div class="slide-content">
+            <div class="rail">
+                <div class="kicker">Margins, Padding,<br>Alignment &amp; Floats</div>
+                <div class="rail-num">15</div>
+            </div>
+            <div class="main"><div class="slide-content">
                 <h2>Margin vs Padding: Visual Comparison</h2>
                 <div class="playground">
                     <div class="controls">
@@ -853,12 +1015,16 @@ padding: 12px 8px;
                 <div class="highlight" style="margin-top: 1rem;">
                     <strong>Remember:</strong> Padding is inside (has background), margin is outside (transparent)
                 </div>
-            </div>
+            </div></div>
         </div>
 
         <!-- Slide 15: Padding Playground -->
         <div class="slide">
-            <div class="slide-content">
+            <div class="rail">
+                <div class="kicker">Margins, Padding,<br>Alignment &amp; Floats</div>
+                <div class="rail-num">16</div>
+            </div>
+            <div class="main"><div class="slide-content">
                 <h2>Padding Playground: Hands-On Practice</h2>
                 <p>Adjust the padding values to see how space is added inside the element:</p>
                 <div class="playground">
@@ -894,12 +1060,16 @@ padding: 12px 8px;
                     </div>
                 </div>
                 <p style="font-size: 0.9rem; margin-top: 1rem;">Notice how the blue background extends through the padding area!</p>
-            </div>
+            </div></div>
         </div>
 
         <!-- Slide 16: Alignment Properties -->
         <div class="slide">
-            <div class="slide-content">
+            <div class="rail">
+                <div class="kicker">Margins, Padding,<br>Alignment &amp; Floats</div>
+                <div class="rail-num">17</div>
+            </div>
+            <div class="main"><div class="slide-content">
                 <h2>Keeping Everything Aligned: Interactive Demo</h2>
                 <p>Experiment with <code>text-align</code> and <code>vertical-align</code> to see how they work:</p>
                 <div class="playground">
@@ -949,12 +1119,16 @@ padding: 12px 8px;
                 <div class="caution" style="margin-top: 1rem;">
                     <strong>Remember:</strong> <code>text-align</code> works on block elements, <code>vertical-align</code> only works on inline/inline-block elements!
                 </div>
-            </div>
+            </div></div>
         </div>
 
         <!-- Slide 16: Centering Blocks with CodePen 9.6 -->
         <div class="slide">
-            <div class="slide-content">
+            <div class="rail">
+                <div class="kicker">Margins, Padding,<br>Alignment &amp; Floats</div>
+                <div class="rail-num">18</div>
+            </div>
+            <div class="main"><div class="slide-content">
                 <h2>Centering Blocks of Content</h2>
                 <p>To center block-level elements, use <code>margin: 0 auto;</code> with a defined width:</p>
                 <pre><code>.centered-block {
@@ -967,12 +1141,16 @@ padding: 12px 8px;
                 <div class="note" style="margin-top: 1rem;">
                     The element <strong>must have a width</strong> smaller than its container for this to work!
                 </div>
-            </div>
+            </div></div>
         </div>
 
         <!-- Slide 17: Understanding Float -->
         <div class="slide">
-            <div class="slide-content">
+            <div class="rail">
+                <div class="kicker">Margins, Padding,<br>Alignment &amp; Floats</div>
+                <div class="rail-num">19</div>
+            </div>
+            <div class="main"><div class="slide-content">
                 <h2>Understanding the float Property</h2>
                 <p>The <code>float</code> property is used for <strong>wrapping text around images</strong> (not for page layouts).</p>
                 <div class="two-column">
@@ -1002,24 +1180,32 @@ padding: 12px 8px;
                 <div class="highlight" style="margin-top: 1rem;">
                     While <code>float</code> was historically used for entire page layouts, modern CSS (Flexbox and Grid) has replaced that use case
                 </div>
-            </div>
+            </div></div>
         </div>
 
         <!-- Slide 18: Float Example with CodePen 9.7 -->
         <div class="slide">
-            <div class="slide-content">
+            <div class="rail">
+                <div class="kicker">Margins, Padding,<br>Alignment &amp; Floats</div>
+                <div class="rail-num">20</div>
+            </div>
+            <div class="main"><div class="slide-content">
                 <h2>Float in Action: Text Wrapping</h2>
                 <p>See how text naturally wraps around a floated image:</p>
                 <div class="codepen-container">
                     <iframe height="1000" style="width: 100%;" scrolling="no" title="Codepen - 9.7" src="https://codepen.io/mattkearl/embed/KwMraVZ?default-tab=result&editable=true" frameborder="no" loading="lazy" allowtransparency="true" allowfullscreen="true"></iframe>
                 </div>
                 <p style="font-size: 0.9rem; margin-top: 1rem;">Try changing <code>float: left;</code> to <code>float: right;</code> in the CSS tab!</p>
-            </div>
+            </div></div>
         </div>
 
         <!-- Slide 19: Float Interactive Demo -->
         <div class="slide">
-            <div class="slide-content">
+            <div class="rail">
+                <div class="kicker">Margins, Padding,<br>Alignment &amp; Floats</div>
+                <div class="rail-num">21</div>
+            </div>
+            <div class="main"><div class="slide-content">
                 <h2>Float Playground: Interactive Demo</h2>
                 <p>Experiment with different float values and margins:</p>
                 <div class="playground">
@@ -1051,12 +1237,16 @@ padding: 12px 8px;
                     </div>
                 </div>
                 <p style="font-size: 0.9rem; margin-top: 1rem;">Notice how text wraps around the floated element! Try switching to "none" to see the difference.</p>
-            </div>
+            </div></div>
         </div>
 
         <!-- Slide 20: The clear Property with CodePen 9.8 -->
         <div class="slide">
-            <div class="slide-content">
+            <div class="rail">
+                <div class="kicker">Margins, Padding,<br>Alignment &amp; Floats</div>
+                <div class="rail-num">22</div>
+            </div>
+            <div class="main"><div class="slide-content">
                 <h2>The clear Property</h2>
                 <p>Use <code>clear</code> to control what appears after floated elements:</p>
                 <div class="two-column">
@@ -1084,16 +1274,20 @@ footer {
                 <div class="codepen-container" style="margin-top: 1rem;">
                     <iframe height="1000" style="width: 100%;" scrolling="no" title="Codepen - 9.8" src="https://codepen.io/mattkearl/embed/dPXQNOy?default-tab=result&editable=true" frameborder="no" loading="lazy" allowtransparency="true" allowfullscreen="true"></iframe>
                 </div>
-            </div>
+            </div></div>
         </div>
 
         <!-- Slide 20: Summary -->
         <div class="slide">
-            <div class="slide-content">
+            <div class="rail">
+                <div class="kicker">Margins, Padding,<br>Alignment &amp; Floats</div>
+                <div class="rail-num">23</div>
+            </div>
+            <div class="main"><div class="slide-content">
                 <h2>Summary: Key Takeaways</h2>
                 <div class="two-column">
                     <div>
-                        <h3>Margins & Padding</h3>
+                        <h3>Margins &amp; Padding</h3>
                         <ul>
                             <li><strong>Margin</strong> = space outside element</li>
                             <li><strong>Padding</strong> = space inside element</li>
@@ -1120,17 +1314,21 @@ footer {
                         <ul>
                             <li><code>rem</code> units for scalable, accessible spacing</li>
                             <li><code>em</code> for relative sizing</li>
-                            <li>Flexbox & Grid for layouts</li>
+                            <li>Flexbox &amp; Grid for layouts</li>
                         </ul>
                     </div>
                 </div>
-            </div>
+            </div></div>
         </div>
 
         <!-- Slide 21: Resources -->
         <div class="slide">
-            <div class="slide-content">
-                <h2>Resources & Further Learning</h2>
+            <div class="rail">
+                <div class="kicker">Margins, Padding,<br>Alignment &amp; Floats</div>
+                <div class="rail-num">24</div>
+            </div>
+            <div class="main"><div class="slide-content">
+                <h2>Resources &amp; Further Learning</h2>
                 <div class="two-column">
                     <div>
                         <h3>Documentation</h3>
@@ -1153,7 +1351,7 @@ footer {
                         <p>Next, you'll learn modern layout techniques with Flexbox and CSS Grid!</p>
                     </div>
                 </div>
-            </div>
+            </div></div>
         </div>
 
     </div>
@@ -1182,6 +1380,8 @@ footer {
 
             const progress = ((currentSlide + 1) / totalSlides) * 100;
             document.getElementById('progress').style.width = progress + '%';
+
+            fitCurrentSlide();
         }
 
         function changeSlide(direction) {
@@ -1229,7 +1429,49 @@ footer {
             }
         }
 
+        // ===== FIT-TO-SCREEN — a slide must never scroll or clip. If its
+        // content is taller than the available space, scale the whole block
+        // down just enough to fit. MIN_SCALE is a floor: past this point the
+        // slide has too much content and should be split, not shrunk further.
+        var MIN_SCALE = 0.72;
+
+        function fitSlide(slideEl) {
+            if (!slideEl) return;
+            var main = slideEl.querySelector('.main');
+            var inner = slideEl.querySelector('.slide-content');
+            if (!main || !inner) return;
+
+            inner.style.transform = 'none';
+            inner.style.width = '100%';
+
+            var cs = getComputedStyle(main);
+            var available = main.clientHeight - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom);
+            var natural = inner.scrollHeight;
+
+            var scale = Math.min(1, available / natural);
+            scale = Math.max(scale, MIN_SCALE);
+
+            if (scale < 1) {
+                inner.style.transform = 'scale(' + scale + ')';
+                inner.style.width = (100 / scale) + '%';
+            }
+        }
+
+        function fitCurrentSlide() {
+            fitSlide(slides[currentSlide]);
+        }
+
         showSlide(0);
+
+        if (document.fonts && document.fonts.ready) {
+            document.fonts.ready.then(fitCurrentSlide);
+        }
+
+        var resizeTimer;
+        window.addEventListener('resize', function() {
+            clearTimeout(resizeTimer);
+            resizeTimer = setTimeout(fitCurrentSlide, 100);
+        });
 
         // ===== Margin Collapse Demo =====
         function updateCollapseDemo() {

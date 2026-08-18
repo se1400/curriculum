@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Understanding How the Web Works</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,900;1,9..144,500&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
     <style>
         * {
             margin: 0;
@@ -12,22 +15,31 @@
         }
 
         :root {
-            --primary-color: #2c3e50;
-            --secondary-color: #3498db;
-            --accent-color: #e74c3c;
-            --light-bg: #ecf0f1;
-            --text-color: #2c3e50;
-            --code-bg: #1e1e1e;
-            --code-text: #d4d4d4;
+            --primary-color: #17140f;
+            --secondary-color: #9c9382;
+            --accent-color: #cc7a4f;
+            --light-bg: #1e1a14;
+            --text-color: #f2ece1;
+            --code-bg: #141109;
+            --code-text: #e4ddd0;
+            --border-soft: #29241c;
+            --border: #3a3226;
+            --nav-h: 56px;
         }
 
         html, body {
             height: 100%;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Inter', sans-serif;
             background: var(--primary-color);
             overflow: hidden;
             display: flex;
             flex-direction: column;
+        }
+
+        code { font-variant-ligatures: none; font-feature-settings: "calt" 0, "liga" 0; }
+
+        @media (prefers-reduced-motion: reduce) {
+            .slide { animation: none !important; }
         }
 
         .slideshow-container {
@@ -41,114 +53,168 @@
         .slide {
             display: none;
             flex: 1;
-            padding: 2rem;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            overflow-y: auto;
-            animation: fadeIn 0.5s ease-in-out;
+            grid-template-columns: 200px 1fr;
+            background: var(--primary-color);
+            color: var(--text-color);
+            animation: fadeIn 0.4s ease;
+            overflow: hidden;
         }
 
         .slide.active {
-            display: flex;
-            flex-direction: column;
+            display: grid;
         }
 
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateX(20px); }
-            to { opacity: 1; transform: translateX(0); }
+            from { opacity: 0; transform: translateY(12px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ===== RAIL — persistent left margin: deck title + slide number.
+           This deck has no pre-existing per-slide section label to reuse, so
+           the rail only carries the kicker and number, not an invented tag. ===== */
+        .rail {
+            border-right: 1px solid var(--border-soft);
+            padding: 2.2rem 1.5rem;
+        }
+        .kicker {
+            font-size: .65rem;
+            letter-spacing: .14em;
+            text-transform: uppercase;
+            color: var(--secondary-color);
+            font-weight: 600;
+            line-height: 1.5;
+        }
+        .rail-num {
+            font-family: 'Fraunces', serif;
+            font-weight: 400;
+            font-style: italic;
+            font-size: 3rem;
+            color: var(--secondary-color);
+            opacity: .5;
+            margin-top: 1rem;
+            font-variant-numeric: oldstyle-nums;
+        }
+
+        /* ===== MAIN — fixed box; .slide-content scales down only if content
+           would overflow, so a slide never scrolls or clips. ===== */
+        .main {
+            padding: 2.6rem 4rem 2rem 3.2rem;
+            overflow: hidden;
         }
 
         .slide-content {
-            max-width: 1200px;
-            width: 100%;
-            margin: 0 auto;
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
+            max-width: 1400px;
+            transform-origin: top left;
+        }
+
+        .slide-content > p,
+        .slide-content > ul,
+        .slide-content > ol,
+        .slide-content > .two-column > div > p,
+        .slide-content > .two-column > div > ul,
+        .slide-content > .two-column > div > ol {
+            max-width: 68ch;
         }
 
         h1 {
-            font-size: clamp(1.8rem, 5vw, 3rem);
-            margin-bottom: 1.5rem;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
-            line-height: 1.2;
+            font-family: 'Fraunces', serif;
+            font-weight: 600;
+            font-size: clamp(1.8rem, 4.2vw, 2.8rem);
+            line-height: 1.1;
+            letter-spacing: -.01em;
+            margin-bottom: 1.1rem;
+            max-width: 20ch;
         }
 
         h2 {
-            font-size: clamp(1.4rem, 4vw, 2.2rem);
-            margin-bottom: 1rem;
-            color: #ffeaa7;
+            font-family: 'Fraunces', serif;
+            font-weight: 600;
+            font-size: clamp(1.25rem, 2.8vw, 1.6rem);
+            line-height: 1.15;
+            margin-bottom: .9rem;
+            color: var(--text-color);
         }
 
         h3 {
-            font-size: clamp(1.1rem, 3vw, 1.5rem);
-            margin: 1rem 0 0.5rem;
-            color: #81ecec;
+            font-family: 'Inter', sans-serif;
+            font-weight: 700;
+            font-size: .75rem;
+            letter-spacing: .1em;
+            text-transform: uppercase;
+            color: var(--secondary-color);
+            margin: 1.1rem 0 .6rem;
         }
 
         p {
-            font-size: clamp(1rem, 2.5vw, 1.3rem);
+            font-size: clamp(.92rem, 1.8vw, 1.08rem);
             line-height: 1.6;
             margin-bottom: 1rem;
         }
 
         ul, ol {
-            font-size: clamp(0.95rem, 2.2vw, 1.2rem);
-            line-height: 1.8;
-            margin-left: 1.5rem;
+            font-size: clamp(.9rem, 1.7vw, 1.02rem);
+            line-height: 1.7;
+            margin-left: 1.4rem;
             margin-bottom: 1rem;
         }
 
         li {
-            margin-bottom: 0.5rem;
+            margin-bottom: .5rem;
         }
 
         a {
-            color: #ffeaa7;
+            color: var(--accent-color);
             text-decoration: underline;
         }
 
         a:hover {
-            color: #fdcb6e;
+            color: var(--text-color);
         }
 
         code {
-            background: rgba(0,0,0,0.3);
-            padding: 0.2em 0.5em;
-            border-radius: 4px;
-            font-family: 'Consolas', 'Monaco', monospace;
-            font-size: 0.9em;
+            background: var(--light-bg);
+            padding: .15em .45em;
+            border-radius: 3px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: .88em;
+            color: var(--accent-color);
         }
 
         pre {
             background: var(--code-bg);
             color: var(--code-text);
-            padding: 1rem;
-            border-radius: 8px;
-            overflow-x: auto;
+            border-top: 1px solid var(--border);
+            border-bottom: 1px solid var(--border);
+            padding: 1.1rem 1.3rem;
             margin: 1rem 0;
-            font-size: clamp(0.8rem, 1.8vw, 1rem);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: clamp(.78rem, 1.4vw, .9rem);
+            line-height: 1.65;
+            white-space: pre-wrap;
+            overflow-wrap: anywhere;
         }
 
         pre code {
             background: none;
             padding: 0;
+            color: inherit;
         }
 
+        /* ===== HIGHLIGHT — "pay attention" box. Reserves the accent color
+           the way .caution does elsewhere in this redesign. ===== */
         .highlight {
-            background: rgba(255,255,255,0.15);
-            padding: 1rem;
-            border-radius: 8px;
-            border-left: 4px solid #ffeaa7;
+            background: rgba(204, 122, 79, .1);
+            padding: .9rem 1.1rem;
+            border-left: 2px solid var(--accent-color);
             margin: 1rem 0;
         }
 
+        /* ===== NOTE — quieter aside, a rule only, no fill. ===== */
         .note {
-            background: rgba(46, 204, 113, 0.2);
-            padding: 1rem;
-            border-radius: 8px;
-            border-left: 4px solid #2ecc71;
+            background: none;
+            padding-top: .75rem;
+            border-top: 1px solid var(--border-soft);
+            border-left: none;
             margin: 1rem 0;
         }
 
@@ -173,15 +239,14 @@
         .image-container img {
             max-width: 100%;
             max-height: 40vh;
-            border-radius: 8px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            border: 1px solid var(--border);
         }
 
         .image-caption {
-            font-size: 0.9rem;
+            font-size: .85rem;
             font-style: italic;
-            margin-top: 0.5rem;
-            opacity: 0.8;
+            color: var(--secondary-color);
+            margin-top: .6rem;
         }
 
         /* Navigation */
@@ -189,33 +254,36 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 1rem 2rem;
-            background: rgba(0,0,0,0.3);
-            backdrop-filter: blur(10px);
+            padding: 0 1.6rem;
+            height: var(--nav-h);
+            border-top: 1px solid var(--border-soft);
+            background: var(--primary-color);
             flex-shrink: 0;
         }
 
         .nav-btn {
-            background: rgba(255,255,255,0.2);
+            background: none;
             border: none;
-            color: white;
-            padding: 0.8rem 1.5rem;
-            font-size: 1rem;
-            border-radius: 25px;
+            color: var(--secondary-color);
+            font-family: 'Inter', sans-serif;
+            font-size: .72rem;
+            letter-spacing: .08em;
+            text-transform: uppercase;
+            font-weight: 600;
+            padding: .4rem 0;
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: color .15s ease;
             display: flex;
             align-items: center;
-            gap: 0.5rem;
+            gap: .5rem;
         }
 
         .nav-btn:hover:not(:disabled) {
-            background: rgba(255,255,255,0.3);
-            transform: scale(1.05);
+            color: var(--text-color);
         }
 
         .nav-btn:disabled {
-            opacity: 0.3;
+            opacity: .3;
             cursor: not-allowed;
         }
 
@@ -227,55 +295,53 @@
 
         .progress-bar {
             width: 150px;
-            height: 6px;
-            background: rgba(255,255,255,0.2);
-            border-radius: 3px;
+            height: 2px;
+            background: var(--border-soft);
             overflow: hidden;
         }
 
         .progress-fill {
             height: 100%;
-            background: #ffeaa7;
+            background: var(--accent-color);
             transition: width 0.3s ease;
         }
 
         .slide-counter {
-            font-size: 0.9rem;
-            color: rgba(255,255,255,0.8);
+            font-size: .72rem;
+            letter-spacing: .08em;
+            color: var(--accent-color);
+            font-variant-numeric: tabular-nums;
         }
 
         /* Slide-specific styles */
-        .title-slide {
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
-            text-align: center;
-        }
-
         .title-slide h1 {
-            font-size: clamp(2rem, 6vw, 4rem);
-            margin-bottom: 2rem;
+            font-family: 'Fraunces', serif;
+            font-weight: 600;
+            font-size: clamp(2.2rem, 5.5vw, 4rem);
+            margin-bottom: 1.4rem;
+            max-width: 16ch;
         }
 
         .title-slide .subtitle {
-            font-size: clamp(1rem, 2.5vw, 1.5rem);
-            opacity: 0.8;
-        }
-
-        .learning-objectives {
-            background: linear-gradient(135deg, #0f4c75 0%, #1b262c 100%);
+            font-size: clamp(1rem, 2.2vw, 1.3rem);
+            color: var(--secondary-color);
         }
 
         .browser-list {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 1rem;
+            gap: 0;
             margin: 1rem 0;
+            max-width: 1200px;
         }
 
         .browser-item {
-            background: rgba(255,255,255,0.1);
-            padding: 1rem;
-            border-radius: 8px;
-            text-align: center;
+            padding: 1rem 1.2rem 1rem 0;
+            border-top: 1px solid var(--border-soft);
+        }
+
+        .browser-item h3 {
+            margin-top: 0;
         }
 
         .codepen-container {
@@ -293,14 +359,14 @@
         /* Touch/swipe support indicator */
         .touch-hint {
             position: fixed;
-            bottom: 80px;
+            bottom: calc(var(--nav-h) + 16px);
             left: 50%;
             transform: translateX(-50%);
-            background: rgba(0,0,0,0.5);
-            color: white;
-            padding: 0.5rem 1rem;
-            border-radius: 20px;
-            font-size: 0.8rem;
+            background: var(--light-bg);
+            border: 1px solid var(--border);
+            color: var(--text-color);
+            padding: .5rem 1rem;
+            font-size: .8rem;
             opacity: 0;
             transition: opacity 0.3s;
         }
@@ -311,24 +377,35 @@
 
         /* Keyboard shortcuts hint */
         .keyboard-hint {
-            font-size: 0.8rem;
-            opacity: 0.6;
-            text-align: center;
-            margin-top: 0.5rem;
+            font-size: .8rem;
+            color: var(--secondary-color);
+            margin-top: .5rem;
         }
 
-        @media (max-width: 600px) {
+        @media (max-width: 700px) {
             .slide {
-                padding: 1rem;
+                grid-template-columns: 56px 1fr;
+            }
+
+            .rail {
+                padding: 1rem .5rem;
+            }
+
+            .kicker {
+                display: none;
+            }
+
+            .rail-num {
+                font-size: 1.4rem;
+                margin-top: 0;
+            }
+
+            .main {
+                padding: 1.5rem 1.25rem;
             }
 
             .nav-container {
-                padding: 0.8rem 1rem;
-            }
-
-            .nav-btn {
-                padding: 0.6rem 1rem;
-                font-size: 0.9rem;
+                padding: 0 1rem;
             }
 
             .progress-bar {
@@ -339,43 +416,30 @@
                 margin-left: 1rem;
             }
         }
-
-        /* Slide themes */
-        .slide:nth-child(odd) {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        }
-
-        .slide:nth-child(even) {
-            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
-        }
-
-        .slide:nth-child(3n) {
-            background: linear-gradient(135deg, #ee0979 0%, #ff6a00 100%);
-        }
-
-        .slide:nth-child(4n) {
-            background: linear-gradient(135deg, #2193b0 0%, #6dd5ed 100%);
-        }
-
-        .slide:nth-child(5n) {
-            background: linear-gradient(135deg, #c31432 0%, #240b36 100%);
-        }
     </style>
 </head>
 <body>
     <div class="slideshow-container">
         <!-- Slide 1: Title -->
         <div class="slide title-slide active">
-            <div class="slide-content">
+            <div class="rail">
+                <div class="kicker">Understanding How<br>the Web Works</div>
+                <div class="rail-num">01</div>
+            </div>
+            <div class="main"><div class="slide-content">
                 <h1>Understanding How the Web Works</h1>
                 <p class="subtitle">From Browser Requests to Web Servers</p>
                 <p class="keyboard-hint">Use arrow keys, swipe, or click buttons to navigate</p>
-            </div>
+            </div></div>
         </div>
 
         <!-- Slide 2: Learning Objectives -->
         <div class="slide learning-objectives">
-            <div class="slide-content">
+            <div class="rail">
+                <div class="kicker">Understanding How<br>the Web Works</div>
+                <div class="rail-num">02</div>
+            </div>
+            <div class="main"><div class="slide-content">
                 <h1>What You'll Learn</h1>
                 <ul>
                     <li>A brief history of the World Wide Web</li>
@@ -387,12 +451,16 @@
                     <li>File organization on web servers</li>
                     <li>Alternative publishing methods</li>
                 </ul>
-            </div>
+            </div></div>
         </div>
 
         <!-- Slide 3: Brief History -->
         <div class="slide">
-            <div class="slide-content">
+            <div class="rail">
+                <div class="kicker">Understanding How<br>the Web Works</div>
+                <div class="rail-num">03</div>
+            </div>
+            <div class="main"><div class="slide-content">
                 <h1>A Brief History of HTML & the Web</h1>
                 <div class="two-column">
                     <div>
@@ -415,12 +483,16 @@
                 <div class="note">
                     <p>Learn more: <a href="http://en.wikipedia.org/wiki/History_of_the_Web" target="_blank">Wikipedia: History of the Web</a></p>
                 </div>
-            </div>
+            </div></div>
         </div>
 
         <!-- Slide 4: Creating Web Content -->
         <div class="slide">
-            <div class="slide-content">
+            <div class="rail">
+                <div class="kicker">Understanding How<br>the Web Works</div>
+                <div class="rail-num">04</div>
+            </div>
+            <div class="main"><div class="slide-content">
                 <h1>Creating Web Content</h1>
                 <p>The term <strong>"web content"</strong> is more accurate than "web page" because multiple file types work together:</p>
                 <div class="two-column">
@@ -443,12 +515,16 @@
                 <div class="note">
                     <p>Writing standards-compliant code ensures your content works across all browsers and devices!</p>
                 </div>
-            </div>
+            </div></div>
         </div>
 
         <!-- Slide 5: Web Content Delivery Overview -->
         <div class="slide">
-            <div class="slide-content">
+            <div class="rail">
+                <div class="kicker">Understanding How<br>the Web Works</div>
+                <div class="rail-num">05</div>
+            </div>
+            <div class="main"><div class="slide-content">
                 <h1>Understanding Web Content Delivery</h1>
                 <div class="image-container">
                     <img src="assets/fig-1.1.jpg" alt="Browser request and server response diagram">
@@ -463,12 +539,16 @@
                         <li>Browser renders the content for display</li>
                     </ol>
                 </div>
-            </div>
+            </div></div>
         </div>
 
         <!-- Slide 6: Content Delivery Process Detail -->
         <div class="slide">
-            <div class="slide-content">
+            <div class="rail">
+                <div class="kicker">Understanding How<br>the Web Works</div>
+                <div class="rail-num">06</div>
+            </div>
+            <div class="main"><div class="slide-content">
                 <h1>The Content Delivery Process</h1>
                 <div class="two-column">
                     <div>
@@ -494,12 +574,16 @@
                 <div class="note">
                     <p>Browsers do more than display - they <strong>assemble</strong> content from multiple requests!</p>
                 </div>
-            </div>
+            </div></div>
         </div>
 
         <!-- Slide 7: Local vs Remote -->
         <div class="slide">
-            <div class="slide-content">
+            <div class="rail">
+                <div class="kicker">Understanding How<br>the Web Works</div>
+                <div class="rail-num">07</div>
+            </div>
+            <div class="main"><div class="slide-content">
                 <h1>Local vs. Remote Viewing</h1>
                 <div class="two-column">
                     <div>
@@ -524,12 +608,16 @@
                 <div class="highlight">
                     <p>You can complete all lessons locally, but you'll need a web server for others to see your work.</p>
                 </div>
-            </div>
+            </div></div>
         </div>
 
         <!-- Slide 8: Selecting a Hosting Provider -->
         <div class="slide">
-            <div class="slide-content">
+            <div class="rail">
+                <div class="kicker">Understanding How<br>the Web Works</div>
+                <div class="rail-num">08</div>
+            </div>
+            <div class="main"><div class="slide-content">
                 <h1>Selecting a Web Hosting Provider</h1>
                 <h2>Key Selection Criteria</h2>
                 <div class="two-column">
@@ -548,12 +636,16 @@
                         </ul>
                     </div>
                 </div>
-            </div>
+            </div></div>
         </div>
 
         <!-- Slide 9: Recommended Hosts -->
         <div class="slide">
-            <div class="slide-content">
+            <div class="rail">
+                <div class="kicker">Understanding How<br>the Web Works</div>
+                <div class="rail-num">09</div>
+            </div>
+            <div class="main"><div class="slide-content">
                 <h1>Recommended Hosting Providers</h1>
                 <div class="browser-list">
                     <div class="browser-item">
@@ -576,12 +668,16 @@
                     <img src="assets/fig-1.3.jpg" alt="SetraHost control panel example">
                     <p class="image-caption">Example of a web hosting control panel (cPanel)</p>
                 </div>
-            </div>
+            </div></div>
         </div>
 
         <!-- Slide 10: Testing with Multiple Browsers -->
         <div class="slide">
-            <div class="slide-content">
+            <div class="rail">
+                <div class="kicker">Understanding How<br>the Web Works</div>
+                <div class="rail-num">10</div>
+            </div>
+            <div class="main"><div class="slide-content">
                 <h1>Testing with Multiple Browsers</h1>
                 <div class="highlight">
                     <p><strong>Important:</strong> Every visitor may use different hardware, software, screen sizes, and browsers. You cannot control how others view your site!</p>
@@ -609,12 +705,16 @@
                         <p><a href="https://www.opera.com" target="_blank">All platforms</a></p>
                     </div>
                 </div>
-            </div>
+            </div></div>
         </div>
 
         <!-- Slide 11: Responsive Design Note -->
         <div class="slide">
-            <div class="slide-content">
+            <div class="rail">
+                <div class="kicker">Understanding How<br>the Web Works</div>
+                <div class="rail-num">11</div>
+            </div>
+            <div class="main"><div class="slide-content">
                 <h1>Why Testing Matters</h1>
                 <div class="two-column">
                     <div>
@@ -637,23 +737,31 @@
                         </div>
                     </div>
                 </div>
-            </div>
+            </div></div>
         </div>
 
         <!-- Slide 12: Creating a Sample File -->
         <div class="slide">
-            <div class="slide-content">
+            <div class="rail">
+                <div class="kicker">Understanding How<br>the Web Works</div>
+                <div class="rail-num">12</div>
+            </div>
+            <div class="main"><div class="slide-content">
                 <h1>Creating a Sample File</h1>
                 <p>Here's a simple HTML file that displays "Hello World!":</p>
                 <div class="codepen-container">
                     <iframe style="width: 100%;" title="LISTING 1.1 Our Sample HTML File" src="https://codepen.io/mattkearl/embed/WbxOOQa?default-tab=html%2Cresult&editable=true" height="400" loading="lazy"></iframe>
                 </div>
-            </div>
+            </div></div>
         </div>
 
         <!-- Slide 13: Code Editors -->
         <div class="slide">
-            <div class="slide-content">
+            <div class="rail">
+                <div class="kicker">Understanding How<br>the Web Works</div>
+                <div class="rail-num">13</div>
+            </div>
+            <div class="main"><div class="slide-content">
                 <h1>Choosing a Code Editor</h1>
                 <p>Don't use Word or WordPad - use a proper code editor!</p>
                 <div class="two-column">
@@ -679,12 +787,16 @@
                         </div>
                     </div>
                 </div>
-            </div>
+            </div></div>
         </div>
 
         <!-- Slide 14: Using FTP -->
         <div class="slide">
-            <div class="slide-content">
+            <div class="rail">
+                <div class="kicker">Understanding How<br>the Web Works</div>
+                <div class="rail-num">14</div>
+            </div>
+            <div class="main"><div class="slide-content">
                 <h1>Using FTP to Transfer Files</h1>
                 <p><strong>FTP</strong> (File Transfer Protocol) or <strong>SFTP</strong> (Secure FTP) moves files from your computer to your web server.</p>
                 <h3>You'll need from your hosting provider:</h3>
@@ -696,12 +808,16 @@
                 <div class="note">
                     <p><strong>Tip:</strong> Use SFTP when available - it encrypts your connection for security!</p>
                 </div>
-            </div>
+            </div></div>
         </div>
 
         <!-- Slide 15: FTP Clients -->
         <div class="slide">
-            <div class="slide-content">
+            <div class="rail">
+                <div class="kicker">Understanding How<br>the Web Works</div>
+                <div class="rail-num">15</div>
+            </div>
+            <div class="main"><div class="slide-content">
                 <h1>FTP/SFTP Clients</h1>
                 <div class="browser-list">
                     <div class="browser-item">
@@ -729,12 +845,16 @@
                     <img src="assets/fig-1.5.jpg" alt="FTP client connection screen">
                     <p class="image-caption">Connecting to a new site in Transmit</p>
                 </div>
-            </div>
+            </div></div>
         </div>
 
         <!-- Slide 16: FTP Process -->
         <div class="slide">
-            <div class="slide-content">
+            <div class="rail">
+                <div class="kicker">Understanding How<br>the Web Works</div>
+                <div class="rail-num">16</div>
+            </div>
+            <div class="main"><div class="slide-content">
                 <h1>Using an FTP Client</h1>
                 <ol>
                     <li>Open your FTP client and enter connection details</li>
@@ -747,12 +867,16 @@
                     <img src="assets/fig-1.6.jpg" alt="Connected FTP client showing local and remote files">
                     <p class="image-caption">Local files on left, remote server files on right</p>
                 </div>
-            </div>
+            </div></div>
         </div>
 
         <!-- Slide 17: Document Root -->
         <div class="slide">
-            <div class="slide-content">
+            <div class="rail">
+                <div class="kicker">Understanding How<br>the Web Works</div>
+                <div class="rail-num">17</div>
+            </div>
+            <div class="main"><div class="slide-content">
                 <h1>Understanding the Document Root</h1>
                 <p>The <strong>document root</strong> is the starting point for your website files.</p>
                 <div class="two-column">
@@ -773,12 +897,16 @@
                         </div>
                     </div>
                 </div>
-            </div>
+            </div></div>
         </div>
 
         <!-- Slide 18: File Organization -->
         <div class="slide">
-            <div class="slide-content">
+            <div class="rail">
+                <div class="kicker">Understanding How<br>the Web Works</div>
+                <div class="rail-num">18</div>
+            </div>
+            <div class="main"><div class="slide-content">
                 <h1>File Organization Best Practices</h1>
                 <h3>Common Directory Structure</h3>
                 <pre><code>document_root/
@@ -794,12 +922,16 @@
         portfolio.zip</code></pre>
                 <h3>Linking to Files</h3>
                 <pre><code>&lt;a href="/downloads/artfolio.zip"&gt;Download my art portfolio!&lt;/a&gt;</code></pre>
-            </div>
+            </div></div>
         </div>
 
         <!-- Slide 19: Index Page -->
         <div class="slide">
-            <div class="slide-content">
+            <div class="rail">
+                <div class="kicker">Understanding How<br>the Web Works</div>
+                <div class="rail-num">19</div>
+            </div>
+            <div class="main"><div class="slide-content">
                 <h1>Using an Index Page</h1>
                 <p>The <code>index.html</code> file is the default page for any directory.</p>
                 <div class="two-column">
@@ -821,12 +953,16 @@ http://apple.com/iphone/index.html</code></pre>
                 <div class="note">
                     <p><strong>Always name your home page <code>index.html</code></strong> and place it in the document root!</p>
                 </div>
-            </div>
+            </div></div>
         </div>
 
         <!-- Slide 20: Modern Deployment -->
         <div class="slide">
-            <div class="slide-content">
+            <div class="rail">
+                <div class="kicker">Understanding How<br>the Web Works</div>
+                <div class="rail-num">20</div>
+            </div>
+            <div class="main"><div class="slide-content">
                 <h1>Modern Deployment: Git & GitHub</h1>
                 <p>While FTP works, modern development often uses <strong>version control</strong>:</p>
                 <div class="two-column">
@@ -850,12 +986,16 @@ http://apple.com/iphone/index.html</code></pre>
                 <div class="highlight">
                     <p><strong>Continuous Deployment:</strong> Push to GitHub, your site updates automatically. Used by Netlify, Vercel, Cloudflare Pages.</p>
                 </div>
-            </div>
+            </div></div>
         </div>
 
         <!-- Slide 21: Content Without Server -->
         <div class="slide">
-            <div class="slide-content">
+            <div class="rail">
+                <div class="kicker">Understanding How<br>the Web Works</div>
+                <div class="rail-num">21</div>
+            </div>
+            <div class="main"><div class="slide-content">
                 <h1>Distributing Content Without a Server</h1>
                 <h2>Local Sites</h2>
                 <p>HTML content can be distributed without the internet:</p>
@@ -867,12 +1007,16 @@ http://apple.com/iphone/index.html</code></pre>
                 <div class="note">
                     <p><strong>Tip:</strong> You can even include a portable browser (like Portable Firefox) on the USB drive! See <a href="https://portableapps.com/" target="_blank">portableapps.com</a></p>
                 </div>
-            </div>
+            </div></div>
         </div>
 
         <!-- Slide 22: Blog Publishing -->
         <div class="slide">
-            <div class="slide-content">
+            <div class="rail">
+                <div class="kicker">Understanding How<br>the Web Works</div>
+                <div class="rail-num">22</div>
+            </div>
+            <div class="main"><div class="slide-content">
                 <h1>Publishing on Blogs</h1>
                 <p>Blog platforms let you publish without knowing HTML:</p>
                 <div class="browser-list">
@@ -895,12 +1039,16 @@ http://apple.com/iphone/index.html</code></pre>
                 <div class="highlight">
                     <p>These offer <strong>visual editors</strong> - but knowing HTML/CSS gives you more control and flexibility!</p>
                 </div>
-            </div>
+            </div></div>
         </div>
 
         <!-- Slide 23: Summary -->
         <div class="slide">
-            <div class="slide-content">
+            <div class="rail">
+                <div class="kicker">Understanding How<br>the Web Works</div>
+                <div class="rail-num">23</div>
+            </div>
+            <div class="main"><div class="slide-content">
                 <h1>Summary</h1>
                 <div class="two-column">
                     <div>
@@ -925,12 +1073,16 @@ http://apple.com/iphone/index.html</code></pre>
                         </ul>
                     </div>
                 </div>
-            </div>
+            </div></div>
         </div>
 
         <!-- Slide 24: Resources -->
         <div class="slide title-slide">
-            <div class="slide-content">
+            <div class="rail">
+                <div class="kicker">Understanding How<br>the Web Works</div>
+                <div class="rail-num">24</div>
+            </div>
+            <div class="main"><div class="slide-content">
                 <h1>Additional Resources</h1>
                 <div class="browser-list">
                     <div class="browser-item">
@@ -954,7 +1106,7 @@ http://apple.com/iphone/index.html</code></pre>
                         <a href="https://codepen.io" target="_blank">codepen.io</a>
                     </div>
                 </div>
-            </div>
+            </div></div>
         </div>
     </div>
 
@@ -1005,6 +1157,8 @@ http://apple.com/iphone/index.html</code></pre>
             // Update button states
             document.getElementById('prevBtn').disabled = currentSlide === 0;
             document.getElementById('nextBtn').disabled = currentSlide === totalSlides - 1;
+
+            fitCurrentSlide();
         }
 
         function changeSlide(direction) {
@@ -1060,12 +1214,50 @@ http://apple.com/iphone/index.html</code></pre>
             }, 3000);
         }
 
+        // ===== FIT-TO-SCREEN — a slide must never scroll or clip. If its
+        // content is taller than the available space, scale the whole block
+        // down just enough to fit. MIN_SCALE is a floor: past this point the
+        // slide has too much content and should be split, not shrunk further.
+        var MIN_SCALE = 0.72;
+
+        function fitSlide(slideEl) {
+            if (!slideEl) return;
+            var main = slideEl.querySelector('.main');
+            var inner = slideEl.querySelector('.slide-content');
+            if (!main || !inner) return;
+
+            inner.style.transform = 'none';
+            inner.style.width = '100%';
+
+            var cs = getComputedStyle(main);
+            var available = main.clientHeight - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom);
+            var natural = inner.scrollHeight;
+
+            var scale = Math.min(1, available / natural);
+            scale = Math.max(scale, MIN_SCALE);
+
+            if (scale < 1) {
+                inner.style.transform = 'scale(' + scale + ')';
+                inner.style.width = (100 / scale) + '%';
+            }
+        }
+
+        function fitCurrentSlide() {
+            fitSlide(slides[currentSlide]);
+        }
+
         // Initialize
         showSlide(0);
 
+        if (document.fonts && document.fonts.ready) {
+            document.fonts.ready.then(fitCurrentSlide);
+        }
+
         // Handle window resize for responsive adjustments
+        var resizeTimer;
         window.addEventListener('resize', () => {
-            // Recalculate any dynamic elements if needed
+            clearTimeout(resizeTimer);
+            resizeTimer = setTimeout(fitCurrentSlide, 100);
         });
     </script>
 </body>

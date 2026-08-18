@@ -4,37 +4,43 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Filter, Search, Find — Array Iteration Methods</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,900;1,9..144,500&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --bg:        #0f0f1a;
-      --surface:   #1a1a2e;
-      --border:    #2e2e4a;
-      --accent:    #a78bfa;
-      --accent2:   #6ee7b7;
-      --accent3:   #fbbf24;
-      --accent4:   #f87171;
-      --text:      #e8e8f0;
-      --muted:     #7070a0;
-      --code-bg:   #0a0a18;
-      --code-text: #c9d1d9;
-      --nav-h:     52px;
+      --bg:          #17140f;
+      --surface:     #1e1a14;
+      --border:      #3a3226;
+      --border-soft: #2b251c;
+      --accent:      #cc7a4f;
+      --accent2:     #cfa77e;
+      --accent3:     #b98a52;
+      --accent4:     #b6553c;
+      --text:        #f2ece1;
+      --muted:       #9c9382;
+      --code-bg:     #141109;
+      --code-text:   #e4ddd0;
+      --nav-h:       52px;
     }
 
     html, body {
       height: 100%;
-      font-family: system-ui, -apple-system, sans-serif;
+      font-family: 'Inter', sans-serif;
       background: var(--bg);
       color: var(--text);
       overflow: hidden;
     }
 
+    code { font-variant-ligatures: none; font-feature-settings: "calt" 0, "liga" 0; }
+
     #progress-bar {
       position: fixed;
       top: 0; left: 0;
-      height: 3px;
-      background: linear-gradient(90deg, var(--accent), var(--accent2));
+      height: 2px;
+      background: var(--accent);
       width: 0%;
       transition: width .3s ease;
       z-index: 100;
@@ -44,33 +50,37 @@
       position: fixed;
       bottom: 0; left: 0; right: 0;
       height: var(--nav-h);
-      background: rgba(10,10,24,.95);
-      border-top: 1px solid var(--border);
+      background: var(--bg);
+      border-top: 1px solid var(--border-soft);
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 0 1rem;
+      padding: 0 1.6rem;
       z-index: 50;
       gap: .5rem;
     }
     nav .nav-btn {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      color: var(--text);
-      padding: .45rem 1rem;
-      border-radius: 8px;
-      font-size: .85rem;
+      background: none;
+      border: none;
+      color: var(--muted);
+      font-family: 'Inter', sans-serif;
+      font-size: .72rem;
+      letter-spacing: .08em;
+      text-transform: uppercase;
       font-weight: 600;
       cursor: pointer;
-      transition: background .2s, border-color .2s;
+      transition: color .15s ease;
+      padding: .4rem 0;
       white-space: nowrap;
       min-width: 80px;
     }
-    nav .nav-btn:hover { background: var(--border); border-color: var(--accent); }
-    nav .nav-btn:disabled { opacity: .3; cursor: default; }
+    nav .nav-btn:hover:not(:disabled) { color: var(--text); }
+    nav .nav-btn:disabled { opacity: .25; cursor: default; }
     #slide-counter {
-      font-size: .8rem;
-      color: var(--muted);
+      font-size: .72rem;
+      letter-spacing: .08em;
+      color: var(--accent);
+      font-variant-numeric: tabular-nums;
       white-space: nowrap;
       min-width: 70px;
       text-align: center;
@@ -87,23 +97,65 @@
       display: none;
       position: absolute;
       inset: 0;
-      overflow-y: auto;
-      padding: 1.75rem 1.25rem 1rem;
+      grid-template-columns: 200px 1fr;
+      background: var(--bg);
       animation: slideIn .22s ease;
+      overflow: hidden;
     }
-    .slide.active { display: block; }
+    .slide.active { display: grid; }
 
     @keyframes slideIn {
       from { opacity: 0; transform: translateY(12px); }
       to   { opacity: 1; transform: translateY(0); }
     }
 
-    .slide:nth-child(4n+1) { background: linear-gradient(160deg, #0f0f1a 60%, #1a1040); }
-    .slide:nth-child(4n+2) { background: linear-gradient(160deg, #0f0f1a 60%, #0d1f2d); }
-    .slide:nth-child(4n+3) { background: linear-gradient(160deg, #0f0f1a 60%, #1a0f28); }
-    .slide:nth-child(4n)   { background: linear-gradient(160deg, #0f0f1a 60%, #0f1a1a); }
+    /* ===== RAIL — persistent left margin: deck kicker, big italic slide
+       number, and (since this deck already tags every slide) the original
+       .slide-tag text carried over verbatim as a rotated section tag. ===== */
+    .rail {
+      border-right: 1px solid var(--border-soft);
+      padding: 2.2rem 1.5rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+    .kicker {
+      font-size: .65rem;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      color: var(--muted);
+      font-weight: 600;
+      line-height: 1.5;
+    }
+    .rail-num {
+      font-family: 'Fraunces', serif;
+      font-weight: 400;
+      font-style: italic;
+      font-size: 3rem;
+      color: var(--muted);
+      opacity: .5;
+      margin-top: 1rem;
+      font-variant-numeric: oldstyle-nums;
+    }
+    .rail-tag {
+      font-size: .7rem;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--accent);
+      font-weight: 600;
+      writing-mode: vertical-rl;
+      transform: rotate(180deg);
+      justify-self: start;
+    }
 
-    .slide-inner { max-width: 860px; margin: 0 auto; }
+    /* ===== MAIN — fixed box; .slide-inner scales down only if content
+       would overflow, so a slide never scrolls or clips. ===== */
+    .main {
+      padding: 2.6rem 4rem 2rem 3.2rem;
+      overflow: hidden;
+    }
+
+    .slide-inner { max-width: 1200px; transform-origin: top left; }
 
     .slide-tag {
       font-size: .7rem;
@@ -115,20 +167,23 @@
     }
 
     h1 {
-      font-size: clamp(1.5rem, 4vw, 2.4rem);
-      font-weight: 800;
-      line-height: 1.15;
+      font-family: 'Fraunces', serif;
+      font-size: clamp(1.8rem, 4.4vw, 3rem);
+      font-weight: 600;
+      line-height: 1.1;
+      letter-spacing: -.01em;
       margin-bottom: .6rem;
-      background: linear-gradient(135deg, var(--accent), var(--accent2));
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
+      color: var(--text);
+      max-width: 18ch;
     }
 
     h2 {
-      font-size: clamp(1.15rem, 3vw, 1.6rem);
-      font-weight: 700;
+      font-family: 'Fraunces', serif;
+      font-size: clamp(1.2rem, 3vw, 1.7rem);
+      font-weight: 600;
+      line-height: 1.15;
       margin-bottom: .5rem;
+      color: var(--text);
     }
 
     h3 {
@@ -155,26 +210,27 @@
 
     pre {
       background: var(--code-bg);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: .85rem 1rem;
-      overflow-x: auto;
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      padding: .85rem 1.1rem;
       margin-bottom: .7rem;
+      max-width: 82ch;
       font-size: clamp(.72rem, 1.5vw, .82rem);
       line-height: 1.65;
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
     }
-    code { font-family: 'SF Mono', 'Cascadia Code', 'Fira Code', monospace; }
-    .kw   { color: #c792ea; }
-    .fn   { color: #82aaff; }
-    .str  { color: #c3e88d; }
-    .num  { color: #f78c6c; }
-    .prop { color: #89ddff; }
-    .cmt  { color: #546e7a; font-style: italic; }
+    code { font-family: 'JetBrains Mono', monospace; }
+    .kw   { color: var(--accent); }
+    .fn   { color: #d9b382; }
+    .str  { color: var(--accent2); }
+    .num  { color: var(--accent3); }
+    .prop { color: #cbbfa9; }
+    .cmt  { color: var(--muted); font-style: italic; }
 
     .card {
       background: var(--surface);
       border: 1px solid var(--border);
-      border-radius: 10px;
       padding: .85rem 1rem;
       margin-bottom: .55rem;
     }
@@ -189,7 +245,7 @@
     .two-col {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 1rem;
+      gap: 1.5rem;
       margin-bottom: .7rem;
     }
     @media (max-width: 600px) {
@@ -197,85 +253,113 @@
       .card-row { grid-template-columns: 1fr; }
     }
 
+    /* ===== ANALOGIES — typographic pull-quote (this deck's .highlight-box
+       is used throughout for "Analogy:" callouts and recap statements). ===== */
     .highlight-box {
-      background: rgba(167,139,250,.08);
-      border-left: 3px solid var(--accent);
-      border-radius: 0 8px 8px 0;
-      padding: .75rem 1rem;
-      margin-bottom: .7rem;
-      font-size: clamp(.8rem, 1.6vw, .88rem);
+      max-width: 62ch;
+      margin-bottom: .9rem;
+      padding-top: .9rem;
+      border-top: 1px solid var(--border);
+      position: relative;
+      font-family: 'Fraunces', serif;
+      font-style: italic;
+      font-weight: 500;
+      font-size: clamp(.85rem, 1.7vw, .98rem);
+      line-height: 1.5;
+      color: var(--text);
     }
+    .highlight-box::before {
+      content: '\201C';
+      font-family: 'Fraunces', serif;
+      font-size: 2.4rem;
+      color: var(--accent);
+      position: absolute;
+      top: .55rem;
+      left: -1.7rem;
+      line-height: 1;
+      opacity: .85;
+    }
+    .highlight-box strong { font-style: normal; }
+
     .note {
-      background: rgba(110,231,183,.06);
-      border-left: 3px solid var(--accent2);
-      border-radius: 0 8px 8px 0;
-      padding: .7rem 1rem;
-      margin-bottom: .7rem;
+      max-width: 62ch;
+      margin-bottom: .9rem;
+      padding-top: .65rem;
+      border-top: 1px solid var(--border-soft);
       font-size: clamp(.78rem, 1.5vw, .86rem);
+      line-height: 1.55;
     }
     .caution {
-      background: rgba(251,191,36,.06);
-      border-left: 3px solid var(--accent3);
-      border-radius: 0 8px 8px 0;
+      max-width: 62ch;
+      margin-bottom: .9rem;
+      background: rgba(204,122,79,.1);
+      border-left: 2px solid var(--accent);
       padding: .7rem 1rem;
-      margin-bottom: .7rem;
       font-size: clamp(.78rem, 1.5vw, .86rem);
+      line-height: 1.55;
     }
 
     .demo-box {
-      background: rgba(110,231,183,.04);
-      border: 1px solid var(--border);
-      border-radius: 10px;
+      background: var(--surface);
+      border: 1px solid var(--border-soft);
       padding: 1.1rem;
       margin-bottom: .9rem;
+      max-width: 66ch;
     }
     .demo-box h4 {
-      font-size: .75rem;
+      font-size: .68rem;
       text-transform: uppercase;
-      letter-spacing: .1em;
+      letter-spacing: .12em;
       color: var(--accent);
-      margin-bottom: .7rem;
+      margin-bottom: .9rem;
       font-weight: 700;
     }
     .demo-btn {
-      background: var(--accent);
-      color: #0f0f1a;
-      border: none;
+      background: none;
+      border: 1px solid var(--border);
+      color: var(--text);
+      font-family: 'JetBrains Mono', monospace;
       padding: .45rem 1rem;
-      border-radius: 8px;
-      font-weight: 700;
-      font-size: .85rem;
+      font-size: .82rem;
       cursor: pointer;
-      transition: background .18s, transform .1s;
-      margin: .2rem .2rem .2rem 0;
+      transition: border-color .15s, background .15s, color .15s, transform .1s;
+      margin: .2rem .4rem .2rem 0;
     }
-    .demo-btn:hover  { background: #c4b5fd; }
+    .demo-btn:hover  { border-color: var(--accent); }
     .demo-btn:active { transform: scale(.97); }
+    .demo-btn:not(.secondary):not(.danger) {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: var(--bg);
+      font-weight: 600;
+    }
     .demo-btn.secondary {
-      background: var(--surface);
+      background: none;
       border: 1px solid var(--border);
       color: var(--text);
     }
     .demo-btn.secondary:hover { border-color: var(--accent); }
     .demo-btn.secondary.active {
       background: var(--accent);
-      color: #0f0f1a;
+      color: var(--bg);
       border-color: var(--accent);
+      font-weight: 600;
     }
-    .demo-btn.danger { background: var(--accent4); color: #fff; }
-    .demo-btn.danger:hover { background: #fca5a5; }
+    .demo-btn.danger { background: none; border-color: var(--accent4); color: var(--accent4); }
+    .demo-btn.danger:hover { background: var(--accent4); color: var(--bg); }
 
     .demo-output {
       background: var(--code-bg);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: .55rem .85rem;
-      font-family: monospace;
+      border: 1px solid var(--border-soft);
+      padding: .55rem .9rem;
+      font-family: 'JetBrains Mono', monospace;
       font-size: .82rem;
       color: var(--accent2);
       min-height: 36px;
       margin-top: .5rem;
       word-break: break-word;
+      display: flex;
+      align-items: center;
     }
 
     .demo-input {
@@ -283,61 +367,87 @@
       border: 1px solid var(--border);
       color: var(--text);
       padding: .4rem .7rem;
-      border-radius: 6px;
       font-size: .85rem;
-      font-family: monospace;
+      font-family: 'JetBrains Mono', monospace;
       outline: none;
       width: 100%;
     }
     .demo-input:focus { border-color: var(--accent); }
 
-    dl.qa { margin: 0; }
-    dl.qa .card { margin-bottom: .65rem; }
+    /* ===== BEST PRACTICES — numbered index (replaces the identically
+       styled stacked .card list this deck used before). ===== */
+    .index-list { max-width: 68ch; }
+    .index-item {
+      display: grid;
+      grid-template-columns: 3rem 1fr;
+      gap: 1.2rem;
+      padding: .85rem 0;
+      border-top: 1px solid var(--border-soft);
+    }
+    .index-item:last-child { border-bottom: 1px solid var(--border-soft); }
+    .index-num {
+      font-family: 'Fraunces', serif;
+      font-style: italic;
+      font-size: 1.15rem;
+      color: var(--accent);
+      opacity: .8;
+    }
+    .index-item dt {
+      font-family: 'Fraunces', serif;
+      font-weight: 600;
+      font-size: 1rem;
+      margin-bottom: .3rem;
+      color: var(--text);
+    }
+    .index-item dd {
+      font-size: .88rem;
+      color: var(--muted);
+      line-height: 1.55;
+    }
 
     .ref-table {
       width: 100%;
       border-collapse: collapse;
       font-size: clamp(.75rem, 1.7vw, .87rem);
       margin-bottom: .8rem;
+      font-variant-numeric: tabular-nums;
     }
     .ref-table th {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      padding: .5rem .8rem;
+      border-bottom: 2px solid var(--border);
+      padding: .55rem .8rem;
       text-align: left;
       color: var(--accent);
       font-weight: 700;
+      font-family: 'Inter', sans-serif;
     }
     .ref-table td {
-      border: 1px solid var(--border);
-      padding: .5rem .8rem;
+      border-bottom: 1px solid var(--border-soft);
+      padding: .55rem .8rem;
       vertical-align: top;
     }
 
     .mini-card {
       background: var(--surface);
       border: 1px solid var(--border);
-      border-radius: 10px;
       padding: .7rem .9rem;
       text-align: center;
-      transition: all .25s;
+      transition: border-color .2s, transform .2s;
       cursor: pointer;
     }
     .mini-card:hover { border-color: var(--accent); transform: translateY(-2px); }
-    .mini-card.selected { border-color: var(--accent); box-shadow: 0 0 0 2px rgba(167,139,250,.25); }
+    .mini-card.selected { border-color: var(--accent); box-shadow: 0 0 0 2px rgba(204,122,79,.25); }
     .mini-card-emoji { font-size: 1.5rem; margin-bottom: .3rem; }
     .mini-card-name { font-size: .82rem; font-weight: 700; }
     .mini-card-price { font-size: .85rem; font-weight: 800; color: var(--accent2); margin-top: .15rem; }
     .mini-badge {
       display: inline-block;
-      background: rgba(167,139,250,.12);
+      background: rgba(204,122,79,.14);
       color: var(--accent);
       font-size: .62rem;
       font-weight: 700;
       text-transform: uppercase;
       letter-spacing: .06em;
-      padding: .1rem .4rem;
-      border-radius: 100px;
+      padding: .1rem .5rem;
       margin-top: .25rem;
     }
 
@@ -357,8 +467,7 @@
 
     .detail-panel {
       background: var(--code-bg);
-      border: 1px solid var(--border);
-      border-radius: 10px;
+      border: 1px solid var(--border-soft);
       padding: .85rem;
       margin-top: .5rem;
       font-size: .82rem;
@@ -367,10 +476,10 @@
       display: flex;
       justify-content: space-between;
       padding: .3rem 0;
-      border-bottom: 1px solid var(--border);
+      border-bottom: 1px solid var(--border-soft);
     }
     .detail-row:last-child { border-bottom: none; }
-    .detail-key { color: var(--accent); font-family: monospace; font-size: .78rem; }
+    .detail-key { color: var(--accent); font-family: 'JetBrains Mono', monospace; font-size: .78rem; }
     .detail-value { color: var(--text); }
 
     .pipeline {
@@ -384,10 +493,9 @@
     .pipeline-step {
       background: var(--code-bg);
       border: 1px solid var(--border);
-      border-radius: 8px;
       padding: .55rem .7rem;
       text-align: center;
-      font-family: monospace;
+      font-family: 'JetBrains Mono', monospace;
     }
     .pipeline-arrow {
       font-size: 1.2rem;
@@ -403,6 +511,15 @@
         transform: rotate(90deg);
       }
     }
+
+    @media (max-width: 700px) {
+      .slide { grid-template-columns: 56px 1fr; }
+      .rail { padding: 1rem .5rem; }
+      .kicker { display: none; }
+      .rail-num { font-size: 1.4rem; margin-top: 0; }
+      .rail-tag { display: none; }
+      .main { padding: 1.5rem 1.25rem; }
+    }
   </style>
 </head>
 <body>
@@ -413,7 +530,14 @@
 
   <!-- SLIDE 1 — Title -->
   <div class="slide active">
-    <div class="slide-inner">
+    <div class="rail">
+      <div class="rail-top">
+        <div class="kicker">Filter, Search, Find<br>Array Iteration Methods</div>
+        <div class="rail-num">01</div>
+      </div>
+      <div class="rail-tag">forEach · map · filter · find</div>
+    </div>
+    <div class="main"><div class="slide-inner">
       <div class="slide-tag">forEach · map · filter · find</div>
       <h1>Filter, Search, Find</h1>
       <p class="lead">Array iteration methods that turn a static gallery into an interactive, searchable, filterable interface.</p>
@@ -427,12 +551,19 @@
         <li>Chain <code>filter()</code> and <code>map()</code> together</li>
         <li>Event delegation for dynamically generated content</li>
       </ul>
-    </div>
+    </div></div>
   </div>
 
   <!-- SLIDE 2 — The Why -->
   <div class="slide">
-    <div class="slide-inner">
+    <div class="rail">
+      <div class="rail-top">
+        <div class="kicker">Filter, Search, Find<br>Array Iteration Methods</div>
+        <div class="rail-num">02</div>
+      </div>
+      <div class="rail-tag">Why This Matters</div>
+    </div>
+    <div class="main"><div class="slide-inner">
       <div class="slide-tag">Why This Matters</div>
       <h2>From Static Grid → Real Interface</h2>
       <p class="lead">You already have a gallery that renders, sorts, and responds to clicks. These four methods add filtering and search — the two features that separate a real app from a demo.</p>
@@ -454,12 +585,19 @@
         <br><br>
         <strong>New way (iteration methods):</strong> <code>arr.filter(p =&gt; p.price &lt; 50)</code> — you say <em>what</em> you want, not <em>how</em> to get it.
       </div>
-    </div>
+    </div></div>
   </div>
 
   <!-- SLIDE 3 — forEach Overview -->
   <div class="slide">
-    <div class="slide-inner">
+    <div class="rail">
+      <div class="rail-top">
+        <div class="kicker">Filter, Search, Find<br>Array Iteration Methods</div>
+        <div class="rail-num">03</div>
+      </div>
+      <div class="rail-tag">forEach()</div>
+    </div>
+    <div class="main"><div class="slide-inner">
       <div class="slide-tag">forEach()</div>
       <h2><code>forEach()</code> — Do Something With Each Item</h2>
       <p class="lead">Runs a function once for each item. Returns nothing. Use it when you need a <em>side effect</em>, not a new array.</p>
@@ -498,12 +636,19 @@ filterBtns.<span class="fn">forEach</span>(<span class="prop">btn</span> => <spa
       <p style="font-size:.82rem;">
         <a href="https://www.w3schools.com/jsref/jsref_foreach.asp" target="_blank" rel="noopener" style="color:var(--accent);">W3Schools: Array.forEach() →</a>
       </p>
-    </div>
+    </div></div>
   </div>
 
   <!-- SLIDE 4 — forEach Interactive Demo -->
   <div class="slide">
-    <div class="slide-inner">
+    <div class="rail">
+      <div class="rail-top">
+        <div class="kicker">Filter, Search, Find<br>Array Iteration Methods</div>
+        <div class="rail-num">04</div>
+      </div>
+      <div class="rail-tag">forEach()</div>
+    </div>
+    <div class="main"><div class="slide-inner">
       <div class="slide-tag">forEach()</div>
       <h2>Try It — <code>forEach()</code> in Action</h2>
 
@@ -528,12 +673,19 @@ filterBtns.<span class="fn">forEach</span>(<span class="prop">btn</span> => <spa
 &lt;/<span class="kw">div</span>&gt;
 
 <span class="kw">.box</span> { <span class="prop">padding</span>: <span class="num">.6rem</span>; <span class="prop">border-radius</span>: <span class="num">6px</span>; <span class="prop">transition</span>: <span class="num">.25s</span>; }</code></pre>
-    </div>
+    </div></div>
   </div>
 
   <!-- SLIDE 5 — map Review -->
   <div class="slide">
-    <div class="slide-inner">
+    <div class="rail">
+      <div class="rail-top">
+        <div class="kicker">Filter, Search, Find<br>Array Iteration Methods</div>
+        <div class="rail-num">05</div>
+      </div>
+      <div class="rail-tag">map()</div>
+    </div>
+    <div class="main"><div class="slide-inner">
       <div class="slide-tag">map()</div>
       <h2><code>map()</code> — Transform Each Item</h2>
       <p class="lead">Runs every item through a function and collects the results into a <strong>new array</strong> of the same length. The original array is unchanged.</p>
@@ -572,12 +724,19 @@ console.<span class="fn">log</span>(prices);     <span class="cmt">// [79.99, 49
       <p style="font-size:.82rem;">
         <a href="https://www.w3schools.com/jsref/jsref_map.asp" target="_blank" rel="noopener" style="color:var(--accent);">W3Schools: Array.map() →</a>
       </p>
-    </div>
+    </div></div>
   </div>
 
   <!-- SLIDE 6 — map Interactive Demo -->
   <div class="slide">
-    <div class="slide-inner">
+    <div class="rail">
+      <div class="rail-top">
+        <div class="kicker">Filter, Search, Find<br>Array Iteration Methods</div>
+        <div class="rail-num">06</div>
+      </div>
+      <div class="rail-tag">map()</div>
+    </div>
+    <div class="main"><div class="slide-inner">
       <div class="slide-tag">map()</div>
       <h2>Try It — <code>map()</code> Transforms Every Item</h2>
 
@@ -602,12 +761,19 @@ console.<span class="fn">log</span>(prices);     <span class="cmt">// [79.99, 49
       <div class="highlight-box">
         <strong>Assembly line recap:</strong> Items in → your function transforms each one → items out. Length stays the same.
       </div>
-    </div>
+    </div></div>
   </div>
 
   <!-- SLIDE 7 — filter Overview -->
   <div class="slide">
-    <div class="slide-inner">
+    <div class="rail">
+      <div class="rail-top">
+        <div class="kicker">Filter, Search, Find<br>Array Iteration Methods</div>
+        <div class="rail-num">07</div>
+      </div>
+      <div class="rail-tag">filter()</div>
+    </div>
+    <div class="main"><div class="slide-inner">
       <div class="slide-tag">filter()</div>
       <h2><code>filter()</code> — Keep Only What Passes</h2>
       <p class="lead">Runs a test function on each item. Items that return <code>true</code> are kept. Items that return <code>false</code> are removed. Result: a <strong>new, shorter</strong> array.</p>
@@ -651,12 +817,19 @@ grid.<span class="prop">innerHTML</span> = electronics.<span class="fn">map</spa
       <p style="font-size:.82rem;">
         <a href="https://www.w3schools.com/jsref/jsref_filter.asp" target="_blank" rel="noopener" style="color:var(--accent);">W3Schools: Array.filter() →</a>
       </p>
-    </div>
+    </div></div>
   </div>
 
   <!-- SLIDE 7 — filter Interactive Demo -->
   <div class="slide">
-    <div class="slide-inner">
+    <div class="rail">
+      <div class="rail-top">
+        <div class="kicker">Filter, Search, Find<br>Array Iteration Methods</div>
+        <div class="rail-num">08</div>
+      </div>
+      <div class="rail-tag">filter()</div>
+    </div>
+    <div class="main"><div class="slide-inner">
       <div class="slide-tag">filter()</div>
       <h2>Try It — <code>filter()</code> Tests Every Item</h2>
 
@@ -676,12 +849,19 @@ grid.<span class="prop">innerHTML</span> = electronics.<span class="fn">map</spa
       <div class="note">
         <strong>Notice:</strong> <code>filter()</code> never changes the original array. Click "all" to bring back every product. The source data is untouched — you're just asking, "show me a subset based on this test."
       </div>
-    </div>
+    </div></div>
   </div>
 
   <!-- SLIDE 8 — find Overview -->
   <div class="slide">
-    <div class="slide-inner">
+    <div class="rail">
+      <div class="rail-top">
+        <div class="kicker">Filter, Search, Find<br>Array Iteration Methods</div>
+        <div class="rail-num">09</div>
+      </div>
+      <div class="rail-tag">find()</div>
+    </div>
+    <div class="main"><div class="slide-inner">
       <div class="slide-tag">find()</div>
       <h2><code>find()</code> — Get the First Match</h2>
       <p class="lead">Works like <code>filter()</code>, but stops at the <strong>first</strong> match and returns the item itself — not an array.</p>
@@ -722,12 +902,19 @@ grid.<span class="prop">innerHTML</span> = electronics.<span class="fn">map</spa
       <p style="font-size:.82rem;">
         <a href="https://www.w3schools.com/jsref/jsref_find.asp" target="_blank" rel="noopener" style="color:var(--accent);">W3Schools: Array.find() →</a>
       </p>
-    </div>
+    </div></div>
   </div>
 
   <!-- SLIDE 9 — find Interactive Demo -->
   <div class="slide">
-    <div class="slide-inner">
+    <div class="rail">
+      <div class="rail-top">
+        <div class="kicker">Filter, Search, Find<br>Array Iteration Methods</div>
+        <div class="rail-num">10</div>
+      </div>
+      <div class="rail-tag">find()</div>
+    </div>
+    <div class="main"><div class="slide-inner">
       <div class="slide-tag">find()</div>
       <h2>Try It — <code>find()</code> Returns One Item</h2>
 
@@ -747,12 +934,19 @@ grid.<span class="prop">innerHTML</span> = electronics.<span class="fn">map</spa
       <div class="caution">
         <strong>Tip:</strong> Try an id that doesn't exist (like 99). <code>find()</code> returns <code>undefined</code> when nothing matches — which is why real code uses <code>if (product) { ... }</code> to guard against it.
       </div>
-    </div>
+    </div></div>
   </div>
 
   <!-- SLIDE 10 — Quick Reference -->
   <div class="slide">
-    <div class="slide-inner">
+    <div class="rail">
+      <div class="rail-top">
+        <div class="kicker">Filter, Search, Find<br>Array Iteration Methods</div>
+        <div class="rail-num">11</div>
+      </div>
+      <div class="rail-tag">Quick Reference</div>
+    </div>
+    <div class="main"><div class="slide-inner">
       <div class="slide-tag">Quick Reference</div>
       <h2>forEach · map · filter · find</h2>
 
@@ -808,12 +1002,19 @@ grid.<span class="prop">innerHTML</span> = electronics.<span class="fn">map</spa
       <p style="font-size:.82rem;">
         <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array#iterative_methods" target="_blank" rel="noopener" style="color:var(--accent);">MDN: Array iteration methods →</a>
       </p>
-    </div>
+    </div></div>
   </div>
 
   <!-- SLIDE 11 — Category Filter Pattern -->
   <div class="slide">
-    <div class="slide-inner">
+    <div class="rail">
+      <div class="rail-top">
+        <div class="kicker">Filter, Search, Find<br>Array Iteration Methods</div>
+        <div class="rail-num">12</div>
+      </div>
+      <div class="rail-tag">Category Filter Buttons</div>
+    </div>
+    <div class="main"><div class="slide-inner">
       <div class="slide-tag">Category Filter Buttons</div>
       <h2>Wiring Buttons to <code>filter()</code></h2>
       <p class="lead">Buttons change a variable. The variable drives the filter. The filter rebuilds the grid.</p>
@@ -857,12 +1058,19 @@ filterBtns.<span class="fn">forEach</span>(<span class="prop">btn</span> => {
       <div class="note">
         <strong>The key idea:</strong> <code>activeCategory</code> lives <em>outside</em> the event handler. The handler updates it; <code>filterAndRender()</code> reads it. One source of truth, called from anywhere.
       </div>
-    </div>
+    </div></div>
   </div>
 
   <!-- SLIDE 12 — Category Filter Demo -->
   <div class="slide">
-    <div class="slide-inner">
+    <div class="rail">
+      <div class="rail-top">
+        <div class="kicker">Filter, Search, Find<br>Array Iteration Methods</div>
+        <div class="rail-num">13</div>
+      </div>
+      <div class="rail-tag">Category Filter Buttons</div>
+    </div>
+    <div class="main"><div class="slide-inner">
       <div class="slide-tag">Category Filter Buttons</div>
       <h2>Try It — Live Category Filter</h2>
 
@@ -876,12 +1084,19 @@ filterBtns.<span class="fn">forEach</span>(<span class="prop">btn</span> => {
       <div class="highlight-box">
         <strong>What's happening under the hood:</strong> Each button click (1) strips <code>.active</code> off every button with <code>forEach()</code>, (2) adds <code>.active</code> to the clicked button, (3) updates <code>activeCategory</code>, (4) calls <code>filterAndRender()</code> which uses <code>filter()</code> + <code>map()</code> to rebuild the HTML.
       </div>
-    </div>
+    </div></div>
   </div>
 
   <!-- SLIDE 13 — Live Search Pattern -->
   <div class="slide">
-    <div class="slide-inner">
+    <div class="rail">
+      <div class="rail-top">
+        <div class="kicker">Filter, Search, Find<br>Array Iteration Methods</div>
+        <div class="rail-num">14</div>
+      </div>
+      <div class="rail-tag">Live Search</div>
+    </div>
+    <div class="main"><div class="slide-inner">
       <div class="slide-tag">Live Search</div>
       <h2>Filter as You Type</h2>
       <p class="lead">The <code>input</code> event fires on <em>every</em> keystroke. That's exactly what live search needs.</p>
@@ -931,12 +1146,19 @@ searchInput.<span class="fn">addEventListener</span>(<span class="str">'input'</
       <p style="font-size:.82rem;">
         <a href="https://www.w3schools.com/jsref/jsref_includes_array.asp" target="_blank" rel="noopener" style="color:var(--accent);">W3Schools: String.includes() →</a>
       </p>
-    </div>
+    </div></div>
   </div>
 
   <!-- SLIDE 14 — Live Search Demo -->
   <div class="slide">
-    <div class="slide-inner">
+    <div class="rail">
+      <div class="rail-top">
+        <div class="kicker">Filter, Search, Find<br>Array Iteration Methods</div>
+        <div class="rail-num">15</div>
+      </div>
+      <div class="rail-tag">Live Search</div>
+    </div>
+    <div class="main"><div class="slide-inner">
       <div class="slide-tag">Live Search</div>
       <h2>Try It — Live Search + Category Filter</h2>
 
@@ -951,12 +1173,19 @@ searchInput.<span class="fn">addEventListener</span>(<span class="str">'input'</
       <div class="note">
         <strong>Two filter conditions, one <code>filter()</code> call.</strong> For a product to survive, its category must match (or be "all") <em>and</em> its name must contain the search query. The <code>&amp;&amp;</code> is the AND gate.
       </div>
-    </div>
+    </div></div>
   </div>
 
   <!-- SLIDE 15 — Chaining filter + map -->
   <div class="slide">
-    <div class="slide-inner">
+    <div class="rail">
+      <div class="rail-top">
+        <div class="kicker">Filter, Search, Find<br>Array Iteration Methods</div>
+        <div class="rail-num">16</div>
+      </div>
+      <div class="rail-tag">Chaining</div>
+    </div>
+    <div class="main"><div class="slide-inner">
       <div class="slide-tag">Chaining</div>
       <h2>Chaining <code>filter()</code> and <code>map()</code></h2>
       <p class="lead">Because <code>filter()</code> returns an array, you can call <code>.map()</code> directly on its result. Each step feeds into the next.</p>
@@ -1021,12 +1250,19 @@ searchInput.<span class="fn">addEventListener</span>(<span class="str">'input'</
 top5.<span class="fn">map</span>(...).<span class="fn">join</span>(...);</code></pre>
         </div>
       </div>
-    </div>
+    </div></div>
   </div>
 
   <!-- SLIDE 16 — Event Delegation Why -->
   <div class="slide">
-    <div class="slide-inner">
+    <div class="rail">
+      <div class="rail-top">
+        <div class="kicker">Filter, Search, Find<br>Array Iteration Methods</div>
+        <div class="rail-num">17</div>
+      </div>
+      <div class="rail-tag">Event Delegation</div>
+    </div>
+    <div class="main"><div class="slide-inner">
       <div class="slide-tag">Event Delegation</div>
       <h2>Why Event Delegation?</h2>
       <p class="lead">When cards are generated by JavaScript, they don't exist at page load. You can't attach listeners to elements that aren't there yet.</p>
@@ -1053,12 +1289,19 @@ top5.<span class="fn">map</span>(...).<span class="fn">join</span>(...);</code><
         <a href="https://developer.mozilla.org/en-US/docs/Learn/JavaScript/Building_blocks/Events#event_delegation" target="_blank" rel="noopener" style="color:var(--accent);">MDN: Event delegation →</a> &nbsp;|&nbsp;
         <a href="https://www.w3schools.com/jsref/met_element_closest.asp" target="_blank" rel="noopener" style="color:var(--accent);">W3Schools: Element.closest() →</a>
       </p>
-    </div>
+    </div></div>
   </div>
 
   <!-- SLIDE 17 — Event Delegation Code -->
   <div class="slide">
-    <div class="slide-inner">
+    <div class="rail">
+      <div class="rail-top">
+        <div class="kicker">Filter, Search, Find<br>Array Iteration Methods</div>
+        <div class="rail-num">18</div>
+      </div>
+      <div class="rail-tag">Event Delegation</div>
+    </div>
+    <div class="main"><div class="slide-inner">
       <div class="slide-tag">Event Delegation</div>
       <h2>The Code Pattern</h2>
 
@@ -1091,12 +1334,19 @@ container.<span class="fn">addEventListener</span>(<span class="str">'click'</sp
       <div class="highlight-box">
         <strong>The magic:</strong> This listener keeps working after every <code>renderProducts()</code> call. Filter, search, sort, reset — doesn't matter. The grid container never gets replaced. Its listener never has to be reattached.
       </div>
-    </div>
+    </div></div>
   </div>
 
   <!-- SLIDE 18 — Event Delegation Demo -->
   <div class="slide">
-    <div class="slide-inner">
+    <div class="rail">
+      <div class="rail-top">
+        <div class="kicker">Filter, Search, Find<br>Array Iteration Methods</div>
+        <div class="rail-num">19</div>
+      </div>
+      <div class="rail-tag">Event Delegation</div>
+    </div>
+    <div class="main"><div class="slide-inner">
       <div class="slide-tag">Event Delegation</div>
       <h2>Try It — One Listener, Many Cards</h2>
 
@@ -1112,47 +1362,79 @@ container.<span class="fn">addEventListener</span>(<span class="str">'click'</sp
       <div class="note">
         <strong>Proof it's one listener:</strong> The listener was attached when the page loaded. The cards you click now were rendered after a filter click — yet the click still fires. That's event delegation in action.
       </div>
-    </div>
+    </div></div>
   </div>
 
   <!-- SLIDE 19 — Best Practices -->
   <div class="slide">
-    <div class="slide-inner">
+    <div class="rail">
+      <div class="rail-top">
+        <div class="kicker">Filter, Search, Find<br>Array Iteration Methods</div>
+        <div class="rail-num">20</div>
+      </div>
+      <div class="rail-tag">Best Practices</div>
+    </div>
+    <div class="main"><div class="slide-inner">
       <div class="slide-tag">Best Practices</div>
       <h2>Best Practices</h2>
 
-      <dl class="qa">
-        <div class="card">
-          <dt style="color:#ffeaa7; font-weight:700;">Keep filter logic and render logic separate</dt>
-          <dd style="font-size:.88rem; opacity:.9;">A <code>filterAndRender()</code> function that (1) computes the filtered array and (2) calls <code>renderProducts()</code> is easier to debug than mixing both inside one event handler.</dd>
+      <dl class="qa index-list">
+        <div class="index-item">
+          <div class="index-num">01</div>
+          <div>
+            <dt>Keep filter logic and render logic separate</dt>
+            <dd>A <code>filterAndRender()</code> function that (1) computes the filtered array and (2) calls <code>renderProducts()</code> is easier to debug than mixing both inside one event handler.</dd>
+          </div>
         </div>
-        <div class="card">
-          <dt style="color:#ffeaa7; font-weight:700;">Store filter state in variables outside handlers</dt>
-          <dd style="font-size:.88rem; opacity:.9;"><code>let activeCategory = 'all'</code> and <code>let searchQuery = ''</code> live at the top of your script. Every handler can read and update them. No passing arguments around.</dd>
+        <div class="index-item">
+          <div class="index-num">02</div>
+          <div>
+            <dt>Store filter state in variables outside handlers</dt>
+            <dd><code>let activeCategory = 'all'</code> and <code>let searchQuery = ''</code> live at the top of your script. Every handler can read and update them. No passing arguments around.</dd>
+          </div>
         </div>
-        <div class="card">
-          <dt style="color:#ffeaa7; font-weight:700;">Always <code>.toLowerCase()</code> search comparisons</dt>
-          <dd style="font-size:.88rem; opacity:.9;">A user typing "shoes" expects to match "Running Shoes". Lowercase both sides before comparing, or your search will feel broken.</dd>
+        <div class="index-item">
+          <div class="index-num">03</div>
+          <div>
+            <dt>Always <code>.toLowerCase()</code> search comparisons</dt>
+            <dd>A user typing "shoes" expects to match "Running Shoes". Lowercase both sides before comparing, or your search will feel broken.</dd>
+          </div>
         </div>
-        <div class="card">
-          <dt style="color:#ffeaa7; font-weight:700;">Use event delegation for dynamic content</dt>
-          <dd style="font-size:.88rem; opacity:.9;">Any time cards are generated by JavaScript, attach the click listener to the stable parent, not the cards. One listener, works forever.</dd>
+        <div class="index-item">
+          <div class="index-num">04</div>
+          <div>
+            <dt>Use event delegation for dynamic content</dt>
+            <dd>Any time cards are generated by JavaScript, attach the click listener to the stable parent, not the cards. One listener, works forever.</dd>
+          </div>
         </div>
-        <div class="card">
-          <dt style="color:#ffeaa7; font-weight:700;">Always handle the empty state</dt>
-          <dd style="font-size:.88rem; opacity:.9;">When <code>filter()</code> returns an empty array, show "No results match your search" — not a blank space. Users assume blank means broken.</dd>
+        <div class="index-item">
+          <div class="index-num">05</div>
+          <div>
+            <dt>Always handle the empty state</dt>
+            <dd>When <code>filter()</code> returns an empty array, show "No results match your search" — not a blank space. Users assume blank means broken.</dd>
+          </div>
         </div>
-        <div class="card">
-          <dt style="color:#ffeaa7; font-weight:700;">Cap chains at two methods</dt>
-          <dd style="font-size:.88rem; opacity:.9;"><code>.filter().map()</code> is great. <code>.filter().sort().slice().map()</code> is hard to debug. Break long chains into named intermediate variables.</dd>
+        <div class="index-item">
+          <div class="index-num">06</div>
+          <div>
+            <dt>Cap chains at two methods</dt>
+            <dd><code>.filter().map()</code> is great. <code>.filter().sort().slice().map()</code> is hard to debug. Break long chains into named intermediate variables.</dd>
+          </div>
         </div>
       </dl>
-    </div>
+    </div></div>
   </div>
 
   <!-- SLIDE 20 — Summary -->
   <div class="slide">
-    <div class="slide-inner">
+    <div class="rail">
+      <div class="rail-top">
+        <div class="kicker">Filter, Search, Find<br>Array Iteration Methods</div>
+        <div class="rail-num">21</div>
+      </div>
+      <div class="rail-tag">Summary</div>
+    </div>
+    <div class="main"><div class="slide-inner">
       <div class="slide-tag">Summary</div>
       <h2>Summary — What You Learned</h2>
 
@@ -1189,7 +1471,7 @@ container.<span class="fn">addEventListener</span>(<span class="str">'click'</sp
         <li><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array#iterative_methods" target="_blank" rel="noopener" style="color:var(--accent);">MDN: Array iteration methods →</a></li>
         <li><a href="https://developer.mozilla.org/en-US/docs/Learn/JavaScript/Building_blocks/Events#event_delegation" target="_blank" rel="noopener" style="color:var(--accent);">MDN: Event delegation →</a></li>
       </ul>
-    </div>
+    </div></div>
   </div>
 
 </div><!-- /deck -->
@@ -1218,8 +1500,37 @@ container.<span class="fn">addEventListener</span>(<span class="str">'click'</sp
     prevBtn.disabled = current === 0;
     nextBtn.disabled = current === total - 1;
     bar.style.width = ((current + 1) / total * 100) + '%';
+    fitCurrentSlide();
   }
   function changeSlide(d) { showSlide(current + d); }
+
+  // ===== FIT-TO-SCREEN — a slide never scrolls or clips; if its natural
+  // content height exceeds the available space, scale the whole content
+  // block down just enough to fit (never below MIN_SCALE — past that point
+  // a slide has too much content and should be split instead). =====
+  var MIN_SCALE = 0.72;
+
+  function fitSlide(slideEl) {
+    var main  = slideEl.querySelector('.main');
+    var inner = slideEl.querySelector('.slide-inner');
+    if (!main || !inner) return;
+
+    inner.style.transform = 'none';
+    inner.style.width = '100%';
+
+    var cs = getComputedStyle(main);
+    var available = main.clientHeight - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom);
+    var natural = inner.scrollHeight;
+
+    var scale = Math.min(1, available / natural);
+    scale = Math.max(scale, MIN_SCALE);
+
+    if (scale < 1) {
+      inner.style.transform = 'scale(' + scale + ')';
+      inner.style.width = (100 / scale) + '%';
+    }
+  }
+  function fitCurrentSlide() { fitSlide(slides[current]); }
 
   document.addEventListener('keydown', function(e) {
     if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
@@ -1228,6 +1539,16 @@ container.<span class="fn">addEventListener</span>(<span class="str">'click'</sp
   });
 
   showSlide(0);
+
+  if (document.fonts && document.fonts.ready) {
+    document.fonts.ready.then(fitCurrentSlide);
+  }
+
+  var fitResizeTimer;
+  window.addEventListener('resize', function() {
+    clearTimeout(fitResizeTimer);
+    fitResizeTimer = setTimeout(fitCurrentSlide, 100);
+  });
 
   // ===== SHARED DATA =====
   const demoProducts = [

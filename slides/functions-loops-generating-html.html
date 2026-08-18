@@ -4,30 +4,34 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Functions, Loops, and Generating HTML</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,900;1,9..144,500&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --bg:        #0f0f1a;
-      --surface:   #1a1a2e;
-      --border:    #2e2e4a;
-      --accent:    #a78bfa;
-      --accent2:   #6ee7b7;
-      --accent3:   #fbbf24;
-      --accent4:   #f87171;
-      --text:      #e8e8f0;
-      --muted:     #7070a0;
-      --code-bg:   #0a0a18;
-      --code-text: #c9d1d9;
-      --warn:      #fbbf24;
-      --danger:    #f87171;
-      --success:   #6ee7b7;
+      --bg:        #17140f;
+      --surface:   #1e1a14;
+      --border:    #3a3226;
+      --accent:    #cc7a4f;
+      --accent2:   #cfa77e;
+      --accent3:   #b98a52;
+      --accent4:   #b6553c;
+      --text:      #f2ece1;
+      --muted:     #9c9382;
+      --code-bg:   #141109;
+      --code-text: #e4ddd0;
+      --warn:      #cc7a4f;
+      --danger:    #b6553c;
+      --success:   #cfa77e;
       --nav-h:     52px;
+      --border-soft: #2a2318;
     }
 
     html, body {
       height: 100%;
-      font-family: system-ui, -apple-system, sans-serif;
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
       background: var(--bg);
       color: var(--text);
       overflow: hidden;
@@ -37,8 +41,8 @@
     #progress-bar {
       position: fixed;
       top: 0; left: 0;
-      height: 3px;
-      background: linear-gradient(90deg, var(--accent), var(--accent2));
+      height: 2px;
+      background: var(--accent);
       width: 0%;
       transition: width .3s ease;
       z-index: 100;
@@ -49,33 +53,36 @@
       position: fixed;
       bottom: 0; left: 0; right: 0;
       height: var(--nav-h);
-      background: rgba(10,10,24,.95);
-      border-top: 1px solid var(--border);
+      background: var(--bg);
+      border-top: 1px solid var(--border-soft, var(--border));
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 0 1rem;
+      padding: 0 1.6rem;
       z-index: 50;
       gap: .5rem;
     }
     nav .nav-btn {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      color: var(--text);
-      padding: .45rem 1rem;
-      border-radius: 8px;
-      font-size: .85rem;
+      background: none;
+      border: none;
+      color: var(--muted);
+      font-family: 'Inter', sans-serif;
+      font-size: .72rem;
+      letter-spacing: .08em;
+      text-transform: uppercase;
       font-weight: 600;
       cursor: pointer;
-      transition: background .2s, border-color .2s;
+      transition: color .15s;
       white-space: nowrap;
-      min-width: 80px;
+      padding: .4rem 0;
     }
-    nav .nav-btn:hover { background: var(--border); border-color: var(--accent); }
-    nav .nav-btn:disabled { opacity: .3; cursor: default; }
+    nav .nav-btn:hover:not(:disabled) { color: var(--text); }
+    nav .nav-btn:disabled { opacity: .25; cursor: default; }
     #slide-counter {
-      font-size: .8rem;
-      color: var(--muted);
+      font-size: .72rem;
+      letter-spacing: .08em;
+      color: var(--accent);
+      font-variant-numeric: tabular-nums;
       white-space: nowrap;
       min-width: 70px;
       text-align: center;
@@ -93,11 +100,12 @@
       display: none;
       position: absolute;
       inset: 0;
-      overflow-y: auto;
-      padding: 1.75rem 1.25rem 1rem;
+      grid-template-columns: 200px 1fr;
+      overflow: hidden;
+      background: var(--bg);
       animation: slideIn .22s ease;
     }
-    .slide.active          { display: block; }
+    .slide.active          { display: grid; }
     .slide.active.full-embed { display: flex; }
 
     @keyframes slideIn {
@@ -105,43 +113,51 @@
       to   { opacity: 1; transform: translateX(0); }
     }
 
-    .slide-inner {
-      max-width: 960px;
-      margin: 0 auto;
-      padding-bottom: 1.5rem;
+    /* ===== RAIL ===== */
+    .rail {
+      border-right: 1px solid var(--border-soft, var(--border));
+      padding: 2.2rem 1.5rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+    .rail-top .kicker {
+      font-size: .65rem;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      color: var(--muted);
+      font-weight: 600;
+      line-height: 1.5;
+    }
+    .rail-num {
+      font-family: 'Fraunces', serif;
+      font-weight: 400;
+      font-style: italic;
+      font-size: 3rem;
+      color: var(--muted);
+      opacity: .5;
+      margin-top: 1rem;
+      font-variant-numeric: oldstyle-nums;
+    }
+    .rail-tag {
+      font-size: .7rem;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--accent);
+      font-weight: 600;
+      writing-mode: vertical-rl;
+      transform: rotate(180deg);
+      justify-self: start;
     }
 
-    /* ===== GRADIENT BACKGROUNDS ===== */
-    .slide:nth-child(1)  { background: linear-gradient(135deg, #0f0f1a 0%, #1a1040 100%); }
-    .slide:nth-child(2)  { background: linear-gradient(135deg, #0d1117 0%, #1a2a1a 100%); }
-    .slide:nth-child(3)  { background: linear-gradient(135deg, #0a1628 0%, #0f0f1a 100%); }
-    .slide:nth-child(4)  { background: linear-gradient(135deg, #100d1a 0%, #201030 100%); }
-    .slide:nth-child(5)  { background: linear-gradient(135deg, #0f0f1a 0%, #1a1040 100%); }
-    .slide:nth-child(6)  { background: linear-gradient(135deg, #0d1020 0%, #1a2030 100%); }
-    .slide:nth-child(7)  { background: linear-gradient(135deg, #0d1a10 0%, #102010 100%); }
-    .slide:nth-child(8)  { background: linear-gradient(135deg, #0f0f1a 0%, #201020 100%); }
-    .slide:nth-child(9)  { background: linear-gradient(135deg, #0d1117 0%, #1a2a1a 100%); }
-    .slide:nth-child(10) { background: linear-gradient(135deg, #0a1628 0%, #102030 100%); }
-    .slide:nth-child(11) { background: linear-gradient(135deg, #0f0f1a 0%, #1a1040 100%); }
-    .slide:nth-child(12) { background: linear-gradient(135deg, #0d1020 0%, #201020 100%); }
-    .slide:nth-child(13) { background: linear-gradient(135deg, #0d1a10 0%, #1a2a18 100%); }
-    .slide:nth-child(14) { background: linear-gradient(135deg, #100d1a 0%, #1a1040 100%); }
-    .slide:nth-child(15) { background: linear-gradient(135deg, #0f0f1a 0%, #1a1040 100%); }
-    .slide:nth-child(16) { background: linear-gradient(135deg, #0d1117 0%, #1a2030 100%); }
-    .slide:nth-child(17) { background: linear-gradient(135deg, #0a1628 0%, #0f0f2a 100%); }
-    .slide:nth-child(18) { background: linear-gradient(135deg, #100d1a 0%, #201030 100%); }
-    .slide:nth-child(19) { background: linear-gradient(135deg, #0d1020 0%, #1a2030 100%); }
-    .slide:nth-child(20) { background: linear-gradient(135deg, #0f0f1a 0%, #1a1040 100%); }
-    .slide:nth-child(21) { background: linear-gradient(135deg, #0d1117 0%, #1a2a1a 100%); }
-    .slide:nth-child(22) { background: linear-gradient(135deg, #0a1628 0%, #102030 100%); }
-    .slide:nth-child(23) { background: linear-gradient(135deg, #100d1a 0%, #201030 100%); }
-    .slide:nth-child(24) { background: linear-gradient(135deg, #0f0f1a 0%, #1a1040 100%); }
-    .slide:nth-child(25) { background: linear-gradient(135deg, #0d1020 0%, #1a2030 100%); }
-    .slide:nth-child(26) { background: linear-gradient(135deg, #0d1a10 0%, #1a2a18 100%); }
-    .slide:nth-child(27) { background: linear-gradient(135deg, #0f0f1a 0%, #201020 100%); }
-    .slide:nth-child(28) { background: linear-gradient(135deg, #0d1117 0%, #1a2a1a 100%); }
-    .slide:nth-child(29) { background: linear-gradient(135deg, #0a1628 0%, #0f0f1a 100%); }
-    .slide:nth-child(30) { background: linear-gradient(135deg, #100d1a 0%, #201030 100%); }
+    /* ===== MAIN / FIT-TO-SCREEN ===== */
+    .main { padding: 2.6rem 4rem 2rem 3.2rem; overflow: hidden; }
+    .main-inner { transform-origin: top left; }
+
+    .slide-inner {
+      max-width: 100%;
+      padding-bottom: 1.5rem;
+    }
 
     /* ===== TYPOGRAPHY ===== */
     .slide-tag {
@@ -153,18 +169,24 @@
       margin-bottom: .55rem;
     }
     h1 {
+      font-family: 'Fraunces', serif;
+      font-weight: 600;
       font-size: clamp(1.8rem, 5vw, 3rem);
       line-height: 1.15;
       margin-bottom: .75rem;
-      color: #fff;
+      color: var(--text);
     }
     h2 {
+      font-family: 'Fraunces', serif;
+      font-weight: 600;
       font-size: clamp(1.25rem, 3.5vw, 1.9rem);
       color: var(--accent);
       margin-bottom: .65rem;
       line-height: 1.2;
     }
     h3 {
+      font-family: 'Fraunces', serif;
+      font-weight: 600;
       font-size: clamp(.95rem, 2.5vw, 1.25rem);
       color: var(--accent2);
       margin-bottom: .45rem;
@@ -178,7 +200,7 @@
     }
     .lead {
       font-size: clamp(.95rem, 2.5vw, 1.15rem);
-      color: #c0c0e0;
+      color: var(--muted);
       line-height: 1.6;
       margin-bottom: .9rem;
     }
@@ -196,21 +218,27 @@
     /* ===== CODE ===== */
     pre {
       background: var(--code-bg);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: .9rem 1.15rem;
-      overflow-x: auto;
-      font-size: clamp(.72rem, 1.7vw, .85rem);
-      line-height: 1.65;
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      padding: 1.2rem 1.4rem;
+      margin-bottom: 1.4rem;
+      max-width: 82ch;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: clamp(.8rem, 1.4vw, .9rem);
+      line-height: 1.7;
       color: var(--code-text);
-      margin-bottom: .8rem;
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
     }
-    code { font-family: 'Cascadia Code', 'Fira Code', 'Courier New', monospace; }
+    code {
+      font-family: 'JetBrains Mono', monospace;
+      font-variant-ligatures: none;
+      font-feature-settings: "calt" 0, "liga" 0;
+    }
     p code, li code, td code, dt code, dd code {
       background: var(--code-bg);
       border: 1px solid var(--border);
       padding: .1em .35em;
-      border-radius: 4px;
       font-size: .87em;
       color: var(--accent2);
     }
@@ -218,14 +246,13 @@
     .fn   { color: #82aaff; }
     .str  { color: #c3e88d; }
     .num  { color: #f78c6c; }
-    .cmt  { color: #546e7a; font-style: italic; }
+    .cmt  { color: #7a8a94; font-style: italic; }
     .prop { color: #ffcb6b; }
 
     /* ===== BOXES ===== */
     .card {
       background: var(--surface);
       border: 1px solid var(--border);
-      border-radius: 12px;
       padding: .9rem 1.15rem;
       margin-bottom: .85rem;
     }
@@ -239,37 +266,51 @@
     }
 
     .note {
-      background: rgba(167,139,250,.1);
-      border-left: 3px solid var(--accent);
-      border-radius: 0 8px 8px 0;
-      padding: .7rem 1rem;
-      font-size: clamp(.78rem, 1.75vw, .9rem);
+      max-width: 56ch;
       margin-bottom: .8rem;
-      color: #c0c0e8;
+      padding-top: .6rem;
+      border-top: 1px solid var(--border-soft, var(--border));
+      font-size: clamp(.78rem, 1.75vw, .9rem);
+      line-height: 1.55;
     }
     .note strong { color: var(--accent); }
 
     .caution {
-      background: rgba(251,191,36,.08);
-      border-left: 3px solid var(--warn);
-      border-radius: 0 8px 8px 0;
-      padding: .7rem 1rem;
-      font-size: clamp(.78rem, 1.75vw, .9rem);
+      max-width: 56ch;
       margin-bottom: .8rem;
-      color: #e8d8a0;
+      padding: .75rem 1rem;
+      font-size: clamp(.78rem, 1.75vw, .9rem);
+      line-height: 1.55;
+      background: rgba(204,122,79,.1);
+      border-left: 2px solid var(--warn);
     }
     .caution strong { color: var(--warn); }
 
     .highlight-box {
-      background: rgba(110,231,183,.08);
-      border: 1px solid rgba(110,231,183,.25);
-      border-radius: 10px;
-      padding: .8rem 1.1rem;
-      font-size: clamp(.78rem, 1.75vw, .9rem);
-      margin-bottom: .8rem;
-      color: #b0e8d4;
+      max-width: 60ch;
+      margin: 1.2rem 0 1.4rem;
+      padding-top: 1.2rem;
+      border-top: 1px solid var(--border);
+      position: relative;
+      font-family: 'Fraunces', serif;
+      font-style: italic;
+      font-weight: 500;
+      font-size: 1.02rem;
+      line-height: 1.55;
+      color: var(--text);
     }
-    .highlight-box strong { color: var(--accent2); }
+    .highlight-box::before {
+      content: '\201C';
+      font-family: 'Fraunces', serif;
+      font-size: 2.6rem;
+      color: var(--accent);
+      position: absolute;
+      top: .4rem;
+      left: -2rem;
+      line-height: 1;
+      opacity: .85;
+    }
+    .highlight-box strong { color: var(--accent2); font-style: normal; }
 
     /* ===== TWO-COLUMN ===== */
     .two-col {
@@ -286,7 +327,6 @@
     /* ===== IMAGES ===== */
     .slide-img {
       width: 100%;
-      border-radius: 10px;
       border: 1px solid var(--border);
       display: block;
       margin-bottom: .8rem;
@@ -295,52 +335,52 @@
     /* ===== DEMO BOXES ===== */
     .demo-box {
       background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 12px;
+      border: 1px solid var(--border-soft, var(--border));
       padding: 1.1rem;
       margin-bottom: .9rem;
     }
     .demo-box h4 {
-      font-size: .75rem;
+      font-size: .68rem;
       text-transform: uppercase;
-      letter-spacing: .1em;
+      letter-spacing: .12em;
       color: var(--accent);
-      margin-bottom: .7rem;
+      margin-bottom: .9rem;
       font-weight: 700;
     }
     .demo-btn {
-      background: var(--accent);
-      color: #0f0f1a;
-      border: none;
-      padding: .45rem 1rem;
-      border-radius: 8px;
-      font-weight: 700;
-      font-size: .85rem;
+      background: none;
+      border: 1px solid var(--border);
+      color: var(--text);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: .82rem;
+      padding: .5rem .9rem;
       cursor: pointer;
-      transition: background .18s, transform .1s;
-      margin: .25rem .25rem .25rem 0;
+      transition: border-color .15s, background .15s, color .15s;
+      margin: 0 .4rem .4rem 0;
     }
-    .demo-btn:hover  { background: #c4b5fd; }
+    .demo-btn:hover  { border-color: var(--accent); }
     .demo-btn:active { transform: scale(.97); }
+    .demo-btn:not(.secondary):not(.danger) { background: var(--accent); border-color: var(--accent); color: var(--bg); font-weight: 600; }
     .demo-btn.secondary {
-      background: var(--surface);
+      background: none;
       border: 1px solid var(--border);
       color: var(--text);
     }
     .demo-btn.secondary:hover { border-color: var(--accent); }
-    .demo-btn.danger { background: var(--danger); color: #fff; }
-    .demo-btn.danger:hover { background: #fca5a5; }
+    .demo-btn.danger { border-color: var(--accent4); color: var(--accent4); background: none; }
+    .demo-btn.danger:hover { background: var(--accent4); color: var(--bg); }
 
     .demo-output {
       background: var(--code-bg);
-      border: 1px solid var(--border);
-      border-radius: 8px;
+      border: 1px solid var(--border-soft, var(--border));
       padding: .55rem .85rem;
-      font-family: monospace;
+      font-family: 'JetBrains Mono', monospace;
       font-size: .82rem;
       color: var(--accent2);
       min-height: 36px;
       margin-top: .5rem;
+      display: flex;
+      align-items: center;
       word-break: break-all;
     }
 
@@ -364,20 +404,21 @@
     .ref-table {
       width: 100%;
       border-collapse: collapse;
-      font-size: clamp(.75rem, 1.7vw, .87rem);
-      margin-bottom: .8rem;
+      font-size: clamp(.8rem, 1.6vw, .92rem);
+      margin-bottom: 1.2rem;
+      font-variant-numeric: tabular-nums;
     }
     .ref-table th {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      padding: .5rem .8rem;
+      border-bottom: 2px solid var(--border);
+      padding: .6rem .9rem;
       text-align: left;
       color: var(--accent);
       font-weight: 700;
+      font-family: 'Inter', sans-serif;
     }
     .ref-table td {
-      border: 1px solid var(--border);
-      padding: .5rem .8rem;
+      border-bottom: 1px solid var(--border-soft, var(--border));
+      padding: .6rem .9rem;
       vertical-align: top;
     }
 
@@ -387,9 +428,8 @@
       border: 1px solid var(--border);
       color: var(--text);
       padding: .4rem .7rem;
-      border-radius: 6px;
       font-size: .85rem;
-      font-family: monospace;
+      font-family: 'JetBrains Mono', monospace;
       outline: none;
       width: 100%;
       max-width: 250px;
@@ -400,21 +440,20 @@
       display: inline-block;
       background: var(--surface);
       border: 1px solid var(--border);
-      border-radius: 8px;
       padding: .35rem .7rem;
       margin: .2rem;
-      font-family: monospace;
+      font-family: 'JetBrains Mono', monospace;
       font-size: .82rem;
       transition: all .3s;
     }
     .loop-step.active-step {
       background: var(--accent);
-      color: #0f0f1a;
+      color: var(--bg);
       border-color: var(--accent);
       font-weight: 700;
     }
     .loop-step.done-step {
-      background: rgba(110,231,183,.15);
+      background: rgba(207,167,126,.15);
       border-color: var(--accent2);
       color: var(--accent2);
     }
@@ -422,7 +461,6 @@
     .generated-card {
       background: var(--surface);
       border: 1px solid var(--border);
-      border-radius: 8px;
       padding: .6rem .8rem;
       font-size: .85rem;
       font-weight: 600;
@@ -447,8 +485,14 @@
   <!-- SLIDE 1 — Title -->
   <!-- ============================================================ -->
   <div class="slide active">
-    <div class="slide-inner">
-      <div class="slide-tag">JavaScript Functions &amp; Loops</div>
+    <div class="rail">
+      <div class="rail-top">
+        <div class="kicker">Functions, Loops<br>&amp; Generating HTML</div>
+        <div class="rail-num">01</div>
+      </div>
+      <div class="rail-tag">JavaScript Functions &amp; Loops</div>
+    </div>
+    <div class="main"><div class="slide-inner main-inner">
       <h1>Functions, Loops, and Generating HTML</h1>
       <p class="lead">Write it once — the pattern that turns data into styled card grids</p>
       <ul class="bullets" style="margin-top:1.5rem;">
@@ -460,15 +504,21 @@
         <li>Generating entire sections of HTML using loops and template literals</li>
         <li>The <code>renderCards()</code> pattern — data in, HTML out</li>
       </ul>
-    </div>
+    </div></div>
   </div>
 
   <!-- ============================================================ -->
   <!-- SLIDE 2 — Why Functions? The Problem -->
   <!-- ============================================================ -->
   <div class="slide">
-    <div class="slide-inner">
-      <div class="slide-tag">Why Functions?</div>
+    <div class="rail">
+      <div class="rail-top">
+        <div class="kicker">Functions, Loops<br>&amp; Generating HTML</div>
+        <div class="rail-num">02</div>
+      </div>
+      <div class="rail-tag">Why Functions?</div>
+    </div>
+    <div class="main"><div class="slide-inner main-inner">
       <h2>The Problem — Repeated Code</h2>
 
       <div class="highlight-box">
@@ -499,15 +549,21 @@ document.<span class="fn">querySelector</span>(<span class="str">'#pref-btn'</sp
       <div class="caution">
         <strong>What's wrong here?</strong> If you find a bug, you fix it in one place and forget the other. If the logic changes, you update two places and probably miss one. Copy-pasted code is a maintenance trap.
       </div>
-    </div>
+    </div></div>
   </div>
 
   <!-- ============================================================ -->
   <!-- SLIDE 3 — Why Functions? The Solution -->
   <!-- ============================================================ -->
   <div class="slide">
-    <div class="slide-inner">
-      <div class="slide-tag">Why Functions?</div>
+    <div class="rail">
+      <div class="rail-top">
+        <div class="kicker">Functions, Loops<br>&amp; Generating HTML</div>
+        <div class="rail-num">03</div>
+      </div>
+      <div class="rail-tag">Why Functions?</div>
+    </div>
+    <div class="main"><div class="slide-inner main-inner">
       <h2>The Solution — Write It Once</h2>
 
       <h3>Same HTML — better JavaScript</h3>
@@ -545,15 +601,21 @@ document.<span class="fn">querySelector</span>(<span class="str">'#pref-btn'</sp
       <div class="note">
         <strong>You've already been calling functions!</strong> <code>document.querySelector()</code>, <code>classList.toggle()</code>, <code>console.log()</code>, <code>Math.random()</code> — these are all functions someone else wrote. Now you write your own.
       </div>
-    </div>
+    </div></div>
   </div>
 
   <!-- ============================================================ -->
   <!-- SLIDE 4 — Function Declarations: Anatomy -->
   <!-- ============================================================ -->
   <div class="slide">
-    <div class="slide-inner">
-      <div class="slide-tag">Function Declarations</div>
+    <div class="rail">
+      <div class="rail-top">
+        <div class="kicker">Functions, Loops<br>&amp; Generating HTML</div>
+        <div class="rail-num">04</div>
+      </div>
+      <div class="rail-tag">Function Declarations</div>
+    </div>
+    <div class="main"><div class="slide-inner main-inner">
       <h2>Anatomy of a Function</h2>
       <p class="lead">A function declaration has four parts:</p>
 
@@ -588,15 +650,21 @@ document.<span class="fn">querySelector</span>(<span class="str">'#pref-btn'</sp
         </div>
         <div id="greetOutput" class="demo-output">← click the button</div>
       </div>
-    </div>
+    </div></div>
   </div>
 
   <!-- ============================================================ -->
   <!-- SLIDE 5 — Parameters -->
   <!-- ============================================================ -->
   <div class="slide">
-    <div class="slide-inner">
-      <div class="slide-tag">Function Declarations</div>
+    <div class="rail">
+      <div class="rail-top">
+        <div class="kicker">Functions, Loops<br>&amp; Generating HTML</div>
+        <div class="rail-num">05</div>
+      </div>
+      <div class="rail-tag">Function Declarations</div>
+    </div>
+    <div class="main"><div class="slide-inner main-inner">
       <h2>Parameters — Inputs to a Function</h2>
 
       <div class="highlight-box">
@@ -634,15 +702,21 @@ document.<span class="fn">querySelector</span>(<span class="str">'#pref-btn'</sp
       <div class="note">
         <strong>Parameters vs arguments:</strong> Parameters are the variable names in the function definition (<code>name</code>). Arguments are the actual values you pass when calling it (<code>'Ada'</code>). Most people use the terms interchangeably — that's fine.
       </div>
-    </div>
+    </div></div>
   </div>
 
   <!-- ============================================================ -->
   <!-- SLIDE 6 — Return Values -->
   <!-- ============================================================ -->
   <div class="slide">
-    <div class="slide-inner">
-      <div class="slide-tag">Function Declarations</div>
+    <div class="rail">
+      <div class="rail-top">
+        <div class="kicker">Functions, Loops<br>&amp; Generating HTML</div>
+        <div class="rail-num">06</div>
+      </div>
+      <div class="rail-tag">Function Declarations</div>
+    </div>
+    <div class="main"><div class="slide-inner main-inner">
       <h2>Return Values — Getting Data Back</h2>
 
       <div class="highlight-box">
@@ -689,15 +763,21 @@ document.<span class="fn">querySelector</span>(<span class="str">'.price'</span>
         </div>
         <div id="priceOutput" class="demo-output">← enter a number and click Run</div>
       </div>
-    </div>
+    </div></div>
   </div>
 
   <!-- ============================================================ -->
   <!-- SLIDE 7 — Default Parameters -->
   <!-- ============================================================ -->
   <div class="slide">
-    <div class="slide-inner">
-      <div class="slide-tag">Function Declarations</div>
+    <div class="rail">
+      <div class="rail-top">
+        <div class="kicker">Functions, Loops<br>&amp; Generating HTML</div>
+        <div class="rail-num">07</div>
+      </div>
+      <div class="rail-tag">Function Declarations</div>
+    </div>
+    <div class="main"><div class="slide-inner main-inner">
       <h2>Default Parameters</h2>
       <p>A parameter can have a fallback value that's used when no argument is passed:</p>
 
@@ -724,15 +804,21 @@ document.<span class="fn">querySelector</span>(<span class="str">'.price'</span>
       <p style="font-size:.82rem;">
         <a href="https://www.w3schools.com/js/js_function_parameters.asp" target="_blank" rel="noopener" style="color:var(--accent);">W3Schools: Function Parameters →</a>
       </p>
-    </div>
+    </div></div>
   </div>
 
   <!-- ============================================================ -->
   <!-- SLIDE 9 — Arrow Functions: Syntax -->
   <!-- ============================================================ -->
   <div class="slide">
-    <div class="slide-inner">
-      <div class="slide-tag">Arrow Functions</div>
+    <div class="rail">
+      <div class="rail-top">
+        <div class="kicker">Functions, Loops<br>&amp; Generating HTML</div>
+        <div class="rail-num">08</div>
+      </div>
+      <div class="rail-tag">Arrow Functions</div>
+    </div>
+    <div class="main"><div class="slide-inner main-inner">
       <h2>Arrow Functions — Reading the Syntax</h2>
       <p class="lead">An arrow function is a tiny recipe: <strong>input on the left</strong>, <strong>output on the right</strong>, connected by <code>=&gt;</code>.</p>
 
@@ -764,15 +850,21 @@ document.<span class="fn">querySelector</span>(<span class="str">'.price'</span>
       <div class="note">
         <strong>Why the concise form works:</strong> The arrow <code>=&gt;</code> already says "the input produces this output." When there's only one expression on the right, JavaScript treats it as the return value automatically. No braces, no <code>return</code> keyword needed.
       </div>
-    </div>
+    </div></div>
   </div>
 
   <!-- ============================================================ -->
   <!-- SLIDE 10 — Arrow Functions: Common Patterns -->
   <!-- ============================================================ -->
   <div class="slide">
-    <div class="slide-inner">
-      <div class="slide-tag">Arrow Functions</div>
+    <div class="rail">
+      <div class="rail-top">
+        <div class="kicker">Functions, Loops<br>&amp; Generating HTML</div>
+        <div class="rail-num">09</div>
+      </div>
+      <div class="rail-tag">Arrow Functions</div>
+    </div>
+    <div class="main"><div class="slide-inner main-inner">
       <h2>Reading Arrow Functions in English</h2>
 
       <p>Every one-liner follows the same pattern: <strong>input</strong> <code>=&gt;</code> <strong>output</strong>. Try reading each one aloud:</p>
@@ -819,15 +911,21 @@ document.<span class="fn">querySelector</span>(<span class="str">'.price'</span>
       <p style="font-size:.82rem;">
         <a href="https://www.w3schools.com/js/js_arrow_function.asp" target="_blank" rel="noopener" style="color:var(--accent);">W3Schools: Arrow Functions →</a>
       </p>
-    </div>
+    </div></div>
   </div>
 
   <!-- ============================================================ -->
   <!-- SLIDE 10.5 — Arrays Primer -->
   <!-- ============================================================ -->
   <div class="slide">
-    <div class="slide-inner">
-      <div class="slide-tag">Arrays</div>
+    <div class="rail">
+      <div class="rail-top">
+        <div class="kicker">Functions, Loops<br>&amp; Generating HTML</div>
+        <div class="rail-num">10</div>
+      </div>
+      <div class="rail-tag">Arrays</div>
+    </div>
+    <div class="main"><div class="slide-inner main-inner">
       <h2>Quick Primer — Arrays</h2>
       <p class="lead">Before we loop through arrays, let's make sure you know what one is.</p>
 
@@ -847,15 +945,21 @@ cities.<span class="prop">length</span>;   <span class="cmt">// 4          — h
       <div class="note">
         <strong>The big idea:</strong> An array holds many values in one variable. Loops let you "walk through" those values one at a time so you can do something with each one — like build a card for every city.
       </div>
-    </div>
+    </div></div>
   </div>
 
   <!-- ============================================================ -->
   <!-- SLIDE 11 — The for Loop: Anatomy -->
   <!-- ============================================================ -->
   <div class="slide">
-    <div class="slide-inner">
-      <div class="slide-tag">Loops</div>
+    <div class="rail">
+      <div class="rail-top">
+        <div class="kicker">Functions, Loops<br>&amp; Generating HTML</div>
+        <div class="rail-num">11</div>
+      </div>
+      <div class="rail-tag">Loops</div>
+    </div>
+    <div class="main"><div class="slide-inner main-inner">
       <h2>The <code>for</code> Loop</h2>
       <p class="lead">A <code>for</code> loop repeats a block of code a specific number of times.</p>
 
@@ -893,15 +997,21 @@ cities.<span class="prop">length</span>;   <span class="cmt">// 4          — h
         </div>
         <div id="loopStatus" class="demo-output">Click "Next Step" to walk through the loop one iteration at a time</div>
       </div>
-    </div>
+    </div></div>
   </div>
 
   <!-- ============================================================ -->
   <!-- SLIDE 12 — for Loop with Arrays -->
   <!-- ============================================================ -->
   <div class="slide">
-    <div class="slide-inner">
-      <div class="slide-tag">Loops</div>
+    <div class="rail">
+      <div class="rail-top">
+        <div class="kicker">Functions, Loops<br>&amp; Generating HTML</div>
+        <div class="rail-num">12</div>
+      </div>
+      <div class="rail-tag">Loops</div>
+    </div>
+    <div class="main"><div class="slide-inner main-inner">
       <h2>Looping Through an Array</h2>
       <p>Use the array's <code>.length</code> as the condition to loop through every item:</p>
 
@@ -928,15 +1038,21 @@ cities.<span class="prop">length</span>;   <span class="cmt">// 4          — h
       <p style="font-size:.82rem;">
         <a href="https://www.w3schools.com/js/js_loop_for.asp" target="_blank" rel="noopener" style="color:var(--accent);">W3Schools: JavaScript For Loop →</a>
       </p>
-    </div>
+    </div></div>
   </div>
 
   <!-- ============================================================ -->
   <!-- SLIDE 13 — for...of Loop -->
   <!-- ============================================================ -->
   <div class="slide">
-    <div class="slide-inner">
-      <div class="slide-tag">Loops</div>
+    <div class="rail">
+      <div class="rail-top">
+        <div class="kicker">Functions, Loops<br>&amp; Generating HTML</div>
+        <div class="rail-num">13</div>
+      </div>
+      <div class="rail-tag">Loops</div>
+    </div>
+    <div class="main"><div class="slide-inner main-inner">
       <h2>The <code>for...of</code> Loop</h2>
       <p class="lead">The friendliest way to visit every item in an array — no counter, no indexes.</p>
 
@@ -1005,15 +1121,21 @@ cities.<span class="prop">length</span>;   <span class="cmt">// 4          — h
       <div class="highlight-box">
         <strong>Rule of thumb:</strong> Use <code>for...of</code> as your default for arrays. Use the index-based <code>for</code> loop only when you specifically need the position number.
       </div>
-    </div>
+    </div></div>
   </div>
 
   <!-- ============================================================ -->
   <!-- SLIDE 14 — for vs for...of Reference -->
   <!-- ============================================================ -->
   <div class="slide">
-    <div class="slide-inner">
-      <div class="slide-tag">Loops</div>
+    <div class="rail">
+      <div class="rail-top">
+        <div class="kicker">Functions, Loops<br>&amp; Generating HTML</div>
+        <div class="rail-num">14</div>
+      </div>
+      <div class="rail-tag">Loops</div>
+    </div>
+    <div class="main"><div class="slide-inner main-inner">
       <h2><code>for</code> vs <code>for...of</code> — When to Use Which</h2>
 
       <table class="ref-table">
@@ -1049,15 +1171,21 @@ cities.<span class="prop">length</span>;   <span class="cmt">// 4          — h
         <a href="https://www.w3schools.com/js/js_loop_forof.asp" target="_blank" rel="noopener" style="color:var(--accent);">W3Schools: For...Of Loop →</a><br>
         <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/for...of" target="_blank" rel="noopener" style="color:var(--accent);">MDN: for...of →</a>
       </p>
-    </div>
+    </div></div>
   </div>
 
   <!-- ============================================================ -->
   <!-- SLIDE 15 — Generating HTML with Loops -->
   <!-- ============================================================ -->
   <div class="slide">
-    <div class="slide-inner">
-      <div class="slide-tag">Generating HTML</div>
+    <div class="rail">
+      <div class="rail-top">
+        <div class="kicker">Functions, Loops<br>&amp; Generating HTML</div>
+        <div class="rail-num">15</div>
+      </div>
+      <div class="rail-tag">Generating HTML</div>
+    </div>
+    <div class="main"><div class="slide-inner main-inner">
       <h2>Generating HTML with Loops</h2>
       <p class="lead">This is the pattern that makes card grids come alive.</p>
 
@@ -1081,15 +1209,21 @@ document.<span class="fn">querySelector</span>(<span class="str">'.grid'</span>)
       <div class="note">
         <strong>How it works:</strong> Start with an empty string. Each iteration adds one card's HTML to the string using a template literal. After the loop, one <code>innerHTML</code> assignment injects the entire result. The CSS card styles you already know apply automatically.
       </div>
-    </div>
+    </div></div>
   </div>
 
   <!-- ============================================================ -->
   <!-- SLIDE 16 — Live Card Generator Demo -->
   <!-- ============================================================ -->
   <div class="slide">
-    <div class="slide-inner">
-      <div class="slide-tag">Generating HTML</div>
+    <div class="rail">
+      <div class="rail-top">
+        <div class="kicker">Functions, Loops<br>&amp; Generating HTML</div>
+        <div class="rail-num">16</div>
+      </div>
+      <div class="rail-tag">Generating HTML</div>
+    </div>
+    <div class="main"><div class="slide-inner main-inner">
       <h2>Generating HTML — Try It Live</h2>
 
       <div class="demo-box">
@@ -1103,15 +1237,21 @@ document.<span class="fn">querySelector</span>(<span class="str">'.grid'</span>)
       <div class="note">
         <strong>Key insight:</strong> Instead of writing 50 <code>&lt;div class="card"&gt;</code> elements by hand in HTML, you store the data in an array and let a loop build all the HTML for you. Change the data, and the cards update automatically.
       </div>
-    </div>
+    </div></div>
   </div>
 
   <!-- ============================================================ -->
   <!-- SLIDE 18 — The renderCards() Pattern -->
   <!-- ============================================================ -->
   <div class="slide">
-    <div class="slide-inner">
-      <div class="slide-tag">The renderCards() Pattern</div>
+    <div class="rail">
+      <div class="rail-top">
+        <div class="kicker">Functions, Loops<br>&amp; Generating HTML</div>
+        <div class="rail-num">17</div>
+      </div>
+      <div class="rail-tag">The renderCards() Pattern</div>
+    </div>
+    <div class="main"><div class="slide-inner main-inner">
       <h2>Wrapping the Loop in a Function</h2>
       <p class="lead">The <code>renderCards()</code> pattern combines functions + loops into one reusable tool.</p>
 
@@ -1145,15 +1285,21 @@ document.<span class="fn">querySelector</span>(<span class="str">'.grid'</span>)
 <span class="fn">renderCards</span>(cities);  <span class="cmt">// Initial render</span></code></pre>
 
       <p>Call it once on load. Call it again after a filter. Call it after a shuffle. The grid rebuilds every time.</p>
-    </div>
+    </div></div>
   </div>
 
   <!-- ============================================================ -->
   <!-- SLIDE 19 — map() and join('') -->
   <!-- ============================================================ -->
   <div class="slide">
-    <div class="slide-inner">
-      <div class="slide-tag">The renderCards() Pattern</div>
+    <div class="rail">
+      <div class="rail-top">
+        <div class="kicker">Functions, Loops<br>&amp; Generating HTML</div>
+        <div class="rail-num">18</div>
+      </div>
+      <div class="rail-tag">The renderCards() Pattern</div>
+    </div>
+    <div class="main"><div class="slide-inner main-inner">
       <h2><code>map()</code> — Transform Every Item</h2>
       <p class="lead"><code>map()</code> takes an array, runs every item through a function you provide, and gives you back a <strong>new array</strong> of the transformed results.</p>
 
@@ -1210,15 +1356,21 @@ console.<span class="fn">log</span>(numbers);  <span class="cmt">// [1, 2, 3, 4]
         <a href="https://www.w3schools.com/jsref/jsref_map.asp" target="_blank" rel="noopener" style="color:var(--accent);">W3Schools: Array.map() →</a> &nbsp;|&nbsp;
         <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/map" target="_blank" rel="noopener" style="color:var(--accent);">MDN: Array.map() →</a>
       </p>
-    </div>
+    </div></div>
   </div>
 
   <!-- ============================================================ -->
   <!-- SLIDE 19B — join('') -->
   <!-- ============================================================ -->
   <div class="slide">
-    <div class="slide-inner">
-      <div class="slide-tag">The renderCards() Pattern</div>
+    <div class="rail">
+      <div class="rail-top">
+        <div class="kicker">Functions, Loops<br>&amp; Generating HTML</div>
+        <div class="rail-num">19</div>
+      </div>
+      <div class="rail-tag">The renderCards() Pattern</div>
+    </div>
+    <div class="main"><div class="slide-inner main-inner">
       <h2><code>join('')</code> — Combine an Array Into One String</h2>
       <p class="lead"><code>.join()</code> turns an array of strings into a single string, putting the separator you choose between each item.</p>
 
@@ -1271,15 +1423,21 @@ parts.<span class="fn">join</span>(<span class="str">''</span>);     <span class
       <p style="font-size:.82rem;">
         <a href="https://www.w3schools.com/jsref/jsref_join.asp" target="_blank" rel="noopener" style="color:var(--accent);">W3Schools: Array.join() →</a>
       </p>
-    </div>
+    </div></div>
   </div>
 
   <!-- ============================================================ -->
   <!-- SLIDE 21 — Putting It Together: Concept -->
   <!-- ============================================================ -->
   <div class="slide">
-    <div class="slide-inner">
-      <div class="slide-tag">Putting It Together</div>
+    <div class="rail">
+      <div class="rail-top">
+        <div class="kicker">Functions, Loops<br>&amp; Generating HTML</div>
+        <div class="rail-num">20</div>
+      </div>
+      <div class="rail-tag">Putting It Together</div>
+    </div>
+    <div class="main"><div class="slide-inner main-inner">
       <h2>Functions + Loops + Template Literals</h2>
       <p class="lead">The three tools combine to create a clean separation between data and display.</p>
 
@@ -1330,15 +1488,21 @@ shuffleBtn.<span class="fn">addEventListener</span>(
       <div class="highlight-box">
         <strong>Key insight:</strong> Changing what gets displayed means changing the array and calling the render function again. The CSS card layouts you've designed stay completely unchanged.
       </div>
-    </div>
+    </div></div>
   </div>
 
   <!-- ============================================================ -->
   <!-- SLIDE 22 — Putting It Together: Interactive Demo -->
   <!-- ============================================================ -->
   <div class="slide">
-    <div class="slide-inner">
-      <div class="slide-tag">Putting It Together</div>
+    <div class="rail">
+      <div class="rail-top">
+        <div class="kicker">Functions, Loops<br>&amp; Generating HTML</div>
+        <div class="rail-num">21</div>
+      </div>
+      <div class="rail-tag">Putting It Together</div>
+    </div>
+    <div class="main"><div class="slide-inner main-inner">
       <h2>Try It — Data-Driven Card Grid</h2>
 
       <div class="demo-box">
@@ -1359,7 +1523,7 @@ shuffleBtn.<span class="fn">addEventListener</span>(
 <span class="fn">renderCards</span>(projects.<span class="fn">filter</span>(           <span class="cmt">// Short Names</span>
   p => p.<span class="prop">length</span> <= <span class="num">10</span>));
 <span class="fn">renderCards</span>(shuffle(projects));          <span class="cmt">// Shuffle</span></code></pre>
-    </div>
+    </div></div>
   </div>
 
 
@@ -1367,8 +1531,14 @@ shuffleBtn.<span class="fn">addEventListener</span>(
   <!-- SLIDE 24 — Best Practices -->
   <!-- ============================================================ -->
   <div class="slide">
-    <div class="slide-inner">
-      <div class="slide-tag">Best Practices</div>
+    <div class="rail">
+      <div class="rail-top">
+        <div class="kicker">Functions, Loops<br>&amp; Generating HTML</div>
+        <div class="rail-num">22</div>
+      </div>
+      <div class="rail-tag">Best Practices</div>
+    </div>
+    <div class="main"><div class="slide-inner main-inner">
       <h2>Best Practices</h2>
 
       <dl class="qa">
@@ -1393,15 +1563,21 @@ shuffleBtn.<span class="fn">addEventListener</span>(
           <dd style="font-size:.88rem; opacity:.9;">When data comes from user input, use <code>textContent</code> on individual elements instead. When data is your own array (under your control), <code>innerHTML</code> is fine.</dd>
         </div>
       </dl>
-    </div>
+    </div></div>
   </div>
 
   <!-- ============================================================ -->
   <!-- SLIDE 25 — Summary -->
   <!-- ============================================================ -->
   <div class="slide">
-    <div class="slide-inner">
-      <div class="slide-tag">Summary</div>
+    <div class="rail">
+      <div class="rail-top">
+        <div class="kicker">Functions, Loops<br>&amp; Generating HTML</div>
+        <div class="rail-num">23</div>
+      </div>
+      <div class="rail-tag">Summary</div>
+    </div>
+    <div class="main"><div class="slide-inner main-inner">
       <h2>Summary — What You Learned</h2>
 
       <table class="ref-table">
@@ -1437,7 +1613,7 @@ shuffleBtn.<span class="fn">addEventListener</span>(
         <li><a href="https://www.w3schools.com/jsref/jsref_map.asp" target="_blank" rel="noopener" style="color:var(--accent);">W3Schools: Array.map() →</a></li>
         <li><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/map" target="_blank" rel="noopener" style="color:var(--accent);">MDN: Array.map() →</a></li>
       </ul>
-    </div>
+    </div></div>
   </div>
 
 </div><!-- /deck -->
@@ -1467,6 +1643,7 @@ shuffleBtn.<span class="fn">addEventListener</span>(
     prevBtn.disabled = current === 0;
     nextBtn.disabled = current === total - 1;
     bar.style.width = ((current + 1) / total * 100) + '%';
+    fitCurrentSlide();
   }
 
   function changeSlide(d) { showSlide(current + d); }
@@ -1624,6 +1801,40 @@ shuffleBtn.<span class="fn">addEventListener</span>(
     ).join('');
   }
   renderDemoCards('all'); // Initial render
+
+  // ===== FIT-TO-SCREEN (no-scroll) =====
+  var MIN_SCALE = 0.72;
+  function fitSlide(slideEl) {
+    var main  = slideEl.querySelector('.main');
+    var inner = slideEl.querySelector('.main-inner');
+    if (!main || !inner) return;
+
+    inner.style.transform = 'none';
+    inner.style.width = '100%';
+
+    var cs = getComputedStyle(main);
+    var available = main.clientHeight - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom);
+    var natural = inner.scrollHeight;
+
+    var scale = Math.min(1, available / natural);
+    scale = Math.max(scale, MIN_SCALE);
+
+    if (scale < 1) {
+      inner.style.transform = 'scale(' + scale + ')';
+      inner.style.width = (100 / scale) + '%';
+    }
+  }
+  function fitCurrentSlide() { fitSlide(slides[current]); }
+
+  if (document.fonts && document.fonts.ready) {
+    document.fonts.ready.then(fitCurrentSlide);
+  }
+
+  var resizeTimer;
+  window.addEventListener('resize', function() {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(fitCurrentSlide, 100);
+  });
 </script>
 
 </body>

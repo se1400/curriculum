@@ -4,46 +4,70 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Modern CSS &amp; Web Accessibility — Lesson 17</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,900;1,9..144,500&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
   <style>
     *{margin:0;padding:0;box-sizing:border-box;}
-    :root{--primary:#1a1a2e;--accent:#4f6df5;--code-bg:#0f0f1a;--code-text:#d4d4d4;}
-    html,body{height:100%;font-family:'Segoe UI',system-ui,sans-serif;background:var(--primary);overflow:hidden;display:flex;flex-direction:column;}
-    .progress-bar{width:100%;height:4px;background:rgba(255,255,255,.12);flex-shrink:0;}
+    :root{
+      --primary: #17140f;
+      --accent: #cc7a4f;
+      --code-bg: #141109;
+      --code-text: #e4ddd0;
+      --text: #f2ece1;
+      --muted: #9c9382;
+      --border: #3a3226;
+      --border-soft: #29241c;
+      --nav-h: 56px;
+    }
+    html,body{height:100%;font-family:'Inter',sans-serif;background:var(--primary);overflow:hidden;display:flex;flex-direction:column;}
+    code{font-variant-ligatures:none;font-feature-settings:"calt" 0,"liga" 0;}
+    @media (prefers-reduced-motion: reduce){.slide{animation:none !important;}}
+
+    .progress-bar{width:100%;height:2px;background:var(--border-soft);flex-shrink:0;}
     .progress{height:100%;background:var(--accent);transition:width .3s ease;}
+
     .slideshow-container{flex:1;display:flex;flex-direction:column;overflow:hidden;min-height:0;}
-    .slide{display:none;flex:1;padding:1rem 1.6rem;color:#fff;overflow-y:auto;animation:fadeIn .3s ease;flex-direction:column;min-height:0;}
-    .slide.active{display:flex;}
-    @keyframes fadeIn{from{opacity:0;transform:translateX(14px);}to{opacity:1;transform:translateX(0);}}
-    .slide:nth-child(odd){background:linear-gradient(135deg,#667eea,#764ba2);}
-    .slide:nth-child(even){background:linear-gradient(135deg,#11998e,#38ef7d);}
-    .slide:nth-child(3n){background:linear-gradient(135deg,#ee0979,#ff6a00);}
-    .slide:nth-child(4n){background:linear-gradient(135deg,#2193b0,#6dd5ed);}
-    .slide:nth-child(5n){background:linear-gradient(135deg,#c31432,#240b36);}
-    .slide:nth-child(7n){background:linear-gradient(135deg,#0f0c29,#302b63 50%,#24243e);}
-    .slide:nth-child(9n){background:linear-gradient(135deg,#1a1a2e,#16213e 50%,#0f3460);}
-    .slide-label{font-size:.67rem;text-transform:uppercase;letter-spacing:.12em;color:rgba(255,255,255,.4);margin-bottom:.22rem;flex-shrink:0;}
-    .slide-content{max-width:1400px;width:100%;margin:0 auto;flex:1;display:flex;flex-direction:column;min-height:0;}
+    .slide{display:none;flex:1;grid-template-columns:200px 1fr;background:var(--primary);color:var(--text);animation:fadeIn .4s ease;overflow:hidden;min-height:0;}
+    .slide.active{display:grid;}
+    @keyframes fadeIn{from{opacity:0;transform:translateY(12px);}to{opacity:1;transform:translateY(0);}}
+
+    .rail{border-right:1px solid var(--border-soft);padding:2.2rem 1.5rem;}
+    .kicker{font-size:.65rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);font-weight:600;line-height:1.5;}
+    .rail-num{font-family:'Fraunces',serif;font-weight:400;font-style:italic;font-size:3rem;color:var(--muted);opacity:.5;margin-top:1rem;font-variant-numeric:oldstyle-nums;}
+    .rail-tag{font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;color:var(--accent);font-weight:600;writing-mode:vertical-rl;transform:rotate(180deg);justify-self:start;}
+
+    .slide-label{font-size:.65rem;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);margin-bottom:.4rem;flex-shrink:0;}
+
+    .main{padding:2.2rem 3.6rem 1.8rem 3rem;overflow:hidden;display:flex;}
+    .slide-content{max-width:1400px;width:100%;flex:1;display:flex;flex-direction:column;min-height:0;transform-origin:top left;}
     .slide-content.centered{justify-content:center;align-items:center;text-align:center;}
-    h1{font-size:clamp(1.7rem,5vw,3rem);margin-bottom:.85rem;line-height:1.15;text-shadow:0 2px 8px rgba(0,0,0,.35);}
-    h2{font-size:clamp(1.2rem,3.5vw,1.85rem);margin-bottom:.3rem;color:#ffeaa7;line-height:1.2;}
-    h3{font-size:clamp(.9rem,2.2vw,1.2rem);margin:.3rem 0 .15rem;color:#81ecec;}
-    p{font-size:clamp(.83rem,1.9vw,1rem);line-height:1.5;margin-bottom:.25rem;}
-    ul,ol{font-size:clamp(.8rem,1.8vw,.96rem);line-height:1.55;margin-left:1.2rem;margin-bottom:.25rem;}
-    li{margin-bottom:.12rem;}
-    a{color:#ffeaa7;text-decoration:underline;}a:hover{color:#fdcb6e;}
-    code{background:rgba(0,0,0,.38);padding:.13em .4em;border-radius:4px;font-family:'Consolas','Monaco',monospace;font-size:.86em;}
-    pre{background:var(--code-bg);color:var(--code-text);padding:.45rem .75rem;border-radius:8px;overflow-x:auto;margin:.25rem 0;font-size:clamp(.68rem,1.5vw,.84rem);line-height:1.4;flex-shrink:0;}
-    pre code{background:none;padding:0;font-size:inherit;}
-    .note{background:rgba(34,197,94,.14);border-left:4px solid #22c55e;padding:.38rem .7rem;border-radius:6px;margin:.25rem 0;font-size:clamp(.78rem,1.7vw,.92rem);}
-    .caution{background:rgba(239,68,68,.14);border-left:4px solid #ef4444;padding:.38rem .7rem;border-radius:6px;margin:.25rem 0;font-size:clamp(.78rem,1.7vw,.92rem);}
-    .tip{background:rgba(79,109,245,.18);border-left:4px solid #4f6df5;padding:.38rem .7rem;border-radius:6px;margin:.25rem 0;font-size:clamp(.78rem,1.7vw,.92rem);}
-    .two-col{display:grid;grid-template-columns:1fr 1fr;gap:.85rem;align-items:start;}
-    .three-col{display:grid;grid-template-columns:repeat(3,1fr);gap:.7rem;align-items:start;}
+    .slide-content > p, .slide-content > ul, .slide-content > ol{max-width:68ch;}
+
+    h1{font-family:'Fraunces',serif;font-weight:600;font-size:clamp(1.7rem,4vw,2.6rem);margin-bottom:.9rem;line-height:1.15;}
+    h2{font-family:'Fraunces',serif;font-weight:600;font-size:clamp(1.2rem,2.8vw,1.7rem);margin-bottom:.5rem;color:var(--text);}
+    h3{font-family:'Inter',sans-serif;font-weight:700;font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin:.6rem 0 .3rem;}
+    p{font-size:clamp(.88rem,1.8vw,1.02rem);line-height:1.5;margin-bottom:.6rem;}
+    ul,ol{font-size:clamp(.85rem,1.7vw,.98rem);line-height:1.55;margin-left:1.3rem;margin-bottom:.6rem;}
+    li{margin-bottom:.3rem;}
+    a{color:var(--accent);text-decoration:underline;}
+    a:hover{color:var(--text);}
+    code{background:#1e1a14;padding:.15em .45em;border-radius:3px;font-family:'JetBrains Mono',monospace;font-size:.85em;color:var(--accent);}
+    pre{background:var(--code-bg);color:var(--code-text);border-top:1px solid var(--border);border-bottom:1px solid var(--border);padding:.8rem 1.1rem;overflow-x:auto;margin:.5rem 0;font-size:clamp(.72rem,1.5vw,.86rem);line-height:1.5;flex-shrink:0;white-space:pre-wrap;overflow-wrap:anywhere;}
+    pre code{background:none;padding:0;font-size:inherit;color:inherit;}
+
+    .note,.tip{background:none;border-left:none;border-top:1px solid var(--border-soft);border-radius:0;padding:.5rem 0 0;margin:.6rem 0;font-size:clamp(.82rem,1.6vw,.94rem);}
+    .caution{background:rgba(204,122,79,.1);border-left:2px solid var(--accent);border-radius:0;padding:.6rem .9rem;margin:.6rem 0;font-size:clamp(.82rem,1.6vw,.94rem);}
+
+    .two-col{display:grid;grid-template-columns:1fr 1fr;gap:1.4rem;align-items:start;}
+    .three-col{display:grid;grid-template-columns:repeat(3,1fr);gap:1.1rem;align-items:start;}
     @media(max-width:900px){.three-col{grid-template-columns:1fr 1fr;}}
-    @media(max-width:700px){.two-col,.three-col{grid-template-columns:1fr;}.slide{padding:.8rem .85rem;}}
-    .card{background:rgba(0,0,0,.22);padding:.55rem .75rem;border-radius:8px;border:1px solid rgba(255,255,255,.13);}
-    .slide-img{max-width:100%;border-radius:8px;border:1px solid rgba(255,255,255,.18);margin:.3rem 0;box-shadow:0 4px 16px rgba(0,0,0,.4);}
-    .img-caption{font-size:.72rem;opacity:.55;text-align:center;margin-top:.15rem;}
+    @media(max-width:700px){.two-col,.three-col{grid-template-columns:1fr;}}
+
+    .card{background:#1e1a14;padding:.8rem 1rem;border-top:1px solid var(--border-soft);border-radius:0;}
+    .slide-img{max-width:100%;border:1px solid var(--border);margin:.5rem 0;}
+    .img-caption{font-size:.78rem;color:var(--muted);text-align:center;margin-top:.3rem;}
+
     .demo-btn{padding:.26rem .58rem;font-size:.76rem;border:1px solid rgba(255,255,255,.3);border-radius:4px;cursor:pointer;background:rgba(0,0,0,.3);color:white;transition:all .18s;}
     .demo-btn:hover{background:rgba(255,255,255,.15);}
     .demo-btn.active{background:rgba(52,152,219,.6);border-color:#3498db;}
@@ -183,11 +207,20 @@
     .demo-dialog p{font-size:.84rem;margin-bottom:.7rem;opacity:.88;}
     .demo-dialog-btns{display:flex;gap:.45rem;justify-content:flex-end;}
     /* Nav */
-    .nav{display:flex;align-items:center;justify-content:center;gap:1rem;padding:.35rem 1rem;background:rgba(0,0,0,.42);flex-shrink:0;}
-    .nav-btn{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.26);color:white;width:34px;height:34px;border-radius:50%;cursor:pointer;font-size:.92rem;display:flex;align-items:center;justify-content:center;transition:background .18s;}
-    .nav-btn:hover:not(:disabled){background:rgba(255,255,255,.26);}
+    .nav{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding:0 1.6rem;height:var(--nav-h);background:var(--primary);border-top:1px solid var(--border-soft);flex-shrink:0;}
+    .nav-btn{background:none;border:1px solid var(--border);color:var(--muted);width:34px;height:34px;border-radius:50%;cursor:pointer;font-size:.92rem;display:flex;align-items:center;justify-content:center;transition:border-color .15s,color .15s;}
+    .nav-btn:hover:not(:disabled){border-color:var(--accent);color:var(--text);}
     .nav-btn:disabled{opacity:.3;cursor:not-allowed;}
-    .nav-counter{color:rgba(255,255,255,.65);font-size:.82rem;min-width:52px;text-align:center;}
+    .nav-counter{color:var(--accent);font-size:.72rem;letter-spacing:.08em;min-width:52px;text-align:center;font-variant-numeric:tabular-nums;}
+
+    @media(max-width:700px){
+      .slide{grid-template-columns:56px 1fr;}
+      .rail{padding:1rem .5rem;}
+      .kicker{display:none;}
+      .rail-num{font-size:1.4rem;margin-top:0;}
+      .main{padding:1.25rem 1rem;}
+      .nav{padding:0 1rem;}
+    }
   </style>
 </head>
 <body>
@@ -196,7 +229,13 @@
 
 <!-- ═══════════════════════════════════════════════════ SLIDE 1: Cover -->
 <div class="slide">
-  <p class="slide-label">Lesson 17</p>
+    <div class="rail">
+      <div class="rail-top">
+        <div class="kicker">Modern CSS &amp;<br>Web Accessibility</div>
+        <div class="rail-num">01</div>
+      </div>
+    </div>
+    <div class="main"><p class="slide-label">Lesson 17</p>
   <div class="slide-content centered">
     <div>
       <span class="badge blue">Part 1</span> <span class="badge green">Part 2</span>
@@ -219,12 +258,18 @@
         </div>
       </div>
     </div>
+  </div></div>
   </div>
-</div>
 
 <!-- ═══════════════════════════════════════════════════ SLIDE 2: What You'll Learn -->
 <div class="slide">
-  <p class="slide-label">Lesson Overview</p>
+    <div class="rail">
+      <div class="rail-top">
+        <div class="kicker">Modern CSS &amp;<br>Web Accessibility</div>
+        <div class="rail-num">02</div>
+      </div>
+    </div>
+    <div class="main"><p class="slide-label">Lesson Overview</p>
   <div class="slide-content">
     <h2>What You'll Learn</h2>
     <div class="learn-grid">
@@ -241,12 +286,18 @@
       <div class="learn-item">Test with Lighthouse, axe, WAVE, and screen readers</div>
     </div>
     <div class="tip">These two topics are not unrelated — good CSS architecture and good accessibility share the same root value: <strong>clarity of intent expressed through clean code.</strong></div>
+  </div></div>
   </div>
-</div>
 
 <!-- ═══════════════════════════════════════════════════ SLIDE 3: CSS Nesting Intro -->
 <div class="slide">
-  <p class="slide-label">Part 1 — Modern CSS</p>
+    <div class="rail">
+      <div class="rail-top">
+        <div class="kicker">Modern CSS &amp;<br>Web Accessibility</div>
+        <div class="rail-num">03</div>
+      </div>
+    </div>
+    <div class="main"><p class="slide-label">Part 1 — Modern CSS</p>
   <div class="slide-content">
     <span class="part-badge css">⬡ CSS Features</span>
     <h2>CSS Nesting</h2>
@@ -279,12 +330,18 @@
       </div>
     </div>
     <div class="caution"><strong>Browser support:</strong> All modern browsers. Check <a href="https://caniuse.com/css-nesting" target="_blank" rel="noopener">caniuse.com/css-nesting</a>. For legacy support, use PostCSS to compile nesting.</div>
+  </div></div>
   </div>
-</div>
 
 <!-- ═══════════════════════════════════════════════════ SLIDE 4: CSS Nesting — Syntax Reference -->
 <div class="slide">
-  <p class="slide-label">CSS Nesting — Syntax Reference</p>
+    <div class="rail">
+      <div class="rail-top">
+        <div class="kicker">Modern CSS &amp;<br>Web Accessibility</div>
+        <div class="rail-num">04</div>
+      </div>
+    </div>
+    <div class="main"><p class="slide-label">CSS Nesting — Syntax Reference</p>
   <div class="slide-content">
     <h2>CSS Nesting — All the Syntax You Need</h2>
     <p style="font-size:.82rem;margin-bottom:.3rem;">The core of nesting is the <strong><code>&</code> selector</strong> — it always means "the current parent selector." Everything else is just combining <code>&</code> with the selectors you already know.</p>
@@ -343,12 +400,18 @@
 }</code></pre>
       </div>
     </div>
+  </div></div>
   </div>
-</div>
 
 <!-- ═══════════════════════════════════════════════════ SLIDE 5: :has() -->
 <div class="slide">
-  <p class="slide-label">Modern CSS — :has()</p>
+    <div class="rail">
+      <div class="rail-top">
+        <div class="kicker">Modern CSS &amp;<br>Web Accessibility</div>
+        <div class="rail-num">05</div>
+      </div>
+    </div>
+    <div class="main"><p class="slide-label">Modern CSS — :has()</p>
   <div class="slide-content">
     <span class="part-badge css">⬡ CSS Features</span>
     <h2>:has() — The Parent Selector</h2>
@@ -456,23 +519,35 @@ li:has(ul) { list-style-type: "▸ "; }</code></pre>
         <div class="note" style="font-size:.74rem;margin-top:.25rem;">No JavaScript. CSS reads the <code>input:focus</code> state and styles the <em>parent</em> <code>.hf</code> container and the <em>label sibling</em>. This was impossible in CSS before <code>:has()</code>.</div>
       </div>
     </div>
+  </div></div>
   </div>
-</div>
 
 <!-- ═══════════════════════════════════════════════════ SLIDE 6: :has() CodePen -->
 <div class="slide">
-  <p class="slide-label">CodePen — 17.1</p>
+    <div class="rail">
+      <div class="rail-top">
+        <div class="kicker">Modern CSS &amp;<br>Web Accessibility</div>
+        <div class="rail-num">06</div>
+      </div>
+    </div>
+    <div class="main"><p class="slide-label">CodePen — 17.1</p>
   <div class="slide-content" style="min-height:0;">
     <p class="demo-label">Codepen 17.1 — :has() Selector in Practice</p>
     <div class="demo-wrap">
       <iframe title="Codepen 17.1 — :has()" src="https://codepen.io/mattkearl/embed/LERGGaV?default-tab=css%2Cresult&editable=true" loading="lazy"></iframe>
     </div>
+  </div></div>
   </div>
-</div>
 
 <!-- ═══════════════════════════════════════════════════ SLIDE 7: :is() and :where() -->
 <div class="slide">
-  <p class="slide-label">Modern CSS — :is() and :where()</p>
+    <div class="rail">
+      <div class="rail-top">
+        <div class="kicker">Modern CSS &amp;<br>Web Accessibility</div>
+        <div class="rail-num">07</div>
+      </div>
+    </div>
+    <div class="main"><p class="slide-label">Modern CSS — :is() and :where()</p>
   <div class="slide-content">
     <span class="part-badge css">⬡ CSS Features</span>
     <h2><code>:is()</code> and <code>:where()</code></h2>
@@ -561,12 +636,18 @@ p        { margin-block: 0; }     ✓
         <div class="tip" style="font-size:.74rem;margin-top:.25rem;"><strong>Specificity: always 0.</strong> Perfect for CSS resets and base styles — they set defaults without ever blocking your own overrides.</div>
       </div>
     </div>
+  </div></div>
   </div>
-</div>
 
 <!-- ═══════════════════════════════════════════════════ SLIDE 8: @layer -->
 <div class="slide">
-  <p class="slide-label">Modern CSS — @layer</p>
+    <div class="rail">
+      <div class="rail-top">
+        <div class="kicker">Modern CSS &amp;<br>Web Accessibility</div>
+        <div class="rail-num">08</div>
+      </div>
+    </div>
+    <div class="main"><p class="slide-label">Modern CSS — @layer</p>
   <div class="slide-content">
     <span class="part-badge css">⬡ CSS Features</span>
     <h2>CSS Cascade Layers — <code>@layer</code></h2>
@@ -617,23 +698,35 @@ body .wrap .btn { background: green; } /* ✓ barely */
         <div class="tip" style="font-size:.72rem;margin-top:.2rem;"><strong>Priority order (low → high):</strong> vendor → base → components → utilities → unlayered. Later in the list = always wins, regardless of specificity.</div>
       </div>
     </div>
+  </div></div>
   </div>
-</div>
 
 <!-- ═══════════════════════════════════════════════════ SLIDE 9: @layer CodePen -->
 <div class="slide">
-  <p class="slide-label">CodePen — 17.2</p>
+    <div class="rail">
+      <div class="rail-top">
+        <div class="kicker">Modern CSS &amp;<br>Web Accessibility</div>
+        <div class="rail-num">09</div>
+      </div>
+    </div>
+    <div class="main"><p class="slide-label">CodePen — 17.2</p>
   <div class="slide-content" style="min-height:0;">
     <p class="demo-label">Codepen 17.2 — CSS Cascade Layers</p>
     <div class="demo-wrap">
       <iframe title="Codepen 17.2 — @layer" src="https://codepen.io/mattkearl/embed/WbGrrmz?default-tab=css%2Cresult&editable=true" loading="lazy"></iframe>
     </div>
+  </div></div>
   </div>
-</div>
 
 <!-- ═══════════════════════════════════════════════════ SLIDE 10: Dark Mode -->
 <div class="slide">
-  <p class="slide-label">Modern CSS — Dark Mode</p>
+    <div class="rail">
+      <div class="rail-top">
+        <div class="kicker">Modern CSS &amp;<br>Web Accessibility</div>
+        <div class="rail-num">10</div>
+      </div>
+    </div>
+    <div class="main"><p class="slide-label">Modern CSS — Dark Mode</p>
   <div class="slide-content">
     <span class="part-badge css">⬡ CSS Features</span>
     <h2>Dark Mode with <code>prefers-color-scheme</code></h2>
@@ -682,12 +775,18 @@ body { background: var(--color-bg);
         <div class="tip" style="margin-top:.25rem;font-size:.75rem;">For a <strong>manual toggle button</strong> that overrides the OS setting, set <code>data-theme="dark"</code> on <code>&lt;html&gt;</code> and store preference in <code>localStorage</code>.</div>
       </div>
     </div>
+  </div></div>
   </div>
-</div>
 
 <!-- ═══════════════════════════════════════════════════ SLIDE 11: light-dark() + color-mix() -->
 <div class="slide">
-  <p class="slide-label">Modern CSS — Color Functions</p>
+    <div class="rail">
+      <div class="rail-top">
+        <div class="kicker">Modern CSS &amp;<br>Web Accessibility</div>
+        <div class="rail-num">11</div>
+      </div>
+    </div>
+    <div class="main"><p class="slide-label">Modern CSS — Color Functions</p>
   <div class="slide-content">
     <span class="part-badge css">⬡ CSS Features</span>
     <h2><code>light-dark()</code> &amp; <code>color-mix()</code></h2>
@@ -750,23 +849,35 @@ color-mix(in oklch, blue, red)               /* perceptual blend */</code></pre>
         <div class="note" style="font-size:.73rem;margin-top:.25rem;">The browser runs <code>color-mix()</code> natively — no JS color math. Pick any color, choose what to mix with, and drag the slider.</div>
       </div>
     </div>
+  </div></div>
   </div>
-</div>
 
 <!-- ═══════════════════════════════════════════════════ SLIDE 12: Dark Mode CodePen -->
 <div class="slide">
-  <p class="slide-label">CodePen — 17.3</p>
+    <div class="rail">
+      <div class="rail-top">
+        <div class="kicker">Modern CSS &amp;<br>Web Accessibility</div>
+        <div class="rail-num">12</div>
+      </div>
+    </div>
+    <div class="main"><p class="slide-label">CodePen — 17.3</p>
   <div class="slide-content" style="min-height:0;">
     <p class="demo-label">Codepen 17.3 — Dark Mode &amp; Color Functions</p>
     <div class="demo-wrap">
       <iframe title="Codepen 17.3 — Dark Mode" src="https://codepen.io/mattkearl/embed/qEabbwE?default-tab=css%2Cresult&editable=true" loading="lazy"></iframe>
     </div>
+  </div></div>
   </div>
-</div>
 
 <!-- ═══════════════════════════════════════════════════ SLIDE 13: @supports -->
 <div class="slide">
-  <p class="slide-label">Modern CSS — @supports</p>
+    <div class="rail">
+      <div class="rail-top">
+        <div class="kicker">Modern CSS &amp;<br>Web Accessibility</div>
+        <div class="rail-num">13</div>
+      </div>
+    </div>
+    <div class="main"><p class="slide-label">Modern CSS — @supports</p>
   <div class="slide-content">
     <span class="part-badge css">⬡ CSS Features</span>
     <h2>Feature Queries with <code>@supports</code></h2>
@@ -819,12 +930,18 @@ color-mix(in oklch, blue, red)               /* perceptual blend */</code></pre>
         <div class="note" style="margin-top:.28rem;font-size:.76rem;"><strong>How to check:</strong> In Chrome DevTools → Sources, search for <code>@supports</code> to see which blocks matched. Unmatched blocks are greyed out in the Styles panel. You can also test <code>CSS.supports("display", "grid")</code> in the console — returns <code>true</code> or <code>false</code>.</div>
       </div>
     </div>
+  </div></div>
   </div>
-</div>
 
 <!-- ═══════════════════════════════════════════════════ SLIDE 14: Why Accessibility -->
 <div class="slide">
-  <p class="slide-label">Part 2 — Web Accessibility</p>
+    <div class="rail">
+      <div class="rail-top">
+        <div class="kicker">Modern CSS &amp;<br>Web Accessibility</div>
+        <div class="rail-num">14</div>
+      </div>
+    </div>
+    <div class="main"><p class="slide-label">Part 2 — Web Accessibility</p>
   <div class="slide-content">
     <span class="part-badge a11y">♿ Web Accessibility</span>
     <h2>Why Accessibility Matters</h2>
@@ -869,12 +986,18 @@ color-mix(in oklch, blue, red)               /* perceptual blend */</code></pre>
         <div class="tip" style="font-size:.75rem;margin-top:.25rem;">Three small changes. Same visual result. One version works for everyone — the other locks out millions of users.</div>
       </div>
     </div>
+  </div></div>
   </div>
-</div>
 
 <!-- ═══════════════════════════════════════════════════ SLIDE 15: WCAG -->
 <div class="slide">
-  <p class="slide-label">Accessibility — WCAG</p>
+    <div class="rail">
+      <div class="rail-top">
+        <div class="kicker">Modern CSS &amp;<br>Web Accessibility</div>
+        <div class="rail-num">15</div>
+      </div>
+    </div>
+    <div class="main"><p class="slide-label">Accessibility — WCAG</p>
   <div class="slide-content">
     <span class="part-badge a11y">♿ Web Accessibility</span>
     <h2>WCAG — Web Content Accessibility Guidelines</h2>
@@ -912,12 +1035,18 @@ color-mix(in oklch, blue, red)               /* perceptual blend */</code></pre>
       <div class="wlevel aa"><strong>Level AA</strong><span>The <em>legal standard</em> in most countries and the target for all professional projects. This is what employers mean when they say "make it accessible." Aim here.</span></div>
       <div class="wlevel aaa"><strong>Level AAA</strong><span>The gold standard. Some AAA criteria are so strict they're impossible to meet for all content types. Most teams aim for AA with some AAA improvements where possible.</span></div>
     </div>
+  </div></div>
   </div>
-</div>
 
 <!-- ═══════════════════════════════════════════════════ SLIDE 16: Accessibility Tree -->
 <div class="slide">
-  <p class="slide-label">Accessibility — The Accessibility Tree</p>
+    <div class="rail">
+      <div class="rail-top">
+        <div class="kicker">Modern CSS &amp;<br>Web Accessibility</div>
+        <div class="rail-num">16</div>
+      </div>
+    </div>
+    <div class="main"><p class="slide-label">Accessibility — The Accessibility Tree</p>
   <div class="slide-content">
     <span class="part-badge a11y">♿ Web Accessibility</span>
     <h2>The Accessibility Tree</h2>
@@ -991,12 +1120,18 @@ color-mix(in oklch, blue, red)               /* perceptual blend */</code></pre>
         <img src="assets/day-17-img-01-accessibility-tree.png" alt="Chrome DevTools Accessibility panel showing role, name, and state for a button element" class="slide-img" style="margin:.25rem 0;width:100%;" onerror="this.style.display='none'">
       </div>
     </div>
+  </div></div>
   </div>
-</div>
 
 <!-- ═══════════════════════════════════════════════════ SLIDE 17: ARIA Intro -->
 <div class="slide">
-  <p class="slide-label">Accessibility — ARIA</p>
+    <div class="rail">
+      <div class="rail-top">
+        <div class="kicker">Modern CSS &amp;<br>Web Accessibility</div>
+        <div class="rail-num">17</div>
+      </div>
+    </div>
+    <div class="main"><p class="slide-label">Accessibility — ARIA</p>
   <div class="slide-content">
     <span class="part-badge a11y">♿ Web Accessibility</span>
     <h2>ARIA — Accessible Rich Internet Applications</h2>
@@ -1048,12 +1183,18 @@ color-mix(in oklch, blue, red)               /* perceptual blend */</code></pre>
         <div class="tip" style="font-size:.75rem;margin-top:.25rem;"><strong>The rule:</strong> Use real HTML elements whenever possible. Use ARIA only when no HTML element exists for what you're building — like a tab panel, combobox, or tree widget.</div>
       </div>
     </div>
+  </div></div>
   </div>
-</div>
 
 <!-- ═══════════════════════════════════════════════════ SLIDE 18: ARIA Roles -->
 <div class="slide">
-  <p class="slide-label">Accessibility — ARIA Roles &amp; Labels</p>
+    <div class="rail">
+      <div class="rail-top">
+        <div class="kicker">Modern CSS &amp;<br>Web Accessibility</div>
+        <div class="rail-num">18</div>
+      </div>
+    </div>
+    <div class="main"><p class="slide-label">Accessibility — ARIA Roles &amp; Labels</p>
   <div class="slide-content">
     <span class="part-badge a11y">♿ Web Accessibility</span>
     <h2>ARIA Roles &amp; Labels</h2>
@@ -1108,13 +1249,19 @@ color-mix(in oklch, blue, red)               /* perceptual blend */</code></pre>
 &lt;!-- Without labels both announce: "navigation" ✗ --&gt;</code></pre>
       </div>
     </div>
+  </div></div>
   </div>
-</div>
 
 
 <!-- ═══════════════════════════════════════════════════ SLIDE 19: ARIA States -->
 <div class="slide">
-  <p class="slide-label">Accessibility — ARIA States</p>
+    <div class="rail">
+      <div class="rail-top">
+        <div class="kicker">Modern CSS &amp;<br>Web Accessibility</div>
+        <div class="rail-num">19</div>
+      </div>
+    </div>
+    <div class="main"><p class="slide-label">Accessibility — ARIA States</p>
   <div class="slide-content">
     <span class="part-badge a11y">♿ Web Accessibility</span>
     <h2>ARIA States &amp; Properties</h2>
@@ -1166,12 +1313,18 @@ aria-hidden="true"    &lt;!-- hide from screen reader --&gt;</code></pre>
         </div>
       </div>
     </div>
+  </div></div>
   </div>
-</div>
 
 <!-- ═══════════════════════════════════════════════════ SLIDE 20: Focus Management -->
 <div class="slide">
-  <p class="slide-label">Accessibility — Focus Management</p>
+    <div class="rail">
+      <div class="rail-top">
+        <div class="kicker">Modern CSS &amp;<br>Web Accessibility</div>
+        <div class="rail-num">20</div>
+      </div>
+    </div>
+    <div class="main"><p class="slide-label">Accessibility — Focus Management</p>
   <div class="slide-content">
     <span class="part-badge a11y">♿ Web Accessibility</span>
     <h2>Focus Management &amp; Keyboard Navigation</h2>
@@ -1219,12 +1372,18 @@ document.getElementById('modal').focus();
         </div>
       </div>
     </div>
+  </div></div>
   </div>
-</div>
 
 <!-- ═══════════════════════════════════════════════════ SLIDE 21: Focus Styles -->
 <div class="slide">
-  <p class="slide-label">Accessibility — Focus Styles</p>
+    <div class="rail">
+      <div class="rail-top">
+        <div class="kicker">Modern CSS &amp;<br>Web Accessibility</div>
+        <div class="rail-num">21</div>
+      </div>
+    </div>
+    <div class="main"><p class="slide-label">Accessibility — Focus Styles</p>
   <div class="slide-content">
     <span class="part-badge a11y">♿ Web Accessibility</span>
     <h2>Focus Styles &amp; <code>:focus-visible</code></h2>
@@ -1276,12 +1435,18 @@ document.getElementById('modal').focus();
         </div>
       </div>
     </div>
+  </div></div>
   </div>
-</div>
 
 <!-- ═══════════════════════════════════════════════════ SLIDE 22: inert -->
 <div class="slide">
-  <p class="slide-label">Accessibility — inert Attribute</p>
+    <div class="rail">
+      <div class="rail-top">
+        <div class="kicker">Modern CSS &amp;<br>Web Accessibility</div>
+        <div class="rail-num">22</div>
+      </div>
+    </div>
+    <div class="main"><p class="slide-label">Accessibility — inert Attribute</p>
   <div class="slide-content">
     <span class="part-badge a11y">♿ Web Accessibility</span>
     <h2>The <code>inert</code> Attribute</h2>
@@ -1331,12 +1496,18 @@ modal.addEventListener('close', () =&gt; {
         </div>
       </div>
     </div>
+  </div></div>
   </div>
-</div>
 
 <!-- ═══════════════════════════════════════════════════ SLIDE 23: dialog element -->
 <div class="slide">
-  <p class="slide-label">Accessibility — Native &lt;dialog&gt;</p>
+    <div class="rail">
+      <div class="rail-top">
+        <div class="kicker">Modern CSS &amp;<br>Web Accessibility</div>
+        <div class="rail-num">23</div>
+      </div>
+    </div>
+    <div class="main"><p class="slide-label">Accessibility — Native &lt;dialog&gt;</p>
   <div class="slide-content">
     <span class="part-badge a11y">♿ Web Accessibility</span>
     <h2>The Native <code>&lt;dialog&gt;</code> Element</h2>
@@ -1457,23 +1628,35 @@ dialog::backdrop {
         this.returnValue ? 'Closed with: ' + this.returnValue : 'Dismissed (Escape or Cancel)';
     });
     </script>
+  </div></div>
   </div>
-</div>
 
 <!-- ═══════════════════════════════════════════════════ SLIDE 24: dialog CodePen -->
 <div class="slide">
-  <p class="slide-label">CodePen — 17.4</p>
+    <div class="rail">
+      <div class="rail-top">
+        <div class="kicker">Modern CSS &amp;<br>Web Accessibility</div>
+        <div class="rail-num">24</div>
+      </div>
+    </div>
+    <div class="main"><p class="slide-label">CodePen — 17.4</p>
   <div class="slide-content" style="min-height:0;">
     <p class="demo-label">Codepen 17.4 — Native &lt;dialog&gt; Element</p>
     <div class="demo-wrap">
       <iframe title="Codepen 17.4 — dialog" src="https://codepen.io/mattkearl/embed/wBzMMZP?default-tab=css%2Cresult&editable=true" loading="lazy"></iframe>
     </div>
+  </div></div>
   </div>
-</div>
 
 <!-- ═══════════════════════════════════════════════════ SLIDE 25: aria-live -->
 <div class="slide">
-  <p class="slide-label">Accessibility — Live Regions</p>
+    <div class="rail">
+      <div class="rail-top">
+        <div class="kicker">Modern CSS &amp;<br>Web Accessibility</div>
+        <div class="rail-num">25</div>
+      </div>
+    </div>
+    <div class="main"><p class="slide-label">Accessibility — Live Regions</p>
   <div class="slide-content">
     <span class="part-badge a11y">♿ Web Accessibility</span>
     <h2>Live Regions with <code>aria-live</code></h2>
@@ -1571,12 +1754,18 @@ dialog::backdrop {
         <div class="caution" style="margin-top:.25rem;font-size:.73rem;"><strong>Don't overuse assertive/alert.</strong> Interrupting the screen reader mid-sentence is disorienting. Reserve it for errors that <em>block the user from continuing</em>.</div>
       </div>
     </div>
+  </div></div>
   </div>
-</div>
 
 <!-- ═══════════════════════════════════════════════════ SLIDE 26: Skip Nav -->
 <div class="slide">
-  <p class="slide-label">Accessibility — Skip Navigation</p>
+    <div class="rail">
+      <div class="rail-top">
+        <div class="kicker">Modern CSS &amp;<br>Web Accessibility</div>
+        <div class="rail-num">26</div>
+      </div>
+    </div>
+    <div class="main"><p class="slide-label">Accessibility — Skip Navigation</p>
   <div class="slide-content">
     <span class="part-badge a11y">♿ Web Accessibility</span>
     <h2>Skip Navigation Links</h2>
@@ -1634,12 +1823,18 @@ dialog::backdrop {
         <img src="assets/day-17-img-02-skip-nav.png" alt="Skip navigation link appearing at top of page when focused" class="slide-img" style="width:100%;margin-top:.3rem;" onerror="this.style.display='none'">
       </div>
     </div>
+  </div></div>
   </div>
-</div>
 
 <!-- ═══════════════════════════════════════════════════ SLIDE 27: Common Mistakes -->
 <div class="slide">
-  <p class="slide-label">Accessibility — Common Mistakes</p>
+    <div class="rail">
+      <div class="rail-top">
+        <div class="kicker">Modern CSS &amp;<br>Web Accessibility</div>
+        <div class="rail-num">27</div>
+      </div>
+    </div>
+    <div class="main"><p class="slide-label">Accessibility — Common Mistakes</p>
   <div class="slide-content">
     <span class="part-badge a11y">♿ Web Accessibility</span>
     <h2>Common Accessibility Mistakes</h2>
@@ -1706,12 +1901,18 @@ document.getElementById('modal').showModal();</code></pre>
 &lt;a href="/report"&gt;Download 2024 Annual Report (PDF)&lt;/a&gt; &lt;!-- ✓ --&gt;</code></pre>
       </div>
     </div>
+  </div></div>
   </div>
-</div>
 
 <!-- ═══════════════════════════════════════════════════ SLIDE 28: Testing Tools -->
 <div class="slide">
-  <p class="slide-label">Accessibility — Testing Tools</p>
+    <div class="rail">
+      <div class="rail-top">
+        <div class="kicker">Modern CSS &amp;<br>Web Accessibility</div>
+        <div class="rail-num">28</div>
+      </div>
+    </div>
+    <div class="main"><p class="slide-label">Accessibility — Testing Tools</p>
   <div class="slide-content">
     <span class="part-badge a11y">♿ Web Accessibility</span>
     <h2>Accessibility Testing Tools</h2>
@@ -1758,12 +1959,18 @@ document.getElementById('modal').showModal();</code></pre>
         </div>
       </div>
     </div>
+  </div></div>
   </div>
-</div>
 
 <!-- ═══════════════════════════════════════════════════ SLIDE 29: Screen Readers -->
 <div class="slide">
-  <p class="slide-label">Accessibility — Screen Readers</p>
+    <div class="rail">
+      <div class="rail-top">
+        <div class="kicker">Modern CSS &amp;<br>Web Accessibility</div>
+        <div class="rail-num">29</div>
+      </div>
+    </div>
+    <div class="main"><p class="slide-label">Accessibility — Screen Readers</p>
   <div class="slide-content">
     <span class="part-badge a11y">♿ Web Accessibility</span>
     <h2>Testing with Screen Readers</h2>
@@ -1820,23 +2027,35 @@ document.getElementById('modal').showModal();</code></pre>
         </ul>
       </div>
     </div>
+  </div></div>
   </div>
-</div>
 
 <!-- ═══════════════════════════════════════════════════ SLIDE 30: Testing CodePen -->
 <div class="slide">
-  <p class="slide-label">CodePen — 17.5</p>
+    <div class="rail">
+      <div class="rail-top">
+        <div class="kicker">Modern CSS &amp;<br>Web Accessibility</div>
+        <div class="rail-num">30</div>
+      </div>
+    </div>
+    <div class="main"><p class="slide-label">CodePen — 17.5</p>
   <div class="slide-content" style="min-height:0;">
     <p class="demo-label">Codepen 17.5 — Accessibility Patterns in Action</p>
     <div class="demo-wrap">
       <iframe title="Codepen 17.5 — Accessibility" src="https://codepen.io/mattkearl/embed/YPGwwoG?default-tab=css%2Cresult&editable=true" loading="lazy"></iframe>
     </div>
+  </div></div>
   </div>
-</div>
 
 <!-- ═══════════════════════════════════════════════════ SLIDE 31: Summary CSS -->
 <div class="slide">
-  <p class="slide-label">Summary — Part 1</p>
+    <div class="rail">
+      <div class="rail-top">
+        <div class="kicker">Modern CSS &amp;<br>Web Accessibility</div>
+        <div class="rail-num">31</div>
+      </div>
+    </div>
+    <div class="main"><p class="slide-label">Summary — Part 1</p>
   <div class="slide-content">
     <span class="part-badge css">⬡ CSS Features</span>
     <h2>Summary: Modern CSS</h2>
@@ -1866,12 +2085,18 @@ document.getElementById('modal').showModal();</code></pre>
         Progressive enhancement: write baseline CSS for all browsers, then layer advanced styles inside <code>@supports</code> for browsers that support them.
       </div>
     </div>
+  </div></div>
   </div>
-</div>
 
 <!-- ═══════════════════════════════════════════════════ SLIDE 32: Summary A11y -->
 <div class="slide">
-  <p class="slide-label">Summary — Part 2</p>
+    <div class="rail">
+      <div class="rail-top">
+        <div class="kicker">Modern CSS &amp;<br>Web Accessibility</div>
+        <div class="rail-num">32</div>
+      </div>
+    </div>
+    <div class="main"><p class="slide-label">Summary — Part 2</p>
   <div class="slide-content">
     <span class="part-badge a11y">♿ Web Accessibility</span>
     <h2>Summary: Web Accessibility</h2>
@@ -1901,12 +2126,18 @@ document.getElementById('modal').showModal();</code></pre>
         Lighthouse for scores, axe for deep violations, WAVE for visual review, then test with an actual screen reader (VoiceOver, NVDA, TalkBack).
       </div>
     </div>
+  </div></div>
   </div>
-</div>
 
 <!-- ═══════════════════════════════════════════════════ SLIDE 33: Q&A Part 1 -->
 <div class="slide">
-  <p class="slide-label">Q &amp; A — Part 1</p>
+    <div class="rail">
+      <div class="rail-top">
+        <div class="kicker">Modern CSS &amp;<br>Web Accessibility</div>
+        <div class="rail-num">33</div>
+      </div>
+    </div>
+    <div class="main"><p class="slide-label">Q &amp; A — Part 1</p>
   <div class="slide-content">
     <h2>Q &amp; A</h2>
     <dl>
@@ -1923,12 +2154,18 @@ document.getElementById('modal').showModal();</code></pre>
         <dd style="font-size:.86rem;opacity:.9;margin-top:.2rem;">JavaScript. When you build a custom widget — a date picker, combobox, tab interface — you are responsible for implementing all keyboard interactions. The WAI-ARIA Authoring Practices Guide at <a href="https://www.w3.org/WAI/ARIA/apg/" target="_blank" rel="noopener">www.w3.org/WAI/ARIA/apg/</a> documents the expected keyboard behavior for every ARIA widget pattern. This is one of the strongest reasons to prefer native HTML elements: they come with keyboard behavior built in.</dd>
       </div>
     </dl>
+  </div></div>
   </div>
-</div>
 
 <!-- ═══════════════════════════════════════════════════ SLIDE 34: Q&A Part 2 -->
 <div class="slide">
-  <p class="slide-label">Q &amp; A — Part 2</p>
+    <div class="rail">
+      <div class="rail-top">
+        <div class="kicker">Modern CSS &amp;<br>Web Accessibility</div>
+        <div class="rail-num">34</div>
+      </div>
+    </div>
+    <div class="main"><p class="slide-label">Q &amp; A — Part 2</p>
   <div class="slide-content">
     <h2>Q &amp; A (continued)</h2>
     <dl>
@@ -1941,8 +2178,8 @@ document.getElementById('modal').showModal();</code></pre>
         <dd style="font-size:.86rem;opacity:.9;margin-top:.2rem;">Store the user's preference in <code>localStorage</code>, then add <code>data-theme="dark"</code> to the <code>&lt;html&gt;</code> element. In CSS, define color tokens for both <code>@media (prefers-color-scheme: dark)</code> and <code>[data-theme="dark"]</code> — the manual class should come after so it wins. <strong>Critically:</strong> restore the preference from <code>localStorage</code> in a <code>&lt;script&gt;</code> tag in the <code>&lt;head&gt;</code> — before stylesheets load — to avoid a flash of the wrong theme on page load.</dd>
       </div>
     </dl>
+  </div></div>
   </div>
-</div>
 
 </div><!-- end slideshow-container -->
 
@@ -1956,6 +2193,30 @@ document.getElementById('modal').showModal();</code></pre>
 const slides = document.querySelectorAll('.slide');
 let current = 0;
 
+var MIN_SCALE = 0.72;
+function fitSlide(slideEl) {
+  if (!slideEl) return;
+  var main = slideEl.querySelector('.main');
+  var inner = slideEl.querySelector('.slide-content');
+  if (!main || !inner) return;
+
+  inner.style.transform = 'none';
+  inner.style.width = '100%';
+
+  var cs = getComputedStyle(main);
+  var available = main.clientHeight - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom);
+  var natural = inner.scrollHeight;
+
+  var scale = Math.min(1, available / natural);
+  scale = Math.max(scale, MIN_SCALE);
+
+  if (scale < 1) {
+    inner.style.transform = 'scale(' + scale + ')';
+    inner.style.width = (100 / scale) + '%';
+  }
+}
+function fitCurrentSlide() { fitSlide(slides[current]); }
+
 function showSlide(n) {
   slides[current].classList.remove('active');
   current = Math.max(0, Math.min(n, slides.length - 1));
@@ -1964,6 +2225,7 @@ function showSlide(n) {
   document.getElementById('counter').textContent = (current + 1) + ' / ' + slides.length;
   document.getElementById('prevBtn').disabled = current === 0;
   document.getElementById('nextBtn').disabled = current === slides.length - 1;
+  fitCurrentSlide();
 }
 
 document.getElementById('prevBtn').addEventListener('click', () => showSlide(current - 1));
@@ -2074,6 +2336,15 @@ function resetSkipDemo() {
 }
 
 showSlide(0);
+
+if (document.fonts && document.fonts.ready) {
+  document.fonts.ready.then(function () { fitCurrentSlide(); });
+}
+var mcaResizeTimer;
+window.addEventListener('resize', function () {
+  clearTimeout(mcaResizeTimer);
+  mcaResizeTimer = setTimeout(function () { fitCurrentSlide(); }, 100);
+});
 
 /* ── color-mix() interactive demo (slide 11) ── */
 let cmMixWith = 'white';

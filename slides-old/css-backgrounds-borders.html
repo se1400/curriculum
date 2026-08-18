@@ -1,0 +1,1868 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced CSS Backgrounds &amp; Borders</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --code-bg: #1e1e1e;
+            --code-text: #d4d4d4;
+        }
+
+        html, body {
+            height: 100%;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--primary-color);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .slideshow-container {
+            width: 100%;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .slide {
+            display: none;
+            flex: 1;
+            padding: 1.5rem 2rem;
+            color: white;
+            overflow-y: auto;
+            animation: fadeIn 0.4s ease-in-out;
+        }
+        .slide.active { display: flex; flex-direction: column; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateX(20px); }
+            to   { opacity: 1; transform: translateX(0); }
+        }
+
+        /* Cycling slide backgrounds */
+        .slide:nth-child(odd)  { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+        .slide:nth-child(even) { background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); }
+        .slide:nth-child(3n)   { background: linear-gradient(135deg, #ee0979 0%, #ff6a00 100%); }
+        .slide:nth-child(4n)   { background: linear-gradient(135deg, #2193b0 0%, #6dd5ed 100%); }
+        .slide:nth-child(5n)   { background: linear-gradient(135deg, #c31432 0%, #240b36 100%); }
+
+        .slide-content {
+            max-width: 1400px;
+            width: 100%;
+            margin: 0 auto;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        .slide-content.centered { justify-content: center; }
+
+        /* Typography */
+        h1 { font-size: clamp(1.8rem,5vw,3rem); margin-bottom: 1.5rem; text-shadow: 2px 2px 4px rgba(0,0,0,.2); line-height: 1.2; }
+        h2 { font-size: clamp(1.4rem,4vw,2.2rem); margin-bottom: .75rem; color: #ffeaa7; }
+        h3 { font-size: clamp(1.1rem,3vw,1.5rem); margin: .75rem 0 .4rem; color: #81ecec; }
+        h4 { font-size: clamp(1rem,2.5vw,1.2rem); margin: .5rem 0 .3rem; color: #dfe6e9; }
+        p  { font-size: clamp(1rem,2.5vw,1.2rem); line-height: 1.5; margin-bottom: .5rem; }
+        ul, ol { font-size: clamp(.95rem,2.2vw,1.15rem); line-height: 1.6; margin-left: 1.5rem; margin-bottom: .5rem; }
+        li { margin-bottom: .3rem; }
+        a  { color: #ffeaa7; text-decoration: underline; }
+        a:hover { color: #fdcb6e; }
+        code { background: rgba(0,0,0,.3); padding: .2em .5em; border-radius: 4px; font-family: 'Consolas','Monaco',monospace; font-size: .9em; }
+        pre  { background: var(--code-bg); color: var(--code-text); padding: .75rem 1rem; border-radius: 8px; overflow-x: auto; margin: .5rem 0; font-size: clamp(.75rem,1.6vw,.95rem); line-height: 1.4; }
+        pre code { background: none; padding: 0; }
+
+        /* Callout boxes */
+        .note    { background: rgba(46,204,113,.2);  padding: .75rem 1rem; border-radius: 8px; border-left: 4px solid #2ecc71; margin: .5rem 0; font-size: clamp(.9rem,2vw,1.05rem); }
+        .caution { background: rgba(231,76,60,.2);   padding: .75rem 1rem; border-radius: 8px; border-left: 4px solid #e74c3c; margin: .5rem 0; font-size: clamp(.9rem,2vw,1.05rem); }
+        .tip     { background: rgba(52,152,219,.2);  padding: .75rem 1rem; border-radius: 8px; border-left: 4px solid #3498db; margin: .5rem 0; font-size: clamp(.9rem,2vw,1.05rem); }
+        .highlight { background: rgba(255,255,255,.15); padding: .75rem 1rem; border-radius: 8px; border-left: 4px solid #ffeaa7; margin: .5rem 0; }
+
+        /* Layout helpers */
+        .two-column   { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; align-items: start; }
+        .three-column { display: grid; grid-template-columns: repeat(3,1fr); gap: 1.2rem; align-items: start; }
+        @media (max-width:900px) { .three-column { grid-template-columns: 1fr 1fr; } }
+        @media (max-width:768px) { .two-column, .three-column { grid-template-columns: 1fr; } }
+        @media (max-width:600px) { .slide { padding: 1rem; } .navigation { padding: .5rem; } .nav-btn { padding: .5rem 1rem; font-size: .9rem; } }
+
+        /* Cards */
+        .card { background: rgba(0,0,0,.2); padding: 1rem; border-radius: 8px; border: 1px solid rgba(255,255,255,.2); }
+        .card h3, .card h4 { margin-top: 0; }
+        .card-grid { display: grid; grid-template-columns: repeat(auto-fit,minmax(160px,1fr)); gap: .75rem; margin: .5rem 0; }
+        .vocab-card { background: rgba(0,0,0,.2); border-radius: 8px; padding: .6rem .9rem; border: 1px solid rgba(255,255,255,.2); border-top: 3px solid #81ecec; }
+        .vocab-card strong { color: #81ecec; display: block; font-size: .92em; margin-bottom: .2rem; }
+        .vocab-card span { font-size: .83em; opacity: .9; line-height: 1.4; }
+
+        /* Slide label */
+        .slide-label { font-size: .75rem; text-transform: uppercase; letter-spacing: .1em; color: rgba(255,255,255,.5); margin-bottom: .25rem; }
+
+        /* CodePen container */
+        .codepen-container { margin: .5rem 0; border-radius: 8px; overflow: hidden; flex: 1; min-height: 0; }
+        .codepen-container iframe { border: none; width: 100%; height: 100%; min-height: 300px; border-radius: 8px; }
+
+        /* Learn grid */
+        .learn-grid { display: grid; grid-template-columns: repeat(auto-fit,minmax(240px,1fr)); gap: .5rem; margin-top: .5rem; }
+        .learn-item { background: rgba(0,0,0,.2); border-radius: 8px; padding: .5rem .75rem; font-size: clamp(.82rem,1.8vw,.98rem); border-left: 3px solid #81ecec; line-height: 1.4; border: 1px solid rgba(255,255,255,.2); border-left: 3px solid #81ecec; }
+
+        /* Navigation */
+        .navigation { display: flex; justify-content: center; align-items: center; gap: 1rem; padding: .75rem 1rem; background: var(--primary-color); flex-wrap: wrap; }
+        .nav-btn { padding: .6rem 1.2rem; font-size: 1rem; border: none; border-radius: 5px; cursor: pointer; transition: all .3s ease; background: var(--secondary-color); color: white; }
+        .nav-btn:hover { background: #2980b9; transform: translateY(-2px); }
+        .nav-btn:disabled { background: #7f8c8d; cursor: not-allowed; transform: none; }
+        .slide-counter { color: white; font-size: 1rem; min-width: 100px; text-align: center; }
+        .progress-bar { width: 100%; height: 4px; background: rgba(255,255,255,.2); }
+        .progress { height: 100%; background: var(--secondary-color); transition: width .3s ease; }
+
+        /* Compare table */
+        table.compare-table { width: 100%; border-collapse: collapse; margin: .5rem 0; font-size: clamp(.8rem,1.8vw,1rem); }
+        table.compare-table th, table.compare-table td { border: 1px solid rgba(255,255,255,.3); padding: .4rem .6rem; text-align: left; }
+        table.compare-table th { background: rgba(0,0,0,.2); color: #ffeaa7; }
+
+        /* ── Visual demo styles ── */
+        .gradient-row { display: flex; gap: .5rem; flex-wrap: wrap; margin: .5rem 0; }
+        .grad-swatch  { flex: 1; min-width: 80px; height: 72px; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: .7rem; font-weight: bold; text-align: center; text-shadow: 0 1px 3px rgba(0,0,0,.6); padding: 4px; line-height: 1.3; }
+        .border-style-grid { display: grid; grid-template-columns: repeat(auto-fill,minmax(110px,1fr)); gap: .5rem; margin: .5rem 0; }
+        .border-demo { background: rgba(0,0,0,.2); padding: .5rem .75rem; border-radius: 4px; text-align: center; font-size: .8rem; }
+        .border-demo .preview { height: 30px; margin-bottom: 4px; display: flex; align-items: center; justify-content: center; font-size: .7rem; opacity: .7; }
+        .demo-box { border-radius: 8px; padding: 1rem; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: .9rem; text-align: center; min-height: 60px; }
+        .stripe-table { width: 100%; border-collapse: collapse; font-size: clamp(.78rem,1.7vw,.95rem); }
+        .stripe-table th { background: rgba(0,0,0,.35); color: #ffeaa7; padding: .35rem .6rem; border: 1px solid rgba(255,255,255,.2); }
+        .stripe-table td { padding: .3rem .6rem; border: 1px solid rgba(255,255,255,.15); }
+        .stripe-table tbody tr:nth-child(odd) { background: rgba(255,255,255,.12); }
+        .conic-swatches { display: grid; grid-template-columns: repeat(auto-fill,minmax(100px,1fr)); gap: .5rem; margin: .5rem 0; }
+        .conic-swatch { height: 90px; border-radius: 50%; border: 2px solid rgba(255,255,255,.2); }
+        .radius-row { display: flex; gap: .75rem; flex-wrap: wrap; margin: .5rem 0; }
+        .radius-demo { background: rgba(52,152,219,.4); border: 2px solid #3498db; width: 80px; height: 80px; display: flex; align-items: center; justify-content: center; font-size: .7rem; font-weight: bold; text-align: center; line-height: 1.3; }
+        .outline-compare { display: flex; gap: 1.5rem; flex-wrap: wrap; align-items: flex-start; margin: .5rem 0; }
+        .outline-box { background: rgba(0,0,0,.2); padding: .75rem 1.2rem; border-radius: 4px; font-size: .85rem; text-align: center; }
+        .focus-demo-btn { padding: .6rem 1.4rem; border-radius: 6px; font-size: 1rem; cursor: pointer; background: rgba(52,152,219,.4); color: white; border: none; margin: .3rem; }
+        .focus-demo-btn:focus-visible { outline: 3px solid #ffd166; outline-offset: 4px; }
+        .focus-demo-btn:focus:not(:focus-visible) { outline: none; }
+        .aspect-demo { display: flex; gap: 1rem; flex-wrap: wrap; margin: .5rem 0; align-items: flex-start; }
+        .aspect-box { background: rgba(255,209,102,.3); border: 2px solid #ffd166; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: .8rem; font-weight: bold; text-align: center; padding: .5rem; }
+
+        /* Interactive demo controls */
+        .demo-btn { padding: .3rem .65rem; font-size: .8rem; border: 1px solid rgba(255,255,255,.35); border-radius: 4px; cursor: pointer; background: rgba(0,0,0,.3); color: white; transition: all .2s; }
+        .demo-btn:hover { background: rgba(255,255,255,.15); }
+        .demo-btn.active { background: rgba(52,152,219,.7); border-color: #3498db; }
+        .demo-select { padding: .3rem .5rem; font-size: .82rem; border: 1px solid rgba(255,255,255,.35); border-radius: 4px; background: rgba(0,0,0,.5); color: white; cursor: pointer; }
+        .demo-row { display: flex; gap: .35rem; flex-wrap: wrap; align-items: center; margin-bottom: .4rem; }
+        .demo-row-label { font-size: .78rem; opacity: .75; white-space: nowrap; }
+        input[type="color"] { width:34px; height:28px; padding:2px; border:1px solid rgba(255,255,255,.4); border-radius:4px; cursor:pointer; background:transparent; }
+        .big-preview { height:130px; border-radius:12px; margin:.4rem 0; box-shadow:0 4px 20px rgba(0,0,0,.4); transition:all .35s; display:flex; align-items:center; justify-content:center; font-size:.8rem; font-weight:bold; text-shadow:0 1px 3px rgba(0,0,0,.6); text-align:center; }
+        .code-live { background:rgba(0,0,0,.5); color:#d4d4d4; padding:.5rem .75rem; border-radius:6px; font-family:monospace; font-size:.72rem; line-height:1.5; margin-top:.35rem; white-space:pre-wrap; }
+        .dir-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:.25rem; width:100px; }
+        .dir-btn { aspect-ratio:1; display:flex; align-items:center; justify-content:center; font-size:1rem; }
+        .seg-row { display:flex; align-items:center; gap:.4rem; font-size:.78rem; margin:.2rem 0; }
+        .seg-swatch { width:16px; height:16px; border-radius:3px; border:1px solid rgba(255,255,255,.4); flex-shrink:0; }
+        .pie-ring { border-radius:50%; border:2px solid rgba(255,255,255,.2); }
+        .corner-grid { display:grid; grid-template-columns:1fr auto 1fr; grid-template-rows:auto 80px auto; gap:.3rem; width:100%; }
+    </style>
+</head>
+<body>
+
+<div class="slideshow-container">
+
+    <!-- ═══════════════════════════════════════ SLIDE 1: TITLE ═══ -->
+    <div class="slide">
+        <div class="slide-content centered">
+            
+            <h1>Advanced CSS Backgrounds &amp; Borders</h1>
+            <p style="font-size:clamp(1.1rem,3vw,1.4rem); opacity:.85; margin-bottom:1.5rem;">Gradients, Layering, Blend Modes, Frosted Glass &amp; More</p>
+            <div class="highlight" style="max-width:700px;">
+                <p>In this lesson you will go beyond basic <code>background-color</code> and <code>border</code> to create rich, modern visual effects entirely in CSS — no image editor required.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════ SLIDE 2: OBJECTIVES ═══ -->
+    <div class="slide">
+        <div class="slide-content">
+            <div class="slide-label">Overview</div>
+            <h2>What You'll Learn</h2>
+            <div class="learn-grid">
+                <div class="learn-item">▶ Layer multiple backgrounds on one element</div>
+                <div class="learn-item">▶ Use <strong>linear</strong>, <strong>radial</strong>, and <strong>conic</strong> gradients</div>
+                <div class="learn-item">▶ Create patterns with <strong>repeating gradients</strong></div>
+                <div class="learn-item">▶ Blend backgrounds with <code>background-blend-mode</code> &amp; <code>mix-blend-mode</code></div>
+                <div class="learn-item">▶ Create frosted glass effects with <code>backdrop-filter</code></div>
+                <div class="learn-item">▶ Auto zebra-stripe tables using <code>:nth-child()</code></div>
+                <div class="learn-item">▶ Create rounded corners with <code>border-radius</code></div>
+                <div class="learn-item">▶ Guarantee square elements with <code>aspect-ratio</code></div>
+                <div class="learn-item">▶ Use images as borders with <code>border-image</code></div>
+                <div class="learn-item">▶ Understand how outlines differ from borders</div>
+                <div class="learn-item">▶ Write accessible focus styles with <code>:focus-visible</code></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════ SLIDE 3: BACKGROUND BASICS ═══ -->
+    <div class="slide">
+        <div class="slide-content">
+            <div class="slide-label">Background &amp; Border Basics</div>
+            <h2>The <code>background</code> Shorthand</h2>
+            <p>One property sets all background sub-properties in order:</p>
+            <pre><code>background: url('img.png') center / cover no-repeat padding-box #dfdfdf;</code></pre>
+            <div class="two-column" style="margin-top:.5rem;">
+                <div>
+                    <h3>Sub-properties</h3>
+                    <ul>
+                        <li><code>background-image</code> — image URL or gradient</li>
+                        <li><code>background-position</code> — placement keywords or lengths</li>
+                        <li><code>background-size</code> — after <code>/</code>, or keywords like <code>cover</code></li>
+                        <li><code>background-repeat</code> — <code>repeat</code>, <code>no-repeat</code>, <code>space</code>, <code>round</code></li>
+                        <li><code>background-origin</code> — <code>border-box</code> / <code>padding-box</code> / <code>content-box</code></li>
+                        <li><code>background-clip</code> — same three values + <code>text</code></li>
+                        <li><code>background-attachment</code> — <code>scroll</code> / <code>fixed</code> / <code>local</code></li>
+                        <li><code>background-color</code> — fallback solid color</li>
+                    </ul>
+                </div>
+                <div>
+                    <h3>Shorthand Builder</h3>
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:.3rem .6rem; margin-bottom:.4rem; align-items:center;">
+                        <label style="font-size:.78rem; color:#81ecec;">background-image:</label>
+                        <select id="bgImg" class="demo-select" onchange="buildBg()">
+                            <option value="none">none</option>
+                            <option value="linear-gradient(to right,#667eea,#764ba2)" selected>linear-gradient()</option>
+                            <option value="radial-gradient(circle,#ff6b6b,#feca57)">radial-gradient()</option>
+                            <option value="repeating-linear-gradient(45deg,#3a86ff 0px,#3a86ff 10px,white 10px,white 20px)">repeating stripe</option>
+                        </select>
+                        <label style="font-size:.78rem; color:#81ecec;">background-position:</label>
+                        <select id="bgPos" class="demo-select" onchange="buildBg()">
+                            <option>center</option><option>top left</option><option>bottom right</option><option>25% 75%</option>
+                        </select>
+                        <label style="font-size:.78rem; color:#81ecec;">background-size:</label>
+                        <select id="bgSz" class="demo-select" onchange="buildBg()">
+                            <option>auto</option><option>cover</option><option>contain</option><option>50%</option>
+                        </select>
+                        <label style="font-size:.78rem; color:#81ecec;">background-repeat:</label>
+                        <select id="bgRep" class="demo-select" onchange="buildBg()">
+                            <option>no-repeat</option><option>repeat</option><option>repeat-x</option><option>space</option>
+                        </select>
+                        <label style="font-size:.78rem; color:#81ecec;">background-color:</label>
+                        <select id="bgCol" class="demo-select" onchange="buildBg()">
+                            <option value="#2c3e50">dark (#2c3e50)</option><option value="#c31432">red (#c31432)</option>
+                            <option value="steelblue">steelblue</option><option value="transparent">transparent</option>
+                        </select>
+                    </div>
+                    <div id="bgBuilderBox" style="height:70px; border-radius:8px; border:6px solid rgba(255,255,255,.25); padding:8px; background:linear-gradient(to right,#667eea,#764ba2) center / auto no-repeat #2c3e50; display:flex; align-items:center; justify-content:center; font-size:.72rem; font-weight:bold; text-shadow:0 1px 3px rgba(0,0,0,.7);"></div>
+                    <div id="bgBuilderCode" class="code-live" style="margin-top:.35rem;">background: linear-gradient(to right,#667eea,#764ba2)
+  center / auto no-repeat
+  #2c3e50;</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════ SLIDE 4: BORDER BASICS ═══ -->
+    <div class="slide">
+        <div class="slide-content">
+            <div class="slide-label">Background &amp; Border Basics</div>
+            <h2>Border Basics &amp; Style Keywords</h2>
+            <pre><code>border: 2px solid tomato;   /* width  style  color */</code></pre>
+            <div class="border-style-grid" style="margin-top:.5rem;">
+                <div class="border-demo">
+                    <div class="preview" style="border-top: 3px solid white;"></div>
+                    <code>solid</code>
+                </div>
+                <div class="border-demo">
+                    <div class="preview" style="border-top: 3px dashed white;"></div>
+                    <code>dashed</code>
+                </div>
+                <div class="border-demo">
+                    <div class="preview" style="border-top: 3px dotted white;"></div>
+                    <code>dotted</code>
+                </div>
+                <div class="border-demo">
+                    <div class="preview" style="border-top: 6px double white;"></div>
+                    <code>double</code>
+                </div>
+                <div class="border-demo">
+                    <div class="preview" style="border-top: 5px groove white;"></div>
+                    <code>groove</code>
+                </div>
+                <div class="border-demo">
+                    <div class="preview" style="border-top: 5px ridge white;"></div>
+                    <code>ridge</code>
+                </div>
+                <div class="border-demo">
+                    <div class="preview" style="border-top: 5px inset white;"></div>
+                    <code>inset</code>
+                </div>
+                <div class="border-demo">
+                    <div class="preview" style="border-top: 5px outset white;"></div>
+                    <code>outset</code>
+                </div>
+                <div class="border-demo">
+                    <div class="preview" style="opacity:.4; font-size:.65rem;">no border</div>
+                    <code>none</code>
+                </div>
+                <div class="border-demo">
+                    <div class="preview" style="opacity:.4; font-size:.65rem;">invisible</div>
+                    <code>hidden</code>
+                </div>
+            </div>
+            <div class="tip" style="margin-top:.4rem;">
+                <strong>Remember:</strong> <code>none</code> removes the border; <code>hidden</code> reserves the space but hides it (used in table layouts).
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════ SLIDE 5: MULTIPLE BORDERS ═══ -->
+    <div class="slide">
+        <div class="slide-content">
+            <div class="slide-label">Using Multiple Borders &amp; Backgrounds</div>
+            <h2>Multiple Borders: Per-Side &amp; Cascade</h2>
+            <div class="two-column">
+                <div>
+                    <h3>Four-Side Shorthand Properties</h3>
+                    <pre><code>/* Style each side independently */
+border-top:    2px solid red;
+border-right:  2px dashed aqua;
+border-bottom: 5px dashed red;
+border-left:   5px solid aqua;</code></pre>
+                    <h3>Using the Cascade</h3>
+                    <p>Define all borders the same, then override the one that differs:</p>
+                    <pre><code>/* All four borders blue */
+border: 2px solid aqua;
+/* Override bottom only */
+border-bottom: 5px dashed red;</code></pre>
+                </div>
+                <div>
+                    <h3>Live Preview</h3>
+                    <div style="background:rgba(0,0,0,.25); padding:1.5rem; border-radius:8px; display:flex; align-items:center; justify-content:center;">
+                        <div style="width:140px; height:80px; border-top:2px solid red; border-right:2px dashed aqua; border-bottom:5px dashed red; border-left:5px solid aqua; display:flex; align-items:center; justify-content:center; font-size:.75rem; background:rgba(255,255,255,.08); border-radius:2px; text-align:center; padding:.3rem;">
+                            four different<br>border sides
+                        </div>
+                    </div>
+                    <div class="note" style="margin-top:.75rem; font-size:.9rem;">
+                        <strong>Most common pattern:</strong> set all borders with <code>border</code>, then override one side — saves you repeating values.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════ SLIDE 6: BOX-SHADOW BORDERS ═══ -->
+    <div class="slide">
+        <div class="slide-content">
+            <div class="slide-label">Using Multiple Borders &amp; Backgrounds</div>
+            <h2>Faking Multiple Borders with <code>box-shadow</code></h2>
+            <p>CSS only supports one <code>border</code>, but <code>box-shadow</code> accepts a comma-separated list and can simulate stacked rings using a spread radius with <strong>zero blur</strong>:</p>
+            <div class="two-column">
+                <div>
+                    <pre><code>.multi-border {
+  border: 3px solid tomato;
+  box-shadow:
+    0 0 0 6px gold,
+    0 0 0 10px steelblue;
+}</code></pre>
+                    <ul style="margin-top:.5rem;">
+                        <li>Innermost: real <code>border</code> (tomato)</li>
+                        <li>Middle: 6px gold "ring"</li>
+                        <li>Outer: 10px steel blue "ring"</li>
+                        <li><strong>Does not affect layout</strong> — shadows don't push other elements</li>
+                    </ul>
+                    <div class="caution" style="font-size:.85rem;">
+                        <strong>Note:</strong> <code>box-shadow</code> is outside the border-box. Design around it using <code>margin</code> if spacing matters.
+                    </div>
+                </div>
+                <div>
+                    <div style="background:rgba(0,0,0,.25); padding:2.5rem; border-radius:8px; display:flex; align-items:center; justify-content:center; flex-direction:column; gap:1rem;">
+                        <div style="width:120px; height:60px; border:3px solid tomato; box-shadow:0 0 0 6px gold, 0 0 0 12px steelblue; border-radius:4px; display:flex; align-items:center; justify-content:center; font-size:.72rem; background:rgba(255,255,255,.08);">multi-ring</div>
+                        <p style="font-size:.75rem; opacity:.6; text-align:center; margin:0;">Live example above — box-shadow rings</p>
+                    </div>
+                </div>
+            </div>
+            <h3 style="margin-top:.5rem;">Try it — CodePen 13.2</h3>
+            <div class="codepen-container" style="min-height:280px; flex:none;">
+                <iframe style="width:100%;" title="Codepen - 13.2" src="https://codepen.io/mattkearl/embed/XJKvZxo?default-tab=css%2Cresult&editable=true" height="320" loading="lazy"></iframe>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════ SLIDE 7: MULTIPLE BACKGROUNDS ═══ -->
+    <div class="slide">
+        <div class="slide-content">
+            <div class="slide-label">Using Multiple Borders &amp; Backgrounds</div>
+            <h2>Layering Multiple Backgrounds</h2>
+            <div class="two-column">
+                <div>
+                    <h3>How It Works</h3>
+                    <ul>
+                        <li>List backgrounds separated by <strong>commas</strong></li>
+                        <li><strong>First in list = top layer</strong>, last = bottom</li>
+                        <li>Images with transparent areas let layers below show through</li>
+                        <li>Final item can be a <code>background-color</code> (always bottommost)</li>
+                    </ul>
+                    <h3>Real-World Example — Hero Section</h3>
+                    <pre><code>.hero {
+  background:
+    url('logo.png') center 2rem / 120px no-repeat,
+    linear-gradient(
+      rgba(0,0,0,.55),
+      rgba(0,0,0,.15)
+    ),
+    url('photo.jpg') center / cover no-repeat;
+}</code></pre>
+                    <div class="note" style="font-size:.85rem;">
+                        Three layers: logo on top, dark overlay in the middle, full-bleed photo behind. Each layer has its own position and size.
+                    </div>
+                </div>
+                <div>
+                    <h3>Layer Builder — Night Sky</h3>
+                    <div id="layerBox" style="height:160px; border-radius:10px; overflow:hidden; margin-bottom:.5rem; transition:background .4s; background:
+                        radial-gradient(1px 1px at 8% 18%, white 0%, transparent 100%),
+                        radial-gradient(1.5px 1.5px at 22% 8%, rgba(255,255,220,.9) 0%, transparent 100%),
+                        radial-gradient(1px 1px at 38% 25%, white 0%, transparent 100%),
+                        radial-gradient(1px 1px at 55% 12%, white 0%, transparent 100%),
+                        radial-gradient(1.5px 1.5px at 70% 30%, rgba(255,255,220,.85) 0%, transparent 100%),
+                        radial-gradient(1px 1px at 83% 8%, white 0%, transparent 100%),
+                        radial-gradient(1px 1px at 92% 20%, white 0%, transparent 100%),
+                        radial-gradient(1px 1px at 15% 45%, white 0%, transparent 100%),
+                        radial-gradient(1.5px 1.5px at 48% 38%, rgba(255,255,220,.9) 0%, transparent 100%),
+                        radial-gradient(1px 1px at 78% 50%, white 0%, transparent 100%),
+                        radial-gradient(circle at 78% 22%, rgba(255,248,195,.95) 0%, rgba(255,240,160,.8) 5%, rgba(255,220,100,.35) 10%, transparent 18%),
+                        radial-gradient(ellipse at 50% 110%, rgba(90,50,140,.75) 0%, rgba(60,20,100,.4) 35%, transparent 60%),
+                        linear-gradient(to bottom, #04041a 0%, #070730 40%, #120540 70%, #1e0840 100%);"></div>
+                    <div style="display:flex; flex-direction:column; gap:.3rem;">
+                        <label style="display:flex; align-items:center; gap:.5rem; cursor:pointer; font-size:.82rem; background:rgba(0,0,0,.25); padding:.35rem .6rem; border-radius:5px; border:1px solid rgba(255,255,255,.1);">
+                            <input type="checkbox" id="l1" checked onchange="updateLayers()">
+                            <span style="display:inline-block; width:12px; height:12px; background:white; border-radius:50%; flex-shrink:0; box-shadow:0 0 4px white;"></span>
+                            Layer 1–10 (top): ✦ Stars — ten <code style="font-size:.76rem;">radial-gradient(1px)</code> dots
+                        </label>
+                        <label style="display:flex; align-items:center; gap:.5rem; cursor:pointer; font-size:.82rem; background:rgba(0,0,0,.25); padding:.35rem .6rem; border-radius:5px; border:1px solid rgba(255,255,255,.1);">
+                            <input type="checkbox" id="l2" checked onchange="updateLayers()">
+                            <span style="display:inline-block; width:12px; height:12px; background:radial-gradient(circle, #fff5c2, #ffd166); border-radius:50%; flex-shrink:0;"></span>
+                            Layer 11: 🌕 Moon — <code style="font-size:.76rem;">radial-gradient(circle at 78% 22%)</code>
+                        </label>
+                        <label style="display:flex; align-items:center; gap:.5rem; cursor:pointer; font-size:.82rem; background:rgba(0,0,0,.25); padding:.35rem .6rem; border-radius:5px; border:1px solid rgba(255,255,255,.1);">
+                            <input type="checkbox" id="l3" checked onchange="updateLayers()">
+                            <span style="display:inline-block; width:12px; height:12px; background:radial-gradient(ellipse, rgba(90,50,140,.8), transparent); border-radius:3px; flex-shrink:0;"></span>
+                            Layer 12: 🌫 Mist — <code style="font-size:.76rem;">radial-gradient(ellipse at bottom)</code>
+                        </label>
+                        <label style="display:flex; align-items:center; gap:.5rem; cursor:pointer; font-size:.82rem; background:rgba(0,0,0,.25); padding:.35rem .6rem; border-radius:5px; border:1px solid rgba(255,255,255,.1);">
+                            <input type="checkbox" id="l4" checked onchange="updateLayers()">
+                            <span style="display:inline-block; width:12px; height:12px; background:linear-gradient(#04041a,#1e0840); border-radius:3px; flex-shrink:0;"></span>
+                            Layer 13 (bottom): 🌌 Sky — <code style="font-size:.76rem;">linear-gradient(to bottom)</code>
+                        </label>
+                    </div>
+                    <p style="font-size:.7rem; opacity:.55; margin-top:.4rem;">Uncheck layers to see what each one contributes</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════ SLIDE 8: background-clip & origin ═══ -->
+    <div class="slide">
+        <div class="slide-content">
+            <div class="slide-label">Forgotten Background Properties</div>
+            <h2><code>background-clip</code> &amp; <code>background-origin</code></h2>
+            <div class="two-column">
+                <div>
+                    <h3><code>background-clip</code></h3>
+                    <p>Controls <em>where the background is painted</em> (where it ends):</p>
+                    <ul>
+                        <li><code>border-box</code> — extends under the border <em>(default)</em></li>
+                        <li><code>padding-box</code> — stops at the border edge</li>
+                        <li><code>content-box</code> — stops at the padding edge</li>
+                        <li><code>text</code> — clips background to text shape</li>
+                    </ul>
+                    <h3 style="margin-top:.75rem;"><code>background-origin</code></h3>
+                    <p>Controls <em>where the background starts</em> (position reference point):</p>
+                    <ul>
+                        <li><code>border-box</code> — starts at border edge</li>
+                        <li><code>padding-box</code> — starts at padding edge <em>(default)</em></li>
+                        <li><code>content-box</code> — starts at content edge</li>
+                    </ul>
+                </div>
+                <div>
+                    <h3>Live Demo — <code>background-clip</code></h3>
+                    <div class="demo-row">
+                        <button class="demo-btn active" id="clip-border-box" onclick="setClip('border-box')">border-box</button>
+                        <button class="demo-btn" id="clip-padding-box" onclick="setClip('padding-box')">padding-box</button>
+                        <button class="demo-btn" id="clip-content-box" onclick="setClip('content-box')">content-box</button>
+                    </div>
+                    <div id="clipBox" style="border:14px solid rgba(255,255,255,0.28); padding:22px; background:linear-gradient(135deg,#ff6b6b,#feca57,#48dbfb,#ff9ff3); background-clip:border-box; border-radius:4px; transition:background-clip .2s; display:flex; align-items:center; justify-content:center; font-size:.85rem; font-weight:bold; color:#111; text-shadow:0 1px 2px rgba(255,255,255,.6); min-height:90px; text-align:center;">
+                        background-clip: border-box
+                    </div>
+                    <p style="font-size:.73rem; opacity:.6; margin-top:.3rem;">Translucent border — when clip is <strong>border-box</strong> the gradient paints beneath it; narrow the clip and the gradient retreats</p>
+                    <div class="note" style="font-size:.82rem; margin-top:.5rem;">
+                        <strong>Remember:</strong> <em>clip</em> = where paint <em>stops</em>. <em>origin</em> = where it <em>starts</em>.<br>
+                        <a href="https://developer.mozilla.org/en-US/docs/Web/CSS/background-clip" target="_blank" style="font-size:.85em;">MDN: background-clip</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════ SLIDE 9: background-clip text ═══ -->
+    <div class="slide">
+        <div class="slide-content">
+            <div class="slide-label">Forgotten Background Properties</div>
+            <h2>Gradient Text with <code>background-clip: text</code></h2>
+            <div class="two-column">
+                <div>
+                    <p>Clips a gradient (or image) background to the shape of the text — combined with a transparent text color, the gradient becomes the text fill:</p>
+                    <pre><code>.gradient-text {
+  background: linear-gradient(
+    to right, #ff6b6b, #feca57
+  );
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}</code></pre>
+                    <div class="note" style="font-size:.85rem; margin-top:.5rem;">
+                        <strong>Modern browsers (2024+)</strong> support <code>background-clip: text</code> without the prefix. The <code>-webkit-</code> versions are still commonly included as a safety net for older browsers, but are no longer required.
+                    </div>
+                    <div class="caution" style="font-size:.85rem;">
+                        Works best on <strong>large, bold text</strong>. Thin or small text may not show the effect clearly. Ensure sufficient contrast for accessibility.
+                    </div>
+                </div>
+                <div>
+                    <h3>Live Preview</h3>
+                    <div style="background:rgba(0,0,0,.3); border-radius:8px; padding:1.5rem; text-align:center;">
+                        <p style="font-size:clamp(2rem,5vw,3.5rem); font-weight:900; background:linear-gradient(to right,#ff6b6b,#feca57); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; margin:0; line-height:1.1;">Gradient<br>Text!</p>
+                    </div>
+                    <div style="background:rgba(0,0,0,.3); border-radius:8px; padding:1rem; text-align:center; margin-top:.5rem;">
+                        <p style="font-size:clamp(1.5rem,4vw,2.5rem); font-weight:900; background:linear-gradient(135deg,#06d6a0,#118ab2,#9b5de5); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; margin:0;">CSS is Cool</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════ SLIDE 10: CODEPEN 13.1 ═══ -->
+    <div class="slide">
+        <div class="slide-content">
+            <div class="slide-label">CodePen 13.1 — Try it</div>
+            <h2>Gradient Text — <code>background-clip: text</code></h2>
+            <p style="margin-bottom:.4rem; font-size:.95rem;">Experiment with gradient direction, colors, and font-size to see how the clipped text effect responds.</p>
+            <div class="codepen-container">
+                <iframe style="width:100%;" title="Codepen - 13.1" src="https://codepen.io/mattkearl/embed/myENXjP?default-tab=css%2Cresult&editable=true" height="700" loading="lazy"></iframe>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════ SLIDE 11: background-size & position ═══ -->
+    <div class="slide">
+        <div class="slide-content">
+            <div class="slide-label">Forgotten Background Properties</div>
+            <h2><code>background-size</code> &amp; <code>background-position</code></h2>
+            <div class="two-column">
+                <div>
+                    <h3><code>background-size</code></h3>
+                    <table class="compare-table">
+                        <thead><tr><th>Value</th><th>Effect</th></tr></thead>
+                        <tbody>
+                            <tr><td><code>auto</code></td><td>Natural image size (default)</td></tr>
+                            <tr><td><code>cover</code></td><td>Fills box — may crop image</td></tr>
+                            <tr><td><code>contain</code></td><td>Fits whole image — may leave gaps</td></tr>
+                            <tr><td><code>400px 200px</code></td><td>Explicit width &amp; height</td></tr>
+                            <tr><td><code>50%</code></td><td>50% of container width; height auto</td></tr>
+                        </tbody>
+                    </table>
+                    <pre style="margin-top:.5rem;"><code>/* Multiple backgrounds */
+background-size: 400px 400px, cover;</code></pre>
+                </div>
+                <div>
+                    <h3><code>background-position</code></h3>
+                    <p>Keywords, lengths, or edge offsets:</p>
+                    <pre><code>/* Keywords */
+background-position: center;
+background-position: top right;
+
+/* Edge offsets — 4-value syntax */
+background-position:
+  top 2rem right 1rem;
+
+/* Percentage / length */
+background-position: 25% 75%;
+background-position: 40px 80px;</code></pre>
+                    <div class="tip" style="font-size:.85rem; margin-top:.4rem;">
+                        Need to offset from the right or bottom edge? The 4-value edge-offset syntax is <strong>supported in all modern browsers</strong>.
+                    </div>
+                </div>
+            </div>
+            <h3 style="margin-top:.75rem;">Live Demo — <code>background-size</code> &amp; <code>background-position</code></h3>
+            <div class="demo-row">
+                <span class="demo-row-label">size:</span>
+                <button class="demo-btn active" id="bs-cover"   onclick="setBgSize('cover',this)">cover</button>
+                <button class="demo-btn"        id="bs-contain" onclick="setBgSize('contain',this)">contain</button>
+                <button class="demo-btn"        id="bs-auto"    onclick="setBgSize('auto',this)">auto</button>
+                <button class="demo-btn"        id="bs-50"      onclick="setBgSize('50%',this)">50%</button>
+                <button class="demo-btn"        id="bs-80"      onclick="setBgSize('80px 80px',this)">80px</button>
+            </div>
+            <div class="demo-row" style="margin-top:.2rem;">
+                <span class="demo-row-label">position:</span>
+                <button class="demo-btn active" id="bp-center" onclick="setBgPos('center',this)">center</button>
+                <button class="demo-btn"        id="bp-tl"     onclick="setBgPos('top left',this)">top left</button>
+                <button class="demo-btn"        id="bp-br"     onclick="setBgPos('bottom right',this)">bottom right</button>
+                <button class="demo-btn"        id="bp-25"     onclick="setBgPos('25% 75%',this)">25% 75%</button>
+            </div>
+            <div id="bsizeBox" style="height:110px; border-radius:6px; border:1px solid rgba(255,255,255,.2); background-image:url(&quot;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Crect width='120' height='120' fill='%23050518'/%3E%3Ccircle cx='60' cy='60' r='55' fill='%23ffd166'/%3E%3Ccircle cx='60' cy='60' r='40' fill='%23ee5a24'/%3E%3Ccircle cx='60' cy='60' r='25' fill='%23ffd166'/%3E%3Ccircle cx='60' cy='60' r='10' fill='%23e74c3c'/%3E%3Cline x1='60' y1='5' x2='60' y2='115' stroke='rgba(0,0,0,0.3)' stroke-width='1.5'/%3E%3Cline x1='5' y1='60' x2='115' y2='60' stroke='rgba(0,0,0,0.3)' stroke-width='1.5'/%3E%3C/svg%3E&quot;); background-size:cover; background-position:center; background-repeat:no-repeat; background-color:#050518; transition:background-size .3s, background-position .3s;"></div>
+            <div id="bsizeCode" class="code-live" style="margin-top:.3rem; font-size:.72rem;">background-size: cover;
+background-position: center;</div>
+            <p style="font-size:.72rem; opacity:.6; margin-top:.3rem;">The bullseye SVG (120×120px) in a wide container — try mixing <em>size</em> and <em>position</em> to see how they interact</p>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════ SLIDE 12: background-attachment ═══ -->
+    <div class="slide">
+        <div class="slide-content">
+            <div class="slide-label">Forgotten Background Properties</div>
+            <h2><code>background-attachment</code></h2>
+            <p>Controls how the background moves relative to the viewport when the page scrolls:</p>
+            <div class="three-column" style="margin-top:.4rem;">
+                <div class="card">
+                    <h3 style="margin-top:0;"><code>scroll</code></h3>
+                    <p style="font-size:.9rem;">Background stays fixed relative to the <strong>element</strong> but scrolls with the page. Default for most cases.</p>
+                </div>
+                <div class="card">
+                    <h3 style="margin-top:0;"><code>fixed</code></h3>
+                    <p style="font-size:.9rem;">Background stays fixed relative to the <strong>viewport</strong>. Creates a "parallax" effect as the page scrolls over it.</p>
+                </div>
+                <div class="card">
+                    <h3 style="margin-top:0;"><code>local</code></h3>
+                    <p style="font-size:.9rem;">Background scrolls with both the page <strong>and</strong> the element's own scroll. Useful for scrollable containers.</p>
+                </div>
+            </div>
+            <pre style="margin-top:.5rem;"><code>.scroll { background-attachment: scroll; }
+.fixed  { background-attachment: fixed;  }
+.local  { background-attachment: local;  }</code></pre>
+            <div class="caution" style="margin-top:.4rem;">
+                <strong>Mobile Warning:</strong> <code>background-attachment: fixed</code> does not work as expected on iOS Safari or many mobile browsers — it often renders as <code>scroll</code> or causes performance issues. For parallax effects, prefer <a href="https://developer.mozilla.org/en-US/docs/Web/CSS/animation-timeline/scroll" target="_blank">CSS scroll-driven animations</a>.
+            </div>
+            <div class="tip" style="font-size:.82rem; margin-top:.4rem; margin-bottom:.2rem;">
+                <strong>Try it:</strong> Scroll inside each box below to see the difference between all three values.
+            </div>
+            <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:.6rem; margin-top:.4rem;">
+                <div>
+                    <p style="font-size:.76rem; color:#81ecec; margin-bottom:.2rem; text-align:center;"><code>scroll</code></p>
+                    <div style="height:85px; overflow-y:scroll; border-radius:6px; border:1px solid rgba(255,255,255,.25); background:repeating-linear-gradient(0deg,rgba(255,255,255,.15) 0px,rgba(255,255,255,.15) 2px,transparent 2px,transparent 26px) #050a2e; background-attachment:scroll;">
+                        <div style="padding:.5rem .6rem; min-height:190px; font-size:.72rem; line-height:1.9; opacity:.8;">Scroll ↓<br>Line 2<br>Line 3<br>Line 4<br>Line 5<br>Line 6<br>Line 7</div>
+                    </div>
+                    <p style="font-size:.68rem; opacity:.55; margin-top:.2rem; text-align:center;">Stripes stay with the element</p>
+                </div>
+                <div>
+                    <p style="font-size:.76rem; color:#ffd166; margin-bottom:.2rem; text-align:center;"><code>fixed</code> — parallax</p>
+                    <div style="height:85px; overflow-y:scroll; border-radius:6px; border:1px solid rgba(255,209,102,.35); background:repeating-linear-gradient(45deg,rgba(255,209,102,.12) 0px,rgba(255,209,102,.12) 2px,transparent 2px,transparent 18px),linear-gradient(135deg,#050a2e,#1a0540); background-attachment:fixed;">
+                        <div style="padding:.5rem .6rem; min-height:190px; font-size:.72rem; line-height:1.9; opacity:.85;">Scroll ↓<br>Line 2<br>Line 3<br>Line 4<br>Line 5<br>Line 6<br>Line 7</div>
+                    </div>
+                    <p style="font-size:.68rem; opacity:.55; margin-top:.2rem; text-align:center;">Background pinned to viewport</p>
+                </div>
+                <div>
+                    <p style="font-size:.76rem; color:#81ecec; margin-bottom:.2rem; text-align:center;"><code>local</code></p>
+                    <div style="height:85px; overflow-y:scroll; border-radius:6px; border:1px solid rgba(255,255,255,.25); background:repeating-linear-gradient(0deg,rgba(255,255,255,.15) 0px,rgba(255,255,255,.15) 2px,transparent 2px,transparent 26px) #050a2e; background-attachment:local;">
+                        <div style="padding:.5rem .6rem; min-height:190px; font-size:.72rem; line-height:1.9; opacity:.8;">Scroll ↓<br>Line 2<br>Line 3<br>Line 4<br>Line 5<br>Line 6<br>Line 7</div>
+                    </div>
+                    <p style="font-size:.68rem; opacity:.55; margin-top:.2rem; text-align:center;">Stripes scroll with content</p>
+                </div>
+            </div>
+            <div class="note" style="font-size:.8rem; margin-top:.4rem;">
+                <strong>scroll</strong> — stripes stay put as you scroll. <strong style="color:#ffd166;">fixed</strong> — stripes are pinned to the screen; content slides over a "frozen" background (parallax). <strong>local</strong> — stripes move with the content as you scroll.
+            </div>
+            <div class="tip" style="font-size:.82rem; margin-top:.4rem;">
+                See a full parallax example in action: <a href="https://www.w3schools.com/howto/howto_css_parallax.asp" target="_blank">W3Schools — How TO: Parallax Scrolling</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════ SLIDE 13: BLEND MODES ═══ -->
+    <div class="slide">
+        <div class="slide-content">
+            <div class="slide-label">Forgotten Background Properties</div>
+            <h2>Blending Backgrounds</h2>
+            <div class="two-column">
+                <div>
+                    <h3><code>background-blend-mode</code></h3>
+                    <p>Blends <em>background layers within one element</em> — like Photoshop layer modes:</p>
+                    <pre><code>.blended {
+  background-image: url('photo.jpg');
+  background-color: steelblue;
+  background-blend-mode: multiply;
+}</code></pre>
+                    <div style="margin-top:.5rem;">
+                        <div style="display:flex; align-items:center; gap:.5rem; margin-bottom:.35rem;">
+                            <span style="font-size:.82rem;">blend-mode:</span>
+                            <select id="blendSelect" class="demo-select" onchange="setBlendMode(this.value)">
+                                <option>normal</option>
+                                <option>multiply</option>
+                                <option>screen</option>
+                                <option>overlay</option>
+                                <option>darken</option>
+                                <option>lighten</option>
+                                <option>color-dodge</option>
+                                <option>color-burn</option>
+                                <option>hard-light</option>
+                                <option>soft-light</option>
+                                <option>difference</option>
+                                <option>exclusion</option>
+                                <option>hue</option>
+                                <option>saturation</option>
+                                <option>color</option>
+                                <option>luminosity</option>
+                            </select>
+                        </div>
+                        <div id="blendBox" style="height:85px; border-radius:6px; background-image:linear-gradient(45deg,#e74c3c,#f39c12,#2ecc71,#3498db,#9b59b6); background-color:steelblue; background-blend-mode:normal; display:flex; align-items:center; justify-content:center; font-size:.78rem; font-weight:bold; text-shadow:0 1px 3px rgba(0,0,0,.5); text-align:center;">
+                            background-blend-mode: normal
+                        </div>
+                        <p style="font-size:.72rem; opacity:.6; margin-top:.25rem;">Rainbow gradient blended over a <strong>steelblue</strong> background-color</p>
+                    </div>
+                </div>
+                <div>
+                    <h3><code>mix-blend-mode</code></h3>
+                    <p style="font-size:.88rem;">Blends an <em>entire element</em> with everything visually <em>behind it</em> — including other elements:</p>
+                    <div style="display:flex; align-items:center; gap:.5rem; margin:.4rem 0;">
+                        <span style="font-size:.82rem;">mode:</span>
+                        <select id="mixSelect" class="demo-select" onchange="setMixBlend(this.value)">
+                            <option>normal</option><option selected>multiply</option><option>screen</option>
+                            <option>overlay</option><option>difference</option><option>exclusion</option>
+                            <option>color-dodge</option><option>hard-light</option><option>hue</option>
+                            <option>saturation</option><option>color</option><option>luminosity</option>
+                        </select>
+                    </div>
+                    <div style="background:#e8e8e8; border-radius:8px; padding:.75rem 1rem; position:relative; height:100px; display:flex; align-items:center; justify-content:center;">
+                        <div style="position:relative; width:160px; height:80px; flex-shrink:0;">
+                            <div style="width:75px; height:75px; border-radius:50%; background:#e74c3c; position:absolute; left:0; top:2px; display:flex; align-items:center; justify-content:center; font-size:.68rem; font-weight:bold; color:white; text-shadow:0 1px 2px rgba(0,0,0,.5);">Red</div>
+                            <div id="mixCircle" style="width:75px; height:75px; border-radius:50%; background:#3498db; position:absolute; left:55px; top:2px; mix-blend-mode:multiply; display:flex; align-items:center; justify-content:center; font-size:.68rem; font-weight:bold; color:white; text-shadow:0 1px 2px rgba(0,0,0,.4); text-align:center; transition:mix-blend-mode .1s;">Blue</div>
+                        </div>
+                    </div>
+                    <p style="font-size:.72rem; opacity:.65; text-align:center; margin-top:.25rem;">Overlap area = blend result; try <em>multiply</em>, <em>screen</em>, <em>difference</em></p>
+                    <table class="compare-table" style="margin-top:.4rem; font-size:.78rem;">
+                        <thead><tr><th>Property</th><th>Blends…</th></tr></thead>
+                        <tbody>
+                            <tr><td><code>background-blend-mode</code></td><td>Background layers <em>within</em> one element</td></tr>
+                            <tr><td><code>mix-blend-mode</code></td><td>Element vs everything <em>behind</em> it</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════ SLIDE 14: CODEPEN 13.4 ═══ -->
+    <div class="slide">
+        <div class="slide-content">
+            <div class="slide-label">CodePen 13.4 — Try it</div>
+            <h2>Blend Modes Explorer</h2>
+            <p style="margin-bottom:.4rem; font-size:.95rem;">Experiment with <code>background-blend-mode</code> and <code>mix-blend-mode</code> values to see their visual effects.</p>
+            <div class="codepen-container">
+                <iframe style="width:100%;" title="Codepen - 13.4" src="https://codepen.io/mattkearl/embed/ogLKEPv?default-tab=css%2Cresult&editable=true" height="700" loading="lazy"></iframe>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════ SLIDE 15: FROSTED GLASS ═══ -->
+    <div class="slide">
+        <div class="slide-content">
+            <div class="slide-label">The Frosted Glass Effect</div>
+            <h2>Frosted Glass: <code>filter</code> vs <code>backdrop-filter</code></h2>
+            <div class="two-column">
+                <div>
+                    <h3><code>filter</code> — affects the element itself</h3>
+                    <p>Applies graphic effects to the element <em>and all its content</em>:</p>
+                    <pre><code>/* Desaturate image on hover */
+img:hover {
+  filter: grayscale(1);
+}
+
+/* Common filter values */
+filter: blur(5px);
+filter: brightness(0.8);
+filter: contrast(1.5);
+filter: grayscale(1);
+filter: saturate(2);
+filter: sepia(0.6);</code></pre>
+                    <div class="caution" style="font-size:.85rem; margin-top:.4rem;">
+                        Using <code>filter: blur()</code> blurs the element's text too — not ideal for frosted glass panels.
+                    </div>
+                </div>
+                <div>
+                    <h3><code>backdrop-filter</code> — blurs what's <em>behind</em></h3>
+                    <p>Applies effects only to the content <em>behind</em> the element — the element's own text stays sharp:</p>
+                    <pre><code>.glass-panel {
+  background: rgba(255,255,255,0.25);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255,255,255,0.4);
+  border-radius: 1rem;
+}</code></pre>
+                    <div style="background:linear-gradient(135deg,#667eea,#764ba2); border-radius:8px; padding:1rem; position:relative; overflow:hidden; margin-top:.4rem;">
+                        <div style="position:absolute; inset:0; background:url('data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22><circle cx=%2220%22 cy=%2220%22 r=%2215%22 fill=%22rgba(255,100,100,0.4)%22/><circle cx=%2260%22 cy=%2240%22 r=%2220%22 fill=%22rgba(100,200,255,0.4)%22/></svg>');"></div>
+                        <div style="background:rgba(255,255,255,0.2); backdrop-filter:blur(8px); border:1px solid rgba(255,255,255,0.4); border-radius:8px; padding:.75rem; position:relative; text-align:center; font-size:.85rem;">
+                            Frosted glass panel<br>
+                            <code style="font-size:.75rem;">backdrop-filter: blur(8px)</code>
+                        </div>
+                    </div>
+                    <div class="note" style="font-size:.8rem; margin-top:.4rem;">
+                        <strong>Requires</strong> semi-transparent background. Fully opaque backgrounds hide the blur effect entirely.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════ SLIDE 16: CODEPEN 13.5 ═══ -->
+    <div class="slide">
+        <div class="slide-content">
+            <div class="slide-label">CodePen 13.5 — Try it</div>
+            <h2>Frosted Glass Effect</h2>
+            <p style="margin-bottom:.4rem; font-size:.95rem;">Adjust the blur amount and background opacity to see how <code>backdrop-filter</code> responds.</p>
+            <div class="codepen-container">
+                <iframe style="width:100%;" title="Codepen - 13.5" src="https://codepen.io/mattkearl/embed/vEKodzN?default-tab=css%2Cresult&editable=true" height="700" loading="lazy"></iframe>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════ SLIDE 17: NTH-CHILD ═══ -->
+    <div class="slide">
+        <div class="slide-content">
+            <div class="slide-label">Alternating Background Colors</div>
+            <h2>Zebra-Stripe Tables with <code>:nth-child()</code></h2>
+            <div class="two-column">
+                <div>
+                    <p>No classes on every row needed — CSS auto-selects by position:</p>
+                    <pre><code>tbody tr:nth-child(odd) {
+  background-color: #dfdfdf;
+}</code></pre>
+                    <h3>Selector Values</h3>
+                    <ul>
+                        <li><code>odd</code> — rows 1, 3, 5, 7…</li>
+                        <li><code>even</code> — rows 2, 4, 6, 8…</li>
+                        <li><code>4</code> — exactly the 4th row</li>
+                        <li><code>2n+5</code> — every other, starting at 5th</li>
+                        <li><code>6n+2</code> — every 6th, starting at 2nd</li>
+                    </ul>
+                    <div class="tip" style="font-size:.85rem; margin-top:.4rem;">
+                        Works on any element, not just tables: <code>li:nth-child(odd)</code>, <code>div:nth-child(3n)</code>, etc.
+                    </div>
+                    <p style="font-size:.85rem; margin-top:.4rem;"><strong>Interactive formula tester:</strong><br>
+                    <a href="https://css-tricks.com/examples/nth-child-tester/" target="_blank">css-tricks.com nth-child tester</a></p>
+                </div>
+                <div>
+                    <h3>Live Example</h3>
+                    <table class="stripe-table">
+                        <thead>
+                            <tr><th>Product</th><th>Price</th><th>Stock</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>Widget A</td><td>$12.00</td><td>In Stock</td></tr>
+                            <tr><td>Widget B</td><td>$8.50</td><td>Low Stock</td></tr>
+                            <tr><td>Widget C</td><td>$22.00</td><td>In Stock</td></tr>
+                            <tr><td>Widget D</td><td>$5.00</td><td>Out of Stock</td></tr>
+                            <tr><td>Widget E</td><td>$18.00</td><td>In Stock</td></tr>
+                            <tr><td>Widget F</td><td>$31.00</td><td>In Stock</td></tr>
+                        </tbody>
+                    </table>
+                    <pre style="font-size:.8rem; margin-top:.5rem;"><code>tbody tr:nth-child(odd) {
+  background: rgba(255,255,255,.12);
+}</code></pre>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════ SLIDE 18: NTH-CHILD ADVANCED ═══ -->
+    <div class="slide">
+        <div class="slide-content">
+            <div class="slide-label">Alternating Background Colors</div>
+            <h2><code>:nth-child()</code> — Advanced Selectors</h2>
+            <div class="two-column">
+                <div>
+                    <h3>The <code>of</code> Keyword (Modern CSS)</h3>
+                    <p>Filter counting to only elements that match a specific type:</p>
+                    <pre><code>/* Count only &lt;li&gt; items, ignore others */
+li:nth-child(odd of li) {
+  background-color: #dfdfdf;
+}</code></pre>
+                    <p style="font-size:.9rem;">Supported in all modern browsers. Fixes problems when mixed content (like headings inside lists) would throw off counting.</p>
+
+                    <h3 style="margin-top:.75rem;">Related Pseudo-Classes</h3>
+                    <ul>
+                        <li><code>:nth-of-type(n)</code> — counts by element type</li>
+                        <li><code>:nth-last-child(n)</code> — counts from the bottom up</li>
+                        <li><code>:nth-last-of-type(n)</code> — type-based, bottom up</li>
+                        <li><code>:first-child</code> / <code>:last-child</code> — first &amp; last</li>
+                        <li><code>:only-child</code> — sole child of its parent</li>
+                    </ul>
+                </div>
+                <div>
+                    <h3>Formula Reference</h3>
+                    <table class="compare-table">
+                        <thead><tr><th>Formula</th><th>Selects</th></tr></thead>
+                        <tbody>
+                            <tr><td><code>:nth-child(2n)</code></td><td>Even elements (2,4,6…)</td></tr>
+                            <tr><td><code>:nth-child(2n+1)</code></td><td>Odd elements (1,3,5…)</td></tr>
+                            <tr><td><code>:nth-child(3n)</code></td><td>Every 3rd (3,6,9…)</td></tr>
+                            <tr><td><code>:nth-child(n+4)</code></td><td>4th and beyond</td></tr>
+                            <tr><td><code>:nth-child(-n+3)</code></td><td>First 3 only</td></tr>
+                            <tr><td><code>:nth-child(2n+5)</code></td><td>Every other, from 5th</td></tr>
+                        </tbody>
+                    </table>
+                    <div class="tip" style="margin-top:.5rem; font-size:.85rem;">
+                        <a href="http://lea.verou.me/demos/nth.html" target="_blank">Lea Verou's :nth-child tester</a> — experiment with formulas visually.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════ SLIDE 19: GRADIENTS OVERVIEW ═══ -->
+    <div class="slide">
+        <div class="slide-content">
+            <div class="slide-label">Using Gradients as Backgrounds</div>
+            <h2>CSS Gradients — Overview</h2>
+            <p>Gradients are added as <strong>background images</strong> — no actual image files required. Three types:</p>
+            <div class="gradient-row" style="margin:1rem 0;">
+                <div class="grad-swatch" style="background:linear-gradient(to right, #ff00d5, rgba(39,164,0,0.8), blue);">linear-gradient()</div>
+                <div class="grad-swatch" style="background:radial-gradient(#9ad6e9, #f4a261, #e63946);">radial-gradient()</div>
+                <div class="grad-swatch" style="background:conic-gradient(#ff6b6b, #feca57, #48dbfb, #ff9ff3, #ff6b6b);">conic-gradient()</div>
+            </div>
+            <div class="three-column">
+                <div class="card">
+                    <h3 style="margin-top:0;">Linear</h3>
+                    <p style="font-size:.9rem;">Color changes along a straight line — horizontal, vertical, or diagonal.</p>
+                    <pre style="font-size:.72rem;"><code>background-image:
+  linear-gradient(
+    to right, red, blue
+  );</code></pre>
+                </div>
+                <div class="card">
+                    <h3 style="margin-top:0;">Radial</h3>
+                    <p style="font-size:.9rem;">Color radiates outward from a center point — creates circles or ellipses.</p>
+                    <pre style="font-size:.72rem;"><code>background-image:
+  radial-gradient(
+    circle, yellow, orange
+  );</code></pre>
+                </div>
+                <div class="card">
+                    <h3 style="margin-top:0;">Conic</h3>
+                    <p style="font-size:.9rem;">Color sweeps around a center point — like a pie chart or color wheel.</p>
+                    <pre style="font-size:.72rem;"><code>background-image:
+  conic-gradient(
+    red, yellow, green, red
+  );</code></pre>
+                </div>
+            </div>
+            <div class="caution" style="margin-top:.5rem; font-size:.85rem;">
+                Always also set a fallback <code>background-color</code> for older browsers that might not support the gradient function.
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════ SLIDE 20: LINEAR GRADIENTS ═══ -->
+    <div class="slide">
+        <div class="slide-content">
+            <div class="slide-label">Using Gradients as Backgrounds</div>
+            <h2>Linear Gradients</h2>
+            <div class="two-column">
+                <div>
+                    <h3>Syntax</h3>
+                    <pre><code>/* Minimum: two colors (top → bottom) */
+background-image:
+  linear-gradient(red, blue);
+
+/* With direction */
+background-image:
+  linear-gradient(to right, red, blue);
+
+/* Multiple color stops */
+background-image:
+  linear-gradient(
+    45deg,
+    #ff00d5,
+    rgba(39,164,0,0.5) 35%,
+    blue
+  );</code></pre>
+                    <h3>Direction Keywords</h3>
+                    <ul>
+                        <li><code>to right</code> — left → right</li>
+                        <li><code>to bottom</code> — top → bottom (default)</li>
+                        <li><code>to top left</code> — diagonal to corner</li>
+                        <li><code>45deg</code> — any angle (0° = up, 90° = right)</li>
+                    </ul>
+                </div>
+                <div>
+                    <h3>Live Gradient Builder</h3>
+                    <div style="display:flex; gap:.4rem; align-items:center; margin-bottom:.35rem; flex-wrap:wrap;">
+                        <label style="font-size:.78rem; color:#81ecec;">Colors:</label>
+                        <input type="color" id="lc1" value="#667eea" oninput="updateLinear()">
+                        <input type="color" id="lc2" value="#f64f59" oninput="updateLinear()">
+                        <input type="color" id="lc3" value="#f9ca24" oninput="updateLinear()">
+                    </div>
+                    <div style="display:flex; gap:.3rem; flex-wrap:wrap; margin-bottom:.35rem;">
+                        <label style="font-size:.78rem; color:#81ecec; align-self:center;">Direction:</label>
+                        <button class="demo-btn active" id="ldir-r"   onclick="setLinearDir('to right',this)">→ right</button>
+                        <button class="demo-btn"         id="ldir-b"   onclick="setLinearDir('to bottom',this)">↓ bottom</button>
+                        <button class="demo-btn"         id="ldir-45"  onclick="setLinearDir('45deg',this)">↗ 45°</button>
+                        <button class="demo-btn"         id="ldir-135" onclick="setLinearDir('135deg',this)">↘ 135°</button>
+                        <button class="demo-btn"         id="ldir-tl"  onclick="setLinearDir('to top left',this)">↖</button>
+                        <button class="demo-btn"         id="ldir-tr"  onclick="setLinearDir('to top right',this)">↗</button>
+                    </div>
+                    <div id="linearPreview" class="big-preview" style="background:linear-gradient(to right,#667eea,#f64f59,#f9ca24);"></div>
+                    <div id="linearCode" class="code-live">linear-gradient(to right, #667eea, #f64f59, #f9ca24)</div>
+                    <p style="font-size:.78rem; margin-top:.4rem; opacity:.8;">Change the colors above — the gradient updates live. <a href="https://cssgradient.io" target="_blank">cssgradient.io</a> for more.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════ SLIDE 21: REPEATING LINEAR ═══ -->
+    <div class="slide">
+        <div class="slide-content">
+            <div class="slide-label">Using Gradients as Backgrounds</div>
+            <h2>Repeating Gradients — CSS Patterns</h2>
+            <div class="two-column">
+                <div>
+                    <h3><code>repeating-linear-gradient()</code></h3>
+                    <p>Color stops define <em>one tile</em> — the browser repeats it to fill the element:</p>
+                    <pre><code>/* Diagonal blue &amp; white stripes */
+background-image:
+  repeating-linear-gradient(
+    45deg,
+    #3a86ff,
+    #3a86ff 10px,
+    #ffffff 10px,
+    #ffffff 20px
+  );</code></pre>
+                    <ul style="font-size:.9rem; margin-top:.4rem;">
+                        <li>Adjust the <strong>angle</strong> for different stripe directions</li>
+                        <li>Adjust the <strong>pixel values</strong> for stripe width</li>
+                        <li>Use <strong>3+ colors</strong> for more complex patterns</li>
+                    </ul>
+                    <h3 style="margin-top:.75rem;"><code>repeating-radial-gradient()</code></h3>
+                    <pre><code>background-image:
+  repeating-radial-gradient(
+    circle,
+    #3a86ff 0px,
+    #3a86ff 10px,
+    transparent 10px,
+    transparent 20px
+  );</code></pre>
+                </div>
+                <div>
+                    <h3>Pattern Builder</h3>
+                    <div style="display:flex; gap:.3rem; flex-wrap:wrap; margin-bottom:.35rem;">
+                        <button class="demo-btn active" onclick="setPattern('diagonal',this)">Diagonal</button>
+                        <button class="demo-btn" onclick="setPattern('vertical',this)">Vertical</button>
+                        <button class="demo-btn" onclick="setPattern('horizontal',this)">Horizontal</button>
+                        <button class="demo-btn" onclick="setPattern('grid',this)">Grid</button>
+                        <button class="demo-btn" onclick="setPattern('rings',this)">Rings</button>
+                        <button class="demo-btn" onclick="setPattern('checker',this)">Checker</button>
+                    </div>
+                    <div style="display:flex; gap:.5rem; align-items:center; margin-bottom:.35rem; flex-wrap:wrap;">
+                        <input type="color" id="pat1" value="#3a86ff" oninput="updatePattern()">
+                        <input type="color" id="pat2" value="#ffffff" oninput="updatePattern()">
+                        <label style="font-size:.75rem; display:flex; align-items:center; gap:.3rem;">
+                            Size: <input type="range" id="patSize" min="6" max="40" value="16" style="width:70px;" oninput="updatePattern()">
+                            <span id="patSizeVal" style="font-size:.72rem;">16px</span>
+                        </label>
+                    </div>
+                    <div id="patternPreview" class="big-preview" style="background:repeating-linear-gradient(45deg,#3a86ff,#3a86ff 16px,#ffffff 16px,#ffffff 32px); border-radius:10px;"></div>
+                    <div id="patternCode" class="code-live" style="margin-top:.35rem;">repeating-linear-gradient(45deg,
+  #3a86ff 0, #3a86ff 16px,
+  #fff 16px, #fff 32px)</div>
+                    <p style="font-size:.75rem; margin-top:.3rem;"><a href="https://css-pattern.com" target="_blank">css-pattern.com</a> — library of CSS patterns</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════ SLIDE 22: RADIAL GRADIENTS ═══ -->
+    <div class="slide">
+        <div class="slide-content">
+            <div class="slide-label">Using Gradients as Backgrounds</div>
+            <h2>Radial Gradients</h2>
+            <div class="two-column">
+                <div>
+                    <h3>Syntax</h3>
+                    <pre><code>/* Default: ellipse from center */
+background-image:
+  radial-gradient(#9ad6e9, yellow);
+
+/* Force a circle */
+background-image:
+  radial-gradient(circle, #9ad6e9, yellow);
+
+/* Set size keyword */
+background-image: radial-gradient(
+  circle closest-side,
+  orange, white
+);
+
+/* Custom center position */
+background-image: radial-gradient(
+  circle at 25% 40%,
+  #ff6b6b, transparent
+);</code></pre>
+                    <h3>Shape Options</h3>
+                    <ul>
+                        <li><code>ellipse</code> — default; adapts to container shape</li>
+                        <li><code>circle</code> — always a perfect circle</li>
+                    </ul>
+                    <h3>Size Keywords</h3>
+                    <ul>
+                        <li><code>closest-side</code>, <code>farthest-side</code></li>
+                        <li><code>closest-corner</code>, <code>farthest-corner</code> (default)</li>
+                    </ul>
+                </div>
+                <div>
+                    <h3>Visual Examples</h3>
+                    <div class="gradient-row">
+                        <div class="grad-swatch" style="background:radial-gradient(#9ad6e9,yellow); border:1px solid rgba(0,0,0,.15);">ellipse (default)</div>
+                        <div class="grad-swatch" style="background:radial-gradient(circle,#9ad6e9,#f4a261); border:1px solid rgba(0,0,0,.15);">circle</div>
+                    </div>
+                    <div class="gradient-row">
+                        <div class="grad-swatch" style="background:radial-gradient(circle at 25% 40%, #ff6b6b 20%, transparent 60%), #2d3436; border:1px solid rgba(255,255,255,.2);">at 25% 40%</div>
+                        <div class="grad-swatch" style="background:radial-gradient(ellipse farthest-corner at 80% 20%,#feca57,#ee5a24,#341f97);">farthest-corner</div>
+                    </div>
+                    <div style="margin-top:.4rem;">
+                        <h4 style="margin-bottom:.3rem; color:#81ecec;">Adjust the gradient</h4>
+                        <div style="display:flex; gap:.4rem; align-items:center; margin-bottom:.3rem;">
+                            <span style="font-size:.76rem; color:#81ecec;">Colors:</span>
+                            <input type="color" id="rc1" value="#9ad6e9" oninput="updateRadial()">
+                            <input type="color" id="rc2" value="#f4a261" oninput="updateRadial()">
+                            <input type="color" id="rc3" value="#e63946" oninput="updateRadial()">
+                        </div>
+                        <div class="demo-row">
+                            <span class="demo-row-label">Shape:</span>
+                            <button class="demo-btn active" id="rs-ellipse" onclick="setRadial('shape','ellipse')">ellipse</button>
+                            <button class="demo-btn"         id="rs-circle"  onclick="setRadial('shape','circle')">circle</button>
+                        </div>
+                        <div class="demo-row">
+                            <span class="demo-row-label">Size:</span>
+                            <button class="demo-btn active" id="rs-fc" onclick="setRadial('size','farthest-corner')">farthest-corner</button>
+                            <button class="demo-btn"         id="rs-fs" onclick="setRadial('size','farthest-side')">farthest-side</button>
+                            <button class="demo-btn"         id="rs-cs" onclick="setRadial('size','closest-side')">closest-side</button>
+                        </div>
+                        <div class="demo-row">
+                            <span class="demo-row-label">Center:</span>
+                            <button class="demo-btn active" id="rp-c"  onclick="setRadial('pos','center')">center</button>
+                            <button class="demo-btn"         id="rp-tl" onclick="setRadial('pos','top left')">top left</button>
+                            <button class="demo-btn"         id="rp-25" onclick="setRadial('pos','25% 75%')">25% 75%</button>
+                            <button class="demo-btn"         id="rp-80" onclick="setRadial('pos','80% 20%')">80% 20%</button>
+                        </div>
+                        <div id="radialBox" class="big-preview" style="background:radial-gradient(ellipse farthest-corner at center, #9ad6e9, #f4a261, #e63946);"></div>
+                        <div id="radialCode" class="code-live" style="margin-top:.3rem;">radial-gradient(ellipse farthest-corner at center, ...)</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════ SLIDE 23: CONIC GRADIENTS ═══ -->
+    <div class="slide">
+        <div class="slide-content">
+            <div class="slide-label">Using Gradients as Backgrounds</div>
+            <h2>Conic Gradients</h2>
+            <div class="two-column">
+                <div>
+                    <h3>Syntax</h3>
+                    <pre><code>/* Color wheel */
+background-image:
+  conic-gradient(
+    red, yellow, green,
+    aqua, blue, magenta, red
+  );
+
+/* Pie chart segments */
+background-image: conic-gradient(
+  steelblue 0%  30%,
+  gold      30% 60%,
+  tomato    60% 100%
+);
+
+/* Start angle */
+background-image: conic-gradient(
+  from 45deg,
+  #ff6b6b, #feca57, #48dbfb
+);
+
+/* Custom center */
+background-image: conic-gradient(
+  from 0deg at 30% 50%,
+  pink, purple, pink
+);</code></pre>
+                </div>
+                <div>
+                    <h3>Live Demos</h3>
+                    <div style="display:flex; gap:.6rem; align-items:flex-start; flex-wrap:wrap;">
+                        <div style="flex:1; min-width:140px;">
+                            <p style="font-size:.76rem; color:#81ecec; margin-bottom:.3rem; text-align:center;">Pie Chart</p>
+                            <div id="pieChart" class="pie-ring" style="width:100%; aspect-ratio:1; background:conic-gradient(#667eea 0% 30%, #f64f59 30% 65%, #f9ca24 65% 100%);"></div>
+                            <div style="margin-top:.4rem; display:flex; flex-direction:column; gap:.25rem;">
+                                <div class="seg-row"><div class="seg-swatch" style="background:#667eea;"></div><span>A:</span><input type="range" min="5" max="80" value="30" style="flex:1;" id="seg1" oninput="updatePie()"><span id="seg1v" style="font-size:.72rem; min-width:28px;">30%</span></div>
+                                <div class="seg-row"><div class="seg-swatch" style="background:#f64f59;"></div><span>B:</span><input type="range" min="5" max="80" value="35" style="flex:1;" id="seg2" oninput="updatePie()"><span id="seg2v" style="font-size:.72rem; min-width:28px;">35%</span></div>
+                                <div class="seg-row"><div class="seg-swatch" style="background:#f9ca24;"></div><span>C: auto</span></div>
+                            </div>
+                        </div>
+                        <div style="flex:1; min-width:140px;">
+                            <p style="font-size:.76rem; color:#81ecec; margin-bottom:.3rem; text-align:center;">Color Wheel</p>
+                            <div class="pie-ring" style="width:100%; aspect-ratio:1; background:conic-gradient(red,orange,yellow,lime,cyan,blue,violet,red);"></div>
+                            <p style="font-size:.7rem; opacity:.65; margin-top:.35rem; text-align:center; line-height:1.4;">Static example — when colors transition seamlessly around 360°, <code>conic-gradient</code> produces a full color spectrum</p>
+                        </div>
+                    </div>
+                    <div id="pieCode" class="code-live" style="margin-top:.4rem; font-size:.7rem;">conic-gradient(
+  #667eea 0% 30%,
+  #f64f59 30% 65%,
+  #f9ca24 65% 100%)</div>
+                    <div class="tip" style="font-size:.82rem; margin-top:.4rem;">
+                        Drag the sliders to resize pie segments — the CSS updates live.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════ SLIDE 24: BORDER-RADIUS ═══ -->
+    <div class="slide">
+        <div class="slide-content">
+            <div class="slide-label">Rounded Corners</div>
+            <h2>Rounded Corners with <code>border-radius</code></h2>
+            <div class="two-column">
+                <div>
+                    <h3>Syntax</h3>
+                    <pre><code>/* All four corners equal */
+border-radius: 8px;
+
+/* Top-left/bottom-right  top-right/bottom-left */
+border-radius: 10px 4px;
+
+/* All four individually */
+border-radius: 10px 4px 8px 16px;
+/*              TL   TR   BR   BL */
+
+/* Per-corner properties */
+border-top-left-radius:     10px;
+border-top-right-radius:    4px;
+border-bottom-right-radius: 10px;
+border-bottom-left-radius:  4px;
+
+/* Elliptical corners */
+border-radius: 50px / 20px;
+
+/* Perfect circle */
+border-radius: 50%;</code></pre>
+                </div>
+                <div>
+                    <h3>Live Demo — per-corner control</h3>
+                    <div style="display:grid; grid-template-columns:80px 1fr 80px; grid-template-rows:auto 90px auto; gap:.3rem; align-items:center; margin-bottom:.4rem;">
+                        <label style="font-size:.7rem; text-align:right; color:#81ecec; padding-right:.3rem;">
+                            TL<br><input type="range" id="rr-tl" min="0" max="80" value="8" style="width:70px;" oninput="updateRadiusCorners()">
+                        </label>
+                        <div style="grid-row:1/4; grid-column:2; display:flex; align-items:center; justify-content:center;">
+                            <div id="rrBox" style="width:100%; height:90px; background:linear-gradient(135deg,rgba(52,152,219,.5),rgba(155,89,182,.5)); border:2px solid rgba(255,255,255,.4); border-radius:8px; transition:border-radius .25s; display:flex; align-items:center; justify-content:center; font-size:.72rem; font-weight:bold; text-align:center; padding:.3rem;">border-radius: 8px</div>
+                        </div>
+                        <label style="font-size:.7rem; color:#81ecec;">
+                            TR<br><input type="range" id="rr-tr" min="0" max="80" value="8" style="width:70px;" oninput="updateRadiusCorners()">
+                        </label>
+                        <div></div><div></div>
+                        <label style="font-size:.7rem; text-align:right; color:#81ecec; padding-right:.3rem;">
+                            BL<br><input type="range" id="rr-bl" min="0" max="80" value="8" style="width:70px;" oninput="updateRadiusCorners()">
+                        </label>
+                        <label style="font-size:.7rem; color:#81ecec;">
+                            BR<br><input type="range" id="rr-br" min="0" max="80" value="8" style="width:70px;" oninput="updateRadiusCorners()">
+                        </label>
+                    </div>
+                    <div style="display:flex; gap:.3rem; flex-wrap:wrap; margin-bottom:.3rem;">
+                        <button class="demo-btn" onclick="setAllCorners(0)">Sharp</button>
+                        <button class="demo-btn" onclick="setAllCorners(8)">8px</button>
+                        <button class="demo-btn" onclick="setAllCorners(20)">20px</button>
+                        <button class="demo-btn" onclick="setCircle()">50% Circle</button>
+                        <button class="demo-btn" onclick="setBlob()">Blob</button>
+                    </div>
+                    <div id="rrCode" class="code-live">border-radius: 8px</div>
+                    <div class="tip" style="font-size:.8rem; margin-top:.4rem;"><a href="https://9elements.github.io/fancy-border-radius/" target="_blank">Fancy Border Radius Generator</a></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════ SLIDE 25: ASPECT-RATIO ═══ -->
+    <div class="slide">
+        <div class="slide-content">
+            <div class="slide-label">Rounded Corners &amp; Aspect Ratio</div>
+            <h2>Guaranteed Squares with <code>aspect-ratio</code></h2>
+            <div class="two-column">
+                <div>
+                    <p>The <code>aspect-ratio</code> property maintains a fixed width-to-height ratio regardless of content or container size:</p>
+                    <pre><code>/* Always a square */
+.square {
+  width: 200px;
+  aspect-ratio: 1 / 1;  /* or just: 1 */
+}
+
+/* 16:9 video thumbnail */
+.video-thumb {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+}
+
+/* 4:3 card */
+.card-image {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+}
+
+/* Responsive circle with border-radius */
+.avatar {
+  width: 20%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+}</code></pre>
+                    <div class="note" style="font-size:.85rem; margin-top:.4rem;">
+                        Supported in all modern browsers. Replaces the old "padding-top hack" for maintaining aspect ratios.
+                    </div>
+                </div>
+                <div>
+                    <h3>Live — resize and watch the height</h3>
+                    <div style="display:flex; gap:.4rem; flex-wrap:wrap; margin-bottom:.4rem;">
+                        <button class="demo-btn active" id="ar-1"    onclick="setAR('1',this)">1:1 Square</button>
+                        <button class="demo-btn"         id="ar-169"  onclick="setAR('16/9',this)">16:9 Video</button>
+                        <button class="demo-btn"         id="ar-43"   onclick="setAR('4/3',this)">4:3</button>
+                        <button class="demo-btn"         id="ar-21"   onclick="setAR('2/1',this)">2:1 Banner</button>
+                        <button class="demo-btn"         id="ar-circle" onclick="setAR('circle',this)">Circle</button>
+                    </div>
+                    <label style="font-size:.78rem; display:flex; align-items:center; gap:.5rem; margin-bottom:.35rem;">
+                        Width: <input type="range" id="arWidth" min="20" max="100" value="55" style="flex:1;" oninput="updateAR()">
+                        <span id="arWidthVal" style="min-width:35px; font-size:.75rem;">55%</span>
+                    </label>
+                    <div style="background:rgba(0,0,0,.2); border-radius:8px; padding:.6rem; display:flex; align-items:flex-start; justify-content:center; min-height:80px;">
+                        <div id="arBox" style="width:55%; aspect-ratio:1; background:linear-gradient(135deg,rgba(255,209,102,.5),rgba(233,69,96,.5)); border:2px solid #ffd166; border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:.72rem; font-weight:bold; text-align:center; padding:.3rem; transition:all .25s;">1 / 1</div>
+                    </div>
+                    <div id="arCode" class="code-live" style="margin-top:.35rem;">width: 55%; aspect-ratio: 1;</div>
+                    <p style="font-size:.78rem; margin-top:.3rem; opacity:.8;">The height adjusts automatically — no fixed height needed.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════ SLIDE 26: BORDER-IMAGE ═══ -->
+    <div class="slide">
+        <div class="slide-content">
+            <div class="slide-label">Images as Borders</div>
+            <h2>Image Borders with <code>border-image</code></h2>
+            <div class="two-column">
+                <div>
+                    <h3>Syntax</h3>
+                    <pre><code>/* border-image shorthand */
+border-image:
+  source  slice  width  outset  repeat;
+
+/* Common pattern */
+.fancy-border {
+  border: 10px solid transparent;
+  border-image:
+    url('border.png') 30 round;
+}
+
+/* Gradient border! */
+.gradient-border {
+  border: 4px solid transparent;
+  border-image:
+    linear-gradient(to right, #ff6b6b, #feca57)
+    1;
+}</code></pre>
+                    <h3>Key Properties</h3>
+                    <ul>
+                        <li><code>border-image-source</code> — URL or gradient</li>
+                        <li><code>border-image-slice</code> — how to slice the image into 9 zones</li>
+                        <li><code>border-image-width</code> — overrides border width</li>
+                        <li><code>border-image-repeat</code> — <code>stretch</code>, <code>repeat</code>, <code>round</code>, <code>space</code></li>
+                    </ul>
+                </div>
+                <div>
+                    <h3>Live Gallery — click to select</h3>
+                    <div style="display:flex; flex-direction:column; gap:.5rem; margin-bottom:.4rem;">
+                        <button class="demo-btn active" style="text-align:left; padding:.5rem .75rem;" onclick="setBorderImage('linear-gradient(to right,#ff6b6b,#feca57,#48dbfb)','4px','1',this)">
+                            <span style="display:inline-block; width:60px; height:8px; background:linear-gradient(to right,#ff6b6b,#feca57,#48dbfb); vertical-align:middle; margin-right:.4rem; border-radius:2px;"></span>Sunrise gradient
+                        </button>
+                        <button class="demo-btn" style="text-align:left; padding:.5rem .75rem;" onclick="setBorderImage('linear-gradient(135deg,#667eea,#764ba2,#06d6a0)','4px','1',this)">
+                            <span style="display:inline-block; width:60px; height:8px; background:linear-gradient(135deg,#667eea,#764ba2,#06d6a0); vertical-align:middle; margin-right:.4rem; border-radius:2px;"></span>Purple–teal diagonal
+                        </button>
+                        <button class="demo-btn" style="text-align:left; padding:.5rem .75rem;" onclick="setBorderImage('repeating-linear-gradient(90deg,#ff6b6b,#ff6b6b 6px,#feca57 6px,#feca57 12px)','6px','6',this)">
+                            <span style="display:inline-block; width:60px; height:8px; background:repeating-linear-gradient(90deg,#ff6b6b,#ff6b6b 6px,#feca57 6px,#feca57 12px); vertical-align:middle; margin-right:.4rem; border-radius:2px;"></span>Racing stripes
+                        </button>
+                        <button class="demo-btn" style="text-align:left; padding:.5rem .75rem;" onclick="setBorderImage('conic-gradient(#ff6b6b,#feca57,#48dbfb,#ff9ff3,#ff6b6b)','4px','1',this)">
+                            <span style="display:inline-block; width:60px; height:8px; background:conic-gradient(#ff6b6b,#feca57,#48dbfb,#ff9ff3,#ff6b6b); vertical-align:middle; margin-right:.4rem; border-radius:2px;"></span>Conic color wheel
+                        </button>
+                    </div>
+                    <div id="borderImgBox" style="padding:1rem; border:4px solid transparent; border-image:linear-gradient(to right,#ff6b6b,#feca57,#48dbfb) 1; background:rgba(0,0,0,.2); border-radius:0; font-size:.82rem; min-height:55px; display:flex; align-items:center;">
+                        border-image: linear-gradient(to right,#ff6b6b,#feca57,#48dbfb) 1
+                    </div>
+                    <div id="borderImgCode" class="code-live" style="margin-top:.35rem; font-size:.7rem;">border: 4px solid transparent;
+border-image: linear-gradient(to right,
+  #ff6b6b, #feca57, #48dbfb) 1;</div>
+                    <div class="note" style="font-size:.8rem; margin-top:.4rem;">
+                        <strong>Note:</strong> <code>border-image</code> ignores <code>border-radius</code>. Use <code>outline</code> or <code>box-shadow</code> for rounded gradient borders.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════ SLIDE 27: OUTLINES VS BORDERS ═══ -->
+    <div class="slide">
+        <div class="slide-content">
+            <div class="slide-label">Exploring Outlines</div>
+            <h2>Outlines vs. Borders</h2>
+            <div class="two-column">
+                <div>
+                    <h3>Key Differences</h3>
+                    <table class="compare-table">
+                        <thead><tr><th>Property</th><th>Border</th><th>Outline</th></tr></thead>
+                        <tbody>
+                            <tr><td>Affects layout?</td><td>✅ Yes</td><td>❌ No</td></tr>
+                            <tr><td>All 4 sides same?</td><td>No — per side OK</td><td>Yes — always all sides</td></tr>
+                            <tr><td>Rounded corners?</td><td>✅ <code>border-radius</code></td><td>⚠️ <code>outline-offset</code> only</td></tr>
+                            <tr><td>Can be offset?</td><td>❌ No</td><td>✅ <code>outline-offset</code></td></tr>
+                            <tr><td>Main use</td><td>Design &amp; layout</td><td>Accessibility / focus</td></tr>
+                        </tbody>
+                    </table>
+                    <pre style="margin-top:.5rem;"><code>/* Outline syntax (same as border) */
+outline: 3px solid gold;
+
+/* Move it outward from the element */
+outline-offset: 4px;
+
+/* Negative offset: inside the element */
+outline-offset: -4px;</code></pre>
+                </div>
+                <div>
+                    <h3>Live Demo — adjust outline</h3>
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:.35rem .6rem; align-items:center; margin-bottom:.4rem;">
+                        <label style="font-size:.76rem; color:#81ecec;">Style:</label>
+                        <select id="outStyle" class="demo-select" onchange="updateOutline()">
+                            <option>solid</option><option>dashed</option><option>dotted</option><option>double</option>
+                        </select>
+                        <label style="font-size:.76rem; color:#81ecec;">Width:</label>
+                        <div style="display:flex; align-items:center; gap:.4rem;"><input type="range" id="outWidth" min="1" max="10" value="3" style="flex:1;" oninput="updateOutline()"><span id="outWidthVal" style="font-size:.72rem; min-width:22px;">3px</span></div>
+                        <label style="font-size:.76rem; color:#81ecec;">Offset:</label>
+                        <div style="display:flex; align-items:center; gap:.4rem;"><input type="range" id="outOffset" min="-8" max="16" value="4" style="flex:1;" oninput="updateOutline()"><span id="outOffsetVal" style="font-size:.72rem; min-width:28px;">4px</span></div>
+                        <label style="font-size:.76rem; color:#81ecec;">Color:</label>
+                        <input type="color" id="outColor" value="#ffd166" oninput="updateOutline()">
+                    </div>
+                    <div style="background:rgba(0,0,0,.2); border-radius:8px; padding:1.5rem; display:flex; gap:1rem; align-items:center; justify-content:center; flex-wrap:wrap;">
+                        <div style="background:rgba(52,152,219,.3); border:3px solid #3498db; padding:.6rem 1rem; border-radius:4px; font-size:.8rem; text-align:center;">
+                            Border<br><small style="opacity:.7;">shifts layout</small>
+                        </div>
+                        <div id="outlineBox" style="background:rgba(0,0,0,.2); padding:.6rem 1rem; border-radius:4px; font-size:.8rem; text-align:center; outline:3px solid #ffd166; outline-offset:4px; transition:outline .2s, outline-offset .2s;">
+                            Outline<br><small style="opacity:.7;">no layout shift</small>
+                        </div>
+                    </div>
+                    <div id="outlineCode" class="code-live" style="margin-top:.4rem;">outline: 3px solid #ffd166;
+outline-offset: 4px;</div>
+                    <div class="caution" style="font-size:.82rem; margin-top:.4rem;">
+                        <strong>Never</strong> use <code>outline: none</code> without an alternative — keyboard users need visible focus indicators.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════ SLIDE 28: FOCUS-VISIBLE ═══ -->
+    <div class="slide">
+        <div class="slide-content">
+            <div class="slide-label">Exploring Outlines</div>
+            <h2>Accessible Focus with <code>:focus-visible</code></h2>
+            <div class="two-column">
+                <div>
+                    <h3>The Problem</h3>
+                    <p>Browsers show a focus ring on every clicked element. Designers often removed it entirely with <code>outline: none</code>, breaking keyboard navigation for all users.</p>
+                    <h3>The Solution</h3>
+                    <p><code>:focus-visible</code> shows the outline <em>only</em> when the browser determines keyboard navigation is being used — not on mouse clicks:</p>
+                    <pre><code>/* Remove focus ring for mouse clicks */
+button:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* Show a strong ring for keyboard nav */
+button:focus-visible {
+  outline: 3px solid #ffd166;
+  outline-offset: 4px;
+}</code></pre>
+                    <div class="note" style="font-size:.85rem; margin-top:.4rem;">
+                        This is the modern, accessible way to handle focus styles. Supported in all current browsers.
+                    </div>
+                </div>
+                <div>
+                    <h3>Try it — Tab through these buttons</h3>
+                    <p style="font-size:.85rem;">Click a button vs. Tab to it — see the difference:</p>
+                    <div style="background:rgba(0,0,0,.25); border-radius:8px; padding:1.5rem; display:flex; flex-wrap:wrap; gap:.75rem; justify-content:center; margin:.5rem 0;">
+                        <button class="focus-demo-btn">Home</button>
+                        <button class="focus-demo-btn">About</button>
+                        <button class="focus-demo-btn">Contact</button>
+                        <button class="focus-demo-btn">Sign In</button>
+                    </div>
+                    <p style="font-size:.78rem; opacity:.7; text-align:center;">↑ Tab key → gold outline appears. Mouse click → no outline.</p>
+                    <div class="tip" style="font-size:.85rem; margin-top:.5rem;">
+                        <strong>Resources:</strong><br>
+                        <a href="https://developer.mozilla.org/en-US/docs/Web/CSS/:focus-visible" target="_blank">MDN: :focus-visible</a><br>
+                        <a href="https://www.w3.org/WAI/WCAG22/quickref/?showtechniques=1412#focus-visible" target="_blank">WCAG 2.4.11 — Focus Visible (Enhanced)</a>
+                    </div>
+                    <div class="caution" style="font-size:.85rem; margin-top:.4rem;">
+                        Always ensure focus indicators have a <strong>contrast ratio of at least 3:1</strong> against the background (WCAG 2.4.11).
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════ SLIDE 29: SUMMARY ═══ -->
+    <div class="slide">
+        <div class="slide-content">
+            <div class="slide-label">Summary</div>
+            <h2>What You've Learned</h2>
+            <div class="learn-grid">
+                <div class="learn-item">✅ Layer backgrounds with comma-separated <code>background</code> lists</div>
+                <div class="learn-item">✅ Control clip &amp; origin with <code>background-clip</code> / <code>background-origin</code></div>
+                <div class="learn-item">✅ Create gradient text with <code>background-clip: text</code></div>
+                <div class="learn-item">✅ Blend backgrounds with <code>background-blend-mode</code> &amp; <code>mix-blend-mode</code></div>
+                <div class="learn-item">✅ Frosted glass panels with <code>backdrop-filter: blur()</code></div>
+                <div class="learn-item">✅ Auto zebra-stripe tables with <code>:nth-child(odd)</code></div>
+                <div class="learn-item">✅ Linear, radial &amp; conic gradients — no image files needed</div>
+                <div class="learn-item">✅ CSS-only patterns with repeating gradient functions</div>
+                <div class="learn-item">✅ Round corners with <code>border-radius</code>, even to a circle with <code>50%</code></div>
+                <div class="learn-item">✅ Lock aspect ratios with <code>aspect-ratio: 1</code> / <code>16/9</code></div>
+                <div class="learn-item">✅ Decorative image borders with <code>border-image</code></div>
+                <div class="learn-item">✅ Accessible focus styles with <code>:focus-visible</code></div>
+            </div>
+            <div class="highlight" style="margin-top:.75rem;">
+                <p><strong>Key takeaway:</strong> Modern CSS can replace many image-based design techniques entirely — gradients, patterns, frosted glass, and gradient borders all require zero image files. The browser does the work.</p>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- ── Navigation ── -->
+<div class="progress-bar"><div class="progress" id="progress"></div></div>
+<div class="navigation">
+    <button class="nav-btn" id="prevBtn" onclick="changeSlide(-1)" disabled>&larr; Prev</button>
+    <span class="slide-counter">
+        Slide <span id="currentSlide">1</span> of <span id="totalSlides"></span>
+    </span>
+    <button class="nav-btn" id="nextBtn" onclick="changeSlide(1)">Next &rarr;</button>
+</div>
+
+<script>
+    let currentSlide = 0;
+    const slides = document.querySelectorAll('.slide');
+    const totalSlides = slides.length;
+
+    document.getElementById('totalSlides').textContent = totalSlides;
+
+    function showSlide(n) {
+        slides[currentSlide].classList.remove('active');
+        currentSlide = (n + totalSlides) % totalSlides;
+        slides[currentSlide].classList.add('active');
+        document.getElementById('currentSlide').textContent = currentSlide + 1;
+        document.getElementById('prevBtn').disabled = currentSlide === 0;
+        document.getElementById('nextBtn').disabled = currentSlide === totalSlides - 1;
+        const progress = ((currentSlide + 1) / totalSlides) * 100;
+        document.getElementById('progress').style.width = progress + '%';
+        slides[currentSlide].scrollTop = 0;
+    }
+
+    function changeSlide(dir) { showSlide(currentSlide + dir); }
+
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'ArrowRight' || e.key === ' ') {
+            e.preventDefault();
+            if (currentSlide < totalSlides - 1) changeSlide(1);
+        } else if (e.key === 'ArrowLeft') {
+            e.preventDefault();
+            if (currentSlide > 0) changeSlide(-1);
+        } else if (e.key === 'Home') {
+            e.preventDefault(); showSlide(0);
+        } else if (e.key === 'End') {
+            e.preventDefault(); showSlide(totalSlides - 1);
+        }
+    });
+
+    let touchStartX = 0;
+    document.addEventListener('touchstart', function(e) { touchStartX = e.touches[0].clientX; });
+    document.addEventListener('touchend', function(e) {
+        const delta = touchStartX - e.changedTouches[0].clientX;
+        if (Math.abs(delta) > 50) {
+            if (delta > 0 && currentSlide < totalSlides - 1) changeSlide(1);
+            else if (delta < 0 && currentSlide > 0) changeSlide(-1);
+        }
+    });
+
+    showSlide(0);
+
+    /* ── Slide 7: Night Sky Layer builder ── */
+    const _stars = [
+        'radial-gradient(1px 1px at 8% 18%, white 0%, transparent 100%)',
+        'radial-gradient(1.5px 1.5px at 22% 8%, rgba(255,255,220,.9) 0%, transparent 100%)',
+        'radial-gradient(1px 1px at 38% 25%, white 0%, transparent 100%)',
+        'radial-gradient(1px 1px at 55% 12%, white 0%, transparent 100%)',
+        'radial-gradient(1.5px 1.5px at 70% 30%, rgba(255,255,220,.85) 0%, transparent 100%)',
+        'radial-gradient(1px 1px at 83% 8%, white 0%, transparent 100%)',
+        'radial-gradient(1px 1px at 92% 20%, white 0%, transparent 100%)',
+        'radial-gradient(1px 1px at 15% 45%, white 0%, transparent 100%)',
+        'radial-gradient(1.5px 1.5px at 48% 38%, rgba(255,255,220,.9) 0%, transparent 100%)',
+        'radial-gradient(1px 1px at 78% 50%, white 0%, transparent 100%)'
+    ];
+    const _moon = 'radial-gradient(circle at 78% 22%, rgba(255,248,195,.95) 0%, rgba(255,240,160,.8) 5%, rgba(255,220,100,.35) 10%, transparent 18%)';
+    const _mist = 'radial-gradient(ellipse at 50% 110%, rgba(90,50,140,.75) 0%, rgba(60,20,100,.4) 35%, transparent 60%)';
+    const _sky  = 'linear-gradient(to bottom, #04041a 0%, #070730 40%, #120540 70%, #1e0840 100%)';
+    function updateLayers() {
+        const on1 = document.getElementById('l1').checked;
+        const on2 = document.getElementById('l2').checked;
+        const on3 = document.getElementById('l3').checked;
+        const on4 = document.getElementById('l4').checked;
+        const layers = [
+            ...(on1 ? _stars : []),
+            on2 ? _moon : null,
+            on3 ? _mist : null,
+            on4 ? _sky  : null
+        ].filter(Boolean);
+        document.getElementById('layerBox').style.background = layers.length ? layers.join(', ') : '#04041a';
+    }
+
+    /* ── Slide 3: Background shorthand builder ── */
+    function buildBg() {
+        const img  = document.getElementById('bgImg').value;
+        const pos  = document.getElementById('bgPos').value;
+        const sz   = document.getElementById('bgSz').value;
+        const rep  = document.getElementById('bgRep').value;
+        const col  = document.getElementById('bgCol').value;
+        const shorthand = `${img} ${pos} / ${sz} ${rep} ${col}`;
+        document.getElementById('bgBuilderBox').style.background = shorthand;
+        const imgDisplay = img.length > 30 ? img.substring(0,30) + '...' : img;
+        document.getElementById('bgBuilderCode').textContent = `background: ${img}\n  ${pos} / ${sz} ${rep}\n  ${col};`;
+    }
+
+    /* ── Slide 8: background-clip switcher ── */
+    function setClip(val) {
+        const box = document.getElementById('clipBox');
+        box.style.backgroundClip = val;
+        box.textContent = 'background-clip: ' + val;
+        document.querySelectorAll('[id^="clip-"]').forEach(b => b.classList.remove('active'));
+        const el = document.getElementById('clip-' + val);
+        if (el) el.classList.add('active');
+    }
+
+    /* ── Slide 11: background-size & background-position switcher ── */
+    let curBgSize = 'cover', curBgPos = 'center';
+    function setBgSize(val, btn) {
+        curBgSize = val;
+        document.getElementById('bsizeBox').style.backgroundSize = val;
+        document.querySelectorAll('[id^="bs-"]').forEach(b => b.classList.remove('active'));
+        if (btn) btn.classList.add('active');
+        updateBgDemo();
+    }
+    function setBgPos(val, btn) {
+        curBgPos = val;
+        document.getElementById('bsizeBox').style.backgroundPosition = val;
+        document.querySelectorAll('[id^="bp-"]').forEach(b => b.classList.remove('active'));
+        if (btn) btn.classList.add('active');
+        updateBgDemo();
+    }
+    function updateBgDemo() {
+        document.getElementById('bsizeCode').textContent =
+            `background-size: ${curBgSize};\nbackground-position: ${curBgPos};`;
+    }
+
+    /* ── Slide 13: blend mode selector ── */
+    function setBlendMode(val) {
+        const box = document.getElementById('blendBox');
+        box.style.backgroundBlendMode = val;
+        box.textContent = 'background-blend-mode: ' + val;
+    }
+    function setMixBlend(val) {
+        document.getElementById('mixCircle').style.mixBlendMode = val;
+    }
+
+    /* ── Slide 20: Linear gradient builder ── */
+    let linearDir = 'to right';
+    function setLinearDir(dir, btn) {
+        linearDir = dir;
+        document.querySelectorAll('[id^="ldir-"]').forEach(b => b.classList.remove('active'));
+        if (btn) btn.classList.add('active');
+        updateLinear();
+    }
+    function updateLinear() {
+        const c1 = document.getElementById('lc1').value;
+        const c2 = document.getElementById('lc2').value;
+        const c3 = document.getElementById('lc3').value;
+        const grad = `linear-gradient(${linearDir}, ${c1}, ${c2}, ${c3})`;
+        document.getElementById('linearPreview').style.background = grad;
+        document.getElementById('linearCode').textContent = `linear-gradient(${linearDir}, ${c1}, ${c2}, ${c3})`;
+    }
+
+    /* ── Slide 21: Pattern builder ── */
+    let curPattern = 'diagonal';
+    function setPattern(type, btn) {
+        curPattern = type;
+        document.querySelectorAll('[onclick*="setPattern"]').forEach(b => b.classList.remove('active'));
+        if (btn) btn.classList.add('active');
+        updatePattern();
+    }
+    function updatePattern() {
+        const c1   = document.getElementById('pat1').value;
+        const c2   = document.getElementById('pat2').value;
+        const sz   = parseInt(document.getElementById('patSize').value);
+        document.getElementById('patSizeVal').textContent = sz + 'px';
+        const sz2  = sz * 2;
+        let bg, code;
+        switch(curPattern) {
+            case 'diagonal':
+                bg   = `repeating-linear-gradient(45deg, ${c1}, ${c1} ${sz}px, ${c2} ${sz}px, ${c2} ${sz2}px)`;
+                code = `repeating-linear-gradient(45deg,\n  ${c1} 0, ${c1} ${sz}px,\n  ${c2} ${sz}px, ${c2} ${sz2}px)`;
+                break;
+            case 'vertical':
+                bg   = `repeating-linear-gradient(90deg, ${c1}, ${c1} ${sz}px, ${c2} ${sz}px, ${c2} ${sz2}px)`;
+                code = `repeating-linear-gradient(90deg,\n  ${c1} 0, ${c1} ${sz}px,\n  ${c2} ${sz}px, ${c2} ${sz2}px)`;
+                break;
+            case 'horizontal':
+                bg   = `repeating-linear-gradient(0deg, ${c1}, ${c1} ${sz}px, ${c2} ${sz}px, ${c2} ${sz2}px)`;
+                code = `repeating-linear-gradient(0deg,\n  ${c1} 0, ${c1} ${sz}px,\n  ${c2} ${sz}px, ${c2} ${sz2}px)`;
+                break;
+            case 'grid':
+                bg   = `repeating-linear-gradient(0deg,transparent,transparent ${sz-1}px,${c2} ${sz-1}px,${c2} ${sz}px), repeating-linear-gradient(90deg,transparent,transparent ${sz-1}px,${c2} ${sz-1}px,${c2} ${sz}px), ${c1}`;
+                code = `/* grid lines on ${c1} */\nrepeating-linear-gradient(0deg,…),\nrepeating-linear-gradient(90deg,…)`;
+                break;
+            case 'rings':
+                bg   = `repeating-radial-gradient(circle, ${c1} 0px, ${c1} ${sz}px, ${c2} ${sz}px, ${c2} ${sz2}px)`;
+                code = `repeating-radial-gradient(circle,\n  ${c1} 0px, ${c1} ${sz}px,\n  ${c2} ${sz}px, ${c2} ${sz2}px)`;
+                break;
+            case 'checker':
+                bg   = `repeating-conic-gradient(${c1} 0deg 90deg, ${c2} 90deg 180deg)`;
+                document.getElementById('patternPreview').style.backgroundSize = `${sz2}px ${sz2}px`;
+                code = `repeating-conic-gradient(\n  ${c1} 0deg 90deg,\n  ${c2} 90deg 180deg)\nbg-size: ${sz2}px ${sz2}px`;
+                break;
+        }
+        if (curPattern !== 'checker') document.getElementById('patternPreview').style.backgroundSize = '';
+        document.getElementById('patternPreview').style.background = bg;
+        document.getElementById('patternCode').textContent = code;
+    }
+
+    /* ── Slide 22: Radial gradient builder ── */
+    let radShape = 'ellipse', radSize = 'farthest-corner', radPos = 'center';
+    function setRadial(prop, val) {
+        if (prop === 'shape') radShape = val;
+        if (prop === 'size')  radSize  = val;
+        if (prop === 'pos')   radPos   = val;
+        updateRadial();
+        document.querySelectorAll('[id^="rs-"],[id^="rp-"]').forEach(b => b.classList.remove('active'));
+        const smap = {'ellipse':'rs-ellipse','circle':'rs-circle'};
+        const szmap = {'farthest-corner':'rs-fc','farthest-side':'rs-fs','closest-side':'rs-cs'};
+        const pmap = {'center':'rp-c','top left':'rp-tl','25% 75%':'rp-25','80% 20%':'rp-80'};
+        [smap[radShape], szmap[radSize], pmap[radPos]].forEach(id => { if (id) document.getElementById(id).classList.add('active'); });
+    }
+    function updateRadial() {
+        const c1  = document.getElementById('rc1') ? document.getElementById('rc1').value : '#9ad6e9';
+        const c2  = document.getElementById('rc2') ? document.getElementById('rc2').value : '#f4a261';
+        const c3  = document.getElementById('rc3') ? document.getElementById('rc3').value : '#e63946';
+        const grad = `radial-gradient(${radShape} ${radSize} at ${radPos}, ${c1}, ${c2}, ${c3})`;
+        document.getElementById('radialBox').style.background = grad;
+        document.getElementById('radialCode').textContent = `radial-gradient(${radShape} ${radSize} at ${radPos}, ...)`;
+    }
+
+    /* ── Slide 23: Conic pie chart ── */
+    function updatePie() {
+        const a = parseInt(document.getElementById('seg1').value);
+        const b = parseInt(document.getElementById('seg2').value);
+        const c = Math.max(5, 100 - a - b);
+        document.getElementById('seg1v').textContent = a + '%';
+        document.getElementById('seg2v').textContent = b + '%';
+        const grad = `conic-gradient(#667eea 0% ${a}%, #f64f59 ${a}% ${a+b}%, #f9ca24 ${a+b}% 100%)`;
+        document.getElementById('pieChart').style.background = grad;
+        document.getElementById('pieCode').textContent = `conic-gradient(\n  #667eea 0% ${a}%,\n  #f64f59 ${a}% ${a+b}%,\n  #f9ca24 ${a+b}% 100%)`;
+    }
+
+    /* ── Slide 24: border-radius per-corner ── */
+    function updateRadiusCorners() {
+        const tl = document.getElementById('rr-tl').value;
+        const tr = document.getElementById('rr-tr').value;
+        const br = document.getElementById('rr-br').value;
+        const bl = document.getElementById('rr-bl').value;
+        const val = `${tl}px ${tr}px ${br}px ${bl}px`;
+        document.getElementById('rrBox').style.borderRadius = val;
+        const shorthand = tl===tr && tr===br && br===bl ? `${tl}px` : val;
+        document.getElementById('rrBox').textContent = 'border-radius: ' + shorthand;
+        document.getElementById('rrCode').textContent = 'border-radius: ' + shorthand + ';';
+    }
+    function setAllCorners(v) {
+        ['rr-tl','rr-tr','rr-br','rr-bl'].forEach(id => document.getElementById(id).value = v);
+        updateRadiusCorners();
+    }
+    function setCircle() {
+        const box = document.getElementById('rrBox');
+        box.style.borderRadius = '50%';
+        box.textContent = 'border-radius: 50%';
+        document.getElementById('rrCode').textContent = 'border-radius: 50%;';
+    }
+    function setBlob() {
+        const box = document.getElementById('rrBox');
+        box.style.borderRadius = '60% 40% 70% 30% / 50% 60% 40% 50%';
+        box.textContent = 'border-radius: 60% 40% 70% 30% / 50% 60% 40% 50%';
+        document.getElementById('rrCode').textContent = 'border-radius: 60% 40% 70% 30% / 50% 60% 40% 50%;';
+    }
+    /* old setRadius kept for compatibility */
+    function setRadius(val) {
+        const display = val > 50 ? '50%' : val + 'px';
+        const box = document.getElementById('rrBox');
+        if (box) { box.style.borderRadius = display; box.textContent = 'border-radius: ' + display; }
+        const el = document.getElementById('rrVal');
+        if (el) el.textContent = display;
+    }
+
+    /* ── Slide 25: aspect-ratio demo ── */
+    let curAR = '1';
+    function setAR(ratio, btn) {
+        curAR = ratio;
+        document.querySelectorAll('[id^="ar-"]').forEach(b => b.classList.remove('active'));
+        if (btn) btn.classList.add('active');
+        updateAR();
+    }
+    function updateAR() {
+        const w = document.getElementById('arWidth').value;
+        document.getElementById('arWidthVal').textContent = w + '%';
+        const box = document.getElementById('arBox');
+        const isCircle = curAR === 'circle';
+        box.style.width = w + '%';
+        box.style.aspectRatio = isCircle ? '1' : curAR;
+        box.style.borderRadius = isCircle ? '50%' : '8px';
+        const label = isCircle ? '1 (+ border-radius:50%)' : curAR;
+        box.textContent = 'aspect-ratio: ' + label;
+        document.getElementById('arCode').textContent = `width: ${w}%; aspect-ratio: ${isCircle ? '1' : curAR};${isCircle ? '\nborder-radius: 50%;' : ''}`;
+    }
+
+    /* ── Slide 26: border-image gallery ── */
+    function setBorderImage(gradient, width, slice, btn) {
+        const box = document.getElementById('borderImgBox');
+        box.style.borderWidth = width;
+        box.style.borderStyle = 'solid';
+        box.style.borderColor = 'transparent';
+        box.style.borderImage = gradient + ' ' + slice;
+        box.textContent = 'border-image: ' + gradient.substring(0,40) + '… ' + slice;
+        document.getElementById('borderImgCode').textContent = `border: ${width} solid transparent;\nborder-image: ${gradient}\n  ${slice};`;
+        document.querySelectorAll('[onclick*="setBorderImage"]').forEach(b => b.classList.remove('active'));
+        if (btn) btn.classList.add('active');
+    }
+
+    /* ── Slide 27: outline interactive ── */
+    function updateOutline() {
+        const style  = document.getElementById('outStyle').value;
+        const width  = document.getElementById('outWidth').value;
+        const offset = document.getElementById('outOffset').value;
+        const color  = document.getElementById('outColor').value;
+        document.getElementById('outWidthVal').textContent  = width + 'px';
+        document.getElementById('outOffsetVal').textContent = offset + 'px';
+        const box = document.getElementById('outlineBox');
+        box.style.outline = `${width}px ${style} ${color}`;
+        box.style.outlineOffset = offset + 'px';
+        document.getElementById('outlineCode').textContent = `outline: ${width}px ${style} ${color};\noutline-offset: ${offset}px;`;
+    }
+</script>
+</body>
+</html>

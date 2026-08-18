@@ -1,0 +1,1156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hyperlinks and Navigation</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --accent-color: #c1a02e;
+            --nav-blue: #628794;
+            --light-bg: #ecf0f1;
+            --text-color: #2c3e50;
+            --code-bg: #1e1e1e;
+            --code-text: #d4d4d4;
+        }
+
+        html, body {
+            height: 100%;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--primary-color);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .slideshow-container {
+            width: 100%;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .slide {
+            display: none;
+            flex: 1;
+            padding: 1.5rem 2rem;
+            color: white;
+            overflow-y: auto;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        .slide.active {
+            display: flex;
+            flex-direction: column;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateX(20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        .slide-content {
+            max-width: 1400px;
+            width: 100%;
+            margin: 0 auto;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .slide-content.centered {
+            justify-content: center;
+        }
+
+        h1 {
+            font-size: clamp(1.8rem, 5vw, 3rem);
+            margin-bottom: 1.5rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+            line-height: 1.2;
+        }
+
+        h2 {
+            font-size: clamp(1.4rem, 4vw, 2.2rem);
+            margin-bottom: 0.75rem;
+            color: #ffeaa7;
+        }
+
+        h3 {
+            font-size: clamp(1.1rem, 3vw, 1.5rem);
+            margin: 0.75rem 0 0.4rem;
+            color: #81ecec;
+        }
+
+        h4 {
+            font-size: clamp(1rem, 2.5vw, 1.2rem);
+            margin: 0.5rem 0 0.3rem;
+            color: #dfe6e9;
+        }
+
+        p {
+            font-size: clamp(1rem, 2.5vw, 1.2rem);
+            line-height: 1.5;
+            margin-bottom: 0.5rem;
+        }
+
+        ul, ol {
+            font-size: clamp(0.95rem, 2.2vw, 1.15rem);
+            line-height: 1.6;
+            margin-left: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        li {
+            margin-bottom: 0.3rem;
+        }
+
+        a {
+            color: #ffeaa7;
+            text-decoration: underline;
+        }
+
+        a:hover {
+            color: #fdcb6e;
+        }
+
+        code {
+            background: rgba(0,0,0,0.3);
+            padding: 0.2em 0.5em;
+            border-radius: 4px;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 0.9em;
+        }
+
+        pre {
+            background: var(--code-bg);
+            color: var(--code-text);
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 0.5rem 0;
+            font-size: clamp(0.75rem, 1.6vw, 0.95rem);
+            line-height: 1.4;
+        }
+
+        pre code {
+            background: none;
+            padding: 0;
+        }
+
+        .highlight {
+            background: rgba(255,255,255,0.15);
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            border-left: 4px solid #ffeaa7;
+            margin: 0.5rem 0;
+        }
+
+        .note {
+            background: rgba(46, 204, 113, 0.2);
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            border-left: 4px solid #2ecc71;
+            margin: 0.5rem 0;
+        }
+
+        .caution {
+            background: rgba(231, 76, 60, 0.2);
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            border-left: 4px solid #e74c3c;
+            margin: 0.5rem 0;
+        }
+
+        .tip {
+            background: rgba(52, 152, 219, 0.2);
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            border-left: 4px solid #3498db;
+            margin: 0.5rem 0;
+        }
+
+        .two-column {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            align-items: start;
+        }
+
+        .three-column {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.5rem;
+            align-items: start;
+        }
+
+        @media (max-width: 900px) {
+            .three-column {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .two-column, .three-column {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .codepen-container {
+            margin: 0.5rem 0;
+            border-radius: 8px;
+            overflow: hidden;
+            flex: 1;
+            min-height: 0;
+        }
+
+        .codepen-container iframe {
+            border: none;
+            width: 100%;
+            height: 100%;
+            min-height: 300px;
+            border-radius: 8px;
+        }
+
+        .navigation {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 1rem;
+            padding: 0.75rem 1rem;
+            background: var(--primary-color);
+            flex-wrap: wrap;
+        }
+
+        .nav-btn {
+            padding: 0.6rem 1.2rem;
+            font-size: 1rem;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: var(--secondary-color);
+            color: white;
+        }
+
+        .nav-btn:hover {
+            background: #2980b9;
+            transform: translateY(-2px);
+        }
+
+        .nav-btn:disabled {
+            background: #7f8c8d;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .slide-counter {
+            color: white;
+            font-size: 1rem;
+            min-width: 100px;
+            text-align: center;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 4px;
+            background: rgba(255,255,255,0.2);
+        }
+
+        .progress {
+            height: 100%;
+            background: var(--secondary-color);
+            transition: width 0.3s ease;
+        }
+
+        /* Slide themes */
+        .slide:nth-child(odd) {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .slide:nth-child(even) {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+        }
+
+        .slide:nth-child(3n) {
+            background: linear-gradient(135deg, #ee0979 0%, #ff6a00 100%);
+        }
+
+        .slide:nth-child(4n) {
+            background: linear-gradient(135deg, #2193b0 0%, #6dd5ed 100%);
+        }
+
+        .slide:nth-child(5n) {
+            background: linear-gradient(135deg, #c31432 0%, #240b36 100%);
+        }
+
+        /* Comparison table */
+        table.compare-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 0.5rem 0;
+            font-size: clamp(0.8rem, 1.8vw, 1rem);
+        }
+
+        table.compare-table th,
+        table.compare-table td {
+            border: 1px solid rgba(255,255,255,0.3);
+            padding: 0.4rem 0.6rem;
+            text-align: left;
+        }
+
+        table.compare-table th {
+            background: rgba(0,0,0,0.2);
+        }
+
+        /* Info cards */
+        .info-card {
+            background: rgba(0,0,0,0.2);
+            padding: 1rem;
+            border-radius: 8px;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .info-card h4 {
+            margin-top: 0;
+        }
+
+        @media (max-width: 600px) {
+            .slide {
+                padding: 1rem;
+            }
+
+            .navigation {
+                padding: 0.5rem;
+            }
+
+            .nav-btn {
+                padding: 0.5rem 1rem;
+                font-size: 0.9rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="progress-bar">
+        <div class="progress" id="progress"></div>
+    </div>
+
+    <div class="slideshow-container">
+
+        <!-- Slide 1: Title -->
+        <div class="slide active">
+            <div class="slide-content centered" style="text-align: center;">
+                <h1>Hyperlinks and Navigation</h1>
+                <p style="font-size: clamp(1.2rem, 3vw, 1.8rem); opacity: 0.9;">Building Professional Navigation Systems with CSS</p>
+                <div style="margin: 2rem auto; max-width: 500px;">
+                    <!-- Visual: nav bar mockup -->
+                    <div style="background:#628794; border-radius:8px; padding:12px 20px; display:flex; justify-content:space-between; align-items:center;">
+                        <div style="font-weight:bold; font-size:1.2rem;">ACME</div>
+                        <div style="display:flex; gap:20px; font-size:0.95rem;">
+                            <span style="border-bottom:2px solid #c1a02e; padding-bottom:4px;">Home</span>
+                            <span style="opacity:0.8;">About</span>
+                            <span style="opacity:0.8;">Products</span>
+                            <span style="opacity:0.8;">Contact</span>
+                        </div>
+                    </div>
+                </div>
+                <p style="opacity: 0.7;">Use arrow keys, buttons, or swipe to navigate</p>
+            </div>
+        </div>
+
+        <!-- Slide 2: What You'll Learn -->
+        <div class="slide">
+            <div class="slide-content centered">
+                <h2>What You'll Learn in This Lesson</h2>
+                <div class="two-column">
+                    <div>
+                        <h3>Navigation Foundations</h3>
+                        <ul>
+                            <li>HTML lists as the base of all navigation</li>
+                            <li>How <code>display</code> properties affect nav layout</li>
+                            <li>Styling hover and focus states for links</li>
+                            <li>Building <strong>vertical</strong> (sidebar) navigation</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h3>Advanced Patterns</h3>
+                        <ul>
+                            <li>Building <strong>horizontal</strong> (top bar) navigation with Flexbox</li>
+                            <li>Single-level and multi-level <strong>drop-down menus</strong></li>
+                            <li>Sticky and fixed navigation bars</li>
+                            <li>Polished hover effects with <strong>transitions</strong></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="note" style="margin-top: 1rem;">
+                    <strong>Big picture:</strong> Navigation is the backbone of every website. The same HTML list structure produces sidebar menus, top bars, and dropdown systems — the difference is <strong>entirely CSS</strong>.
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 3: Why Lists Are the Foundation -->
+        <div class="slide">
+            <div class="slide-content centered">
+                <h2>Why Lists Are the Foundation of Navigation</h2>
+                <div class="two-column">
+                    <div>
+                        <p>A navigation menu <strong>is</strong> a list of destinations. Using <code>&lt;ul&gt;</code> and <code>&lt;li&gt;</code> is semantically correct and has real accessibility benefits:</p>
+                        <ul>
+                            <li>Screen readers announce how many items are in the list</li>
+                            <li>Users who can't see the layout understand the scope</li>
+                            <li>Search engines recognize the structure</li>
+                        </ul>
+                        <div class="highlight" style="margin-top:0.75rem;">
+                            <strong>The <code>&lt;nav&gt;</code> element</strong> is an HTML5 landmark. It tells browsers and assistive tech: "This section contains navigation links." Screen readers can jump directly to it.
+                        </div>
+                    </div>
+                    <div>
+                        <h3>Every Nav Starts Here</h3>
+                        <pre><code>&lt;nav&gt;
+  &lt;ul&gt;
+    &lt;li&gt;&lt;a href="#"&gt;Home&lt;/a&gt;&lt;/li&gt;
+    &lt;li&gt;&lt;a href="#"&gt;About&lt;/a&gt;&lt;/li&gt;
+    &lt;li&gt;&lt;a href="#"&gt;Products&lt;/a&gt;&lt;/li&gt;
+    &lt;li&gt;&lt;a href="#"&gt;Contact&lt;/a&gt;&lt;/li&gt;
+  &lt;/ul&gt;
+&lt;/nav&gt;</code></pre>
+                        <p style="font-size:0.9rem; margin-top:0.5rem;">This exact structure is the starting point for <strong>every</strong> navigation pattern in this lesson — vertical, horizontal, and dropdown.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 4: Stripping Default Styles + CodePen 11.1 -->
+        <div class="slide">
+            <div class="slide-content">
+                <h2>Stripping Default List Styles</h2>
+                <div style="display:flex; gap:1.5rem; margin-bottom:0.5rem; flex-wrap:wrap;">
+                    <div style="flex:1; min-width:280px;">
+                        <p>Browsers add ~40px left padding and bullet discs to <code>&lt;ul&gt;</code>. Step one: <strong>remove them</strong>.</p>
+                        <pre><code>nav ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}</code></pre>
+                        <div style="display:flex; gap:8px; margin-top:0.5rem;">
+                            <div style="flex:1; text-align:center;">
+                                <div style="font-size:0.75rem; color:#e74c3c; font-weight:bold; margin-bottom:4px;">Default</div>
+                                <div style="background:#f5f5f5; border-radius:6px; padding:10px 10px 10px 36px; text-align:left; color:#333; font-size:0.85rem;">
+                                    <div style="margin-bottom:3px;">&#8226; Home</div>
+                                    <div style="margin-bottom:3px;">&#8226; About</div>
+                                    <div>&#8226; Products</div>
+                                </div>
+                            </div>
+                            <div style="flex:1; text-align:center;">
+                                <div style="font-size:0.75rem; color:#2ecc71; font-weight:bold; margin-bottom:4px;">After reset</div>
+                                <div style="background:#f5f5f5; border-radius:6px; padding:10px; text-align:left; color:#333; font-size:0.85rem;">
+                                    <div style="margin-bottom:3px;">Home</div>
+                                    <div style="margin-bottom:3px;">About</div>
+                                    <div>Products</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div style="flex:1; min-width:280px;">
+                        <div class="tip" style="font-size:0.9rem;">
+                            <strong>TIP:</strong> The <code>::marker</code> pseudo-element lets you style bullet characters on regular lists. For navigation, always use <code>list-style: none;</code>.
+                        </div>
+                    </div>
+                </div>
+                <p style="font-size:0.9rem;">Toggle the properties in the CodePen to see the effect:</p>
+                <div class="codepen-container" style="flex:1;">
+                    <iframe style="width: 100%;" title="Codepen - 11.1" src="https://codepen.io/mattkearl/embed/myEvQOY?default-tab=css%2Cresult&editable=true" height="600" loading="lazy"></iframe>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 5: Display Types Overview -->
+        <div class="slide">
+            <div class="slide-content centered">
+                <h2>Understanding Display Types for Navigation</h2>
+                <p>The <code>display</code> property controls whether nav items stack vertically or sit side by side:</p>
+                <div style="display:grid; grid-template-columns:repeat(2, 1fr); gap:1rem; margin-top:0.75rem;">
+                    <div class="info-card">
+                        <h4><code>display: block</code></h4>
+                        <p style="font-size:0.9rem;">Full width, stacks vertically. Default for <code>&lt;li&gt;</code>. Setting <code>display: block</code> on <code>&lt;a&gt;</code> tags makes the <strong>entire row clickable</strong>.</p>
+                        <div style="background:#f5f5f5; border-radius:4px; padding:6px; margin-top:0.5rem;">
+                            <div style="background:#628794; color:white; padding:6px 10px; margin-bottom:3px; border-radius:3px; font-size:0.8rem;">Home</div>
+                            <div style="background:#628794; color:white; padding:6px 10px; margin-bottom:3px; border-radius:3px; font-size:0.8rem;">About</div>
+                            <div style="background:#628794; color:white; padding:6px 10px; border-radius:3px; font-size:0.8rem;">Contact</div>
+                        </div>
+                    </div>
+                    <div class="info-card">
+                        <h4><code>display: inline</code></h4>
+                        <p style="font-size:0.9rem;">Side by side like text. <strong>Cannot</strong> set width/height. Has whitespace gaps between items in HTML.</p>
+                        <div style="background:#f5f5f5; border-radius:4px; padding:8px; margin-top:0.5rem;">
+                            <span style="background:#628794; color:white; padding:4px 10px; border-radius:3px; font-size:0.8rem;">Home</span>
+                            <span style="background:#628794; color:white; padding:4px 10px; border-radius:3px; font-size:0.8rem;">About</span>
+                            <span style="background:#628794; color:white; padding:4px 10px; border-radius:3px; font-size:0.8rem;">Contact</span>
+                        </div>
+                    </div>
+                    <div class="info-card">
+                        <h4><code>display: inline-block</code></h4>
+                        <p style="font-size:0.9rem;">Side by side <em>with</em> width/height/margin/padding control. Still has the whitespace gap issue.</p>
+                        <div style="background:#f5f5f5; border-radius:4px; padding:8px; margin-top:0.5rem; display:flex; gap:4px; flex-wrap:wrap;">
+                            <div style="background:#628794; color:white; padding:6px 12px; border-radius:3px; font-size:0.8rem;">Home</div>
+                            <div style="background:#628794; color:white; padding:6px 12px; border-radius:3px; font-size:0.8rem;">About</div>
+                            <div style="background:#628794; color:white; padding:6px 12px; border-radius:3px; font-size:0.8rem;">Contact</div>
+                        </div>
+                    </div>
+                    <div class="info-card" style="border-color:#2ecc71;">
+                        <h4 style="color:#2ecc71;"><code>display: flex</code> (modern standard)</h4>
+                        <p style="font-size:0.9rem;">Applied to the <strong>parent</strong>, not items. No whitespace gaps. Full alignment and spacing control with <code>gap</code>, <code>justify-content</code>, <code>align-items</code>.</p>
+                        <div style="background:#f5f5f5; border-radius:4px; padding:8px; margin-top:0.5rem; display:flex; gap:4px;">
+                            <div style="background:#628794; color:white; padding:6px 12px; border-radius:3px; font-size:0.8rem; flex:1; text-align:center;">Home</div>
+                            <div style="background:#628794; color:white; padding:6px 12px; border-radius:3px; font-size:0.8rem; flex:1; text-align:center;">About</div>
+                            <div style="background:#628794; color:white; padding:6px 12px; border-radius:3px; font-size:0.8rem; flex:1; text-align:center;">Contact</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 6: display: block on links -->
+        <div class="slide">
+            <div class="slide-content centered">
+                <h2><code>display: block</code> on Links</h2>
+                <div class="two-column">
+                    <div>
+                        <p>By default, <code>&lt;a&gt;</code> tags are <strong>inline</strong> — only the text is clickable. Setting <code>display: block</code> makes the <strong>entire row</strong> clickable:</p>
+                        <pre><code>nav a {
+  display: block;
+  padding: 10px 15px;
+}</code></pre>
+                        <p style="font-size:0.9rem;">Users can click <strong>anywhere in the padded area</strong>, not just on the tiny text. This is essential for navigation usability.</p>
+                    </div>
+                    <div>
+                        <h3>Inline vs Block Links</h3>
+                        <div style="display:flex; gap:12px;">
+                            <div style="flex:1; text-align:center;">
+                                <div style="font-size:0.8rem; color:#e74c3c; font-weight:bold; margin-bottom:6px;">Inline (default)</div>
+                                <div style="background:#f5f5f5; border-radius:6px; padding:12px;">
+                                    <div style="margin-bottom:10px;">
+                                        <span style="background:#628794; color:white; padding:4px 8px; border-radius:3px; font-size:0.85rem; border:2px dashed #e74c3c;">Home</span>
+                                    </div>
+                                    <div style="font-size:0.7rem; color:#999;">Only text is clickable</div>
+                                </div>
+                            </div>
+                            <div style="flex:1; text-align:center;">
+                                <div style="font-size:0.8rem; color:#2ecc71; font-weight:bold; margin-bottom:6px;">Block + padding</div>
+                                <div style="background:#f5f5f5; border-radius:6px; padding:12px;">
+                                    <div style="margin-bottom:10px;">
+                                        <div style="background:#628794; color:white; padding:10px 14px; border-radius:3px; font-size:0.85rem; border:2px dashed #2ecc71;">Home</div>
+                                    </div>
+                                    <div style="font-size:0.7rem; color:#2ecc71;">Whole area is clickable</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 7: Comparing Display Values - CodePen 11.2 -->
+        <div class="slide">
+            <div class="slide-content">
+                <h2>Comparing Display Values</h2>
+                <p>Switch between <code>inline</code>, <code>inline-block</code>, and <code>flex</code> on the same nav to see the differences:</p>
+                <div class="codepen-container" style="flex:1;">
+                    <iframe style="width: 100%;" title="Codepen - 11.2" src="https://codepen.io/mattkearl/embed/pvbGQRR?default-tab=css%2Cresult&editable=true" height="700" loading="lazy"></iframe>
+                </div>
+                <div class="tip" style="margin-top:0.5rem; font-size:0.9rem;">
+                    <strong>Modern recommendation:</strong> Use <code>display: flex;</code> for all new horizontal navigation. You may still see <code>inline</code> and <code>inline-block</code> in older codebases.
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 8: Hover and Focus States -->
+        <div class="slide">
+            <div class="slide-content centered">
+                <h2>Styling Navigation Links: Hover &amp; Focus</h2>
+                <div class="two-column">
+                    <div>
+                        <p>Visual feedback tells users items are interactive. At minimum, nav links need <code>:hover</code> and <code>:focus</code> styles:</p>
+                        <pre><code>nav a {
+  display: block;
+  padding: 10px 15px;
+  color: #ffffff;
+  background-color: #628794;
+  text-decoration: none;
+}
+
+nav a:hover,
+nav a:focus {
+  background-color: #c1a02e;
+  color: #000000;
+}</code></pre>
+                        <div class="caution" style="font-size:0.9rem; margin-top:0.5rem;">
+                            <strong>Accessibility:</strong> Without visible <code>:focus</code> styles, keyboard users (Tab key) can't tell which link is selected. Always style both.
+                        </div>
+                    </div>
+                    <div>
+                        <h3>Remember LVHFA Order</h3>
+                        <p style="font-size:0.9rem;">Link pseudo-classes should appear in this order:</p>
+                        <ol style="font-size:0.95rem;">
+                            <li><code>:link</code> — unvisited</li>
+                            <li><code>:visited</code> — already visited</li>
+                            <li><code>:hover</code> — mouse over</li>
+                            <li><code>:focus</code> — keyboard selected</li>
+                            <li><code>:active</code> — being clicked</li>
+                        </ol>
+                        <h3 style="margin-top:1rem;">Smooth Transitions</h3>
+                        <pre><code>nav a {
+  transition: background-color 0.2s ease;
+}</code></pre>
+                        <p style="font-size:0.85rem;">Place <code>transition</code> on the <strong>default state</strong>, not on <code>:hover</code>. This ensures it animates both entering and leaving.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 9: Hover/Focus CodePen 11.3 -->
+        <div class="slide">
+            <div class="slide-content">
+                <h2>Hover &amp; Focus in Action</h2>
+                <p>Try modifying the colors, padding, and transition duration:</p>
+                <div class="codepen-container" style="flex:1;">
+                    <iframe style="width: 100%;" title="Untitled" src="https://codepen.io/mattkearl/embed/emzxoMX?default-tab=css%2Cresult&editable=true" height="600" loading="lazy"></iframe>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 10: Building Vertical Navigation -->
+        <div class="slide">
+            <div class="slide-content centered">
+                <h2>Building Vertical Navigation</h2>
+                <div class="two-column">
+                    <div>
+                        <p>Vertical nav (sidebar menus) requires <strong>less CSS</strong> — you're styling what lists naturally do: stack.</p>
+                        <h3>Common uses:</h3>
+                        <ul>
+                            <li>Sidebar navigation</li>
+                            <li>Settings panels</li>
+                            <li>Sub-navigation within a section</li>
+                        </ul>
+                        <h3>HTML</h3>
+                        <pre><code>&lt;nav class="sidebar"&gt;
+  &lt;ul&gt;
+    &lt;li&gt;&lt;a href="#"&gt;Mission&lt;/a&gt;&lt;/li&gt;
+    &lt;li&gt;&lt;a href="#"&gt;History&lt;/a&gt;&lt;/li&gt;
+    &lt;li&gt;&lt;a href="#" class="active"&gt;
+      Executive Team&lt;/a&gt;&lt;/li&gt;
+    &lt;li&gt;&lt;a href="#"&gt;Careers&lt;/a&gt;&lt;/li&gt;
+    &lt;li&gt;&lt;a href="#"&gt;Contact Us&lt;/a&gt;&lt;/li&gt;
+  &lt;/ul&gt;
+&lt;/nav&gt;</code></pre>
+                        <p style="font-size:0.85rem;">The <code>class="active"</code> indicates the current page.</p>
+                    </div>
+                    <div>
+                        <h3>The CSS</h3>
+                        <pre><code>.sidebar ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  width: 200px;
+}
+
+.sidebar a {
+  display: block;
+  padding: 12px 16px;
+  color: #ffffff;
+  background-color: #628794;
+  text-decoration: none;
+  border-bottom: 1px solid #fff;
+  transition: background-color 0.2s;
+}
+
+.sidebar a:hover,
+.sidebar a:focus {
+  background-color: #c1a02e;
+  color: #000000;
+}</code></pre>
+                        <h3>Active Page Indicator</h3>
+                        <pre><code>.sidebar a.active {
+  background-color: #3a5a66;
+  border-left: 4px solid #c1a02e;
+}</code></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 11: Vertical Nav CodePen 11.4 -->
+        <div class="slide">
+            <div class="slide-content">
+                <h2>Vertical Navigation in Action</h2>
+                <p>Complete sidebar with hover states and active indicator. Try customizing colors, border width, or padding:</p>
+                <div class="codepen-container" style="flex:1;">
+                    <iframe style="width: 100%;" title="Untitled" src="https://codepen.io/mattkearl/embed/xbOMejx?default-tab=css%2Cresult&editable=true" height="400" loading="lazy"></iframe>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 12: Horizontal Navigation with Flexbox -->
+        <div class="slide">
+            <div class="slide-content centered">
+                <h2>Building Horizontal Navigation with Flexbox</h2>
+                <div class="two-column">
+                    <div>
+                        <p>The most common pattern: a top bar. The HTML is <strong>identical</strong> to vertical nav — the change is <strong>entirely CSS</strong>:</p>
+                        <pre><code>.topnav ul {
+  display: flex;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}</code></pre>
+                        <p style="font-size:0.9rem;">That single <code>display: flex;</code> transforms the stack into a row.</p>
+                        <h3>Key Flexbox Properties for Nav</h3>
+                        <ul>
+                            <li><code>justify-content</code> — distribute items horizontally</li>
+                            <li><code>align-items</code> — vertical centering within the bar</li>
+                            <li><code>gap</code> — clean spacing (replaces margin hacks)</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h3>Logo-and-Links Pattern</h3>
+                        <pre><code>header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #628794;
+  padding: 0 20px;
+}
+
+.topnav ul {
+  display: flex;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  gap: 4px;
+}
+
+.topnav a {
+  display: block;
+  padding: 16px 20px;
+  color: #ffffff;
+  text-decoration: none;
+  transition: background-color 0.2s;
+}
+
+.topnav a:hover,
+.topnav a:focus {
+  background-color: #c1a02e;
+  color: #000000;
+}</code></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 13: Horizontal Nav CodePen 11.5 -->
+        <div class="slide">
+            <div class="slide-content">
+                <h2>Horizontal Navigation in Action</h2>
+                <p>Experiment with <code>justify-content</code> values and <code>gap</code> sizes:</p>
+                <div class="codepen-container" style="flex:1;">
+                    <iframe style="width: 100%;" title="Codepen - 11.5" src="https://codepen.io/mattkearl/embed/ZYOwZjP?default-tab=css%2Cresult&editable=true" height="500" loading="lazy"></iframe>
+                </div>
+                <div class="tip" style="margin-top:0.5rem; font-size:0.9rem;">
+                    <strong>TIP:</strong> The <code>gap</code> property gives clean, even spacing without <code>margin-right</code> + <code>:last-child</code> overrides. It just works.
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 14: Drop-Down Menus Overview -->
+        <div class="slide">
+            <div class="slide-content centered">
+                <h2>Creating Drop-Down Menus</h2>
+                <p>Drop-downs reveal sub-navigation on hover. They use <strong>nested lists</strong> + <strong>CSS positioning</strong>.</p>
+                <div class="two-column">
+                    <div>
+                        <h3>HTML: Nested <code>&lt;ul&gt;</code></h3>
+                        <pre><code>&lt;li class="has-dropdown"&gt;
+  &lt;a href="#"&gt;About Us&lt;/a&gt;
+  &lt;ul class="dropdown"&gt;
+    &lt;li&gt;&lt;a href="#"&gt;Mission&lt;/a&gt;&lt;/li&gt;
+    &lt;li&gt;&lt;a href="#"&gt;History&lt;/a&gt;&lt;/li&gt;
+    &lt;li&gt;&lt;a href="#"&gt;Team&lt;/a&gt;&lt;/li&gt;
+    &lt;li&gt;&lt;a href="#"&gt;Contact&lt;/a&gt;&lt;/li&gt;
+  &lt;/ul&gt;
+&lt;/li&gt;</code></pre>
+                    </div>
+                    <div>
+                        <h3>How It Works</h3>
+                        <ol style="font-size:0.95rem;">
+                            <li>Parent <code>&lt;li&gt;</code> → <code>position: relative;</code></li>
+                            <li>Dropdown <code>&lt;ul&gt;</code> → <code>position: absolute;</code> + hidden</li>
+                            <li><code>top: 100%;</code> places it directly below parent</li>
+                            <li>On hover → <code>display: block;</code></li>
+                        </ol>
+                        <h3>Key CSS</h3>
+                        <pre><code>.has-dropdown { position: relative; }
+
+.dropdown {
+  display: none;
+  position: absolute;
+  top: 100%; left: 0;
+  min-width: 200px;
+  z-index: 100;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+.has-dropdown:hover > .dropdown,
+.has-dropdown:focus-within > .dropdown {
+  display: block;
+}</code></pre>
+                    </div>
+                </div>
+                <div class="highlight" style="margin-top:0.5rem; font-size:0.9rem;">
+                    <strong><code>:focus-within</code></strong> keeps the dropdown open when a keyboard user tabs into sub-menu links. Without it, the menu closes when focus leaves the parent.
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 15: Single-Level Dropdown CodePen 11.6 -->
+        <div class="slide">
+            <div class="slide-content">
+                <h2>Single-Level Drop-Down in Action</h2>
+                <p>Hover over "About Us" to see the dropdown. Try adding items, changing colors, or adjusting <code>min-width</code>:</p>
+                <div class="codepen-container" style="flex:1;">
+                    <iframe style="width: 100%;" title="Codepen - 11.6" src="https://codepen.io/mattkearl/embed/JoKxVad?default-tab=css%2Cresult&editable=true" height="400" loading="lazy"></iframe>
+                </div>
+                <div class="caution" style="margin-top:0.5rem; font-size:0.9rem;">
+                    <strong>Common pitfall:</strong> A tiny gap between the parent link and dropdown causes the menu to close as the mouse crosses it. Ensure the dropdown starts at exactly <code>top: 100%;</code> with no gap, or add <code>padding-bottom</code> to the parent <code>&lt;li&gt;</code> as an invisible bridge.
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 16: Multi-Level Fly-Out Menus -->
+        <div class="slide">
+            <div class="slide-content">
+                <h2>Multi-Level Drop-Downs (Fly-Outs)</h2>
+                <div style="display:flex; gap:1.5rem; margin-bottom:0.5rem; flex-wrap:wrap;">
+                    <div style="flex:1; min-width:280px;">
+                        <p>Fly-outs add a second level that opens <strong>to the side</strong>. Same pattern, one level deeper:</p>
+                        <pre><code>.has-flyout { position: relative; }
+
+.flyout {
+  display: none;
+  position: absolute;
+  top: 0;
+  left: 100%;  /* right edge of parent */
+  min-width: 180px;
+  z-index: 200;
+}
+
+.has-flyout:hover > .flyout,
+.has-flyout:focus-within > .flyout {
+  display: block;
+}</code></pre>
+                        <p style="font-size:0.85rem;"><code>&raquo;</code> (<code>&amp;raquo;</code>) is the convention to indicate a sub-menu.</p>
+                        <div class="caution" style="font-size:0.85rem;">
+                            <strong>Usability rule:</strong> Limit to 2 levels max. Deeper nesting frustrates users — consider sidebars or mega-menus instead.
+                        </div>
+                    </div>
+                    <div style="flex:1; min-width:280px;">
+                        <h3>Dropdown vs Fly-out</h3>
+                        <table class="compare-table">
+                            <tr><th></th><th>Dropdown</th><th>Fly-out</th></tr>
+                            <tr><td>Opens</td><td>Below parent</td><td>To the side</td></tr>
+                            <tr><td><code>top</code></td><td><code>100%</code></td><td><code>0</code></td></tr>
+                            <tr><td><code>left</code></td><td><code>0</code></td><td><code>100%</code></td></tr>
+                        </table>
+                    </div>
+                </div>
+                <p style="font-size:0.9rem;">Hover "About Us" then "Executive Team" to see the fly-out:</p>
+                <div class="codepen-container" style="flex:1;">
+                    <iframe style="width: 100%;" title="Codepen - 11.7" src="https://codepen.io/mattkearl/embed/gbMqydx?default-tab=css%2Cresult&editable=true" height="400" loading="lazy"></iframe>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 17: Sticky and Fixed Navigation -->
+        <div class="slide">
+            <div class="slide-content centered">
+                <h2>Sticky &amp; Fixed Navigation Bars</h2>
+                <div class="two-column">
+                    <div>
+                        <h3><code>position: fixed</code></h3>
+                        <ul>
+                            <li>Locked on screen <strong>at all times</strong></li>
+                            <li>Removed from document flow</li>
+                            <li>Content slides behind it</li>
+                            <li>Must add <code>margin-top</code> to body</li>
+                        </ul>
+                        <pre><code>.topnav {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%;
+  z-index: 1000;
+}
+
+body {
+  margin-top: 60px;
+}</code></pre>
+                        <p style="font-size:0.85rem;"><strong>Use for:</strong> web apps, dashboards</p>
+                    </div>
+                    <div>
+                        <h3><code>position: sticky</code></h3>
+                        <ul>
+                            <li>Scrolls normally at first</li>
+                            <li>Sticks when it reaches the edge</li>
+                            <li>Stays in document flow</li>
+                            <li>No margin hack needed</li>
+                        </ul>
+                        <pre><code>.topnav {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}</code></pre>
+                        <p style="font-size:0.85rem;"><strong>Use for:</strong> marketing sites, blogs, nav below hero banners</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 18: Sticky/Fixed CodePen 11.8 -->
+        <div class="slide">
+            <div class="slide-content">
+                <h2>Fixed vs Sticky in Action</h2>
+                <p>Scroll within the preview to see how each behaves differently:</p>
+                <div class="codepen-container" style="flex:1;">
+                    <iframe style="width: 100%;" title="Codepen - 11.8" src="https://codepen.io/mattkearl/embed/jErdRee?default-tab=css%2Cresult&editable=true" height="600" loading="lazy"></iframe>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 19: Animated Hover Effects -->
+        <div class="slide">
+            <div class="slide-content centered">
+                <h2>Adding Polished Hover Effects</h2>
+                <p>The animated underline — a professional look used on many modern sites:</p>
+                <div class="two-column">
+                    <div>
+                        <h3>How It Works</h3>
+                        <ol style="font-size:0.95rem;">
+                            <li>Create invisible line with <code>::after</code></li>
+                            <li>Collapse it: <code>transform: scaleX(0)</code></li>
+                            <li>On hover: <code>scaleX(1)</code></li>
+                            <li><code>transition</code> animates the scaling</li>
+                        </ol>
+                        <pre><code>.topnav a {
+  position: relative;
+}
+
+.topnav a::after {
+  content: "";
+  position: absolute;
+  bottom: 0; left: 0;
+  width: 100%; height: 3px;
+  background-color: #c1a02e;
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.3s ease;
+}
+
+.topnav a:hover::after,
+.topnav a:focus::after {
+  transform: scaleX(1);
+}</code></pre>
+                    </div>
+                    <div>
+                        <h3>Key Details</h3>
+                        <ul>
+                            <li>Link needs <code>position: relative;</code> so <code>::after</code> positions correctly</li>
+                            <li><code>transform-origin: left</code> → slides from left</li>
+                            <li><code>transform-origin: center</code> → grows from middle</li>
+                        </ul>
+                        <div style="margin-top:1rem;">
+                            <div style="font-size:0.85rem; color:#81ecec; margin-bottom:4px;">transform-origin: left</div>
+                            <div style="background:rgba(0,0,0,0.3); padding:12px 18px; border-radius:6px; position:relative; display:inline-block;">
+                                <span style="font-size:1rem;">About Us</span>
+                                <div style="position:absolute; bottom:0; left:0; width:60%; height:3px; background:#c1a02e; border-radius:2px;"></div>
+                            </div>
+                            <div style="font-size:0.7rem; color:#999; margin-top:3px;">Line grows from left →</div>
+                        </div>
+                        <div style="margin-top:1rem;">
+                            <div style="font-size:0.85rem; color:#81ecec; margin-bottom:4px;">transform-origin: center</div>
+                            <div style="background:rgba(0,0,0,0.3); padding:12px 18px; border-radius:6px; position:relative; display:inline-block;">
+                                <span style="font-size:1rem;">About Us</span>
+                                <div style="position:absolute; bottom:0; left:20%; width:60%; height:3px; background:#c1a02e; border-radius:2px;"></div>
+                            </div>
+                            <div style="font-size:0.7rem; color:#999; margin-top:3px;">← Line grows from center →</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 20: Animated Underline CodePen 11.9 -->
+        <div class="slide">
+            <div class="slide-content">
+                <h2>Animated Underline in Action</h2>
+                <p>Try changing <code>transform-origin</code>, underline <code>height</code>, or <code>transition</code> duration:</p>
+                <div class="codepen-container" style="flex:1;">
+                    <iframe style="width: 100%;" title="Codepen - 11.9" src="https://codepen.io/mattkearl/embed/raLPbqE?default-tab=css%2Cresult&editable=true" height="700" loading="lazy"></iframe>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 21: Summary -->
+        <div class="slide">
+            <div class="slide-content centered">
+                <h2>Summary</h2>
+                <div class="two-column">
+                    <div>
+                        <h3>Key Concepts</h3>
+                        <ul>
+                            <li>Navigation = <code>&lt;nav&gt;</code> + <code>&lt;ul&gt;</code> + <code>&lt;li&gt;</code> + <code>&lt;a&gt;</code></li>
+                            <li>Always strip defaults: <code>list-style: none; margin: 0; padding: 0;</code></li>
+                            <li><code>display: block</code> on links → full area clickable</li>
+                            <li><code>display: flex</code> is the modern standard for horizontal nav</li>
+                            <li>Style both <code>:hover</code> and <code>:focus</code> for all users</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h3>Patterns Covered</h3>
+                        <ul>
+                            <li><strong>Vertical sidebar</strong> — block display + active indicator</li>
+                            <li><strong>Horizontal top bar</strong> — Flexbox + <code>justify-content</code></li>
+                            <li><strong>Drop-downs</strong> — nested lists + <code>position: absolute</code></li>
+                            <li><strong>Fly-outs</strong> — same pattern with <code>left: 100%</code></li>
+                            <li><strong>Fixed/Sticky</strong> — always-visible navigation</li>
+                            <li><strong>Animated underline</strong> — <code>::after</code> + <code>transform</code></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="note" style="margin-top:0.75rem;">
+                    <strong>The same HTML, different CSS.</strong> Every navigation pattern started from the same <code>&lt;ul&gt;</code> structure. The visual difference is entirely CSS — that's the power of separation of concerns.
+                </div>
+                <h3 style="margin-top:0.75rem;">Additional Resources</h3>
+                <ul>
+                    <li><a href="https://developer.mozilla.org/en-US/docs/Web/HTML/Element/nav" target="_blank" rel="noopener noreferrer">MDN: &lt;nav&gt; Element</a></li>
+                    <li><a href="https://developer.mozilla.org/en-US/docs/Web/CSS/display" target="_blank" rel="noopener noreferrer">MDN: display Property</a></li>
+                    <li><a href="https://css-tricks.com/snippets/css/a-guide-to-flexbox/" target="_blank" rel="noopener noreferrer">CSS-Tricks: A Complete Guide to Flexbox</a></li>
+                    <li><a href="https://www.w3schools.com/css/css_navbar.asp" target="_blank" rel="noopener noreferrer">W3Schools: CSS Navigation Bar</a></li>
+                    <li><a href="https://www.w3schools.com/css/css_dropdowns.asp" target="_blank" rel="noopener noreferrer">W3Schools: CSS Dropdowns</a></li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Slide 22: Q&A -->
+        <div class="slide">
+            <div class="slide-content centered">
+                <h2>Common Questions</h2>
+                <div class="two-column">
+                    <div>
+                        <h3>Q: Can I use images or icons in nav?</h3>
+                        <p style="font-size: 0.95rem;">Yes — inline SVGs, icon fonts (Font Awesome), or <code>&lt;img&gt;</code> tags inside <code>&lt;a&gt;</code> elements. Always include text labels or <code>alt</code> attributes for accessibility.</p>
+
+                        <h3>Q: Flexbox or CSS Grid for navigation?</h3>
+                        <p style="font-size: 0.95rem;"><strong>Flexbox</strong> for one-dimensional nav (rows or columns). <strong>Grid</strong> for complex 2D layouts like mega-menus. For most navigation, Flexbox is the right tool.</p>
+
+                        <h3>Q: How many dropdown levels?</h3>
+                        <p style="font-size: 0.95rem;">One or two max. Deeper nesting frustrates users and is hard to navigate with a mouse or keyboard. Consider breadcrumbs or sidebars instead.</p>
+                    </div>
+                    <div>
+                        <h3>Q: Fixed vs Sticky — when?</h3>
+                        <p style="font-size: 0.95rem;"><strong>Fixed</strong> = always visible (apps, dashboards). <strong>Sticky</strong> = scrolls first, then locks (blogs, marketing sites).</p>
+
+                        <h3>Q: Is <code>display: inline</code> still OK?</h3>
+                        <p style="font-size: 0.95rem;">It works, and you'll see it in older code. But <code>display: flex</code> is the modern approach — no whitespace gaps, better alignment, less CSS.</p>
+
+                        <h3>Q: Why <code>&lt;nav&gt;</code> not <code>&lt;div&gt;</code>?</h3>
+                        <p style="font-size: 0.95rem;"><code>&lt;nav&gt;</code> is a semantic landmark. Screen readers can jump directly to it. Search engines understand its purpose. Always use it for primary navigation.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="navigation">
+        <button class="nav-btn" id="prevBtn" onclick="changeSlide(-1)">&larr; Previous</button>
+        <span class="slide-counter"><span id="currentSlide">1</span> / <span id="totalSlides">22</span></span>
+        <button class="nav-btn" id="nextBtn" onclick="changeSlide(1)">Next &rarr;</button>
+    </div>
+
+    <script>
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.slide');
+        const totalSlides = slides.length;
+
+        document.getElementById('totalSlides').textContent = totalSlides;
+
+        function showSlide(n) {
+            slides[currentSlide].classList.remove('active');
+            currentSlide = (n + totalSlides) % totalSlides;
+            slides[currentSlide].classList.add('active');
+
+            document.getElementById('currentSlide').textContent = currentSlide + 1;
+            document.getElementById('prevBtn').disabled = currentSlide === 0;
+            document.getElementById('nextBtn').disabled = currentSlide === totalSlides - 1;
+
+            const progress = ((currentSlide + 1) / totalSlides) * 100;
+            document.getElementById('progress').style.width = progress + '%';
+        }
+
+        function changeSlide(direction) {
+            showSlide(currentSlide + direction);
+        }
+
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'ArrowRight' || e.key === ' ') {
+                e.preventDefault();
+                if (currentSlide < totalSlides - 1) changeSlide(1);
+            } else if (e.key === 'ArrowLeft') {
+                e.preventDefault();
+                if (currentSlide > 0) changeSlide(-1);
+            } else if (e.key === 'Home') {
+                e.preventDefault();
+                showSlide(0);
+            } else if (e.key === 'End') {
+                e.preventDefault();
+                showSlide(totalSlides - 1);
+            }
+        });
+
+        let touchStartX = 0;
+        let touchEndX = 0;
+
+        document.addEventListener('touchstart', function(e) {
+            touchStartX = e.changedTouches[0].screenX;
+        }, false);
+
+        document.addEventListener('touchend', function(e) {
+            touchEndX = e.changedTouches[0].screenX;
+            handleSwipe();
+        }, false);
+
+        function handleSwipe() {
+            const swipeThreshold = 50;
+            const diff = touchStartX - touchEndX;
+
+            if (Math.abs(diff) > swipeThreshold) {
+                if (diff > 0 && currentSlide < totalSlides - 1) {
+                    changeSlide(1);
+                } else if (diff < 0 && currentSlide > 0) {
+                    changeSlide(-1);
+                }
+            }
+        }
+
+        showSlide(0);
+    </script>
+</body>
+</html>

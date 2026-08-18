@@ -1,0 +1,2116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Modern CSS &amp; Web Accessibility — Lesson 17</title>
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box;}
+    :root{--primary:#1a1a2e;--accent:#4f6df5;--code-bg:#0f0f1a;--code-text:#d4d4d4;}
+    html,body{height:100%;font-family:'Segoe UI',system-ui,sans-serif;background:var(--primary);overflow:hidden;display:flex;flex-direction:column;}
+    .progress-bar{width:100%;height:4px;background:rgba(255,255,255,.12);flex-shrink:0;}
+    .progress{height:100%;background:var(--accent);transition:width .3s ease;}
+    .slideshow-container{flex:1;display:flex;flex-direction:column;overflow:hidden;min-height:0;}
+    .slide{display:none;flex:1;padding:1rem 1.6rem;color:#fff;overflow-y:auto;animation:fadeIn .3s ease;flex-direction:column;min-height:0;}
+    .slide.active{display:flex;}
+    @keyframes fadeIn{from{opacity:0;transform:translateX(14px);}to{opacity:1;transform:translateX(0);}}
+    .slide:nth-child(odd){background:linear-gradient(135deg,#667eea,#764ba2);}
+    .slide:nth-child(even){background:linear-gradient(135deg,#11998e,#38ef7d);}
+    .slide:nth-child(3n){background:linear-gradient(135deg,#ee0979,#ff6a00);}
+    .slide:nth-child(4n){background:linear-gradient(135deg,#2193b0,#6dd5ed);}
+    .slide:nth-child(5n){background:linear-gradient(135deg,#c31432,#240b36);}
+    .slide:nth-child(7n){background:linear-gradient(135deg,#0f0c29,#302b63 50%,#24243e);}
+    .slide:nth-child(9n){background:linear-gradient(135deg,#1a1a2e,#16213e 50%,#0f3460);}
+    .slide-label{font-size:.67rem;text-transform:uppercase;letter-spacing:.12em;color:rgba(255,255,255,.4);margin-bottom:.22rem;flex-shrink:0;}
+    .slide-content{max-width:1400px;width:100%;margin:0 auto;flex:1;display:flex;flex-direction:column;min-height:0;}
+    .slide-content.centered{justify-content:center;align-items:center;text-align:center;}
+    h1{font-size:clamp(1.7rem,5vw,3rem);margin-bottom:.85rem;line-height:1.15;text-shadow:0 2px 8px rgba(0,0,0,.35);}
+    h2{font-size:clamp(1.2rem,3.5vw,1.85rem);margin-bottom:.3rem;color:#ffeaa7;line-height:1.2;}
+    h3{font-size:clamp(.9rem,2.2vw,1.2rem);margin:.3rem 0 .15rem;color:#81ecec;}
+    p{font-size:clamp(.83rem,1.9vw,1rem);line-height:1.5;margin-bottom:.25rem;}
+    ul,ol{font-size:clamp(.8rem,1.8vw,.96rem);line-height:1.55;margin-left:1.2rem;margin-bottom:.25rem;}
+    li{margin-bottom:.12rem;}
+    a{color:#ffeaa7;text-decoration:underline;}a:hover{color:#fdcb6e;}
+    code{background:rgba(0,0,0,.38);padding:.13em .4em;border-radius:4px;font-family:'Consolas','Monaco',monospace;font-size:.86em;}
+    pre{background:var(--code-bg);color:var(--code-text);padding:.45rem .75rem;border-radius:8px;overflow-x:auto;margin:.25rem 0;font-size:clamp(.68rem,1.5vw,.84rem);line-height:1.4;flex-shrink:0;}
+    pre code{background:none;padding:0;font-size:inherit;}
+    .note{background:rgba(34,197,94,.14);border-left:4px solid #22c55e;padding:.38rem .7rem;border-radius:6px;margin:.25rem 0;font-size:clamp(.78rem,1.7vw,.92rem);}
+    .caution{background:rgba(239,68,68,.14);border-left:4px solid #ef4444;padding:.38rem .7rem;border-radius:6px;margin:.25rem 0;font-size:clamp(.78rem,1.7vw,.92rem);}
+    .tip{background:rgba(79,109,245,.18);border-left:4px solid #4f6df5;padding:.38rem .7rem;border-radius:6px;margin:.25rem 0;font-size:clamp(.78rem,1.7vw,.92rem);}
+    .two-col{display:grid;grid-template-columns:1fr 1fr;gap:.85rem;align-items:start;}
+    .three-col{display:grid;grid-template-columns:repeat(3,1fr);gap:.7rem;align-items:start;}
+    @media(max-width:900px){.three-col{grid-template-columns:1fr 1fr;}}
+    @media(max-width:700px){.two-col,.three-col{grid-template-columns:1fr;}.slide{padding:.8rem .85rem;}}
+    .card{background:rgba(0,0,0,.22);padding:.55rem .75rem;border-radius:8px;border:1px solid rgba(255,255,255,.13);}
+    .slide-img{max-width:100%;border-radius:8px;border:1px solid rgba(255,255,255,.18);margin:.3rem 0;box-shadow:0 4px 16px rgba(0,0,0,.4);}
+    .img-caption{font-size:.72rem;opacity:.55;text-align:center;margin-top:.15rem;}
+    .demo-btn{padding:.26rem .58rem;font-size:.76rem;border:1px solid rgba(255,255,255,.3);border-radius:4px;cursor:pointer;background:rgba(0,0,0,.3);color:white;transition:all .18s;}
+    .demo-btn:hover{background:rgba(255,255,255,.15);}
+    .demo-btn.active{background:rgba(52,152,219,.6);border-color:#3498db;}
+    .live-demo{background:rgba(0,0,0,.22);border-radius:8px;padding:.45rem .8rem;margin:.25rem 0;border:1px solid rgba(255,255,255,.13);}
+    .badge{display:inline-block;padding:.17em .62em;border-radius:20px;font-size:.74em;margin:.1rem;}
+    .badge.blue{background:rgba(79,109,245,.35);border:1px solid rgba(79,109,245,.55);color:#a5b4fc;}
+    .badge.green{background:rgba(34,197,94,.22);border:1px solid rgba(34,197,94,.45);color:#86efac;}
+    .badge.yellow{background:rgba(234,179,8,.18);border:1px solid rgba(234,179,8,.4);color:#fde68a;}
+    .badge.red{background:rgba(239,68,68,.18);border:1px solid rgba(239,68,68,.4);color:#fca5a5;}
+    .badge.cyan{background:rgba(34,211,238,.18);border:1px solid rgba(34,211,238,.4);color:#67e8f9;}
+    .part-badge{display:inline-flex;align-items:center;gap:.38rem;padding:.22rem .65rem;border-radius:20px;font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin-bottom:.3rem;flex-shrink:0;}
+    .part-badge.css{background:rgba(79,109,245,.32);border:1px solid rgba(79,109,245,.52);color:#a5b4fc;}
+    .part-badge.a11y{background:rgba(34,197,94,.22);border:1px solid rgba(34,197,94,.48);color:#86efac;}
+    .kbd{display:inline-block;background:rgba(0,0,0,.45);border:1px solid rgba(255,255,255,.32);border-radius:4px;padding:.09em .38em;font-family:monospace;font-size:.82em;box-shadow:0 2px 0 rgba(0,0,0,.4);}
+    .demo-wrap{flex:1;min-height:0;display:flex;flex-direction:column;border-radius:10px;overflow:hidden;margin:.3rem 0;border:1px solid rgba(255,255,255,.18);}
+    .demo-wrap iframe{flex:1;border:none;width:100%!important;height:100%!important;min-height:400px;background:#fff;}
+    .demo-label{font-size:.7rem;text-transform:uppercase;letter-spacing:.1em;color:rgba(255,255,255,.45);margin-bottom:.25rem;text-align:center;}
+    .learn-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:.38rem;margin:.4rem 0;}
+    .learn-item{background:rgba(0,0,0,.22);border-left:3px solid #81ecec;border-radius:6px;padding:.38rem .65rem;font-size:clamp(.76rem,1.7vw,.9rem);line-height:1.42;}
+    .summary-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(185px,1fr));gap:.45rem;margin:.4rem 0;}
+    .summary-card{background:rgba(0,0,0,.22);border-radius:8px;padding:.55rem .8rem;border:1px solid rgba(255,255,255,.13);font-size:clamp(.74rem,1.6vw,.88rem);line-height:1.42;}
+    .summary-card strong{color:#ffeaa7;display:block;margin-bottom:.15rem;font-size:.87em;}
+    table.cmp{width:100%;border-collapse:collapse;font-size:clamp(.76rem,1.7vw,.94rem);margin:.3rem 0;}
+    table.cmp th,table.cmp td{border:1px solid rgba(255,255,255,.2);padding:.26rem .5rem;text-align:left;vertical-align:top;}
+    table.cmp th{background:rgba(0,0,0,.28);color:#ffeaa7;}
+    table.cmp td:first-child{color:#93c5fd;font-weight:600;}
+    /* Code tabs */
+    .code-tab-btns{display:flex;gap:.28rem;margin-bottom:.25rem;flex-wrap:wrap;}
+    .code-tab-btn{padding:.2rem .52rem;font-size:.73rem;border:1px solid rgba(255,255,255,.26);border-radius:4px;cursor:pointer;background:rgba(0,0,0,.2);color:rgba(255,255,255,.65);transition:all .16s;}
+    .code-tab-btn.active{background:rgba(79,109,245,.48);border-color:#4f6df5;color:white;}
+    .code-panel{display:none;}.code-panel.active{display:block;}
+    /* Dark mode demo */
+    .dark-demo{border-radius:10px;overflow:hidden;border:1px solid rgba(255,255,255,.18);max-width:360px;}
+    .dark-demo-bar{padding:.38rem .65rem;font-size:.76rem;display:flex;align-items:center;justify-content:space-between;}
+    .dark-demo-body{padding:.55rem .75rem;}
+    .dark-demo-title{font-weight:700;font-size:.88rem;margin-bottom:.15rem;}
+    .dark-demo-text{font-size:.76rem;margin-bottom:.3rem;opacity:.85;}
+    .dark-demo-pill{display:inline-block;padding:.22rem .55rem;border-radius:6px;font-size:.7rem;cursor:pointer;border:1px solid transparent;}
+    .dark-demo[data-mode="light"] .dark-demo-bar{background:#f8f9fa;color:#0f172a;}
+    .dark-demo[data-mode="light"] .dark-demo-body{background:#fff;color:#0f172a;}
+    .dark-demo[data-mode="light"] .dark-demo-text{color:#475569;}
+    .dark-demo[data-mode="light"] .dark-demo-pill{background:#4f6df5;color:white;}
+    .dark-demo[data-mode="dark"] .dark-demo-bar{background:#1e293b;color:#f1f5f9;}
+    .dark-demo[data-mode="dark"] .dark-demo-body{background:#0f172a;color:#f1f5f9;}
+    .dark-demo[data-mode="dark"] .dark-demo-text{color:#94a3b8;}
+    .dark-demo[data-mode="dark"] .dark-demo-pill{background:#7c9bff;color:#0f172a;}
+    /* color-mix swatches */
+    .colormix-row{display:flex;gap:.4rem;margin:.3rem 0;flex-wrap:wrap;}
+    .cm-swatch{flex:1;min-width:65px;height:52px;border-radius:7px;display:flex;align-items:flex-end;padding:.18rem .3rem;font-size:.6rem;font-weight:700;color:rgba(255,255,255,.9);text-shadow:0 1px 3px rgba(0,0,0,.6);}
+    /* ARIA accordion demo */
+    .aria-acc-btn{width:100%;text-align:left;background:rgba(0,0,0,.28);border:1px solid rgba(255,255,255,.2);border-radius:8px;padding:.45rem .75rem;color:white;cursor:pointer;display:flex;align-items:center;justify-content:space-between;font-size:.86rem;transition:background .18s;}
+    .aria-acc-btn:hover{background:rgba(0,0,0,.42);}
+    .aria-acc-icon{transition:transform .24s;font-size:.95rem;}
+    .aria-acc-btn[aria-expanded="true"] .aria-acc-icon{transform:rotate(90deg);}
+    .aria-acc-panel{overflow:hidden;max-height:0;transition:max-height .26s ease;background:rgba(0,0,0,.18);border-radius:0 0 8px 8px;border:1px solid rgba(255,255,255,.13);border-top:none;}
+    .aria-acc-panel.open{max-height:180px;}
+    .aria-acc-panel p{padding:.45rem .75rem;font-size:.8rem;}
+    .attr-tag{display:inline-block;background:rgba(79,109,245,.28);border:1px solid rgba(79,109,245,.48);border-radius:5px;padding:.12rem .4rem;font-family:monospace;font-size:.7rem;margin:.15rem;transition:all .22s;}
+    .attr-tag.on{background:rgba(34,197,94,.28);border-color:rgba(34,197,94,.5);color:#86efac;}
+    /* Focus demo */
+    .focus-row{display:flex;gap:.65rem;flex-wrap:wrap;align-items:center;margin:.3rem 0;}
+    .fd-btn{padding:.32rem .7rem;border-radius:6px;border:1px solid rgba(255,255,255,.28);background:rgba(255,255,255,.1);color:white;cursor:pointer;font-size:.8rem;}
+    .fd-btn:focus-visible{outline:3px solid #4f6df5;outline-offset:2px;}
+    .fd-link{color:#ffeaa7;font-size:.8rem;padding:.18rem .38rem;border-radius:4px;}
+    .fd-link:focus-visible{outline:3px solid #ffeaa7;outline-offset:2px;}
+    .fd-inp{background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.25);border-radius:5px;color:white;padding:.28rem .5rem;font-size:.8rem;width:120px;}
+    .fd-inp:focus-visible{outline:3px solid #4f6df5;outline-offset:2px;}
+    /* Live region demo */
+    .lreg-box{border-radius:8px;padding:.45rem .7rem;margin:.22rem 0;border:2px solid rgba(255,255,255,.15);font-size:.8rem;min-height:44px;transition:border-color .25s;}
+    .lreg-box.polite{border-color:rgba(34,197,94,.35);}
+    .lreg-box.assertive{border-color:rgba(239,68,68,.35);}
+    .lreg-box.flash{animation:lrFlash .55s ease;}
+    @keyframes lrFlash{0%,100%{opacity:1;}50%{background:rgba(255,255,255,.14);}}
+    .lreg-lbl{font-size:.63rem;text-transform:uppercase;letter-spacing:.08em;opacity:.6;margin-bottom:.2rem;}
+    /* Skip nav demo */
+    .skipnav-sim{border-radius:8px;overflow:hidden;border:1px solid rgba(255,255,255,.18);margin:.3rem 0;font-size:.76rem;position:relative;}
+    .sn-skip{position:absolute;top:-100%;left:0;background:#4f6df5;color:white;padding:.22rem .6rem;font-size:.7rem;font-weight:700;text-decoration:none;z-index:10;transition:top .15s;border-radius:0 0 6px 0;}
+    .sn-skip.visible{top:0;}
+    .sn-header{background:rgba(0,0,0,.4);padding:.42rem .65rem;display:flex;gap:.42rem;flex-wrap:wrap;align-items:center;}
+    .sn-link{color:#93c5fd;font-size:.7rem;padding:.15rem .32rem;border-radius:4px;text-decoration:none;}
+    .sn-link.focused{outline:2px solid #ffeaa7;background:rgba(255,255,255,.1);}
+    .sn-main{background:rgba(0,0,0,.18);padding:.42rem .65rem;color:rgba(255,255,255,.75);}
+    .sn-main.jumped{background:rgba(79,109,245,.18);border-top:2px solid #4f6df5;}
+    /* POUR cards */
+    .pour-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:.5rem;margin:.3rem 0;}
+    .pour-card{background:rgba(0,0,0,.28);border-radius:8px;padding:.5rem .7rem;border-left:4px solid;}
+    .pour-card.p{border-color:#4ade80;}.pour-card.o{border-color:#60a5fa;}
+    .pour-card.u{border-color:#f59e0b;}.pour-card.r{border-color:#e879f9;}
+    .pour-card strong{display:block;font-size:.88rem;margin-bottom:.15rem;}
+    .pour-card span{font-size:.76rem;opacity:.88;line-height:1.38;}
+    @media(max-width:600px){.pour-grid{grid-template-columns:1fr;}}
+    /* WCAG levels */
+    .wcag-levels{display:flex;gap:.5rem;margin:.3rem 0;flex-wrap:wrap;}
+    .wlevel{flex:1;min-width:90px;background:rgba(0,0,0,.22);border-radius:8px;padding:.5rem .7rem;border:1px solid rgba(255,255,255,.13);text-align:center;}
+    .wlevel strong{display:block;font-size:1.05rem;margin-bottom:.15rem;}
+    .wlevel span{font-size:.73rem;opacity:.85;line-height:1.35;display:block;}
+    .wlevel.a strong{color:#fca5a5;}.wlevel.aa strong{color:#fde68a;}.wlevel.aaa strong{color:#86efac;}
+    /* Tree comparison */
+    .tree-cmp{display:grid;grid-template-columns:1fr 1fr;gap:.6rem;margin:.3rem 0;}
+    .tree-box{background:rgba(0,0,0,.22);border-radius:8px;padding:.5rem .7rem;font-size:.76rem;line-height:1.52;}
+    .tree-box strong{display:block;margin-bottom:.22rem;}
+    .tree-box.bad strong{color:#fca5a5;}.tree-box.good strong{color:#86efac;}
+    .tn{padding:.06rem .22rem .06rem .5rem;position:relative;color:rgba(255,255,255,.82);}
+    .tn::before{content:'├';position:absolute;left:.1rem;color:rgba(255,255,255,.28);}
+    .tn.role{color:#93c5fd;}.tn.name{color:#fde68a;}.tn.desc{color:#86efac;font-size:.9em;}
+    @media(max-width:600px){.tree-cmp{grid-template-columns:1fr;}}
+    /* Mistakes */
+    .mistakes-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:.4rem;margin:.25rem 0;}
+    .mistake{background:rgba(0,0,0,.22);border-left:3px solid #ef4444;border-radius:6px;padding:.38rem .6rem;font-size:clamp(.74rem,1.6vw,.86rem);line-height:1.4;}
+    .mistake strong{color:#fca5a5;display:block;margin-bottom:.08rem;}
+    .mistake pre{white-space:pre-wrap;overflow-x:hidden;word-break:break-word;}
+    /* Tool cards */
+    .tool-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(175px,1fr));gap:.45rem;margin:.3rem 0;}
+    .tool-card{background:rgba(0,0,0,.22);border-radius:8px;padding:.55rem .7rem;border:1px solid rgba(255,255,255,.13);}
+    .tool-card strong{display:block;color:#ffeaa7;margin-bottom:.15rem;font-size:.86rem;}
+    .tool-card span{font-size:.74rem;opacity:.88;line-height:1.4;}
+    .tool-card a{display:block;font-size:.72rem;margin-top:.25rem;}
+    /* Screen reader cards */
+    .sr-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:.42rem;margin:.3rem 0;}
+    .sr-card{background:rgba(0,0,0,.22);border-radius:8px;padding:.48rem .65rem;border:1px solid rgba(255,255,255,.13);}
+    .sr-card strong{display:block;color:#81ecec;margin-bottom:.1rem;font-size:.84rem;}
+    .sr-card .sr-plat{font-size:.68rem;opacity:.6;margin-bottom:.1rem;}
+    .sr-card .sr-info{font-size:.73rem;opacity:.88;line-height:1.36;}
+    /* Specificity */
+    .spec-cmp{display:grid;grid-template-columns:1fr 1fr;gap:.6rem;margin:.3rem 0;}
+    .spec-box{background:rgba(0,0,0,.22);border-radius:8px;padding:.5rem .7rem;border:2px solid rgba(255,255,255,.12);}
+    .spec-box.is{border-color:rgba(79,109,245,.52);}
+    .spec-box.where{border-color:rgba(34,197,94,.52);}
+    .spec-box strong{display:block;margin-bottom:.25rem;font-size:.86rem;}
+    .spec-box.is strong{color:#a5b4fc;}.spec-box.where strong{color:#86efac;}
+    .spec-pill{display:inline-block;background:rgba(0,0,0,.38);border-radius:4px;padding:.1rem .38rem;font-family:monospace;font-size:.7rem;margin-top:.22rem;}
+    @media(max-width:600px){.spec-cmp{grid-template-columns:1fr;}}
+    /* demo dialog */
+    .demo-dialog{background:#1e293b;border:1px solid rgba(255,255,255,.2);border-radius:10px;padding:1rem 1.2rem;color:white;max-width:280px;box-shadow:0 16px 48px rgba(0,0,0,.6);}
+    .demo-dialog::backdrop{background:rgba(0,0,0,.7);}
+    .demo-dialog h3{color:#ffeaa7;margin-bottom:.35rem;}
+    .demo-dialog p{font-size:.84rem;margin-bottom:.7rem;opacity:.88;}
+    .demo-dialog-btns{display:flex;gap:.45rem;justify-content:flex-end;}
+    /* Nav */
+    .nav{display:flex;align-items:center;justify-content:center;gap:1rem;padding:.35rem 1rem;background:rgba(0,0,0,.42);flex-shrink:0;}
+    .nav-btn{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.26);color:white;width:34px;height:34px;border-radius:50%;cursor:pointer;font-size:.92rem;display:flex;align-items:center;justify-content:center;transition:background .18s;}
+    .nav-btn:hover:not(:disabled){background:rgba(255,255,255,.26);}
+    .nav-btn:disabled{opacity:.3;cursor:not-allowed;}
+    .nav-counter{color:rgba(255,255,255,.65);font-size:.82rem;min-width:52px;text-align:center;}
+  </style>
+</head>
+<body>
+<div class="progress-bar"><div class="progress" id="progress"></div></div>
+<div class="slideshow-container" id="container">
+
+<!-- ═══════════════════════════════════════════════════ SLIDE 1: Cover -->
+<div class="slide">
+  <p class="slide-label">Lesson 17</p>
+  <div class="slide-content centered">
+    <div>
+      <span class="badge blue">Part 1</span> <span class="badge green">Part 2</span>
+      <h1>Modern CSS<br>&amp; Web Accessibility</h1>
+      <p style="font-size:clamp(1rem,2.5vw,1.3rem);opacity:.88;max-width:600px;margin:.5rem auto 1rem;">Two ambitious topics that share the same root value:<br><em>clarity of intent expressed through clean code.</em></p>
+      <div style="display:flex;gap:1.2rem;justify-content:center;flex-wrap:wrap;margin-top:.65rem;">
+        <div class="card" style="min-width:185px;text-align:left;">
+          <p style="font-size:.7rem;text-transform:uppercase;letter-spacing:.1em;color:#a5b4fc;margin-bottom:.35rem;">Part 1 — CSS</p>
+          <ul style="font-size:.82rem;margin-left:1rem;line-height:1.7;">
+            <li>CSS Nesting</li><li>:has(), :is(), :where()</li>
+            <li>@layer Cascade Layers</li><li>Dark Mode &amp; color-mix()</li><li>@supports</li>
+          </ul>
+        </div>
+        <div class="card" style="min-width:185px;text-align:left;">
+          <p style="font-size:.7rem;text-transform:uppercase;letter-spacing:.1em;color:#86efac;margin-bottom:.35rem;">Part 2 — Accessibility</p>
+          <ul style="font-size:.82rem;margin-left:1rem;line-height:1.7;">
+            <li>WCAG &amp; the POUR Principles</li><li>Accessibility Tree &amp; ARIA</li>
+            <li>Focus &amp; Keyboard Nav</li><li>&lt;dialog&gt; &amp; inert</li><li>Testing Tools</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════ SLIDE 2: What You'll Learn -->
+<div class="slide">
+  <p class="slide-label">Lesson Overview</p>
+  <div class="slide-content">
+    <h2>What You'll Learn</h2>
+    <div class="learn-grid">
+      <div class="learn-item">Write nested CSS natively — no Sass required</div>
+      <div class="learn-item">Style parents based on children with <code>:has()</code></div>
+      <div class="learn-item">Reduce repetitive selectors with <code>:is()</code> &amp; <code>:where()</code></div>
+      <div class="learn-item">Control the cascade at scale with <code>@layer</code></div>
+      <div class="learn-item">Implement dark mode with <code>prefers-color-scheme</code> &amp; <code>light-dark()</code></div>
+      <div class="learn-item">Use <code>@supports</code> for progressive enhancement</div>
+      <div class="learn-item">Understand WCAG, POUR, and why accessibility is non-negotiable</div>
+      <div class="learn-item">Navigate the accessibility tree and use ARIA correctly</div>
+      <div class="learn-item">Manage focus, skip links, and keyboard navigation</div>
+      <div class="learn-item">Build accessible modals with native <code>&lt;dialog&gt;</code> and <code>inert</code></div>
+      <div class="learn-item">Test with Lighthouse, axe, WAVE, and screen readers</div>
+    </div>
+    <div class="tip">These two topics are not unrelated — good CSS architecture and good accessibility share the same root value: <strong>clarity of intent expressed through clean code.</strong></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════ SLIDE 3: CSS Nesting Intro -->
+<div class="slide">
+  <p class="slide-label">Part 1 — Modern CSS</p>
+  <div class="slide-content">
+    <span class="part-badge css">⬡ CSS Features</span>
+    <h2>CSS Nesting</h2>
+    <p>Previously only possible with Sass/SCSS. Now <strong>natively supported in all modern browsers</strong> — no build step required. The <code>&amp;</code> selector references the parent rule.</p>
+    <div class="two-col">
+      <div>
+        <h3>Without Nesting</h3>
+        <pre><code>/* Selectors scattered everywhere */
+.card { background: white; }
+.card:hover { box-shadow: ...; }
+.card .card-title { font-size: 1.25rem; }
+.card .card-title:first-child { margin-top: 0; }
+.card .card-body { padding: 1rem; }</code></pre>
+      </div>
+      <div>
+        <h3>With Nesting</h3>
+        <pre><code>/* All card styles in one block */
+.card {
+  background: white;
+
+  &:hover { box-shadow: ...; }
+
+  .card-title {
+    font-size: 1.25rem;
+    &:first-child { margin-top: 0; }
+  }
+
+  .card-body { padding: 1rem; }
+}</code></pre>
+      </div>
+    </div>
+    <div class="caution"><strong>Browser support:</strong> All modern browsers. Check <a href="https://caniuse.com/css-nesting" target="_blank" rel="noopener">caniuse.com/css-nesting</a>. For legacy support, use PostCSS to compile nesting.</div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════ SLIDE 4: CSS Nesting — Syntax Reference -->
+<div class="slide">
+  <p class="slide-label">CSS Nesting — Syntax Reference</p>
+  <div class="slide-content">
+    <h2>CSS Nesting — All the Syntax You Need</h2>
+    <p style="font-size:.82rem;margin-bottom:.3rem;">The core of nesting is the <strong><code>&</code> selector</strong> — it always means "the current parent selector." Everything else is just combining <code>&</code> with the selectors you already know.</p>
+    <div class="two-col" style="gap:.65rem;align-items:start;">
+      <div>
+        <h3>Every form of <code>&</code></h3>
+        <table class="cmp" style="font-size:.72rem;">
+          <tr><th>You write</th><th>Compiles to</th><th>Use for</th></tr>
+          <tr><td><code>&:hover</code></td><td><code>.card:hover</code></td><td>Pseudo-classes</td></tr>
+          <tr><td><code>&:first-child</code></td><td><code>.card:first-child</code></td><td>Structural pseudo-classes</td></tr>
+          <tr><td><code>&::before</code></td><td><code>.card::before</code></td><td>Pseudo-elements</td></tr>
+          <tr><td><code>&.active</code></td><td><code>.card.active</code></td><td>Same element + extra class</td></tr>
+          <tr><td><code>&[disabled]</code></td><td><code>.card[disabled]</code></td><td>Attribute state</td></tr>
+          <tr><td><code>& .title</code></td><td><code>.card .title</code></td><td>Descendant child</td></tr>
+          <tr><td><code>.title</code></td><td><code>.card .title</code></td><td>Same — <code>&</code> implied</td></tr>
+          <tr><td><code>& + p</code></td><td><code>.card + p</code></td><td>Adjacent sibling</td></tr>
+          <tr><td><code>& ~ p</code></td><td><code>.card ~ p</code></td><td>General sibling</td></tr>
+          <tr><td><code>.dark &</code></td><td><code>.dark .card</code></td><td>Theme / context parent</td></tr>
+          <tr><td><code>@media (…) {…}</code></td><td>Scoped to <code>.card</code></td><td>Responsive overrides</td></tr>
+          <tr><td><code>@supports (…) {…}</code></td><td>Scoped to <code>.card</code></td><td>Feature queries</td></tr>
+        </table>
+        <div class="tip" style="font-size:.73rem;margin-top:.25rem;"><strong>No <code>&</code>?</strong> If you nest a plain class like <code>.title</code> with no <code>&</code>, the browser automatically reads it as <code>& .title</code> (descendant). But if you need a pseudo-class or modifier on the <em>same</em> element, <code>&</code> is required: <code>&:hover</code> not <code>:hover</code>.</div>
+      </div>
+      <div>
+        <h3>All forms in one example</h3>
+        <pre style="font-size:.64rem;"><code>.btn {
+  background: blue;        /* own styles */
+
+  &:hover { opacity: .85; }    /* pseudo-class */
+  &:focus-visible {             /* keyboard focus */
+    outline: 3px solid blue;
+  }
+  &::after {                    /* pseudo-element */
+    content: " →";
+  }
+  &.active {                    /* same element + class */
+    background: darkblue;
+  }
+  &[disabled] {                 /* attribute state */
+    opacity: .4;
+    cursor: not-allowed;
+  }
+
+  .btn-label {                  /* descendant (& implied) */
+    font-weight: 700;
+  }
+  & + .btn { margin-left: .5rem; }  /* adjacent sibling */
+
+  .dark-theme & {               /* context parent */
+    background: #7c9bff;
+  }
+
+  @media (max-width: 480px) {   /* nested media query */
+    width: 100%;
+  }
+}</code></pre>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════ SLIDE 5: :has() -->
+<div class="slide">
+  <p class="slide-label">Modern CSS — :has()</p>
+  <div class="slide-content">
+    <span class="part-badge css">⬡ CSS Features</span>
+    <h2>:has() — The Parent Selector</h2>
+    <p>For decades, there was no way to style a parent based on its children. <code>:has()</code> changes that — supported in all modern browsers.</p>
+    <table style="width:100%;border-collapse:collapse;font-size:.72rem;margin-bottom:.55rem;">
+      <thead><tr style="background:rgba(0,0,0,.3);">
+        <th style="padding:.28rem .5rem;text-align:left;border:1px solid rgba(255,255,255,.15);">Syntax form</th>
+        <th style="padding:.28rem .5rem;text-align:left;border:1px solid rgba(255,255,255,.15);">What it selects</th>
+        <th style="padding:.28rem .5rem;text-align:left;border:1px solid rgba(255,255,255,.15);">Example</th>
+      </tr></thead>
+      <tbody>
+        <tr style="background:rgba(255,255,255,.04);">
+          <td style="padding:.22rem .5rem;border:1px solid rgba(255,255,255,.1);font-family:monospace;">A:has(B)</td>
+          <td style="padding:.22rem .5rem;border:1px solid rgba(255,255,255,.1);">A that contains B</td>
+          <td style="padding:.22rem .5rem;border:1px solid rgba(255,255,255,.1);font-family:monospace;opacity:.85;">div:has(img)</td>
+        </tr>
+        <tr>
+          <td style="padding:.22rem .5rem;border:1px solid rgba(255,255,255,.1);font-family:monospace;">A:has(B:state)</td>
+          <td style="padding:.22rem .5rem;border:1px solid rgba(255,255,255,.1);">A that contains B in a state</td>
+          <td style="padding:.22rem .5rem;border:1px solid rgba(255,255,255,.1);font-family:monospace;opacity:.85;">.field:has(input:focus)</td>
+        </tr>
+        <tr style="background:rgba(255,255,255,.04);">
+          <td style="padding:.22rem .5rem;border:1px solid rgba(255,255,255,.1);font-family:monospace;">A:has(> B)</td>
+          <td style="padding:.22rem .5rem;border:1px solid rgba(255,255,255,.1);">A with a <em>direct child</em> B</td>
+          <td style="padding:.22rem .5rem;border:1px solid rgba(255,255,255,.1);font-family:monospace;opacity:.85;">section:has(> h2)</td>
+        </tr>
+        <tr>
+          <td style="padding:.22rem .5rem;border:1px solid rgba(255,255,255,.1);font-family:monospace;">A:has(B, C)</td>
+          <td style="padding:.22rem .5rem;border:1px solid rgba(255,255,255,.1);">A that contains B <em>or</em> C</td>
+          <td style="padding:.22rem .5rem;border:1px solid rgba(255,255,255,.1);font-family:monospace;opacity:.85;">form:has(input, select)</td>
+        </tr>
+        <tr style="background:rgba(255,255,255,.04);">
+          <td style="padding:.22rem .5rem;border:1px solid rgba(255,255,255,.1);font-family:monospace;">A:not(:has(B))</td>
+          <td style="padding:.22rem .5rem;border:1px solid rgba(255,255,255,.1);">A that does <em>not</em> contain B</td>
+          <td style="padding:.22rem .5rem;border:1px solid rgba(255,255,255,.1);font-family:monospace;opacity:.85;">.sidebar:not(:has(li))</td>
+        </tr>
+        <tr>
+          <td style="padding:.22rem .5rem;border:1px solid rgba(255,255,255,.1);font-family:monospace;">A:has(B) C</td>
+          <td style="padding:.22rem .5rem;border:1px solid rgba(255,255,255,.1);">Style C when A contains B</td>
+          <td style="padding:.22rem .5rem;border:1px solid rgba(255,255,255,.1);font-family:monospace;opacity:.85;">.field:has(input:focus) label</td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="two-col">
+      <div>
+        <h3>Common Patterns</h3>
+        <pre><code>/* Card with image: remove top padding */
+.card:has(img) { padding-top: 0; }
+
+/* Label highlights when input is focused */
+.field:has(input:focus) label {
+  color: #4f6df5;
+  font-weight: 600;
+}
+
+/* Form shows error border */
+form:has(:invalid) {
+  border: 2px solid #ef4444;
+}
+
+/* Hide empty sidebar */
+.sidebar:not(:has(li)) {
+  display: none;
+}
+
+/* List items with sub-lists */
+li:has(ul) { list-style-type: "▸ "; }</code></pre>
+      </div>
+      <div>
+        <h3>The HTML Structure</h3>
+        <p style="font-size:.76rem;opacity:.88;margin-bottom:.3rem;">Here is the HTML. The CSS selects the <em>parent</em> by checking what's <em>inside</em> it:</p>
+        <pre><code>&lt;!-- The PARENT we want to style --&gt;
+&lt;div class="field"&gt;
+  &lt;label&gt;Email Address&lt;/label&gt;
+  &lt;input type="email"&gt;
+&lt;/div&gt;</code></pre>
+        <pre style="margin-top:.3rem;"><code>/* Before :has(): needed JavaScript to
+   add a class to .field on focus */
+
+/* With :has(): pure CSS — no JS */
+.field:has(input:focus) {
+  border-color: #4f6df5; /* parent changes */
+}
+.field:has(input:focus) label {
+  color: #4f6df5;        /* sibling changes */
+  font-weight: 700;
+}</code></pre>
+        <h3 style="margin-top:.4rem;">Live Demo — click into a field</h3>
+        <style>
+          .hf{background:rgba(0,0,0,.22);border:2px solid rgba(255,255,255,.15);border-radius:8px;padding:.5rem .7rem;margin:.28rem 0;transition:border-color .2s,background .2s;}
+          .hf:has(input:focus){border-color:#4f6df5;background:rgba(79,109,245,.08);}
+          .hf label{display:block;font-size:.74rem;margin-bottom:.22rem;transition:color .2s,font-weight .2s;color:rgba(255,255,255,.7);}
+          .hf:has(input:focus) label{color:#81ecec;font-weight:700;}
+          .hf input{width:100%;background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.2);border-radius:5px;padding:.28rem .5rem;color:white;font-size:.8rem;outline:none;transition:border-color .2s;box-sizing:border-box;}
+          .hf input:focus{border-color:#4f6df5;}
+        </style>
+        <div class="hf">
+          <label for="demoEmail">Email Address</label>
+          <input id="demoEmail" type="email" placeholder="click here to focus…">
+        </div>
+        <div class="hf">
+          <label for="demoPass">Password</label>
+          <input id="demoPass" type="password" placeholder="click here to focus…">
+        </div>
+        <div class="note" style="font-size:.74rem;margin-top:.25rem;">No JavaScript. CSS reads the <code>input:focus</code> state and styles the <em>parent</em> <code>.hf</code> container and the <em>label sibling</em>. This was impossible in CSS before <code>:has()</code>.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════ SLIDE 6: :has() CodePen -->
+<div class="slide">
+  <p class="slide-label">CodePen — 17.1</p>
+  <div class="slide-content" style="min-height:0;">
+    <p class="demo-label">Codepen 17.1 — :has() Selector in Practice</p>
+    <div class="demo-wrap">
+      <iframe title="Codepen 17.1 — :has()" src="https://codepen.io/mattkearl/embed/LERGGaV?default-tab=css%2Cresult&editable=true" loading="lazy"></iframe>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════ SLIDE 7: :is() and :where() -->
+<div class="slide">
+  <p class="slide-label">Modern CSS — :is() and :where()</p>
+  <div class="slide-content">
+    <span class="part-badge css">⬡ CSS Features</span>
+    <h2><code>:is()</code> and <code>:where()</code></h2>
+    <p style="font-size:.82rem;margin-bottom:.3rem;">Both accept a list of selectors and match any element that fits <em>at least one</em>. They are identical except for <strong>specificity</strong> — which determines when to use which.</p>
+
+    <!-- How to read them -->
+    <div style="background:rgba(0,0,0,.25);border-left:3px solid #93c5fd;border-radius:6px;padding:.4rem .7rem;font-size:.77rem;margin-bottom:.35rem;">
+      <strong>How to read it in plain English:</strong>
+      <code style="font-size:.75rem;display:block;margin:.18rem 0 .08rem;">:is(header, main) :is(h1, h2, h3) { … }</code>
+      → <em>"Any h1, h2, or h3 that lives inside a header or a main."</em>
+      &nbsp;&nbsp;Read the outer <code>:is()</code> first (where), then the inner one (what).
+      <br><code style="font-size:.75rem;display:block;margin:.18rem 0 .08rem;">:where(p, ul, ol) { margin: 1em; }</code>
+      → <em>"Any p, ul, or ol — but this style has zero priority and any other rule beats it."</em>
+    </div>
+
+    <!-- Syntax table -->
+    <table style="width:100%;border-collapse:collapse;font-size:.7rem;margin-bottom:.45rem;">
+      <thead><tr style="background:rgba(0,0,0,.3);">
+        <th style="padding:.22rem .45rem;text-align:left;border:1px solid rgba(255,255,255,.15);">Syntax form</th>
+        <th style="padding:.22rem .45rem;text-align:left;border:1px solid rgba(255,255,255,.15);">Use</th>
+        <th style="padding:.22rem .45rem;text-align:left;border:1px solid rgba(255,255,255,.15);">Specificity</th>
+      </tr></thead>
+      <tbody>
+        <tr style="background:rgba(255,255,255,.04);">
+          <td style="padding:.2rem .45rem;border:1px solid rgba(255,255,255,.1);font-family:monospace;">:is(A, B)</td>
+          <td style="padding:.2rem .45rem;border:1px solid rgba(255,255,255,.1);">Match A <em>or</em> B — shorthand for a selector list</td>
+          <td style="padding:.2rem .45rem;border:1px solid rgba(255,255,255,.1);">Highest of A or B</td>
+        </tr>
+        <tr>
+          <td style="padding:.2rem .45rem;border:1px solid rgba(255,255,255,.1);font-family:monospace;">:is(A, B) C</td>
+          <td style="padding:.2rem .45rem;border:1px solid rgba(255,255,255,.1);">C inside A or B</td>
+          <td style="padding:.2rem .45rem;border:1px solid rgba(255,255,255,.1);">Highest of A or B + C</td>
+        </tr>
+        <tr style="background:rgba(255,255,255,.04);">
+          <td style="padding:.2rem .45rem;border:1px solid rgba(255,255,255,.1);font-family:monospace;">:is(A):is(B)</td>
+          <td style="padding:.2rem .45rem;border:1px solid rgba(255,255,255,.1);">Element that is both A and B</td>
+          <td style="padding:.2rem .45rem;border:1px solid rgba(255,255,255,.1);">Sum of both</td>
+        </tr>
+        <tr>
+          <td style="padding:.2rem .45rem;border:1px solid rgba(255,255,255,.1);font-family:monospace;">:where(A, B)</td>
+          <td style="padding:.2rem .45rem;border:1px solid rgba(255,255,255,.1);">Same as <code>:is()</code> — but for base/reset styles</td>
+          <td style="padding:.2rem .45rem;border:1px solid rgba(255,255,255,.1);color:#86efac;font-weight:600;">Always 0</td>
+        </tr>
+        <tr style="background:rgba(255,255,255,.04);">
+          <td style="padding:.2rem .45rem;border:1px solid rgba(255,255,255,.1);font-family:monospace;">:not(:is(A, B))</td>
+          <td style="padding:.2rem .45rem;border:1px solid rgba(255,255,255,.1);">Elements that are neither A nor B</td>
+          <td style="padding:.2rem .45rem;border:1px solid rgba(255,255,255,.1);">Highest of A or B</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="two-col" style="align-items:start;gap:.6rem;">
+      <div>
+        <h3 style="color:#93c5fd;">:is() — shorten selector lists</h3>
+        <p style="font-size:.7rem;text-transform:uppercase;letter-spacing:.07em;opacity:.5;margin-bottom:.12rem;">Before — 6 separate selectors</p>
+        <pre style="font-size:.67rem;"><code>header h1, header h2, header h3,
+main   h1, main   h2, main   h3 {
+  color: #0f172a;
+  line-height: 1.2;
+}</code></pre>
+        <p style="font-size:.7rem;text-transform:uppercase;letter-spacing:.07em;opacity:.5;margin:.3rem 0 .12rem;">After — 1 selector, same result</p>
+        <pre style="font-size:.67rem;"><code>:is(header, main) :is(h1, h2, h3) {
+  color: #0f172a;
+  line-height: 1.2;
+}</code></pre>
+        <div class="tip" style="font-size:.74rem;margin-top:.25rem;"><strong>Specificity:</strong> takes the <em>highest</em> specificity of any selector in the list. Use for component and utility styles where normal specificity is expected.</div>
+      </div>
+      <div>
+        <h3 style="color:#86efac;">:where() — zero-specificity base styles</h3>
+        <p style="font-size:.7rem;text-transform:uppercase;letter-spacing:.07em;opacity:.5;margin-bottom:.12rem;">Before — reset fights your own styles</p>
+        <pre style="font-size:.67rem;"><code>/* specificity: (0,0,1) */
+p, ul, ol, dl {
+  margin-block: 1em;
+}
+/* must match or beat (0,0,1) to win */
+.prose p { margin-block: 1.5em; } ✓
+p        { margin-block: 0; }     ✓
+.no-gap  { margin-block: 0; }     ✗</code></pre>
+        <p style="font-size:.7rem;text-transform:uppercase;letter-spacing:.07em;opacity:.5;margin:.3rem 0 .12rem;">After — anything beats it</p>
+        <pre style="font-size:.67rem;"><code>/* specificity: (0,0,0) — always loseable */
+:where(p, ul, ol, dl) {
+  margin-block: 1em;
+}
+/* any selector now wins */
+.no-gap { margin-block: 0; }      ✓</code></pre>
+        <div class="tip" style="font-size:.74rem;margin-top:.25rem;"><strong>Specificity: always 0.</strong> Perfect for CSS resets and base styles — they set defaults without ever blocking your own overrides.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════ SLIDE 8: @layer -->
+<div class="slide">
+  <p class="slide-label">Modern CSS — @layer</p>
+  <div class="slide-content">
+    <span class="part-badge css">⬡ CSS Features</span>
+    <h2>CSS Cascade Layers — <code>@layer</code></h2>
+    <p style="font-size:.82rem;margin-bottom:.32rem;"><strong>The problem:</strong> You import Bootstrap. Both Bootstrap and you have a <code>.btn</code> rule. Bootstrap loads first — so when specificity ties, <em>your rule loses</em>. The only escape is writing longer, more specific selectors forever. <code>@layer</code> ends this by letting you declare a priority <em>stack</em> — layer position beats specificity.</p>
+    <div class="two-col" style="align-items:start;gap:.6rem;">
+      <div>
+        <p style="font-size:.7rem;text-transform:uppercase;letter-spacing:.07em;opacity:.5;margin-bottom:.12rem;">Without @layer — the specificity war</p>
+        <pre style="font-size:.67rem;"><code>@import url("bootstrap.css");
+/* Bootstrap's .btn has specificity (0,1,0) */
+
+/* Your rule — same specificity, Bootstrap loaded
+   first, so Bootstrap wins. Your green never shows. */
+.btn { background: green; }      /* ✗ loses */
+
+/* Forced to escalate specificity to win: */
+body .wrap .btn { background: green; } /* ✓ barely */
+/* …next week Bootstrap updates. You lose again. */</code></pre>
+        <div class="caution" style="font-size:.74rem;margin-top:.25rem;">This cycle — escalating selectors to beat a library — is called a <strong>specificity war</strong>. It makes stylesheets brittle and hard to maintain.</div>
+      </div>
+      <div>
+        <p style="font-size:.7rem;text-transform:uppercase;letter-spacing:.07em;opacity:.5;margin-bottom:.12rem;">With @layer — you control the priority stack</p>
+        <pre style="font-size:.63rem;"><code>/* Step 1: declare order — lowest priority first */
+@layer vendor, base, components, utilities;
+
+/* Step 2: vendor — third-party libraries go here */
+@import url("bootstrap.css") layer(vendor);
+
+/* Step 3: base — your site-wide defaults */
+@layer base {
+  body { font-family: sans-serif; color: #1a1a1a; }
+  * { box-sizing: border-box; }
+}
+
+/* Step 4: components — your reusable UI pieces */
+@layer components {
+  .btn { background: green; }   /* ✓ beats Bootstrap */
+  .card { border-radius: 8px; }
+}
+
+/* Step 5: utilities — one-purpose overrides */
+@layer utilities {
+  .hidden { display: none; }    /* ✓ beats components */
+  .sr-only { position: absolute; clip: rect(0,0,0,0); }
+}
+
+/* Unlayered — beats all layers above */
+.override { color: red; }       /* ✓ beats everything */</code></pre>
+        <div class="tip" style="font-size:.72rem;margin-top:.2rem;"><strong>Priority order (low → high):</strong> vendor → base → components → utilities → unlayered. Later in the list = always wins, regardless of specificity.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════ SLIDE 9: @layer CodePen -->
+<div class="slide">
+  <p class="slide-label">CodePen — 17.2</p>
+  <div class="slide-content" style="min-height:0;">
+    <p class="demo-label">Codepen 17.2 — CSS Cascade Layers</p>
+    <div class="demo-wrap">
+      <iframe title="Codepen 17.2 — @layer" src="https://codepen.io/mattkearl/embed/WbGrrmz?default-tab=css%2Cresult&editable=true" loading="lazy"></iframe>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════ SLIDE 10: Dark Mode -->
+<div class="slide">
+  <p class="slide-label">Modern CSS — Dark Mode</p>
+  <div class="slide-content">
+    <span class="part-badge css">⬡ CSS Features</span>
+    <h2>Dark Mode with <code>prefers-color-scheme</code></h2>
+    <p style="font-size:.84rem;margin-bottom:.3rem;"><strong>Why it matters:</strong> 82% of smartphone users prefer dark mode (Android Authority, 2023). Users with migraines, light sensitivity, or low-vision conditions depend on it. Dark mode is a WCAG-adjacent accessibility feature — ignoring it means ignoring a large segment of your users.</p>
+    <div class="two-col">
+      <div>
+        <h3>The CSS Custom Properties Approach</h3>
+        <pre><code>/* Light mode tokens */
+:root {
+  --color-bg:      #ffffff;
+  --color-surface: #f8f9fa;
+  --color-text:    #0f172a;
+  --color-accent:  #4f6df5;
+}
+
+/* Override tokens for dark mode */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-bg:      #0f172a;
+    --color-surface: #1e293b;
+    --color-text:    #f1f5f9;
+    --color-accent:  #7c9bff;
+  }
+}
+
+/* Components use tokens — auto-switch */
+body { background: var(--color-bg);
+       color: var(--color-text); }
+.card { background: var(--color-surface); }</code></pre>
+      </div>
+      <div>
+        <h3>Live Toggle Demo</h3>
+        <p style="font-size:.76rem;margin-bottom:.28rem;">Click to switch themes. In production this would read from the OS via <code>prefers-color-scheme</code>:</p>
+        <div class="dark-demo" data-mode="light" id="darkDemo">
+          <div class="dark-demo-bar">
+            <span>My App</span>
+            <button class="dark-demo-pill" onclick="toggleDarkDemo()" id="darkToggleBtn">☀ Light</button>
+          </div>
+          <div class="dark-demo-body">
+            <div class="dark-demo-title">Welcome back!</div>
+            <div class="dark-demo-text">Your dashboard is ready. All color tokens are switching via CSS custom properties — no class names needed on every element.</div>
+            <div class="dark-demo-pill">Primary Action</div>
+          </div>
+        </div>
+        <div class="tip" style="margin-top:.28rem;font-size:.75rem;"><strong>The key insight:</strong> You define color <em>tokens</em> (like <code>--color-bg</code>), then every component uses those tokens. When the media query flips the token values, the entire site updates automatically — without touching any component code. One override location controls everything.</div>
+        <div class="tip" style="margin-top:.25rem;font-size:.75rem;">For a <strong>manual toggle button</strong> that overrides the OS setting, set <code>data-theme="dark"</code> on <code>&lt;html&gt;</code> and store preference in <code>localStorage</code>.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════ SLIDE 11: light-dark() + color-mix() -->
+<div class="slide">
+  <p class="slide-label">Modern CSS — Color Functions</p>
+  <div class="slide-content">
+    <span class="part-badge css">⬡ CSS Features</span>
+    <h2><code>light-dark()</code> &amp; <code>color-mix()</code></h2>
+    <p style="font-size:.84rem;margin-bottom:.3rem;"><strong>Why these exist:</strong> <code>light-dark()</code> reduces dark mode from "define tokens in two places" to a single function call per property. <code>color-mix()</code> eliminates hard-coding hover states — instead of calculating a lighter version of your brand color manually, you describe the intent: "80% brand + 20% white."</p>
+    <div class="two-col">
+      <div>
+        <h3>light-dark() syntax</h3>
+        <pre style="font-size:.67rem;"><code>/* Opt in — required on :root */
+:root { color-scheme: light dark; }
+
+/* light-dark(value-for-light, value-for-dark) */
+body {
+  background: light-dark(#ffffff, #0f172a);
+  color:       light-dark(#0f172a, #f1f5f9);
+}</code></pre>
+        <div class="note" style="font-size:.72rem;margin-bottom:.3rem;">Two arguments — light value first, dark value second. The browser picks which one based on the OS setting. Requires <code>color-scheme: light dark</code> on <code>:root</code>.</div>
+
+        <h3>color-mix() — full syntax</h3>
+        <pre style="font-size:.65rem;"><code>color-mix(in &lt;color-space&gt;, &lt;color1&gt; [pct%], &lt;color2&gt; [pct%])</code></pre>
+        <table class="cmp" style="font-size:.7rem;margin:.2rem 0;">
+          <tr><th>Part</th><th>What it means</th></tr>
+          <tr><td><code>in srgb</code></td><td>Color space — how colors are blended. <code>srgb</code> is standard web. <code>oklch</code> is perceptually uniform (better for gradients).</td></tr>
+          <tr><td><code>color1</code></td><td>Any CSS color — hex, rgb(), hsl(), named color, or custom property</td></tr>
+          <tr><td><code>pct%</code> (optional)</td><td>How much of color1 to use. Omit = browser calculates from color2's %</td></tr>
+          <tr><td><code>color2</code></td><td>The color to mix in</td></tr>
+          <tr><td><code>pct%</code> (optional)</td><td>How much of color2. If both omitted → 50/50 split</td></tr>
+        </table>
+        <pre style="font-size:.65rem;"><code>/* Common recipes */
+color-mix(in srgb, #4f6df5, white 20%)       /* lighten */
+color-mix(in srgb, #4f6df5, black 30%)       /* darken */
+color-mix(in srgb, #4f6df5, transparent 85%) /* tint/ghost */
+color-mix(in srgb, blue, red)                /* 50/50 blend */
+color-mix(in oklch, blue, red)               /* perceptual blend */</code></pre>
+      </div>
+      <div>
+        <h3>Live color-mix() Demo</h3>
+        <div style="display:flex;align-items:center;gap:.45rem;flex-wrap:wrap;margin-bottom:.25rem;">
+          <label style="font-size:.75rem;display:flex;align-items:center;gap:.3rem;">Base color:
+            <input type="color" id="cmBase" value="#4f6df5" oninput="updateCmDemo()" style="width:36px;height:26px;border:none;border-radius:4px;cursor:pointer;padding:0;background:none;">
+          </label>
+          <span style="font-size:.74rem;opacity:.65;">Mix with:</span>
+          <button class="demo-btn active" id="cmBtnWhite"       onclick="setCmMix('white')">white</button>
+          <button class="demo-btn"        id="cmBtnBlack"       onclick="setCmMix('black')">black</button>
+          <button class="demo-btn"        id="cmBtnTransparent" onclick="setCmMix('transparent')">transparent</button>
+        </div>
+        <div style="display:flex;align-items:center;gap:.4rem;margin-bottom:.25rem;">
+          <span style="font-size:.7rem;opacity:.55;">0%</span>
+          <input type="range" id="cmSlider" min="0" max="100" value="40" oninput="updateCmDemo()" style="flex:1;accent-color:#4f6df5;">
+          <span id="cmPctLabel" style="font-size:.74rem;min-width:2.2rem;text-align:right;font-weight:700;">40%</span>
+        </div>
+        <div id="cmResultSwatch" style="height:58px;border-radius:8px;transition:background .1s;margin-bottom:.22rem;display:flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:600;letter-spacing:.01em;text-shadow:0 1px 3px rgba(0,0,0,.4);"></div>
+        <pre style="font-size:.66rem;margin:0 0 .22rem;"><code id="cmCode">background: color-mix(in srgb, #4f6df5, white 40%);</code></pre>
+        <div class="colormix-row">
+          <div class="cm-swatch" id="cmSw0">0%</div>
+          <div class="cm-swatch" id="cmSw25">25%</div>
+          <div class="cm-swatch" id="cmSw50">50%</div>
+          <div class="cm-swatch" id="cmSw75">75%</div>
+          <div class="cm-swatch" id="cmSw100">100%</div>
+        </div>
+        <div class="note" style="font-size:.73rem;margin-top:.25rem;">The browser runs <code>color-mix()</code> natively — no JS color math. Pick any color, choose what to mix with, and drag the slider.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════ SLIDE 12: Dark Mode CodePen -->
+<div class="slide">
+  <p class="slide-label">CodePen — 17.3</p>
+  <div class="slide-content" style="min-height:0;">
+    <p class="demo-label">Codepen 17.3 — Dark Mode &amp; Color Functions</p>
+    <div class="demo-wrap">
+      <iframe title="Codepen 17.3 — Dark Mode" src="https://codepen.io/mattkearl/embed/qEabbwE?default-tab=css%2Cresult&editable=true" loading="lazy"></iframe>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════ SLIDE 13: @supports -->
+<div class="slide">
+  <p class="slide-label">Modern CSS — @supports</p>
+  <div class="slide-content">
+    <span class="part-badge css">⬡ CSS Features</span>
+    <h2>Feature Queries with <code>@supports</code></h2>
+    <p>Tests whether a browser supports a CSS property before applying a block. Enables <strong>progressive enhancement</strong> — working styles for all browsers, enhanced styles for modern ones.</p>
+    <div class="tip" style="margin-bottom:.3rem;font-size:.82rem;"><strong>Real-world scenario:</strong> You want to use <code>display: grid</code> with subgrid, but Safari just got support in 2023. Without <code>@supports</code>, you either drop the feature for everyone or accept broken layouts for older Safari users. With <code>@supports</code>, old browsers get a solid flexbox layout; modern browsers get the enhanced grid layout. Both work. No one sees broken CSS.</div>
+    <div class="two-col">
+      <div>
+        <pre><code>/* Basic layout — works everywhere */
+.gallery { display: flex; flex-wrap: wrap; }
+.gallery-item { flex: 1 1 200px; }
+
+/* Enhance with Grid if supported */
+@supports (display: grid) {
+  .gallery {
+    display: grid;
+    grid-template-columns:
+      repeat(auto-fill, minmax(200px, 1fr));
+  }
+  .gallery-item { flex: unset; }
+}
+
+/* Container queries if supported */
+@supports (container-type: inline-size) {
+  .card-wrapper {
+    container-type: inline-size;
+  }
+}
+
+/* Glass effect if backdrop-filter works */
+@supports (backdrop-filter: blur(8px)) {
+  .glass {
+    backdrop-filter: blur(8px);
+    background: rgba(255,255,255,0.3);
+  }
+}</code></pre>
+      </div>
+      <div>
+        <h3>When to Use @supports</h3>
+        <ul>
+          <li>Before using <strong>newer layout features</strong> (subgrid, container queries)</li>
+          <li>Before applying <strong>visual effects</strong> that degrade gracefully (backdrop-filter)</li>
+          <li>When a newer CSS property <strong>replaces</strong> an older approach</li>
+        </ul>
+        <div class="note" style="margin-top:.35rem;"><strong>Progressive Enhancement Pattern:</strong><br>1. Write baseline CSS that works everywhere<br>2. Add <code>@supports</code> block with the enhanced version<br>3. Browsers that don't understand the feature use the baseline</div>
+        <div class="tip" style="margin-top:.28rem;"><strong>You can also negate:</strong><br><code>@supports not (display: grid) { }</code><br><strong>Or combine:</strong><br><code>@supports (display: grid) and (gap: 1rem) { }</code></div>
+        <div class="card" style="margin-top:.28rem;font-size:.76rem;">
+          <strong style="color:#ffeaa7;">Check support:</strong> <a href="https://caniuse.com" target="_blank" rel="noopener">caniuse.com</a> — paste any CSS property to see browser support tables instantly.
+        </div>
+        <div class="note" style="margin-top:.28rem;font-size:.76rem;"><strong>Test in the console:</strong> <code>CSS.supports("display", "grid")</code> returns <code>true</code> or <code>false</code>. In Chrome DevTools Styles panel, rules inside an unmatched <code>@supports</code> block appear greyed out — a quick visual indicator that the feature wasn't supported.</div>
+        <div class="note" style="margin-top:.28rem;font-size:.76rem;"><strong>How to check:</strong> In Chrome DevTools → Sources, search for <code>@supports</code> to see which blocks matched. Unmatched blocks are greyed out in the Styles panel. You can also test <code>CSS.supports("display", "grid")</code> in the console — returns <code>true</code> or <code>false</code>.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════ SLIDE 14: Why Accessibility -->
+<div class="slide">
+  <p class="slide-label">Part 2 — Web Accessibility</p>
+  <div class="slide-content">
+    <span class="part-badge a11y">♿ Web Accessibility</span>
+    <h2>Why Accessibility Matters</h2>
+    <p>Accessibility means building websites that <em>everyone</em> can use — including people with disabilities. <strong>1 in 4 Americans</strong> has some form of disability. If you build an app used by 1,000 people, you're locking out 250 of them when you skip accessibility. That's not a minor bug — that's a broken product.</p>
+    <div class="three-col" style="margin:.35rem 0;">
+      <div class="card" style="border-left:4px solid #ef4444;">
+        <h3 style="color:#fca5a5;">⚖ Legal</h3>
+        <p style="font-size:.8rem;line-height:1.5;margin-top:.2rem;">In the US, the <strong>ADA</strong> applies to websites just like it applies to buildings needing ramps. Domino's Pizza was sued because a blind customer couldn't order online. Target, Netflix, and hundreds of other companies have faced lawsuits. Inaccessible websites <strong>cost real money in court</strong>.</p>
+      </div>
+      <div class="card" style="border-left:4px solid #4ade80;">
+        <h3 style="color:#86efac;">♿ It's the right thing</h3>
+        <p style="font-size:.8rem;line-height:1.5;margin-top:.2rem;">Imagine building a store with a front door that only some people can open. You'd never do that in real life. A website that only works for some people is the digital version of that locked door. <strong>Accessibility is not extra credit — it's basic respect.</strong></p>
+      </div>
+      <div class="card" style="border-left:4px solid #60a5fa;">
+        <h3 style="color:#93c5fd;">📈 It helps everyone</h3>
+        <p style="font-size:.8rem;line-height:1.5;margin-top:.2rem;">Closed captions were invented for deaf viewers — now everyone uses them in noisy coffee shops. Curb cuts were built for wheelchairs — now everyone uses them with strollers and bikes. <strong>Accessibility features almost always improve the experience for everyone.</strong> Plus, Google Search ranks accessible sites higher.</p>
+      </div>
+    </div>
+    <div class="two-col" style="margin-top:.35rem;align-items:start;">
+      <div>
+        <h3>❌ What an inaccessible page looks like</h3>
+        <pre style="font-size:.67rem;"><code>&lt;!-- Can't Tab to it. Screen reader: "Place Order" — no role --&gt;
+&lt;div onclick="submitOrder()"&gt;Place Order&lt;/div&gt;
+
+&lt;!-- Screen reader reads filename: "pizza-2024-final.jpg" --&gt;
+&lt;img src="pizza-2024-final.jpg"&gt;
+
+&lt;!-- Placeholder disappears. Screen reader says nothing useful --&gt;
+&lt;input placeholder="Your address"&gt;</code></pre>
+      </div>
+      <div>
+        <h3>✓ The same page, done right</h3>
+        <pre style="font-size:.67rem;"><code>&lt;!-- Tab-focusable. Screen reader: "Place Order, button" ✓ --&gt;
+&lt;button onclick="submitOrder()"&gt;Place Order&lt;/button&gt;
+
+&lt;!-- Screen reader: "Large pepperoni pizza, image" ✓ --&gt;
+&lt;img src="pizza.jpg" alt="Large pepperoni pizza"&gt;
+
+&lt;!-- Label stays visible. Screen reader: "Your address, edit text" ✓ --&gt;
+&lt;label for="addr"&gt;Your address&lt;/label&gt;
+&lt;input id="addr" type="text"&gt;</code></pre>
+        <div class="tip" style="font-size:.75rem;margin-top:.25rem;">Three small changes. Same visual result. One version works for everyone — the other locks out millions of users.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════ SLIDE 15: WCAG -->
+<div class="slide">
+  <p class="slide-label">Accessibility — WCAG</p>
+  <div class="slide-content">
+    <span class="part-badge a11y">♿ Web Accessibility</span>
+    <h2>WCAG — Web Content Accessibility Guidelines</h2>
+    <p>WCAG is the rulebook for web accessibility, written by the W3C (the people who define how the web works). Think of it like building codes for houses — specific rules that professionals are expected to follow. The current version is <strong>WCAG 2.2</strong> (2023). Every rule fits into one of four principles called <strong>POUR</strong>:</p>
+    <div class="pour-grid">
+      <div class="pour-card p">
+        <strong>P — Perceivable</strong>
+        <span>Can every user <em>receive</em> the content? If someone can't perceive it, it doesn't exist for them.</span>
+        <pre style="font-size:.63rem;margin:.2rem 0;"><code>&lt;img src="dog.jpg"&gt;              &lt;!-- ✗ blind user hears nothing --&gt;
+&lt;img src="dog.jpg" alt="Golden retriever running"&gt; &lt;!-- ✓ --&gt;</code></pre>
+      </div>
+      <div class="pour-card o">
+        <strong>O — Operable</strong>
+        <span>Can every user <em>control</em> the interface? Everything must work without a mouse.</span>
+        <pre style="font-size:.63rem;margin:.2rem 0;"><code>&lt;div onclick="buy()"&gt;Buy&lt;/div&gt;  &lt;!-- ✗ can't Tab to it --&gt;
+&lt;button onclick="buy()"&gt;Buy&lt;/button&gt; &lt;!-- ✓ keyboard works --&gt;</code></pre>
+      </div>
+      <div class="pour-card u">
+        <strong>U — Understandable</strong>
+        <span>Can every user <em>make sense of</em> the content? Errors must explain what went wrong.</span>
+        <pre style="font-size:.63rem;margin:.2rem 0;"><code>&lt;input style="border:red"&gt;         &lt;!-- ✗ what's wrong? --&gt;
+&lt;input aria-describedby="err"&gt;
+&lt;p id="err"&gt;Enter a valid email&lt;/p&gt; &lt;!-- ✓ explains it --&gt;</code></pre>
+      </div>
+      <div class="pour-card r">
+        <strong>R — Robust</strong>
+        <span>Does it work with <em>any</em> assistive technology? Valid semantic HTML is the foundation.</span>
+        <pre style="font-size:.63rem;margin:.2rem 0;"><code>&lt;div class="btn" role="button"&gt;Save&lt;/div&gt; &lt;!-- ✗ fragile --&gt;
+&lt;button&gt;Save&lt;/button&gt;  &lt;!-- ✓ works in every AT, forever --&gt;</code></pre>
+      </div>
+    </div>
+    <h3>Conformance Levels — think of them like difficulty settings</h3>
+    <div class="wcag-levels">
+      <div class="wlevel a"><strong>Level A</strong><span>The minimum. Failing Level A means some users literally <em>cannot</em> use your site at all — not "it's hard", but "it's impossible". Example: a video with no captions at all.</span></div>
+      <div class="wlevel aa"><strong>Level AA</strong><span>The <em>legal standard</em> in most countries and the target for all professional projects. This is what employers mean when they say "make it accessible." Aim here.</span></div>
+      <div class="wlevel aaa"><strong>Level AAA</strong><span>The gold standard. Some AAA criteria are so strict they're impossible to meet for all content types. Most teams aim for AA with some AAA improvements where possible.</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════ SLIDE 16: Accessibility Tree -->
+<div class="slide">
+  <p class="slide-label">Accessibility — The Accessibility Tree</p>
+  <div class="slide-content">
+    <span class="part-badge a11y">♿ Web Accessibility</span>
+    <h2>The Accessibility Tree</h2>
+    <p>Your browser secretly builds <strong>two versions</strong> of every page. The first is the <strong>DOM</strong> — that's the one you see. The second is the <strong>Accessibility Tree</strong> — a parallel, stripped-down version that screen readers and assistive technology read from. It contains no colors, no fonts, no layout. Just: <em>what is this element, what is it called, and what state is it in?</em> Screen readers read the tree, not the screen.</p>
+    <div class="two-col">
+      <div>
+        <h3>Bad HTML — what the screen reader hears</h3>
+        <pre style="font-size:.67rem;"><code>&lt;div class="nav"&gt;
+  &lt;!-- ✗ &lt;div&gt; has no role — screen reader
+       doesn't know this is navigation --&gt;
+
+  &lt;div onclick="go('/')"&gt;Home&lt;/div&gt;
+  &lt;!-- ✗ &lt;div&gt; is not focusable — Tab skips it
+       ✗ onclick only works with a mouse
+       ✗ no href — no real URL, no browser history
+       ✗ no role — "Home" is just floating text --&gt;
+
+  &lt;div onclick="go('/shop')"&gt;Shop&lt;/div&gt;
+  &lt;!-- ✗ same problems as above --&gt;
+&lt;/div&gt;
+
+&lt;!-- Screen reader hears:
+  "Home"  ← raw text with zero context
+  "Shop"  ← raw text with zero context
+  Tab key reaches neither. Mouse-only. --&gt;</code></pre>
+        <h3 style="margin-top:.4rem;">Good HTML — same page, night-and-day difference</h3>
+        <pre style="font-size:.67rem;"><code>&lt;nav aria-label="Main"&gt;
+  &lt;!-- ✓ &lt;nav&gt; = landmark role "navigation"
+       ✓ aria-label names it "Main" so users
+         can tell it apart from other &lt;nav&gt;s --&gt;
+
+  &lt;a href="/"&gt;Home&lt;/a&gt;
+  &lt;!-- ✓ role "link" — screen reader says "link"
+       ✓ Tab-focusable automatically
+       ✓ Enter key activates it
+       ✓ real URL — right-click, open in new tab --&gt;
+
+  &lt;a href="/shop"&gt;Shop&lt;/a&gt;
+  &lt;!-- ✓ same benefits as above --&gt;
+&lt;/nav&gt;
+
+&lt;!-- Screen reader announces:
+  "Main navigation"  ← landmark with a name
+  "Home, link"       ← role + name, Tab-reachable
+  "Shop, link"       ← role + name, Tab-reachable --&gt;</code></pre>
+        <div class="tip" style="font-size:.75rem;margin-top:.25rem;"><strong>The rule:</strong> Use real HTML elements — <code>&lt;nav&gt;</code>, <code>&lt;button&gt;</code>, <code>&lt;a&gt;</code>, <code>&lt;h1&gt;</code>–<code>&lt;h6&gt;</code>, <code>&lt;label&gt;</code>. Each one automatically populates the accessibility tree with the right role and behavior. A <code>&lt;div&gt;</code> gives the tree nothing.</div>
+      </div>
+      <div>
+        <h3>Every element gets 4 properties in the tree</h3>
+        <p style="font-size:.75rem;margin-bottom:.3rem;">Think of the 4 properties as the screen reader's cheat sheet — it reads them out so the user knows <em>what something is</em>, <em>what it's called</em>, <em>whether it's on or off</em>, and <em>what it currently shows</em>. Here's a real element mapped to all four:</p>
+        <pre style="font-size:.64rem;"><code>&lt;button aria-expanded="false"&gt;Open FAQ&lt;/button&gt;</code></pre>
+        <table class="cmp" style="font-size:.72rem;margin-bottom:.3rem;">
+          <tr><th>Property</th><th>Question it answers</th><th>For this element</th></tr>
+          <tr><td><strong>Role</strong></td><td>What <em>type</em> of thing?</td><td>"button" — from <code>&lt;button&gt;</code></td></tr>
+          <tr><td><strong>Name</strong></td><td>What is it <em>called</em>?</td><td>"Open FAQ" — from the text inside</td></tr>
+          <tr><td><strong>State</strong></td><td>Is it on, off, open…?</td><td>"collapsed" — from <code>aria-expanded="false"</code></td></tr>
+          <tr><td><strong>Value</strong></td><td>What does it currently show?</td><td>— (buttons don't have values)</td></tr>
+        </table>
+        <p style="font-size:.72rem;margin-bottom:.2rem;">Screen reader announces: <strong>"Open FAQ, button, collapsed"</strong></p>
+        <p style="font-size:.72rem;margin-bottom:.28rem;">Value only applies to things that hold a number or choice — like a slider:</p>
+        <pre style="font-size:.64rem;"><code>&lt;input type="range" aria-label="Volume" value="75"&gt;
+&lt;!-- Role: "slider"  Name: "Volume"
+     State: —        Value: "75" --&gt;</code></pre>
+        <h3 style="margin-top:.4rem;">See it in Chrome DevTools</h3>
+        <ol style="font-size:.78rem;line-height:1.7;margin-left:1.1rem;">
+          <li>Press <kbd class="kbd">F12</kbd> to open DevTools</li>
+          <li>Click any element in the <strong>Elements</strong> panel</li>
+          <li>Find the <strong>Accessibility</strong> tab on the right</li>
+          <li>You'll see: Role · Name · State for that element</li>
+        </ol>
+        <img src="assets/day-17-img-01-accessibility-tree.png" alt="Chrome DevTools Accessibility panel showing role, name, and state for a button element" class="slide-img" style="margin:.25rem 0;width:100%;" onerror="this.style.display='none'">
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════ SLIDE 17: ARIA Intro -->
+<div class="slide">
+  <p class="slide-label">Accessibility — ARIA</p>
+  <div class="slide-content">
+    <span class="part-badge a11y">♿ Web Accessibility</span>
+    <h2>ARIA — Accessible Rich Internet Applications</h2>
+    <p>Sometimes HTML doesn't have the right element for what you're building. There's no HTML element for a custom dropdown menu, a tab panel, or a live chat feed. ARIA is a set of attributes you add to your HTML to tell the browser: <em>"this div is actually a menu button"</em> or <em>"this section just updated — announce it."</em> Think of it like <strong>subtitles for your UI</strong> — the visual interface keeps playing, and ARIA writes the subtitle track that screen readers read aloud.</p>
+    <div class="caution" style="font-size:.86rem;"><strong>The First Rule of ARIA — use HTML first:</strong> <em>Never use ARIA when a real HTML element can do the same job.</em><br>A real <code>&lt;button&gt;</code> is always better than <code>&lt;div role="button"&gt;</code>. Native HTML elements come with keyboard behavior, focus, and semantics built in. An ARIA role on a div only <em>labels</em> it in the accessibility tree — it does not make it focusable, it doesn't respond to the keyboard, and it doesn't look any different. You'd have to add all of that yourself. Save ARIA for when HTML genuinely doesn't have what you need.</div>
+    <div class="two-col" style="margin-top:.3rem;">
+      <div>
+        <h3>❌ Wrong — fake button with div</h3>
+        <pre style="font-size:.67rem;"><code>&lt;!-- BROKEN for keyboard + screen reader --&gt;
+&lt;div class="btn" onclick="save()"&gt;
+  Save
+&lt;/div&gt;
+
+&lt;!-- Problems:
+  ✗ Tab key skips it entirely
+  ✗ Enter / Space don't trigger it
+  ✗ Screen reader says: "Save"
+      (no role — user doesn't know
+       it's a button they can click)
+  ✗ You'd have to add tabindex, keydown
+    listeners, and role="button" manually --&gt;</code></pre>
+        <h3 style="margin-top:.4rem;">✓ Right — real button, zero ARIA needed</h3>
+        <pre style="font-size:.67rem;"><code>&lt;!-- Works for everyone, out of the box --&gt;
+&lt;button onclick="save()"&gt;
+  Save
+&lt;/button&gt;
+
+&lt;!-- What you get free:
+  ✓ Tab key focuses it
+  ✓ Enter and Space activate it
+  ✓ Screen reader says: "Save, button"
+  ✓ Correct role in accessibility tree
+  ✓ Disabled state with disabled attr --&gt;</code></pre>
+      </div>
+      <div>
+        <h3>When you actually need ARIA</h3>
+        <p style="font-size:.78rem;margin-bottom:.25rem;">HTML doesn't have every widget. When you build something custom, ARIA tells the browser what it is:</p>
+        <pre style="font-size:.67rem;"><code>&lt;!-- Custom tab interface — no HTML tab element --&gt;
+&lt;div role="tablist"&gt;
+  &lt;button role="tab" aria-selected="true"
+          aria-controls="panel1"&gt;Profile&lt;/button&gt;
+  &lt;button role="tab" aria-selected="false"
+          aria-controls="panel2"&gt;Settings&lt;/button&gt;
+&lt;/div&gt;
+&lt;div role="tabpanel" id="panel1"&gt;...&lt;/div&gt;
+
+&lt;!-- Screen reader: "Profile, tab, 1 of 2, selected"
+                   "Settings, tab, 2 of 2" --&gt;</code></pre>
+        <div class="tip" style="font-size:.75rem;margin-top:.25rem;"><strong>The rule:</strong> Use real HTML elements whenever possible. Use ARIA only when no HTML element exists for what you're building — like a tab panel, combobox, or tree widget.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════ SLIDE 18: ARIA Roles -->
+<div class="slide">
+  <p class="slide-label">Accessibility — ARIA Roles &amp; Labels</p>
+  <div class="slide-content">
+    <span class="part-badge a11y">♿ Web Accessibility</span>
+    <h2>ARIA Roles &amp; Labels</h2>
+    <p style="font-size:.84rem;margin-bottom:.3rem;"><strong>Why labels matter:</strong> Imagine calling a phone number and someone just picks up and says nothing. You don't know who you reached or what to do next. That's what a screen reader user hears when they land on an unlabeled icon button — the screen reader just says <em>"button"</em>. Which button? What does it do? No idea. Add <code>aria-label="Close dialog"</code> and now the user hears <em>"Close dialog, button"</em> — suddenly it's clear. Labels are what turn a mystery into a usable interface.</p>
+    <div class="two-col">
+      <div>
+        <h3>Landmark roles — how screen readers navigate pages</h3>
+        <p style="font-size:.76rem;margin-bottom:.22rem;">Screen reader users press a single key to jump between page landmarks — like chapters in a book. These semantic elements create those landmarks automatically:</p>
+        <pre style="font-size:.67rem;"><code>&lt;header&gt;  &lt;!-- "banner" landmark --&gt;
+  &lt;nav aria-label="Main"&gt;  &lt;!-- "navigation" --&gt;
+    &lt;a href="/"&gt;Home&lt;/a&gt;
+  &lt;/nav&gt;
+&lt;/header&gt;
+
+&lt;main&gt;           &lt;!-- "main" landmark --&gt;
+  &lt;aside&gt;        &lt;!-- "complementary" --&gt;
+    &lt;h2&gt;Related&lt;/h2&gt;
+  &lt;/aside&gt;
+&lt;/main&gt;
+
+&lt;footer&gt;         &lt;!-- "contentinfo" landmark --&gt;&lt;/footer&gt;
+
+&lt;!-- With these, a screen reader user can press
+     a key to jump straight to "main" — skipping
+     the header and nav entirely. --&gt;</code></pre>
+      </div>
+      <div>
+        <h3>Labeling elements — what gets announced</h3>
+        <pre style="font-size:.67rem;"><code>&lt;!-- aria-label: button has no visible text --&gt;
+&lt;button aria-label="Close dialog"&gt;✕&lt;/button&gt;
+&lt;!-- Announces: "Close dialog, button" ✓ --&gt;
+&lt;!-- Without it: "✕, button" or just "button" ✗ --&gt;
+
+
+&lt;!-- aria-labelledby: reuse text already on page --&gt;
+&lt;section aria-labelledby="cart-heading"&gt;
+  &lt;h2 id="cart-heading"&gt;Your Cart&lt;/h2&gt;
+&lt;/section&gt;
+&lt;!-- Announces: "Your Cart, region" ✓ --&gt;
+
+
+&lt;!-- aria-describedby: extra hint after the name --&gt;
+&lt;input type="password" aria-describedby="pw-hint"&gt;
+&lt;p id="pw-hint"&gt;Must be 8+ characters&lt;/p&gt;
+&lt;!-- Announces: "Password, edit text,
+                 Must be 8+ characters" ✓ --&gt;
+
+
+&lt;!-- Two navs need labels to tell them apart --&gt;
+&lt;nav aria-label="Main"&gt;...&lt;/nav&gt;
+&lt;nav aria-label="Breadcrumb"&gt;...&lt;/nav&gt;
+&lt;!-- Without labels both announce: "navigation" ✗ --&gt;</code></pre>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════ SLIDE 19: ARIA States -->
+<div class="slide">
+  <p class="slide-label">Accessibility — ARIA States</p>
+  <div class="slide-content">
+    <span class="part-badge a11y">♿ Web Accessibility</span>
+    <h2>ARIA States &amp; Properties</h2>
+    <p style="font-size:.84rem;margin-bottom:.3rem;"><strong>Why states matter:</strong> Imagine a door with no lock indicator — no red/green light, no padlock symbol, nothing. Every time you approach it, you'd have to try pulling the handle to find out if it's locked. That's the experience of a screen reader user on a page with no ARIA states. You click a "Menu" button and the menu opens — but the screen reader never announced that anything changed. Was it already open? Did the click work? Nobody knows. <code>aria-expanded="true"</code> is the green light that says: <em>"yes, it opened."</em></p>
+    <div class="two-col">
+      <div>
+        <pre style="font-size:.66rem;"><code>&lt;!-- aria-expanded: does the user know it opened? --&gt;
+
+&lt;!-- ✗ Without aria-expanded --&gt;
+&lt;button onclick="toggleMenu()"&gt;Menu ▼&lt;/button&gt;
+&lt;!-- Screen reader: "Menu ▼, button"
+     User clicks. Menu opens visually.
+     Screen reader says NOTHING.
+     Did it open? Did it close? No idea. --&gt;
+
+&lt;!-- ✓ With aria-expanded --&gt;
+&lt;button aria-expanded="false"
+        aria-controls="mainMenu"
+        onclick="toggleMenu(this)"&gt;Menu ▼&lt;/button&gt;
+&lt;ul id="mainMenu" hidden&gt;...&lt;/ul&gt;
+&lt;!-- Screen reader: "Menu ▼, collapsed, button"
+     User clicks. JS flips to true + removes hidden.
+     Screen reader: "Menu ▼, expanded, button" ✓ --&gt;
+
+&lt;!-- Other common states --&gt;
+aria-checked="true"   &lt;!-- custom checkbox/toggle --&gt;
+aria-invalid="true"   &lt;!-- form field has an error --&gt;
+aria-disabled="true"  &lt;!-- item is not interactive --&gt;
+aria-current="page"   &lt;!-- active nav link --&gt;
+aria-hidden="true"    &lt;!-- hide from screen reader --&gt;</code></pre>
+      </div>
+      <div>
+        <h3>Live aria-expanded Demo</h3>
+        <p style="font-size:.76rem;margin-bottom:.28rem;">Click the button — watch the ARIA attribute update in real time:</p>
+        <button class="aria-acc-btn" id="accBtn" aria-expanded="false" aria-controls="accPanel" onclick="toggleAccordion()">
+          <span>What is ARIA?</span>
+          <span class="aria-acc-icon">▶</span>
+        </button>
+        <div class="aria-acc-panel" id="accPanel">
+          <p>ARIA stands for Accessible Rich Internet Applications. It adds semantic meaning to custom UI components that native HTML can't express — like a custom dropdown, tab panel, or combobox.</p>
+        </div>
+        <div style="margin-top:.4rem;font-size:.76rem;">
+          <strong style="opacity:.7;">Current attribute state:</strong><br>
+          <span class="attr-tag" id="attrExpanded">aria-expanded="false"</span>
+          <span class="attr-tag" id="attrHidden">aria-hidden (panel): true</span>
+        </div>
+        <div class="note" style="margin-top:.35rem;font-size:.76rem;">
+          ARIA states must be <strong>updated with JavaScript</strong> when the UI changes. Setting <code>aria-expanded="false"</code> in HTML and never toggling it is worse than not using it.
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════ SLIDE 20: Focus Management -->
+<div class="slide">
+  <p class="slide-label">Accessibility — Focus Management</p>
+  <div class="slide-content">
+    <span class="part-badge a11y">♿ Web Accessibility</span>
+    <h2>Focus Management &amp; Keyboard Navigation</h2>
+    <p style="font-size:.84rem;margin-bottom:.2rem;"><strong>Try this right now:</strong> Go to any website and put your mouse on the other side of the desk. Use only Tab, Enter, and arrow keys. Can you navigate the site? Can you fill out the form? Can you click the buy button? If not — that site is broken for a huge group of people. Users with motor disabilities, tremors, or paralysis may not be able to use a mouse at all. The keyboard is their only way in. If your interactive element can't be reached with Tab, it simply doesn't exist for them.</p>
+    <p>The rule is simple: <strong>if you can click it, you must be able to Tab to it and press Enter to activate it.</strong> No exceptions.</p>
+    <div class="two-col">
+      <div>
+        <h3>Tab Key Behavior</h3>
+        <ul>
+          <li><kbd class="kbd">Tab</kbd> — move focus forward</li>
+          <li><kbd class="kbd">Shift</kbd>+<kbd class="kbd">Tab</kbd> — move focus backward</li>
+          <li><kbd class="kbd">Enter</kbd> — activate focused link or button</li>
+          <li><kbd class="kbd">Space</kbd> — activate button or checkbox</li>
+          <li><kbd class="kbd">Esc</kbd> — close modal / dismiss popup</li>
+          <li>Arrow keys — navigate within components (menus, tabs)</li>
+        </ul>
+        <h3 style="margin-top:.4rem;">tabindex — when and how to use it</h3>
+        <pre style="font-size:.66rem;"><code>&lt;!-- tabindex="0": add a non-interactive element to tab order --&gt;
+&lt;div role="button" tabindex="0" onclick="open()"&gt;Open&lt;/div&gt;
+&lt;!-- Now Tab reaches it. But just use &lt;button&gt; instead! --&gt;
+
+&lt;!-- tabindex="-1": focusable by JS only, not by Tab --&gt;
+&lt;div id="modal" tabindex="-1"&gt;...&lt;/div&gt;
+&lt;!-- Use when you need to move focus programmatically: --&gt;
+document.getElementById('modal').focus();
+
+&lt;!-- tabindex="1" or higher: NEVER do this --&gt;
+&lt;button tabindex="3"&gt;...&lt;/button&gt;  &lt;!-- ✗ breaks tab order --&gt;</code></pre>
+      </div>
+      <div>
+        <h3>Keyboard Navigation Demo</h3>
+        <p style="font-size:.76rem;margin-bottom:.28rem;">Tab through these elements. Notice the focus ring appears only when using keyboard:</p>
+        <div class="focus-row" id="focusRow">
+          <button class="fd-btn">Button 1</button>
+          <a href="#" class="fd-link" onclick="return false;">Link</a>
+          <input class="fd-inp" type="text" placeholder="Text input">
+          <button class="fd-btn">Button 2</button>
+        </div>
+        <div class="focus-demo-status" id="focusStatus">Click inside the demo, then press Tab to navigate →</div>
+        <div class="tip" style="margin-top:.28rem;font-size:.76rem;">
+          <strong>Keep DOM order = visual order.</strong> If CSS moves an element visually, keyboard users experience the <em>HTML order</em> — which may feel backward or disorienting.
+        </div>
+        <div class="note" style="margin-top:.25rem;font-size:.76rem;">
+          <strong>Test it yourself:</strong> Put your mouse aside and Tab through any form. Every field should be reachable and every label readable.
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════ SLIDE 21: Focus Styles -->
+<div class="slide">
+  <p class="slide-label">Accessibility — Focus Styles</p>
+  <div class="slide-content">
+    <span class="part-badge a11y">♿ Web Accessibility</span>
+    <h2>Focus Styles &amp; <code>:focus-visible</code></h2>
+    <p style="font-size:.84rem;margin-bottom:.2rem;"><strong>Imagine playing a video game where the cursor turns invisible whenever you use a controller.</strong> Mouse players are fine. Controller players have no idea where they are on the screen. That's exactly what happens when developers write <code>outline: none</code> to remove the blue focus ring — mouse users never noticed it anyway, but keyboard users are completely lost. The fix is <code>:focus-visible</code>: it shows the focus ring <em>only</em> when the user is navigating by keyboard, and hides it for mouse users. Everyone wins.</p>
+    <p>Visible focus indicators are <strong>required by WCAG 2.4.7 (Level AA)</strong>. Never write <code>*:focus { outline: none }</code> without providing an equally clear replacement.</p>
+    <div class="two-col">
+      <div>
+        <h3>The Modern Pattern</h3>
+        <pre><code>/* Remove browser outline for mouse users */
+:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* Clear focus ring for keyboard users */
+:focus-visible {
+  outline: 3px solid #4f6df5;
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+/* High-contrast mode support */
+@media (forced-colors: active) {
+  :focus-visible {
+    outline: 3px solid ButtonText;
+  }
+}</code></pre>
+        <div class="note" style="font-size:.74rem;margin-top:.3rem;"><code>:focus-visible</code> fires only during keyboard navigation, not on mouse clicks — giving you control over when the ring appears without hurting mouse usability.</div>
+      </div>
+      <div>
+        <h3>:focus-visible in Action</h3>
+        <p style="font-size:.76rem;margin-bottom:.25rem;">These elements use <code>:focus-visible</code>. Click with mouse (no ring). Tab to them (ring appears):</p>
+        <style>
+          .fv-btn{padding:.35rem .75rem;margin:.2rem;border-radius:6px;border:1px solid rgba(255,255,255,.28);background:rgba(255,255,255,.12);color:white;cursor:pointer;font-size:.82rem;}
+          .fv-btn:focus{outline:none;}
+          .fv-btn:focus-visible{outline:3px solid #4f6df5;outline-offset:3px;}
+          .fv-bad{padding:.35rem .75rem;margin:.2rem;border-radius:6px;border:1px solid rgba(255,255,255,.28);background:rgba(239,68,68,.18);color:white;cursor:pointer;font-size:.82rem;}
+          .fv-bad:focus{outline:none !important;}
+        </style>
+        <div style="margin:.25rem 0;">
+          <button class="fv-btn">Good: :focus-visible</button>
+          <button class="fv-btn">Good: keyboard ring</button>
+          <button class="fv-bad">Bad: outline: none ❌</button>
+        </div>
+        <div class="caution" style="font-size:.74rem;margin-top:.28rem;">
+          <strong>The "Bad" button has outline: none with no replacement.</strong> Keyboard users have no idea where focus is — this is a WCAG 2.4.7 Level AA violation.
+        </div>
+        <div class="tip" style="margin-top:.25rem;font-size:.74rem;">
+          <strong>Test it:</strong> Tab through your own page right now. Can you see where focus is at all times? If you lose track of where you are — so will your users.
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════ SLIDE 22: inert -->
+<div class="slide">
+  <p class="slide-label">Accessibility — inert Attribute</p>
+  <div class="slide-content">
+    <span class="part-badge a11y">♿ Web Accessibility</span>
+    <h2>The <code>inert</code> Attribute</h2>
+    <p style="font-size:.84rem;margin-bottom:.2rem;"><strong>The problem: focus leaks through modals.</strong> A popup opens — but keyboard users can still Tab to links and buttons hiding behind it that they can't even see. They end up triggering things in the background by accident. The <code>inert</code> attribute fixes this: add it to the background content when a modal opens, and everything inside becomes untouchable, unclickable, and invisible to screen readers.</p>
+    <div class="two-col">
+      <div>
+        <h3>Without inert — focus leaks everywhere</h3>
+        <pre style="font-size:.67rem;"><code>&lt;!-- Modal is open. But Tab still reaches these: --&gt;
+&lt;main id="bg"&gt;
+  &lt;a href="/about"&gt;About&lt;/a&gt;     &lt;!-- ✗ Tab reaches it --&gt;
+  &lt;button&gt;Delete account&lt;/button&gt; &lt;!-- ✗ Tab reaches it --&gt;
+  &lt;!-- User can trigger these without seeing them --&gt;
+&lt;/main&gt;</code></pre>
+        <h3 style="margin-top:.3rem;">With inert — background is completely locked</h3>
+        <pre style="font-size:.67rem;"><code>&lt;main id="bg" inert&gt;
+  &lt;a href="/about"&gt;About&lt;/a&gt;     &lt;!-- ✓ Tab skips it --&gt;
+  &lt;button&gt;Delete account&lt;/button&gt; &lt;!-- ✓ Tab skips it --&gt;
+  &lt;!-- Screen reader also skips everything inside --&gt;
+&lt;/main&gt;
+
+&lt;dialog id="modal"&gt;
+  &lt;!-- All Tab focus stays trapped in here --&gt;
+&lt;/dialog&gt;</code></pre>
+      </div>
+      <div>
+        <h3>JS Pattern for Modals</h3>
+        <pre><code>const modal   = document.getElementById('modal');
+const content = document.getElementById('page-content');
+const openBtn = document.getElementById('open-btn');
+
+// Open: inert the background
+openBtn.addEventListener('click', () =&gt; {
+  modal.showModal();
+  content.inert = true;
+});
+
+// Close: remove inert, return focus
+modal.addEventListener('close', () =&gt; {
+  content.inert = false;
+  openBtn.focus(); // Return focus to trigger
+});</code></pre>
+        <div class="note" style="margin-top:.3rem;font-size:.76rem;">
+          <code>inert</code> removes the need to set <code>tabindex="-1"</code> on every focusable child, toggle <code>aria-hidden</code>, and set <code>pointer-events: none</code>. One attribute replaces all of that.
+        </div>
+        <div class="tip" style="font-size:.76rem;">
+          <strong>Browser support:</strong> All modern browsers. <a href="https://caniuse.com/mdn-html_global_attributes_inert" target="_blank" rel="noopener">caniuse.com/inert</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════ SLIDE 23: dialog element -->
+<div class="slide">
+  <p class="slide-label">Accessibility — Native &lt;dialog&gt;</p>
+  <div class="slide-content">
+    <span class="part-badge a11y">♿ Web Accessibility</span>
+    <h2>The Native <code>&lt;dialog&gt;</code> Element</h2>
+    <p style="font-size:.84rem;margin-bottom:.2rem;"><strong>Building a popup correctly is harder than it looks.</strong> Before the native <code>&lt;dialog&gt;</code> element, developers had to manually: trap Tab and Shift+Tab inside the popup, close it on Escape, move focus to the first item inside when it opened, return focus back to the button that opened it when it closed, add <code>role="dialog"</code> and <code>aria-modal="true"</code> so screen readers knew what it was, and prevent the page from scrolling in the background. Miss any one of those steps and keyboard or screen reader users get stuck. The native <code>&lt;dialog&gt;</code> element handles all of this automatically with a single method call: <code>showModal()</code>.</p>
+    <!-- Syntax table -->
+    <table style="width:100%;border-collapse:collapse;font-size:.7rem;margin-bottom:.4rem;">
+      <thead><tr style="background:rgba(0,0,0,.3);">
+        <th style="padding:.22rem .45rem;text-align:left;border:1px solid rgba(255,255,255,.15);">Piece</th>
+        <th style="padding:.22rem .45rem;text-align:left;border:1px solid rgba(255,255,255,.15);">What it does</th>
+        <th style="padding:.22rem .45rem;text-align:left;border:1px solid rgba(255,255,255,.15);">Example</th>
+      </tr></thead>
+      <tbody>
+        <tr style="background:rgba(255,255,255,.04);">
+          <td style="padding:.2rem .45rem;border:1px solid rgba(255,255,255,.1);font-family:monospace;">&lt;dialog&gt;</td>
+          <td style="padding:.2rem .45rem;border:1px solid rgba(255,255,255,.1);">The element itself — hidden until opened</td>
+          <td style="padding:.2rem .45rem;border:1px solid rgba(255,255,255,.1);font-family:monospace;opacity:.85;">&lt;dialog id="confirm"&gt;…&lt;/dialog&gt;</td>
+        </tr>
+        <tr>
+          <td style="padding:.2rem .45rem;border:1px solid rgba(255,255,255,.1);font-family:monospace;">showModal()</td>
+          <td style="padding:.2rem .45rem;border:1px solid rgba(255,255,255,.1);">Opens as a modal — traps focus, adds dark backdrop, Esc closes</td>
+          <td style="padding:.2rem .45rem;border:1px solid rgba(255,255,255,.1);font-family:monospace;opacity:.85;">dialog.showModal()</td>
+        </tr>
+        <tr style="background:rgba(255,255,255,.04);">
+          <td style="padding:.2rem .45rem;border:1px solid rgba(255,255,255,.1);font-family:monospace;">close(value)</td>
+          <td style="padding:.2rem .45rem;border:1px solid rgba(255,255,255,.1);">Closes it; optional string records <em>why</em> it closed</td>
+          <td style="padding:.2rem .45rem;border:1px solid rgba(255,255,255,.1);font-family:monospace;opacity:.85;">dialog.close("deleted")</td>
+        </tr>
+        <tr>
+          <td style="padding:.2rem .45rem;border:1px solid rgba(255,255,255,.1);font-family:monospace;">returnValue</td>
+          <td style="padding:.2rem .45rem;border:1px solid rgba(255,255,255,.1);">The string passed to <code>close()</code> — read it in the close event</td>
+          <td style="padding:.2rem .45rem;border:1px solid rgba(255,255,255,.1);font-family:monospace;opacity:.85;">dialog.returnValue → "deleted"</td>
+        </tr>
+        <tr style="background:rgba(255,255,255,.04);">
+          <td style="padding:.2rem .45rem;border:1px solid rgba(255,255,255,.1);font-family:monospace;">"close" event</td>
+          <td style="padding:.2rem .45rem;border:1px solid rgba(255,255,255,.1);">Fires every time the dialog closes — the place to react</td>
+          <td style="padding:.2rem .45rem;border:1px solid rgba(255,255,255,.1);font-family:monospace;opacity:.85;">dialog.addEventListener('close', fn)</td>
+        </tr>
+        <tr>
+          <td style="padding:.2rem .45rem;border:1px solid rgba(255,255,255,.1);font-family:monospace;">dialog::backdrop</td>
+          <td style="padding:.2rem .45rem;border:1px solid rgba(255,255,255,.1);">CSS pseudo-element — style the dark overlay behind the dialog</td>
+          <td style="padding:.2rem .45rem;border:1px solid rgba(255,255,255,.1);font-family:monospace;opacity:.85;">dialog::backdrop { background: … }</td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="two-col">
+      <div>
+        <h3>Putting it all together</h3>
+        <pre style="font-size:.64rem;"><code>&lt;!-- 1. The button that opens the dialog --&gt;
+&lt;button id="openBtn"&gt;Delete photo&lt;/button&gt;
+
+&lt;!-- 2. The dialog — hidden until showModal() --&gt;
+&lt;dialog id="myDialog"&gt;
+  &lt;h2&gt;Confirm Delete&lt;/h2&gt;
+  &lt;p&gt;This cannot be undone.&lt;/p&gt;
+  &lt;button id="cancelBtn"&gt;Cancel&lt;/button&gt;
+  &lt;button id="deleteBtn"&gt;Delete&lt;/button&gt;
+&lt;/dialog&gt;
+
+&lt;script&gt;
+const dialog = document.getElementById('myDialog');
+
+// 3. Open it — one line does everything
+document.getElementById('openBtn').addEventListener('click', () =&gt; {
+  dialog.showModal();
+  // ✓ Screen reader: "Confirm Delete, dialog"
+  // ✓ Focus moves inside automatically
+  // ✓ Tab trapped — can't reach background page
+  // ✓ Esc key closes it
+});
+
+// 4. Close with a reason
+document.getElementById('cancelBtn').addEventListener('click', () =&gt; {
+  dialog.close('cancelled');
+  // ✓ Focus returns to #openBtn automatically
+});
+document.getElementById('deleteBtn').addEventListener('click', () =&gt; {
+  dialog.close('deleted');
+});
+
+// 5. React to the close event
+dialog.addEventListener('close', () =&gt; {
+  console.log(dialog.returnValue); // "cancelled" or "deleted"
+});
+&lt;/script&gt;
+
+&lt;!-- 6. Style the dark overlay in CSS --&gt;
+&lt;style&gt;
+dialog::backdrop {
+  background: rgba(0, 0, 0, 0.6);
+}
+&lt;/style&gt;</code></pre>
+      </div>
+      <div>
+        <h3>Try it Live</h3>
+        <p style="font-size:.76rem;margin-bottom:.22rem;">Work through these steps to see every piece in action:</p>
+        <ol style="font-size:.75rem;line-height:1.8;margin-left:1.1rem;margin-bottom:.3rem;">
+          <li>Click <strong>Open Dialog Demo</strong> — notice focus jumps inside</li>
+          <li>Press <kbd class="kbd">Tab</kbd> — it cycles between Cancel and Delete only (trapped)</li>
+          <li>Press <kbd class="kbd">Esc</kbd> — the dialog closes, watch the result below</li>
+          <li>Open it again, click <strong>Delete</strong> — see the <code>returnValue</code> change</li>
+        </ol>
+        <dialog class="demo-dialog" id="demoDialog">
+          <h3>Confirm Delete</h3>
+          <p>Are you sure? This action cannot be undone.</p>
+          <div class="demo-dialog-btns">
+            <button class="demo-btn" onclick="document.getElementById('demoDialog').close('cancelled')">Cancel</button>
+            <button class="demo-btn active" onclick="document.getElementById('demoDialog').close('deleted')">Delete</button>
+          </div>
+        </dialog>
+        <button class="demo-btn active" style="margin-top:.1rem;" onclick="document.getElementById('demoDialog').showModal()">Open Dialog Demo</button>
+        <div id="dialogResult" style="font-size:.76rem;margin-top:.28rem;min-height:1.2em;opacity:.85;"></div>
+        <div class="note" style="margin-top:.3rem;font-size:.74rem;"><strong>What you get for free:</strong> focus trapping, Esc to close, focus return, backdrop, and the right accessibility role — all from one <code>showModal()</code> call.</div>
+      </div>
+    </div>
+    <script>
+    document.getElementById('demoDialog').addEventListener('close', function() {
+      document.getElementById('dialogResult').textContent =
+        this.returnValue ? 'Closed with: ' + this.returnValue : 'Dismissed (Escape or Cancel)';
+    });
+    </script>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════ SLIDE 24: dialog CodePen -->
+<div class="slide">
+  <p class="slide-label">CodePen — 17.4</p>
+  <div class="slide-content" style="min-height:0;">
+    <p class="demo-label">Codepen 17.4 — Native &lt;dialog&gt; Element</p>
+    <div class="demo-wrap">
+      <iframe title="Codepen 17.4 — dialog" src="https://codepen.io/mattkearl/embed/wBzMMZP?default-tab=css%2Cresult&editable=true" loading="lazy"></iframe>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════ SLIDE 25: aria-live -->
+<div class="slide">
+  <p class="slide-label">Accessibility — Live Regions</p>
+  <div class="slide-content">
+    <span class="part-badge a11y">♿ Web Accessibility</span>
+    <h2>Live Regions with <code>aria-live</code></h2>
+    <p style="font-size:.84rem;margin-bottom:.2rem;"><strong>Imagine ordering food delivery with your eyes closed.</strong> You submit the order, and 30 seconds later the page updates to say "Order confirmed! Arriving in 25 minutes." But nobody told you. You're still sitting there wondering if it worked. That's the experience of a blind user on most websites — content updates happen visually, but screen readers only announce things when focus moves. If focus doesn't move, the update is silent. <code>aria-live</code> fixes this by telling the browser: <em>"watch this region — whenever the text inside it changes, read it aloud immediately, even if focus didn't move."</em></p>
+    <p style="font-size:.82rem;margin-bottom:.3rem;">Use it for: form success/error messages, chat notifications, cart updates, loading states, search results — anywhere content updates without a page reload.</p>
+
+    <!-- Syntax table -->
+    <table style="width:100%;border-collapse:collapse;font-size:.7rem;margin-bottom:.4rem;">
+      <thead><tr style="background:rgba(0,0,0,.3);">
+        <th style="padding:.22rem .45rem;text-align:left;border:1px solid rgba(255,255,255,.15);">Syntax</th>
+        <th style="padding:.22rem .45rem;text-align:left;border:1px solid rgba(255,255,255,.15);">What it does</th>
+        <th style="padding:.22rem .45rem;text-align:left;border:1px solid rgba(255,255,255,.15);">When to use it</th>
+      </tr></thead>
+      <tbody>
+        <tr style="background:rgba(255,255,255,.04);">
+          <td style="padding:.2rem .45rem;border:1px solid rgba(255,255,255,.1);font-family:monospace;">aria-live="polite"</td>
+          <td style="padding:.2rem .45rem;border:1px solid rgba(255,255,255,.1);">Waits for screen reader to finish, then announces</td>
+          <td style="padding:.2rem .45rem;border:1px solid rgba(255,255,255,.1);">Success messages, cart updates, search results</td>
+        </tr>
+        <tr>
+          <td style="padding:.2rem .45rem;border:1px solid rgba(255,255,255,.1);font-family:monospace;">aria-live="assertive"</td>
+          <td style="padding:.2rem .45rem;border:1px solid rgba(255,255,255,.1);">Interrupts immediately — reads now, no waiting</td>
+          <td style="padding:.2rem .45rem;border:1px solid rgba(255,255,255,.1);">Blocking errors only — use sparingly</td>
+        </tr>
+        <tr style="background:rgba(255,255,255,.04);">
+          <td style="padding:.2rem .45rem;border:1px solid rgba(255,255,255,.1);font-family:monospace;">aria-live="off"</td>
+          <td style="padding:.2rem .45rem;border:1px solid rgba(255,255,255,.1);">Never announce changes (the default)</td>
+          <td style="padding:.2rem .45rem;border:1px solid rgba(255,255,255,.1);">Areas you don't want read aloud</td>
+        </tr>
+        <tr>
+          <td style="padding:.2rem .45rem;border:1px solid rgba(255,255,255,.1);font-family:monospace;">role="status"</td>
+          <td style="padding:.2rem .45rem;border:1px solid rgba(255,255,255,.1);">Shorthand for <code>aria-live="polite"</code></td>
+          <td style="padding:.2rem .45rem;border:1px solid rgba(255,255,255,.1);">Non-urgent status messages</td>
+        </tr>
+        <tr style="background:rgba(255,255,255,.04);">
+          <td style="padding:.2rem .45rem;border:1px solid rgba(255,255,255,.1);font-family:monospace;">role="alert"</td>
+          <td style="padding:.2rem .45rem;border:1px solid rgba(255,255,255,.1);">Shorthand for <code>aria-live="assertive"</code></td>
+          <td style="padding:.2rem .45rem;border:1px solid rgba(255,255,255,.1);">Error messages — reads immediately</td>
+        </tr>
+        <tr>
+          <td style="padding:.2rem .45rem;border:1px solid rgba(255,255,255,.1);font-family:monospace;">aria-atomic="true"</td>
+          <td style="padding:.2rem .45rem;border:1px solid rgba(255,255,255,.1);">Read the entire region, not just the changed part</td>
+          <td style="padding:.2rem .45rem;border:1px solid rgba(255,255,255,.1);">Counters, timers — context matters</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="two-col">
+      <div>
+        <h3>The pattern — always set it up in HTML first</h3>
+        <pre style="font-size:.66rem;"><code>&lt;!-- ✗ Wrong — added aria-live AFTER update; too late --&gt;
+&lt;p id="msg"&gt;&lt;/p&gt;
+&lt;script&gt;
+  msg.setAttribute('aria-live', 'polite'); // ignored
+  msg.textContent = 'Order confirmed!';    // silent
+&lt;/script&gt;
+
+&lt;!-- ✓ Correct — aria-live is in the HTML from the start --&gt;
+&lt;p id="msg" aria-live="polite"&gt;&lt;/p&gt;
+&lt;script&gt;
+  // Now any text change is announced automatically
+  msg.textContent = 'Order confirmed! Arriving in 25 min.';
+  // Screen reader: "Order confirmed! Arriving in 25 min." ✓
+&lt;/script&gt;
+
+&lt;!-- ✓ For errors — role="alert" interrupts immediately --&gt;
+&lt;p id="err" role="alert"&gt;&lt;/p&gt;
+&lt;script&gt;
+  err.textContent = 'Card number is invalid.';
+  // Screen reader interrupts and reads this right now ✓
+&lt;/script&gt;</code></pre>
+        <div class="note" style="font-size:.74rem;margin-top:.25rem;"><strong>Key rule:</strong> the live region must exist in the HTML <em>before</em> you update it. Add <code>aria-live</code> to an empty element at page load — the announcement fires when you add text later.</div>
+      </div>
+      <div>
+        <h3>Interactive Demo</h3>
+        <p style="font-size:.75rem;margin-bottom:.2rem;">Each box below is a live region. Use a screen reader (macOS: <kbd class="kbd">Cmd+F5</kbd> for VoiceOver) to hear the difference, or just watch the text appear:</p>
+        <ol style="font-size:.74rem;line-height:1.7;margin-left:1rem;margin-bottom:.25rem;">
+          <li>Click <strong>Trigger status update</strong> — polite waits its turn to announce</li>
+          <li>Click <strong>Trigger error alert</strong> — assertive interrupts immediately</li>
+          <li>Click <strong>Clear both</strong> to reset and try again</li>
+        </ol>
+        <div class="lreg-box polite" id="lregPolite">
+          <div class="lreg-lbl">aria-live="polite" — waits to announce</div>
+          <div id="lregPoliteMsg" style="opacity:.7;font-size:.78rem;">Waiting for update…</div>
+        </div>
+        <div class="lreg-box assertive" id="lregAssertive" style="margin-top:.3rem;">
+          <div class="lreg-lbl">role="alert" — interrupts immediately</div>
+          <div id="lregAssertiveMsg" style="opacity:.7;font-size:.78rem;">No errors yet…</div>
+        </div>
+        <div style="display:flex;gap:.4rem;flex-wrap:wrap;margin-top:.3rem;">
+          <button class="demo-btn" onclick="triggerLive('polite')">Trigger status update</button>
+          <button class="demo-btn" onclick="triggerLive('assertive')">Trigger error alert</button>
+          <button class="demo-btn" onclick="triggerLive('clear')">Clear both</button>
+        </div>
+        <div class="caution" style="margin-top:.25rem;font-size:.73rem;"><strong>Don't overuse assertive/alert.</strong> Interrupting the screen reader mid-sentence is disorienting. Reserve it for errors that <em>block the user from continuing</em>.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════ SLIDE 26: Skip Nav -->
+<div class="slide">
+  <p class="slide-label">Accessibility — Skip Navigation</p>
+  <div class="slide-content">
+    <span class="part-badge a11y">♿ Web Accessibility</span>
+    <h2>Skip Navigation Links</h2>
+    <p style="font-size:.84rem;margin-bottom:.2rem;"><strong>Imagine visiting ESPN every morning to check scores.</strong> ESPN's navigation has around 40 links before you reach the first headline. If you're using a keyboard, that's <em>40 Tab presses just to get to the content</em> — every single page load, every single day. A skip link is the very first thing on the page. It's invisible to mouse users (it's off-screen until focused), but when a keyboard user presses Tab, it appears: <em>"Skip to main content."</em> Press Enter and they jump straight to the article, past all 40 nav links. One keypress instead of forty. <strong>WCAG 2.4.1 (Level A) requires this</strong> — it's one of the most impactful accessibility features you can add, and it takes about 10 lines of HTML and CSS.</p>
+    <div class="two-col">
+      <div>
+        <h3>Implementation</h3>
+        <pre><code>&lt;!-- First element in &lt;body&gt; --&gt;
+&lt;a class="skip-link" href="#main"&gt;
+  Skip to main content
+&lt;/a&gt;
+
+&lt;header&gt;...navigation...&lt;/header&gt;
+
+&lt;main id="main" tabindex="-1"&gt;
+  &lt;!-- Page content --&gt;
+&lt;/main&gt;</code></pre>
+        <pre><code>/* Hidden by default; visible on focus */
+.skip-link {
+  position: absolute;
+  top: -100%;
+  left: 0;
+  background: #4f6df5;
+  color: white;
+  padding: 0.75rem 1.5rem;
+  font-weight: 600;
+  z-index: 9999;
+  transition: top 0.1s;
+}
+.skip-link:focus { top: 0; }</code></pre>
+      </div>
+      <div>
+        <h3>Live Demo — Tab to reveal skip link</h3>
+        <p style="font-size:.76rem;margin-bottom:.28rem;">Simulate what a keyboard user experiences:</p>
+        <div class="skipnav-sim">
+          <a href="#snMain" class="sn-skip" id="skipLink" onclick="activateSkipLink(event)">Skip to main content</a>
+          <div class="sn-header">
+            <span class="sn-link" id="sn0">Logo</span>
+            <span class="sn-link" id="sn1">Home</span>
+            <span class="sn-link" id="sn2">About</span>
+            <span class="sn-link" id="sn3">Services</span>
+            <span class="sn-link" id="sn4">Blog</span>
+            <span class="sn-link" id="sn5">Contact</span>
+          </div>
+          <div class="sn-main" id="snMain">
+            <strong style="color:#ffeaa7;">Main Content</strong>
+            <p style="font-size:.72rem;margin-top:.18rem;opacity:.8;">Without the skip link, a keyboard user would Tab through all 6 nav items before reaching here.</p>
+          </div>
+        </div>
+        <div style="display:flex;gap:.4rem;flex-wrap:wrap;margin-top:.3rem;">
+          <button class="demo-btn" onclick="showSkipLink()">Show skip link (Tab press)</button>
+          <button class="demo-btn" onclick="activateSkipLink(null)">Activate skip link</button>
+          <button class="demo-btn" onclick="resetSkipDemo()">Reset</button>
+        </div>
+        <img src="assets/day-17-img-02-skip-nav.png" alt="Skip navigation link appearing at top of page when focused" class="slide-img" style="width:100%;margin-top:.3rem;" onerror="this.style.display='none'">
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════ SLIDE 27: Common Mistakes -->
+<div class="slide">
+  <p class="slide-label">Accessibility — Common Mistakes</p>
+  <div class="slide-content">
+    <span class="part-badge a11y">♿ Web Accessibility</span>
+    <h2>Common Accessibility Mistakes</h2>
+    <p>The WebAIM Million report audits the top 1 million websites every year. In 2024, <strong>95.9% of home pages had detectable WCAG failures</strong>. These eight mistakes cause the majority of them — and every one has a fast fix:</p>
+    <div class="mistakes-grid">
+      <div class="mistake">
+        <strong>❌ Missing alt text</strong>
+        <pre style="font-size:.64rem;margin:.2rem 0;"><code>&lt;img src="dog.jpg"&gt;             &lt;!-- ✗ reads filename --&gt;
+&lt;img src="dog.jpg" alt=""&gt;       &lt;!-- ✓ decorative, skip --&gt;
+&lt;img src="dog.jpg"
+     alt="Golden retriever puppy running on a beach"&gt; &lt;!-- ✓ --&gt;</code></pre>
+      </div>
+      <div class="mistake">
+        <strong>❌ Low color contrast</strong>
+        Requires 4.5:1 ratio for body text (AA). Light gray on white fails.
+        <pre style="font-size:.64rem;margin:.2rem 0;"><code>color: #aaaaaa;  /* on white bg — ratio 2.3:1 ✗ */
+color: #767676;  /* on white bg — ratio 4.5:1 ✓ */</code></pre>
+        Check any pair at <a href="https://webaim.org/resources/contrastchecker/" target="_blank" rel="noopener">webaim.org/resources/contrastchecker</a>
+      </div>
+      <div class="mistake">
+        <strong>❌ Removing focus outlines</strong>
+        <pre style="font-size:.64rem;margin:.2rem 0;"><code>*:focus { outline: none; }  /* ✗ keyboard users are blind */
+
+/* ✓ style it instead */
+:focus-visible {
+  outline: 3px solid #4f6df5;
+  outline-offset: 2px;
+}</code></pre>
+      </div>
+      <div class="mistake">
+        <strong>❌ Interactive divs and spans</strong>
+        <pre style="font-size:.64rem;margin:.2rem 0;"><code>&lt;div onclick="buy()"&gt;Buy Now&lt;/div&gt; &lt;!-- ✗ can't Tab --&gt;
+&lt;button onclick="buy()"&gt;Buy Now&lt;/button&gt; &lt;!-- ✓ --&gt;
+
+&lt;span onclick="go('/home')"&gt;Home&lt;/span&gt; &lt;!-- ✗ --&gt;
+&lt;a href="/home"&gt;Home&lt;/a&gt;               &lt;!-- ✓ --&gt;</code></pre>
+      </div>
+      <div class="mistake">
+        <strong>❌ Inputs without labels</strong>
+        <pre style="font-size:.64rem;margin:.2rem 0;"><code>&lt;input placeholder="Email"&gt; &lt;!-- ✗ disappears on type --&gt;
+
+&lt;label for="email"&gt;Email address&lt;/label&gt;
+&lt;input id="email" type="email"&gt;   &lt;!-- ✓ always visible --&gt;</code></pre>
+      </div>
+      <div class="mistake">
+        <strong>❌ Inaccessible modals</strong>
+        <pre style="font-size:.64rem;margin:.2rem 0;"><code>&lt;!-- ✗ Custom div modal — focus leaks, Esc broken --&gt;
+&lt;div class="modal"&gt;...&lt;/div&gt;
+
+&lt;!-- ✓ Native dialog — focus trapped, Esc works free --&gt;
+&lt;dialog id="modal"&gt;...&lt;/dialog&gt;
+document.getElementById('modal').showModal();</code></pre>
+      </div>
+      <div class="mistake">
+        <strong>❌ Autoplaying video or audio</strong>
+        Competes with screen reader audio. Triggers seizures for some users.
+        <pre style="font-size:.64rem;margin:.2rem 0;"><code>&lt;video autoplay src="..."&gt;&lt;/video&gt;  &lt;!-- ✗ --&gt;
+&lt;video src="..." controls&gt;&lt;/video&gt;  &lt;!-- ✓ user controls it --&gt;</code></pre>
+      </div>
+      <div class="mistake">
+        <strong>❌ Vague link text</strong>
+        Screen readers list all links on a page. 15 "Read more" links = unusable.
+        <pre style="font-size:.64rem;margin:.2rem 0;"><code>&lt;a href="/report"&gt;Read more&lt;/a&gt;  &lt;!-- ✗ --&gt;
+&lt;a href="/report"&gt;Download 2024 Annual Report (PDF)&lt;/a&gt; &lt;!-- ✓ --&gt;</code></pre>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════ SLIDE 28: Testing Tools -->
+<div class="slide">
+  <p class="slide-label">Accessibility — Testing Tools</p>
+  <div class="slide-content">
+    <span class="part-badge a11y">♿ Web Accessibility</span>
+    <h2>Accessibility Testing Tools</h2>
+    <p>Think of accessibility testing like proofreading. Spell-check catches obvious typos instantly — but a human reader finds the sentences that are grammatically correct yet completely confusing. Automated tools are the spell-checker: fast, essential, but not the whole story.</p>
+    <div class="tip" style="margin-bottom:.3rem;font-size:.82rem;"><strong>Why tools only catch 30–40% of issues:</strong> A tool can check if an image <em>has</em> alt text. It can't check if the alt text is <em>useful</em>. <code>alt="image"</code> passes the automated test but is completely useless. Tools can't check whether the reading order makes sense, whether your form is confusing, or whether a screen reader announcement is jarring. That's why the last step is always testing with a real screen reader — you need to <em>hear</em> what your users hear.</div>
+    <div class="two-col">
+      <div>
+        <div class="tool-grid" style="grid-template-columns:1fr;">
+          <div class="tool-card">
+            <strong>🔦 Lighthouse (Chrome/Edge DevTools)</strong>
+            <span>DevTools → Lighthouse tab → run Accessibility audit. Scores 0–100 and lists failing criteria with explanations.</span>
+            <a href="https://developer.chrome.com/docs/lighthouse/accessibility/scoring" target="_blank" rel="noopener">Lighthouse accessibility scoring →</a>
+          </div>
+          <div class="tool-card">
+            <strong>🪓 axe DevTools (Deque)</strong>
+            <span>The most widely used professional tool. Browser extension. Finds issues Lighthouse misses, with detailed remediation guidance.</span>
+            <a href="https://www.deque.com/axe/devtools/" target="_blank" rel="noopener">deque.com/axe/devtools →</a>
+          </div>
+          <div class="tool-card">
+            <strong>🌊 WAVE (WebAIM)</strong>
+            <span>Overlays accessibility info directly on your page — structure, labeling, contrast, alerts — all visible in context. Great for learning.</span>
+            <a href="https://wave.webaim.org/" target="_blank" rel="noopener">wave.webaim.org →</a>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div style="display:flex;gap:.5rem;align-items:flex-start;">
+          <div style="flex:1;">
+            <img src="assets/day-17-img-03-wave.png" alt="WAVE accessibility evaluation tool showing overlaid accessibility annotations on a web page" class="slide-img" onerror="this.style.display='none'">
+            <p class="img-caption">WAVE — overlays errors &amp; labels on the page</p>
+          </div>
+          <div style="flex:1;">
+            <img src="assets/day-17-img-04-axe-devtools.png" alt="axe DevTools browser extension showing accessibility violations in the DevTools panel" class="slide-img" onerror="this.style.display='none'">
+            <p class="img-caption">axe DevTools — detailed violation reports</p>
+          </div>
+        </div>
+        <div class="note" style="margin-top:.3rem;">
+          <strong>Run your first audit right now:</strong><br>
+          1. Open any page in Chrome<br>
+          2. Press <kbd class="kbd">F12</kbd> → click <strong>Lighthouse</strong> tab<br>
+          3. Check <strong>Accessibility</strong> → click <strong>Analyze page load</strong><br>
+          4. Read the failing items — each one tells you exactly what to fix<br><br>
+          Then install the <strong>axe DevTools</strong> extension for deeper issues Lighthouse misses.
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════ SLIDE 29: Screen Readers -->
+<div class="slide">
+  <p class="slide-label">Accessibility — Screen Readers</p>
+  <div class="slide-content">
+    <span class="part-badge a11y">♿ Web Accessibility</span>
+    <h2>Testing with Screen Readers</h2>
+    <p style="font-size:.84rem;margin-bottom:.2rem;"><strong>The most important test you can do takes 10 minutes:</strong> Turn on VoiceOver (Mac: <kbd class="kbd">⌘F5</kbd>), close your eyes, and try to use your own website. You'll hear your page read aloud — element by element, in order, with no visual context. This is the moment students realize: <em>"Oh. That button with just an X icon just said 'button.' That's terrible."</em> or <em>"The form error message appeared but I had no idea because focus never moved to it."</em> No automated tool reveals this. Only listening does.</p>
+    <p>Screen readers turn your visual design into an audio experience. <strong>If it sounds confusing, it is confusing</strong> — for millions of real users.</p>
+    <div class="sr-grid" style="margin-bottom:.35rem;">
+      <div class="sr-card">
+        <strong>VoiceOver</strong>
+        <div class="sr-plat">macOS · iOS · iPadOS</div>
+        <div class="sr-info">Built-in. Activate: <kbd class="kbd">⌘F5</kbd> on Mac. Navigate with Tab, arrows, and <kbd class="kbd">⌃⌥</kbd> combos.</div>
+      </div>
+      <div class="sr-card">
+        <strong>NVDA</strong>
+        <div class="sr-plat">Windows — Free</div>
+        <div class="sr-info">Download from <a href="https://www.nvaccess.org/" target="_blank" rel="noopener">nvaccess.org</a>. Most common free screen reader. Use with Firefox or Chrome.</div>
+      </div>
+      <div class="sr-card">
+        <strong>JAWS</strong>
+        <div class="sr-plat">Windows — Commercial</div>
+        <div class="sr-info">Most widely used by blind professionals. Commercial license. <a href="https://www.freedomscientific.com/products/software/jaws/" target="_blank" rel="noopener">freedomscientific.com</a></div>
+      </div>
+      <div class="sr-card">
+        <strong>TalkBack</strong>
+        <div class="sr-plat">Android — Built-in</div>
+        <div class="sr-info">Settings → Accessibility → TalkBack. Swipe to navigate. Double-tap to activate.</div>
+      </div>
+    </div>
+    <div class="note">
+      <strong>Quick VoiceOver test (Mac):</strong> Press <kbd class="kbd">⌘F5</kbd> to start VoiceOver. Press <kbd class="kbd">⌃⌥→</kbd> to move through items. Try tabbing through your form — if the announcements are confusing, so is your form.
+    </div>
+    <div class="two-col" style="margin-top:.35rem;">
+      <div class="card">
+        <strong style="color:#ffeaa7;">VoiceOver quick start (Mac — built in, free)</strong>
+        <table class="cmp" style="font-size:.74rem;margin-top:.3rem;">
+          <tr><th>Action</th><th>Keys</th></tr>
+          <tr><td>Turn on/off</td><td><kbd class="kbd">⌘F5</kbd></td></tr>
+          <tr><td>Next item</td><td><kbd class="kbd">⌃⌥→</kbd></td></tr>
+          <tr><td>Previous item</td><td><kbd class="kbd">⌃⌥←</kbd></td></tr>
+          <tr><td>Activate (click)</td><td><kbd class="kbd">⌃⌥Space</kbd></td></tr>
+          <tr><td>List all headings</td><td><kbd class="kbd">⌃⌥U</kbd> then H</td></tr>
+          <tr><td>List all links</td><td><kbd class="kbd">⌃⌥U</kbd> then L</td></tr>
+          <tr><td>Stop reading</td><td><kbd class="kbd">⌃</kbd></td></tr>
+        </table>
+      </div>
+      <div class="card">
+        <strong style="color:#81ecec;">What to check while listening</strong>
+        <ul style="font-size:.78rem;margin-top:.2rem;margin-left:1rem;line-height:1.7;">
+          <li>Does every button and link have a <em>useful</em> label? (not just "button" or "link")</li>
+          <li>Can you tell what each form field is asking for?</li>
+          <li>When an error appears, is it announced?</li>
+          <li>When a modal opens, does focus move inside it?</li>
+          <li>Can you navigate by headings and landmarks?</li>
+          <li>Does the reading order make sense without seeing the layout?</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════ SLIDE 30: Testing CodePen -->
+<div class="slide">
+  <p class="slide-label">CodePen — 17.5</p>
+  <div class="slide-content" style="min-height:0;">
+    <p class="demo-label">Codepen 17.5 — Accessibility Patterns in Action</p>
+    <div class="demo-wrap">
+      <iframe title="Codepen 17.5 — Accessibility" src="https://codepen.io/mattkearl/embed/YPGwwoG?default-tab=css%2Cresult&editable=true" loading="lazy"></iframe>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════ SLIDE 31: Summary CSS -->
+<div class="slide">
+  <p class="slide-label">Summary — Part 1</p>
+  <div class="slide-content">
+    <span class="part-badge css">⬡ CSS Features</span>
+    <h2>Summary: Modern CSS</h2>
+    <div class="summary-grid">
+      <div class="summary-card">
+        <strong>CSS Nesting</strong>
+        Keep related styles co-located using the <code>&amp;</code> selector. Works natively in all modern browsers — no Sass required. Nest media queries too.
+      </div>
+      <div class="summary-card">
+        <strong>:has() — Parent Selector</strong>
+        Style a parent or ancestor based on its descendants. Replaces significant amounts of JavaScript that used to conditionally apply styles.
+      </div>
+      <div class="summary-card">
+        <strong>:is() and :where()</strong>
+        Both reduce repetitive selector lists. <code>:is()</code> keeps specificity; <code>:where()</code> has zero specificity — perfect for base/reset styles.
+      </div>
+      <div class="summary-card">
+        <strong>@layer Cascade Layers</strong>
+        Declare named buckets; later layers win regardless of specificity. Import third-party CSS into a layer so it can never override your code.
+      </div>
+      <div class="summary-card">
+        <strong>Dark Mode Theming</strong>
+        Use CSS custom properties + <code>prefers-color-scheme</code> for the most flexible approach. <code>light-dark()</code> for concise single-line theming. <code>color-mix()</code> for dynamic tints.
+      </div>
+      <div class="summary-card">
+        <strong>@supports Queries</strong>
+        Progressive enhancement: write baseline CSS for all browsers, then layer advanced styles inside <code>@supports</code> for browsers that support them.
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════ SLIDE 32: Summary A11y -->
+<div class="slide">
+  <p class="slide-label">Summary — Part 2</p>
+  <div class="slide-content">
+    <span class="part-badge a11y">♿ Web Accessibility</span>
+    <h2>Summary: Web Accessibility</h2>
+    <div class="summary-grid">
+      <div class="summary-card">
+        <strong>Why It Matters</strong>
+        Legal (ADA, Section 508), ethical (1 billion people with disabilities), and business (better SEO, larger audience) reasons make accessibility non-optional.
+      </div>
+      <div class="summary-card">
+        <strong>WCAG + POUR</strong>
+        Target <strong>Level AA</strong>. Content must be Perceivable, Operable, Understandable, and Robust. Current standard: WCAG 2.2 (2023).
+      </div>
+      <div class="summary-card">
+        <strong>Accessibility Tree</strong>
+        The browser builds a semantic representation of your page. Semantic HTML (button, nav, main, h1–h6) makes this tree rich and correct — for free.
+      </div>
+      <div class="summary-card">
+        <strong>ARIA</strong>
+        First rule: don't use ARIA if native HTML works. When you do: roles identify elements, labels name them, states communicate current condition.
+      </div>
+      <div class="summary-card">
+        <strong>Focus &amp; Keyboard</strong>
+        All interactive elements must be Tab-reachable. Use <code>:focus-visible</code> for visible indicators. Use <code>inert</code> to trap focus in modals.
+      </div>
+      <div class="summary-card">
+        <strong>Testing</strong>
+        Lighthouse for scores, axe for deep violations, WAVE for visual review, then test with an actual screen reader (VoiceOver, NVDA, TalkBack).
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════ SLIDE 33: Q&A Part 1 -->
+<div class="slide">
+  <p class="slide-label">Q &amp; A — Part 1</p>
+  <div class="slide-content">
+    <h2>Q &amp; A</h2>
+    <dl>
+      <div class="card" style="margin-bottom:.45rem;">
+        <dt style="color:#ffeaa7;font-weight:700;">Q. Does CSS Nesting work the same as Sass/SCSS nesting?</dt>
+        <dd style="font-size:.86rem;opacity:.9;margin-top:.2rem;">Almost. Native CSS Nesting requires the <code>&amp;</code> selector or a nesting selector to identify descendent rules. Some older Sass patterns work in native CSS now too. The main difference is that native CSS computes selectors slightly differently in edge cases involving specificity and combinators — but for everyday usage, the syntax and behavior are effectively the same.</dd>
+      </div>
+      <div class="card" style="margin-bottom:.45rem;">
+        <dt style="color:#ffeaa7;font-weight:700;">Q. What's the difference between :is() and :where() in practice?</dt>
+        <dd style="font-size:.86rem;opacity:.9;margin-top:.2rem;">They work identically except for specificity. <code>:is(h1, h2)</code> has the specificity of <code>h1</code>. <code>:where(h1, h2)</code> has zero specificity. Use <code>:where()</code> in base/reset stylesheets where you want any specific selector to easily override the rule. Use <code>:is()</code> in component or utility styles where normal specificity behavior is expected.</dd>
+      </div>
+      <div class="card">
+        <dt style="color:#ffeaa7;font-weight:700;">Q. If ARIA only adds to the accessibility tree and doesn't add keyboard behavior, what handles keyboard interaction for custom widgets?</dt>
+        <dd style="font-size:.86rem;opacity:.9;margin-top:.2rem;">JavaScript. When you build a custom widget — a date picker, combobox, tab interface — you are responsible for implementing all keyboard interactions. The WAI-ARIA Authoring Practices Guide at <a href="https://www.w3.org/WAI/ARIA/apg/" target="_blank" rel="noopener">www.w3.org/WAI/ARIA/apg/</a> documents the expected keyboard behavior for every ARIA widget pattern. This is one of the strongest reasons to prefer native HTML elements: they come with keyboard behavior built in.</dd>
+      </div>
+    </dl>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════ SLIDE 34: Q&A Part 2 -->
+<div class="slide">
+  <p class="slide-label">Q &amp; A — Part 2</p>
+  <div class="slide-content">
+    <h2>Q &amp; A (continued)</h2>
+    <dl>
+      <div class="card" style="margin-bottom:.45rem;">
+        <dt style="color:#ffeaa7;font-weight:700;">Q. Is using a CSS variable for theming the same as using light-dark()?</dt>
+        <dd style="font-size:.86rem;opacity:.9;margin-top:.2rem;">They achieve the same result but differently. The CSS custom properties approach — defining tokens on <code>:root</code> and overriding in a media query — is more explicit and controllable. You can also toggle dark mode via a class (useful for user-controlled theme switching). <code>light-dark()</code> is more concise and automatic but relies solely on the OS preference and is harder to override with a manual toggle. For most production sites, the custom properties approach is recommended.</dd>
+      </div>
+      <div class="card">
+        <dt style="color:#ffeaa7;font-weight:700;">Q. How do I implement a "dark mode toggle" button that overrides the OS setting?</dt>
+        <dd style="font-size:.86rem;opacity:.9;margin-top:.2rem;">Store the user's preference in <code>localStorage</code>, then add <code>data-theme="dark"</code> to the <code>&lt;html&gt;</code> element. In CSS, define color tokens for both <code>@media (prefers-color-scheme: dark)</code> and <code>[data-theme="dark"]</code> — the manual class should come after so it wins. <strong>Critically:</strong> restore the preference from <code>localStorage</code> in a <code>&lt;script&gt;</code> tag in the <code>&lt;head&gt;</code> — before stylesheets load — to avoid a flash of the wrong theme on page load.</dd>
+      </div>
+    </dl>
+  </div>
+</div>
+
+</div><!-- end slideshow-container -->
+
+<nav class="nav">
+  <button class="nav-btn" id="prevBtn" aria-label="Previous slide">&#8592;</button>
+  <span class="nav-counter" id="counter">1 / 35</span>
+  <button class="nav-btn" id="nextBtn" aria-label="Next slide">&#8594;</button>
+</nav>
+
+<script>
+const slides = document.querySelectorAll('.slide');
+let current = 0;
+
+function showSlide(n) {
+  slides[current].classList.remove('active');
+  current = Math.max(0, Math.min(n, slides.length - 1));
+  slides[current].classList.add('active');
+  document.getElementById('progress').style.width = ((current + 1) / slides.length * 100) + '%';
+  document.getElementById('counter').textContent = (current + 1) + ' / ' + slides.length;
+  document.getElementById('prevBtn').disabled = current === 0;
+  document.getElementById('nextBtn').disabled = current === slides.length - 1;
+}
+
+document.getElementById('prevBtn').addEventListener('click', () => showSlide(current - 1));
+document.getElementById('nextBtn').addEventListener('click', () => showSlide(current + 1));
+document.addEventListener('keydown', e => {
+  if (e.key === 'ArrowRight' || e.key === 'ArrowDown') showSlide(current + 1);
+  if (e.key === 'ArrowLeft'  || e.key === 'ArrowUp')   showSlide(current - 1);
+});
+
+/* ── Dark mode demo (slide 10) ── */
+function toggleDarkDemo() {
+  const d = document.getElementById('darkDemo');
+  const b = document.getElementById('darkToggleBtn');
+  if (d.dataset.mode === 'light') { d.dataset.mode = 'dark'; b.textContent = '🌙 Dark'; }
+  else { d.dataset.mode = 'light'; b.textContent = '☀ Light'; }
+}
+
+/* ── ARIA accordion demo (slide 19) ── */
+function toggleAccordion() {
+  const btn    = document.getElementById('accBtn');
+  const panel  = document.getElementById('accPanel');
+  const tagExp = document.getElementById('attrExpanded');
+  const tagHid = document.getElementById('attrHidden');
+  const isOpen = btn.getAttribute('aria-expanded') === 'true';
+  btn.setAttribute('aria-expanded', String(!isOpen));
+  panel.classList.toggle('open', !isOpen);
+  tagExp.textContent = `aria-expanded="${!isOpen}"`;
+  tagExp.classList.toggle('on', !isOpen);
+  tagHid.textContent = `aria-hidden (panel): ${isOpen}`;
+  tagHid.classList.toggle('on', isOpen);
+}
+
+/* ── aria-live demo (slide 25) ── */
+const liveMessages = [
+  'Cart updated — 3 items, $47.99 total.',
+  'Saved successfully.',
+  'Loading complete — 12 results found.',
+  'Profile updated.',
+];
+const liveErrors = [
+  'Error: Card declined. Please check your payment details.',
+  'Session expired. Please sign in again.',
+  'Upload failed — file exceeds 5 MB limit.',
+];
+let liveMsgIdx = 0, liveErrIdx = 0;
+
+function triggerLive(type) {
+  if (type === 'clear') {
+    document.getElementById('lregPoliteMsg').textContent  = 'Waiting for update…';
+    document.getElementById('lregAssertiveMsg').textContent = 'No errors yet…';
+    document.getElementById('lregPoliteMsg').style.opacity = '.7';
+    document.getElementById('lregAssertiveMsg').style.opacity = '.7';
+    document.getElementById('lregPolite').classList.remove('flash');
+    document.getElementById('lregAssertive').classList.remove('flash');
+    return;
+  }
+  if (type === 'polite') {
+    const el  = document.getElementById('lregPoliteMsg');
+    const box = document.getElementById('lregPolite');
+    el.textContent = liveMessages[liveMsgIdx % liveMessages.length];
+    el.style.opacity = '1';
+    liveMsgIdx++;
+    box.classList.remove('flash');
+    void box.offsetWidth; // reflow to restart animation
+    box.classList.add('flash');
+  } else if (type === 'assertive') {
+    const el  = document.getElementById('lregAssertiveMsg');
+    const box = document.getElementById('lregAssertive');
+    el.textContent = liveErrors[liveErrIdx % liveErrors.length];
+    el.style.opacity = '1';
+    liveErrIdx++;
+    box.classList.remove('flash');
+    void box.offsetWidth;
+    box.classList.add('flash');
+  }
+}
+
+/* ── Skip nav demo (slide 26) ── */
+let snStep = 0;
+const snLinks = ['sn0','sn1','sn2','sn3','sn4','sn5'];
+
+function showSkipLink() {
+  resetSkipDemo();
+  document.getElementById('skipLink').classList.add('visible');
+  document.getElementById('sn0').classList.add('focused');
+  snStep = 0;
+}
+
+function activateSkipLink(e) {
+  if (e) e.preventDefault();
+  document.getElementById('skipLink').classList.remove('visible');
+  snLinks.forEach(id => document.getElementById(id).classList.remove('focused'));
+  const main = document.getElementById('snMain');
+  main.style.outline = '2px solid #ffeaa7';
+  main.style.background = 'rgba(255,234,116,.08)';
+  setTimeout(() => {
+    main.style.outline = '';
+    main.style.background = '';
+  }, 1600);
+}
+
+function resetSkipDemo() {
+  document.getElementById('skipLink').classList.remove('visible');
+  snLinks.forEach(id => document.getElementById(id).classList.remove('focused'));
+  const main = document.getElementById('snMain');
+  main.style.outline = '';
+  main.style.background = '';
+}
+
+showSlide(0);
+
+/* ── color-mix() interactive demo (slide 11) ── */
+let cmMixWith = 'white';
+function setCmMix(val) {
+  cmMixWith = val;
+  ['White','Black','Transparent'].forEach(x => {
+    const el = document.getElementById('cmBtn' + x);
+    if (el) el.classList.remove('active');
+  });
+  const map = { white: 'White', black: 'Black', transparent: 'Transparent' };
+  const btn = document.getElementById('cmBtn' + map[val]);
+  if (btn) btn.classList.add('active');
+  updateCmDemo();
+}
+function updateCmDemo() {
+  const base = document.getElementById('cmBase')?.value || '#4f6df5';
+  const pct  = document.getElementById('cmSlider')?.value ?? 40;
+  const lbl  = document.getElementById('cmPctLabel');
+  if (lbl) lbl.textContent = pct + '%';
+
+  const rs = document.getElementById('cmResultSwatch');
+  if (rs) {
+    rs.style.background = `color-mix(in srgb, ${base}, ${cmMixWith} ${pct}%)`;
+    rs.textContent = `color-mix(in srgb, ${base}, ${cmMixWith} ${pct}%)`;
+  }
+  const code = document.getElementById('cmCode');
+  if (code) code.textContent = `background: color-mix(in srgb, ${base}, ${cmMixWith} ${pct}%);`;
+
+  [0, 25, 50, 75, 100].forEach(p => {
+    const sw = document.getElementById('cmSw' + p);
+    if (!sw) return;
+    sw.style.background = p === 0 ? base : `color-mix(in srgb, ${base}, ${cmMixWith} ${p}%)`;
+    const light = (cmMixWith === 'white' && p >= 55) || (cmMixWith === 'transparent' && p >= 70);
+    sw.style.color = light ? 'rgba(0,0,0,.65)' : 'white';
+  });
+}
+updateCmDemo();
+</script>
+</body>
+</html>
